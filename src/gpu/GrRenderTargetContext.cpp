@@ -443,58 +443,6 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
     }
 }
 
-// Attempts to crop a rect and optional local rect to the clip boundaries.
-// Returns false if the draw can be skipped entirely.
-// FIXME to be removed once drawTexture et al are updated to use attemptQuadOptimization instead
-static bool crop_filled_rect(int width, int height, const GrClip& clip,
-                             const SkMatrix& viewMatrix, SkRect* rect,
-                             SkRect* localRect = nullptr) {
-    if (!viewMatrix.rectStaysRect()) {
-        return true;
-    }
-
-    SkIRect clipDevBounds;
-    SkRect clipBounds;
-
-    clip.getConservativeBounds(width, height, &clipDevBounds);
-    if (!SkMatrixPriv::InverseMapRect(viewMatrix, &clipBounds, SkRect::Make(clipDevBounds))) {
-        return false;
-    }
-
-    if (localRect) {
-        if (!rect->intersects(clipBounds)) {
-            return false;
-        }
-        // localRect is force-sorted after clipping, so this is a sanity check to make sure callers
-        // aren't intentionally using inverted local rectangles.
-        SkASSERT(localRect->isSorted());
-        const SkScalar dx = localRect->width() / rect->width();
-        const SkScalar dy = localRect->height() / rect->height();
-        if (clipBounds.fLeft > rect->fLeft) {
-            localRect->fLeft += (clipBounds.fLeft - rect->fLeft) * dx;
-            rect->fLeft = clipBounds.fLeft;
-        }
-        if (clipBounds.fTop > rect->fTop) {
-            localRect->fTop += (clipBounds.fTop - rect->fTop) * dy;
-            rect->fTop = clipBounds.fTop;
-        }
-        if (clipBounds.fRight < rect->fRight) {
-            localRect->fRight -= (rect->fRight - clipBounds.fRight) * dx;
-            rect->fRight = clipBounds.fRight;
-        }
-        if (clipBounds.fBottom < rect->fBottom) {
-            localRect->fBottom -= (rect->fBottom - clipBounds.fBottom) * dy;
-            rect->fBottom = clipBounds.fBottom;
-        }
-        // Ensure local coordinates remain sorted after clipping. If the original dstRect was very
-        // large, numeric precision can invert the localRect
-        localRect->sort();
-        return true;
-    }
-
-    return rect->intersect(clipBounds);
-}
-
 enum class GrRenderTargetContext::QuadOptimization {
     // The rect to draw doesn't intersect clip or render target, so no draw op should be added
     kDiscarded,
@@ -720,6 +668,46 @@ void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
     // All other optimization levels were completely handled inside attempt(), so no extra op needed
 }
 
+void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
+                                             sk_sp<GrTextureProxy> proxy,
+                                             sk_sp<GrColorSpaceXform> textureXform,
+                                             GrSamplerState::Filter filter,
+                                             const SkPMColor4f& color,
+                                             SkBlendMode blendMode,
+                                             GrAA aa,
+                                             GrQuadAAFlags edgeFlags,
+                                             const GrQuad& deviceQuad,
+                                             const GrQuad& localQuad,
+                                             const SkRect* domain) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTexturedQuad", fContext);
+
+    AutoCheckFlush acf(this->drawingManager());
+
+    // Functionally this is very similar to drawFilledQuad except that there's no constColor to
+    // enable the kSubmitted optimizations, no stencil settings support, and its a GrTextureOp.
+    GrQuad croppedDeviceQuad = deviceQuad;
+    GrQuad croppedLocalQuad = localQuad;
+    QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr, nullptr, &aa, &edgeFlags,
+                                                         &croppedDeviceQuad, &croppedLocalQuad);
+
+    SkASSERT(opt != QuadOptimization::kSubmitted);
+    if (opt != QuadOptimization::kDiscarded) {
+        // And the texture op if not discarded
+        const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
+                                                                        : clip;
+        GrAAType aaType = this->chooseAAType(aa);
+        // Use the provided domain, although hypothetically we could detect that the cropped local
+        // quad is sufficiently inside the domain and the constraint could be dropped.
+        this->addDrawOp(finalClip, GrTextureOp::Make(fContext, std::move(proxy),
+                                                     std::move(textureXform), filter, color,
+                                                     blendMode, aaType, edgeFlags,
+                                                     croppedDeviceQuad, croppedLocalQuad, domain));
+    }
+}
+
 void GrRenderTargetContext::drawRect(const GrClip& clip,
                                      GrPaint&& paint,
                                      GrAA aa,
@@ -920,67 +908,6 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
-void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
-                                        GrSamplerState::Filter filter, SkBlendMode mode,
-                                        const SkPMColor4f& color, const SkRect& srcRect,
-                                        const SkRect& dstRect, GrAA aa, GrQuadAAFlags aaFlags,
-                                        SkCanvas::SrcRectConstraint constraint,
-                                        const SkMatrix& viewMatrix,
-                                        sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTexture", fContext);
-
-    const SkRect* domain = nullptr;
-    if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
-        !srcRect.contains(proxy->getWorstCaseBoundsRect())) {
-        // The domain coordinates will be the original src rect, not the clipped src rect
-        domain = &srcRect;
-    }
-
-    GrAAType aaType = this->chooseAAType(aa);
-    SkRect clippedDstRect = dstRect;
-    SkRect clippedSrcRect = srcRect;
-    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &clippedDstRect,
-                          &clippedSrcRect)) {
-        return;
-    }
-
-    AutoCheckFlush acf(this->drawingManager());
-    auto op = GrTextureOp::Make(
-            fContext, std::move(proxy), std::move(textureColorSpaceXform), filter, color, mode,
-            aaType, aaFlags, GrQuad::MakeFromRect(clippedDstRect, viewMatrix),
-            GrQuad(clippedSrcRect), domain);
-    this->addDrawOp(clip, std::move(op));
-}
-
-void GrRenderTargetContext::drawTextureQuad(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
-                                            GrSamplerState::Filter filter, SkBlendMode mode,
-                                            const SkPMColor4f& color, const SkPoint srcQuad[4],
-                                            const SkPoint dstQuad[4], GrAA aa,
-                                            GrQuadAAFlags aaFlags, const SkRect* domain,
-                                            const SkMatrix& viewMatrix,
-                                            sk_sp<GrColorSpaceXform> texXform) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureQuad", fContext);
-    if (domain && domain->contains(proxy->getWorstCaseBoundsRect())) {
-        domain = nullptr;
-    }
-
-    GrAAType aaType = this->chooseAAType(aa);
-
-    // Unlike drawTexture(), don't bother cropping or optimizing the filter type since we're
-    // sampling an arbitrary quad of the texture.
-    AutoCheckFlush acf(this->drawingManager());
-    auto op = GrTextureOp::Make(fContext, std::move(proxy), std::move(texXform), filter, color,
-                                mode, aaType, aaFlags, GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
-                                GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), domain);
-    this->addDrawOp(clip, std::move(op));
-}
-
 void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetEntry set[], int cnt,
                                            GrSamplerState::Filter filter, SkBlendMode mode,
                                            GrAA aa, SkCanvas::SrcRectConstraint constraint,
@@ -1003,22 +930,23 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
                 ctm.preConcat(*set[i].fPreViewMatrix);
             }
 
-            if (set[i].fDstClipQuad == nullptr) {
-                // Stick with original rectangles, which allows the ops to know more about what's
-                // being drawn.
-                this->drawTexture(clip, set[i].fProxy, filter, mode, {alpha, alpha, alpha, alpha},
-                                  set[i].fSrcRect, set[i].fDstRect, aa, set[i].fAAFlags,
-                                  constraint, ctm, texXform);
+            GrQuad quad, srcQuad;
+            if (set[i].fDstClipQuad) {
+                quad = GrQuad::MakeFromSkQuad(set[i].fDstClipQuad, ctm);
+
+                SkPoint srcPts[4];
+                GrMapRectPoints(set[i].fDstRect, set[i].fSrcRect, set[i].fDstClipQuad, srcPts, 4);
+                srcQuad = GrQuad::MakeFromSkQuad(srcPts, SkMatrix::I());
             } else {
-                // Generate interpolated texture coordinates to match the dst clip
-                SkPoint srcQuad[4];
-                GrMapRectPoints(set[i].fDstRect, set[i].fSrcRect, set[i].fDstClipQuad, srcQuad, 4);
-                const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint
-                        ? &set[i].fSrcRect : nullptr;
-                this->drawTextureQuad(clip, set[i].fProxy, filter, mode,
-                                      {alpha, alpha, alpha, alpha}, srcQuad, set[i].fDstClipQuad,
-                                      aa, set[i].fAAFlags, domain, ctm, texXform);
+                quad = GrQuad::MakeFromRect(set[i].fDstRect, ctm);
+                srcQuad = GrQuad(set[i].fSrcRect);
             }
+
+            const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint
+                    ? &set[i].fSrcRect : nullptr;
+            this->drawTexturedQuad(clip, set[i].fProxy, texXform, filter,
+                                   {alpha, alpha, alpha, alpha}, mode, aa, set[i].fAAFlags,
+                                   quad, srcQuad, domain);
         }
     } else {
         // Can use a single op, avoiding GrPaint creation, and can batch across proxies
