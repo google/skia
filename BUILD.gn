@@ -389,6 +389,7 @@ optional("fontmgr_fontconfig") {
     ":typeface_freetype",
     "//third_party:fontconfig",
   ]
+
   sources = [
     "src/ports/SkFontConfigInterface.cpp",
     "src/ports/SkFontConfigInterface_direct.cpp",
@@ -770,6 +771,12 @@ optional("typeface_freetype") {
   deps = [
     "//third_party/freetype2",
   ]
+
+  if (skia_use_icu) {
+    deps += [ "//third_party/icu" ]
+    defines = [ "SK_FT_USE_ICU" ]
+  }
+
   sources = [
     "src/ports/SkFontHost_FreeType.cpp",
     "src/ports/SkFontHost_FreeType_common.cpp",

@@ -167,6 +167,33 @@ int DWriteFontTypeface::onGetVariationDesignPosition(
     return -1;
 }
 
+#if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
+namespace {
+	unsigned int getLocaleIndex(IDWriteLocalizedStrings* strings) {
+		unsigned int index = 0;
+		BOOL exists = false;
+		wchar_t localeName[LOCALE_NAME_MAX_LENGTH];
+
+		// Get the default locale for this user.
+		int success = GetUserDefaultLocaleName(localeName, LOCALE_NAME_MAX_LENGTH);
+
+		// If the default locale is returned, find that locale name, otherwise use "en-us".
+		if (success) {
+			HR(strings->FindLocaleName(localeName, &index, &exists));
+		}
+
+		// if the above find did not find a match, retry with US English
+		if (!exists) {
+			HR(strings->FindLocaleName(L"en-us", &index, &exists));
+		}
+
+		if (!exists) index = 0;
+
+		return index;
+	}
+}  // namespace
+#endif
+
 int DWriteFontTypeface::onGetVariationDesignParameters(
     SkFontParameters::Variation::Axis parameters[], int parameterCount) const
 {
@@ -212,6 +239,20 @@ int DWriteFontTypeface::onGetVariationDesignParameters(
             parameters[coordIndex].max = fontAxisRange[axisIndex].maxValue;
             parameters[coordIndex].setHidden(fontResource->GetFontAxisAttributes(axisIndex) &
                                              DWRITE_FONT_AXIS_ATTRIBUTES_HIDDEN);
+
+            IDWriteLocalizedStrings* axisNames = nullptr;
+            fontResource->GetAxisNames(0, &axisNames);
+            if (axisNames && axisNames->GetCount() > 0) {
+                auto index = getLocaleIndex(axisNames);
+                UINT32 len;
+                axisNames->GetStringLength(index, &len);
+                WCHAR* wchars = new WCHAR[len + 1];
+                axisNames->GetString(index, wchars, len + 1);
+                SkString name;
+                sk_wchar_to_skstring(wchars, len, &name);
+				delete[] wchars;
+                parameters[coordIndex].name = name;
+            }
         }
     }
 

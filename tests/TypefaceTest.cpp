@@ -266,7 +266,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
     REPORTER_ASSERT(reporter, parameter[0].max == maxAxisInDistortable);
     REPORTER_ASSERT(reporter, parameter[0].tag == SkSetFourByteTag('w','g','h','t'));
     REPORTER_ASSERT(reporter, parameter[0].isHidden() == axisIsHiddenInDistortable);
-
+    REPORTER_ASSERT(reporter, parameter[0].name.equals("Weight"));
 }
 
 static bool count_proc(SkTypeface* face, void* ctx) {

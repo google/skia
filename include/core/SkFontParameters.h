@@ -10,6 +10,7 @@
 
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/core/SkString.h"
 
 struct SkFontParameters {
     struct Variation {
@@ -23,6 +24,10 @@ struct SkFontParameters {
             float def;
             // Maximum value supported by this axis. The maximum can equal the minimum.
             float max;
+            // US English name for the axis that may be used as a display string in
+            // application user interfaces to refer to the axis, or as the basis of
+            // localized display strings.
+            SkString name;
             // Return whether this axis is recommended to be remain hidden in user interfaces.
             bool isHidden() const { return flags & HIDDEN; }
             // Set this axis to be remain hidden in user interfaces.
