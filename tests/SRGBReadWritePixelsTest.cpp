@@ -127,7 +127,7 @@ void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* conte
     SkAutoTMalloc<uint32_t> readData(w * h);
     memset(readData.get(), 0, sizeof(uint32_t) * w * h);
 
-    if (!context->readPixels(dstInfo, readData.get(), 0, 0, 0)) {
+    if (!context->readPixels(dstInfo, readData.get(), 0, {0, 0})) {
         ERRORF(reporter, "Could not read pixels for %s.", subtestName);
         return;
     }
@@ -227,7 +227,7 @@ static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, En
     auto writeII = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                      encoding_as_color_space(writeEncoding));
     auto data = make_data();
-    if (!surfaceContext->writePixels(writeII, data.get(), 0, 0, 0)) {
+    if (!surfaceContext->writePixels(writeII, data.get(), 0, {0, 0})) {
         ERRORF(reporter, "Could not write %s to %s surface context.",
                encoding_as_str(writeEncoding), encoding_as_str(contextEncoding));
         return;
