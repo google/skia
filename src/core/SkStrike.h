@@ -105,12 +105,17 @@ public:
 
     SkVector rounding() const override;
 
+    SkIPoint subpixelMask() const override {
+        return SkIPoint::Make((!fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment) ? 0 : ~0,
+                              (!fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment) ? 0 : ~0);
+    }
+
     const SkDescriptor& getDescriptor() const override;
 
     SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID> glyphIDs,
                                    const SkGlyph* results[]);
 
-    SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
+    SkSpan<const SkGlyphPos> prepareForDrawing(const SkPackedGlyphID packedGlyphIDs[],
                                                const SkPoint positions[],
                                                size_t n,
                                                int maxDimension,
