@@ -584,14 +584,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD2000":   "8086:0102",
 					"IntelHD405":    "8086:22b1",
 					"IntelIris640":  "8086:5926",
-					"QuadroP400":    "10de:1cb3-384.59",
+					"QuadroP400":    "10de:1cb3-430.14",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", parts["cpu_or_gpu_value"])
-				}
-				if parts["os"] == "Ubuntu18" && parts["cpu_or_gpu_value"] == "QuadroP400" {
-					// Ubuntu18 has a slightly newer GPU driver.
-					gpu = "10de:1cb3-415.27"
 				}
 				d["gpu"] = gpu
 			} else if strings.Contains(parts["os"], "Mac") {
@@ -1022,16 +1018,6 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 	task := kitchenTask(name, "calmbench", "calmbench.isolate", "", swarmDimensions(parts), nil, OUTPUT_PERF)
 	usesGit(task, name)
 	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
-	if parts["cpu_or_gpu_value"] == "QuadroP400" {
-		// Specify "rack" dimension for consistent test results.
-		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
-		// for more context.
-		if parts["os"] == "Ubuntu18" {
-			task.Dimensions = append(task.Dimensions, "rack:2")
-		} else {
-			task.Dimensions = append(task.Dimensions, "rack:1")
-		}
-	}
 	b.MustAddTask(name, task)
 
 	// Upload results if necessary.
@@ -1185,16 +1171,6 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	iid := internalHardwareLabel(parts)
 	if iid != nil {
 		task.Command = append(task.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
-	}
-	if parts["cpu_or_gpu_value"] == "QuadroP400" {
-		// Specify "rack" dimension for consistent test results.
-		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
-		// for more context.
-		if parts["os"] == "Ubuntu18" {
-			task.Dimensions = append(task.Dimensions, "rack:2")
-		} else {
-			task.Dimensions = append(task.Dimensions, "rack:1")
-		}
 	}
 	b.MustAddTask(name, task)
 
