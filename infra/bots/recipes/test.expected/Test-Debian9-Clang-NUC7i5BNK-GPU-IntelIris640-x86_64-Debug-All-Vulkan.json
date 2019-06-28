@@ -440,6 +440,7 @@
       "--match",
       "~VkHeapTests",
       "~GLPrograms",
+      "~^SRGBReadWritePixels$",
       "--nonativeFonts",
       "--verbose"
     ],
