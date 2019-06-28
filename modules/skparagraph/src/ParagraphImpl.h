@@ -31,7 +31,7 @@ public:
                   sk_sp<FontCollection> fonts)
             : Paragraph(std::move(style), std::move(fonts))
             , fText(text)
-            , fTextSpan(fText.c_str(), fText.size())
+            , fTextSpan(fText.writable_str(), fText.size())
             , fPicture(nullptr) {
         fTextStyles.reserve(blocks.size());
         for (auto& block : blocks) {
