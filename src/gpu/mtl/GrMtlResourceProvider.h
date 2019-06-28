@@ -107,11 +107,7 @@ private:
         SkSpinlock    fMutex;
     };
     static constexpr size_t kBufferSuballocatorStartSize = 1024*1024;
-#if GR_USE_COMPLETION_HANDLER
     static constexpr size_t kBufferSuballocatorMaxSize = 8*1024*1024;
-#else
-    static constexpr size_t kBufferSuballocatorMaxSize = 2*1024*1024;
-#endif
 
     GrMtlGpu* fGpu;
 
