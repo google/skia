@@ -210,10 +210,10 @@ public:
                                     const void* data = nullptr);
 
     /**
-     * If passed in render target already has a stencil buffer, return true. Otherwise attempt to
-     * attach one and return true on success.
+     * If passed in render target already has a stencil buffer with at least "numSamples" samples,
+     * return true. Otherwise attempt to attach one and return true on success.
      */
-    bool attachStencilAttachment(GrRenderTarget* rt);
+    bool attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples);
 
      /**
       * Wraps an existing texture with a GrRenderTarget object. This is useful when the provided
