@@ -107,6 +107,9 @@ public:
 
     const SkDescriptor& getDescriptor() const override;
 
+    SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID> glyphIDs,
+                                   const SkGlyph* results[]);
+
     SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
                                                const SkPoint positions[],
                                                size_t n,
@@ -162,9 +165,9 @@ private:
 
     SkGlyph* makeGlyph(SkPackedGlyphID);
 
-    // Metrics will hold a mutex while doing its work. This is one of the few places that will
-    // need a mutex.
-    SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID>glyphIDs, const SkGlyph* result[]);
+    // internalMetrics will only be called with a mutex already held.
+    SkSpan<const SkGlyph*> internalMetrics(
+            SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* result[]);
 
     const SkAutoDescriptor                 fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;
