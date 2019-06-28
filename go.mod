@@ -4,15 +4,17 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.40.0
-	github.com/aws/aws-sdk-go v1.20.10 // indirect
+	github.com/aws/aws-sdk-go v1.20.11 // indirect
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
+	github.com/go-kit/kit v0.9.0 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/uuid v1.1.1
-	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e // indirect
-	go.chromium.org/luci v0.0.0-20190626234502-04475b07da13 // indirect
-	go.skia.org/infra v0.0.0-20190626231720-fc7b23117c2e
-	golang.org/x/sys v0.0.0-20190626221950-04f50cda93cb // indirect
-	golang.org/x/tools v0.0.0-20190627033414-4874f863e654 // indirect
+	go.chromium.org/luci v0.0.0-20190628025021-f2e1c935d448 // indirect
+	go.skia.org/infra v0.0.0-20190627185021-d6e7a20ade33
+	golang.org/x/exp v0.0.0-20190627132806-fd42eb6b336f // indirect
+	golang.org/x/tools v0.0.0-20190628034336-212fb13d595e // indirect
 	google.golang.org/api v0.7.0
-	google.golang.org/genproto v0.0.0-20190626174449-989357319d63 // indirect
+	google.golang.org/genproto v0.0.0-20190627203621-eb59cef1c072 // indirect
+	k8s.io/api v0.0.0-20190627205229-acea843d18eb // indirect
+	sigs.k8s.io/structured-merge-diff v0.0.0-20190627180121-0cb33202b0c3 // indirect
 )
