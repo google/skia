@@ -32,14 +32,15 @@ public:
         return fStrike.rounding();
     }
 
-    SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
-                                               const SkPoint positions[],
-                                               size_t n,
-                                               int maxDimension,
-                                               PreparationDetail detail,
-                                               SkGlyphPos results[]) override {
-        return fStrike.prepareForDrawing(
-                glyphIDs, positions, n, maxDimension, detail, results);
+    SkIPoint subpixelMask() const override {
+        return fStrike.subpixelMask();
+    }
+
+    SkSpan<const SkGlyphPos>
+    prepareForDrawing(const SkPackedGlyphID packedGlyphIDs[], const SkPoint positions[], size_t n,
+                      int maxDimension, PreparationDetail detail, SkGlyphPos results[]) override {
+        return fStrike.prepareForDrawing(packedGlyphIDs, positions, n, maxDimension, detail,
+                                         results);
     }
 
     const SkDescriptor& getDescriptor() const override {
