@@ -521,24 +521,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
         ERRORF(reporter, "Failed to make unpremul texture image.");
         return;
     }
-    // The GPU backend always unpremuls the values stored in the texture because it assumes they
-    // are premul values. (skbug.com/7580).
-    if (false) {
-        SkBitmap unpremul;
-        unpremul.allocPixels(SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType,
-                                               kUnpremul_SkAlphaType, nullptr));
-        if (!texImage->readPixels(unpremul.info(), unpremul.getPixels(), unpremul.rowBytes(), 0,
-                                  0)) {
-            ERRORF(reporter, "Unpremul readback failed.");
-            return;
-        }
-        for (int y = 0; y < 256; ++y) {
-            for (int x = 0; x < 256; ++x) {
-                if (*bmp.getAddr32(x, y) != *unpremul.getAddr32(x, y)) {
-                    ERRORF(reporter, "unpremul(0x%08x)->unpremul(0x%08x) at %d, %d.",
-                           *bmp.getAddr32(x, y), *unpremul.getAddr32(x, y), x, y);
-                    return;
-                }
+    SkBitmap unpremul;
+    unpremul.allocPixels(SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType,
+                                           kUnpremul_SkAlphaType, nullptr));
+    if (!texImage->readPixels(unpremul.info(), unpremul.getPixels(), unpremul.rowBytes(), 0,
+                              0)) {
+        ERRORF(reporter, "Unpremul readback failed.");
+        return;
+    }
+    for (int y = 0; y < 256; ++y) {
+        for (int x = 0; x < 256; ++x) {
+            if (*bmp.getAddr32(x, y) != *unpremul.getAddr32(x, y)) {
+                ERRORF(reporter, "unpremul(0x%08x)->unpremul(0x%08x) at %d, %d.",
+                       *bmp.getAddr32(x, y), *unpremul.getAddr32(x, y), x, y);
+                return;
             }
         }
     }
@@ -565,7 +561,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
             int32_t readR = (read >>  0) & 0xff;
             // We expect that alpha=1 and alpha=0 should come out exact. Otherwise allow a little
             // bit of tolerance for GPU vs CPU premul math.
-            int32_t tol = (origA == 0 || origA == 255) ? 0 : 1;
+            int32_t tol = (origA == 0 || origA == 255) ? 0 : 2;
             if (origA != readA || SkTAbs(readB - origB) > tol || SkTAbs(readG - origG) > tol ||
                 SkTAbs(readR - origR) > tol) {
                 ERRORF(reporter, "unpremul(0x%08x)->premul(0x%08x) at %d, %d.",
