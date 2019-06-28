@@ -8,6 +8,7 @@
 #ifndef GrRenderTargetProxyPriv_DEFINED
 #define GrRenderTargetProxyPriv_DEFINED
 
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 
 /**
@@ -21,6 +22,32 @@ public:
 
     bool glRTFBOIDIs0() const {
         return fRenderTargetProxy->glRTFBOIDIs0();
+    }
+
+    /*
+     * Indicate that a draw to this proxy requires stencil, and how many stencil samples it needs.
+     * The number of stencil samples on this proxy will be equal to the largest sample count passed
+     * to this method.
+     */
+    void setNeedsStencil(int numStencilSamples) {
+        SkASSERT(numStencilSamples >= fRenderTargetProxy->fSampleCnt);
+        fRenderTargetProxy->fNumStencilSamples = SkTMax(
+                numStencilSamples, fRenderTargetProxy->fNumStencilSamples);
+    }
+
+    /**
+     * Returns the number of stencil samples required by this proxy.
+     * NOTE: Once instantiated, the actual render target may have more samples, but it is guaranteed
+     * to have at least this many. (After a multisample stencil buffer has been attached to a render
+     * target, we never "downgrade" it to one with fewer samples.)
+     */
+    int numStencilSamples() const { return fRenderTargetProxy->fNumStencilSamples; }
+
+    bool canUseMixedSamples(const GrCaps& caps) const {
+        // TODO: Is this a wrapped external RT? Is GrBackendObjectOwnership available?
+        return caps.mixedSamplesSupport() &&
+               !fRenderTargetProxy->glRTFBOIDIs0() &&
+               caps.internalMultisampleCount(fRenderTargetProxy->config()) > 0;
     }
 
 private:
