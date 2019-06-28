@@ -92,7 +92,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         for (auto rowBytes : kRowBytes) {
 
             // upload the texture (do per-rowbytes iteration because we may overwrite below).
-            bool result = sContext->writePixels(ii, alphaData, 0, 0, 0);
+            bool result = sContext->writePixels(ii, alphaData, 0, {0, 0});
             REPORTER_ASSERT(reporter, result, "Initial A8 writePixels failed");
 
             size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
@@ -102,7 +102,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             memset(readback.get(), kClearValue, bufLen);
 
             // read the texture back
-            result = sContext->readPixels(ii, readback.get(), rowBytes, 0, 0);
+            result = sContext->readPixels(ii, readback.get(), rowBytes, {0, 0});
             // We don't require reading from kAlpha_8 to be supported. TODO: At least make this work
             // when kAlpha_8 is renderable.
             if (!result) {
@@ -208,7 +208,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
 
                 // read the texture back
-                bool result = sContext->readPixels(dstInfo, readback.get(), rowBytes, 0, 0);
+                bool result = sContext->readPixels(dstInfo, readback.get(), rowBytes, {0, 0});
                 REPORTER_ASSERT(reporter, result, "8888 readPixels failed");
 
                 // make sure the original & read back versions match
