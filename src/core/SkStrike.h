@@ -60,7 +60,7 @@ public:
     SkGlyph* mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from);
 
     // If the path has never been set, then use the scaler context to add the glyph.
-    const SkPath* preparePath(SkGlyph*) override;
+    const SkPath* preparePath(SkGlyph*);
 
     // If the path has never been set, then add a path to glyph.
     const SkPath* preparePath(SkGlyph* glyph, const SkPath* path);

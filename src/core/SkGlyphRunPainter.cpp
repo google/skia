@@ -149,7 +149,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                     runFont, runPaint, props, fScalerContextFlags);
 
-            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+            auto strike = strikeSpec.findOrCreateExclusiveStrike();
 
             auto glyphPosSpan = strike->prepareForDrawing(
                     glyphRun.glyphsIDs().data(),
@@ -193,7 +193,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                     runFont, runPaint, props, fScalerContextFlags, deviceMatrix);
 
-            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+            auto strike = strikeSpec.findOrCreateExclusiveStrike();
 
             // Add rounding and origin.
             SkMatrix matrix = deviceMatrix;

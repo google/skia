@@ -70,8 +70,6 @@ public:
                                                        PreparationDetail detail,
                                                        SkGlyphPos results[]) = 0;
 
-    // If glyph does not have an existing path, then add a path to glyph using a scaler context.
-    virtual const SkPath* preparePath(SkGlyph* glyph) = 0;
     virtual void onAboutToExitScope() = 0;
 
     struct Deleter {

@@ -44,8 +44,6 @@ public:
                                                PreparationDetail detail,
                                                SkGlyphPos results[]) override;
 
-    const SkPath* preparePath(SkGlyph* glyph) override;
-
     void onAboutToExitScope() override {}
 
 private:
