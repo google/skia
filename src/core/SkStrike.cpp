@@ -109,8 +109,8 @@ int SkStrike::countCachedGlyphs() const {
     return fGlyphMap.count();
 }
 
-SkSpan<const SkGlyph*> SkStrike::metrics(
-        SkSpan<const SkGlyphID>glyphIDs, const SkGlyph* results[]) {
+SkSpan<const SkGlyph*> SkStrike::internalMetrics(
+        SkSpan<const SkGlyphID> glyphIDs, const SkGlyph** results) {
     size_t glyphCount = 0;
     for (auto glyphID : glyphIDs) {
         SkGlyph* glyphPtr = this->glyph(glyphID);
@@ -123,7 +123,7 @@ SkSpan<const SkGlyph*> SkStrike::metrics(
 SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
     auto cursor = advances;
     SkAutoSTArray<50, const SkGlyph*> glyphStorage{SkTo<int>(glyphIDs.size())};
-    auto glyphs = this->metrics(glyphIDs, glyphStorage.get());
+    auto glyphs = this->internalMetrics(glyphIDs, glyphStorage.get());
     for (const SkGlyph* glyph : glyphs) {
         *cursor++ = glyph->advanceVector();
     }
@@ -170,6 +170,11 @@ const SkGlyph* SkStrike::getCachedGlyphAnySubPix(SkGlyphID glyphID,
 
 SkVector SkStrike::rounding() const {
     return SkStrikeCommon::PixelRounding(fIsSubpixel, fAxisAlignment);
+}
+
+SkSpan<const SkGlyph*> SkStrike::metrics(SkSpan<const SkGlyphID> glyphIDs,
+                                         const SkGlyph* results[]) {
+    return this->internalMetrics(glyphIDs, results);
 }
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite

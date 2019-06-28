@@ -209,10 +209,6 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
     return count;
 }
 
-static void set_bounds(const SkGlyph& g, SkRect* bounds) {
-    *bounds = g.rect();
-}
-
 static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
     SkRect r = g.rect();
     r.offset(dx, 0);
@@ -221,7 +217,7 @@ static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
 
 namespace {
 constexpr int kTypicalGlyphCount = 20;
-using SmallPointsArray = SkAutoSTArray<kTypicalGlyphCount, SkPoint>;
+using GlyphArray = SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*>;
 }
 
 
@@ -237,25 +233,26 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
         }
         return 0;
     }
-    const SkGlyphID* glyphs = atg.glyphs();
+    const SkGlyphID* glyphIDs = atg.glyphs();
 
-    auto cache = strikeSpec.findOrCreateExclusiveStrike();
+    auto strike = strikeSpec.findOrCreateExclusiveStrike();
+
+    GlyphArray glyphs{count};
+    strike->metrics(SkSpan<const SkGlyphID>(glyphIDs, length), glyphs.get());
 
     SkScalar width = 0;
     if (bounds) {
-        SkGlyph* g = cache->glyph(glyphs[0]);
-        set_bounds(*g, bounds);
-        width = g->advanceX();
+        *bounds = glyphs[0]->rect();
+        width = glyphs[0]->advanceX();
         for (int i = 1; i < count; ++i) {
-            g = cache->glyph(glyphs[i]);
-            join_bounds_x(*g, bounds, width);
-            width += g->advanceX();
+            SkRect r = glyphs[i]->rect();
+            r.offset(width, 0);
+            bounds->join(r);
+            width += glyphs[i]->advanceX();
         }
     } else {
-        SmallPointsArray advances{count};
-        cache->getAdvances(SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)}, advances.get());
-        for (int i = 0; i < count; ++i) {
-            width += advances[i].x();
+        for (auto glyph : glyphs) {
+            width += glyph->advanceX();
         }
     }
 
@@ -290,10 +287,13 @@ void VisitGlyphs(const SkFont& origFont, const SkPaint* paint, const SkGlyphID g
     handler(cache.get(), glyphs, count, strikeSpec.strikeToSourceRatio());
 }
 
-void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar widths[], SkRect bounds[],
+void SkFont::getWidthsBounds(const SkGlyphID glyphIDs[],
+                             int count,
+                             SkScalar widths[],
+                             SkRect bounds[],
                              const SkPaint* paint) const {
     if (bounds) {
-        VisitGlyphs(*this, paint, glyphs, count, [widths, bounds]
+        VisitGlyphs(*this, paint, glyphIDs, count, [widths, bounds]
                 (SkStrike* cache, const SkGlyphID glyphs[], int count, SkScalar scale) {
             for (int i = 0; i < count; ++i) {
                 SkGlyph* g;
@@ -306,26 +306,27 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar width
         });
     } else if (widths) {
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this, paint);
-        auto cache = strikeSpec.findOrCreateExclusiveStrike();
-        SmallPointsArray advances{count};
-        cache->getAdvances(SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)}, advances.get());
+        auto strike = strikeSpec.findOrCreateExclusiveStrike();
+        GlyphArray glyphStorage{count};
+        auto glyphs = strike->metrics(
+                SkSpan<const SkGlyphID>{glyphIDs, SkTo<size_t>(count)}, glyphStorage.get());
         for (int i = 0; i < count; ++i) {
-            widths[i] = advances[i].x() * strikeSpec.strikeToSourceRatio();
+            widths[i] = glyphs[i]->advanceX() * strikeSpec.strikeToSourceRatio();
         }
     }
 }
 
-void SkFont::getPos(const SkGlyphID glyphs[], int count, SkPoint pos[], SkPoint origin) const {
-    auto glyphIDs = SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)};
+void SkFont::getPos(const SkGlyphID glyphIDs[], int count, SkPoint pos[], SkPoint origin) const {
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this);
-    auto cache = strikeSpec.findOrCreateExclusiveStrike();
-    SmallPointsArray advancesStorage{count};
-    auto advances = cache->getAdvances(glyphIDs, advancesStorage.get());
+    auto strike = strikeSpec.findOrCreateExclusiveStrike();
+    GlyphArray glyphStorage{count};
+    auto glyphs = strike->metrics(
+            SkSpan<const SkGlyphID>{glyphIDs, SkTo<size_t>(count)}, glyphStorage.get());
 
     SkPoint sum = origin;
-    for (auto advance : advances) {
+    for (auto glyph : glyphs) {
         *pos++ = sum;
-        sum += advance * strikeSpec.strikeToSourceRatio();
+        sum += glyph->advanceVector() * strikeSpec.strikeToSourceRatio();
     }
 }
 
