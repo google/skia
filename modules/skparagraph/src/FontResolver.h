@@ -16,19 +16,18 @@ namespace textlayout {
 
 class FontResolver {
 public:
-    FontResolver(sk_sp<FontCollection> fontCollection);
+    FontResolver(sk_sp<FontCollection> fontCollection, SkSpan<const char> fullText);
     ~FontResolver() = default;
 
     void findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text);
     bool findFirst(const char* codepoint, SkFont* font, SkScalar* height);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
 
+    SkFont firstResolvedFont();
+
 private:
     std::pair<SkFont, SkScalar> makeFont(sk_sp<SkTypeface> typeface, SkScalar size,
                                          SkScalar height);
-
-    size_t resolveAllCharactersByFont(std::pair<SkFont, SkScalar> font);
-    void addResolvedWhitespacesToMapping();
 
     struct Hash {
         uint32_t operator()(const std::pair<SkFont, SkScalar>& key) const {
@@ -37,20 +36,12 @@ private:
         }
     };
 
-    SkUnichar firstUnresolved();
-
     sk_sp<FontCollection> fFontCollection;
+    SkSpan<const char> fFullText;
 
     SkTHashMap<const char*, std::pair<SkFont, SkScalar>> fFontMapping;
     SkTHashSet<std::pair<SkFont, SkScalar>, Hash> fResolvedFonts;
-    std::pair<SkFont, SkScalar> fFirstResolvedFont;
-
-    SkTArray<SkUnichar> fCodepoints;
-    SkTArray<const char*> fCharacters;
-    SkTArray<size_t> fUnresolvedIndexes;
-    SkTArray<SkUnichar> fUnresolvedCodepoints;
-    SkTHashMap<size_t, std::pair<SkFont, SkScalar>> fWhitespaces;
-    size_t fUnresolved;
+    SkFont fFirstResolvedFont;
 };
 }  // namespace textlayout
 }  // namespace skia

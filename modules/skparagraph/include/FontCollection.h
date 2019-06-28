@@ -32,6 +32,7 @@ public:
     sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle);
 
     void disableFontFallback();
+    void enableFontFallback();
     bool fontFallbackEnabled() { return fEnableFontFallback; }
 
 private:

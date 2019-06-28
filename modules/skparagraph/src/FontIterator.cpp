@@ -20,27 +20,32 @@ FontIterator::FontIterator(SkSpan<const char> utf8,
         : fText(utf8)
         , fStyles(styles)
         , fCurrentChar(utf8.begin())
-        , fFontResolver(std::move(fonts)) {
+        , fFontResolver(std::move(fonts), utf8) {
     findAllFontsForAllStyledBlocks();
+
+    if (!fFontResolver.findFirst(fCurrentChar, &fFont, &fLineHeight) || fFont.getTypeface() == nullptr) {
+        SkASSERT(false);
+    }
 }
 
 void FontIterator::consume() {
     SkASSERT(fCurrentChar < fText.end());
-    auto found = fFontResolver.findFirst(fCurrentChar, &fFont, &fLineHeight);
-    SkASSERT(found);
 
     // Move until we find the first character that cannot be resolved with the current font
     while (++fCurrentChar != fText.end()) {
         SkFont font;
         SkScalar height;
-        found = fFontResolver.findNext(fCurrentChar, &font, &height);
-        if (found) {
-            if (fFont == font && fLineHeight == height) {
-                continue;
+        if (fFontResolver.findNext(fCurrentChar, &font, &height)) {
+            if (font.getTypeface() != nullptr && fFont != font) {
+                break;
             }
-            break;
         }
     }
+}
+
+SkFont FontIterator::pickFirstFont() {
+
+    return fFontResolver.firstResolvedFont();
 }
 
 void FontIterator::findAllFontsForAllStyledBlocks() {
