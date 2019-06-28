@@ -27,9 +27,6 @@ class SkStrikeCommon {
 public:
     static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);
 
-    // This assumes that position has the appropriate rounding term applied.
-    static SkIPoint SubpixelLookup(SkAxisAlignment axisAlignment, SkPoint position);
-
     // An atlas consists of plots, and plots hold glyphs. The minimum a plot can be is 256x256.
     // This means that the maximum size a glyph can be is 256x256.
     static constexpr uint16_t kSkSideTooBigForAtlas = 256;
@@ -104,6 +101,24 @@ private:
                              const SkMatrix& viewMatrix,
                              SkGlyphRunPainterInterface* process);
 
+    static SkSpan<const SkPackedGlyphID> DeviceSpacePackedGlyphIDs(
+            SkStrikeInterface* strike,
+            const SkMatrix& viewMatrix,
+            const SkPoint& origin,
+            int n,
+            const SkGlyphID* glyphIDs,
+            const SkPoint* positions,
+            SkPoint* mappedPositions,
+            SkPackedGlyphID* results);
+
+    static SkSpan<const SkPackedGlyphID> SourceSpacePackedGlyphIDs(
+            const SkPoint& origin,
+            int n,
+            const SkGlyphID* glyphIDs,
+            const SkPoint* positions,
+            SkPoint* mappedPositions,
+            SkPackedGlyphID* results);
+
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
     // The props for when the bitmap device can't draw LCD text.
@@ -115,6 +130,7 @@ private:
 
     int fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    SkAutoTMalloc<SkPackedGlyphID> fPackedGlyphIDs;
     SkAutoTMalloc<SkGlyphPos> fGlyphPos;
 
     std::vector<SkGlyphPos> fPaths;
