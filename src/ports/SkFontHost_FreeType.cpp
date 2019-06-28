@@ -48,6 +48,7 @@
 #include FT_TRUETYPE_TABLES_H
 #include FT_TYPE1_TABLES_H
 #include FT_XFREE86_H
+#include FT_SFNT_NAMES_H
 
 // SK_FREETYPE_MINIMUM_RUNTIME_VERSION 0x<major><minor><patch><flags>
 // Flag SK_FREETYPE_DLOPEN: also try dlopen to get newer features.
@@ -82,6 +83,16 @@
 #ifndef FT_VAR_AXIS_FLAG_HIDDEN
 #    define FT_VAR_AXIS_FLAG_HIDDEN 1
 #endif
+
+#if defined(SK_FT_USE_ICU)
+#if defined(SK_USING_THIRD_PARTY_ICU)
+#include "SkLoadICU.h"
+#endif
+
+#include <unicode/ucnv.h>
+#endif
+
+#include <freetype/ttnameid.h>
 
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
 //#define DUMP_STRIKE_CREATION
@@ -1680,6 +1691,63 @@ int SkTypeface_FreeType::onGetVariationDesignPosition(
     return variations->num_axis;
 }
 
+namespace{
+#if defined(SK_FT_USE_ICU)
+    SkString convertByteString(UConverter* converter, UConverter* converterUTF8,
+            FT_Byte* name, int len){
+        auto size = 2 * len + 100;
+        auto buf1 = new char[size];
+        auto buf2 = new char[size];
+
+        UErrorCode status = U_ZERO_ERROR;
+        len = ucnv_toUChars(converter, (UChar*)buf1, size,
+                (const char*)name, len, &status);
+        len = ucnv_fromUChars(converterUTF8, buf2, size,
+                (UChar*)buf1, len, &status);
+        buf2[len] = 0;
+
+        SkString result(buf2, len);
+
+        delete[] buf1;
+        delete[] buf2;
+
+        return result;
+    }
+
+    const SkString sfntNameToSkString(FT_SfntName& ftName){
+#if defined(SK_USING_THIRD_PARTY_ICU)
+        if (!SkLoadICU()) {
+            SkDEBUGF("SkLoadICU() failed!\n");
+            return {};
+        }
+#endif
+        UErrorCode err = U_ZERO_ERROR;
+        using Converter = std::unique_ptr<UConverter, void(*)(UConverter*)>;
+        Converter converterMac(ucnv_open("macintosh", &err), ucnv_close);
+        Converter converterUTF16BE(ucnv_open("UTF16BE", &err), ucnv_close);
+        Converter converterUTF8(ucnv_open("UTF8", &err), ucnv_close);
+
+        if(!err){
+            if (ftName.platform_id == TT_PLATFORM_MACINTOSH
+                && ftName.encoding_id == TT_MAC_ID_ROMAN && ftName.language_id == 0) {
+                return convertByteString(converterMac.get(), converterUTF8.get(),
+                        ftName.string, ftName.string_len);
+            }else if ((ftName.platform_id == TT_PLATFORM_APPLE_UNICODE)
+                     || (ftName.platform_id == TT_PLATFORM_MICROSOFT)){
+                return convertByteString(converterUTF16BE.get(), converterUTF8.get(),
+                        ftName.string, ftName.string_len);
+            }
+        }
+
+        return {};
+    }
+#else
+    const SkString sfntNameToSkString(FT_SfntName& ftName){
+        return SkString((const char *)ftName.string, ftName.string_len);
+    }
+#endif
+}
+
 int SkTypeface_FreeType::onGetVariationDesignParameters(
     SkFontParameters::Variation::Axis parameters[], int parameterCount) const
 {
@@ -1708,6 +1776,20 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
         parameters[i].min = SkFixedToScalar(variations->axis[i].minimum);
         parameters[i].def = SkFixedToScalar(variations->axis[i].def);
         parameters[i].max = SkFixedToScalar(variations->axis[i].maximum);
+        if(variations->axis[i].name){
+            parameters[i].name = variations->axis[i].name;
+        }else{
+            auto nameId = variations->axis[i].strid;
+            auto numNames = FT_Get_Sfnt_Name_Count(face);
+            for(FT_UInt nameIdx = 0; nameIdx < numNames; ++nameIdx){
+                FT_SfntName ftName;
+                FT_Get_Sfnt_Name(face, nameIdx, &ftName);
+                if(ftName.name_id != nameId){
+                    continue;
+                }
+                parameters[i].name = sfntNameToSkString(ftName);
+            }
+        }
         FT_UInt flags = 0;
         bool hidden = gFTLibrary->fGetVarAxisFlags &&
             !gFTLibrary->fGetVarAxisFlags(variations, i, &flags) &&
