@@ -42,10 +42,6 @@ public:
                 glyphIDs, positions, n, maxDimension, detail, results);
     }
 
-    const SkPath* preparePath(SkGlyph* glyph) override {
-        return fStrike.preparePath(glyph);
-    }
-
     const SkDescriptor& getDescriptor() const override {
         return fStrike.getDescriptor();
     }
