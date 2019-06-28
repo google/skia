@@ -28,7 +28,7 @@ void test_read_pixels(skiatest::Reporter* reporter,
 
     SkImageInfo ii = SkImageInfo::Make(srcContext->width(), srcContext->height(),
                                        kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    bool read = srcContext->readPixels(ii, pixels.get(), 0, 0, 0);
+    bool read = srcContext->readPixels(ii, pixels.get(), 0, {0, 0});
     if (!read) {
         ERRORF(reporter, "%s: Error reading from texture.", testName);
     }
@@ -56,7 +56,7 @@ void test_write_pixels(skiatest::Reporter* reporter,
 
     SkImageInfo ii = SkImageInfo::Make(dstContext->width(), dstContext->height(),
                                        kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    bool write = dstContext->writePixels(ii, pixels.get(), 0, 0, 0);
+    bool write = dstContext->writePixels(ii, pixels.get(), 0, {0, 0});
     if (!write) {
         if (expectedToWork) {
             ERRORF(reporter, "%s: Error writing to texture.", testName);
