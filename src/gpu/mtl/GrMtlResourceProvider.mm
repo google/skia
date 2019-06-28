@@ -21,11 +21,7 @@
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
-#ifdef USE_COMPLETION_HANDLER
     fBufferSuballocator.reset(new BufferSuballocator(gpu->device(), kBufferSuballocatorStartSize));
-#else
-    fBufferSuballocator.reset(new BufferSuballocator(gpu->device(), kBufferSuballocatorMaxSize));
-#endif
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
@@ -246,6 +242,7 @@ id<MTLBuffer> GrMtlResourceProvider::BufferSuballocator::getAllocation(size_t si
 void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
         GrMtlCommandBuffer* cmdBuffer) {
     this->ref();
+    SkAutoSpinlock lock(fMutex);
     size_t newTail = fHead;
     cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
         // Make sure SkAutoSpinlock goes out of scope before
@@ -264,12 +261,11 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
         return buffer;
     }
 
-#ifdef GR_USE_COMPLETION_HANDLER
     // Try to grow allocation (old allocation will age out).
     // We grow up to a maximum size, and only grow if the requested allocation will
     // fit into half of the new buffer (to prevent very large transient buffers forcing
     // growth when they'll never fit anyway).
-    if (fBufferSuballocator->size() < kMaxDynamicBufferAllocationSize &&
+    if (fBufferSuballocator->size() < kBufferSuballocatorMaxSize &&
         size <= fBufferSuballocator->size()) {
         fBufferSuballocator.reset(new BufferSuballocator(fGpu->device(),
                                                          2*fBufferSuballocator->size()));
@@ -278,24 +274,11 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
             return buffer;
         }
     }
-#else
-    // For now, just create a new buffer on failure if requested alloc small enough
-    if (size <= kBufferSuballocatorMaxSize/2) {
-        fBufferSuballocator.reset(new BufferSuballocator(fGpu->device(),
-                                                         kBufferSuballocatorMaxSize));
-        id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
-        if (buffer) {
-            return buffer;
-        }
-    }
-#endif
 
     *offset = 0;
     return alloc_dynamic_buffer(fGpu->device(), size);
 }
 
 void GrMtlResourceProvider::addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer) {
-#ifdef GR_USE_COMPLETION_HANDLER
     fBufferSuballocator->addCompletionHandler(cmdBuffer);
-#endif
 }
