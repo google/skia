@@ -20,25 +20,25 @@ FontIterator::FontIterator(SkSpan<const char> utf8,
         : fText(utf8)
         , fStyles(styles)
         , fCurrentChar(utf8.begin())
-        , fFontResolver(std::move(fonts)) {
+        , fFontResolver(std::move(fonts), utf8) {
     findAllFontsForAllStyledBlocks();
+
+    if (!fFontResolver.findFirst(fCurrentChar, &fFont, &fLineHeight) || fFont.getTypeface() == nullptr) {
+        consume();
+    }
 }
 
 void FontIterator::consume() {
     SkASSERT(fCurrentChar < fText.end());
-    auto found = fFontResolver.findFirst(fCurrentChar, &fFont, &fLineHeight);
-    SkASSERT(found);
 
     // Move until we find the first character that cannot be resolved with the current font
     while (++fCurrentChar != fText.end()) {
         SkFont font;
         SkScalar height;
-        found = fFontResolver.findNext(fCurrentChar, &font, &height);
-        if (found) {
-            if (fFont == font && fLineHeight == height) {
-                continue;
+        if (fFontResolver.findNext(fCurrentChar, &font, &height)) {
+            if (font.getTypeface() != nullptr && fFont != font) {
+                break;
             }
-            break;
         }
     }
 }
@@ -62,6 +62,33 @@ void FontIterator::findAllFontsForAllStyledBlocks() {
         combined = block;
     }
     fFontResolver.findAllFontsForStyledBlock(combined.style(), combined.text());
+}
+
+void FontIterator::scanFontsMap(std::function<void(const char* ch, size_t size, SkFont font, SkScalar height)> visitor) {
+
+    SkFont font1;
+    SkScalar height1;
+    const char* first = fText.begin();
+    auto found = fFontResolver.findFirst(first, &font1, &height1);
+    SkASSERT(found);
+
+    // Move until we find the first character that cannot be resolved with the current font
+    const char* ch = first;
+    while (++ch != fText.end()) {
+        SkFont font;
+        SkScalar height;
+        found = fFontResolver.findNext(ch, &font, &height);
+        if (found) {
+            if (font1 == font && height1 == height) {
+                continue;
+            }
+            visitor(first, ch - first, font1, height1);
+            first = ch;
+            font1 = font;
+            height1 = height;
+        }
+    }
+    visitor(first, ch - first, font1, height1);
 }
 
 }  // namespace textlayout

@@ -96,7 +96,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
     std::string str;
     unicode.toUTF8String(str);
     fText = SkString(str.data(), str.size());
-    fTextSpan = SkSpan<const char>(fText.c_str(), fText.size());
+    fTextSpan = SkSpan<const char>(fText.writable_str(), fText.size());
 
     fTextStyles.reserve(blocks.size());
     for (auto& block : blocks) {
@@ -116,12 +116,11 @@ void ParagraphImpl::layout(SkScalar width) {
 
     if (!this->shapeTextIntoEndlessLine()) {
         // Apply the last style to the empty text
-        FontIterator font(SkSpan<const char>(" "),
-                          SkSpan<TextBlock>(&fTextStyles.back(), 1),
-                          fFontCollection);
+        SkSpan<const char> text("");
+        TextBlock textBlock(text, fTextStyles.back().style());
+        FontIterator font(text, SkSpan<TextBlock>(&textBlock, 1), fFontCollection);
         // Get the font metrics
-        font.consume();
-        LineMetrics lineMetrics(font.currentFont());
+        LineMetrics lineMetrics(font.firstResolvedFont());
         // Set the important values that are not zero
         fHeight = lineMetrics.height();
         fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
@@ -249,8 +248,7 @@ void ParagraphImpl::buildClusterTable() {
             if (currentStyle->style().getWordSpacing() != 0 &&
                 fParagraphStyle.getTextAlign() != TextAlign::kJustify) {
                 if (cluster.isWhitespaces() && cluster.isSoftBreak()) {
-                    shift +=
-                            run.addSpacesAtTheEnd(currentStyle->style().getWordSpacing(), &cluster);
+                    shift += run.addSpacesAtTheEnd(currentStyle->style().getWordSpacing(), &cluster);
                 }
             }
             if (currentStyle->style().getLetterSpacing() != 0) {
@@ -292,9 +290,10 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
         Buffer runBuffer(const RunInfo& info) override {
             TRACE_EVENT0("skia", TRACE_FUNC);
+            // TODO: Deal with line heights
             auto& run = fParagraph->fRuns.emplace_back(fParagraph->text(),
                                                        info,
-                                                       fFontIterator->lineHeight(),
+                                                       1,//fFontIterator->lineHeight(),
                                                        fParagraph->fRuns.count(),
                                                        fAdvance.fX);
             return run.newRunBuffer();
@@ -325,6 +324,9 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     SkSpan<TextBlock> styles(fTextStyles.begin(), fTextStyles.size());
     FontIterator font(fTextSpan, styles, fFontCollection);
+    if (font.atEnd()) {
+        return false;
+    }
     ShapeHandler handler(*this, &font);
     std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
     SkASSERT_RELEASE(shaper != nullptr);

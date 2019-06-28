@@ -14,14 +14,18 @@
 namespace skia {
 namespace textlayout {
 
+class FontCoverage;
 class FontResolver {
 public:
-    FontResolver(sk_sp<FontCollection> fontCollection);
+    FontResolver(sk_sp<FontCollection> fontCollection, SkSpan<const char> fullText);
     ~FontResolver() = default;
 
     void findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text);
     bool findFirst(const char* codepoint, SkFont* font, SkScalar* height);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
+
+    const char* firstResolvedCharacter() const;
+    SkFont firstResolvedFont() const;
 
 private:
     std::pair<SkFont, SkScalar> makeFont(sk_sp<SkTypeface> typeface, SkScalar size,
@@ -37,13 +41,14 @@ private:
         }
     };
 
-    SkUnichar firstUnresolved();
-
     sk_sp<FontCollection> fFontCollection;
+    SkSpan<const char> fFullText;
+    FontCoverage* fFontCoverage;
 
     SkTHashMap<const char*, std::pair<SkFont, SkScalar>> fFontMapping;
     SkTHashSet<std::pair<SkFont, SkScalar>, Hash> fResolvedFonts;
     std::pair<SkFont, SkScalar> fFirstResolvedFont;
+    const char* fFirstResolved;
 
     SkTArray<SkUnichar> fCodepoints;
     SkTArray<const char*> fCharacters;

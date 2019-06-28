@@ -131,6 +131,7 @@ unsigned skhb_nominal_glyphs(hb_font_t *hb_font, void *font_data,
     // Copy the results back to the sparse array.
     for (unsigned i = 0; i < count; i++) {
         *glyphs = glyph[i];
+        SkDebugf("lookup @%d: %d\n", i, glyph[i]);
         glyphs = SkTAddOffset<hb_codepoint_t>(glyphs, glyph_stride);
     }
     // TODO: supposed to return index of first 0?
@@ -230,7 +231,7 @@ hb_font_funcs_t* skhb_get_font_funcs() {
         hb_font_funcs_set_variation_glyph_func(funcs, skhb_glyph, nullptr, nullptr);
         hb_font_funcs_set_nominal_glyph_func(funcs, skhb_nominal_glyph, nullptr, nullptr);
 #if SK_HB_VERSION_CHECK(2, 0, 0)
-        hb_font_funcs_set_nominal_glyphs_func(funcs, skhb_nominal_glyphs, nullptr, nullptr);
+        //hb_font_funcs_set_nominal_glyphs_func(funcs, skhb_nominal_glyphs, nullptr, nullptr);
 #else
         sk_ignore_unused_variable(skhb_nominal_glyphs);
 #endif
@@ -521,11 +522,13 @@ void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::RunInfo& 
         const ShapedGlyph& glyph = run.fGlyphs[is_LTR(run.fLevel) ? startGlyphIndex + i
                                                                   : endGlyphIndex - 1 - i];
         buffer.glyphs[i] = glyph.fID;
+        auto offset = glyph.fOffset;
+        offset.fY *= -1;
         if (buffer.offsets) {
             buffer.positions[i] = advance + buffer.point;
-            buffer.offsets[i] = glyph.fOffset; //TODO: invert glyph.fOffset.fY?
+            buffer.offsets[i] = offset; //TODO: invert glyph.fOffset.fY?
         } else {
-            buffer.positions[i] = advance + buffer.point + glyph.fOffset; //TODO: invert glyph.fOffset.fY?
+            buffer.positions[i] = advance + buffer.point + offset; //TODO: invert glyph.fOffset.fY?
         }
         if (buffer.clusters) {
             buffer.clusters[i] = glyph.fCluster;
