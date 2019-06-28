@@ -19,6 +19,7 @@ class GrHardClip;
 class GrPaint;
 class GrRecordingContext;
 class GrRenderTargetContext;
+class GrRenderTargetProxy;
 class GrShape;
 class GrStyle;
 struct GrUserStencilSettings;
@@ -76,6 +77,7 @@ public:
         SkDEBUGCODE(CanDrawPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
         const GrCaps*               fCaps;
+        const GrRenderTargetProxy*  fProxy;
         const SkIRect*              fClipConservativeBounds;
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
@@ -88,6 +90,7 @@ public:
 #ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fCaps);
+            SkASSERT(fProxy);
             SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);

@@ -27,7 +27,6 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
         : INHERITED(format, desc, origin, textureSwizzle, fit, budgeted, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
         , fOutputSwizzle(outputSwizzle)
-        , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {
 }
 
@@ -43,7 +42,6 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                     budgeted, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
         , fOutputSwizzle(outputSwizzle)
-        , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
 }
@@ -56,7 +54,6 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin 
         : INHERITED(std::move(surf), origin, textureSwizzle, SkBackingFit::kExact)
         , fSampleCnt(fTarget->asRenderTarget()->numSamples())
         , fOutputSwizzle(outputSwizzle)
-        , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
 }
 
@@ -70,7 +67,7 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     }
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNeedsStencil, kDescFlags,
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNumStencilSamples, kDescFlags,
                                GrMipMapped::kNo, nullptr)) {
         return false;
     }
@@ -83,8 +80,8 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
-    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt, fNeedsStencil,
-                                                       kDescFlags, GrMipMapped::kNo);
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(
+            resourceProvider, fSampleCnt, fNumStencilSamples, kDescFlags, GrMipMapped::kNo);
     if (!surface) {
         return nullptr;
     }

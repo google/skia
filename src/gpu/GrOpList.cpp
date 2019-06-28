@@ -11,6 +11,8 @@
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTargetProxyPriv.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include <atomic>
@@ -161,16 +163,19 @@ bool GrOpList::isInstantiated() const {
         return false;
     }
 
-    bool needsStencil = fTarget->asRenderTargetProxy()
-                                        ? fTarget->asRenderTargetProxy()->needsStencil()
-                                        : false;
+    int minStencilSampleCount = (fTarget->asRenderTargetProxy())
+            ? fTarget->asRenderTargetProxy()->rtPriv().numStencilSamples()
+            : 0;
 
-    if (needsStencil) {
+    if (minStencilSampleCount) {
         GrRenderTarget* rt = fTarget->peekRenderTarget();
+        SkASSERT(rt);
 
-        if (!rt->renderTargetPriv().getStencilAttachment()) {
+        GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment();
+        if (!stencil) {
             return false;
         }
+        SkASSERT(stencil->numSamples() >= minStencilSampleCount);
     }
 
     GrSurface* surface = fTarget->peekSurface();

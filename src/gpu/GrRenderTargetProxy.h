@@ -27,12 +27,6 @@ public:
     // Actually instantiate the backing rendertarget, if necessary.
     bool instantiate(GrResourceProvider*) override;
 
-    /*
-     * When instantiated does this proxy require a stencil buffer?
-     */
-    void setNeedsStencil() { fNeedsStencil = true; }
-    bool needsStencil() const { return fNeedsStencil; }
-
     /**
      * Returns the number of samples/pixel in the color buffer (One if non-MSAA).
      */
@@ -107,7 +101,7 @@ private:
     // address of other types, leading to this problem.
     int                fSampleCnt;
     GrSwizzle          fOutputSwizzle;
-    bool               fNeedsStencil;
+    int                fNumStencilSamples = 0;
     WrapsVkSecondaryCB fWrapsVkSecondaryCB;
     // This is to fix issue in large comment above. Without the padding we end 6 bytes into a 16
     // byte range, so the GrTextureProxy ends up starting 8 byte aligned by not 16. We add the
