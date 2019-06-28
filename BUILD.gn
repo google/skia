@@ -1860,6 +1860,7 @@ if (skia_enable_tools) {
         "modules/skparagraph:samples",
         "modules/sksg",
         "modules/skshaper",
+        "//third_party/harfbuzz",
       ]
 
       if (skia_use_lua) {

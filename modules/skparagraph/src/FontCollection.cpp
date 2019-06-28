@@ -134,5 +134,8 @@ sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle
 
 void FontCollection::disableFontFallback() { fEnableFontFallback = false; }
 
+void FontCollection::enableFontFallback() { fEnableFontFallback = true; }
+
+
 }  // namespace textlayout
 }  // namespace skia

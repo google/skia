@@ -19,8 +19,8 @@ namespace textlayout {
 class FontIterator final : public SkShaper::FontRunIterator {
 public:
     FontIterator(SkSpan<const char> utf8,
-                   SkSpan<TextBlock> styles,
-                   sk_sp<FontCollection> fonts);
+                 SkSpan<TextBlock> styles,
+                 sk_sp<FontCollection> fonts);
 
     void consume() override;
 
@@ -28,6 +28,7 @@ public:
     bool atEnd() const override { return fCurrentChar == fText.end(); }
     const SkFont& currentFont() const override { return fFont; }
     SkScalar lineHeight() const { return fLineHeight; }
+    SkFont pickFirstFont();
 
 private:
     struct Hash {

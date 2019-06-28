@@ -1,4 +1,5 @@
 // Copyright 2019 Google LLC.
+#include <modules/skparagraph/src/FontIterator.h>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
@@ -1270,9 +1271,12 @@ protected:
 
         paragraph->paint(canvas, 0, 0);
         SkDEBUGCODE(auto impl = reinterpret_cast<ParagraphImpl*>(paragraph.get()));
+        // TODO: deal with spaces
+        /*
         SkASSERT(impl->runs().size() == 3);
         SkASSERT(impl->runs()[0].text().end() == impl->runs()[1].text().begin());
         SkASSERT(impl->runs()[1].text().end() == impl->runs()[2].text().begin());
+         */
     }
 
 private:
@@ -1292,53 +1296,106 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        const char* text =
-                "// Create a raised button.\n"
-                "RaisedButton(\n"
-                "  child: const Text('BUTTON TITLE'),\n"
-                "  onPressed: () {\n"
-                "    // Perform some action\n"
-                "  },\n"
-                ");\n"
-                "\n"
-                "// Create a disabled button.\n"
-                "// Buttons are disabled when onPressed isn't\n"
-                "// specified or is null.\n"
-                "const RaisedButton(\n"
-                "  child: Text('BUTTON TITLE'),\n"
-                "  onPressed: null,\n"
-                ");\n"
-                "\n"
-                "// Create a button with an icon and a\n"
-                "// title.\n"
-                "RaisedButton.icon(\n"
-                "  icon: const Icon(Icons.add, size: 18.0),\n"
-                "  label: const Text('BUTTON TITLE'),\n"
-                "  onPressed: () {\n"
-                "    // Perform some action\n"
-                "  },\n"
-                ");";
-
+        //auto text = u"a\u0300b\u0300c\u0300";
+        //auto text = u"a\u0300b\u0300c\u0300à";
+        auto text = u"a\u0300 == à";
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontSize(40);
         ParagraphStyle paragraph_style;
-        paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
+        paragraph_style.setTextStyle(text_style);
+
+        auto draw = [&](SkScalar x, SkScalar y, SkColor color, const char* font1, const char* font2 = "") {
+
+            ParagraphBuilderImpl builder1(paragraph_style, sk_make_sp<FontCollection>());
+            builder1.addText(font1);
+            if (font2 != "") {
+                builder1.addText(", ");
+                builder1.addText(font2);
+                builder1.addText(":");
+            }
+            auto paragraph1 = builder1.Build();
+            paragraph1->layout(1000);
+            paragraph1->paint(canvas, x, y);
+
+            auto fontCollection = sk_make_sp<TestFontCollection>();
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            text_style.setFontFamilies({SkString(font1), SkString(font2)});
+            SkPaint paint;
+            text_style.setColor(color);
+            //text_style.setBackgroundColor(paint);
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(1000);
+            auto impl = static_cast<ParagraphImpl *>(paragraph.get());
+            /*
+            SkDebugf("Resolution:\n");
+            FontIterator iterator(impl->text(), impl->styles(), fontCollection);
+            iterator.scanFontsMap([](const char* ch, size_t size, SkFont font, SkScalar height) {
+                SkString name;
+                font.getTypeface()->getFamilyName(&name);
+                SkString text(ch, size);
+                SkDebugf("[%s]: %s\n", text.c_str(), name.c_str());
+            });
+             */
+            paragraph->paint(canvas, x + 500, y);
+        };
+
+        draw(000, 050, SK_ColorGRAY, "Orbitron");
+        draw(000, 120, SK_ColorGRAY, "Tinos3");
+        draw(000, 190, SK_ColorRED, "Tinos5");
+        draw(000, 260, SK_ColorGRAY, "Tinos");
+
+        draw(000, 330, SK_ColorRED, "Tinos3", "Orbitron");
+        draw(000, 400, SK_ColorGREEN, "Tinos5", "Orbitron");
+        draw(000, 470, SK_ColorBLUE, "Tinos", "Orbitron");
+
+        draw(000, 540, SK_ColorGRAY, "Orbitron", "Tinos3");
+        draw(000, 610, SK_ColorGRAY, "Orbitron", "Tinos5");
+        draw(000, 680, SK_ColorGRAY, "Orbitron", "Tinos");
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView12 : public Sample {
+protected:
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Paragraph12");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto zalgo = "H͇͕̺͇̰̺͖͔̥̎̎̄͘̕͜ě̴̢̠̥͔̊͆̐͊̓͜͟ͅl̷̮̖͕̮̠̻̒̂͐́͝͝l̬̙͔̖̱̦̩̬͗̎̒̆͗͘̚̚͠͝ò̢̮͈̖̻̾͊͑̉̐̃͜͝͝ H̨̠̬̎̎͌̊̄̆͜͢e̸̛̯̯̳͙̐̃̂̀͢͝͝ļ̱̰̪̝̮̣̟̍̐́̾͌͒͐͑͘ḽ̵̡̧̢̘͎̎͗͘̚͟͠ǒ̢̝͓̹̯̤̀̑̎̇͒͞͡͠ Ḥ̸̜̠͍͇̬̗̮̗͐͂̊͗̓̔͂͐̽͘͟ě͉̟͚̬̔͊̽͜͝ḷ̵̭̪̱̩͈͉͆̏̋͊̌̋͘͜͞͝l̛̼̯͙̪̩̼̾̓̅͐̎ơ̵̗̘̭͎̟͒́͑̌͑̉͠ͅͅͅ";
+        //auto zalgo = u"\u0041\u0327\u0306";
 
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("monospace")});
+        text_style.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight,
+                                       SkFontStyle::kNormal_Width,
+                                       SkFontStyle::kUpright_Slant));
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontSize(10);
-        builder.pushStyle(text_style);
-        builder.addText(text);
-        builder.pop();
+        text_style.setFontSize(50);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(text_style);
 
+        auto fontCollection = sk_make_sp<FontCollection>();
+        //fontCollection->enableFontFallback();
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        text_style.setFontFamilies({});
+        builder.pushStyle(text_style);
+        builder.addText(zalgo);
         auto paragraph = builder.Build();
         paragraph->layout(1000);
-        auto result =
-                paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
-        SkPaint paint;
-        paint.setColor(SK_ColorLTGRAY);
-        canvas->drawRect(result[0].rect, paint);
-        paragraph->paint(canvas, 0, 0);
+        auto impl = static_cast<ParagraphImpl *>(paragraph.get());
+        auto runs = impl->runs();
+        paragraph->paint(canvas, 0, 100);
     }
 
 private:
@@ -1357,3 +1414,4 @@ DEF_SAMPLE(return new ParagraphView8();)
 DEF_SAMPLE(return new ParagraphView9();)
 DEF_SAMPLE(return new ParagraphView10();)
 DEF_SAMPLE(return new ParagraphView11();)
+DEF_SAMPLE(return new ParagraphView12();)
