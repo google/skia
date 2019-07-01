@@ -106,7 +106,8 @@ bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
 
     SkASSERT(GrMipMapped::kNo == mipMapped);
     // TODO: replace w/ the color-init version of createBackendTexture once Metal supports it.
-    *backendTex = context->priv().createBackendTexture(&bm.pixmap(), 1, renderable);
+    *backendTex = context->priv().createBackendTexture(&bm.pixmap(), 1, renderable,
+                                                       GrProtected::kNo);
 
     return backendTex->isValid();
 }

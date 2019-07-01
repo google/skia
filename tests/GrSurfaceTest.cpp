@@ -55,7 +55,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
 
     GrBackendTexture backendTex = context->createBackendTexture(
         256, 256, kRGBA_8888_SkColorType,
-        SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
+        SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
     sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
             backendTex, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
@@ -348,7 +348,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     // that they'd succeed if the texture wasn't kRead. We want to be sure we're failing with
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
-        auto backendTex = context->priv().createBackendTexture(&pixels, 1, GrRenderable::kYes);
+        auto backendTex = context->priv().createBackendTexture(&pixels, 1,
+                                                               GrRenderable::kYes,
+                                                               GrProtected::kNo);
 
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
@@ -397,7 +399,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
             delete_backend_texture(context, backendTex);
             backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, GrMipMapped::kYes, GrRenderable::kYes);
+                    SkColors::kTransparent, GrMipMapped::kYes, GrRenderable::kYes,
+                    GrProtected::kNo);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                       kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                                       ioType);
@@ -416,7 +419,7 @@ static const int kSurfSize = 10;
 static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable renderable) {
     auto backendTexture = context->createBackendTexture(
             kSurfSize, kSurfSize, kRGBA_8888_SkColorType, SkColors::kTransparent, GrMipMapped::kNo,
-            renderable);
+            renderable, GrProtected::kNo);
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
         texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(

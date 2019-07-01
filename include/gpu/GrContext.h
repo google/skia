@@ -360,7 +360,7 @@ public:
                                           const GrBackendFormat&,
                                           GrMipMapped,
                                           GrRenderable,
-                                          GrProtected isProtected = GrProtected::kNo);
+                                          GrProtected = GrProtected::kNo);
 
     // If possible, create an uninitialized backend texture. The client should ensure that the
     // returned backend texture is valid.
@@ -372,7 +372,7 @@ public:
                                           SkColorType,
                                           GrMipMapped,
                                           GrRenderable,
-                                          GrProtected isProtected = GrProtected::kNo);
+                                          GrProtected = GrProtected::kNo);
 
     // If possible, create a backend texture initialized to a particular color. The client should
     // ensure that the returned backend texture is valid.
@@ -380,7 +380,8 @@ public:
     //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     GrBackendTexture createBackendTexture(int width, int height,
                                           const GrBackendFormat&, const SkColor4f& color,
-                                          GrMipMapped, GrRenderable);
+                                          GrMipMapped, GrRenderable,
+                                          GrProtected = GrProtected::kNo);
 
     // If possible, create a backend texture initialized to a particular color. The client should
     // ensure that the returned backend texture is valid.
@@ -390,7 +391,8 @@ public:
     //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     GrBackendTexture createBackendTexture(int width, int height,
                                           SkColorType, const SkColor4f& color,
-                                          GrMipMapped, GrRenderable);
+                                          GrMipMapped, GrRenderable,
+                                          GrProtected = GrProtected::kNo);
 
     void deleteBackendTexture(GrBackendTexture);
 

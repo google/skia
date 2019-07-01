@@ -104,7 +104,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
 
         GrBackendTexture backendTex = context->createBackendTexture(
                 kSize, kSize, colorType,
-                SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes);
+                SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
         surf = SkSurface::MakeFromBackendTexture(context, backendTex,
                                                  kTopLeft_GrSurfaceOrigin, 0, colorType, nullptr,
                                                  nullptr);
@@ -130,7 +130,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
 
         backendTex = context->createBackendTexture(kSize, kSize, colorType,
                                                    SkColors::kTransparent,
-                                                   GrMipMapped::kNo, GrRenderable::kYes);
+                                                   GrMipMapped::kNo, GrRenderable::kYes,
+                                                   GrProtected::kNo);
         surf = SkSurface::MakeFromBackendTexture(context, backendTex,
                                                  kTopLeft_GrSurfaceOrigin, kSampleCnt, colorType,
                                                  nullptr, nullptr);
@@ -200,7 +201,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
         }
         GrBackendTexture backendTex = context->createBackendTexture(
                 kSize, kSize, colorType, SkColors::kTransparent,
-                GrMipMapped::kNo, GrRenderable::kYes);
+                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
         if (!backendTex.isValid()) {
             continue;
         }
