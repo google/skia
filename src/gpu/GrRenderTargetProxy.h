@@ -9,6 +9,7 @@
 #define GrRenderTargetProxy_DEFINED
 
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSwizzle.h"
 
@@ -27,11 +28,29 @@ public:
     // Actually instantiate the backing rendertarget, if necessary.
     bool instantiate(GrResourceProvider*) override;
 
+    bool canUseMixedSamples(const GrCaps& caps) const {
+        // TODO: Is this a wrapped external RT? Is GrBackendObjectOwnership available?
+        return caps.mixedSamplesSupport() && !this->glRTFBOIDIs0() &&
+               caps.internalMultisampleCount(this->config()) > 0;
+    }
+
     /*
-     * When instantiated does this proxy require a stencil buffer?
+     * Indicate that a draw to this proxy requires stencil, and how many stencil samples it needs.
+     * The number of stencil samples on this proxy will be equal to the largest sample count passed
+     * to this method.
      */
-    void setNeedsStencil() { fNeedsStencil = true; }
-    bool needsStencil() const { return fNeedsStencil; }
+    void setNeedsStencil(int8_t numStencilSamples) {
+        SkASSERT(numStencilSamples >= fSampleCnt);
+        fNumStencilSamples = SkTMax(numStencilSamples, fNumStencilSamples);
+    }
+
+    /**
+     * Returns the number of stencil samples required by this proxy.
+     * NOTE: Once instantiated, the actual render target may have more samples, but it is guaranteed
+     * to have at least this many. (After a multisample stencil buffer has been attached to a render
+     * target, we never "downgrade" it to one with fewer samples.)
+     */
+    int numStencilSamples() const { return fNumStencilSamples; }
 
     /**
      * Returns the number of samples/pixel in the color buffer (One if non-MSAA).
@@ -105,10 +124,10 @@ private:
     // in the constructors, and always looks for the full 16 byte alignment, even if the fields in
     // that particular class don't require it. Changing the size of this object can move the start
     // address of other types, leading to this problem.
-    int                fSampleCnt;
-    GrSwizzle          fOutputSwizzle;
-    bool               fNeedsStencil;
+    int8_t             fSampleCnt;
+    int8_t             fNumStencilSamples = 0;
     WrapsVkSecondaryCB fWrapsVkSecondaryCB;
+    GrSwizzle          fOutputSwizzle;
     // This is to fix issue in large comment above. Without the padding we end 6 bytes into a 16
     // byte range, so the GrTextureProxy ends up starting 8 byte aligned by not 16. We add the
     // padding here to get us right up to the 16 byte alignment (technically any padding of 3-10
