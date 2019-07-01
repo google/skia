@@ -17,11 +17,11 @@ namespace SkSL {
  * A 'break' statement.
  */
 struct BreakStatement : public Statement {
-    BreakStatement(int offset)
-    : INHERITED(offset, kBreak_Kind) {}
+    BreakStatement(IRGenerator* irGenerator, int offset)
+    : INHERITED(irGenerator, offset, kBreak_Kind) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new BreakStatement(fOffset));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new BreakStatement(fIRGenerator, fOffset));
     }
 
     String description() const override {

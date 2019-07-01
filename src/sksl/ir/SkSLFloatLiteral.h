@@ -17,12 +17,9 @@ namespace SkSL {
  * A literal floating point number.
  */
 struct FloatLiteral : public Expression {
-    FloatLiteral(const Context& context, int offset, double value)
-    : INHERITED(offset, kFloatLiteral_Kind, *context.fFloatLiteral_Type)
-    , fValue(value) {}
-
-    FloatLiteral(int offset, double value, const Type* type)
-    : INHERITED(offset, kFloatLiteral_Kind, *type)
+    FloatLiteral(IRGenerator* irGenerator, int offset, double value, IRNode::ID type = IRNode::ID())
+    : INHERITED(nullptr, offset, kFloatLiteral_Kind,
+                type ? type : irGenerator->fContext.fFloatLiteral_Type)
     , fValue(value) {}
 
     String description() const override {
@@ -44,7 +41,7 @@ struct FloatLiteral : public Expression {
         return INHERITED::coercionCost(target);
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override {
+    bool compareConstant(const Expression& other) const override {
         FloatLiteral& f = (FloatLiteral&) other;
         return fValue == f.fValue;
     }
@@ -53,8 +50,8 @@ struct FloatLiteral : public Expression {
         return fValue;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FloatLiteral(fOffset, fValue, &fType));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new FloatLiteral(fIRGenerator, fOffset, fValue, fType));
     }
 
     const double fValue;

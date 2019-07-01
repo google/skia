@@ -96,6 +96,29 @@ DEF_TEST(SkSLControl, r) {
          "}\n");
 }
 
+DEF_TEST(SkSL_TEMPORARY, r) {
+    test(r,
+         "float foo(float v[2]) { }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "float foo(float v[2]) {\n"
+         "    return v[0] * v[1];\n"
+         "}\n"
+         "void bar(inout float x) {\n"
+         "    float y[2], z;\n"
+         "    y[0] = x;\n"
+         "    y[1] = x * 2.0;\n"
+         "    z = foo(y);\n"
+         "    x = z;\n"
+         "}\n"
+         "void main() {\n"
+         "    float x = 10.0;\n"
+         "    bar(x);\n"
+         "    sk_FragColor = vec4(x);\n"
+         "}\n");
+}
+
 DEF_TEST(SkSLFunctions, r) {
     test(r,
          "float foo(float v[2]) { return v[0] * v[1]; }"

@@ -9,27 +9,31 @@
 #define SKSL_IRGENERATOR
 
 #include "src/sksl/SkSLASTFile.h"
-#include "src/sksl/SkSLASTNode.h"
-#include "src/sksl/SkSLErrorReporter.h"
-#include "src/sksl/ir/SkSLBlock.h"
-#include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLExtension.h"
-#include "src/sksl/ir/SkSLFunctionDefinition.h"
-#include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLModifiers.h"
-#include "src/sksl/ir/SkSLModifiersDeclaration.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLSection.h"
-#include "src/sksl/ir/SkSLStatement.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
-#include "src/sksl/ir/SkSLType.h"
-#include "src/sksl/ir/SkSLTypeReference.h"
-#include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/ir/SkSLVariable.h"
+#include <memory>
 
 namespace SkSL {
 
+struct ASTFile;
+struct Block;
+class Context;
+class ErrorReporter;
+struct FunctionDeclaration;
+struct InterfaceBlock;
+struct Statement;
 struct Swizzle;
+class SymbolTable;
+
+enum RefKind {
+    kRead_RefKind,
+    kWrite_RefKind,
+    kReadWrite_RefKind,
+    // taking the address of a variable - we consider this a read & write but don't complain if
+    // the variable was not previously assigned
+    kPointer_RefKind
+};
 
 /**
  * Performs semantic analysis on an abstract syntax tree (AST) and produces the corresponding
@@ -37,38 +41,42 @@ struct Swizzle;
  */
 class IRGenerator {
 public:
-    IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root,
-                ErrorReporter& errorReporter);
+    IRGenerator(ErrorReporter& errorReporter);
+
+    ~IRGenerator();
 
     void convertProgram(Program::Kind kind,
                         const char* text,
                         size_t length,
                         SymbolTable& types,
-                        std::vector<std::unique_ptr<ProgramElement>>* result);
+                        std::vector<IRNode::ID>* result);
 
     /**
      * If both operands are compile-time constants and can be folded, returns an expression
      * representing the folded value. Otherwise, returns null. Note that unlike most other functions
      * here, null does not represent a compilation error.
      */
-    std::unique_ptr<Expression> constantFold(const Expression& left,
-                                             Token::Kind op,
-                                             const Expression& right) const;
+    IRNode::ID constantFold(IRNode::ID left, Token::Kind op, IRNode::ID right);
 
-    std::unique_ptr<Expression> getArg(int offset, String name) const;
+    IRNode::ID getArg(int offset, String name);
+
+    // FIXME: remove this when rearchitecture is done
+    IRNode::ID createNode(IRNode* node);
 
     Program::Inputs fInputs;
     const Program::Settings* fSettings;
-    const Context& fContext;
+    const Context fContext;
+    ErrorReporter& fErrors;
     Program::Kind fKind;
 
-private:
+// FIXME uncomment
+//private:
     /**
      * Prepare to compile a program. Resets state, pushes a new symbol table, and installs the
      * settings.
      */
     void start(const Program::Settings* settings,
-               std::vector<std::unique_ptr<ProgramElement>>* inherited);
+               std::vector<IRNode::ID>* inherited);
 
     /**
      * Performs cleanup after compilation is complete.
@@ -78,95 +86,82 @@ private:
     void pushSymbolTable();
     void popSymbolTable();
 
-    std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTNode& decl,
-                                                            Variable::Storage storage);
+    IRNode::ID convertVarDeclarations(const ASTNode& decl, Variable::Storage storage);
     void convertFunction(const ASTNode& f);
-    std::unique_ptr<Statement> convertStatement(const ASTNode& statement);
-    std::unique_ptr<Expression> convertExpression(const ASTNode& expression);
-    std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(const ASTNode& m);
+    IRNode::ID convertStatement(const ASTNode& statement);
+    IRNode::ID convertExpression(const ASTNode& expression);
+    IRNode::ID convertModifiersDeclaration(const ASTNode& m);
 
-    const Type* convertType(const ASTNode& type);
-    std::unique_ptr<Expression> call(int offset,
-                                     const FunctionDeclaration& function,
-                                     std::vector<std::unique_ptr<Expression>> arguments);
+    IRNode::ID convertType(const ASTNode& type);
+    IRNode::ID callFunction(int offset, IRNode::ID function, std::vector<IRNode::ID> arguments);
     int callCost(const FunctionDeclaration& function,
-                 const std::vector<std::unique_ptr<Expression>>& arguments);
-    std::unique_ptr<Expression> call(int offset, std::unique_ptr<Expression> function,
-                                     std::vector<std::unique_ptr<Expression>> arguments);
-    int coercionCost(const Expression& expr, const Type& type);
-    std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
-    std::unique_ptr<Expression> convertAppend(int offset, const std::vector<ASTNode>& args);
-    std::unique_ptr<Block> convertBlock(const ASTNode& block);
-    std::unique_ptr<Statement> convertBreak(const ASTNode& b);
-    std::unique_ptr<Expression> convertNumberConstructor(
-                                                   int offset,
-                                                   const Type& type,
-                                                   std::vector<std::unique_ptr<Expression>> params);
-    std::unique_ptr<Expression> convertCompoundConstructor(
-                                                   int offset,
-                                                   const Type& type,
-                                                   std::vector<std::unique_ptr<Expression>> params);
-    std::unique_ptr<Expression> convertConstructor(int offset,
-                                                   const Type& type,
-                                                   std::vector<std::unique_ptr<Expression>> params);
-    std::unique_ptr<Statement> convertContinue(const ASTNode& c);
-    std::unique_ptr<Statement> convertDiscard(const ASTNode& d);
-    std::unique_ptr<Statement> convertDo(const ASTNode& d);
-    std::unique_ptr<Statement> convertSwitch(const ASTNode& s);
-    std::unique_ptr<Expression> convertBinaryExpression(const ASTNode& expression);
-    std::unique_ptr<Extension> convertExtension(int offset, StringFragment name);
-    std::unique_ptr<Statement> convertExpressionStatement(const ASTNode& s);
-    std::unique_ptr<Statement> convertFor(const ASTNode& f);
-    std::unique_ptr<Expression> convertIdentifier(const ASTNode& identifier);
-    std::unique_ptr<Statement> convertIf(const ASTNode& s);
-    std::unique_ptr<Expression> convertIndex(std::unique_ptr<Expression> base,
-                                             const ASTNode& index);
-    std::unique_ptr<InterfaceBlock> convertInterfaceBlock(const ASTNode& s);
+                 const std::vector<IRNode::ID>& arguments);
+    IRNode::ID callExpression(int offset, IRNode::ID function, std::vector<IRNode::ID> arguments);
+    int coercionCost(const Expression& expr, IRNode::ID type);
+    IRNode::ID coerce(IRNode::ID expr, IRNode::ID type);
+    IRNode::ID convertAppend(int offset, const std::vector<ASTNode>& args);
+    IRNode::ID convertBlock(const ASTNode& block);
+    IRNode::ID convertBreak(const ASTNode& b);
+    IRNode::ID convertNumberConstructor(int offset, IRNode::ID, std::vector<IRNode::ID> params);
+    IRNode::ID convertCompoundConstructor(int offset, IRNode::ID, std::vector<IRNode::ID> params);
+    IRNode::ID convertConstructor(int offset, IRNode::ID, std::vector<IRNode::ID> params);
+    IRNode::ID convertContinue(const ASTNode& c);
+    IRNode::ID convertDiscard(const ASTNode& d);
+    IRNode::ID convertDo(const ASTNode& d);
+    IRNode::ID convertSwitch(const ASTNode& s);
+    IRNode::ID convertBinaryExpression(const ASTNode& expression);
+    IRNode::ID convertExtension(int offset, StringFragment name);
+    IRNode::ID convertExpressionStatement(const ASTNode& s);
+    IRNode::ID convertFor(const ASTNode& f);
+    IRNode::ID convertIdentifier(const ASTNode& identifier);
+    IRNode::ID convertIf(const ASTNode& s);
+    IRNode::ID convertIndex(IRNode::ID base, const ASTNode& index);
+    IRNode::ID convertInterfaceBlock(const ASTNode& s);
     Modifiers convertModifiers(const Modifiers& m);
-    std::unique_ptr<Expression> convertPrefixExpression(const ASTNode& expression);
-    std::unique_ptr<Statement> convertReturn(const ASTNode& r);
-    std::unique_ptr<Section> convertSection(const ASTNode& e);
-    std::unique_ptr<Expression> getCap(int offset, String name);
-    std::unique_ptr<Expression> convertCallExpression(const ASTNode& expression);
-    std::unique_ptr<Expression> convertFieldExpression(const ASTNode& expression);
-    std::unique_ptr<Expression> convertIndexExpression(const ASTNode& expression);
-    std::unique_ptr<Expression> convertPostfixExpression(const ASTNode& expression);
-    std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
-                                                 StringFragment field);
-    std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
-                                             StringFragment field);
-    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               StringFragment fields);
-    std::unique_ptr<Expression> convertTernaryExpression(const ASTNode& expression);
-    std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTNode& s);
-    std::unique_ptr<Statement> convertWhile(const ASTNode& w);
+    IRNode::ID convertPrefixExpression(const ASTNode& expression);
+    IRNode::ID convertReturn(const ASTNode& r);
+    IRNode::ID convertSection(const ASTNode& e);
+    IRNode::ID getCap(int offset, String name);
+    IRNode::ID convertCallExpression(const ASTNode& expression);
+    IRNode::ID convertFieldExpression(const ASTNode& expression);
+    IRNode::ID convertIndexExpression(const ASTNode& expression);
+    IRNode::ID convertPostfixExpression(const ASTNode& expression);
+    IRNode::ID convertTypeField(int offset, IRNode::ID type, StringFragment field);
+    IRNode::ID convertField(IRNode::ID base, StringFragment field);
+    IRNode::ID convertSwizzle(IRNode::ID base, StringFragment fields);
+    IRNode::ID convertTernaryExpression(const ASTNode& expression);
+    IRNode::ID convertVarDeclarationStatement(const ASTNode& s);
+    IRNode::ID convertWhile(const ASTNode& w);
     void convertEnum(const ASTNode& e);
-    std::unique_ptr<Block> applyInvocationIDWorkaround(std::unique_ptr<Block> main);
+    IRNode::ID applyInvocationIDWorkaround(IRNode::ID main);
     // returns a statement which converts sk_Position from device to normalized coordinates
-    std::unique_ptr<Statement> getNormalizeSkPositionCode();
+    IRNode::ID getNormalizeSkPositionCode();
 
     void checkValid(const Expression& expr);
-    void setRefKind(const Expression& expr, VariableReference::RefKind kind);
+    void setRefKind(const Expression& expr, RefKind kind);
     void getConstantInt(const Expression& value, int64_t* out);
     bool checkSwizzleWrite(const Swizzle& swizzle);
+    IRNode::ID shortCircuitBoolean(IRNode::ID left, Token::Kind op, IRNode::ID right);
 
     std::unique_ptr<ASTFile> fFile;
-    const FunctionDeclaration* fCurrentFunction;
+    IRNode::ID fCurrentFunction;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
     std::shared_ptr<SymbolTable> fRootSymbolTable;
     std::shared_ptr<SymbolTable> fSymbolTable;
-    // holds extra temp variable declarations needed for the current function
-    std::vector<std::unique_ptr<Statement>> fExtraVars;
+    // holds extra temp variable declaration statements needed for the current function
+    std::vector<IRNode::ID> fExtraVars;
     int fLoopLevel;
     int fSwitchLevel;
     // count of temporary variables we have created
     int fTmpCount;
-    ErrorReporter& fErrors;
     int fInvocations;
-    std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
-    const Variable* fSkPerVertex = nullptr;
-    Variable* fRTAdjust;
-    Variable* fRTAdjustInterfaceBlock;
+    std::vector<IRNode::ID>* fProgramElements;
+    std::vector<IRNode>* fNodes;
+    std::vector<std::unique_ptr<IRNode>> fLegacyNodes;
+
+    IRNode::ID fSkPerVertex = nullptr;
+    IRNode::ID fRTAdjust;
+    IRNode::ID fRTAdjustInterfaceBlock;
     int fRTAdjustFieldIndex;
     bool fStarted = false;
 
@@ -174,6 +169,7 @@ private:
     friend class AutoLoopLevel;
     friend class AutoSwitchLevel;
     friend class Compiler;
+    friend struct IRNode;
 };
 
 }
