@@ -133,8 +133,7 @@ def nanobench_flags(api, bot):
   if 'NoGPUThreads' in bot:
     args.extend(['--gpuThreads', '0'])
 
-  if 'Valgrind' in bot:
-    # Don't care about Valgrind performance.
+  if 'Debug' in bot or 'ASAN' in bot or 'Valgrind' in bot:
     args.extend(['--loops',   '1'])
     args.extend(['--samples', '1'])
     # Ensure that the bot framework does not think we have timed out.

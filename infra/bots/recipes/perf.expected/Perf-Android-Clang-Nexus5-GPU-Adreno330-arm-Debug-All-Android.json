@@ -736,7 +736,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --nocpu --config gles glessrgb glesmsaa4 --match ~blurroundrect ~patch_grid ~desk_carsvg ~keymobi_shop_mobileweb_ebay_com.skp ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --nocpu --config gles glessrgb glesmsaa4 --loops 1 --samples 1 --keepAlive true --match ~blurroundrect ~patch_grid ~desk_carsvg ~keymobi_shop_mobileweb_ebay_com.skp ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "env": {
@@ -746,7 +746,7 @@
     "infra_step": true,
     "name": "write nanobench.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@nanobench.sh@set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --nocpu --config gles glessrgb glesmsaa4 --match ~blurroundrect ~patch_grid ~desk_carsvg ~keymobi_shop_mobileweb_ebay_com.skp ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@nanobench.sh@set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --nocpu --config gles glessrgb glesmsaa4 --loops 1 --samples 1 --keepAlive true --match ~blurroundrect ~patch_grid ~desk_carsvg ~keymobi_shop_mobileweb_ebay_com.skp ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp; echo $? >/data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@nanobench.sh@@@"
     ]
   },

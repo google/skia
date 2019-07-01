@@ -77,17 +77,6 @@ GrContextOptions grContextOpts;
 
 static const int kAutoTuneLoops = 0;
 
-#if !defined(__has_feature)
-    #define  __has_feature(x) 0
-#endif
-
-static const int kDefaultLoops =
-#if defined(SK_DEBUG) || __has_feature(address_sanitizer)
-    1;
-#else
-    kAutoTuneLoops;
-#endif
-
 static SkString loops_help_txt() {
     SkString help;
     help.printf("Number of times to run each bench. Set this to %d to auto-"
@@ -102,7 +91,7 @@ static SkString to_string(int n) {
     return str;
 }
 
-static DEFINE_int(loops, kDefaultLoops, loops_help_txt().c_str());
+static DEFINE_int(loops, kAutoTuneLoops, loops_help_txt().c_str());
 
 static DEFINE_int(samples, 10, "Number of samples to measure for each bench.");
 static DEFINE_int(ms, 0, "If >0, run each bench for this many ms instead of obeying --samples.");
