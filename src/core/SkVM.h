@@ -118,7 +118,12 @@ namespace skvm {
 
         // d = op(n)
         using DOpN = void(V d, V n);
-        DOpN scvtf4s, fcvtzs4s;
+        DOpN scvtf4s,   // int -> float
+             fcvtzs4s,  // truncate float -> int
+             xtns2h,    // u32 -> u16
+             xtnh2b,    // u16 -> u8
+             uxtlb2h,   // u8 -> u16
+             uxtlh2s;   // u16 -> u32
 
         // TODO: both these platforms support rounding float->int (vcvtps2dq, fcvtns.4s)... use?
 
@@ -129,7 +134,9 @@ namespace skvm {
 
         void ldrq(V dst, Label);  // 128-bit PC-relative load
         void ldrq(V dst, X src);  // 128-bit dst = *src
+        void ldrs(V dst, X src);  //  32-bit dst[0] = *src
         void strq(V src, X dst);  // 128-bit *dst = src
+        void strs(V src, X dst);  //  32-bit *dst = src[0]
 
     private:
         // dst = op(dst, imm)
@@ -155,12 +162,14 @@ namespace skvm {
         // *ptr = ymm or ymm = *ptr, depending on opcode.
         void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
 
-        // General layout top to bottom is:
+        // Opcode for 3-arguments ops is split between hi and lo:
         //    [11 bits hi] [5 bits m] [6 bits lo] [5 bits n] [5 bits d]
-        // where the opcode is split between hi and lo.
         void op(uint32_t hi, V m, uint32_t lo, V n, V d);
 
-        void shift(uint32_t op, int imm, V n, V d);
+        // 2-argument ops, with or without an immediate.
+        void op(uint32_t op22, int imm, V n, V d);
+        void op(uint32_t op22, V n, V d) { this->op(op22,0,n,d); }
+        void op(uint32_t op22, X x, V v) { this->op(op22,0,(V)x,v); }
 
         uint8_t* fCode;
         size_t   fSize;

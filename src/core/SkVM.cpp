@@ -741,36 +741,34 @@ namespace skvm {
 
     void Assembler::tbl(V d, V n, V m) { this->op(0b0'1'001110'00'0, m, 0b0'00'0'00, n, d); }
 
-    void Assembler::shift(uint32_t op, int imm, V n, V d) {
-        this->word( (op & 22_mask) << 10
-                  | imm            << 16   // imm is embedded inside op, bit size depends on op
-                  | (n &   5_mask) <<  5
-                  | (d &   5_mask) <<  0);
+    void Assembler::op(uint32_t op22, int imm, V n, V d) {
+        this->word( (op22 & 22_mask) << 10
+                  | imm              << 16   // imm is embedded inside op, bit size depends on op
+                  | (n    &  5_mask) <<  5
+                  | (d    &  5_mask) <<  0);
     }
 
     void Assembler::shl4s(V d, V n, int imm) {
-        this->shift(0b0'1'0'011110'0100'000'01010'1,    ( imm&31), n, d);
+        this->op(0b0'1'0'011110'0100'000'01010'1,    ( imm&31), n, d);
     }
     void Assembler::sshr4s(V d, V n, int imm) {
-        this->shift(0b0'1'0'011110'0100'000'00'0'0'0'1, (-imm&31), n, d);
+        this->op(0b0'1'0'011110'0100'000'00'0'0'0'1, (-imm&31), n, d);
     }
     void Assembler::ushr4s(V d, V n, int imm) {
-        this->shift(0b0'1'1'011110'0100'000'00'0'0'0'1, (-imm&31), n, d);
+        this->op(0b0'1'1'011110'0100'000'00'0'0'0'1, (-imm&31), n, d);
     }
     void Assembler::ushr8h(V d, V n, int imm) {
-        this->shift(0b0'1'1'011110'0010'000'00'0'0'0'1, (-imm&15), n, d);
+        this->op(0b0'1'1'011110'0010'000'00'0'0'0'1, (-imm&15), n, d);
     }
 
-    void Assembler::scvtf4s(V d, V n) {
-        this->word(0b0'1'0'01110'0'0'10000'11101'10 << 10
-                  | (n & 5_mask) << 5
-                  | (d & 5_mask) << 0);
-    }
-    void Assembler::fcvtzs4s(V d, V n) {
-        this->word(0b0'1'0'01110'1'0'10000'1101'1'10 << 10
-                  | (n & 5_mask) << 5
-                  | (d & 5_mask) << 0);
-    }
+    void Assembler::scvtf4s (V d, V n) { this->op(0b0'1'0'01110'0'0'10000'11101'10, n,d); }
+    void Assembler::fcvtzs4s(V d, V n) { this->op(0b0'1'0'01110'1'0'10000'1101'1'10, n,d); }
+
+    void Assembler::xtns2h(V d, V n) { this->op(0b0'0'0'01110'01'10000'10010'10, n,d); }
+    void Assembler::xtnh2b(V d, V n) { this->op(0b0'0'0'01110'00'10000'10010'10, n,d); }
+
+    void Assembler::uxtlb2h(V d, V n) { this->op(0b0'0'1'011110'0001'000'10100'1, n,d); }
+    void Assembler::uxtlh2s(V d, V n) { this->op(0b0'0'1'011110'0010'000'10100'1, n,d); }
 
     void Assembler::ret(X n) {
         this->word(0b1101011'0'0'10'11111'0000'0'0 << 10
@@ -784,7 +782,7 @@ namespace skvm {
                   | (d     &  5_mask) <<  0);
     }
     void Assembler::subs(X d, X n, int imm12) {
-        this->word( 0b1'1'1'10001'00     << 22
+        this->word( 0b1'1'1'10001'00  << 22
                   | (imm12 & 12_mask) << 10
                   | (n     &  5_mask) <<  5
                   | (d     &  5_mask) <<  0);
@@ -798,17 +796,11 @@ namespace skvm {
                   | 0b0'0001          <<  0);
     }
 
-    void Assembler::ldrq(V dst, X src) {
-        this->word( 0b00'111'1'01'11'000000000000 << 10
-                  | (src & 5_mask) << 5
-                  | (dst & 5_mask) << 0);
-    }
+    void Assembler::ldrq(V dst, X src) { this->op(0b00'111'1'01'11'000000000000, src, dst); }
+    void Assembler::ldrs(V dst, X src) { this->op(0b10'111'1'01'01'000000000000, src, dst); }
 
-    void Assembler::strq(V src, X dst) {
-        this->word( 0b00'111'1'01'10'000000000000 << 10
-                  | (dst & 5_mask) << 5
-                  | (src & 5_mask) << 0);
-    }
+    void Assembler::strq(V src, X dst) { this->op(0b00'111'1'01'10'000000000000, dst, src); }
+    void Assembler::strs(V src, X dst) { this->op(0b10'111'1'01'00'000000000000, dst, src); }
 
     void Assembler::ldrq(V dst, Label l) {
         const int imm19 = (l.offset - here().offset) / 4;
@@ -1095,11 +1087,16 @@ namespace skvm {
                   z = inst.z;
             int imm = inst.imm;
             switch (op) {
-            #define TODO if (0) SkDebugf("op %d\n", op); return 0
-                case Op::store8: TODO;
+                case Op::store8: a.xtns2h(r(tmp), r(x));
+                                 a.xtnh2b(r(tmp), r(tmp));
+                                 a.strs  (r(tmp), arg[imm]);
+                                 break;
                 case Op::store32: a.strq(r(x), arg[imm]); break;
 
-                case Op::load8: TODO;
+                case Op::load8: a.ldrs   (r(tmp), arg[imm]);
+                                a.uxtlb2h(r(tmp), r(tmp));
+                                a.uxtlh2s(r(d)  , r(tmp));
+                                break;
                 case Op::load32: a.ldrq(r(d), arg[imm]); break;
 
                 case Op::splat: a.ldrq(r(d), *splats.find(imm)); break;
