@@ -113,10 +113,12 @@ public:
         case 9:
             if (GrBackendApi::kOpenGL == fBackend) {
                 fUsesGLFBO0 = true;
+                fShouldCreateMipMaps = false; // needs to changed in tandem w/ textureability
                 fIsTextureable = false;
             }
             break;
         case 10:
+            fShouldCreateMipMaps = false; // needs to changed in tandem w/ textureability
             fIsTextureable = false;
             break;
         }
@@ -199,6 +201,10 @@ public:
             return nullptr;
         }
 
+        // Even if a characterization couldn't be constructed we want to soldier on to make
+        // sure that surface creation will/would've also failed
+        SkASSERT(!c.isValid() || c.isCompatible(*backend));
+
         sk_sp<SkSurface> surface;
         if (!fIsTextureable) {
             // Create a surface w/ the current parameters but make it non-textureable
@@ -212,10 +218,12 @@ public:
         }
 
         if (!surface) {
+            SkASSERT(!c.isValid());
             this->cleanUpBackEnd(context, *backend);
             return nullptr;
         }
 
+        SkASSERT(c.isValid());
         SkASSERT(surface->isCompatible(c));
         return surface;
     }
@@ -409,6 +417,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
     {
         GrBackendTexture backend;
         SurfaceParameters params(context->backend());
+        params.setShouldCreateMipMaps(false);
         params.setTextureable(false);
 
         sk_sp<SkSurface> s = params.make(context, &backend);
@@ -480,10 +489,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
     for (bool textureability : { true, false }) {
         std::unique_ptr<SkDeferredDisplayList> ddl;
 
-        // First, create a DDL w/o textureability. TODO: once we have reusable DDLs, move this
-        // outside of the loop.
+        // First, create a DDL w/o textureability (and thus no mipmaps). TODO: once we have
+        // reusable DDLs, move this outside of the loop.
         {
             SurfaceParameters params(context->backend());
+            params.setShouldCreateMipMaps(false);
             params.setTextureable(false);
 
             ddl = params.createDDL(context);
@@ -492,6 +502,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
 
         // Then verify it can draw into either flavor of destination
         SurfaceParameters params(context->backend());
+        params.setShouldCreateMipMaps(textureability);
         params.setTextureable(textureability);
 
         GrBackendTexture backend;
@@ -543,6 +554,7 @@ static void test_make_render_target(skiatest::Reporter* reporter,
         }
 
         REPORTER_ASSERT(reporter, c.isValid());
+        REPORTER_ASSERT(reporter, c.isCompatible(backend));
         REPORTER_ASSERT(reporter, s->isCompatible(c));
         // Note that we're leaving 'backend' live here
     }

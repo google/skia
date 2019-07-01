@@ -124,6 +124,84 @@ public:
         return kUnknown_GrPixelConfig;
     }
 
+    bool areColorTypeAndFormatCompatible(SkColorType ct,
+                                         const GrBackendFormat& format) const override {
+        const GrPixelConfig* mockFormat = format.getMockFormat();
+        if (!mockFormat) {
+            return kUnknown_GrPixelConfig;
+        }
+
+        switch (ct) {
+            case kUnknown_SkColorType:
+                return false;
+            case kAlpha_8_SkColorType:
+                if (kAlpha_8_GrPixelConfig == *mockFormat ||
+                    kAlpha_8_as_Alpha_GrPixelConfig == *mockFormat ||
+                    kAlpha_8_as_Red_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kRGB_565_SkColorType:
+                if (kRGB_565_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kARGB_4444_SkColorType:
+                if (kRGBA_4444_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kRGBA_8888_SkColorType:
+                if (kRGBA_8888_GrPixelConfig == *mockFormat ||
+                    kSRGBA_8888_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kRGB_888x_SkColorType:
+                if (kRGB_888X_GrPixelConfig == *mockFormat ||
+                    kRGB_888_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kBGRA_8888_SkColorType:
+                if (kBGRA_8888_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kRGBA_1010102_SkColorType:
+                if (kRGBA_1010102_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kRGB_101010x_SkColorType:
+                return false;
+            case kGray_8_SkColorType:
+                if (kGray_8_GrPixelConfig == *mockFormat ||
+                    kGray_8_as_Lum_GrPixelConfig == *mockFormat ||
+                    kGray_8_as_Red_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kRGBA_F16Norm_SkColorType:
+                if (kRGBA_half_Clamped_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kRGBA_F16_SkColorType:
+                if (kRGBA_half_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+            case kRGBA_F32_SkColorType:
+                if (kRGBA_float_GrPixelConfig == *mockFormat) {
+                    return true;
+                }
+                break;
+        }
+
+        return false;
+    }
+
     GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
                                              SkColorType ct) const override {
         const GrPixelConfig* mockFormat = format.getMockFormat();
