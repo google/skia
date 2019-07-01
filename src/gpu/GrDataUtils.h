@@ -26,22 +26,114 @@ void GrFillInData(GrPixelConfig, int baseWidth, int baseHeight,
 void GrFillInCompressedData(SkImage::CompressionType, int width, int height, char* dest,
                             const SkColor4f& color);
 
-struct GrColorInfo {
+// TODO: Replace with GrColorSpaceInfo once GrPixelConfig is excised from that type.
+class GrColorInfo {
+public:
+    GrColorInfo() = default;
+
+    GrColorInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
+            : fColorSpace(std::move(cs)), fColorType(ct), fAlphaType(at) {}
+
+    GrColorInfo(const GrColorInfo&) = default;
+    GrColorInfo(GrColorInfo&&) = default;
+    GrColorInfo& operator=(const GrColorInfo&) = default;
+    GrColorInfo& operator=(GrColorInfo&&) = default;
+
+    GrColorType colorType() const { return fColorType; }
+
+    SkAlphaType alphaType() const { return fAlphaType; }
+
+    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
+
+    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
+
+    bool isValid() const {
+        return fColorType != GrColorType::kUnknown && fAlphaType != kUnknown_SkAlphaType;
+    }
+
+private:
+    sk_sp<SkColorSpace> fColorSpace;
     GrColorType fColorType = GrColorType::kUnknown;
-    SkColorSpace* fColorSpace = nullptr;
-    SkAlphaType fAlphaType = kPremul_SkAlphaType;
+    SkAlphaType fAlphaType = kUnknown_SkAlphaType;
 };
 
-struct GrPixelInfo {
+class GrPixelInfo {
+public:
+    GrPixelInfo() = default;
+
+    // not explicit
+    GrPixelInfo(const SkImageInfo& info)
+            : fColorInfo(SkColorTypeToGrColorType(info.colorType()), info.alphaType(),
+                         info.refColorSpace())
+            , fWidth(info.width())
+            , fHeight(info.height()) {}
+
+    GrPixelInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, int w, int h)
+            : fColorInfo(ct, at, std::move(cs)), fWidth(w), fHeight(h) {}
+
+    GrPixelInfo(const GrPixelInfo&) = default;
+    GrPixelInfo(GrPixelInfo&&) = default;
+    GrPixelInfo& operator=(const GrPixelInfo&) = default;
+    GrPixelInfo& operator=(GrPixelInfo&&) = default;
+
+    GrPixelInfo makeColorType(GrColorType ct) {
+        return {ct, this->alphaType(), this->refColorSpace(), this->width(), this->height()};
+    }
+
+    GrPixelInfo makeAlphaType(SkAlphaType at) {
+        return {this->colorType(), at, this->refColorSpace(), this->width(), this->height()};
+    }
+
+    GrColorType colorType() const { return fColorInfo.colorType(); }
+
+    SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
+
+    SkColorSpace* colorSpace() const { return fColorInfo.colorSpace(); }
+
+    sk_sp<SkColorSpace> refColorSpace() const { return fColorInfo.refColorSpace(); }
+
+    int width() const { return fWidth; }
+
+    int height() const { return fHeight; }
+
+    size_t bpp() const { return GrColorTypeBytesPerPixel(this->colorType()); }
+
+    size_t minRowBytes() const { return this->bpp() * this->width(); }
+
+    /**
+     * Place this pixel rect in a surface of dimensions surfaceWidth x surfaceHeight size offset at
+     * surfacePt and then clip the pixel rectangle to the bounds of the surface. If the pixel rect
+     * does not intersect the rectangle or is empty then return false. If clipped, the input
+     * surfacePt, the width/height of this GrPixelInfo, and the data pointer will be modified to
+     * reflect the clipped rectangle.
+     */
+    template <typename T>
+    bool clip(int surfaceWidth, int surfaceHeight, SkIPoint* surfacePt, T** data, size_t rowBytes) {
+        auto bounds = SkIRect::MakeWH(surfaceWidth, surfaceHeight);
+        auto rect = SkIRect::MakeXYWH(surfacePt->fX, surfacePt->fY, fWidth, fHeight);
+        if (!rect.intersect(bounds)) {
+            return false;
+        }
+        *data = SkTAddOffset<T>(*data, (rect.fTop  - surfacePt->fY) * rowBytes +
+                                       (rect.fLeft - surfacePt->fX) * this->bpp());
+        surfacePt->fX = rect.fLeft;
+        surfacePt->fY = rect.fTop;
+        fWidth = rect.width();
+        fHeight = rect.height();
+        return true;
+    }
+
+    bool isValid() const { return fColorInfo.isValid() && fWidth > 0 && fHeight > 0; }
+
+private:
     GrColorInfo fColorInfo = {};
-    GrSurfaceOrigin fOrigin = kTopLeft_GrSurfaceOrigin;
     int fWidth = 0;
     int fHeight = 0;
-    size_t fRowBytes = 0;
 };
 
 // Swizzle param is applied after loading and before converting from srcInfo to dstInfo.
-bool GrConvertPixels(const GrPixelInfo& dstInfo, void* dst, const GrPixelInfo& srcInfo,
-                     const void* src, GrSwizzle swizzle = GrSwizzle{});
+bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
+                     const GrPixelInfo& srcInfo, const void* src, size_t srcRB,
+                     bool flipY = false, GrSwizzle swizzle = GrSwizzle{});
 
 #endif

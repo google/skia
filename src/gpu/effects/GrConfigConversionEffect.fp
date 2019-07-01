@@ -96,7 +96,7 @@
 
         readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
-        if (!readRTC->readPixels(ii, firstRead, 0, 0, 0)) {
+        if (!readRTC->readPixels(ii, firstRead, 0, {0, 0})) {
             return false;
         }
 
@@ -118,7 +118,7 @@
         readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
 
-        if (!readRTC->readPixels(ii, secondRead, 0, 0, 0)) {
+        if (!readRTC->readPixels(ii, secondRead, 0, {0, 0})) {
             return false;
         }
 

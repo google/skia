@@ -469,72 +469,76 @@ static inline void append_clamp_gamut(SkRasterPipeline* pipeline) {
     pipeline->append_gamut_clamp_if_normalized(fakeII);
 }
 
-bool GrConvertPixels(const GrPixelInfo& dstInfo, void* dst, const GrPixelInfo& srcInfo,
-                     const void* src, GrSwizzle swizzle) {
+bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
+                     const GrPixelInfo& srcInfo, const void* src, size_t srcRB,
+                     bool flipY, GrSwizzle swizzle) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-
-    if (dstInfo.fWidth != srcInfo.fWidth || srcInfo.fHeight != dstInfo.fHeight) {
+    if (!srcInfo.isValid() || !dstInfo.isValid()) {
         return false;
     }
-    if (dstInfo.fWidth <= 0 || dstInfo.fHeight <= 0) {
+    if (!src || !dst) {
         return false;
     }
-    if (GrColorTypeComponentFlags(dstInfo.fColorInfo.fColorType) & kGray_SkColorTypeComponentFlag) {
+    if (dstInfo.width() != srcInfo.width() || srcInfo.height() != dstInfo.height()) {
+        return false;
+    }
+    if (GrColorTypeComponentFlags(dstInfo.colorType()) & kGray_SkColorTypeComponentFlag) {
         // We don't currently support conversion to Gray.
         return false;
     }
-    size_t srcBpp = GrColorTypeBytesPerPixel(srcInfo.fColorInfo.fColorType);
-    size_t dstBpp = GrColorTypeBytesPerPixel(dstInfo.fColorInfo.fColorType);
-    if (!srcBpp || !dstBpp) {
-        // Either src or dst is compressed or kUnknown.
+    if (dstRB < dstInfo.minRowBytes() || srcRB < srcInfo.minRowBytes()) {
         return false;
     }
+
+    size_t srcBpp = srcInfo.bpp();
+    size_t dstBpp = dstInfo.bpp();
+
     // SkRasterPipeline operates on row-pixels not row-bytes.
-    SkASSERT(dstInfo.fRowBytes % dstBpp == 0);
-    SkASSERT(srcInfo.fRowBytes % srcBpp == 0);
+    SkASSERT(dstRB % dstBpp == 0);
+    SkASSERT(srcRB % srcBpp == 0);
 
     SkRasterPipeline::StockStage load;
     bool srcIsNormalized;
-    auto loadSwizzle =
-            get_load_and_get_swizzle(srcInfo.fColorInfo.fColorType, &load, &srcIsNormalized);
+    auto loadSwizzle = get_load_and_get_swizzle(srcInfo.colorType(), &load, &srcIsNormalized);
     loadSwizzle = GrSwizzle::Concat(loadSwizzle, swizzle);
 
     SkRasterPipeline::StockStage store;
     bool dstIsNormalized;
-    auto storeSwizzle =
-            get_dst_swizzle_and_store(dstInfo.fColorInfo.fColorType, &store, &dstIsNormalized);
+    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &dstIsNormalized);
 
+    bool premul   = srcInfo.alphaType() == kUnpremul_SkAlphaType &&
+                    dstInfo.alphaType() == kPremul_SkAlphaType;
+    bool unpremul = srcInfo.alphaType() == kPremul_SkAlphaType &&
+                    dstInfo.alphaType() == kUnpremul_SkAlphaType;
     bool alphaOrCSConversion =
-            (srcInfo.fColorInfo.fAlphaType != dstInfo.fColorInfo.fAlphaType &&
-             srcInfo.fColorInfo.fAlphaType != kOpaque_SkAlphaType) ||
-            !SkColorSpace::Equals(srcInfo.fColorInfo.fColorSpace, dstInfo.fColorInfo.fColorSpace);
+            premul || unpremul || !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
 
     bool clampGamut;
     SkTLazy<SkColorSpaceXformSteps> steps;
     GrSwizzle loadStoreSwizzle;
     if (alphaOrCSConversion) {
-        steps.init(srcInfo.fColorInfo.fColorSpace, srcInfo.fColorInfo.fAlphaType,
-                   dstInfo.fColorInfo.fColorSpace, dstInfo.fColorInfo.fAlphaType);
-        clampGamut = dstIsNormalized && dstInfo.fColorInfo.fAlphaType == kPremul_SkAlphaType;
+        steps.init(srcInfo.colorSpace(), srcInfo.alphaType(),
+                   dstInfo.colorSpace(), dstInfo.alphaType());
+        clampGamut = dstIsNormalized && dstInfo.alphaType() == kPremul_SkAlphaType;
     } else {
-        clampGamut = dstIsNormalized && !srcIsNormalized &&
-                     dstInfo.fColorInfo.fAlphaType == kPremul_SkAlphaType;
+        clampGamut =
+                dstIsNormalized && !srcIsNormalized && dstInfo.alphaType() == kPremul_SkAlphaType;
         if (!clampGamut) {
             loadStoreSwizzle = GrSwizzle::Concat(loadSwizzle, storeSwizzle);
         }
     }
     int cnt = 1;
-    int height = srcInfo.fHeight;
-    SkRasterPipeline_MemoryCtx srcCtx{const_cast<void*>(src), SkToInt(srcInfo.fRowBytes / srcBpp)},
-                               dstCtx{                  dst , SkToInt(dstInfo.fRowBytes / dstBpp)};
+    int height = srcInfo.height();
+    SkRasterPipeline_MemoryCtx srcCtx{const_cast<void*>(src), SkToInt(srcRB / srcBpp)},
+                               dstCtx{                  dst , SkToInt(dstRB / dstBpp)};
 
-    if (srcInfo.fOrigin != dstInfo.fOrigin) {
+    if (flipY) {
         // It *almost* works to point the src at the last row and negate the stride and run the
         // whole rectangle. However, SkRasterPipeline::run()'s control loop uses size_t loop
         // variables so it winds up relying on unsigned overflow math. It works out in practice
         // but UBSAN says "no!" as it's technically undefined and in theory a compiler could emit
         // code that didn't do what is intended. So we go one row at a time. :(
-        srcCtx.pixels = static_cast<char*>(srcCtx.pixels) + srcInfo.fRowBytes * (height - 1);
+        srcCtx.pixels = static_cast<char*>(srcCtx.pixels) + srcRB * (height - 1);
         std::swap(cnt, height);
     }
     for (int i = 0; i < cnt; ++i) {
@@ -558,9 +562,9 @@ bool GrConvertPixels(const GrPixelInfo& dstInfo, void* dst, const GrPixelInfo& s
             }
         }
         pipeline.append(store, &dstCtx);
-        pipeline.run(0, 0, srcInfo.fWidth, height);
-        srcCtx.pixels = static_cast<char*>(srcCtx.pixels) - srcInfo.fRowBytes;
-        dstCtx.pixels = static_cast<char*>(dstCtx.pixels) + dstInfo.fRowBytes;
+        pipeline.run(0, 0, srcInfo.width(), height);
+        srcCtx.pixels = static_cast<char*>(srcCtx.pixels) - srcRB;
+        dstCtx.pixels = static_cast<char*>(dstCtx.pixels) + dstRB;
     }
     return true;
 }

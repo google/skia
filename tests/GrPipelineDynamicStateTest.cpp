@@ -214,7 +214,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
             GrPipelineDynamicStateTestOp::Make(context, scissorTest, vbuff));
         rtc->readPixels(SkImageInfo::Make(kScreenSize, kScreenSize,
                                           kRGBA_8888_SkColorType, kPremul_SkAlphaType),
-                        resultPx, 4 * kScreenSize, 0, 0, 0);
+                        resultPx, 4 * kScreenSize, {0, 0});
         for (int y = 0; y < kScreenSize; ++y) {
             for (int x = 0; x < kScreenSize; ++x) {
                 int expectedColorIdx;

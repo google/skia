@@ -1936,22 +1936,11 @@ GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels
     if (supportedRead.fColorType != dstCT || supportedRead.fSwizzle != GrSwizzle("rgba") || flip) {
         result.fPixelConverter = [w = rect.width(), h = rect.height(), dstCT, supportedRead](
                                          void* dst, const void* src) {
-            GrPixelInfo srcInfo;
-            srcInfo.fColorInfo.fAlphaType = kPremul_SkAlphaType;
-            srcInfo.fColorInfo.fColorType = supportedRead.fColorType;
-            srcInfo.fColorInfo.fColorSpace = nullptr;
-            srcInfo.fRowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * w;
-
-            GrPixelInfo dstInfo;
-            dstInfo.fColorInfo.fAlphaType = kPremul_SkAlphaType;
-            dstInfo.fColorInfo.fColorType = dstCT;
-            dstInfo.fColorInfo.fColorSpace = nullptr;
-            dstInfo.fRowBytes = GrColorTypeBytesPerPixel(dstCT) * w;
-
-            srcInfo.fWidth  = dstInfo.fWidth  = w;
-            srcInfo.fHeight = dstInfo.fHeight = h;
-
-            GrConvertPixels(dstInfo, dst, srcInfo, src, supportedRead.fSwizzle);
+            GrPixelInfo srcInfo(supportedRead.fColorType, kPremul_SkAlphaType, nullptr, w, h);
+            GrPixelInfo dstInfo(dstCT,                    kPremul_SkAlphaType, nullptr, w, h);
+            GrConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
+                            srcInfo, src, srcInfo.minRowBytes(),
+                            /* flipY = */ false, supportedRead.fSwizzle);
         };
     }
     return result;
@@ -1970,7 +1959,7 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
         auto ii = SkImageInfo::Make(rect.width(), rect.height(), colorType, kPremul_SkAlphaType,
                                     this->colorSpaceInfo().refColorSpace());
         pm.alloc(ii);
-        if (!this->readPixels(ii, pm.writable_addr(), pm.rowBytes(), rect.fLeft, rect.fTop)) {
+        if (!this->readPixels(ii, pm.writable_addr(), pm.rowBytes(), {rect.fLeft, rect.fTop})) {
             callback(context, nullptr, 0);
         }
         callback(context, pm.addr(), pm.rowBytes());

@@ -203,12 +203,7 @@ bool SkGpuDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
         return false;
     }
 
-    SkReadPixelsRec rec(pm, x, y);
-    if (!rec.trim(this->width(), this->height())) {
-        return false;
-    }
-
-    return fRenderTargetContext->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
+    return fRenderTargetContext->readPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), {x, y});
 }
 
 bool SkGpuDevice::onWritePixels(const SkPixmap& pm, int x, int y) {
@@ -218,12 +213,7 @@ bool SkGpuDevice::onWritePixels(const SkPixmap& pm, int x, int y) {
         return false;
     }
 
-    SkWritePixelsRec rec(pm, x, y);
-    if (!rec.trim(this->width(), this->height())) {
-        return false;
-    }
-
-    return fRenderTargetContext->writePixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
+    return fRenderTargetContext->writePixels(pm.info(), pm.addr(), pm.rowBytes(), {x, y});
 }
 
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {

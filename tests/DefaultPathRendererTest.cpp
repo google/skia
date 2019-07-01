@@ -46,7 +46,7 @@ static SkBitmap read_back(GrRenderTargetContext* rtc, int width, int height) {
     SkBitmap bm;
     bm.allocPixels(dstII);
 
-    rtc->readPixels(dstII, bm.getAddr(0, 0), bm.rowBytes(), 0, 0, 0);
+    rtc->readPixels(dstII, bm.getAddr(0, 0), bm.rowBytes(), {0, 0});
 
     return bm;
 }

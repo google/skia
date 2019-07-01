@@ -40,7 +40,7 @@ static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t
 
     SkImageInfo dstInfo = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    if (!rtc->readPixels(dstInfo, pixels.get(), 0, rect.fLeft, rect.fTop)) {
+    if (!rtc->readPixels(dstInfo, pixels.get(), 0, {rect.fLeft, rect.fTop})) {
         return false;
     }
 

@@ -179,8 +179,9 @@ public:
      *                      to top-to-bottom (skia's usual order)
      *
      * @return true if the read succeeded, false if not. The read can fail
-     *              because of a unsupported pixel config or because no render
-     *              target is currently set.
+     *              because of the surface doesn't support reading, the color type
+     *              is not allowed for the format of the surface or if the rectangle
+     *              read is not contained in the surface.
      */
     bool readPixels(GrSurface* surface, int left, int top, int width, int height,
                     GrColorType dstColorType, void* buffer, size_t rowBytes);
@@ -196,6 +197,11 @@ public:
      * @param srcColorType  the color type of the source buffer.
      * @param texels        array of mipmap levels containing texture data
      * @param mipLevelCount number of levels in 'texels'
+     *
+     * @return true if the write succeeded, false if not. The read can fail
+     *              because of the surface doesn't support writing (e.g. read only),
+     *              the color type is not allowed for the format of the surface or
+     *              if the rectangle written is not contained in the surface.
      */
     bool writePixels(GrSurface* surface, int left, int top, int width, int height,
                      GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount);

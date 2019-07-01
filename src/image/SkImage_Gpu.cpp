@@ -650,7 +650,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
 
     SkImageInfo srcInfo = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType, at,
                                             std::move(cs));
-    texContext->writePixels(srcInfo, pixmap.addr(0, 0), pixmap.rowBytes(), 0, 0);
+    texContext->writePixels(srcInfo, pixmap.addr(0, 0), pixmap.rowBytes(), {0, 0});
 
     GrFlushInfo info;
     info.fFlags = kSyncCpu_GrFlushFlag;
