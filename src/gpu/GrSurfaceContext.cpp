@@ -119,11 +119,11 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
                             direct->priv().validPMUPMConversionExists();
 
     auto readFlag = caps->surfaceSupportsReadPixels(srcSurface);
-    if (readFlag == GrCaps::kProtected_ReadFlag) {
+    if (readFlag == GrCaps::SurfaceReadPixelsSupport::kUnsupported) {
         return false;
     }
 
-    if (readFlag == GrCaps::kRequiresCopy_ReadFlag || canvas2DFastPath) {
+    if (readFlag == GrCaps::SurfaceReadPixelsSupport::kCopyToTexture2D || canvas2DFastPath) {
         GrBackendFormat format;
         GrPixelConfig config;
         GrColorType colorType;

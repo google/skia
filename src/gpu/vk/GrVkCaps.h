@@ -52,7 +52,7 @@ public:
     int maxRenderTargetSampleCount(GrPixelConfig config) const override;
     int maxRenderTargetSampleCount(VkFormat format) const;
 
-    ReadFlags surfaceSupportsReadPixels(const GrSurface*) const override;
+    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
 
     bool isFormatTexturableLinearly(VkFormat format) const {
         return SkToBool(FormatInfo::kTextureable_Flag & this->getFormatInfo(format).fLinearFlags);

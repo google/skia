@@ -41,8 +41,8 @@ public:
     int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(GrPixelConfig) const override;
 
-    ReadFlags surfaceSupportsReadPixels(const GrSurface*) const override {
-        return kSupported_ReadFlag;
+    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
+        return SurfaceReadPixelsSupport::kSupported;
     }
 
     bool isFormatCopyable(SkColorType, const GrBackendFormat&) const override { return true; }
