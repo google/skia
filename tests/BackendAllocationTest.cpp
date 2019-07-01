@@ -367,7 +367,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                           GrMipMapped mipMapped,
                                                           GrRenderable renderable) {
                         return context->createBackendTexture(32, 32, colorType, color,
-                                                             mipMapped, renderable);
+                                                             mipMapped, renderable,
+                                                             GrProtected::kNo);
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
@@ -539,7 +540,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
                         return context->createBackendTexture(32, 32, format, color,
-                                                             mipMapped, renderable);
+                                                             mipMapped, renderable,
+                                                             GrProtected::kNo);
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
@@ -665,7 +667,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                                                        GrRenderable renderable) {
                         GrBackendTexture beTex = context->createBackendTexture(32, 32, format,
                                                                                color, mipMapped,
-                                                                               renderable);
+                                                                               renderable,
+                                                                               GrProtected::kNo);
                         GrVkImageInfo vkII;
                         if (!beTex.getVkImageInfo(&vkII)) {
                             return GrBackendTexture();

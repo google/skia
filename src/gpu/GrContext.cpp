@@ -365,7 +365,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const GrBackendFormat& backendFormat,
                                                  const SkColor4f& color,
                                                  GrMipMapped mipMapped,
-                                                 GrRenderable renderable) {
+                                                 GrRenderable renderable,
+                                                 GrProtected isProtected) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
@@ -381,14 +382,15 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 
     return fGpu->createBackendTexture(width, height, backendFormat,
                                       mipMapped, renderable,
-                                      nullptr, 0, &color, GrProtected::kNo);
+                                      nullptr, 0, &color, isProtected);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  SkColorType colorType,
                                                  const SkColor4f& color,
                                                  GrMipMapped mipMapped,
-                                                 GrRenderable renderable) {
+                                                 GrRenderable renderable,
+                                                 GrProtected isProtected) {
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -402,7 +404,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    return this->createBackendTexture(width, height, format, color, mipMapped, renderable);
+    return this->createBackendTexture(width, height, format, color, mipMapped, renderable,
+                                      isProtected);
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
