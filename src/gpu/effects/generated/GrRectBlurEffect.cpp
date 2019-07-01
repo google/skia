@@ -128,7 +128,14 @@ GrGLSLFragmentProcessor* GrRectBlurEffect::onCreateGLSLInstance() const {
     return new GrGLSLRectBlurEffect();
 }
 void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                             GrProcessorKeyBuilder* b) const {}
+                                             GrProcessorKeyBuilder* b) const {
+    bool highPrecision = ((((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
+                            abs(rect.right()) > 16000.0) ||
+                           abs(rect.bottom()) > 16000.0) ||
+                          abs(rect.right() - rect.left()) > 16000.0) ||
+                         abs(rect.bottom() - rect.top()) > 16000.0;
+    b->add32((int32_t)highPrecision);
+}
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRectBlurEffect& that = other.cast<GrRectBlurEffect>();
     (void)that;
