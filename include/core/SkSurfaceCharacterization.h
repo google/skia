@@ -91,6 +91,7 @@ private:
     friend class GrContextThreadSafeProxy; // for private ctor
     friend class SkDeferredDisplayListRecorder; // for 'config'
     friend class SkSurface; // for 'config'
+    friend class GrContext; // for 'config'
 
     GrPixelConfig config() const { return fConfig; }
 
