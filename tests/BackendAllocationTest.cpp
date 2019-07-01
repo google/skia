@@ -340,6 +340,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                     auto uninitCreateMtd = [colorType](GrContext* context,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         return context->createBackendTexture(32, 32, colorType,
                                                              mipMapped, renderable,
                                                              GrProtected::kNo);
@@ -366,8 +367,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                           const SkColor4f& color,
                                                           GrMipMapped mipMapped,
                                                           GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         return context->createBackendTexture(32, 32, colorType, color,
-                                                             mipMapped, renderable);
+                                                             mipMapped, renderable,
+                                                             GrProtected::kNo);
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
@@ -516,6 +519,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                     auto uninitCreateMtd = [format](GrContext* context,
                                                     GrMipMapped mipMapped,
                                                     GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         return context->createBackendTexture(32, 32, format,
                                                              mipMapped, renderable,
                                                              GrProtected::kNo);
@@ -538,8 +542,10 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                                                        const SkColor4f& color,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         return context->createBackendTexture(32, 32, format, color,
-                                                             mipMapped, renderable);
+                                                             mipMapped, renderable,
+                                                             GrProtected::kNo);
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
@@ -640,6 +646,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     auto uninitCreateMtd = [format](GrContext* context,
                                                     GrMipMapped mipMapped,
                                                     GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         GrBackendTexture beTex = context->createBackendTexture(32, 32, format,
                                                                                mipMapped,
                                                                                renderable,
@@ -663,9 +670,11 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                                                        const SkColor4f& color,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         GrBackendTexture beTex = context->createBackendTexture(32, 32, format,
                                                                                color, mipMapped,
-                                                                               renderable);
+                                                                               renderable,
+                                                                               GrProtected::kNo);
                         GrVkImageInfo vkII;
                         if (!beTex.getVkImageInfo(&vkII)) {
                             return GrBackendTexture();

@@ -361,11 +361,89 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     return this->createBackendTexture(width, height, format, mipMapped, renderable, isProtected);
 }
 
+GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c) {
+    const GrCaps* caps = this->caps();
+
+    if (!this->asDirectContext() || !c.isValid()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    if (c.usesGLFBO0()) {
+        // If we are making the surface we will never use FBO0.
+        return GrBackendTexture();
+    }
+
+    if (c.vulkanSecondaryCBCompatible()) {
+        return {};
+    }
+
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(c.colorType());
+    if (!format.isValid()) {
+        return GrBackendTexture();
+    }
+
+    if (!SkSurface_Gpu::Valid(caps, format)) {
+        return GrBackendTexture();
+    }
+
+    // TODO (PROT-CHAR): pass in protection status once added to characterization
+    GrBackendTexture result = this->createBackendTexture(c.width(), c.height(), format,
+                                                         GrMipMapped(c.isMipMapped()),
+                                                         GrRenderable::kYes,
+                                                         GrProtected::kNo);
+    SkASSERT(c.isCompatible(result));
+    return result;
+}
+
+GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c,
+                                                 const SkColor4f& color) {
+    const GrCaps* caps = this->caps();
+
+    if (!this->asDirectContext() || !c.isValid()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    if (c.usesGLFBO0()) {
+        // If we are making the surface we will never use FBO0.
+        return GrBackendTexture();
+    }
+
+    if (c.vulkanSecondaryCBCompatible()) {
+        return {};
+    }
+
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(c.colorType());
+    if (!format.isValid()) {
+        return GrBackendTexture();
+    }
+
+    if (!SkSurface_Gpu::Valid(caps, format)) {
+        return GrBackendTexture();
+    }
+
+    // TODO (PROT-CHAR): pass in protection status once added to characterization
+    GrBackendTexture result = this->createBackendTexture(c.width(), c.height(), format, color,
+                                                         GrMipMapped(c.isMipMapped()),
+                                                         GrRenderable::kYes,
+                                                         GrProtected::kNo);
+    SkASSERT(c.isCompatible(result));
+    return result;
+}
+
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const GrBackendFormat& backendFormat,
                                                  const SkColor4f& color,
                                                  GrMipMapped mipMapped,
-                                                 GrRenderable renderable) {
+                                                 GrRenderable renderable,
+                                                 GrProtected isProtected) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
@@ -381,14 +459,15 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 
     return fGpu->createBackendTexture(width, height, backendFormat,
                                       mipMapped, renderable,
-                                      nullptr, 0, &color, GrProtected::kNo);
+                                      nullptr, 0, &color, isProtected);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  SkColorType colorType,
                                                  const SkColor4f& color,
                                                  GrMipMapped mipMapped,
-                                                 GrRenderable renderable) {
+                                                 GrRenderable renderable,
+                                                 GrProtected isProtected) {
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -402,7 +481,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    return this->createBackendTexture(width, height, format, color, mipMapped, renderable);
+    return this->createBackendTexture(width, height, format, color,
+                                      mipMapped, renderable, isProtected);
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {

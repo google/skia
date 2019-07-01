@@ -273,7 +273,8 @@ public:
     // pixmap(s).
     // If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
     // the data for all the mipmap levels must be provided.
-    GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels, GrRenderable);
+    GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels,
+                                          GrRenderable, GrProtected);
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}

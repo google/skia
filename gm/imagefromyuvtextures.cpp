@@ -126,7 +126,8 @@ protected:
         for (int i = 0; i < 3; ++i) {
             SkASSERT(fYUVBmps[i].width() == SkToInt(fYUVBmps[i].rowBytes()));
             yuvTextures[i] = context->priv().createBackendTexture(&fYUVBmps[i].pixmap(), 1,
-                                                                  GrRenderable::kNo);
+                                                                  GrRenderable::kNo,
+                                                                  GrProtected::kNo);
         }
     }
 
@@ -134,7 +135,7 @@ protected:
                              GrBackendTexture* resultTexture) {
         *resultTexture = context->createBackendTexture(
                 width, height, kRGBA_8888_SkColorType, SkColors::kTransparent,
-                GrMipMapped::kNo, GrRenderable::kYes);
+                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
     }
 
     void deleteBackendTextures(GrContext* context, GrBackendTexture textures[], int n) {

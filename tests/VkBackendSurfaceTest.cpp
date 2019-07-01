@@ -36,7 +36,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
                                                                 kRGBA_8888_SkColorType,
                                                                 SkColors::kTransparent,
                                                                 GrMipMapped::kNo,
-                                                                GrRenderable::kNo);
+                                                                GrRenderable::kNo,
+                                                                GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrVkImageInfo info;
@@ -143,7 +144,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
                                                                     kRGBA_8888_SkColorType,
                                                                     SkColors::kTransparent,
                                                                     GrMipMapped::kNo,
-                                                                    GrRenderable::kNo);
+                                                                    GrRenderable::kNo,
+                                                                    GrProtected::kNo);
         sk_sp<SkImage> image;
         int count = 0;
         if (useExternal) {
@@ -227,7 +229,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkPrepareForExternalIOQueueTransitionTest, report
             GrBackendTexture backendTex = context->createBackendTexture(
                     4, 4, kRGBA_8888_SkColorType,
                     SkColors::kTransparent, GrMipMapped::kNo,
-                    useSurface ? GrRenderable::kYes : GrRenderable::kNo);
+                    useSurface ? GrRenderable::kYes : GrRenderable::kNo,
+                    GrProtected::kNo);
 
             // Make a backend texture with an external queue family and general layout.
             GrVkImageInfo vkInfo;

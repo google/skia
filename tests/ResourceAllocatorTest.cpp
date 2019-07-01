@@ -55,7 +55,8 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
 
     *backendTex = context->createBackendTexture(p.fSize, p.fSize, p.fColorType,
                                                 SkColors::kTransparent,
-                                                GrMipMapped::kNo, GrRenderable::kNo);
+                                                GrMipMapped::kNo, GrRenderable::kNo,
+                                                GrProtected::kNo);
     if (!backendTex->isValid()) {
         return nullptr;
     }
