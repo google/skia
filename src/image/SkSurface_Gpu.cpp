@@ -351,6 +351,10 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
+    if (c.vulkanSecondaryCBCompatible()) {
+        return nullptr;
+    }
+
     const GrBackendFormat format = caps->getBackendFormatFromColorType(c.colorType());
     if (!format.isValid()) {
         return nullptr;
