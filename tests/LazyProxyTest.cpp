@@ -467,7 +467,7 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
 
         GrBackendTexture backendTex = ctx->createBackendTexture(
                 kSize, kSize, kRGBA_8888_SkColorType, SkColors::kTransparent,
-                GrMipMapped::kNo, GrRenderable::kNo);
+                GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
         sk_sp<GrTextureProxy> lazyProxy = proxyProvider->createLazyProxy(
                 [instantiatePtr, releasePtr,

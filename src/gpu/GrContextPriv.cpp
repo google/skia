@@ -380,7 +380,8 @@ std::unique_ptr<GrFragmentProcessor> GrContextPriv::createUPMToPMEffect(
 #include "src/core/SkMipMap.h"
 
 GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], int numLevels,
-                                                     GrRenderable renderable) {
+                                                     GrRenderable renderable,
+                                                     GrProtected isProtected) {
     if (!fContext->asDirectContext()) {
         return {};
     }
@@ -429,5 +430,5 @@ GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], i
     return gpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
                                      GrMipMapped::kNo, // TODO: use real mipmap setting here
                                      renderable, srcData[0].addr(), srcData[0].rowBytes(),
-                                     nullptr, GrProtected::kNo);
+                                     nullptr, isProtected);
 }

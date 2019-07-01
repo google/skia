@@ -282,7 +282,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                           colorType,
                                                           SkColors::kTransparent,
                                                           GrMipMapped::kNo,
-                                                          GrRenderable::kYes);
+                                                          GrRenderable::kYes,
+                                                          GrProtected::kNo);
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTextureAsRenderTarget(
                             backendTex, origin, supportedNumSamples);
                     if (!sProxy) {
@@ -308,7 +309,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                           colorType,
                                                           SkColors::kTransparent,
                                                           GrMipMapped::kNo,
-                                                          GrRenderable::kYes);
+                                                          GrRenderable::kYes,
+                                                          GrProtected::kNo);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
                             backendTex, origin, supportedNumSamples, kBorrow_GrWrapOwnership,
@@ -337,7 +339,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                           colorType,
                                                           SkColors::kTransparent,
                                                           GrMipMapped::kNo,
-                                                          GrRenderable::kNo);
+                                                          GrRenderable::kNo,
+                                                          GrProtected::kNo);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTexture(
                             backendTex, origin, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,

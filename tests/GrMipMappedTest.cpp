@@ -42,7 +42,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
             // fine since we are never actually using these textures for any work on the gpu.
             GrBackendTexture backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, mipMapped, renderable);
+                    SkColors::kTransparent, mipMapped, renderable, GrProtected::kNo);
 
             sk_sp<GrTextureProxy> proxy;
             sk_sp<SkImage> image;
@@ -108,7 +108,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
         for (auto willUseMips : {false, true}) {
             GrBackendTexture backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, mipMapped, GrRenderable::kNo);
+                    SkColors::kTransparent, mipMapped, GrRenderable::kNo, GrProtected::kNo);
 
             sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backendTex,
                                                             kTopLeft_GrSurfaceOrigin,
@@ -251,7 +251,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             sk_sp<SkSurface> surface;
             GrBackendTexture backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, mipMapped, GrRenderable::kYes);
+                    SkColors::kTransparent, mipMapped, GrRenderable::kYes, GrProtected::kNo);
             if (isWrapped) {
                 surface = SkSurface::MakeFromBackendTexture(context,
                                                             backendTex,

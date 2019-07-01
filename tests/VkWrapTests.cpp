@@ -40,7 +40,8 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
                                                                     kColorType,
                                                                     SkColors::kTransparent,
                                                                     GrMipMapped::kNo,
-                                                                    GrRenderable::kNo);
+                                                                    GrRenderable::kNo,
+                                                                    GrProtected::kNo);
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
 
@@ -95,7 +96,8 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
                                                                     kColorType,
                                                                     SkColors::kTransparent,
                                                                     GrMipMapped::kNo,
-                                                                    GrRenderable::kYes);
+                                                                    GrRenderable::kYes,
+                                                                    GrProtected::kNo);
 
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
@@ -139,7 +141,8 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
                                                                     kColorType,
                                                                     SkColors::kTransparent,
                                                                     GrMipMapped::kNo,
-                                                                    GrRenderable::kYes);
+                                                                    GrRenderable::kYes,
+                                                                    GrProtected::kNo);
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
 

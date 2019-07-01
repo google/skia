@@ -999,7 +999,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
 
     GrBackendTexture backendTex =
         ctx->createBackendTexture(100, 100, kRGBA_8888_SkColorType, SkColors::kTransparent,
-                                  GrMipMapped::kNo, GrRenderable::kNo);
+                                  GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
     GrXferProcessor::DstProxy fakeDstProxy;
     {

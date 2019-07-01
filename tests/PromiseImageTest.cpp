@@ -169,7 +169,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
 
     GrBackendTexture backendTex = ctx->createBackendTexture(
             kWidth, kHeight, kRGBA_8888_SkColorType,
-            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes);
+            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
@@ -245,12 +245,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
 
     GrBackendTexture backendTex1 = ctx->createBackendTexture(
             kWidth, kHeight, kGray_8_SkColorType,
-            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
+            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex1.isValid());
 
     GrBackendTexture backendTex2 = ctx->createBackendTexture(
             kWidth, kHeight, kAlpha_8_SkColorType,
-            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
+            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex2.isValid());
     if (backendTex1.getBackendFormat() != backendTex2.getBackendFormat()) {
         ctx->deleteBackendTexture(backendTex1);
@@ -357,7 +357,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
 
             GrBackendTexture backendTex = ctx->createBackendTexture(
                     kWidth, kHeight, kAlpha_8_SkColorType,
-                    SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
+                    SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
             REPORTER_ASSERT(reporter, backendTex.isValid());
 
             SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
@@ -396,7 +396,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
 
     GrBackendTexture backendTex = ctx->createBackendTexture(
             kWidth, kHeight, kAlpha_8_SkColorType,
-            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
+            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     SkImageInfo info =
@@ -460,7 +460,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     // Do all this just to get a valid backend format for the image.
     GrBackendTexture backendTex = ctx->createBackendTexture(
             kWidth, kHeight, kRGBA_8888_SkColorType,
-            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes);
+            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
     REPORTER_ASSERT(reporter, backendFormat.isValid());

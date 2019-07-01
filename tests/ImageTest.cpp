@@ -492,7 +492,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter
 
         GrBackendTexture backendTex = context->createBackendTexture(
                 kSize, kSize, colorType, SkColors::kTransparent,
-                GrMipMapped::kNo, GrRenderable::kNo);
+                GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
         auto img = SkImage::MakeFromTexture(context, backendTex, kTopLeft_GrSurfaceOrigin,
                                             colorType, kOpaque_SkAlphaType, nullptr);
