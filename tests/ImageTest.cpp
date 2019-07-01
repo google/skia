@@ -521,24 +521,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
         ERRORF(reporter, "Failed to make unpremul texture image.");
         return;
     }
-    // The GPU backend always unpremuls the values stored in the texture because it assumes they
-    // are premul values. (skbug.com/7580).
-    if (false) {
-        SkBitmap unpremul;
-        unpremul.allocPixels(SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType,
-                                               kUnpremul_SkAlphaType, nullptr));
-        if (!texImage->readPixels(unpremul.info(), unpremul.getPixels(), unpremul.rowBytes(), 0,
-                                  0)) {
-            ERRORF(reporter, "Unpremul readback failed.");
-            return;
-        }
-        for (int y = 0; y < 256; ++y) {
-            for (int x = 0; x < 256; ++x) {
-                if (*bmp.getAddr32(x, y) != *unpremul.getAddr32(x, y)) {
-                    ERRORF(reporter, "unpremul(0x%08x)->unpremul(0x%08x) at %d, %d.",
-                           *bmp.getAddr32(x, y), *unpremul.getAddr32(x, y), x, y);
-                    return;
-                }
+    SkBitmap unpremul;
+    unpremul.allocPixels(SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType,
+                                           kUnpremul_SkAlphaType, nullptr));
+    if (!texImage->readPixels(unpremul.info(), unpremul.getPixels(), unpremul.rowBytes(), 0,
+                              0)) {
+        ERRORF(reporter, "Unpremul readback failed.");
+        return;
+    }
+    for (int y = 0; y < 256; ++y) {
+        for (int x = 0; x < 256; ++x) {
+            if (*bmp.getAddr32(x, y) != *unpremul.getAddr32(x, y)) {
+                ERRORF(reporter, "unpremul(0x%08x)->unpremul(0x%08x) at %d, %d.",
+                       *bmp.getAddr32(x, y), *unpremul.getAddr32(x, y), x, y);
+                return;
             }
         }
     }
@@ -551,13 +547,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
     }
     for (int y = 0; y < 256; ++y) {
         for (int x = 0; x < 256; ++x) {
-            // Treat bmp's color as a pm color even though it may be the r/b swap of a PM color.
-            // SkPremultiplyColor acts the same on both channels.
-            uint32_t origColor = SkPreMultiplyColor(*bmp.getAddr32(x, y));
+            uint32_t origColor = *bmp.getAddr32(x, y);
             int32_t origA = (origColor >> 24) & 0xff;
-            int32_t origB = (origColor >> 16) & 0xff;
-            int32_t origG = (origColor >>  8) & 0xff;
-            int32_t origR = (origColor >>  0) & 0xff;
+            float a = origA / 255.f;
+            int32_t origB = sk_float_round2int(((origColor >> 16) & 0xff) * a);
+            int32_t origG = sk_float_round2int(((origColor >>  8) & 0xff) * a);
+            int32_t origR = sk_float_round2int(((origColor >>  0) & 0xff) * a);
+
             uint32_t read = *premul.getAddr32(x, y);
             int32_t readA = (read >> 24) & 0xff;
             int32_t readB = (read >> 16) & 0xff;
@@ -568,8 +564,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
             int32_t tol = (origA == 0 || origA == 255) ? 0 : 1;
             if (origA != readA || SkTAbs(readB - origB) > tol || SkTAbs(readG - origG) > tol ||
                 SkTAbs(readR - origR) > tol) {
-                ERRORF(reporter, "unpremul(0x%08x)->premul(0x%08x) at %d, %d.",
-                       *bmp.getAddr32(x, y), *premul.getAddr32(x, y), x, y);
+                ERRORF(reporter, "unpremul(0x%08x)->premul(0x%08x) expected(0x%08x) at %d, %d.",
+                       *bmp.getAddr32(x, y), *premul.getAddr32(x, y), origColor, x, y);
                 return;
             }
         }

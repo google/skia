@@ -37,7 +37,6 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
-
     GrBackendTexture backendTex;
 
     if (doDataUpload) {
@@ -81,8 +80,9 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
                                                                     kPremul_SkAlphaType);
     REPORTER_ASSERT(reporter, surfaceContext);
 
-    bool result = surfaceContext->readPixels(context, 0, 0, kWidth, kHeight, grCT, nullptr,
-                                             actualPixels.writable_addr(), actualPixels.rowBytes());
+    bool result = surfaceContext->readPixels({grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight},
+                                             actualPixels.writable_addr(), actualPixels.rowBytes(),
+                                             {0, 0}, context);
 
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(expectedPixels.addr32(),

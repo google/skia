@@ -265,13 +265,13 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
 
-    int bpp = GrColorTypeBytesPerPixel(dstColorType);
-    if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp,
-                                              &left, &top, &width, &height,
-                                              &buffer,
-                                              &rowBytes)) {
+    SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
+    SkIRect bounds = SkIRect::MakeWH(surface->width(), surface->height());
+    if (!bounds.contains(subRect)) {
         return false;
     }
+
+    int bpp = GrColorTypeBytesPerPixel(dstColorType);
 
     if (GrPixelConfigIsCompressed(surface->config())) {
         return false;
