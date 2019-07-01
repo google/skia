@@ -13,17 +13,16 @@ skia_skottie_public = [
 ]
 
 skia_skottie_sources = [
+  "$_src/Composition.cpp",
+  "$_src/Layer.cpp",
   "$_src/Skottie.cpp",
   "$_src/SkottieAdapter.cpp",
   "$_src/SkottieAdapter.h",
   "$_src/SkottieAnimator.cpp",
   "$_src/SkottieJson.cpp",
   "$_src/SkottieJson.h",
-  "$_src/SkottieLayer.cpp",
   "$_src/SkottiePriv.h",
-  "$_src/SkottiePrecompLayer.cpp",
   "$_src/SkottieProperty.cpp",
-  "$_src/SkottieShapeLayer.cpp",
   "$_src/SkottieValue.cpp",
   "$_src/SkottieValue.h",
 
@@ -42,6 +41,13 @@ skia_skottie_sources = [
   "$_src/effects/TritoneEffect.cpp",
   "$_src/effects/VenetianBlindsEffect.cpp",
 
+  "$_src/layers/ImageLayer.cpp",
+  "$_src/layers/NullLayer.cpp",
+  "$_src/layers/PrecompLayer.cpp",
+  "$_src/layers/ShapeLayer.cpp",
+  "$_src/layers/SolidLayer.cpp",
+  "$_src/layers/TextLayer.cpp",
+
   "$_src/text/RangeSelector.cpp",
   "$_src/text/RangeSelector.h",
   "$_src/text/SkottieShaper.cpp",
@@ -50,7 +56,6 @@ skia_skottie_sources = [
   "$_src/text/TextAdapter.h",
   "$_src/text/TextAnimator.cpp",
   "$_src/text/TextAnimator.h",
-  "$_src/text/TextLayer.cpp",
   "$_src/text/TextValue.cpp",
   "$_src/text/TextValue.h",
 ]
