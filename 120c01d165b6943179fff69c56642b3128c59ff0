@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c31dfe0_d7718a25",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 701,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-01T18:58:49Z",
+      "side": 1,
+      "message": "nit: IWBN to specify OS.",
+      "revId": "120c01d165b6943179fff69c56642b3128c59ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
