@@ -409,13 +409,6 @@ DEF_TEST(ReadPixels, reporter) {
     test_readpixels(reporter, surface, info, kLastAligned_BitmapInit);
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
-    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
-        ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_GL_ES2_ContextType ||
-        ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
-        // skbug.com/6742 ReadPixels_Texture & _Gpu don't work with ANGLE ES2 configs
-        return;
-    }
-
     static const SkImageInfo kImageInfos[] = {
             SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
             SkImageInfo::Make(DEV_W, DEV_H, kBGRA_8888_SkColorType, kPremul_SkAlphaType),
@@ -470,13 +463,6 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
-    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
-        ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_GL_ES2_ContextType ||
-        ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
-        // skbug.com/6742 ReadPixels_Texture & _Gpu don't work with ANGLE ES2 configs
-        return;
-    }
-
     GrContext* context = ctxInfo.grContext();
     SkBitmap bmp = make_src_bitmap();
 
