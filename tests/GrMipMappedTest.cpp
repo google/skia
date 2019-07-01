@@ -277,7 +277,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
 
             texProxy->instantiate(resourceProvider);
             GrTexture* texture = texProxy->peekTexture();
-            REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipMapped());
+            if (!texture) {
+                texProxy->instantiate(resourceProvider);
+            }
+            REPORTER_ASSERT(reporter, texture && mipMapped == texture->texturePriv().mipMapped());
 
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             REPORTER_ASSERT(reporter, image);
@@ -289,6 +292,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
 
             texProxy->instantiate(resourceProvider);
             texture = texProxy->peekTexture();
+            if (!texture) {
+                texProxy->instantiate(resourceProvider);
+            }
             REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipMapped());
 
             // Must flush the context to make sure all the cmds (copies, etc.) from above are sent

@@ -99,6 +99,36 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
     return false;
 }
 
+static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLevelCount, int bpp,
+                            const GrCaps* caps) {
+    SkASSERT(mipLevelCount > 0);
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; ++currentMipLevel) {
+        if (texels[currentMipLevel].fPixels) {
+            const size_t minRowBytes = w * bpp;
+            if (caps->writePixelsRowBytesSupport()) {
+                if (texels[currentMipLevel].fRowBytes < minRowBytes) {
+                    return false;
+                }
+                if (texels[currentMipLevel].fRowBytes % bpp) {
+                    return false;
+                }
+            } else {
+                if (texels[currentMipLevel].fRowBytes != minRowBytes) {
+                    return false;
+                }
+            }
+        }
+        if (w == 1 && h == 1) {
+            return currentMipLevel == mipLevelCount - 1;
+        } else {
+            w = std::max(w / 2, 1);
+            h = std::max(h / 2, 1);
+        }
+    }
+    // Must have either a full stack of levels or just the base.
+    return 1 == mipLevelCount;
+}
+
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
                                       const GrMipLevel texels[], int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -120,8 +150,14 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(desc.fSampleCnt > 0 && desc.fSampleCnt <= 64);
 
-    if (mipLevelCount && (desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
-        return nullptr;
+    if (mipLevelCount) {
+        if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
+            return nullptr;
+        }
+        int bpp = GrBytesPerPixel(desc.fConfig);
+        if (!validate_levels(desc.fWidth, desc.fHeight, texels, mipLevelCount, bpp, this->caps())) {
+            return nullptr;
+        }
     }
 
     this->handleDirtyContext();
@@ -271,6 +307,20 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
         return false;
     }
 
+    size_t minRowBytes = GrColorTypeBytesPerPixel(dstColorType) * width;
+    if (!this->caps()->readPixelsRowBytesSupport()) {
+        if (rowBytes != minRowBytes) {
+            return false;
+        }
+    } else {
+        if (rowBytes < minRowBytes) {
+            return false;
+        }
+        if (rowBytes % GrColorTypeBytesPerPixel(dstColorType)) {
+            return false;
+        }
+    }
+
     if (GrPixelConfigIsCompressed(surface->config())) {
         return false;
     }
@@ -301,10 +351,9 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
         return false;
     }
 
-    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        if (!texels[currentMipLevel].fPixels ) {
-            return false;
-        }
+    int bpp = GrColorTypeBytesPerPixel(srcColorType);
+    if (!validate_levels(width, height, texels, mipLevelCount, bpp, this->caps())) {
+        return false;
     }
 
     this->handleDirtyContext();

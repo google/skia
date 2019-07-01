@@ -45,6 +45,8 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fPerformStencilClearsAsDraws = false;
     fAllowCoverageCounting = false;
     fTransferBufferSupport = false;
+    fWritePixelsRowBytesSupport = false;
+    fReadPixelsRowBytesSupport = false;
     fDriverBlacklistCCPR = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
@@ -222,6 +224,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Use draws for stencil clip clears", fPerformStencilClearsAsDraws);
     writer->appendBool("Allow coverage counting shortcuts", fAllowCoverageCounting);
     writer->appendBool("Supports transfer buffers", fTransferBufferSupport);
+    writer->appendBool("Write pixels row bytes support", fWritePixelsRowBytesSupport);
+    writer->appendBool("Read pixels row bytes support", fReadPixelsRowBytesSupport);
     writer->appendBool("Blacklist CCPR on current driver [workaround]", fDriverBlacklistCCPR);
     writer->appendBool("Clamp-to-border", fClampToBorderSupport);
 
