@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02aa7e31_84277803",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1582,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-01T20:45:17Z",
+      "side": 1,
+      "message": "I decided not to group this (and in other formats with similar checks) into the previous check for textureRedSupport since I logically wanted to keep the setting up of the format specific properties separate from the color type ones. Once more properties and flags get moved over here there will be work going on in each section and I think it will look cleaner and more structured to keep these two concepts separated.",
+      "range": {
+        "startLine": 1582,
+        "startChar": 9,
+        "endLine": 1582,
+        "endChar": 32
+      },
+      "revId": "c1757a62df8694f4fab0d38ef543029b6a59fce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
