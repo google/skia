@@ -40,6 +40,7 @@ class GrTextureProxy;
 struct GrVkBackendContext;
 
 class SkImage;
+class SkSurfaceCharacterization;
 class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
@@ -379,8 +380,10 @@ public:
     // For the Vulkan backend the layout of the created VkImage will be:
     //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     GrBackendTexture createBackendTexture(int width, int height,
-                                          const GrBackendFormat&, const SkColor4f& color,
-                                          GrMipMapped, GrRenderable,
+                                          const GrBackendFormat&,
+                                          const SkColor4f& color,
+                                          GrMipMapped,
+                                          GrRenderable,
                                           GrProtected = GrProtected::kNo);
 
     // If possible, create a backend texture initialized to a particular color. The client should
@@ -390,9 +393,26 @@ public:
     // For the Vulkan backend the layout of the created VkImage will be:
     //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     GrBackendTexture createBackendTexture(int width, int height,
-                                          SkColorType, const SkColor4f& color,
-                                          GrMipMapped, GrRenderable,
+                                          SkColorType,
+                                          const SkColor4f& color,
+                                          GrMipMapped,
+                                          GrRenderable,
                                           GrProtected = GrProtected::kNo);
+
+    // If possible, create an uninitialized backend texture that is compatible with the
+    // provided characterization. The client should ensure that the returned backend texture
+    // is valid.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_UNDEFINED.
+    GrBackendTexture createBackendTexture(const SkSurfaceCharacterization& characterization);
+
+    // If possible, create a backend texture initialized to a particular color that is
+    // compatible with the provided characterization. The client should ensure that the
+    // returned backend texture is valid.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    GrBackendTexture createBackendTexture(const SkSurfaceCharacterization& characterization,
+                                          const SkColor4f& color);
 
     void deleteBackendTexture(GrBackendTexture);
 

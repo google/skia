@@ -1144,6 +1144,23 @@ static constexpr GrSLPrecision GrSLSamplerPrecision(GrPixelConfig config) {
     SkUNREACHABLE;
 }
 
+static constexpr bool GrConfigsAreCompatible(GrPixelConfig expected, GrPixelConfig actual) {
+    if (GrPixelConfig::kAlpha_8_GrPixelConfig == expected) {
+        return GrPixelConfig::kAlpha_8_GrPixelConfig == actual ||
+               GrPixelConfig::kAlpha_8_as_Alpha_GrPixelConfig == actual ||
+               GrPixelConfig::kAlpha_8_as_Red_GrPixelConfig == actual;
+    } else if (GrPixelConfig::kGray_8_GrPixelConfig == expected) {
+        return GrPixelConfig::kGray_8_GrPixelConfig == actual ||
+               GrPixelConfig::kGray_8_as_Lum_GrPixelConfig == actual ||
+               GrPixelConfig::kGray_8_as_Red_GrPixelConfig == actual;
+    } else if (GrPixelConfig::kAlpha_half_GrPixelConfig == expected) {
+        return GrPixelConfig::kAlpha_half_GrPixelConfig == actual ||
+               GrPixelConfig::kAlpha_half_as_Red_GrPixelConfig == actual;
+    }
+
+    return expected == actual;
+}
+
 /**
  * Like SkColorType this describes a layout of pixel data in CPU memory. It specifies the channels,
  * their type, and width. This exists so that the GPU backend can have private types that have no

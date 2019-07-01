@@ -365,15 +365,15 @@ public:
         @param imageInfo    width, height, SkColorType, SkAlphaType, SkColorSpace,
                             of raster surface; width, or height, or both, may be zero
         @param sampleCount  samples per pixel, or 0 to disable multi-sample anti-aliasing
-        @param props        LCD striping orientation and setting for device independent
+        @param surfaceProps LCD striping orientation and setting for device independent
                             fonts; may be nullptr
         @return             SkSurface if all parameters are valid; otherwise, nullptr
     */
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo, int sampleCount,
-                                             const SkSurfaceProps* props) {
+                                             const SkSurfaceProps* surfaceProps) {
         return MakeRenderTarget(context, budgeted, imageInfo, sampleCount,
-                                kBottomLeft_GrSurfaceOrigin, props);
+                                kBottomLeft_GrSurfaceOrigin, surfaceProps);
     }
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
@@ -410,6 +410,31 @@ public:
     static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context,
                                              const SkSurfaceCharacterization& characterization,
                                              SkBudgeted budgeted);
+
+    /** Wraps a backend texture in an SkSurface - setting up the surface to match the provided
+        characterization. The caller must ensure the texture is valid for the lifetime of
+        returned SkSurface.
+
+        If the backend texture and surface characterization are incompatible then null will
+        be returned.
+
+        Usually, the GrContext::createBackendTexture variant that takes a surface characterization
+        should be used to create the backend texture. If not,
+        SkSurfaceCharacterization::isCompatible can be used to determine if a given backend texture
+        is compatible with a specific surface characterization.
+
+        @param context             GPU context
+        @param characterization    characterization of the desired surface
+        @param backendTexture      texture residing on GPU
+        @param textureReleaseProc  function called when texture can be released
+        @param releaseContext      state passed to textureReleaseProc
+        @return                    SkSurface if all parameters are compatible; otherwise, nullptr
+    */
+    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
+                                                   const SkSurfaceCharacterization& characterzation,
+                                                   const GrBackendTexture& backendTexture,
+                                                   TextureReleaseProc textureReleaseProc = nullptr,
+                                                   ReleaseContext releaseContext = nullptr);
 
     /** Is this surface compatible with the provided characterization?
 
