@@ -21,6 +21,9 @@ public:
     constexpr SkSpan(T* ptr, size_t size) : fPtr{ptr}, fSize{size} {}
     template <typename U>
     constexpr explicit SkSpan(std::vector<U>& v) : fPtr{v.data()}, fSize{v.size()} {}
+    template <typename U,
+              typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
+    SkSpan(const SkSpan<U>& that) : fPtr{that.data()}, fSize{that.size()} {}
     constexpr explicit SkSpan(std::string& s) : fPtr{s.c_str()}, fSize{s.size()} {}
     constexpr SkSpan(const SkSpan& o) = default;
     constexpr SkSpan& operator=(const SkSpan& that) {
@@ -46,5 +49,16 @@ private:
     T* fPtr;
     size_t fSize;
 };
+
+template <typename T, typename S>
+inline SkSpan<T> SkMakeSpan(T* p, S s) { return SkSpan<T>{p, SkTo<size_t>(s)}; }
+
+template <size_t N, typename T>
+inline SkSpan<T> SkMakeSpan(T(&a)[N]) { return SkSpan<T>{a, N}; }
+
+template <typename Collection>
+inline auto SkMakeSpan(const Collection& c) -> SkSpan<decltype(c.data())> {
+    return SkSpan<decltype(c[0])>{&c[0], c->size()};
+}
 
 #endif  // SkSpan_DEFINED
