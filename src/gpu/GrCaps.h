@@ -349,6 +349,8 @@ public:
     virtual GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                                       SkColorType) const = 0;
 
+    virtual bool areColorTypeAndFormatCompatible(SkColorType ct, const GrBackendFormat&) const = 0;
+
     // TODO: replace validateBackendRenderTarget with calls to getConfigFromBackendFormat?
     // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
     // Returns kUnknown if a valid config could not be determined.

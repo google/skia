@@ -3621,6 +3621,16 @@ GrPixelConfig GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget&
     return validate_sized_format(fbInfo.fFormat, ct, fStandard);
 }
 
+bool GrGLCaps::areColorTypeAndFormatCompatible(SkColorType ct,
+                                               const GrBackendFormat& format) const {
+    const GrGLenum* glFormat = format.getGLFormat();
+    if (!glFormat) {
+        return false;
+    }
+
+    return kUnknown_GrPixelConfig != validate_sized_format(*glFormat, ct, fStandard);
+}
+
 GrPixelConfig GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
                                                    SkColorType ct) const {
     const GrGLenum* glFormat = format.getGLFormat();

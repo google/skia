@@ -1026,6 +1026,18 @@ GrPixelConfig GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget&
     return validate_image_info(imageInfo.fFormat, ct, imageInfo.fYcbcrConversionInfo.isValid());
 }
 
+bool GrVkCaps::areColorTypeAndFormatCompatible(SkColorType ct,
+                                               const GrBackendFormat& format) const {
+    const VkFormat* vkFormat = format.getVkFormat();
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    if (!vkFormat || !ycbcrInfo) {
+        return false;
+    }
+
+    return kUnknown_GrPixelConfig != validate_image_info(*vkFormat, ct, ycbcrInfo->isValid());
+}
+
+
 GrPixelConfig GrVkCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
                                                    SkColorType ct) const {
     const VkFormat* vkFormat = format.getVkFormat();
