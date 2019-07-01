@@ -10,6 +10,7 @@
 
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSection.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include <unordered_map>
@@ -39,17 +40,19 @@ namespace SkSL {
 class SectionAndParameterHelper {
 public:
     SectionAndParameterHelper(const Program& program, ErrorReporter& errors) {
-        for (const auto& p : program) {
+        for (IRNode::ID pID : program) {
+            const ProgramElement& p = (ProgramElement&) pID.node();
             switch (p.fKind) {
                 case ProgramElement::kVar_Kind: {
-                    const VarDeclarations& decls = (const VarDeclarations&) p;
-                    for (const auto& raw : decls.fVars) {
-                        const VarDeclaration& decl = (VarDeclaration&) *raw;
-                        if (IsParameter(*decl.fVar)) {
-                            fParameters.push_back(decl.fVar);
-                        }
-                    }
-                    break;
+                    abort();
+                    //const VarDeclarations& decls = (const VarDeclarations&) p;
+                    //for (const auto& raw : decls.fVars) {
+                        //const VarDeclaration& decl = (VarDeclaration&) fIRGenerator->getNode(raw);
+                        //if (IsParameter(*decl.fVar)) {
+                        //    fParameters.push_back(decl.fVar);
+                        //}
+                    //}
+                    //break;
                 }
                 case ProgramElement::kSection_Kind: {
                     const Section& s = (const Section&) p;
@@ -72,7 +75,7 @@ public:
                         errors.error(s.fOffset,
                                      ("duplicate section '@" + s.fName + "'").c_str());
                     }
-                    fSections[s.fName].push_back(&s);
+                    fSections[s.fName].push_back(pID);
                     break;
                 }
                 default:
@@ -81,25 +84,25 @@ public:
         }
     }
 
-    const Section* getSection(const char* name) {
+    IRNode::ID getSection(const char* name) {
         SkASSERT(!SectionPermitsDuplicates(name));
         auto found = fSections.find(name);
         if (found == fSections.end()) {
-            return nullptr;
+            return IRNode::ID();
         }
         SkASSERT(found->second.size() == 1);
         return found->second[0];
     }
 
-    std::vector<const Section*> getSections(const char* name) {
+    std::vector<IRNode::ID> getSections(const char* name) {
         auto found = fSections.find(name);
         if (found == fSections.end()) {
-            return std::vector<const Section*>();
+            return std::vector<IRNode::ID>();
         }
         return found->second;
     }
 
-    const std::vector<const Variable*>& getParameters() {
+    const std::vector<IRNode::ID>& getParameters() {
         return fParameters;
     }
 
@@ -148,8 +151,8 @@ public:
     }
 
 private:
-    std::vector<const Variable*> fParameters;
-    std::unordered_map<String, std::vector<const Section*>> fSections;
+    std::vector<IRNode::ID> fParameters;
+    std::unordered_map<String, std::vector<IRNode::ID>> fSections;
 };
 
 } // namespace SkSL
