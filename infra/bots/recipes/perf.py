@@ -293,6 +293,8 @@ def perf_steps(api):
       '~shapes_rrect_inner_rrect_50_500x500', # skia:7551
       '~compositing_images',
     ])
+    if 'Debug' in api.vars.builder_name:
+      args.extend(['--loops', '1'])
 
   if upload_perf_results(b):
     now = api.time.utcnow()
