@@ -20,38 +20,38 @@ namespace SkSL {
  * A binary operation.
  */
 struct BinaryExpression : public Expression {
-    BinaryExpression(int offset, std::unique_ptr<Expression> left, Token::Kind op,
-                     std::unique_ptr<Expression> right, const Type& type)
-    : INHERITED(offset, kBinary_Kind, type)
-    , fLeft(std::move(left))
+    BinaryExpression(IRGenerator* irGenerator, int offset, IRNode::ID left, Token::Kind op,
+                     IRNode::ID right, IRNode::ID type)
+    : INHERITED(irGenerator, offset, kBinary_Kind, type)
+    , fLeft(left)
     , fOperator(op)
-    , fRight(std::move(right)) {}
+    , fRight(right) {
+        SkASSERT(type != irGenerator->fContext.fInvalid_Type);
+    }
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override {
-        return irGenerator.constantFold(*fLeft,
-                                        fOperator,
-                                        *fRight);
+    IRNode::ID constantPropagate(const DefinitionMap& definitions) override {
+        return fIRGenerator->constantFold(fLeft, fOperator, fRight);
     }
 
     bool hasSideEffects() const override {
-        return Compiler::IsAssignment(fOperator) || fLeft->hasSideEffects() ||
-               fRight->hasSideEffects();
+        return Compiler::IsAssignment(fOperator) || fLeft.node().hasSideEffects() ||
+               fRight.node().hasSideEffects();
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new BinaryExpression(fOffset, fLeft->clone(), fOperator,
-                                                                fRight->clone(), fType));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new BinaryExpression(fIRGenerator, fOffset, fLeft,
+                                                             fOperator, fRight, fType));
     }
 
     String description() const override {
-        return "(" + fLeft->description() + " " + Compiler::OperatorName(fOperator) + " " +
-               fRight->description() + ")";
+        return "(" + fLeft.node().description() + " " +
+               Compiler::OperatorName(fOperator) + " " +
+               fRight.node().description() + ")";
     }
 
-    std::unique_ptr<Expression> fLeft;
+    IRNode::ID fLeft;
     const Token::Kind fOperator;
-    std::unique_ptr<Expression> fRight;
+    IRNode::ID fRight;
 
     typedef Expression INHERITED;
 };
