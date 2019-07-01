@@ -285,43 +285,34 @@ static inline bool blend_requires_shader(const SkBlendMode mode) {
 }
 
 #ifndef SK_IGNORE_GPU_DITHER
-static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
-    switch (dstConfig) {
-        case kGray_8_GrPixelConfig:
-        case kGray_8_as_Lum_GrPixelConfig:
-        case kGray_8_as_Red_GrPixelConfig:
-        case kRGBA_8888_GrPixelConfig:
-        case kRGB_888_GrPixelConfig:
-        case kRGB_888X_GrPixelConfig:
-        case kRG_88_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kR_16_GrPixelConfig:
-        case kRG_1616_GrPixelConfig:
+static inline int32_t dither_range_type_for_config(GrColorType dstColorType) {
+    switch (dstColorType) {
+        case GrColorType::kGray_8:
+        case GrColorType::kRGBA_8888:
+        case GrColorType::kRGB_888x:
+        case GrColorType::kRG_88:
+        case GrColorType::kBGRA_8888:
+        case GrColorType::kR_16:
+        case GrColorType::kRG_1616:
         // Experimental (for Y416 and mutant P016/P010)
-        case kRGBA_16161616_GrPixelConfig:
-        case kRG_half_GrPixelConfig:
+        case GrColorType::kRGBA_16161616:
+        case GrColorType::kRG_F16:
             return 0;
-        case kRGB_565_GrPixelConfig:
+        case GrColorType::kBGR_565:
             return 1;
-        case kRGBA_4444_GrPixelConfig:
+        case GrColorType::kABGR_4444:
             return 2;
-        case kUnknown_GrPixelConfig:
-        case kSRGBA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
-        case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
-        case kRGBA_float_GrPixelConfig:
-        case kRG_float_GrPixelConfig:
-        case kRGBA_half_GrPixelConfig:
-        case kRGBA_half_Clamped_GrPixelConfig:
-        case kRGB_ETC1_GrPixelConfig:
-        case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
+        case GrColorType::kUnknown:
+        case GrColorType::kRGBA_1010102:
+        case GrColorType::kAlpha_F16:
+        case GrColorType::kRGBA_F32:
+        case GrColorType::kRG_F32:
+        case GrColorType::kRGBA_F16:
+        case GrColorType::kRGBA_F16_Clamped:
+        case GrColorType::kAlpha_8:
             return -1;
     }
-    SkASSERT(false);
-    return 0;
+    SkUNREACHABLE;
 }
 #endif
 
@@ -454,10 +445,10 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
 #ifndef SK_IGNORE_GPU_DITHER
     // Conservative default, in case GrPixelConfigToColorType() fails.
-    SkColorType ct = SkColorType::kRGB_565_SkColorType;
-    GrPixelConfigToColorType(colorSpaceInfo.config(), &ct);
-    if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->numColorFragmentProcessors() > 0) {
-        int32_t ditherRange = dither_range_type_for_config(colorSpaceInfo.config());
+    GrColorType ct = colorSpaceInfo.colorType();
+    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) &&
+        grPaint->numColorFragmentProcessors() > 0) {
+        int32_t ditherRange = dither_range_type_for_config(ct);
         if (ditherRange >= 0) {
             static int ditherIndex = GrSkSLFP::NewIndex();
             auto ditherFP = GrSkSLFP::Make(context, ditherIndex, "Dither", SKSL_DITHER_SRC,

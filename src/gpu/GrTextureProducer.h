@@ -107,7 +107,7 @@ public:
     GrColorType colorType() const { return fColorSpaceInfo.colorType(); }
     SkAlphaType alphaType() const { return fColorSpaceInfo.alphaType(); }
     SkColorSpace* colorSpace() const { return fColorSpaceInfo.colorSpace(); }
-    bool isAlphaOnly() const { return GrPixelConfigIsAlphaOnly(fColorSpaceInfo.config()); }
+    bool isAlphaOnly() const { return GrColorTypeIsAlphaOnly(fColorSpaceInfo.colorType()); }
     bool domainNeedsDecal() const { return fDomainNeedsDecal; }
     // If the "texture" samples multiple images that have different resolutions (e.g. YUV420)
     virtual bool hasMixedResolutions() const { return false; }

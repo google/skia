@@ -345,8 +345,10 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     }
 
     auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
-    SkColorType dstColorType = kN32_SkColorType;
-    GrPixelConfigToColorType(args.fDstColorSpaceInfo->config(), &dstColorType);
+    SkColorType dstColorType = GrColorTypeToSkColorType(args.fDstColorSpaceInfo->colorType());
+    if (dstColorType == kUnknown_SkColorType) {
+        dstColorType = kRGBA_8888_SkColorType;
+    }
     sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, &lm, dstColorType,
                                                        args.fDstColorSpaceInfo->colorSpace(),
                                                        maxTextureSize));

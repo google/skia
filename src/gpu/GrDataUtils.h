@@ -10,6 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrColorSpaceInfo.h"
 #include "src/gpu/GrSwizzle.h"
 
 size_t GrCompressedDataSize(SkImage::CompressionType, int w, int h);
@@ -25,38 +26,6 @@ void GrFillInData(GrPixelConfig, int baseWidth, int baseHeight,
 
 void GrFillInCompressedData(SkImage::CompressionType, int width, int height, char* dest,
                             const SkColor4f& color);
-
-// TODO: Replace with GrColorSpaceInfo once GrPixelConfig is excised from that type.
-class GrColorInfo {
-public:
-    GrColorInfo() = default;
-
-    GrColorInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
-            : fColorSpace(std::move(cs)), fColorType(ct), fAlphaType(at) {}
-
-    GrColorInfo(const GrColorInfo&) = default;
-    GrColorInfo(GrColorInfo&&) = default;
-    GrColorInfo& operator=(const GrColorInfo&) = default;
-    GrColorInfo& operator=(GrColorInfo&&) = default;
-
-    GrColorType colorType() const { return fColorType; }
-
-    SkAlphaType alphaType() const { return fAlphaType; }
-
-    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
-
-    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
-
-    bool isValid() const {
-        return fColorType != GrColorType::kUnknown && fAlphaType != kUnknown_SkAlphaType;
-    }
-
-private:
-    sk_sp<SkColorSpace> fColorSpace;
-    GrColorType fColorType = GrColorType::kUnknown;
-    SkAlphaType fAlphaType = kUnknown_SkAlphaType;
-};
-
 class GrPixelInfo {
 public:
     GrPixelInfo() = default;
@@ -126,7 +95,7 @@ public:
     bool isValid() const { return fColorInfo.isValid() && fWidth > 0 && fHeight > 0; }
 
 private:
-    GrColorInfo fColorInfo = {};
+    GrColorSpaceInfo fColorInfo = {};
     int fWidth = 0;
     int fHeight = 0;
 };
