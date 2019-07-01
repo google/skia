@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d3d3e07_f4e79718",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-01T16:54:24Z",
+      "side": 0,
+      "message": "Want to tag 7580 in the CL description?",
+      "range": {
+        "startLine": 525,
+        "startChar": 27,
+        "endLine": 525,
+        "endChar": 41
+      },
+      "revId": "30e265153cfa00bc6754387a90244ddd27b97636",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

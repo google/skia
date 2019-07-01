@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0c517fb_1ad23956",
+        "filename": "src/gpu/GrDataUtils.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-01T16:54:24Z",
+      "side": 1,
+      "message": "*data \u003d SkTAddOffset\u003cT\u003e(*data, ...); ?",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 76
+      },
+      "revId": "0adf5a813d1337c4f561751d66c0c8541902717a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38f00528_806de9c3",
+        "filename": "src/gpu/GrSurfaceContext.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-01T16:54:24Z",
+      "side": 1,
+      "message": "nit: \u0027a\u0027",
+      "range": {
+        "startLine": 50,
+        "startChar": 31,
+        "endLine": 50,
+        "endChar": 33
+      },
+      "revId": "0adf5a813d1337c4f561751d66c0c8541902717a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d2f90da_e41a0088",
+        "filename": "src/gpu/GrSurfaceContext.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-01T16:54:24Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 63,
+        "startChar": 31,
+        "endLine": 63,
+        "endChar": 33
+      },
+      "revId": "0adf5a813d1337c4f561751d66c0c8541902717a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
