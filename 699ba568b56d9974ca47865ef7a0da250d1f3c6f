@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b2f9c50_adbd351e",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-01T15:53:17Z",
+      "side": 1,
+      "message": "SK_GUARDED_BY statements?",
+      "range": {
+        "startLine": 105,
+        "startChar": 8,
+        "endLine": 105,
+        "endChar": 28
+      },
+      "revId": "699ba568b56d9974ca47865ef7a0da250d1f3c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e3a4a4e_62da00b2",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-01T15:53:17Z",
+      "side": 1,
+      "message": "Is this fields accessed by multiple threads?",
+      "range": {
+        "startLine": 268,
+        "startChar": 8,
+        "endLine": 268,
+        "endChar": 27
+      },
+      "revId": "699ba568b56d9974ca47865ef7a0da250d1f3c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
