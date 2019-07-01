@@ -192,16 +192,13 @@ namespace skvm {
 
     using Reg = int;
 
-    struct ProgramInstruction {   // d = op(x, y, z/imm)
-        Op  op;
-        Reg d,x,y;
-        union { Reg z; int imm; };
-    };
-
     class Program {
     public:
-        // Moved outside Program so it can be forward-declared.
-        using Instruction = ProgramInstruction;
+        struct Instruction {   // d = op(x, y, z/imm)
+            Op  op;
+            Reg d,x,y;
+            union { Reg z; int imm; };
+        };
 
         Program(std::vector<Instruction>, int regs, int loop);
         Program() : Program({}, 0, 0) {}
