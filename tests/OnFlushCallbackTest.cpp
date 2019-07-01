@@ -590,7 +590,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     readBack.allocN32Pixels(kFinalWidth, kFinalHeight);
 
     SkDEBUGCODE(bool result =) rtc->readPixels(readBack.info(), readBack.getPixels(),
-                                               readBack.rowBytes(), 0, 0);
+                                               readBack.rowBytes(), {0, 0});
     SkASSERT(result);
 
     context->priv().testingOnly_flushAndRemoveOnFlushCallbackObject(&object);
