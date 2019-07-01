@@ -5,14 +5,16 @@ go 1.12
 require (
 	cloud.google.com/go v0.40.0
 	github.com/aws/aws-sdk-go v1.20.12 // indirect
+	github.com/elazarl/goproxy v0.0.0-20190630181448-f1e96bc0f4c5 // indirect
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
+	github.com/go-openapi/swag v0.19.3 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.9.3 // indirect
 	github.com/kr/pty v1.1.7 // indirect
 	go.chromium.org/luci v0.0.0-20190628212317-a0a3655d78a3 // indirect
-	go.skia.org/infra v0.0.0-20190629184113-d228bd4a3bbe
+	go.skia.org/infra v0.0.0-20190630232450-e2d7f6778175
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
 	golang.org/x/tools v0.0.0-20190628222527-fb37f6ba8261 // indirect
 	golang.org/x/tools/gopls v0.1.1 // indirect
