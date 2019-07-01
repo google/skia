@@ -64,7 +64,7 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
             return false;
         }
 
-        if (this->config() != config) {
+        if (!GrConfigsAreCompatible(this->config(), config)) {
             return false;
         }
     }
