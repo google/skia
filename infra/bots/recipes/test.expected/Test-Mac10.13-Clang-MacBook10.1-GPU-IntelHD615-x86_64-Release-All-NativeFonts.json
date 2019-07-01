@@ -498,6 +498,7 @@
       "_",
       ".SRW",
       "--match",
+      "~^SRGBReadWritePixels$",
       "~^GrMeshTest$",
       "--verbose"
     ],
