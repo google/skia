@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ef3b85d_72d8b4d2",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-01T14:33:35Z",
+      "side": 1,
+      "message": "I\u0027m not sure I like this use of GrAA as opposed to a bool or a GrMultisampled enum class. GrAA usually means should this draw/clip be antialiased.",
+      "range": {
+        "startLine": 533,
+        "startChar": 24,
+        "endLine": 533,
+        "endChar": 42
+      },
+      "revId": "cb6582f7678a753be53ed98b1b6c90c64c9f14d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10e5e91b_8d25fe1b",
+        "filename": "src/gpu/GrRenderTargetProxyPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-01T14:33:35Z",
+      "side": 1,
+      "message": "I\u0027ll just briefly re-up my generic anti-Priv comment: Who are we hiding from by having this on GrRTPP instead of GrRTP?",
+      "revId": "cb6582f7678a753be53ed98b1b6c90c64c9f14d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
