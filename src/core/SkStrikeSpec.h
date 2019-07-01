@@ -95,4 +95,40 @@ private:
     SkScalar fStrikeToSourceRatio{1.0f};
 };
 
+class SkBulkGlyphMetrics {
+public:
+    explicit SkBulkGlyphMetrics(const SkStrikeSpec& spec);
+    SkSpan<const SkGlyph*> glyphs(SkSpan<const SkGlyphID> glyphIDs);
+
+private:
+    static constexpr int kTypicalGlyphCount = 20;
+    SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
+    SkExclusiveStrikePtr fStrike;
+};
+
+// Does both metrics and paths.
+class SkBulkGlyphPaths {
+public:
+    explicit SkBulkGlyphPaths(const SkStrikeSpec& spec);
+    SkSpan<const SkGlyph*> glyphs(SkSpan<const SkGlyphID> glyphIDs);
+    const SkStrike& strike() const { return *fStrike; }
+
+private:
+    static constexpr int kTypicalGlyphCount = 20;
+    SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
+    SkExclusiveStrikePtr fStrike;
+};
+
+// Does both metrics and images using SkPackedGlyphIDs.
+class SkBulkGlyphImages {
+public:
+    explicit SkBulkGlyphImages(const SkStrikeSpec& spec);
+    SkSpan<const SkGlyph*> glyphs(SkSpan<const SkPackedGlyphID> glyphIDs);
+
+private:
+    static constexpr int kTypicalGlyphCount = 20;
+    SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
+    SkExclusiveStrikePtr fStrike;
+};
+
 #endif  // SkStrikeSpec_DEFINED
