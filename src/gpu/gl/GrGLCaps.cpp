@@ -1435,14 +1435,11 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
     // Correctness workarounds.
     bool disableTextureRedForMesa = false;
     bool disableSRGBRenderWithMSAAForMacAMD = false;
-    bool disableGrayLumFBOForMesa = false;
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
         // and GL_RG on FBO textures.
         disableTextureRedForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
-
-        disableGrayLumFBOForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
 
         // MacPro devices with AMD cards fail to create MSAA sRGB render buffers.
 #if defined(SK_BUILD_FOR_MAC)
@@ -1557,6 +1554,22 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         } else if (GR_IS_GR_WEBGL(standard)) {
             info.fFlags |= msaaRenderFlags;
         }
+
+        // kRGBA_8888
+        {
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+            info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_8888, flags);
+        }
+
+        // kBGRA_8888
+        {
+            if (GR_IS_GR_GL(standard)) {
+                if (version >= GR_GL_VER(1, 2) || ctxInfo.hasExtension("GL_EXT_bgra")) {
+                    uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                    info.fColorTypeInfos.emplace_back(GrColorType::kBGRA_8888, flags);
+                }
+            }
+        }
     }
 
     // R8
@@ -1564,6 +1577,19 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         FormatInfo& info = this->getFormatInfo(GR_GL_R8);
         if (textureRedSupport) {
             info.fFlags |= FormatInfo::kTextureable_Flag | msaaRenderFlags;
+        }
+
+        if (textureRedSupport) {
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+            // kAlpha_8
+            {
+                info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags);
+            }
+
+            // kGray_8
+            {
+                info.fColorTypeInfos.emplace_back(GrColorType::kGray_8, flags);
+            }
         }
     }
 
@@ -1581,33 +1607,41 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (fAlpha8IsRenderable && alpha8IsValidForGL) {
             info.fFlags |= msaaRenderFlags;
         }
+
+        if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
+            // kAlpha_8
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
+                    info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags);
+                }
+            }
+        }
     }
 
     // LUMINANCE8
     {
         FormatInfo& info = this->getFormatInfo(GR_GL_LUMINANCE8);
-        if ((GR_IS_GR_GL(standard) && version <= GR_GL_VER(3, 0)) ||
-            (GR_IS_GR_GL_ES(standard) && version < GR_GL_VER(3, 0)) ||
-            (GR_IS_GR_WEBGL(standard))) {
+        bool supportsLum = (GR_IS_GR_GL(standard) && version <= GR_GL_VER(3, 0)) ||
+                           (GR_IS_GR_GL_ES(standard) && version < GR_GL_VER(3, 0)) ||
+                           (GR_IS_GR_WEBGL(standard));
+        if (supportsLum) {
             info.fFlags = FormatInfo::kTextureable_Flag;
         }
-        if (kStandard_MSFBOType == this->msFBOType() && GR_IS_GR_GL(standard) &&
-            !disableGrayLumFBOForMesa) {
-            // desktop ARB extension/3.0+ supports LUMINANCE8 as renderable.
-            // However, osmesa fails if it used even when GL_ARB_framebuffer_object is present.
-            // Core profile removes LUMINANCE8 support, but we should have chosen R8 in that case.
-            info.fFlags |= nonMSAARenderFlags;
+
+        if (supportsLum) {
+            // kGray_8
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kGray_8, flags);
+            }
         }
     }
 
     // BGRA8
     {
         FormatInfo& info = this->getFormatInfo(GR_GL_BGRA8);
-        if (GR_IS_GR_GL(standard)) {
-            if (version >= GR_GL_VER(1, 2) || ctxInfo.hasExtension("GL_EXT_bgra")) {
-                info.fFlags = FormatInfo::kTextureable_Flag | msaaRenderFlags;
-            }
-        } else if (GR_IS_GR_GL_ES(standard)) {
+        if (GR_IS_GR_GL_ES(standard)) {
             if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
                 info.fFlags = FormatInfo::kTextureable_Flag | nonMSAARenderFlags;
             } else if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
@@ -1626,6 +1660,14 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                 }
             }
         }
+
+        if (SkToBool(info.fFlags &FormatInfo::kTextureable_Flag)) {
+            // kBGRA_8888
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kBGRA_8888, flags);
+            }
+        }
     }
 
     // RGB565
@@ -1641,6 +1683,12 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         } else if (GR_IS_GR_WEBGL(standard)) {
             info.fFlags |= msaaRenderFlags;
         }
+
+        // kBGR_565
+        {
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+            info.fColorTypeInfos.emplace_back(GrColorType::kBGR_565, flags);
+        }
     }
 
     // RGBA16F
@@ -1653,6 +1701,20 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                 info.fFlags |= fpRenderFlags;
             }
         }
+
+        if (hasFP16Textures) {
+            // kRGBA_F16
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_F16, flags);
+            }
+
+            // kRGBA_F16_Clamped
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_F16_Clamped, flags);
+            }
+        }
     }
 
     // R16F
@@ -1662,6 +1724,14 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             info.fFlags = FormatInfo::kTextureable_Flag;
             if (halfFPRenderTargetSupport == HalfFPRenderTargetSupport::kAll) {
                 info.fFlags |= fpRenderFlags;
+            }
+        }
+
+        if (textureRedSupport && hasFP16Textures) {
+            // kAlpha_F16
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_F16, flags);
             }
         }
     }
@@ -1688,6 +1758,12 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             // WebGL seems to support RBG8
             info.fFlags |= msaaRenderFlags;
         }
+
+        // kRGB_888x
+        {
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+            info.fColorTypeInfos.emplace_back(GrColorType::kRGB_888x, flags);
+        }
     }
 
     // RG8
@@ -1695,6 +1771,14 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         FormatInfo& info = this->getFormatInfo(GR_GL_RG8);
         if (textureRedSupport) {
             info.fFlags |= FormatInfo::kTextureable_Flag | msaaRenderFlags;
+        }
+
+        if (textureRedSupport) {
+            // kRG_88
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kRG_88, flags);
+            }
         }
     }
 
@@ -1708,6 +1792,14 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                    ctxInfo.hasExtension("GL_EXT_texture_type_2_10_10_10_REV")) {
             info.fFlags = FormatInfo::kTextureable_Flag;
         } // No WebGL support
+
+        if (SkToBool(info.fFlags &FormatInfo::kTextureable_Flag)) {
+            // kRGBA_1010102
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_1010102, flags);
+            }
+        }
     }
 
     // RGBA4
@@ -1723,17 +1815,17 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         } else if (GR_IS_GR_WEBGL(standard)) {
             info.fFlags |= msaaRenderFlags;
         }
+
+        // kABGR_4444
+        {
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+            info.fColorTypeInfos.emplace_back(GrColorType::kABGR_4444, flags);
+        }
     }
 
     // RGBA32F
     {
         //FormatInfo& info = this->getFormatInfo(GR_GL_RGBA32F);
-        // We don't allow texturing or rendering to this format
-    }
-
-    // RG32F
-    {
-        //FormatInfo& info = this->getFormatInfo(GR_GL_RG32F);
         // We don't allow texturing or rendering to this format
     }
 
@@ -1745,6 +1837,14 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                                                                           : msaaRenderFlags;
 
             info.fFlags = FormatInfo::kTextureable_Flag | srgbRenderFlags;
+        }
+
+        if (fSRGBSupport) {
+            // kRGBA_8888
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_8888, flags);
+            }
         }
     }
 
@@ -1761,6 +1861,8 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                 info.fFlags = FormatInfo::kTextureable_Flag;
             }
         } // No WebGL support
+
+        // There are no support GrColorTypes for this format
     }
 
     // COMPRESSED_ETC1_RGB8
@@ -1771,6 +1873,8 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                 info.fFlags = FormatInfo::kTextureable_Flag;
             }
         } // No GL or WebGL support
+
+        // There are no support GrColorTypes for this format
     }
 
     // GR_GL_R16
@@ -1779,6 +1883,14 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (r16AndRG1616Supported) {
             info.fFlags = FormatInfo::kTextureable_Flag | msaaRenderFlags;
         }
+
+        if (r16AndRG1616Supported) {
+            // kR_16
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kR_16, flags);
+            }
+        }
     }
 
     // GR_GL_RG16
@@ -1786,6 +1898,14 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         FormatInfo& info = this->getFormatInfo(GR_GL_RG16);
         if (r16AndRG1616Supported) {
             info.fFlags = FormatInfo::kTextureable_Flag | msaaRenderFlags;
+        }
+
+        if (r16AndRG1616Supported) {
+            // kRG_1616
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kRG_1616, flags);
+            }
         }
     }
 
@@ -1813,6 +1933,14 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         FormatInfo& info = this->getFormatInfo(GR_GL_RGBA16);
         if (rgba16161616Supported) {
             info.fFlags = FormatInfo::kTextureable_Flag | msaaRenderFlags;
+        }
+
+        if (rgba16161616Supported) {
+            // kRGBA_16161616
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_16161616, flags);
+            }
         }
     }
 
@@ -1847,6 +1975,15 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         }
         if (rg16fRenderingSupported) {
             info.fFlags |= fpRenderFlags;
+        }
+        SkASSERT(rg16fTexturesSupported || !rg16fRenderingSupported);
+
+        if (rg16fTexturesSupported) {
+            // kRG_F16
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kRG_F16, flags);
+            }
         }
     }
 }
@@ -3454,12 +3591,24 @@ bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(*format.getGLFormat());
 }
 
-bool GrGLCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format) const {
-    const GrGLenum* glFormat = format.getGLFormat();
-    if (!glFormat || !GrGLFormatIsSupported(*glFormat)) {
+bool GrGLCaps::isGLFormatTexturable(GrColorType ct, GrGLenum glFormat) const {
+    if (!GrGLFormatIsSupported(glFormat)) {
         return false;
     }
-    return SkToBool(this->getFormatInfo(*glFormat).fFlags & FormatInfo::kTextureable_Flag);
+    const FormatInfo& info = this->getFormatInfo(glFormat);
+    // Currently we conflate texturable to mean the format itself is texturable in a draw and that
+    // we are able to upload data of the passed in colortype to it.
+    return SkToBool(info.fFlags & FormatInfo::kTextureable_Flag) &&
+           SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kUploadData_Flag);
+}
+
+bool GrGLCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format) const {
+    const GrGLenum* glFormat = format.getGLFormat();
+    if (!glFormat) {
+        return false;
+    }
+    GrColorType grCT = SkColorTypeToGrColorType(ct);
+    return this->isGLFormatTexturable(grCT, *glFormat);
 }
 
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, SkColorType ct,
