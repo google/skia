@@ -102,16 +102,12 @@ private:
     private:
         id<MTLBuffer> fBuffer;
         size_t        fTotalSize;
-        size_t        fHead;     // where we start allocating
-        size_t        fTail;     // where we start deallocating
+        size_t        fHead SK_GUARDED_BY(fMutex);     // where we start allocating
+        size_t        fTail SK_GUARDED_BY(fMutex);     // where we start deallocating
         SkSpinlock    fMutex;
     };
     static constexpr size_t kBufferSuballocatorStartSize = 1024*1024;
-#if GR_USE_COMPLETION_HANDLER
     static constexpr size_t kBufferSuballocatorMaxSize = 8*1024*1024;
-#else
-    static constexpr size_t kBufferSuballocatorMaxSize = 2*1024*1024;
-#endif
 
     GrMtlGpu* fGpu;
 
