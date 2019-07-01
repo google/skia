@@ -1095,8 +1095,11 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
         fMSFBOType = kNone_MSFBOType;
     }
 
-    // We disable MSAA across the board for Intel GPUs for performance reasons.
-    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+    // We disable MSAA for older (pre-Gen9) Intel GPUs for performance reasons.
+    // ApolloLake is the first Gen9 chipset.
+    if (kIntel_GrGLVendor == ctxInfo.vendor() &&
+        (ctxInfo.renderer() < kIntelApolloLake_GrGLRenderer ||
+         ctxInfo.renderer() == kOther_GrGLRenderer)) {
         fMSFBOType = kNone_MSFBOType;
     }
 }
