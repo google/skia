@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkSurface.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrContextPriv.h"
@@ -275,6 +275,69 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// This test is a bit different from the others in this file. It is mainly checking that, for any
+// SkSurface we can create in Ganesh, we can also create a backend texture that is compatible with
+// its characterization and then create a new surface that wraps that backend texture.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CharacterizationBackendAllocationTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
+        SkColorType colorType = static_cast<SkColorType>(ct);
+
+        SkImageInfo ii = SkImageInfo::Make(32, 32, colorType, kPremul_SkAlphaType);
+
+        for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
+            for (bool mipMaps : { true, false } ) {
+                for (int sampleCount : {1, 2}) {
+                    SkSurfaceCharacterization c;
+
+                    // Get a characterization, if possible
+                    {
+                        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo,
+                                                                         ii, sampleCount,
+                                                                         origin, nullptr, mipMaps);
+                        if (!s) {
+                            continue;
+                        }
+
+                        if (!s->characterize(&c)) {
+                            continue;
+                        }
+
+                        REPORTER_ASSERT(reporter, s->isCompatible(c));
+                    }
+
+                    // Test out uninitialized path
+                    {
+                        GrBackendTexture backendTex = context->createBackendTexture(c);
+                        REPORTER_ASSERT(reporter, backendTex.isValid());
+                        REPORTER_ASSERT(reporter, c.isCompatible(backendTex));
+
+                        sk_sp<SkSurface> s2 = SkSurface::MakeFromBackendTexture(context, c,
+                                                                                backendTex);
+                        REPORTER_ASSERT(reporter, s2);
+                        REPORTER_ASSERT(reporter, s2->isCompatible(c));
+                    }
+
+                    // Test out color-initialized path
+                    {
+                        GrBackendTexture backendTex = context->createBackendTexture(c,
+                                                                                    SkColors::kRed);
+                        REPORTER_ASSERT(reporter, backendTex.isValid());
+                        REPORTER_ASSERT(reporter, c.isCompatible(backendTex));
+
+                        sk_sp<SkSurface> s2 = SkSurface::MakeFromBackendTexture(context, c,
+                                                                                backendTex);
+                        REPORTER_ASSERT(reporter, s2);
+                        REPORTER_ASSERT(reporter, s2->isCompatible(c));
+                    }
+                }
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     const GrCaps* caps = context->priv().caps();
@@ -340,6 +403,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                     auto uninitCreateMtd = [colorType](GrContext* context,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         return context->createBackendTexture(32, 32, colorType,
                                                              mipMapped, renderable,
                                                              GrProtected::kNo);
@@ -366,6 +430,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                           const SkColor4f& color,
                                                           GrMipMapped mipMapped,
                                                           GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         return context->createBackendTexture(32, 32, colorType, color,
                                                              mipMapped, renderable,
                                                              GrProtected::kNo);
@@ -517,6 +582,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                     auto uninitCreateMtd = [format](GrContext* context,
                                                     GrMipMapped mipMapped,
                                                     GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         return context->createBackendTexture(32, 32, format,
                                                              mipMapped, renderable,
                                                              GrProtected::kNo);
@@ -539,6 +605,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                                                        const SkColor4f& color,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         return context->createBackendTexture(32, 32, format, color,
                                                              mipMapped, renderable,
                                                              GrProtected::kNo);
@@ -642,6 +709,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     auto uninitCreateMtd = [format](GrContext* context,
                                                     GrMipMapped mipMapped,
                                                     GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         GrBackendTexture beTex = context->createBackendTexture(32, 32, format,
                                                                                mipMapped,
                                                                                renderable,
@@ -665,6 +733,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                                                        const SkColor4f& color,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
+                        // TODO (PROT-CHAR): test protected status
                         GrBackendTexture beTex = context->createBackendTexture(32, 32, format,
                                                                                color, mipMapped,
                                                                                renderable,

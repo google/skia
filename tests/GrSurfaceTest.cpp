@@ -399,8 +399,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
             delete_backend_texture(context, backendTex);
             backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, GrMipMapped::kYes, GrRenderable::kYes,
-                    GrProtected::kNo);
+                    SkColors::kTransparent, GrMipMapped::kYes,
+                    GrRenderable::kYes, GrProtected::kNo);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                       kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                                       ioType);
