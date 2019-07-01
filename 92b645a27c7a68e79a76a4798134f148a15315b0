@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08bb8041_787417c0",
+        "filename": "infra/bots/recipes/test.expected/Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-01T13:38:45Z",
+      "side": 1,
+      "message": "Did you mean for this to be omitted on Vulkan? (The bug doesn\u0027t mention if it\u0027s GL or VK, but I can\u0027t see why you would start seeing a problem on Vulkan with this CL.)",
+      "revId": "92b645a27c7a68e79a76a4798134f148a15315b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
