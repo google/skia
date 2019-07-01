@@ -127,9 +127,7 @@ def dm_flags(api, bot):
       if 'NVIDIA_Shield' not in bot:
         gl_prefix = 'gles'
     elif 'Intel' in bot:
-      # We don't want to test MSAA on older Intel chipsets. These are all newer (Gen9).
-      if 'Iris655' not in bot and 'Iris640' not in bot and 'Iris540' not in bot:
-        sample_count = ''
+      sample_count = ''
     elif 'ChromeOS' in bot:
       gl_prefix = 'gles'
 
@@ -697,7 +695,6 @@ def dm_flags(api, bot):
 
   if api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~GLPrograms']) # skia:7849
-    match.append('~^SRGBReadWritePixels$') # skia:9225
 
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelHD405' in bot:
     # skia:7322
