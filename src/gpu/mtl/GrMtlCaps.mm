@@ -566,6 +566,17 @@ GrPixelConfig GrMtlCaps::validateBackendRenderTarget(const GrBackendRenderTarget
     return validate_sized_format(texture.pixelFormat, ct);
 }
 
+bool GrMtlCaps::areColorTypeAndFormatCompatible(SkColorType ct,
+                                                const GrBackendFormat& format) const {
+    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
+    if (!mtlFormat) {
+        return false;
+    }
+
+    return kUnknown_GrPixelConfig != validate_sized_format(*mtlFormat, ct);
+}
+
+
 GrPixelConfig GrMtlCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
                                                     SkColorType ct) const {
     const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
