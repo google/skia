@@ -14,8 +14,6 @@
 
 struct SkBitmapProcState;
 
-namespace skvm { struct ProgramInstruction; }
-
 namespace SkOpts {
     // Call to replace pointers to portable functions with pointers to CPU-specific functions.
     // Thread-safe and idempotent.
@@ -75,9 +73,6 @@ namespace SkOpts {
     extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, void**);
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
 #undef M
-
-    extern void (*eval)(const skvm::ProgramInstruction[], int ninsts, int nregs, int loop,
-                        int n, void* args[], size_t strides[], int nargs);
 
 }
 

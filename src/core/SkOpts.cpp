@@ -43,7 +43,6 @@
 #include "src/opts/SkRasterPipeline_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
 #include "src/opts/SkUtils_opts.h"
-#include "src/opts/SkVM_opts.h"
 #include "src/opts/SkXfermode_opts.h"
 
 namespace SkOpts {
@@ -81,8 +80,6 @@ namespace SkOpts {
     DEFINE_DEFAULT(hash_fn);
 
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
-
-    DEFINE_DEFAULT(eval);
 #undef DEFINE_DEFAULT
 
 #define M(st) (StageFn)SK_OPTS_NS::st,
