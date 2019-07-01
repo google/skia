@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e7646f4_edc42bcd",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-01T19:46:48Z",
+      "side": 1,
+      "message": "Is this generally useful? Would a SkSpan::Make(...) like this be a good idea? (Seems like std::make_span might not be a bad idea.)",
+      "range": {
+        "startLine": 217,
+        "startChar": 10,
+        "endLine": 217,
+        "endChar": 18
+      },
+      "revId": "9fd7eade269b1a7010a5281cbd97eb9d716aeb13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
