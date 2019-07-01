@@ -2670,8 +2670,8 @@ public:
                                           float devYRadius,
                                           SkVector devStrokeWidths,
                                           bool strokeOnly) {
-        SkASSERT(devXRadius > 0.5);
-        SkASSERT(devYRadius > 0.5);
+        SkASSERT(devXRadius >= 0.5);
+        SkASSERT(devYRadius >= 0.5);
         SkASSERT((devStrokeWidths.fX > 0) == (devStrokeWidths.fY > 0));
         SkASSERT(!(strokeOnly && devStrokeWidths.fX <= 0));
         if (devStrokeWidths.fX > 0) {
