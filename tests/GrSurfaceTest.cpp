@@ -249,7 +249,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         SkImageInfo info = SkImageInfo::Make(
                                 kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
                         memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
-                        if (texCtx->readPixels(info, data.get(), 0, 0, 0)) {
+                        if (texCtx->readPixels(info, data.get(), 0, {0, 0})) {
                             uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
                             for (int i = 0; i < kSize * kSize; ++i) {
                                 if (cmp != data.get()[i]) {
@@ -262,7 +262,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         // Here we overwrite the texture so that the second time through we
                         // test against recycling without reclearing.
                         if (0 == i) {
-                            texCtx->writePixels(info, data.get(), 0, 0, 0);
+                            texCtx->writePixels(info, data.get(), 0, {0, 0});
                         }
                     }
                     context->priv().testingOnly_purgeAllUnlockedResources();
@@ -290,7 +290,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         SkImageInfo info = SkImageInfo::Make(
                                 kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
                         memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
-                        if (surfCtx->readPixels(info, data.get(), 0, 0, 0)) {
+                        if (surfCtx->readPixels(info, data.get(), 0, {0, 0})) {
                             uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
                             for (int i = 0; i < kSize * kSize; ++i) {
                                 if (cmp != data.get()[i]) {
@@ -302,7 +302,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         // Here we overwrite the texture so that the second time through we
                         // test against recycling without reclearing.
                         if (0 == i) {
-                            surfCtx->writePixels(info, data.get(), 0, 0, 0);
+                            surfCtx->writePixels(info, data.get(), 0, {0, 0});
                         }
                     }
                     context->priv().testingOnly_purgeAllUnlockedResources();
@@ -359,7 +359,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         // Read pixels should work with a read-only texture.
         SkAutoPixmapStorage read;
         read.alloc(pixels.info());
-        auto readResult = surfContext->readPixels(pixels.info(), read.writable_addr(), 0, 0, 0);
+        auto readResult = surfContext->readPixels(pixels.info(), read.writable_addr(), 0, {0, 0});
         REPORTER_ASSERT(reporter, readResult);
         if (readResult) {
             comparePixels(pixels, read, reporter);
@@ -369,7 +369,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         SkAutoPixmapStorage write;
         write.alloc(pixels.info());
         fillPixels(&write, [&pixels](int x, int y) { return ~*pixels.addr32(); });
-        auto writeResult = surfContext->writePixels(pixels.info(), pixels.addr(), 0, 0, 0);
+        auto writeResult = surfContext->writePixels(pixels.info(), pixels.addr(), 0, {0, 0});
         REPORTER_ASSERT(reporter, writeResult == (ioType == kRW_GrIOType));
         // Try the low level write.
         context->flush();
