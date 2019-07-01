@@ -265,11 +265,9 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
 
-    int bpp = GrColorTypeBytesPerPixel(dstColorType);
-    if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp,
-                                              &left, &top, &width, &height,
-                                              &buffer,
-                                              &rowBytes)) {
+    auto subRect = SkIRect::MakeXYWH(left, top, width, height);
+    auto bounds  = SkIRect::MakeWH(surface->width(), surface->height());
+    if (!bounds.contains(subRect)) {
         return false;
     }
 
@@ -293,8 +291,8 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
 
     if (1 == mipLevelCount) {
         // We require that if we are not mipped, then the write region is contained in the surface
-        SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
-        SkIRect bounds = SkIRect::MakeWH(surface->width(), surface->height());
+        auto subRect = SkIRect::MakeXYWH(left, top, width, height);
+        auto bounds  = SkIRect::MakeWH(surface->width(), surface->height());
         if (!bounds.contains(subRect)) {
             return false;
         }

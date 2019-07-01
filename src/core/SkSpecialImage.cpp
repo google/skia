@@ -440,7 +440,7 @@ public:
         }
 
         if (!sContext->readPixels(info, pmap.writable_addr(), pmap.rowBytes(),
-                                  this->subset().left(), this->subset().top())) {
+                                  {this->subset().left(), this->subset().top()})) {
             return false;
         }
 
