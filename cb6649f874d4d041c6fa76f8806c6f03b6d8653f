@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30e88922_1e3cff6a",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-01T14:21:38Z",
+      "side": 1,
+      "message": "Not sure why this was added? Probably want to avoid touching this file if it isn\u0027t changing.",
+      "revId": "cb6649f874d4d041c6fa76f8806c6f03b6d8653f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "679eff1e_15c040f6",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-01T14:21:38Z",
+      "side": 1,
+      "message": "This should not be needed (see comment on the FreeType change).",
+      "range": {
+        "startLine": 775,
+        "startChar": 0,
+        "endLine": 778,
+        "endChar": 3
+      },
+      "revId": "cb6649f874d4d041c6fa76f8806c6f03b6d8653f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "020dfe7a_21ea2721",
+        "filename": "include/core/SkFontParameters.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-01T14:21:38Z",
+      "side": 1,
+      "message": "This would have to be something like SkTypeface::createFamilyNameIterator which returns SkTypeface::LocalizedStrings. Also, this could not really be here. See https://skia-review.googlesource.com/c/skia/+/142894 . Also, that requires that we fix LocalizedStrings and how they are returned.",
+      "range": {
+        "startLine": 30,
+        "startChar": 12,
+        "endLine": 30,
+        "endChar": 26
+      },
+      "revId": "cb6649f874d4d041c6fa76f8806c6f03b6d8653f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a80a0ac_e15e5a5b",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1694,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-01T14:21:38Z",
+      "side": 1,
+      "message": "Note that SkOTUtils::LocalizedStrings_NameTable is the way to handle this sort of thing. We do not want all of this extra complexity one off here. There\u0027s no need to drag in all of ICU as a dependency here at all for this tiny bit either.",
+      "revId": "cb6649f874d4d041c6fa76f8806c6f03b6d8653f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cace3034_c416bfef",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-01T14:21:38Z",
+      "side": 1,
+      "message": "This is part of the separable change to return names (which will need to be done differently), but note that Skia uses only spaces and no tabs.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 1
+      },
+      "revId": "cb6649f874d4d041c6fa76f8806c6f03b6d8653f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
