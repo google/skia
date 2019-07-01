@@ -48,7 +48,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         backendTex = context->priv().createBackendTexture(&expectedPixels, 1, renderable);
     } else {
         backendTex = context->createBackendTexture(kWidth, kHeight, ct, SkColors::kTransparent,
-                                                   mipMapped, renderable);
+                                                   mipMapped, renderable, GrProtected::kNo);
 
         size_t allocSize = SkAutoPixmapStorage::AllocSize(ii, nullptr);
         // createBackendTexture will fill the texture with 0's if no data is provided, so

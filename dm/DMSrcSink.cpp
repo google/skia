@@ -1395,7 +1395,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
             backendTexture = context->createBackendTexture(
                     info.width(), info.height(), info.colorType(), SkColors::kTransparent,
-                    GrMipMapped::kNo, GrRenderable::kYes);
+                    GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
             surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
                                                         kTopLeft_GrSurfaceOrigin, fSampleCount,
                                                         fColorType, info.refColorSpace(), &props);

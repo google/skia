@@ -425,6 +425,7 @@ GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], i
 
     GrGpu* gpu = fContext->fGpu.get();
 
+    // TODO (PROT-CHAR): pass in protection status once added to characterization
     // TODO: propagate the array of pixmaps interface to GrGpu
     return gpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
                                      GrMipMapped::kNo, // TODO: use real mipmap setting here

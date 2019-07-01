@@ -42,7 +42,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
             // fine since we are never actually using these textures for any work on the gpu.
             GrBackendTexture backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, mipMapped, renderable);
+                    SkColors::kTransparent, mipMapped, renderable, GrProtected::kNo);
 
             sk_sp<GrTextureProxy> proxy;
             sk_sp<SkImage> image;

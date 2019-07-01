@@ -89,7 +89,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     backendTexture1 =
         context1->createBackendTexture(kSize, kSize, kRGBA_8888_SkColorType,
                                        SkColors::kTransparent,
-                                       GrMipMapped::kNo, GrRenderable::kNo);
+                                       GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
     if (!backendTexture1.isValid() || !gpu1->isTestingOnlyBackendTexture(backendTexture1)) {
         ERRORF(reporter, "Error creating texture for EGL Image");

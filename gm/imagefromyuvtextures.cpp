@@ -134,7 +134,7 @@ protected:
                              GrBackendTexture* resultTexture) {
         *resultTexture = context->createBackendTexture(
                 width, height, kRGBA_8888_SkColorType, SkColors::kTransparent,
-                GrMipMapped::kNo, GrRenderable::kYes);
+                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
     }
 
     void deleteBackendTextures(GrContext* context, GrBackendTexture textures[], int n) {
