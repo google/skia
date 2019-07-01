@@ -65,8 +65,6 @@ public:
     // If the path has never been set, then add a path to glyph.
     const SkPath* preparePath(SkGlyph* glyph, const SkPath* path);
 
-    SkSpan<SkPoint> getAdvances(SkSpan<const SkGlyphID>, SkPoint[]);
-
     /** Returns the number of glyphs for this strike.
     */
     unsigned getGlyphCount() const;
@@ -109,6 +107,12 @@ public:
 
     SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID> glyphIDs,
                                    const SkGlyph* results[]);
+
+    SkSpan<const SkGlyph*> preparePaths(SkSpan<const SkGlyphID> glyphIDs,
+                                        const SkGlyph* results[]);
+
+    SkSpan<const SkGlyph*> prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs,
+                                         const SkGlyph* results[]);
 
     SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
                                                const SkPoint positions[],
@@ -165,9 +169,16 @@ private:
 
     SkGlyph* makeGlyph(SkPackedGlyphID);
 
-    // internalMetrics will only be called with a mutex already held.
-    SkSpan<const SkGlyph*> internalMetrics(
-            SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* result[]);
+    enum PathDetail {
+        kSkipPath,
+        kPreparePath
+    };
+
+    // internalPrepare will only be called with a mutex already held.
+    SkSpan<const SkGlyph*> internalPrepare(
+            SkSpan<const SkGlyphID> glyphIDs,
+            PathDetail pathDetail,
+            const SkGlyph** results);
 
     const SkAutoDescriptor                 fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;
