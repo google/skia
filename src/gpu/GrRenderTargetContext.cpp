@@ -148,8 +148,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
                                              bool managedOpList)
-        : GrSurfaceContext(context, colorType, kPremul_SkAlphaType, std::move(colorSpace),
-                           rtp->config())
+        : GrSurfaceContext(context, colorType, kPremul_SkAlphaType, std::move(colorSpace))
         , fRenderTargetProxy(std::move(rtp))
         , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
@@ -2603,7 +2602,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
 
     SkASSERT((!usesStencil && !appliedClip.hasStencilClip()) || fNeedsStencil);
 
-    GrClampType clampType = GrPixelConfigClampType(this->colorSpaceInfo().config());
+    GrClampType clampType = GrColorTypeClampType(this->colorSpaceInfo().colorType());
     // MIXED SAMPLES TODO: check stencil buffer is MSAA and make sure stencil test is actually doing
     // something (either in the clip or in the op).
     bool hasMixedSampledCoverage = false;
