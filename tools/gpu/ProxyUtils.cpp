@@ -81,7 +81,8 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     if (!sContext) {
         return nullptr;
     }
-    if (!sContext->writePixels(context, 0, 0, width, height, colorType, nullptr, data, rowBytes)) {
+    if (!sContext->writePixels({colorType, alphaType, nullptr, width, height}, data, rowBytes,
+                               {0, 0}, context)) {
         return nullptr;
     }
     return proxy;
