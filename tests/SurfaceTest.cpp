@@ -748,7 +748,7 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
     surface.reset();
 
     SkImageInfo ii = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    grSurfaceContext->readPixels(ii, pixels.get(), 0, 0, 0);
+    grSurfaceContext->readPixels(ii, pixels.get(), 0, {0, 0});
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint32_t pixel = pixels.get()[y * w + x];

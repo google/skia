@@ -101,7 +101,7 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, GrColorType 
         return false;
     }
 
-    bool result = sContext->readPixels(ii, bm.getPixels(), bm.rowBytes(), 0, 0);
+    bool result = sContext->readPixels(ii, bm.getPixels(), bm.rowBytes(), {0, 0});
     if (!result) {
         SkDebugf("------ failed to read pixels for %s\n", filename);
         return false;
