@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd63d16f_6fd72469",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-01T20:53:59Z",
+      "side": 1,
+      "message": "It may seem unfortunate to add this here. However, when GrCaps is able to express the allowed source color type to make a texture then this is where any conversions will have to occur (and in GrSurfaceContext::writePixels).",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 5
+      },
+      "revId": "7a93d97bc7ee336b1813c605d5601da21733c3eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
