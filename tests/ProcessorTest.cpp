@@ -265,9 +265,8 @@ void render_fp(GrContext* context, GrRenderTargetContext* rtc, GrFragmentProcess
     // test_draw_op needs to take ownership of an FP, so give it a clone that it can own
     test_draw_op(context, rtc, fp->clone(), inputDataProxy);
     memset(buffer, 0x0, sizeof(GrColor) * width * height);
-           rtc->readPixels(SkImageInfo::Make(width, height, kRGBA_8888_SkColorType,
-                                             kPremul_SkAlphaType),
-                           buffer, 0, 0, 0);
+    rtc->readPixels(SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+                    buffer, 0, {0, 0});
 }
 
 /** Initializes the two test texture proxies that are available to the FP test factories. */
@@ -340,7 +339,7 @@ bool log_surface_context(sk_sp<GrSurfaceContext> src, SkString* dst) {
                                        kPremul_SkAlphaType);
     SkBitmap bm;
     SkAssertResult(bm.tryAllocPixels(ii));
-    SkAssertResult(src->readPixels(ii, bm.getPixels(), bm.rowBytes(), 0, 0));
+    SkAssertResult(src->readPixels(ii, bm.getPixels(), bm.rowBytes(), {0, 0}));
 
     return bitmap_to_base64_data_uri(bm, dst);
 }

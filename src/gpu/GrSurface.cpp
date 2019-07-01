@@ -91,53 +91,6 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
     return finalSize;
 }
 
-template<typename T> static bool adjust_params(int surfaceWidth,
-                                               int surfaceHeight,
-                                               size_t bpp,
-                                               int* left, int* top, int* width, int* height,
-                                               T** data,
-                                               size_t* rowBytes) {
-    if (!*rowBytes) {
-        *rowBytes = *width * bpp;
-    }
-
-    SkIRect subRect = SkIRect::MakeXYWH(*left, *top, *width, *height);
-    SkIRect bounds = SkIRect::MakeWH(surfaceWidth, surfaceHeight);
-
-    if (!subRect.intersect(bounds)) {
-        return false;
-    }
-    *data = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(*data) +
-            (subRect.fTop - *top) * *rowBytes + (subRect.fLeft - *left) * bpp);
-
-    *left = subRect.fLeft;
-    *top = subRect.fTop;
-    *width = subRect.width();
-    *height = subRect.height();
-    return true;
-}
-
-bool GrSurfacePriv::AdjustReadPixelParams(int surfaceWidth,
-                                          int surfaceHeight,
-                                          size_t bpp,
-                                          int* left, int* top, int* width, int* height,
-                                          void** data,
-                                          size_t* rowBytes) {
-    return adjust_params<void>(surfaceWidth, surfaceHeight, bpp, left, top, width, height, data,
-                               rowBytes);
-}
-
-bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth,
-                                           int surfaceHeight,
-                                           size_t bpp,
-                                           int* left, int* top, int* width, int* height,
-                                           const void** data,
-                                           size_t* rowBytes) {
-    return adjust_params<const void>(surfaceWidth, surfaceHeight, bpp, left, top, width, height,
-                                     data, rowBytes);
-}
-
-
 //////////////////////////////////////////////////////////////////////////////
 
 bool GrSurface::hasPendingRead() const {
