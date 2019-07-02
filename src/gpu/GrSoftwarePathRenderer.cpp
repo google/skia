@@ -347,7 +347,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             GrTDeferredProxyUploader<SoftwarePathData>* uploaderRaw = uploader.get();
 
             auto drawAndUploadMask = [uploaderRaw] {
-                TRACE_EVENT0("skia", "Threaded SW Mask Render");
+                TRACE_EVENT0("skia.gpu", "Threaded SW Mask Render");
                 GrSWMaskHelper helper(uploaderRaw->getPixels());
                 if (helper.init(uploaderRaw->data().getMaskBounds())) {
                     helper.drawShape(uploaderRaw->data().getShape(),
