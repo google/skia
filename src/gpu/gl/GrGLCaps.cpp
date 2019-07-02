@@ -1439,6 +1439,27 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         msaaRenderFlags |= FormatInfo::kFBOColorAttachmentWithMSAA_Flag;
     }
 
+    bool texStorageSupported = false;
+    if (GR_IS_GR_GL(standard)) {
+        // The EXT version can apply to either GL or GLES.
+        texStorageSupported = version >= GR_GL_VER(4,2) ||
+                              ctxInfo.hasExtension("GL_ARB_texture_storage") ||
+                              ctxInfo.hasExtension("GL_EXT_texture_storage");
+    } else if (GR_IS_GR_GL_ES(standard)) {
+        texStorageSupported = version >= GR_GL_VER(3,0) ||
+                              ctxInfo.hasExtension("GL_EXT_texture_storage");
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        texStorageSupported = version >= GR_GL_VER(2,0);
+    }
+    if (fDriverBugWorkarounds.disable_texture_storage) {
+        texStorageSupported = false;
+    }
+#ifdef SK_BUILD_FOR_ANDROID
+    // crbug.com/945506. Telemetry reported a memory usage regression for Android Go Chrome/WebView
+    // when using glTexStorage2D. This appears to affect OOP-R (so not just over command buffer).
+    texStorageSupported = false;
+#endif
+
     // This is set when we know we have both texture and render support for:
     // R 8/16/16F
     // RG 8/16/16F
@@ -1547,6 +1568,10 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             info.fFlags |= msaaRenderFlags;
         }
 
+        if (texStorageSupported) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
+        }
+
         // kRGBA_8888
         {
             uint32_t flags = ColorTypeInfo::kUploadData_Flag;
@@ -1569,6 +1594,11 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         FormatInfo& info = this->getFormatInfo(GR_GL_R8);
         if (textureRedSupport) {
             info.fFlags |= FormatInfo::kTextureable_Flag | msaaRenderFlags;
+        }
+
+        if (texStorageSupported &&
+            !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
         }
 
         if (textureRedSupport) {
@@ -1599,6 +1629,11 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (fAlpha8IsRenderable && alpha8IsValidForGL) {
             info.fFlags |= msaaRenderFlags;
         }
+        if (texStorageSupported &&
+            !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2 &&
+            !formatWorkarounds.fDisableNonRedSingleChannelTexStorageForANGLEGL) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
+        }
 
         if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
             // kAlpha_8
@@ -1620,6 +1655,11 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (supportsLum) {
             info.fFlags = FormatInfo::kTextureable_Flag;
         }
+        if (texStorageSupported &&
+            !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2 &&
+            !formatWorkarounds.fDisableNonRedSingleChannelTexStorageForANGLEGL) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
+        }
         // We are not enabling attaching to an FBO for LUMINANCE8 mostly because of confusion in the
         // spec. For GLES it does not seem to ever support LUMINANCE8 being color-renderable. For GL
         // versions less than 3.0 it is provided by GL_ARB_framebuffer_object. However, the original
@@ -1636,14 +1676,25 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                 info.fColorTypeInfos.emplace_back(GrColorType::kGray_8, flags);
             }
         }
+
     }
 
     // BGRA8
     {
         FormatInfo& info = this->getFormatInfo(GR_GL_BGRA8);
+        // TexStorage requires using a sized internal format and BGRA8 is only supported if we have
+        // the GL_APPLE_texture_format_BGRA8888 extension or if we have GL_EXT_texture_storage and
+        // GL_EXT_texture_format_BGRA8888.
+        bool supportsBGRATexStorage = false;
+
         if (GR_IS_GR_GL_ES(standard)) {
             if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
                 info.fFlags = FormatInfo::kTextureable_Flag | nonMSAARenderFlags;
+                // GL_EXT_texture storage has defined interactions with GL_EXT_texture_format_BGRA8888.
+                if (ctxInfo.hasExtension("GL_EXT_texture_storage") &&
+                    !formatWorkarounds.fDisableBGRATextureStorageForIntelWindowsES) {
+                    supportsBGRATexStorage = true;
+                }
             } else if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
                 // This APPLE extension introduces complexity on ES2. It leaves the internal format
                 // as RGBA, but allows BGRA as the external format. From testing, it appears that
@@ -1657,8 +1708,12 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                     // The APPLE extension doesn't explicitly make this renderable, but
                     // internally it appears to use RGBA8, which we'll patch up below.
                     info.fFlags = FormatInfo::kTextureable_Flag | msaaRenderFlags;
+                    supportsBGRATexStorage = true;
                 }
             }
+        }
+        if (texStorageSupported && supportsBGRATexStorage) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
         }
 
         if (SkToBool(info.fFlags &FormatInfo::kTextureable_Flag)) {
@@ -1683,6 +1738,16 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         } else if (GR_IS_GR_WEBGL(standard)) {
             info.fFlags |= msaaRenderFlags;
         }
+        // 565 is not a sized internal format on desktop GL. So on desktop with
+        // 565 we always use an unsized internal format to let the system pick
+        // the best sized format to convert the 565 data to. Since TexStorage
+        // only allows sized internal formats we disallow it.
+        //
+        // TODO: As of 4.2, regular GL supports 565. This logic is due for an
+        // update.
+        if (texStorageSupported && GR_IS_GR_GL_ES(standard)) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
+        }
 
         // kBGR_565
         {
@@ -1700,6 +1765,10 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             if (halfFPRenderTargetSupport != HalfFPRenderTargetSupport::kNone) {
                 info.fFlags |= fpRenderFlags;
             }
+        }
+        if (texStorageSupported &&
+            !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
         }
 
         if (hasFP16Textures) {
@@ -1725,6 +1794,10 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             if (halfFPRenderTargetSupport == HalfFPRenderTargetSupport::kAll) {
                 info.fFlags |= fpRenderFlags;
             }
+        }
+        if (texStorageSupported &&
+            !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
         }
 
         if (textureRedSupport && hasFP16Textures) {
@@ -1758,6 +1831,12 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             // WebGL seems to support RBG8
             info.fFlags |= msaaRenderFlags;
         }
+        if (texStorageSupported) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
+        }
+        if (formatWorkarounds.fDisableRGB8ForMali400) {
+            info.fFlags = 0;
+        }
 
         // kRGB_888x
         {
@@ -1771,6 +1850,10 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         FormatInfo& info = this->getFormatInfo(GR_GL_RG8);
         if (textureRedSupport) {
             info.fFlags |= FormatInfo::kTextureable_Flag | msaaRenderFlags;
+            if (texStorageSupported &&
+                !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2) {
+                info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
+            }
         }
 
         if (textureRedSupport) {
@@ -1792,6 +1875,9 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                    ctxInfo.hasExtension("GL_EXT_texture_type_2_10_10_10_REV")) {
             info.fFlags = FormatInfo::kTextureable_Flag;
         } // No WebGL support
+        if (texStorageSupported) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
+        }
 
         if (SkToBool(info.fFlags &FormatInfo::kTextureable_Flag)) {
             // kRGBA_1010102
@@ -1814,6 +1900,9 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             info.fFlags |= msaaRenderFlags;
         } else if (GR_IS_GR_WEBGL(standard)) {
             info.fFlags |= msaaRenderFlags;
+        }
+        if (texStorageSupported) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
         }
 
         // kABGR_4444
@@ -1838,6 +1927,10 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                                                                           : msaaRenderFlags;
 
             info.fFlags = FormatInfo::kTextureable_Flag | srgbRenderFlags;
+        }
+        if (texStorageSupported &&
+            !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
         }
 
         if (fSRGBSupport) {
@@ -2071,8 +2164,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     bool disableR8TexStorageForANGLEGL = false;
     bool disableSRGBRenderWithMSAAForMacAMD = false;
     bool disableRGB8ForMali400 = false;
-    bool disableBGRATextureStorageForIntelWindowsES = false;
-    bool disablePerFormatTextureStorageForCommandBufferES2 = false;
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
@@ -2088,20 +2179,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 #if defined(SK_BUILD_FOR_MAC)
         disableSRGBRenderWithMSAAForMacAMD = kATI_GrGLVendor == ctxInfo.vendor();
 #endif
+
         // Mali-400 fails ReadPixels tests, mostly with non-0xFF alpha values when read as GL_RGBA8.
         disableRGB8ForMali400 = kMali4xx_GrGLRenderer == ctxInfo.renderer();
-
-#if defined(SK_BUILD_FOR_WIN)
-        // On Intel Windows ES contexts it seems that using texture storage with BGRA causes
-        // problems with cross-context SkImages.
-        disableBGRATextureStorageForIntelWindowsES = kIntel_GrGLDriver == ctxInfo.driver() &&
-                                                   GR_IS_GR_GL_ES(standard);
-#endif
-        // ES2 Command Buffer has several TexStorage restrictions. It appears to fail for any format
-        // not explicitly allowed by the original GL_EXT_texture_storage, particularly those from
-        // other extensions even when later revisions define the interactions.
-        disablePerFormatTextureStorageForCommandBufferES2 =
-                kChromium_GrGLDriver == ctxInfo.driver() && version < GR_GL_VER(3, 0);
     }
 
     uint32_t nonMSAARenderFlags = ConfigInfo::kRenderable_Flag;
@@ -2167,10 +2247,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= allRenderFlags;
     }
 
-    if (texStorageSupported) {
-        fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
-
     fConfigTable[kRGB_888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
     fConfigTable[kRGB_888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGB8;
     // Our external RGB data always has a byte where alpha would be. When calling read pixels we
@@ -2197,9 +2273,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         // WebGL seems to support RBG8
         fConfigTable[kRGB_888_GrPixelConfig].fFlags |= allRenderFlags;
     }
-    if (texStorageSupported) {
-        fConfigTable[kRGB_888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
     if (disableRGB8ForMali400) {
         fConfigTable[kRGB_888_GrPixelConfig].fFlags = 0;
     }
@@ -2218,10 +2291,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kRG_88_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (textureRedSupport) {
         fConfigTable[kRG_88_GrPixelConfig].fFlags = allRenderFlags;
-        // ES2 Command Buffer does not allow TexStorage with RG8_EXT
-        if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
-            fConfigTable[kRG_88_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-        }
     } else {
         fConfigTable[kRG_88_GrPixelConfig].fFlags = 0;
     }
@@ -2231,11 +2300,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalType  = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
-   // TexStorage requires using a sized internal format and BGRA8 is only supported if we have the
-   // GL_APPLE_texture_format_BGRA8888 extension or if we have GL_EXT_texture_storage and
-   // GL_EXT_texture_format_BGRA8888.
-    bool supportsBGRATexStorage = false;
-
     if (GR_IS_GR_GL(standard)) {
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA8;
@@ -2243,19 +2307,12 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             // Since the internal format is RGBA8, it is also renderable.
             fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = allRenderFlags;
         }
-        // Since we are using RGBA8 we can use tex storage.
-        supportsBGRATexStorage = true;
     } else if (GR_IS_GR_GL_ES(standard)) {
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_BGRA;
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_BGRA8;
         if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
             fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = nonMSAARenderFlags;
 
-            // GL_EXT_texture storage has defined interactions with GL_EXT_texture_format_BGRA8888.
-            if (ctxInfo.hasExtension("GL_EXT_texture_storage") &&
-                !disableBGRATextureStorageForIntelWindowsES) {
-                supportsBGRATexStorage = true;
-            }
             if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888") &&
                 this->usesMSAARenderBuffers()) {
                 fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |=
@@ -2273,17 +2330,12 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                 // The APPLE extension doesn't explicitly make this renderable, but
                 // internally it appears to use RGBA8, which we'll patch up below.
                 fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = allRenderFlags;
-                supportsBGRATexStorage = true;
             }
         }
     } else if (GR_IS_GR_WEBGL(standard)) {
         // Guess based on ES 2.0 support
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_BGRA;
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_BGRA8;
-    }
-
-    if (texStorageSupported && supportsBGRATexStorage) {
-        fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
     uint32_t srgbRenderFlags = allRenderFlags;
@@ -2301,10 +2353,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (fSRGBSupport) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags = srgbRenderFlags;
-    }
-    // ES2 Command Buffer does not allow TexStorage with SRGB8_ALPHA8_EXT
-    if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
-        fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
@@ -2326,16 +2374,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     } else if (GR_IS_GR_WEBGL(standard)) {
         fConfigTable[kRGB_565_GrPixelConfig].fFlags |= allRenderFlags;
     }
-    // 565 is not a sized internal format on desktop GL. So on desktop with
-    // 565 we always use an unsized internal format to let the system pick
-    // the best sized format to convert the 565 data to. Since TexStorage
-    // only allows sized internal formats we disallow it.
-    //
-    // TODO: As of 4.2, regular GL supports 565. This logic is due for an
-    // update.
-    if (texStorageSupported && GR_IS_GR_GL_ES(standard)) {
-        fConfigTable[kRGB_565_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
 
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA4;
@@ -2352,9 +2390,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     } else if (GR_IS_GR_WEBGL(standard)) {
         fConfigTable[kRGBA_4444_GrPixelConfig].fFlags |= allRenderFlags;
     }
-    if (texStorageSupported) {
-        fConfigTable[kRGBA_4444_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
 
     fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
     fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGB10_A2;
@@ -2367,10 +2402,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
        (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0))) {
         fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags = allRenderFlags;
     } // No WebGL support
-
-    if (texStorageSupported) {
-        fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
 
     bool alpha8IsValidForGL = GR_IS_GR_GL(standard) &&
             (!fIsCoreProfile || version <= GR_GL_VER(3, 0));
@@ -2394,14 +2425,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     redInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     redInfo.fRGBAReadSwizzle = GrSwizzle("000r");
 
-    // ES2 Command Buffer does not allow TexStorage with R8_EXT (so Alpha_8 and Gray_8)
-    if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
-        if (!disableR8TexStorageForANGLEGL) {
-            alphaInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-        }
-        redInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
-
     if (textureRedSupport) {
         redInfo.fFlags |= allRenderFlags;
         fConfigTable[kAlpha_8_GrPixelConfig] = redInfo;
@@ -2424,14 +2447,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     grayRedInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     grayRedInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     grayRedInfo.fFormatType = kNormalizedFixedPoint_FormatType;
-
-    // Leaving Gray8 as non-renderable, to keep things simple and match raster.
-    if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
-        if (!disableR8TexStorageForANGLEGL) {
-            grayLumInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-        }
-        grayRedInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
 
     if (textureRedSupport) {
         fConfigTable[kGray_8_GrPixelConfig] = grayRedInfo;
@@ -2506,9 +2521,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[fpconfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = format;
         fConfigTable[fpconfig].fFormats.fExternalType = GR_GL_FLOAT;
         fConfigTable[fpconfig].fFormatType = kFloat_FormatType;
-        if (texStorageSupported) {
-            fConfigTable[fpconfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-        }
     }
 
     GrGLenum redHalfExternalType;
@@ -2529,10 +2541,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         if (halfFPRenderTargetSupport == HalfFPRenderTargetSupport::kAll) {
             redHalf.fFlags |= fpRenderFlags;
         }
-
-        if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
-            redHalf.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-        }
     }
     fConfigTable[kAlpha_half_GrPixelConfig] = redHalf;
 
@@ -2552,9 +2560,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         if (halfFPRenderTargetSupport != HalfFPRenderTargetSupport::kNone) {
             fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= fpRenderFlags;
         }
-    }
-    if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
-        fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
     // kRGBA_half_Clamped is just distinguished by clamps added to the shader. At the API level,
@@ -3495,6 +3500,28 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #if defined(SK_BUILD_FOR_MAC)
     formatWorkarounds->fDisableSRGBRenderWithMSAAForMacAMD = kATI_GrGLVendor == ctxInfo.vendor();
 #endif
+
+    // ES2 Command Buffer has several TexStorage restrictions. It appears to fail for any format
+    // not explicitly allowed by the original GL_EXT_texture_storage, particularly those from
+    // other extensions even when later revisions define the interactions.
+    formatWorkarounds->fDisablePerFormatTextureStorageForCommandBufferES2 =
+            kChromium_GrGLDriver == ctxInfo.driver() && ctxInfo.version() < GR_GL_VER(3, 0);
+
+    // Angle with es2->GL has a bug where it will hang trying to call TexSubImage on GL_R8
+    // formats on miplevels > 0. We already disable texturing on gles > 2.0 so just need to
+    // check that we are not going to OpenGL.
+    formatWorkarounds->fDisableNonRedSingleChannelTexStorageForANGLEGL =
+            GrGLANGLEBackend::kOpenGL == ctxInfo.angleBackend();
+
+#if defined(SK_BUILD_FOR_WIN)
+    // On Intel Windows ES contexts it seems that using texture storage with BGRA causes
+    // problems with cross-context SkImages.
+    formatWorkarounds->fDisableBGRATextureStorageForIntelWindowsES =
+            kIntel_GrGLDriver == ctxInfo.driver() && GR_IS_GR_GL_ES(ctxInfo.standard());
+#endif
+
+    // Mali-400 fails ReadPixels tests, mostly with non-0xFF alpha values when read as GL_RGBA8.
+    formatWorkarounds->fDisableRGB8ForMali400 = kMali4xx_GrGLRenderer == ctxInfo.renderer();
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
@@ -3677,8 +3704,11 @@ int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     return count;
 }
 
-bool GrGLCaps::canFormatBeFBOColorAttachment(GrGLenum format) const {
-    return SkToBool(this->getFormatInfo(format).fFlags & FormatInfo::kFBOColorAttachment_Flag);
+bool GrGLCaps::canGLFormatBeFBOColorAttachment(GrGLenum glFormat) const {
+    if (!GrGLFormatIsSupported(glFormat)) {
+        return false;
+    }
+    return SkToBool(this->getFormatInfo(glFormat).fFlags & FormatInfo::kFBOColorAttachment_Flag);
 }
 
 bool GrGLCaps::isFormatCopyable(SkColorType ct, const GrBackendFormat& format) const {
@@ -3690,7 +3720,15 @@ bool GrGLCaps::isFormatCopyable(SkColorType ct, const GrBackendFormat& format) c
     // requires the src to be an FBO attachment, blit requires both src and dst to be FBO
     // attachments, and draw requires the dst to be an FBO attachment. Thus to copy from and to
     // the same config, we need that config to be bindable to an FBO.
-    return this->canFormatBeFBOColorAttachment(*glFormat);
+    return this->canGLFormatBeFBOColorAttachment(*glFormat);
+}
+
+bool GrGLCaps::isGLFormatTexSupportEnabled(GrGLenum glFormat) const {
+    if (!GrGLFormatIsSupported(glFormat)) {
+        return false;
+    }
+
+    return SkToBool(this->getFormatInfo(glFormat).fFlags & FormatInfo::kCanUseTexStorage_Flag);
 }
 
 GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandard standard) {
