@@ -132,18 +132,22 @@ public:
         return this->canConfigBeFBOColorAttachment(config);
     }
 
-    bool canFormatBeFBOColorAttachment(GrGLenum format) const;
+    bool canGLFormatBeFBOColorAttachment(GrGLenum glFormat) const;
 
     bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {
         GrGLenum format = this->configSizedInternalFormat(config);
         if (!format) {
             return false;
         }
-        return this->canFormatBeFBOColorAttachment(format);
+        return this->canGLFormatBeFBOColorAttachment(format);
     }
 
     bool configSupportsTexStorage(GrPixelConfig config) const {
-        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseTexStorage_Flag);
+        GrGLenum format = this->configSizedInternalFormat(config);
+        if (!format) {
+            return false;
+        }
+        return this->glFormatSupportsTexStorage(format);
     }
 
     GrGLenum configSizedInternalFormat(GrPixelConfig config) const {
@@ -454,6 +458,10 @@ private:
     struct FormatWorkarounds {
         bool fDisableTextureRedForMesa = false;
         bool fDisableSRGBRenderWithMSAAForMacAMD = false;
+        bool fDisablePerFormatTextureStorageForCommandBufferES2 = false;
+        bool fDisableNonRedSingleChannelTexStorageForANGLEGL = false;
+        bool fDisableBGRATextureStorageForIntelWindowsES = false;
+        bool fDisableRGB8ForMali400 = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
@@ -477,6 +485,7 @@ private:
     size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override;
 
     bool isGLFormatTexturable(GrColorType, GrGLenum glFormat) const;
+    bool glFormatSupportsTexStorage(GrGLenum glFormat) const;
 
     GrGLStandard fStandard;
 
@@ -596,9 +605,6 @@ private:
         enum {
             kRenderable_Flag              = 0x1,
             kRenderableWithMSAA_Flag      = 0x2,
-            /** kFBOColorAttachment means that even if the config cannot be a GrRenderTarget, we can
-                still attach it to a FBO for blitting or reading pixels. */
-            kCanUseTexStorage_Flag        = 0x4,
         };
         uint32_t fFlags;
 
@@ -637,6 +643,7 @@ private:
                 still attach it to a FBO for blitting or reading pixels. */
             kFBOColorAttachment_Flag         = 0x2,
             kFBOColorAttachmentWithMSAA_Flag = 0x4,
+            kCanUseTexStorage_Flag           = 0x8,
         };
         uint32_t fFlags = 0;
 
