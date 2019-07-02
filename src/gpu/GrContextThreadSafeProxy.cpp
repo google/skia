@@ -9,6 +9,7 @@
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 
 #include "include/core/SkSurfaceCharacterization.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
@@ -67,14 +68,9 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat, ii.colorType());
-    if (kUnknown_GrPixelConfig == config) {
-        return SkSurfaceCharacterization(); // return an invalid characterization
-    }
-
     return SkSurfaceCharacterization(sk_ref_sp<GrContextThreadSafeProxy>(this),
-                                     cacheMaxResourceBytes, ii,
-                                     origin, config, sampleCnt,
+                                     cacheMaxResourceBytes, ii, backendFormat,
+                                     origin, sampleCnt,
                                      SkSurfaceCharacterization::Textureable(isTextureable),
                                      SkSurfaceCharacterization::MipMapped(isMipMapped),
                                      SkSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),
