@@ -457,8 +457,13 @@ private:
     void initGLSL(const GrGLContextInfo&, const GrGLInterface*);
     bool hasPathRenderingSupport(const GrGLContextInfo&, const GrGLInterface*);
 
+    struct FormatWorkarounds {
+        bool fDisableTextureRedForMesa = false;
+        bool fDisableSRGBRenderWithMSAAForMacAMD = false;
+    };
+
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
-                                           GrShaderCaps*);
+                                           GrShaderCaps*, FormatWorkarounds*);
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
@@ -470,7 +475,8 @@ private:
     void initStencilSupport(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
     void initConfigTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
-    void initFormatTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
+    void initFormatTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*,
+                         const FormatWorkarounds&);
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
