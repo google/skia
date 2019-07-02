@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d2d27ed_fc72e8ea",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-07-02T18:03:17Z",
+      "side": 0,
+      "message": "This was removed for refs/heads/skqp/dev (look at ref_regexp above). You want to remove it from refs/heads/master at the top instead.",
+      "revId": "e543a8f6df3ae9966fdb1769cc1085dfd91f4487",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
