@@ -112,10 +112,8 @@ public:
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         GrGLenum glFormat = this->configSizedInternalFormat(config);
-        if (!glFormat) {
-            return false;
-        }
-        return SkToBool(this->getFormatInfo(glFormat).fFlags & FormatInfo::kTextureable_Flag);
+        GrColorType ct = GrPixelConfigToColorType(config);
+        return this->isGLFormatTexturable(ct, glFormat);
     }
 
     int getRenderTargetSampleCount(int requestedCount,
@@ -478,6 +476,8 @@ private:
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
     size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override;
 
+    bool isGLFormatTexturable(GrColorType, GrGLenum glFormat) const;
+
     GrGLStandard fStandard;
 
     SkTArray<StencilFormat, true> fStencilFormats;
@@ -611,7 +611,28 @@ private:
 
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
 
+    struct ColorTypeInfo {
+        ColorTypeInfo(GrColorType colorType, uint32_t flags)
+                : fColorType(colorType)
+                , fFlags(flags) {}
+
+        GrColorType fColorType;
+        enum {
+            kUploadData_Flag = 0x1,
+        };
+        uint32_t fFlags;
+    };
+
     struct FormatInfo {
+        uint32_t colorTypeFlags(GrColorType colorType) const {
+            for (int i = 0; i < fColorTypeInfos.count(); ++i) {
+                if (fColorTypeInfos[i].fColorType == colorType) {
+                    return fColorTypeInfos[i].fFlags;
+                }
+            }
+            return 0;
+        }
+
         enum {
             kTextureable_Flag                = 0x1,
             /** kFBOColorAttachment means that even if the format cannot be a GrRenderTarget, we can
@@ -620,6 +641,8 @@ private:
             kFBOColorAttachmentWithMSAA_Flag = 0x4,
         };
         uint32_t fFlags = 0;
+
+        SkSTArray<1, ColorTypeInfo> fColorTypeInfos;
     };
 
     static const size_t kNumGLFormats = 21;
