@@ -191,6 +191,13 @@ namespace {
         }
     }
 
+    static void dump(const Builder& builder, const Program& program, SkWStream* o) {
+        dump(builder, o);
+        o->writeText("\n");
+        dump(program, o);
+        o->writeText("\n");
+    }
+
 }  // namespace
 
 
@@ -209,30 +216,27 @@ DEF_TEST(SkVM, r) {
         buf.writeText(" over ");
         buf.writeText(fmt_name(dstFmt));
         buf.writeText("\n");
-        dump(builder, &buf);
-        buf.writeText("\n");
-        dump(program, &buf);
-        buf.writeText("\n");
+        dump(builder, program, &buf);
     }
 
     // Write the I32 Srcovers also.
     {
-        skvm::Program program = SrcoverBuilder_I32_Naive{}.done();
+        SrcoverBuilder_I32_Naive builder;
+        skvm::Program program = builder.done();
         buf.writeText("I32 (Naive) 8888 over 8888\n");
-        dump(program, &buf);
-        buf.writeText("\n");
+        dump(builder, program, &buf);
     }
     {
-        skvm::Program program = SrcoverBuilder_I32{}.done();
+        SrcoverBuilder_I32 builder;
+        skvm::Program program = builder.done();
         buf.writeText("I32 8888 over 8888\n");
-        dump(program, &buf);
-        buf.writeText("\n");
+        dump(builder, program, &buf);
     }
     {
-        skvm::Program program = SrcoverBuilder_I32_SWAR{}.done();
+        SrcoverBuilder_I32_SWAR builder;
+        skvm::Program program = builder.done();
         buf.writeText("I32 (SWAR) 8888 over 8888\n");
-        dump(program, &buf);
-        buf.writeText("\n");
+        dump(builder, program, &buf);
     }
 
     sk_sp<SkData> blob = buf.detachAsData();
