@@ -306,7 +306,11 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Default() {
             return true;
         }
     };
-    return sk_make_sp<DefaultTypeface>("Emoji", 1000, metrics, glyphs, SkFontStyle::Normal());
+    return sk_make_sp<DefaultTypeface>("Emoji",
+                                       1000,
+                                       metrics,
+                                       SkMakeSpan(glyphs),
+                                       SkFontStyle::Normal());
 }
 
 sk_sp<TestSVGTypeface> TestSVGTypeface::Planets() {
@@ -352,7 +356,11 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Planets() {
             return true;
         }
     };
-    return sk_make_sp<PlanetTypeface>("Planets", 200, metrics, glyphs, SkFontStyle::Normal());
+    return sk_make_sp<PlanetTypeface>("Planets",
+                                      200,
+                                      metrics,
+                                      SkMakeSpan(glyphs),
+                                      SkFontStyle::Normal());
 }
 
 void TestSVGTypeface::exportTtxCommon(SkWStream*                out,

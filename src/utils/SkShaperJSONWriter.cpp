@@ -100,8 +100,8 @@ void SkShaperJSONWriter::commitRunBuffer(const SkShaper::RunHandler::RunInfo& in
     } else {
         VisualizeClusters(fUTF8.c_str(),
                           info.utf8Range.begin(), info.utf8Range.end(),
-                          SkSpan<const SkGlyphID>{fGlyphs},
-                          SkSpan<const uint32_t>{fClusters},
+                          SkMakeSpan(fGlyphs),
+                          SkMakeSpan(fClusters),
                           [this](size_t codePointCount, SkSpan<const char> utf1to1,
                                  SkSpan<const SkGlyphID> glyph1to1) {
                               this->displayMToN(codePointCount, utf1to1, glyph1to1);
