@@ -88,18 +88,17 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
     // We current don't support textured GrVkSecondaryCBDrawContexts.
     SkASSERT(!rtc->asTextureProxy());
 
-    // TODO: the addition of colorType to the surfaceContext should remove this calculation
-    SkColorType ct;
-    if (!GrPixelConfigToColorType(rtc->colorSpaceInfo().config(), &ct)) {
+    SkColorType ct = GrColorTypeToSkColorType(rtc->colorSpaceInfo().colorType());
+    if (ct == kUnknown_SkColorType) {
         return false;
     }
 
     SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
                                        rtc->colorSpaceInfo().refColorSpace());
 
-    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(),
-                          rtc->colorSpaceInfo().config(), rtc->numSamples(),
-                          SkSurfaceCharacterization::Textureable(false),
+    GrPixelConfig config = rtc->asSurfaceProxy()->config();
+    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(), config,
+                          rtc->numSamples(), SkSurfaceCharacterization::Textureable(false),
                           SkSurfaceCharacterization::MipMapped(false),
                           SkSurfaceCharacterization::UsesGLFBO0(false),
                           SkSurfaceCharacterization::VulkanSecondaryCBCompatible(true),
@@ -137,19 +136,19 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
         return false;
     }
 
-    // TODO: the addition of colorType to the surfaceContext should remove this calculation
-    SkColorType rtcColorType;
-    if (!GrPixelConfigToColorType(rtc->colorSpaceInfo().config(), &rtcColorType)) {
+    SkColorType rtColorType = GrColorTypeToSkColorType(rtc->colorSpaceInfo().colorType());
+    if (rtColorType == kUnknown_SkColorType) {
         return false;
     }
 
+    GrPixelConfig config = rtc->asSurfaceProxy()->config();
     return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
-           characterization.config() == rtc->colorSpaceInfo().config() &&
+           characterization.config() == config &&
            characterization.width() == rtc->width() &&
            characterization.height() == rtc->height() &&
-           characterization.colorType() == rtcColorType &&
+           characterization.colorType() == rtColorType &&
            characterization.sampleCount() == rtc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(),
                                 rtc->colorSpaceInfo().colorSpace()) &&

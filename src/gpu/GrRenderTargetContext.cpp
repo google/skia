@@ -147,8 +147,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
                                              bool managedOpList)
-        : GrSurfaceContext(context, colorType, kPremul_SkAlphaType, std::move(colorSpace),
-                           rtp->config())
+        : GrSurfaceContext(context, colorType, kPremul_SkAlphaType, std::move(colorSpace))
         , fRenderTargetProxy(std::move(rtp))
         , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
@@ -833,7 +832,7 @@ void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
         // mixed samples.
         SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
         numRequiredSamples = this->caps()->internalMultisampleCount(
-                this->colorSpaceInfo().config());
+                this->asSurfaceProxy()->config());
     }
     SkASSERT(numRequiredSamples > 0);
 
@@ -2615,7 +2614,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
 
     SkASSERT((!usesStencil && !appliedClip.hasStencilClip()) || (fNumStencilSamples > 0));
 
-    GrClampType clampType = GrPixelConfigClampType(this->colorSpaceInfo().config());
+    GrClampType clampType = GrColorTypeClampType(this->colorSpaceInfo().colorType());
     // MIXED SAMPLES TODO: If we start using mixed samples for clips we will need to check the clip
     // here as well.
     bool hasMixedSampledCoverage = (usesHWAA && this->numSamples() <= 1);

@@ -1253,6 +1253,149 @@ static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
     SkUNREACHABLE;
 }
 
+/**
+ * Describes the encoding of channel data in a GrColorType.
+ */
+enum class GrColorTypeEncoding {
+    kUnorm,
+    // kSRGBUnorm,
+    // kSnorm,
+    kFloat,
+    // kSint
+    // kUint
+};
+
+/**
+ * Describes a GrColorType by how many bits are used for each color component and how they are
+ * encoded. Currently all the non-zero channels share a single GrColorTypeEncoding. This could be
+ * expanded to store separate encodings and to indicate which bits belong to which components.
+ */
+struct GrColorTypeDesc {
+public:
+    static constexpr GrColorTypeDesc MakeRGBA(int rgba, GrColorTypeEncoding e) {
+        return {rgba, rgba, rgba, rgba, 0, e};
+    }
+
+    static constexpr GrColorTypeDesc MakeRGBA(int rgb, int a, GrColorTypeEncoding e) {
+        return {rgb, rgb, rgb, a, 0, e};
+    }
+
+    static constexpr GrColorTypeDesc MakeRGB(int rgb, GrColorTypeEncoding e) {
+        return {rgb, rgb, rgb, 0, 0, e};
+    }
+
+    static constexpr GrColorTypeDesc MakeRGB(int r, int g, int b, GrColorTypeEncoding e) {
+        return {r, g, b, 0, 0, e};
+    }
+
+    static constexpr GrColorTypeDesc MakeAlpha(int a, GrColorTypeEncoding e) {
+        return {0, 0, 0, a, 0, e};
+    }
+
+    static constexpr GrColorTypeDesc MakeR(int r, GrColorTypeEncoding e) {
+        return {r, 0, 0, 0, 0, e};
+    }
+
+    static constexpr GrColorTypeDesc MakeRG(int rg, GrColorTypeEncoding e) {
+        return {rg, rg, 0, 0, 0, e};
+    }
+
+    static constexpr GrColorTypeDesc MakeGray(int grayBits, GrColorTypeEncoding e) {
+        return {0, 0, 0, 0, grayBits, e};
+    }
+
+    static constexpr GrColorTypeDesc MakeInvalid() { return {}; }
+
+    constexpr int r() const { return fRBits; }
+    constexpr int g() const { return fGBits; }
+    constexpr int b() const { return fBBits; }
+    constexpr int a() const { return fABits; }
+
+    constexpr int gray() const { return fGrayBits; }
+
+    constexpr GrColorTypeEncoding encoding() const { return fEncoding; }
+
+private:
+    int fRBits = 0;
+    int fGBits = 0;
+    int fBBits = 0;
+    int fABits = 0;
+    int fGrayBits = 0;
+    GrColorTypeEncoding fEncoding = GrColorTypeEncoding::kUnorm;
+
+    constexpr GrColorTypeDesc() = default;
+
+    constexpr GrColorTypeDesc(int r, int g, int b, int a, int gray, GrColorTypeEncoding encoding)
+            : fRBits(r), fGBits(g), fBBits(b), fABits(a), fGrayBits(gray), fEncoding(encoding) {
+        SkASSERT(r >= 0 && g >= 0 && b >= 0 && a >= 0 && gray >= 0);
+        SkASSERT(!gray || (!r && !g && !b));
+        SkASSERT(r || g || b || a || gray);
+    }
+};
+
+static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
+    switch (ct) {
+        case GrColorType::kUnknown:
+            return GrColorTypeDesc::MakeInvalid();
+        case GrColorType::kAlpha_8:
+            return GrColorTypeDesc::MakeAlpha(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kBGR_565:
+            return GrColorTypeDesc::MakeRGB(5, 6, 5, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kABGR_4444:
+            return GrColorTypeDesc::MakeRGBA(4, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRGBA_8888:
+            return GrColorTypeDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRGB_888x:
+            return GrColorTypeDesc::MakeRGB(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRG_88:
+            return GrColorTypeDesc::MakeRG(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kBGRA_8888:
+            return GrColorTypeDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRGBA_1010102:
+            return GrColorTypeDesc::MakeRGBA(10, 2, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kGray_8:
+            return GrColorTypeDesc::MakeGray(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kAlpha_F16:
+            return GrColorTypeDesc::MakeAlpha(16, GrColorTypeEncoding::kFloat);
+        case GrColorType::kRGBA_F16:
+            return GrColorTypeDesc::MakeRGBA(16, GrColorTypeEncoding::kFloat);
+        case GrColorType::kRGBA_F16_Clamped:
+            return GrColorTypeDesc::MakeRGBA(16, GrColorTypeEncoding::kFloat);
+        case GrColorType::kRG_F32:
+            return GrColorTypeDesc::MakeRG(32, GrColorTypeEncoding::kFloat);
+        case GrColorType::kRGBA_F32:
+            return GrColorTypeDesc::MakeRGBA(32, GrColorTypeEncoding::kFloat);
+        case GrColorType::kR_16:
+            return GrColorTypeDesc::MakeR(16, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRG_1616:
+            return GrColorTypeDesc::MakeRG(16, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRGBA_16161616:
+            return GrColorTypeDesc::MakeRGBA(16, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRG_F16:
+            return GrColorTypeDesc::MakeRG(16, GrColorTypeEncoding::kFloat);
+    }
+    SkUNREACHABLE;
+}
+
+static constexpr GrClampType GrColorTypeClampType(GrColorType colorType) {
+    if (GrGetColorTypeDesc(colorType).encoding() == GrColorTypeEncoding::kUnorm) {
+        return GrClampType::kAuto;
+    }
+    return GrColorType::kRGBA_F16_Clamped == colorType ? GrClampType::kManual : GrClampType::kNone;
+}
+
+// Consider a color type "wider" than n if it has more than n bits for any its representable
+// channels.
+static constexpr bool GrColorTypeIsWiderThan(GrColorType colorType, int n) {
+    SkASSERT(n > 0);
+    auto desc = GrGetColorTypeDesc(colorType);
+    return (desc.r() && desc.r() > n )||
+           (desc.g() && desc.g() > n) ||
+           (desc.b() && desc.b() > n) ||
+           (desc.a() && desc.a() > n) ||
+           (desc.gray() && desc.gray() > n);
+}
+
 static constexpr bool GrColorTypeIsAlphaOnly(GrColorType ct) {
     return kAlpha_SkColorTypeComponentFlag == GrColorTypeComponentFlags(ct);
 }
