@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "69e8a751_1ba98def",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-02T00:05:08Z",
+      "side": 1,
+      "message": "Assuming we have to keep these workarounds, maybe as we move forward a little struct could be populated by applyDriveCorrectnessWorkarounds() and then passed here, just to keep moving more of the workaround application code to that function.",
+      "range": {
+        "startLine": 1436,
+        "startChar": 3,
+        "endLine": 1448,
+        "endChar": 5
+      },
+      "revId": "c1757a62df8694f4fab0d38ef543029b6a59fce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "02aa7e31_84277803",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 4
@@ -18,6 +41,53 @@
         "startChar": 9,
         "endLine": 1582,
         "endChar": 32
+      },
+      "revId": "c1757a62df8694f4fab0d38ef543029b6a59fce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1495eb72_e79e721b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1582,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-02T00:05:08Z",
+      "side": 1,
+      "message": "It seems like the code should either be organized by texture format or color type and the current organization by texture format seems fine to me at this point.",
+      "parentUuid": "02aa7e31_84277803",
+      "range": {
+        "startLine": 1582,
+        "startChar": 9,
+        "endLine": 1582,
+        "endChar": 32
+      },
+      "revId": "c1757a62df8694f4fab0d38ef543029b6a59fce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d79a6e4_44073226",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-02T00:05:08Z",
+      "side": 1,
+      "message": "probably worth a comment in here somewhere about why we\u0027re disallowing FBO attachment/rendering.",
+      "range": {
+        "startLine": 1624,
+        "startChar": 8,
+        "endLine": 1638,
+        "endChar": 9
       },
       "revId": "c1757a62df8694f4fab0d38ef543029b6a59fce3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
