@@ -566,6 +566,13 @@ static void test_make_render_target(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, s->isCompatible(c));
     }
 
+    // Make an SkSurface that wraps the existing backend texture
+    {
+        sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(context, c, backend);
+        REPORTER_ASSERT(reporter, s);
+        REPORTER_ASSERT(reporter, s->isCompatible(c));
+    }
+
     params.cleanUpBackEnd(context, backend);
 }
 
