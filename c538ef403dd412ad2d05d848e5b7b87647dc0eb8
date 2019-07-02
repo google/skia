@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5fa366c_9b489d14",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-02T17:55:38Z",
+      "side": 1,
+      "message": "Does this mean we can support Dawn or Metal but not both in the same build? If so could we guard against that?",
+      "range": {
+        "startLine": 672,
+        "startChar": 0,
+        "endLine": 674,
+        "endChar": 5
+      },
+      "revId": "c538ef403dd412ad2d05d848e5b7b87647dc0eb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "deba8ce2_f5805ade",
+        "filename": "third_party/dawn/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-02T17:55:38Z",
+      "side": 1,
+      "message": "I know we did something similar to this for ANGLE (for reasons I can\u0027t remember) but I\u0027m curious why we can\u0027t just use the upstream BUILD.gn",
+      "revId": "c538ef403dd412ad2d05d848e5b7b87647dc0eb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
