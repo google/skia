@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc4b448d_4dd1f7fb",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 1762,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T15:53:00Z",
+      "side": 1,
+      "message": "VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT for the access flags\nVK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT for the stage.",
+      "range": {
+        "startLine": 1762,
+        "startChar": 26,
+        "endLine": 1762,
+        "endChar": 90
+      },
+      "revId": "2f2001ce5bc86adee8c980d36aa998233b3ce0ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
