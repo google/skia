@@ -405,14 +405,14 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
     SkASSERT(fTarget->peekRenderTarget());
     SkASSERT(this->isClosed());
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    TRACE_EVENT0("skia", TRACE_FUNC);
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 #endif
 
     // Loop over the ops that haven't yet been prepared.
     for (const auto& chain : fOpChains) {
         if (chain.head()) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-            TRACE_EVENT0("skia", chain.head()->name());
+            TRACE_EVENT0("skia.gpu", chain.head()->name());
 #endif
             GrOpFlushState::OpArgs opArgs = {
                 chain.head(),
@@ -470,7 +470,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     }
 
     SkASSERT(fTarget->peekRenderTarget());
-    TRACE_EVENT0("skia", TRACE_FUNC);
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     // TODO: at the very least, we want the stencil store op to always be discard (at this
     // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
@@ -497,7 +497,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
             continue;
         }
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        TRACE_EVENT0("skia", chain.head()->name());
+        TRACE_EVENT0("skia.gpu", chain.head()->name());
 #endif
 
         GrOpFlushState::OpArgs opArgs {

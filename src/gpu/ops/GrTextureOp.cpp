@@ -376,7 +376,7 @@ private:
 
     void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy,
               GrQuadBuffer<ColorDomainAndAA>::Iter* iter, int cnt) const {
-        TRACE_EVENT0("skia", TRACE_FUNC);
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         auto origin = proxy->origin();
         const auto* texture = proxy->peekTexture();
         float iw, ih, h;
@@ -408,7 +408,7 @@ private:
     }
 
     void onPrepareDraws(Target* target) override {
-        TRACE_EVENT0("skia", TRACE_FUNC);
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
         GrQuad::Type srcQuadType = GrQuad::Type::kAxisAligned;
         Domain domain = Domain::kNo;
@@ -537,7 +537,7 @@ private:
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        TRACE_EVENT0("skia", TRACE_FUNC);
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
         if (fDomain != that->fDomain) {
             // It is technically possible to combine operations across domain modes, but performance
