@@ -330,6 +330,8 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
 }
 
 void GrGLPath::onRelease() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     if (0 != fPathID) {
         static_cast<GrGLGpu*>(this->getGpu())->glPathRendering()->deletePaths(fPathID, 1);
         fPathID = 0;
