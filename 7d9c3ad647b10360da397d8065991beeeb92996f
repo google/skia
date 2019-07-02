@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76327cdd_602fac99",
+        "filename": "src/gpu/GrRenderTargetProxy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-02T16:17:49Z",
+      "side": 1,
+      "message": "Is this true for Promise Images ?",
+      "revId": "7d9c3ad647b10360da397d8065991beeeb92996f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
