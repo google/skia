@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8203e670_ce333623",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T13:45:13Z",
+      "side": 1,
+      "message": "I forget, do we require that if you have any data you have pixels for the full mip chain? Or is just having the top fine and we mark it dirty? Or do we allow any random level to be missing? If we have some requirement on data being present or not we should check that here as well.",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 46
+      },
+      "revId": "e7124e6f10ffdbf39ecbd4f38adc50949f0daa9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "867be189_1ded3484",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 3321,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T13:45:13Z",
+      "side": 1,
+      "message": "should this be write?",
+      "range": {
+        "startLine": 3321,
+        "startChar": 3,
+        "endLine": 3321,
+        "endChar": 12
+      },
+      "revId": "e7124e6f10ffdbf39ecbd4f38adc50949f0daa9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
