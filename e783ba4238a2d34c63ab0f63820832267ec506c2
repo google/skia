@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4c23e01_10fdead2",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-02T16:48:26Z",
+      "side": 0,
+      "message": "Do we want Perf jobs for MSAN, SK_USE_DISCARDABLE_SCALEDIMAGECACHE, and SafeStack? I don\u0027t see an equivalent Release job.",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 63
+      },
+      "revId": "e783ba4238a2d34c63ab0f63820832267ec506c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe02a3ac_60ad6f12",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-02T16:48:26Z",
+      "side": 0,
+      "message": "Similar to above, do we want a Perf Mac ASAN job?",
+      "revId": "e783ba4238a2d34c63ab0f63820832267ec506c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69444b21_23c9036c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-02T16:48:26Z",
+      "side": 0,
+      "message": "Do we want a Win 32-bit Perf job?",
+      "revId": "e783ba4238a2d34c63ab0f63820832267ec506c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bf3566a_13dc209c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-02T16:48:26Z",
+      "side": 0,
+      "message": "Do we want Win7 and Win8 Perf jobs?",
+      "range": {
+        "startLine": 373,
+        "startChar": 0,
+        "endLine": 376,
+        "endChar": 50
+      },
+      "revId": "e783ba4238a2d34c63ab0f63820832267ec506c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
