@@ -195,9 +195,8 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
     bool mipmapped = rtc->asTextureProxy() ? GrMipMapped::kYes == rtc->asTextureProxy()->mipMapped()
                                            : false;
 
-    // TODO: the addition of colorType to the surfaceContext should remove this calculation
-    SkColorType ct;
-    if (!GrPixelConfigToColorType(rtc->colorSpaceInfo().config(), &ct)) {
+    SkColorType ct = GrColorTypeToSkColorType(rtc->colorSpaceInfo().colorType());
+    if (ct == kUnknown_SkColorType) {
         return false;
     }
 
@@ -209,13 +208,13 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
     SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
                                        rtc->colorSpaceInfo().refColorSpace());
 
-    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(),
-                          rtc->colorSpaceInfo().config(), rtc->numSamples(),
-                          SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
-                          SkSurfaceCharacterization::MipMapped(mipmapped),
-                          SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
-                          SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
-                          this->props());
+    GrPixelConfig config = rtc->asSurfaceProxy()->config();
+    characterization->set(
+            ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(), config, rtc->numSamples(),
+            SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
+            SkSurfaceCharacterization::MipMapped(mipmapped),
+            SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
+            SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false), this->props());
 
     return true;
 }
@@ -295,16 +294,16 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         return false;
     }
 
-    // TODO: the addition of colorType to the surfaceContext should remove this calculation
-    SkColorType rtcColorType;
-    if (!GrPixelConfigToColorType(rtc->colorSpaceInfo().config(), &rtcColorType)) {
+    SkColorType rtcColorType = GrColorTypeToSkColorType(rtc->colorSpaceInfo().colorType());
+    if (rtcColorType == kUnknown_SkColorType) {
         return false;
     }
 
+    GrPixelConfig config = rtc->asSurfaceProxy()->config();
     return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
-           characterization.config() == rtc->colorSpaceInfo().config() &&
+           characterization.config() == config &&
            characterization.width() == rtc->width() &&
            characterization.height() == rtc->height() &&
            characterization.colorType() == rtcColorType &&
