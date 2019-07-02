@@ -1842,8 +1842,12 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
         callback(context, nullptr, 0);
         return;
     }
-    // Fail if readCT does not have all of readCT's color channels.
-    if (GrColorTypeComponentFlags(dstCT) & ~GrColorTypeComponentFlags(readInfo.fColorType)) {
+    // Fail if read color type does not have all of dstCT's color channels and those missing color
+    // channels are in the src.
+    uint32_t dstComponents = GrColorTypeComponentFlags(dstCT);
+    uint32_t legalReadComponents = GrColorTypeComponentFlags(readInfo.fColorType);
+    uint32_t srcComponents = GrColorTypeComponentFlags(this->colorSpaceInfo().colorType());
+    if ((~legalReadComponents & dstComponents) & srcComponents) {
         callback(context, nullptr, 0);
         return;
     }
@@ -1915,8 +1919,12 @@ GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels
     }
     auto supportedRead = this->caps()->supportedReadPixelsColorType(
             fRenderTargetProxy->config(), fRenderTargetProxy->backendFormat(), dstCT);
-    // Fail if readCT does not have all of readCT's color channels.
-    if (GrColorTypeComponentFlags(dstCT) & ~GrColorTypeComponentFlags(supportedRead.fColorType)) {
+    // Fail if read color type does not have all of dstCT's color channels and those missing color
+    // channels are in the src.
+    uint32_t dstComponents = GrColorTypeComponentFlags(dstCT);
+    uint32_t legalReadComponents = GrColorTypeComponentFlags(supportedRead.fColorType);
+    uint32_t srcComponents = GrColorTypeComponentFlags(this->colorSpaceInfo().colorType());
+    if ((~legalReadComponents & dstComponents) & srcComponents) {
         return {};
     }
 
