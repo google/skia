@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9c995b80_80dce361",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-02T18:29:48Z",
+      "side": 1,
+      "message": "(I don\u0027t know any better way to do this than what you did.)",
+      "revId": "c538ef403dd412ad2d05d848e5b7b87647dc0eb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b5fa366c_9b489d14",
         "filename": "BUILD.gn",
         "patchSetId": 5
