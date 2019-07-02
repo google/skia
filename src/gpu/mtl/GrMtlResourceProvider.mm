@@ -191,7 +191,6 @@ GrMtlResourceProvider::BufferSuballocator::BufferSuballocator(id<MTLDevice> devi
 
 id<MTLBuffer> GrMtlResourceProvider::BufferSuballocator::getAllocation(size_t size,
                                                                        size_t* offset) {
-    // capture current state locally (because fTail could be overwritten by the completion handler)
     size_t head, tail;
     SkAutoSpinlock lock(fMutex);
     head = fHead;
