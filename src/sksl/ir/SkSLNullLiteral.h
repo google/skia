@@ -17,11 +17,9 @@ namespace SkSL {
  * Represents 'null'.
  */
 struct NullLiteral : public Expression {
-    NullLiteral(const Context& context, int offset)
-    : INHERITED(offset, kNullLiteral_Kind, *context.fNull_Type) {}
-
-    NullLiteral(int offset, const Type& type)
-    : INHERITED(offset, kNullLiteral_Kind, type) {}
+    NullLiteral(IRGenerator* irGenerator, int offset, IRNode::ID type = IRNode::ID())
+    : INHERITED(irGenerator, offset, kNullLiteral_Kind,
+                type ? type : irGenerator->fContext.fNull_Type) {}
 
     String description() const override {
         return "null";
@@ -35,12 +33,12 @@ struct NullLiteral : public Expression {
         return true;
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override {
+    bool compareConstant(const Expression& other) const override {
         return true;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new NullLiteral(fOffset, fType));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new NullLiteral(fIRGenerator, fOffset, fType));
     }
 
     typedef Expression INHERITED;

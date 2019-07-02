@@ -24,41 +24,31 @@ struct FunctionDeclaration;
  */
 class SymbolTable {
 public:
-    SymbolTable(ErrorReporter* errorReporter)
-    : fErrorReporter(*errorReporter) {}
+    SymbolTable(IRGenerator* irGenerator)
+    : fIRGenerator(irGenerator) {}
 
-    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter* errorReporter)
+    SymbolTable(std::shared_ptr<SymbolTable> parent, IRGenerator* irGenerator)
     : fParent(parent)
-    , fErrorReporter(*errorReporter) {}
+    , fIRGenerator(irGenerator) {}
 
-    const Symbol* operator[](StringFragment name);
+    IRNode::ID operator[](StringFragment name);
 
-    void add(StringFragment name, std::unique_ptr<Symbol> symbol);
-
-    void addWithoutOwnership(StringFragment name, const Symbol* symbol);
-
-    Symbol* takeOwnership(std::unique_ptr<Symbol> s);
-
-    IRNode* takeOwnership(std::unique_ptr<IRNode> n);
+    void add(StringFragment name, IRNode::ID symbol);
 
     void markAllFunctionsBuiltin();
 
-    std::unordered_map<StringFragment, const Symbol*>::iterator begin();
+    std::unordered_map<StringFragment, IRNode::ID>::iterator begin();
 
-    std::unordered_map<StringFragment, const Symbol*>::iterator end();
+    std::unordered_map<StringFragment, IRNode::ID>::iterator end();
 
     const std::shared_ptr<SymbolTable> fParent;
 
+    IRGenerator* fIRGenerator;
+
 private:
-    static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
+    std::vector<IRNode::ID> getFunctions(IRNode::ID id);
 
-    std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
-
-    std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
-
-    std::unordered_map<StringFragment, const Symbol*> fSymbols;
-
-    ErrorReporter& fErrorReporter;
+    std::unordered_map<StringFragment, IRNode::ID> fSymbols;
 };
 
 } // namespace

@@ -17,8 +17,8 @@ namespace SkSL {
  * Represents an identifier referring to an ExternalValue.
  */
 struct ExternalValueReference : public Expression {
-    ExternalValueReference(int offset, ExternalValue* ev)
-    : INHERITED(offset, kExternalValue_Kind, ev->type())
+    ExternalValueReference(IRGenerator* irGenerator, int offset, ExternalValue* ev)
+    : INHERITED(irGenerator, offset, kExternalValue_Kind, ev->type())
     , fValue(ev) {}
 
     bool hasSideEffects() const override {
@@ -29,8 +29,8 @@ struct ExternalValueReference : public Expression {
         return String(fValue->fName);
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new ExternalValueReference(fOffset, fValue));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new ExternalValueReference(fIRGenerator, fOffset, fValue));
     }
 
     ExternalValue* fValue;
