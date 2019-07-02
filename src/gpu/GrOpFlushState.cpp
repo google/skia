@@ -8,6 +8,7 @@
 #include "src/gpu/GrOpFlushState.h"
 
 #include "include/gpu/GrTexture.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGpu.h"
@@ -94,6 +95,14 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
         if (!fGpu->caps()->surfaceSupportsWritePixels(dstSurface) &&
             fGpu->caps()->supportedWritePixelsColorType(dstSurface->config(), srcColorType) != srcColorType) {
             return false;
+        }
+        size_t tightRB = width * GrColorTypeToSkColorType(srcColorType);
+        std::unique_ptr<char[]> tmpPixels;
+        if (!fGpu->caps()->writePixelsRowBytesSupport() && rowBytes > tightRB) {
+            tmpPixels.reset(new char[tightRB * height]);
+            SkRectMemcpy(tmpPixels.get(), tightRB, buffer, rowBytes, tightRB, height);
+            buffer = tmpPixels.get();
+            rowBytes = tightRB;
         }
         return this->fGpu->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,
                                        rowBytes);

@@ -99,6 +99,48 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
     return false;
 }
 
+static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLevelCount, int bpp,
+                            const GrCaps* caps) {
+    SkASSERT(mipLevelCount > 0);
+    bool hasBasePixels = texels[0].fPixels;
+    int levelsWithPixelsCnt = 0;
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; ++currentMipLevel) {
+        if (texels[currentMipLevel].fPixels) {
+            const size_t minRowBytes = w * bpp;
+            if (caps->writePixelsRowBytesSupport()) {
+                if (texels[currentMipLevel].fRowBytes < minRowBytes) {
+                    return false;
+                }
+                if (texels[currentMipLevel].fRowBytes % bpp) {
+                    return false;
+                }
+            } else {
+                if (texels[currentMipLevel].fRowBytes != minRowBytes) {
+                    return false;
+                }
+            }
+            ++levelsWithPixelsCnt;
+        }
+        if (w == 1 && h == 1) {
+            if (currentMipLevel != mipLevelCount - 1) {
+                return false;
+            }
+        } else {
+            w = std::max(w / 2, 1);
+            h = std::max(h / 2, 1);
+        }
+    }
+    // Either just a base layer or a full stack is required.
+    if (mipLevelCount != 1 && (w != 1 || h != 1)) {
+        return false;
+    }
+    // Can specify just the base, all levels, or no levels.
+    if (!hasBasePixels) {
+        return levelsWithPixelsCnt == 0;
+    }
+    return levelsWithPixelsCnt == 1 || levelsWithPixelsCnt == mipLevelCount;
+}
+
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
                                       const GrMipLevel texels[], int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -120,8 +162,14 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(desc.fSampleCnt > 0 && desc.fSampleCnt <= 64);
 
-    if (mipLevelCount && (desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
-        return nullptr;
+    if (mipLevelCount) {
+        if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
+            return nullptr;
+        }
+        int bpp = GrBytesPerPixel(desc.fConfig);
+        if (!validate_levels(desc.fWidth, desc.fHeight, texels, mipLevelCount, bpp, this->caps())) {
+            return nullptr;
+        }
     }
 
     this->handleDirtyContext();
@@ -271,6 +319,20 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
         return false;
     }
 
+    size_t minRowBytes = SkToSizeT(GrColorTypeBytesPerPixel(dstColorType) * width);
+    if (!this->caps()->readPixelsRowBytesSupport()) {
+        if (rowBytes != minRowBytes) {
+            return false;
+        }
+    } else {
+        if (rowBytes < minRowBytes) {
+            return false;
+        }
+        if (rowBytes % GrColorTypeBytesPerPixel(dstColorType)) {
+            return false;
+        }
+    }
+
     if (GrPixelConfigIsCompressed(surface->config())) {
         return false;
     }
@@ -289,7 +351,9 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
         return false;
     }
 
-    if (1 == mipLevelCount) {
+    if (mipLevelCount == 0) {
+        return false;
+    } else if (mipLevelCount == 1) {
         // We require that if we are not mipped, then the write region is contained in the surface
         auto subRect = SkIRect::MakeXYWH(left, top, width, height);
         auto bounds  = SkIRect::MakeWH(surface->width(), surface->height());
@@ -301,10 +365,9 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
         return false;
     }
 
-    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        if (!texels[currentMipLevel].fPixels ) {
-            return false;
-        }
+    int bpp = GrColorTypeBytesPerPixel(srcColorType);
+    if (!validate_levels(width, height, texels, mipLevelCount, bpp, this->caps())) {
+        return false;
     }
 
     this->handleDirtyContext();
@@ -334,6 +397,20 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
     SkIRect bounds = SkIRect::MakeWH(texture->width(), texture->height());
     if (!bounds.contains(subRect)) {
         return false;
+    }
+
+    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    if (this->caps()->writePixelsRowBytesSupport()) {
+        if (rowBytes < SkToSizeT(bpp * width)) {
+            return false;
+        }
+        if (rowBytes % bpp) {
+            return false;
+        }
+    } else {
+        if (rowBytes != SkToSizeT(bpp * width)) {
+            return false;
+        }
     }
 
     this->handleDirtyContext();
