@@ -566,6 +566,37 @@ r5 = pack r7 r5 16
 store32 arg(1) r5
 
 I32 (Naive) 8888 over 8888
+29 values:
+v0 = load32 arg(0)
+v1 = splat FF (3.5733111e-43)
+v2 = extract v0 0 v1
+v3 = extract v0 8 v1
+v4 = extract v0 16 v1
+v5 = extract v0 24 v1
+v6 = load32 arg(1)
+v7 = extract v6 0 v1
+v8 = extract v6 8 v1
+v9 = extract v6 16 v1
+v10 = extract v6 24 v1
+v11 = splat 100 (3.5873241e-43)
+v12 = sub_i32 v11 v5
+v13 = mul_i32 v7 v12
+v14 = shr v13 8
+v15 = add_i32 v2 v14
+v16 = mul_i32 v8 v12
+v17 = shr v16 8
+v18 = add_i32 v3 v17
+v19 = mul_i32 v9 v12
+v20 = shr v19 8
+v21 = add_i32 v4 v20
+v22 = mul_i32 v10 v12
+v23 = shr v22 8
+v24 = add_i32 v5 v23
+v25 = pack v15 v18 8
+v26 = pack v21 v24 8
+v27 = pack v25 v26 16
+store32 arg(1) v27
+
 11 registers, 29 instructions:
 r0 = splat FF (3.5733111e-43)
 r1 = splat 100 (3.5873241e-43)
@@ -599,6 +630,37 @@ r10 = pack r8 r10 16
 store32 arg(1) r10
 
 I32 8888 over 8888
+29 values:
+v0 = load32 arg(0)
+v1 = splat FF (3.5733111e-43)
+v2 = bit_and v0 v1
+v3 = bytes v0 2
+v4 = bytes v0 3
+v5 = shr v0 24
+v6 = load32 arg(1)
+v7 = bit_and v6 v1
+v8 = bytes v6 2
+v9 = bytes v6 3
+v10 = shr v6 24
+v11 = splat 100 (3.5873241e-43)
+v12 = sub_i32 v11 v5
+v13 = mul_i16x2 v7 v12
+v14 = shr v13 8
+v15 = add_i32 v2 v14
+v16 = mul_i16x2 v8 v12
+v17 = shr v16 8
+v18 = add_i32 v3 v17
+v19 = mul_i16x2 v9 v12
+v20 = shr v19 8
+v21 = add_i32 v4 v20
+v22 = mul_i16x2 v10 v12
+v23 = shr v22 8
+v24 = add_i32 v5 v23
+v25 = pack v15 v18 8
+v26 = pack v21 v24 8
+v27 = pack v25 v26 16
+store32 arg(1) v27
+
 11 registers, 29 instructions:
 r0 = splat FF (3.5733111e-43)
 r1 = splat 100 (3.5873241e-43)
@@ -632,6 +694,23 @@ r10 = pack r8 r10 16
 store32 arg(1) r10
 
 I32 (SWAR) 8888 over 8888
+15 values:
+v0 = load32 arg(0)
+v1 = bytes v0 404
+v2 = splat 1000100 (2.3510604e-38)
+v3 = sub_i16x2 v2 v1
+v4 = load32 arg(1)
+v5 = splat FF00FF (2.3418409e-38)
+v6 = bit_and v4 v5
+v7 = shr_i16x2 v4 8
+v8 = mul_i16x2 v6 v3
+v9 = shr_i16x2 v8 8
+v10 = mul_i16x2 v7 v3
+v11 = bit_clear v10 v5
+v12 = bit_or v9 v11
+v13 = add_i32 v0 v12
+store32 arg(1) v13
+
 6 registers, 15 instructions:
 r0 = splat 1000100 (2.3510604e-38)
 r1 = splat FF00FF (2.3418409e-38)
