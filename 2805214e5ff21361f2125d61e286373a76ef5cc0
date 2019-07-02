@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "093f0aab_6ddf8782",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-02T15:36:30Z",
+      "side": 1,
+      "message": "PTAL. I\u0027ve made all the versions that takes a color set color-attachment-optimal when the beTex is renderable and read-only-optimal when they are not.",
+      "parentUuid": "30232f8a_802b2610",
+      "range": {
+        "startLine": 413,
+        "startChar": 12,
+        "endLine": 413,
+        "endChar": 52
+      },
+      "revId": "2805214e5ff21361f2125d61e286373a76ef5cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8aed8cfb_17fe52cc",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 24
@@ -36,6 +60,30 @@
       "writtenOn": "2019-07-02T14:07:10Z",
       "side": 1,
       "message": "what exactly does this mean? If kAlpha_8_GrPixelConfig defaults to kAlpha8_as_Alpha it is not obvious to me why it is combatible to kAlpha8_as_Red. Or at least not compitlbe in a general sense, so we probably would need a really good comment on this function to make sure it is only used to check whatever it is that it is needed for.",
+      "range": {
+        "startLine": 1149,
+        "startChar": 22,
+        "endLine": 1149,
+        "endChar": 44
+      },
+      "revId": "2805214e5ff21361f2125d61e286373a76ef5cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b625478_241716eb",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 1149,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-02T15:36:30Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/skia/+/225136 (Remove GrPixelConfig from SkSurfaceCharacterization) should remove the need for this.",
+      "parentUuid": "8aed8cfb_17fe52cc",
       "range": {
         "startLine": 1149,
         "startChar": 22,
@@ -68,6 +116,30 @@
       "revId": "2805214e5ff21361f2125d61e286373a76ef5cc0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec0ca291_c82ebd55",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-02T15:36:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96de6d43_1f054384",
+      "range": {
+        "startLine": 326,
+        "startChar": 21,
+        "endLine": 328,
+        "endChar": 99
+      },
+      "revId": "2805214e5ff21361f2125d61e286373a76ef5cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
