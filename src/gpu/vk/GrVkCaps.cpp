@@ -932,7 +932,8 @@ bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     return true;
 }
 
-static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool hasYcbcrConversion) {
+// A near clone of format_color_type_valid_pair
+static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool hasYcbcrConversion) {
     if (format == VK_FORMAT_UNDEFINED) {
         // If the format is undefined then it is only valid as an external image which requires that
         // we have a valid VkYcbcrConversion.
@@ -952,32 +953,32 @@ static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool h
     }
 
     switch (ct) {
-        case kUnknown_SkColorType:
+        case GrColorType::kUnknown:
             break;
-        case kAlpha_8_SkColorType:
+        case GrColorType::kAlpha_8:
             if (VK_FORMAT_R8_UNORM == format) {
                 return kAlpha_8_as_Red_GrPixelConfig;
             }
             break;
-        case kRGB_565_SkColorType:
+        case GrColorType::kBGR_565:
             if (VK_FORMAT_R5G6B5_UNORM_PACK16 == format) {
                 return kRGB_565_GrPixelConfig;
             }
             break;
-        case kARGB_4444_SkColorType:
+        case GrColorType::kABGR_4444:
             if (VK_FORMAT_B4G4R4A4_UNORM_PACK16 == format ||
                 VK_FORMAT_R4G4B4A4_UNORM_PACK16 == format) {
                 return kRGBA_4444_GrPixelConfig;
             }
             break;
-        case kRGBA_8888_SkColorType:
+        case GrColorType::kRGBA_8888:
             if (VK_FORMAT_R8G8B8A8_UNORM == format) {
                 return kRGBA_8888_GrPixelConfig;
             } else if (VK_FORMAT_R8G8B8A8_SRGB == format) {
                 return kSRGBA_8888_GrPixelConfig;
             }
             break;
-        case kRGB_888x_SkColorType:
+        case GrColorType::kRGB_888x:
             if (VK_FORMAT_R8G8B8_UNORM == format) {
                 return kRGB_888_GrPixelConfig;
             }
@@ -985,36 +986,69 @@ static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool h
                 return kRGB_888X_GrPixelConfig;
             }
             break;
-        case kBGRA_8888_SkColorType:
+        case GrColorType::kRG_88:
+            if (VK_FORMAT_R8G8_UNORM == format) {
+                return kRG_88_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kBGRA_8888:
             if (VK_FORMAT_B8G8R8A8_UNORM == format) {
                 return kBGRA_8888_GrPixelConfig;
             }
             break;
-        case kRGBA_1010102_SkColorType:
+        case GrColorType::kRGBA_1010102:
             if (VK_FORMAT_A2B10G10R10_UNORM_PACK32 == format) {
                 return kRGBA_1010102_GrPixelConfig;
             }
             break;
-        case kRGB_101010x_SkColorType:
-            return kUnknown_GrPixelConfig;
-        case kGray_8_SkColorType:
+        case GrColorType::kGray_8:
             if (VK_FORMAT_R8_UNORM == format) {
                 return kGray_8_as_Red_GrPixelConfig;
             }
             break;
-        case kRGBA_F16Norm_SkColorType:
-            if (VK_FORMAT_R16G16B16A16_SFLOAT == format) {
-                return kRGBA_half_Clamped_GrPixelConfig;
+        case GrColorType::kAlpha_F16:
+            if (VK_FORMAT_R16_SFLOAT == format) {
+                return kAlpha_half_GrPixelConfig;
             }
             break;
-        case kRGBA_F16_SkColorType:
+        case GrColorType::kRGBA_F16:
             if (VK_FORMAT_R16G16B16A16_SFLOAT == format) {
                 return kRGBA_half_GrPixelConfig;
             }
             break;
-        case kRGBA_F32_SkColorType:
+        case GrColorType::kRGBA_F16_Clamped:
+            if (VK_FORMAT_R16G16B16A16_SFLOAT == format) {
+                return kRGBA_half_Clamped_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRG_F32:
+            if (VK_FORMAT_R32G32_SFLOAT == format) {
+                return kRG_float_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRGBA_F32:
             if (VK_FORMAT_R32G32B32A32_SFLOAT == format) {
                 return kRGBA_float_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kR_16:
+            if (VK_FORMAT_R16_UNORM == format) {
+                return kR_16_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRG_1616:
+            if (VK_FORMAT_R16G16_UNORM == format) {
+                return kRG_1616_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRGBA_16161616:
+            if (VK_FORMAT_R16G16B16A16_UNORM == format) {
+                return kRGBA_16161616_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRG_F16:
+            if (VK_FORMAT_R16G16_SFLOAT == format) {
+                return kRG_half_GrPixelConfig;
             }
             break;
     }
@@ -1023,7 +1057,7 @@ static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool h
 }
 
 GrPixelConfig GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                    SkColorType ct) const {
+                                                    GrColorType ct) const {
     GrVkImageInfo imageInfo;
     if (!rt.getVkImageInfo(&imageInfo)) {
         return kUnknown_GrPixelConfig;
@@ -1031,7 +1065,7 @@ GrPixelConfig GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget&
     return validate_image_info(imageInfo.fFormat, ct, imageInfo.fYcbcrConversionInfo.isValid());
 }
 
-bool GrVkCaps::areColorTypeAndFormatCompatible(SkColorType ct,
+bool GrVkCaps::areColorTypeAndFormatCompatible(GrColorType ct,
                                                const GrBackendFormat& format) const {
     const VkFormat* vkFormat = format.getVkFormat();
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
@@ -1044,7 +1078,7 @@ bool GrVkCaps::areColorTypeAndFormatCompatible(SkColorType ct,
 
 
 GrPixelConfig GrVkCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
-                                                   SkColorType ct) const {
+                                                   GrColorType ct) const {
     const VkFormat* vkFormat = format.getVkFormat();
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
     if (!vkFormat || !ycbcrInfo) {

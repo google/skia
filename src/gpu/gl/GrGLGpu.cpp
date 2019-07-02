@@ -4131,13 +4131,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     // Lots of tests don't go through Skia's public interface which will set the config so for
     // testing we make sure we set a config here.
     beRT.setPixelConfig(config);
-#ifdef SK_DEBUG
-    SkColorType skColorType = GrColorTypeToSkColorType(colorType);
-    if (skColorType != kUnknown_SkColorType) {
-        SkASSERT(this->caps()->validateBackendRenderTarget(
-                         beRT, GrColorTypeToSkColorType(colorType)) != kUnknown_GrPixelConfig);
-    }
-#endif
+    SkASSERT(kUnknown_GrPixelConfig != this->caps()->validateBackendRenderTarget(beRT, colorType));
     return beRT;
 }
 

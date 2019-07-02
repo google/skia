@@ -3619,9 +3619,14 @@ bool GrGLCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format)
     return this->isGLFormatTexturable(grCT, *glFormat);
 }
 
-int GrGLCaps::getRenderTargetSampleCount(int requestedCount, SkColorType ct,
+int GrGLCaps::getRenderTargetSampleCount(int requestedCount, SkColorType skCT,
                                          const GrBackendFormat& format) const {
-    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    GrColorType grCT = SkColorTypeToGrColorType(skCT);
+    if (GrColorType::kUnknown == grCT) {
+        return 0;
+    }
+
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, grCT);
     if (kUnknown_GrPixelConfig == config) {
         return 0;
     }
@@ -3652,8 +3657,13 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig confi
     return 0;
 }
 
-int GrGLCaps::maxRenderTargetSampleCount(SkColorType ct, const GrBackendFormat& format) const {
-    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+int GrGLCaps::maxRenderTargetSampleCount(SkColorType skCT, const GrBackendFormat& format) const {
+    GrColorType grCT = SkColorTypeToGrColorType(skCT);
+    if (GrColorType::kUnknown == grCT) {
+        return 0;
+    }
+
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, grCT);
     if (kUnknown_GrPixelConfig == config) {
         return 0;
     }
@@ -3689,42 +3699,48 @@ bool GrGLCaps::isFormatCopyable(SkColorType ct, const GrBackendFormat& format) c
     return this->canFormatBeFBOColorAttachment(*glFormat);
 }
 
-GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandard standard) {
+// A near clone of format_color_type_valid_pair
+GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandard standard) {
     switch (ct) {
-        case kUnknown_SkColorType:
+        case GrColorType::kUnknown:
             return kUnknown_GrPixelConfig;
-        case kAlpha_8_SkColorType:
+        case GrColorType::kAlpha_8:
             if (GR_GL_ALPHA8 == format) {
                 return kAlpha_8_as_Alpha_GrPixelConfig;
             } else if (GR_GL_R8 == format) {
                 return kAlpha_8_as_Red_GrPixelConfig;
             }
             break;
-        case kRGB_565_SkColorType:
+        case GrColorType::kBGR_565:
             if (GR_GL_RGB565 == format) {
                 return kRGB_565_GrPixelConfig;
             }
             break;
-        case kARGB_4444_SkColorType:
+        case GrColorType::kABGR_4444:
             if (GR_GL_RGBA4 == format) {
                 return kRGBA_4444_GrPixelConfig;
             }
             break;
-        case kRGBA_8888_SkColorType:
+        case GrColorType::kRGBA_8888:
             if (GR_GL_RGBA8 == format) {
                 return kRGBA_8888_GrPixelConfig;
             } else if (GR_GL_SRGB8_ALPHA8 == format) {
                 return kSRGBA_8888_GrPixelConfig;
             }
             break;
-        case kRGB_888x_SkColorType:
+        case GrColorType::kRGB_888x:
             if (GR_GL_RGB8 == format) {
                 return kRGB_888_GrPixelConfig;
             } else if (GR_GL_RGBA8 == format) {
                 return kRGB_888X_GrPixelConfig;
             }
             break;
-        case kBGRA_8888_SkColorType:
+        case GrColorType::kRG_88:
+            if (GR_GL_RG8 == format) {
+                return kRG_88_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kBGRA_8888:
             if (GR_GL_RGBA8 == format) {
                 if (GR_IS_GR_GL(standard)) {
                     return kBGRA_8888_GrPixelConfig;
@@ -3735,42 +3751,71 @@ GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandar
                 }
             }
             break;
-        case kRGBA_1010102_SkColorType:
+        case GrColorType::kRGBA_1010102:
             if (GR_GL_RGB10_A2 == format) {
                 return kRGBA_1010102_GrPixelConfig;
             }
             break;
-        case kRGB_101010x_SkColorType:
-            break;
-        case kGray_8_SkColorType:
+        case GrColorType::kGray_8:
             if (GR_GL_LUMINANCE8 == format) {
                 return kGray_8_as_Lum_GrPixelConfig;
             } else if (GR_GL_R8 == format) {
                 return kGray_8_as_Red_GrPixelConfig;
             }
             break;
-        case kRGBA_F16Norm_SkColorType:
-            if (GR_GL_RGBA16F == format) {
-                return kRGBA_half_Clamped_GrPixelConfig;
+        case GrColorType::kAlpha_F16:
+            if (GR_GL_R16F == format) {
+                return kAlpha_half_GrPixelConfig;
             }
             break;
-        case kRGBA_F16_SkColorType:
+        case GrColorType::kRGBA_F16:
             if (GR_GL_RGBA16F == format) {
                 return kRGBA_half_GrPixelConfig;
             }
             break;
-        case kRGBA_F32_SkColorType:
+        case GrColorType::kRGBA_F16_Clamped:
+            if (GR_GL_RGBA16F == format) {
+                return kRGBA_half_Clamped_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRG_F32:
+            if (GR_GL_RG32F == format) {
+                return kRG_float_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRGBA_F32:
             if (GR_GL_RGBA32F == format) {
                 return kRGBA_float_GrPixelConfig;
             }
             break;
+        case GrColorType::kR_16:
+            if (GR_GL_R16 == format) {
+                return kR_16_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRG_1616:
+            if (GR_GL_RG16 == format) {
+                return kRG_1616_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRGBA_16161616:
+            if (GR_GL_RGBA16 == format) {
+                return kRGBA_16161616_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRG_F16:
+            if (GR_GL_RG16F == format) {
+                return kRG_half_GrPixelConfig;
+            }
+            break;
     }
+
     SkDebugf("Unknown pixel config 0x%x\n", format);
     return kUnknown_GrPixelConfig;
 }
 
 GrPixelConfig GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                    SkColorType ct) const {
+                                                    GrColorType ct) const {
     GrGLFramebufferInfo fbInfo;
     if (!rt.getGLFramebufferInfo(&fbInfo)) {
         return kUnknown_GrPixelConfig;
@@ -3778,7 +3823,7 @@ GrPixelConfig GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget&
     return validate_sized_format(fbInfo.fFormat, ct, fStandard);
 }
 
-bool GrGLCaps::areColorTypeAndFormatCompatible(SkColorType ct,
+bool GrGLCaps::areColorTypeAndFormatCompatible(GrColorType ct,
                                                const GrBackendFormat& format) const {
     const GrGLenum* glFormat = format.getGLFormat();
     if (!glFormat) {
@@ -3789,7 +3834,7 @@ bool GrGLCaps::areColorTypeAndFormatCompatible(SkColorType ct,
 }
 
 GrPixelConfig GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
-                                                   SkColorType ct) const {
+                                                   GrColorType ct) const {
     const GrGLenum* glFormat = format.getGLFormat();
     if (!glFormat) {
         return kUnknown_GrPixelConfig;
