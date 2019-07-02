@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "83abfbbd_64ef92b2",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-02T15:42:27Z",
+      "side": 1,
+      "message": "We also need to allow 4) full chain all null ptrs.",
+      "parentUuid": "db1bb307_36c0e11d",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 46
+      },
+      "revId": "e7124e6f10ffdbf39ecbd4f38adc50949f0daa9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "867be189_1ded3484",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 5
@@ -93,6 +117,30 @@
       "revId": "e7124e6f10ffdbf39ecbd4f38adc50949f0daa9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a14cb5ff_a5325b04",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 3321,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-02T15:42:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "690dcd77_cdf99a38",
+      "range": {
+        "startLine": 3321,
+        "startChar": 3,
+        "endLine": 3321,
+        "endChar": 12
+      },
+      "revId": "e7124e6f10ffdbf39ecbd4f38adc50949f0daa9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
