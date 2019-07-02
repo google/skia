@@ -214,14 +214,19 @@ bool SkJpegEncoder::onEncodeRows(int numRows) {
         return false;
     }
 
+    const size_t srcBytes = SkColorTypeBytesPerPixel(fSrc.colorType()) * fSrc.width();
+
     const void* srcRow = fSrc.addr(0, fCurrRow);
     for (int i = 0; i < numRows; i++) {
         JSAMPLE* jpegSrcRow = (JSAMPLE*) srcRow;
         if (fEncoderMgr->proc()) {
+            sk_msan_assert_initialized(srcRow, SkTAddOffset(srcRow, srcBytes));
             fEncoderMgr->proc()((char*)fStorage.get(),
                                 (const char*)srcRow,
                                 fSrc.width(),
                                 fEncoderMgr->cinfo()->input_components);
+            // Wait now, how many bytes should be uninitialized?
+            //sk_msan_assert_initialized(srcRow, SkTAddOffset(srcRow, srcBytes));
             jpegSrcRow = fStorage.get();
         }
 
