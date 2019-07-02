@@ -2566,4 +2566,24 @@ if (skia_enable_tools) {
       "modules/skshaper",
     ]
   }
+
+  # TODO: remove SkVM dependency on SkWStream, then *SAN should work?
+  if (skia_enable_skvm_jit && sanitize == "") {
+    test_app("skvmtool") {
+      defines = [
+        "SKVM_JIT",
+        "SKVM_PERF_DUMPS",
+      ]
+      include_dirs = [ "." ]
+      sources = [
+        "src/core/SkSpinlock.cpp",
+        "src/core/SkThreadID.cpp",
+        "src/core/SkVM.cpp",
+        "tools/SkVMTool.cpp",
+      ]
+      if (target_cpu == "x64") {
+        sources += [ "src/core/SkCpu.cpp" ]
+      }
+    }
+  }
 }
