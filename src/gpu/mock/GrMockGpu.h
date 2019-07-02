@@ -120,9 +120,8 @@ private:
         }
     }
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                int width,
-                                                                int height) override;
+    GrStencilAttachment* createStencilAttachmentForRenderTarget(
+            const GrRenderTarget*, int width, int height, int numStencilSamples) override;
     GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
                                           GrMipMapped, GrRenderable,
                                           const void* pixels, size_t rowBytes,

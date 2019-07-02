@@ -38,14 +38,13 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
     // GrPath doesn't support hairline paths. An arbitrary path effect could produce a hairline
     // path.
     if (args.fShape->style().strokeRec().isHairlineStyle() ||
-        args.fShape->style().hasNonDashPathEffect()) {
+        args.fShape->style().hasNonDashPathEffect() ||
+        args.fHasUserStencilSettings) {
         return CanDrawPath::kNo;
     }
-    if (args.fHasUserStencilSettings) {
-        return CanDrawPath::kNo;
-    }
-    // We rely on a mixed sampled stencil buffer to implement coverage AA.
-    if (GrAAType::kCoverage == args.fAAType) {  // MIXED SAMPLES TODO: "&& !mixedSamplesSupport"
+    if (GrAAType::kCoverage == args.fAAType &&
+        !args.fProxy->canUseMixedSamples(*args.fCaps)) {
+        // We rely on a mixed sampled stencil buffer to implement coverage AA.
         return CanDrawPath::kNo;
     }
     return CanDrawPath::kYes;
@@ -94,10 +93,6 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     bool doStencilMSAA = GrAAType::kNone != args.fAAType;
 
     sk_sp<GrPath> path(get_gr_path(fResourceProvider, *args.fShape));
-
-    if (GrAAType::kCoverage == args.fAAType) {
-        // MIXED SAMPLES TODO: Indicate that we need a mixed sampled stencil buffer.
-    }
 
     if (args.fShape->inverseFilled()) {
         SkMatrix vmi;

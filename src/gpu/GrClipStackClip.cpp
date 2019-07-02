@@ -125,6 +125,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
         GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
         canDrawArgs.fCaps = context->priv().caps();
+        canDrawArgs.fProxy = renderTargetContext->proxy();
         canDrawArgs.fClipConservativeBounds = &scissorRect;
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;

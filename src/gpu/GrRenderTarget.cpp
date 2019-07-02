@@ -74,11 +74,27 @@ void GrRenderTarget::onAbandon() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrRenderTargetPriv::attachStencilAttachment(sk_sp<GrStencilAttachment> stencil) {
+#ifdef SK_DEBUG
+    if (1 == fRenderTarget->fSampleCnt) {
+        // TODO: We don't expect a mixed sampled render target to ever change its stencil buffer
+        // right now. But if it does swap in a stencil buffer with a different number of samples,
+        // and if we have a valid fSamplePatternKey, we will need to invalidate fSamplePatternKey
+        // here and add tests to make sure we it properly.
+        SkASSERT(GrSamplePatternDictionary::kInvalidSamplePatternKey ==
+                 fRenderTarget->fSamplePatternKey);
+    } else {
+        // Render targets with >1 color sample should never use mixed samples. (This would lead to
+        // different sample patterns, depending on stencil state.)
+        SkASSERT(!stencil || stencil->numSamples() == fRenderTarget->fSampleCnt);
+    }
+#endif
+
     if (!stencil && !fRenderTarget->fStencilAttachment) {
         // No need to do any work since we currently don't have a stencil attachment and
         // we're not actually adding one.
         return;
     }
+
     fRenderTarget->fStencilAttachment = std::move(stencil);
     if (!fRenderTarget->completeStencilAttachment()) {
         fRenderTarget->fStencilAttachment = nullptr;
@@ -91,7 +107,19 @@ int GrRenderTargetPriv::numStencilBits() const {
 }
 
 int GrRenderTargetPriv::getSamplePatternKey() const {
-    SkASSERT(fRenderTarget->fSampleCnt > 1);
+#ifdef SK_DEBUG
+    GrStencilAttachment* stencil = fRenderTarget->fStencilAttachment.get();
+    if (fRenderTarget->fSampleCnt <= 1) {
+        // If the color buffer is not multisampled, the sample pattern better come from the stencil
+        // buffer (mixed samples).
+        SkASSERT(stencil && stencil->numSamples() > 1);
+    } else {
+        // The color sample count and stencil count cannot both be unequal and both greater than
+        // one. If this were the case, there would be more than one sample pattern associated with
+        // the render target.
+        SkASSERT(!stencil || stencil->numSamples() == fRenderTarget->fSampleCnt);
+    }
+#endif
     if (GrSamplePatternDictionary::kInvalidSamplePatternKey == fRenderTarget->fSamplePatternKey) {
         fRenderTarget->fSamplePatternKey =
                 fRenderTarget->getGpu()->findOrAssignSamplePatternKey(fRenderTarget);
