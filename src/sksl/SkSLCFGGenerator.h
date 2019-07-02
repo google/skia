@@ -26,40 +26,21 @@ struct BasicBlock {
             kExpression_Kind
         };
 
-        Node(Kind kind, bool constantPropagation, std::unique_ptr<Expression>* expression,
-             std::unique_ptr<Statement>* statement)
+        Node(Kind kind, bool constantPropagation, IRNode::ID id)
         : fKind(kind)
         , fConstantPropagation(constantPropagation)
-        , fExpression(expression)
-        , fStatement(statement) {}
+        , fID(id) {}
 
-        std::unique_ptr<Expression>* expression() const {
-            SkASSERT(fKind == kExpression_Kind);
-            return fExpression;
+        IRNode::ID id() const {
+            return fID;
         }
 
-        void setExpression(std::unique_ptr<Expression> expr) {
-            SkASSERT(fKind == kExpression_Kind);
-            *fExpression = std::move(expr);
-        }
-
-        std::unique_ptr<Statement>* statement() const {
-            SkASSERT(fKind == kStatement_Kind);
-            return fStatement;
-        }
-
-        void setStatement(std::unique_ptr<Statement> stmt) {
-            SkASSERT(fKind == kStatement_Kind);
-            *fStatement = std::move(stmt);
+        void setIRNode(IRNode::ID id) {
+            fID = id;
         }
 
         String description() const {
-            if (fKind == kStatement_Kind) {
-                return (*fStatement)->description();
-            } else {
-                SkASSERT(fKind == kExpression_Kind);
-                return (*fExpression)->description();
-            }
+            return fID.node().description();
         }
 
         Kind fKind;
@@ -75,8 +56,7 @@ struct BasicBlock {
     private:
         // we store pointers to the unique_ptrs so that we can replace expressions or statements
         // during optimization without having to regenerate the entire tree
-        std::unique_ptr<Expression>* fExpression;
-        std::unique_ptr<Statement>* fStatement;
+        IRNode::ID fID;
     };
 
     /**
@@ -93,22 +73,21 @@ struct BasicBlock {
      * pointing to the same expression it did initially. Otherwise returns false (and the CFG will
      * need to be regenerated).
      */
-    bool tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter, Expression* e);
+    bool tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter, IRNode::ID e);
 
     /**
      * As tryRemoveExpressionBefore, but for lvalues. As lvalues are at most partially evaluated
      * (for instance, x[i] = 0 evaluates i but not x) this will only look for the parts of the
      * lvalue that are actually evaluated.
      */
-    bool tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter, Expression* lvalue);
+    bool tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter, IRNode::ID lvalue);
 
     /**
      * Attempts to inserts a new expression before the node pointed to by iter. If the
      * expression can be cleanly inserted, returns true and updates the iterator to point to the
      * newly inserted expression. Otherwise returns false (and the CFG will need to be regenerated).
      */
-    bool tryInsertExpression(std::vector<BasicBlock::Node>::iterator* iter,
-                             std::unique_ptr<Expression>* expr);
+    bool tryInsertExpression(std::vector<BasicBlock::Node>::iterator* iter, IRNode::ID expr);
 
     std::vector<Node> fNodes;
     std::set<BlockId> fEntrances;

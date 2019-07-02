@@ -28,11 +28,13 @@ GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCap
     }
     SkASSERT(fBaseProgram);
     SkASSERT(!fCompiler.errorCount());
-    for (const auto& e : *fBaseProgram) {
+    for (SkSL::IRNode::ID eID : *fBaseProgram) {
+        SkSL::ProgramElement& e = (SkSL::ProgramElement&) eID.node();
         if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
             SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
-            for (const auto& varStatement : v.fVars) {
-                const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varStatement).fVar;
+            for (SkSL::IRNode::ID decl : v.fVars) {
+                const SkSL::VarDeclaration& varDecl = (SkSL::VarDeclaration&) decl.node();
+                const SkSL::Variable& var = (SkSL::Variable&) varDecl.fVar;
                 if (var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
                     fInputVars.push_back(&var);
                 }
@@ -55,29 +57,29 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
     size_t offset = 0;
     for (const auto& v : fInputVars) {
         SkSL::String name(v->fName);
-        if (&v->fType == fCompiler.context().fInt_Type.get() ||
-            &v->fType == fCompiler.context().fShort_Type.get()) {
+        if (v->fType == fCompiler.context().fInt_Type ||
+            v->fType == fCompiler.context().fShort_Type) {
             offset = SkAlign4(offset);
             int32_t v = *(int32_t*) (((uint8_t*) inputs) + offset);
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
             offset += sizeof(int32_t);
-        } else if (&v->fType == fCompiler.context().fFloat_Type.get() ||
-                   &v->fType == fCompiler.context().fHalf_Type.get()) {
+        } else if (v->fType == fCompiler.context().fFloat_Type ||
+                   v->fType == fCompiler.context().fHalf_Type) {
             offset = SkAlign4(offset);
             float v = *(float*) (((uint8_t*) inputs) + offset);
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
             offset += sizeof(float);
-        } else if (&v->fType == fCompiler.context().fBool_Type.get()) {
+        } else if (v->fType == fCompiler.context().fBool_Type) {
             bool v = *(((bool*) inputs) + offset);
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
             offset += sizeof(bool);
-        } else if (&v->fType == fCompiler.context().fFloat4_Type.get() ||
-                   &v->fType == fCompiler.context().fHalf4_Type.get()) {
+        } else if (v->fType == fCompiler.context().fFloat4_Type ||
+                   v->fType == fCompiler.context().fHalf4_Type) {
             offset = SkAlign4(offset) + sizeof(float) * 4;
-        } else if (&v->fType == fCompiler.context().fFragmentProcessor_Type.get()) {
+        } else if (v->fType == fCompiler.context().fFragmentProcessor_Type) {
             // do nothing
         } else {
-            printf("can't handle input var: %s\n", SkSL::String(v->fType.fName).c_str());
+            printf("can't handle input var: %s\n", SkSL::String(v->fType.typeNode().fName).c_str());
             SkASSERT(false);
         }
     }
@@ -96,15 +98,15 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
 static SkSL::Layout::CType get_ctype(const SkSL::Context& context, const SkSL::Variable& v) {
    SkSL::Layout::CType result = v.fModifiers.fLayout.fCType;
    if (result == SkSL::Layout::CType::kDefault) {
-        if (&v.fType == context.fFloat_Type.get()) {
+        if (v.fType == context.fFloat_Type) {
             result = SkSL::Layout::CType::kFloat;
-        } else if (&v.fType == context.fFloat4_Type.get()) {
+        } else if (v.fType == context.fFloat4_Type) {
            result = SkSL::Layout::CType::kSkRect;
-        } else if (&v.fType == context.fHalf4_Type.get()) {
+        } else if (v.fType == context.fHalf4_Type) {
            result = SkSL::Layout::CType::kSkPMColor;
-        } else if (&v.fType == context.fInt_Type.get()) {
+        } else if (v.fType == context.fInt_Type) {
             result = SkSL::Layout::CType::kInt32;
-        } else if (&v.fType == context.fBool_Type.get()) {
+        } else if (v.fType == context.fBool_Type) {
             result = SkSL::Layout::CType::kBool;
         } else {
             return SkSL::Layout::CType::kDefault;
@@ -123,25 +125,25 @@ public:
             , fFormatArgs(formatArgs) {}
 
     GrSLType uniformType(const SkSL::Type& type) {
-        if (type == *fContext.fFloat_Type) {
+        if (&type == &fContext.fFloat_Type.typeNode()) {
             return kFloat_GrSLType;
-        } else if (type == *fContext.fHalf_Type) {
+        } else if (&type == &fContext.fHalf_Type.typeNode()) {
             return kHalf_GrSLType;
-        } else if (type == *fContext.fFloat2_Type) {
+        } else if (&type == &fContext.fFloat2_Type.typeNode()) {
             return kFloat2_GrSLType;
-        } else if (type == *fContext.fHalf2_Type) {
+        } else if (&type == &fContext.fHalf2_Type.typeNode()) {
             return kHalf2_GrSLType;
-        } else if (type == *fContext.fFloat4_Type) {
+        } else if (&type == &fContext.fFloat4_Type.typeNode()) {
             return kFloat4_GrSLType;
-        } else if (type == *fContext.fHalf4_Type) {
+        } else if (&type == &fContext.fHalf4_Type.typeNode()) {
             return kHalf4_GrSLType;
-        } else if (type == *fContext.fFloat4x4_Type) {
+        } else if (&type == &fContext.fFloat4x4_Type.typeNode()) {
             return kFloat4x4_GrSLType;
-        } else if (type == *fContext.fHalf4x4_Type) {
+        } else if (&type == &fContext.fHalf4x4_Type.typeNode()) {
             return kHalf4x4_GrSLType;
-        } else if (type == *fContext.fBool_Type) {
+        } else if (&type == &fContext.fBool_Type.typeNode()) {
             return kBool_GrSLType;
-        } else if (type == *fContext.fInt_Type) {
+        } else if (&type == &fContext.fInt_Type.typeNode()) {
             return kInt_GrSLType;
         }
         printf("%s\n", SkSL::String(type.fName).c_str());
@@ -152,11 +154,11 @@ public:
     void emitCode(EmitArgs& args) override {
         for (const auto& v : fInputVars) {
             if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag && v->fType !=
-                                                                *fContext.fFragmentProcessor_Type) {
+                                                                 fContext.fFragmentProcessor_Type) {
                 fUniformHandles.push_back(args.fUniformHandler->addUniform(
-                                                                   kFragment_GrShaderFlag,
-                                                                   this->uniformType(v->fType),
-                                                                   SkSL::String(v->fName).c_str()));
+                                                             kFragment_GrShaderFlag,
+                                                             this->uniformType(v->fType.typeNode()),
+                                                             SkSL::String(v->fName).c_str()));
             }
         }
         std::vector<SkString> childNames;
@@ -258,7 +260,7 @@ public:
                     ++offset;
                     break;
                 default:
-                    SkASSERT(&v->fType == fContext.fFragmentProcessor_Type.get());
+                    SkASSERT(v->fType == fContext.fFragmentProcessor_Type);
             }
         }
     }
@@ -352,7 +354,7 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
         printf("%s\n", fFactory->fCompiler.errorText().c_str());
         SkASSERT(false);
     }
-    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInputVars, glsl, formatArgs);
+    return new GrGLSLSkSLFP(&specialized->fContext, &fFactory->fInputVars, glsl, formatArgs);
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -363,7 +365,7 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     char* inputs = (char*) fInputs.get();
     const SkSL::Context& context = fFactory->fCompiler.context();
     for (const auto& v : fFactory->fInputVars) {
-        if (&v->fType == context.fFragmentProcessor_Type.get()) {
+        if (v->fType == context.fFragmentProcessor_Type) {
             continue;
         }
         switch (get_ctype(context, *v)) {
@@ -418,7 +420,7 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                 break;
             default:
                 // unsupported input var type
-                printf("%s\n", SkSL::String(v->fType.fName).c_str());
+                printf("%s\n", SkSL::String(v->fType.typeNode().fName).c_str());
                 SkASSERT(false);
         }
     }

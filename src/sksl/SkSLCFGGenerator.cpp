@@ -57,7 +57,7 @@ void CFG::dump() {
         const char* separator = "";
         for (auto iter = fBlocks[i].fBefore.begin(); iter != fBlocks[i].fBefore.end(); iter++) {
             printf("%s%s = %s", separator, iter->first->description().c_str(),
-                   iter->second ? (*iter->second)->description().c_str() : "<undefined>");
+                   iter->second ? iter->second.node().description().c_str() : "<undefined>");
             separator = ", ";
         }
         printf("\nEntrances: ");
@@ -69,9 +69,7 @@ void CFG::dump() {
         printf("\n");
         for (size_t j = 0; j < fBlocks[i].fNodes.size(); j++) {
             BasicBlock::Node& n = fBlocks[i].fNodes[j];
-            printf("Node %d (%p): %s\n", (int) j, &n, n.fKind == BasicBlock::Node::kExpression_Kind
-                                                         ? (*n.expression())->description().c_str()
-                                                         : (*n.statement())->description().c_str());
+            printf("Node %d (%p): %s\n", (int) j, &n, n.id().node().description().c_str());
         }
         printf("Exits: ");
         separator = "";
@@ -84,14 +82,15 @@ void CFG::dump() {
 }
 
 bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter,
-                                           Expression* e) {
-    if (e->fKind == Expression::kTernary_Kind) {
+                                           IRNode::ID id) {
+    Expression& e = (Expression&) id.expressionNode();
+    if (e.fKind == Expression::kTernary_Kind) {
         return false;
     }
     bool result;
     if ((*iter)->fKind == BasicBlock::Node::kExpression_Kind) {
-        SkASSERT((*iter)->expression()->get() != e);
-        Expression* old = (*iter)->expression()->get();
+        SkASSERT(iter->id() != id);
+        IRNode::ID old = (*iter)->expression();
         do {
             if ((*iter) == fNodes.begin()) {
                 return false;
@@ -125,29 +124,28 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
 }
 
 bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter,
-                                       Expression* lvalue) {
+                                       IRNode::ID lvalue) {
     switch (lvalue->fKind) {
         case Expression::kExternalValue_Kind: // fall through
         case Expression::kVariableReference_Kind:
             return true;
         case Expression::kSwizzle_Kind:
-            return this->tryRemoveLValueBefore(iter, ((Swizzle*) lvalue)->fBase.get());
+            return this->tryRemoveLValueBefore(iter, ((Swizzle*) lvalue)->fBase);
         case Expression::kFieldAccess_Kind:
-            return this->tryRemoveLValueBefore(iter, ((FieldAccess*) lvalue)->fBase.get());
+            return this->tryRemoveLValueBefore(iter, ((FieldAccess*) lvalue)->fBase);
         case Expression::kIndex_Kind:
-            if (!this->tryRemoveLValueBefore(iter, ((IndexExpression*) lvalue)->fBase.get())) {
+            if (!this->tryRemoveLValueBefore(iter, ((IndexExpression*) lvalue)->fBase)) {
                 return false;
             }
-            return this->tryRemoveExpressionBefore(iter, ((IndexExpression*) lvalue)->fIndex.get());
+            return this->tryRemoveExpressionBefore(iter, ((IndexExpression*) lvalue)->fIndex);
         case Expression::kTernary_Kind:
-            if (!this->tryRemoveExpressionBefore(iter,
-                                                 ((TernaryExpression*) lvalue)->fTest.get())) {
+            if (!this->tryRemoveExpressionBefore(iter, ((TernaryExpression*) lvalue)->fTest)) {
                 return false;
             }
-            if (!this->tryRemoveLValueBefore(iter, ((TernaryExpression*) lvalue)->fIfTrue.get())) {
+            if (!this->tryRemoveLValueBefore(iter, ((TernaryExpression*) lvalue)->fIfTrue)) {
                 return false;
             }
-            return this->tryRemoveLValueBefore(iter, ((TernaryExpression*) lvalue)->fIfFalse.get());
+            return this->tryRemoveLValueBefore(iter, ((TernaryExpression*) lvalue)->fIfFalse);
         default:
             ABORT("invalid lvalue: %s\n", lvalue->description().c_str());
     }
@@ -603,8 +601,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             this->addStatement(cfg, &f.fStatement);
             cfg.addExit(cfg.fCurrent, next);
             cfg.fCurrent = next;
-            if (f.fNext) {
-                this->addExpression(cfg, &f.fNext, true);
+            if (f.fNextStatement) {
+                this->addExpression(cfg, &f.fNextStatement, true);
             }
             cfg.addExit(cfg.fCurrent, loopStart);
             cfg.addExit(cfg.fCurrent, loopExit);

@@ -17,11 +17,11 @@ namespace SkSL {
  */
 struct Extension : public ProgramElement {
     Extension(int offset, String name)
-    : INHERITED(offset, kExtension_Kind)
+    : INHERITED(nullptr, offset, kExtension_Kind)
     , fName(std::move(name)) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Extension(fOffset, fName));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new Extension(fOffset, fName));
     }
 
     String description() const override {

@@ -6,53 +6,58 @@
  */
 
 #include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 namespace SkSL {
 
-std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& s) {
-    switch (s.fKind) {
+std::vector<IRNode::ID> SymbolTable::getFunctions(IRNode::ID id) {
+    const Symbol& s = (Symbol&) id.node();
+    switch (s.fSymbolKind) {
         case Symbol::kFunctionDeclaration_Kind:
-            return { &((FunctionDeclaration&) s) };
+            return { id };
         case Symbol::kUnresolvedFunction_Kind:
             return ((UnresolvedFunction&) s).fFunctions;
         default:
-            return std::vector<const FunctionDeclaration*>();
+            return std::vector<IRNode::ID>();
     }
 }
 
-const Symbol* SymbolTable::operator[](StringFragment name) {
+IRNode::ID SymbolTable::operator[](StringFragment name) {
     const auto& entry = fSymbols.find(name);
     if (entry == fSymbols.end()) {
         if (fParent) {
             return (*fParent)[name];
         }
-        return nullptr;
+        return IRNode::ID();
     }
     if (fParent) {
-        auto functions = GetFunctions(*entry->second);
+        auto functions = this->getFunctions(entry->second);
         if (functions.size() > 0) {
             bool modified = false;
-            const Symbol* previous = (*fParent)[name];
+            IRNode::ID previous = (*fParent)[name];
             if (previous) {
-                auto previousFunctions = GetFunctions(*previous);
-                for (const FunctionDeclaration* prev : previousFunctions) {
+                auto previousFunctions = this->getFunctions(previous);
+                for (IRNode::ID prevID : previousFunctions) {
+                    const FunctionDeclaration& prev = (FunctionDeclaration&) prevID.node();
                     bool found = false;
-                    for (const FunctionDeclaration* current : functions) {
-                        if (current->matches(*prev)) {
+                    for (IRNode::ID currentID : functions) {
+                        const FunctionDeclaration& current =
+                                                            (FunctionDeclaration&) currentID.node();
+                        if (current.matches(prev)) {
                             found = true;
                             break;
                         }
                     }
                     if (!found) {
-                        functions.push_back(prev);
+                        functions.push_back(prevID);
                         modified = true;
                     }
                 }
                 if (modified) {
                     SkASSERT(functions.size() > 1);
-                    return this->takeOwnership(std::unique_ptr<Symbol>(
-                                                                new UnresolvedFunction(functions)));
+                    return fIRGenerator->createNode(new UnresolvedFunction(fIRGenerator,
+                                                                           functions));
                 }
             }
         }
@@ -60,61 +65,42 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
     return entry->second;
 }
 
-Symbol* SymbolTable::takeOwnership(std::unique_ptr<Symbol> s) {
-    Symbol* result = s.get();
-    fOwnedSymbols.push_back(std::move(s));
-    return result;
-}
-
-IRNode* SymbolTable::takeOwnership(std::unique_ptr<IRNode> n) {
-    IRNode* result = n.get();
-    fOwnedNodes.push_back(std::move(n));
-    return result;
-}
-
-void SymbolTable::add(StringFragment name, std::unique_ptr<Symbol> symbol) {
-    this->addWithoutOwnership(name, symbol.get());
-    this->takeOwnership(std::move(symbol));
-}
-
-void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
+void SymbolTable::add(StringFragment name, IRNode::ID symbolID) {
     const auto& existing = fSymbols.find(name);
+    Symbol& symbol = (Symbol&) symbolID.node();
     if (existing == fSymbols.end()) {
-        fSymbols[name] = symbol;
-    } else if (symbol->fKind == Symbol::kFunctionDeclaration_Kind) {
-        const Symbol* oldSymbol = existing->second;
-        if (oldSymbol->fKind == Symbol::kFunctionDeclaration_Kind) {
-            std::vector<const FunctionDeclaration*> functions;
-            functions.push_back((const FunctionDeclaration*) oldSymbol);
-            functions.push_back((const FunctionDeclaration*) symbol);
-            std::unique_ptr<Symbol> u = std::unique_ptr<Symbol>(new UnresolvedFunction(std::move(
-                                                                                       functions)));
-            fSymbols[name] = this->takeOwnership(std::move(u));
-        } else if (oldSymbol->fKind == Symbol::kUnresolvedFunction_Kind) {
-            std::vector<const FunctionDeclaration*> functions;
-            for (const auto* f : ((UnresolvedFunction&) *oldSymbol).fFunctions) {
-                functions.push_back(f);
-            }
-            functions.push_back((const FunctionDeclaration*) symbol);
-            std::unique_ptr<Symbol> u = std::unique_ptr<Symbol>(new UnresolvedFunction(std::move(
-                                                                                       functions)));
-            fSymbols[name] = this->takeOwnership(std::move(u));
+        fSymbols.insert({ name, symbolID });
+    } else if (symbol.fSymbolKind == Symbol::kFunctionDeclaration_Kind) {
+        const Symbol& oldSymbol = (Symbol&) existing->second.node();
+        if (oldSymbol.fSymbolKind == Symbol::kFunctionDeclaration_Kind) {
+            std::vector<IRNode::ID> functions;
+            functions.push_back(existing->second);
+            functions.push_back(symbolID);
+            std::unique_ptr<Symbol> u = std::unique_ptr<Symbol>();
+            fSymbols[name] = fIRGenerator->createNode(new UnresolvedFunction(fIRGenerator,
+                                                                             std::move(functions)));
+        } else if (oldSymbol.fSymbolKind == Symbol::kUnresolvedFunction_Kind) {
+            std::vector<IRNode::ID> functions(((UnresolvedFunction&) oldSymbol).fFunctions);
+            functions.push_back(symbolID);
+            fSymbols[name] = fIRGenerator->createNode(new UnresolvedFunction(fIRGenerator,
+                                                                             std::move(functions)));
         }
     } else {
-        fErrorReporter.error(symbol->fOffset, "symbol '" + name + "' was already defined");
+        fIRGenerator->fErrors.error(symbol.fOffset, "symbol '" + name + "' was already defined");
     }
 }
 
 
 void SymbolTable::markAllFunctionsBuiltin() {
     for (const auto& pair : fSymbols) {
-        switch (pair.second->fKind) {
+        Symbol& symbol = (Symbol&) pair.second.node();
+        switch (symbol.fSymbolKind) {
             case Symbol::kFunctionDeclaration_Kind:
-                ((FunctionDeclaration&) *pair.second).fBuiltin = true;
+                ((FunctionDeclaration&) symbol).fBuiltin = true;
                 break;
             case Symbol::kUnresolvedFunction_Kind:
-                for (auto& f : ((UnresolvedFunction&) *pair.second).fFunctions) {
-                    ((FunctionDeclaration*) f)->fBuiltin = true;
+                for (IRNode::ID f : ((UnresolvedFunction&) symbol).fFunctions) {
+                    ((FunctionDeclaration&) f.node()).fBuiltin = true;
                 }
                 break;
             default:
@@ -123,11 +109,11 @@ void SymbolTable::markAllFunctionsBuiltin() {
     }
 }
 
-std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::begin() {
+std::unordered_map<StringFragment, IRNode::ID>::iterator SymbolTable::begin() {
     return fSymbols.begin();
 }
 
-std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::end() {
+std::unordered_map<StringFragment, IRNode::ID>::iterator SymbolTable::end() {
     return fSymbols.end();
 }
 
