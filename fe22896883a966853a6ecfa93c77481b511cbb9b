@@ -22,6 +22,30 @@
       "revId": "fe22896883a966853a6ecfa93c77481b511cbb9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6f25901_bee06747",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 3631,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-02T20:36:44Z",
+      "side": 1,
+      "message": "Ack - will take into account in follow up CL.",
+      "parentUuid": "d0ead9b9_3768d1d7",
+      "range": {
+        "startLine": 3629,
+        "startChar": 0,
+        "endLine": 3631,
+        "endChar": 5
+      },
+      "revId": "fe22896883a966853a6ecfa93c77481b511cbb9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
