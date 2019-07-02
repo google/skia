@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30232f8a_802b2610",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T14:07:10Z",
+      "side": 1,
+      "message": "These are being made from a surface characterization so this seems wrong to set the layout to what will be used for texturing. If we are going to be explicit about what we set things to here I feel like we should set this one to color_attachment_optimal (and maybe the non color initialized one as well??)",
+      "range": {
+        "startLine": 413,
+        "startChar": 12,
+        "endLine": 413,
+        "endChar": 52
+      },
+      "revId": "2805214e5ff21361f2125d61e286373a76ef5cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8aed8cfb_17fe52cc",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 1149,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T14:07:10Z",
+      "side": 1,
+      "message": "what exactly does this mean? If kAlpha_8_GrPixelConfig defaults to kAlpha8_as_Alpha it is not obvious to me why it is combatible to kAlpha8_as_Red. Or at least not compitlbe in a general sense, so we probably would need a really good comment on this function to make sure it is only used to check whatever it is that it is needed for.",
+      "range": {
+        "startLine": 1149,
+        "startChar": 22,
+        "endLine": 1149,
+        "endChar": 44
+      },
+      "revId": "2805214e5ff21361f2125d61e286373a76ef5cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96de6d43_1f054384",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T14:07:10Z",
+      "side": 1,
+      "message": "since it is part of the api contract, should we also check that if we are in Vulkan that they layout is what we expected?",
+      "range": {
+        "startLine": 326,
+        "startChar": 21,
+        "endLine": 328,
+        "endChar": 99
+      },
+      "revId": "2805214e5ff21361f2125d61e286373a76ef5cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
