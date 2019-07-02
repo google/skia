@@ -21,11 +21,6 @@ void SkDebugf(const char* fmt, ...) {
     va_end(args);
 }
 
-// TODO: remove SkVM dependency on SkWStream
-bool SkWStream::writeDecAsText   (int x)           { SkDebugf("%d", x); return true; }
-bool SkWStream::writeHexAsText   (unsigned x, int) { SkDebugf("%x", x); return true; }
-bool SkWStream::writeScalarAsText(float x)         { SkDebugf("%g", x); return true; }
-
 using namespace skvm;
 
 static Program build() {
