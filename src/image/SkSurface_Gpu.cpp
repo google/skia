@@ -404,6 +404,86 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
     return result;
 }
 
+static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex,
+                                     GrPixelConfig* config, int sampleCnt, SkColorType ct,
+                                     bool texturable) {
+    if (!tex.isValid()) {
+        return false;
+    }
+
+    GrBackendFormat backendFormat = tex.getBackendFormat();
+    if (!backendFormat.isValid()) {
+        return false;
+    }
+    *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, ct);
+    if (*config == kUnknown_GrPixelConfig) {
+        return false;
+    }
+
+    // We don't require that the client gave us an exact valid sample cnt. However, it must be
+    // less than the max supported sample count and 1 if MSAA is unsupported for the color type.
+    if (!ctx->priv().caps()->getRenderTargetSampleCount(sampleCnt, ct, backendFormat)) {
+        return false;
+    }
+
+    if (texturable && !ctx->priv().caps()->isFormatTexturable(ct, backendFormat)) {
+        return false;
+    }
+    return true;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
+                                                   const SkSurfaceCharacterization& c,
+                                                   const GrBackendTexture& backendTexture,
+                                                   TextureReleaseProc textureReleaseProc,
+                                                   ReleaseContext releaseContext) {
+    if (!context || !c.isValid()) {
+        return nullptr;
+    }
+
+    if (c.usesGLFBO0()) {
+        // If we are making the surface we will never use FBO0.
+        return nullptr;
+    }
+
+    if (!c.isCompatible(backendTexture)) {
+        return nullptr;
+    }
+
+    GrBackendTexture texCopy = backendTexture;
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+                                  c.sampleCount(), c.colorType(), true)) {
+        return nullptr;
+    }
+
+    if (!SkSurface_Gpu::Valid(context->priv().caps(), texCopy.getBackendFormat())) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetContext> rtc(context->priv().makeBackendTextureRenderTargetContext(
+                texCopy, c.origin(), c.sampleCount(), SkColorTypeToGrColorType(c.colorType()),
+                c.refColorSpace(), &c.surfaceProps(), textureReleaseProc, releaseContext));
+    if (!rtc) {
+        return nullptr;
+    }
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc),
+                                                texCopy.width(), texCopy.height(),
+                                                SkGpuDevice::kUninit_InitContents));
+    if (!device) {
+        return nullptr;
+    }
+
+    sk_sp<SkSurface> result = sk_make_sp<SkSurface_Gpu>(std::move(device));
+#ifdef SK_DEBUG
+    if (result) {
+        SkASSERT(result->isCompatible(c));
+    }
+#endif
+
+    return result;
+}
+
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
                                              GrSurfaceOrigin origin, const SkSurfaceProps* props,
@@ -442,34 +522,6 @@ sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(GrContext* context,
     }
 
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
-}
-
-static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex,
-                                     GrPixelConfig* config, int sampleCnt, SkColorType ct,
-                                     bool texturable) {
-    if (!tex.isValid()) {
-        return false;
-    }
-
-    GrBackendFormat backendFormat = tex.getBackendFormat();
-    if (!backendFormat.isValid()) {
-        return false;
-    }
-    *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, ct);
-    if (*config == kUnknown_GrPixelConfig) {
-        return false;
-    }
-
-    // We don't require that the client gave us an exact valid sample cnt. However, it must be
-    // less than the max supported sample count and 1 if MSAA is unsupported for the color type.
-    if (!ctx->priv().caps()->getRenderTargetSampleCount(sampleCnt, ct, backendFormat)) {
-        return false;
-    }
-
-    if (texturable && !ctx->priv().caps()->isFormatTexturable(ct, backendFormat)) {
-        return false;
-    }
-    return true;
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
