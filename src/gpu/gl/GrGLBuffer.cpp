@@ -134,6 +134,8 @@ inline const GrGLCaps& GrGLBuffer::glCaps() const {
 }
 
 void GrGLBuffer::onRelease() {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+
     if (!this->wasDestroyed()) {
         VALIDATE();
         // make sure we've not been abandoned or already released
