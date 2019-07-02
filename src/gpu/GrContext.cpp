@@ -180,6 +180,8 @@ void GrContext::purgeUnlockedResources(bool scratchResourcesOnly) {
 }
 
 void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     ASSERT_SINGLE_OWNER
 
     auto purgeTime = GrStdSteadyClock::now() - msNotUsed;
