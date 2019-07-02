@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "21e86f04_5dbeca0f",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-02T18:21:17Z",
+      "side": 1,
+      "message": "Yeah, seems like something like\n\n   # Our Metal backend requires ARC but Dawn needs it off.\n   assert( !(skia_use_dawn \u0026\u0026 skia_use_metal) )\n\nmight be preferable to this.",
+      "parentUuid": "b5fa366c_9b489d14",
+      "range": {
+        "startLine": 672,
+        "startChar": 0,
+        "endLine": 674,
+        "endChar": 5
+      },
+      "revId": "c538ef403dd412ad2d05d848e5b7b87647dc0eb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "deba8ce2_f5805ade",
         "filename": "third_party/dawn/BUILD.gn",
         "patchSetId": 5
@@ -36,6 +60,24 @@
       "writtenOn": "2019-07-02T17:55:38Z",
       "side": 1,
       "message": "I know we did something similar to this for ANGLE (for reasons I can\u0027t remember) but I\u0027m curious why we can\u0027t just use the upstream BUILD.gn",
+      "revId": "c538ef403dd412ad2d05d848e5b7b87647dc0eb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ed79419_015c9e0d",
+        "filename": "third_party/dawn/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-02T18:21:17Z",
+      "side": 1,
+      "message": "I had to do that for ANGLE because their GN configuration was so specifically written for the Chromium GN build environment, making reference to targets and configs that don\u0027t exist in Skia\u0027s GN environment.\n\nThat said, this looks like just about the most beautiful platonic stand-alone-able GN file I\u0027ve seen in a long time.  If this file is also in the Dawn repo, I don\u0027t see any reason not to use it from there.\n\nThat said, the only downside to having this all here is that it can make rolling a little more tedious as sources and build configurations change.  That\u0027s the kind of thing we can wait to fix until it hurts, and can be done in nice incremental ways like, factoring out .gni files containing source lists, injecting a little indirection for configs and dependencies, that sort of thing.",
+      "parentUuid": "deba8ce2_f5805ade",
       "revId": "c538ef403dd412ad2d05d848e5b7b87647dc0eb8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
