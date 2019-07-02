@@ -47,6 +47,8 @@ protected:
 
     void onTick(float t) override;
 
+    const AnimatorList& animators() const { return fAnimators; }
+
 private:
     const AnimatorList fAnimators;
 
