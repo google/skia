@@ -35,7 +35,6 @@
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
-#include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStyle.h"
@@ -820,16 +819,28 @@ GrRenderTargetOpList::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPre
     // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
     // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
     // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
-    return GrRenderTargetOpList::CanDiscardPreviousOps(!fNeedsStencil);
+    return GrRenderTargetOpList::CanDiscardPreviousOps(!fNumStencilSamples);
 }
 
-void GrRenderTargetContext::setNeedsStencil() {
-    // Don't clear stencil until after we've changed fNeedsStencil. This ensures we don't loop
+void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
+    // Don't clear stencil until after we've changed fNumStencilSamples. This ensures we don't loop
     // forever in the event that there are driver bugs and we need to clear as a draw.
-    bool needsStencilClear = !fNeedsStencil;
+    bool needsStencilClear = !fNumStencilSamples;
 
-    fNeedsStencil = true;
-    fRenderTargetProxy->setNeedsStencil();
+    int numRequiredSamples = this->numSamples();
+    if (multisampled && 1 == numRequiredSamples) {
+        // The caller has requested a multisampled stencil buffer on a non-MSAA render target. Use
+        // mixed samples.
+        SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
+        numRequiredSamples = this->caps()->internalMultisampleCount(
+                this->colorSpaceInfo().config());
+    }
+    SkASSERT(numRequiredSamples > 0);
+
+    if (numRequiredSamples > fNumStencilSamples) {
+        fNumStencilSamples = numRequiredSamples;
+        fRenderTargetProxy->setNeedsStencil(fNumStencilSamples);
+    }
 
     if (needsStencilClear) {
         if (this->caps()->performStencilClearsAsDraws()) {
@@ -903,7 +914,6 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
         return;
     }
 
-
     std::unique_ptr<GrOp> op = GrStencilPathOp::Make(fRenderTargetContext->fContext,
                                                      viewMatrix,
                                                      GrAA::kYes == doStencilMSAA,
@@ -916,7 +926,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     }
     op->setClippedBounds(bounds);
 
-    fRenderTargetContext->setNeedsStencil();
+    fRenderTargetContext->setNeedsStencil(GrAA::kYes == doStencilMSAA);
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
@@ -2420,6 +2430,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     GrShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = fRenderTargetContext->caps();
+    canDrawArgs.fProxy = fRenderTargetContext->proxy();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
@@ -2485,6 +2496,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
 
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = this->caps();
+    canDrawArgs.fProxy = this->proxy();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &originalShape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
@@ -2593,7 +2605,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     bool usesStencil = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
 
     if (usesStencil) {
-        this->setNeedsStencil();
+        this->setNeedsStencil(usesHWAA);
     }
 
     if (!clip.apply(fContext, this, usesHWAA, usesStencil, &appliedClip, &bounds)) {
@@ -2601,12 +2613,18 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
         return;
     }
 
-    SkASSERT((!usesStencil && !appliedClip.hasStencilClip()) || fNeedsStencil);
+    SkASSERT((!usesStencil && !appliedClip.hasStencilClip()) || (fNumStencilSamples > 0));
 
     GrClampType clampType = GrPixelConfigClampType(this->colorSpaceInfo().config());
-    // MIXED SAMPLES TODO: check stencil buffer is MSAA and make sure stencil test is actually doing
-    // something (either in the clip or in the op).
-    bool hasMixedSampledCoverage = false;
+    // MIXED SAMPLES TODO: If we start using mixed samples for clips we will need to check the clip
+    // here as well.
+    bool hasMixedSampledCoverage = (usesHWAA && this->numSamples() <= 1);
+#ifdef SK_DEBUG
+    if (hasMixedSampledCoverage) {
+        SkASSERT(usesStencil);
+        SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
+    }
+#endif
     GrProcessorSet::Analysis analysis = op->finalize(
             *this->caps(), &appliedClip, hasMixedSampledCoverage, clampType);
 

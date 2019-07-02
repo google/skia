@@ -109,7 +109,7 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
         return nullptr;
     }
 
-    if (!provider->attachStencilAttachment(tex->asRenderTarget())) {
+    if (!provider->attachStencilAttachment(tex->asRenderTarget(), sampleCount)) {
         return nullptr;
     }
     SkASSERT(get_SB(tex->asRenderTarget()));

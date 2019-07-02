@@ -50,7 +50,7 @@ public:
     }
 
     static bool SK_WARN_UNUSED_RESULT AttachStencilIfNeeded(GrResourceProvider*, GrSurface*,
-                                                            bool needsStencil);
+                                                            int minStencilSampleCount);
 
     bool ignoredByResourceAllocator() const { return fProxy->ignoredByResourceAllocator(); }
     void setIgnoredByResourceAllocator() { fProxy->setIgnoredByResourceAllocator(); }

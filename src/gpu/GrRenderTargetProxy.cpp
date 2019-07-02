@@ -26,9 +26,8 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
                                          SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
         : INHERITED(format, desc, origin, textureSwizzle, fit, budgeted, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
-        , fOutputSwizzle(outputSwizzle)
-        , fNeedsStencil(false)
-        , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {
+        , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo)
+        , fOutputSwizzle(outputSwizzle) {
 }
 
 // Lazy-callback version
@@ -42,9 +41,8 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
         : INHERITED(std::move(callback), lazyType, format, desc, origin, textureSwizzle, fit,
                     budgeted, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
-        , fOutputSwizzle(outputSwizzle)
-        , fNeedsStencil(false)
-        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
+        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
+        , fOutputSwizzle(outputSwizzle) {
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
 }
 
@@ -55,9 +53,8 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin 
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(surf), origin, textureSwizzle, SkBackingFit::kExact)
         , fSampleCnt(fTarget->asRenderTarget()->numSamples())
-        , fOutputSwizzle(outputSwizzle)
-        , fNeedsStencil(false)
-        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
+        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
+        , fOutputSwizzle(outputSwizzle) {
 }
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
@@ -70,7 +67,7 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     }
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNeedsStencil, kDescFlags,
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNumStencilSamples, kDescFlags,
                                GrMipMapped::kNo, nullptr)) {
         return false;
     }
@@ -83,8 +80,8 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
-    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt, fNeedsStencil,
-                                                       kDescFlags, GrMipMapped::kNo);
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(
+            resourceProvider, fSampleCnt, fNumStencilSamples, kDescFlags, GrMipMapped::kNo);
     if (!surface) {
         return nullptr;
     }

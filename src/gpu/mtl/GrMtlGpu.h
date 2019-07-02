@@ -196,9 +196,8 @@ private:
     // Function that fills texture with transparent black
     bool clearTexture(GrMtlTexture*, GrColorType);
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                int width,
-                                                                int height) override;
+    GrStencilAttachment* createStencilAttachmentForRenderTarget(
+            const GrRenderTarget*, int width, int height, int numStencilSamples) override;
 
     bool createTestingOnlyMtlTextureInfo(GrPixelConfig, MTLPixelFormat,
                                          int w, int h, bool texturable,

@@ -386,9 +386,10 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
     return buffer;
 }
 
-bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
+bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int minStencilSampleCount) {
     SkASSERT(rt);
-    if (rt->renderTargetPriv().getStencilAttachment()) {
+    GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment();
+    if (stencil && stencil->numSamples() >= minStencilSampleCount) {
         return true;
     }
 
@@ -403,12 +404,13 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
             height = SkNextPow2(height);
         }
 #endif
-        GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
-                                                               rt->numSamples(), &sbKey);
+        GrStencilAttachment::ComputeSharedStencilAttachmentKey(
+                width, height, minStencilSampleCount, &sbKey);
         auto stencil = this->findByUniqueKey<GrStencilAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
-            stencil.reset(this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height));
+            stencil.reset(this->gpu()->createStencilAttachmentForRenderTarget(
+                    rt, width, height, minStencilSampleCount));
             if (!stencil) {
                 return false;
             }

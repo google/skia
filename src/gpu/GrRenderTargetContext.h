@@ -456,6 +456,7 @@ public:
     void insertEventMarker(const SkString&);
 
     const GrCaps* caps() const;
+    const GrRenderTargetProxy* proxy() const { return fRenderTargetProxy.get(); }
     int width() const { return fRenderTargetProxy->width(); }
     int height() const { return fRenderTargetProxy->height(); }
     int numSamples() const { return fRenderTargetProxy->numSamples(); }
@@ -529,7 +530,7 @@ private:
                              sk_sp<GrTextureProxy>);
 
     GrRenderTargetOpList::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
-    void setNeedsStencil();
+    void setNeedsStencil(bool multisampled);
 
     void internalClear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
     void internalStencilClear(const GrFixedClip&, bool insideStencilMask);
@@ -627,7 +628,7 @@ private:
     SkSurfaceProps fSurfaceProps;
     bool fManagedOpList;
 
-    bool fNeedsStencil = false;
+    int fNumStencilSamples = 0;
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif

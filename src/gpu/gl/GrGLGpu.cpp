@@ -1812,12 +1812,11 @@ bool GrGLGpu::createCompressedTextureImpl(
     return true;
 }
 
-GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                     int width, int height) {
+GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(
+        const GrRenderTarget* rt, int width, int height, int numStencilSamples) {
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 
-    int samples = rt->numSamples();
     GrGLStencilAttachment::IDDesc sbDesc;
 
     int sIdx = this->getCompatibleStencilIndex(rt->config());
@@ -1836,9 +1835,9 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
     CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
     // we do this "if" so that we don't call the multisample
     // version on a GL that doesn't have an MSAA extension.
-    if (samples > 1) {
+    if (numStencilSamples > 1) {
         SkAssertResult(renderbuffer_storage_msaa(*fGLContext,
-                                                 samples,
+                                                 numStencilSamples,
                                                  sFmt.fInternalFormat,
                                                  width, height));
     } else {
@@ -1856,7 +1855,7 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
                                                                sbDesc,
                                                                width,
                                                                height,
-                                                               samples,
+                                                               numStencilSamples,
                                                                format);
     return stencil;
 }
@@ -2839,7 +2838,13 @@ void GrGLGpu::disableStencil() {
 void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
     // rt is only optional if useHWAA is false.
     SkASSERT(rt || !useHWAA);
-    SkASSERT(!useHWAA || rt->numSamples() > 1);
+#ifdef SK_DEBUG
+    if (useHWAA && rt->numSamples() <= 1) {
+        SkASSERT(this->caps()->mixedSamplesSupport());
+        SkASSERT(0 != static_cast<GrGLRenderTarget*>(rt)->renderFBOID());
+        SkASSERT(rt->renderTargetPriv().getStencilAttachment());
+    }
+#endif
 
     if (this->caps()->multisampleDisableSupport()) {
         if (useHWAA) {

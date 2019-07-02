@@ -396,9 +396,9 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, GrColorType dataColorType) {
     return true;
 }
 
-GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                      int width,
-                                                                      int height) {
+GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
+        const GrRenderTarget* rt, int width, int height, int numStencilSamples) {
+    SkASSERT(numStencilSamples == rt->numSamples());
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 

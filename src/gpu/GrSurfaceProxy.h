@@ -358,8 +358,9 @@ protected:
     virtual sk_sp<GrSurface> createSurface(GrResourceProvider*) const = 0;
     void assign(sk_sp<GrSurface> surface);
 
-    sk_sp<GrSurface> createSurfaceImpl(GrResourceProvider*, int sampleCnt, bool needsStencil,
-                                       GrSurfaceDescFlags, GrMipMapped) const;
+    sk_sp<GrSurface> createSurfaceImpl(
+            GrResourceProvider*, int sampleCnt, int minStencilSampleCount, GrSurfaceDescFlags,
+            GrMipMapped) const;
 
     // Once the size of a fully-lazy proxy is decided, and before it gets instantiated, the client
     // can use this optional method to specify the proxy's size. (A proxy's size can be less than
@@ -372,8 +373,9 @@ protected:
         fHeight = height;
     }
 
-    bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
-                         GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*);
+    bool instantiateImpl(
+            GrResourceProvider* resourceProvider, int sampleCnt, int minStencilSampleCount,
+            GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*);
 
     // For deferred proxies this will be null until the proxy is instantiated.
     // For wrapped proxies it will point to the wrapped resource.

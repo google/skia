@@ -431,9 +431,8 @@ public:
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
     // the GrStencilAttachment.
-    virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                        int width,
-                                                                        int height) = 0;
+    virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(
+            const GrRenderTarget*, int width, int height, int numStencilSamples) = 0;
 
     // Determines whether a texture will need to be rescaled in order to be used with the
     // GrSamplerState.

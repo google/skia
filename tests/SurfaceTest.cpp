@@ -965,7 +965,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
             // our surface functions.
             GrRenderTarget* rt = surface->getCanvas()
                 ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget();
-            REPORTER_ASSERT(reporter, resourceProvider->attachStencilAttachment(rt));
+            REPORTER_ASSERT(reporter, resourceProvider->attachStencilAttachment(rt, sampleCnt));
             context->deleteBackendTexture(backendTex);
         }
     }
