@@ -126,7 +126,7 @@ void ParagraphImpl::layout(SkScalar width) {
         fClusters.reset();
         if (!this->shapeTextIntoEndlessLine()) {
             // Apply the last style to the empty text
-            FontIterator font(SkSpan<const char>(" "),
+            FontIterator font(SkMakeSpan(" "),
                               SkSpan<TextBlock>(&fTextStyles.back(), 1),
                               fFontCollection);
             // Get the font metrics
