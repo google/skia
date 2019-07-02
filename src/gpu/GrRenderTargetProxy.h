@@ -29,9 +29,9 @@ public:
     bool instantiate(GrResourceProvider*) override;
 
     bool canUseMixedSamples(const GrCaps& caps) const {
-        // TODO: Is this a wrapped external RT? Is GrBackendObjectOwnership available?
         return caps.mixedSamplesSupport() && !this->glRTFBOIDIs0() &&
-               caps.internalMultisampleCount(this->config()) > 0;
+               caps.internalMultisampleCount(this->config()) > 0 &&
+               this->canChangeStencilAttachment();
     }
 
     /*
@@ -112,7 +112,7 @@ private:
     bool glRTFBOIDIs0() const {
         return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
-
+    bool canChangeStencilAttachment() const;
 
     size_t onUninstantiatedGpuMemorySize() const override;
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)

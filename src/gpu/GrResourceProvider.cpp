@@ -418,7 +418,11 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int minSten
         }
         rt->renderTargetPriv().attachStencilAttachment(std::move(stencil));
     }
-    return SkToBool(rt->renderTargetPriv().getStencilAttachment());
+
+    if (GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment()) {
+        return stencil->numSamples() >= minStencilSampleCount;
+    }
+    return false;
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
