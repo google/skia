@@ -743,7 +743,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                         if (rect.isEmpty() || !SkIRect::MakeWH(kW, kH).contains(rect)) {
                             REPORTER_ASSERT(reporter, !context.fSuceeded);
                         }
-                        if (!context.fSuceeded) {
+                        if (context.fSuceeded) {
+                            REPORTER_ASSERT(reporter, readCT != kUnknown_SkColorType &&
+                                                      !rect.isEmpty());
+                        } else {
+                            // TODO: Support reading to kGray.
+                            auto surfBounds = SkIRect::MakeWH(surf->width(), surf->height());
+                            if (readCT != kUnknown_SkColorType && readCT != kGray_8_SkColorType &&
+                                !rect.isEmpty() && surfBounds.contains(rect)) {
+                                ERRORF(reporter,
+                                       "Async read failed. Surf Color Type: %d, Read CT: %d,"
+                                       "Rect [%d, %d, %d, %d], origin: %d, CS conversion: %d\n",
+                                       surfCT, readCT, rect.fLeft, rect.fTop, rect.fRight,
+                                       rect.fBottom, origin, (bool)readCS);
+                            }
                             continue;
                         }
                         // We use a synchronous read as the source of truth.
