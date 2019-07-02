@@ -568,7 +568,9 @@ static inline GrSLType GrSLCombinedSamplerTypeForTextureType(GrTextureType type)
     }
 }
 
-/** Rectangle and external textures ony support the clamp wrap mode and do not support MIP maps. */
+/** Rectangle and external textures only support the clamp wrap mode and do not support
+ *  MIP maps.
+ */
 static inline bool GrTextureTypeHasRestrictedSampling(GrTextureType type) {
     switch (type) {
         case GrTextureType::k2D:
@@ -805,7 +807,7 @@ typedef uint64_t GrFence;
  * Used to include or exclude specific GPU path renderers for testing purposes.
  */
 enum class GpuPathRenderers {
-    kNone              = 0, // Always use sofware masks and/or GrDefaultPathRenderer.
+    kNone              = 0, // Always use software masks and/or GrDefaultPathRenderer.
     kDashLine          = 1 << 0,
     kStencilAndCover   = 1 << 1,
     kCoverageCounting  = 1 << 2,
