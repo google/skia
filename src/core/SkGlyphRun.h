@@ -36,7 +36,7 @@ public:
     void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
 
     size_t runSize() const { return fGlyphIDs.size(); }
-    SkSpan<const SkPoint> positions() const { return fPositions.toConst(); }
+    SkSpan<const SkPoint> positions() const { return fPositions; }
     SkSpan<const SkGlyphID> glyphsIDs() const { return fGlyphIDs; }
     const SkFont& font() const { return fFont; }
     SkSpan<const uint32_t> clusters() const { return fClusters; }

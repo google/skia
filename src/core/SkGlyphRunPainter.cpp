@@ -474,7 +474,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
                 if (!fPaths.empty()) {
                     process->processSourcePaths(
-                            SkSpan<const SkGlyphPos>{fPaths},
+                            SkMakeSpan(fPaths),
                             strikeSpec);
                 }
             }
@@ -590,7 +590,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 process->processDeviceMasks(
                         SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithMaskCount}, strikeSpec);
                 if (!fPaths.empty()) {
-                    process->processDevicePaths(SkSpan<const SkGlyphPos>{fPaths});
+                    process->processDevicePaths(SkMakeSpan(fPaths));
                 }
             }
 
