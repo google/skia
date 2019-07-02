@@ -12,7 +12,6 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.9.3 // indirect
-	github.com/kr/pty v1.1.7 // indirect
 	go.chromium.org/luci v0.0.0-20190628212317-a0a3655d78a3 // indirect
 	go.skia.org/infra v0.0.0-20190630232450-e2d7f6778175
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
