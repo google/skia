@@ -127,14 +127,25 @@ async function driveBrowser() {
   }
   console.log("Loading " + targetURL);
   try {
+    // rmistry: Maybe this should be moved to the top??
+    await page.tracing.start({path: 'trace.json', screenshots: false, categories: ["blink", "cc"]});
+
     await page.goto(targetURL, {
       timeout: 20000,
       waitUntil: 'networkidle0'
     });
+
+    // rmistry: Maybe this should be moved to the top??
+    // await page.tracing.start({path: 'trace.json', screenshots: false, categories: ["blink", "cc"]});
+
     console.log('Waiting 20s for run to be done');
     await page.waitForFunction('window._skottieDone === true', {
       timeout: 20000,
     });
+
+    // Stop Trace.
+    await page.tracing.stop();
+
   } catch(e) {
     console.log('Timed out while loading or drawing. Either the JSON file was ' +
                 'too big or hit a bug.', e);
