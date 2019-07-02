@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef GrQuadBuffer_DEFINED
+#define GrQuadBuffer_DEFINED
 
 #include "include/private/SkTDArray.h"
 #include "src/gpu/geometry/GrQuad.h"
@@ -373,3 +375,4 @@ bool GrQuadBuffer<T>::MetadataIter::next() {
     // Nothing else is needed to do but report whether or not the updated pointer is valid
     return fCurrentEntry < fBuffer->fData.end();
 }
+#endif  // GrQuadBuffer_DEFINED
