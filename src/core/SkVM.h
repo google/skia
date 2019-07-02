@@ -8,7 +8,6 @@
 #ifndef SkVM_DEFINED
 #define SkVM_DEFINED
 
-#include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
 #include "include/private/SkSpinlock.h"
@@ -209,14 +208,16 @@ namespace skvm {
         Program(const Program&) = delete;
         Program& operator=(const Program&) = delete;
 
-        void dump(SkWStream*) const;
-
         template <typename... T>
         void eval(int n, T*... arg) const {
             void* args[] = { (void*)arg..., nullptr };
             size_t strides[] = { sizeof(*arg)... };
             this->eval(n, args, strides, (int)sizeof...(arg));
         }
+
+        std::vector<Instruction> instructions() const { return fInstructions; }
+        int nregs() const { return fRegs; }
+        int loop() const { return fLoop; }
 
     private:
         struct JIT {
@@ -245,6 +246,12 @@ namespace skvm {
 
     class Builder {
     public:
+        struct Instruction {
+            Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
+            Val x,y,z;      // Enough arguments for mad().
+            int imm;        // Immediate bit pattern, shift count, argument index, etc.
+        };
+
         Program done() const;
 
         Arg arg(int);
@@ -310,25 +317,11 @@ namespace skvm {
         F32 to_f32(I32 x);
         I32 to_i32(F32 x);
 
-        void dump(SkWStream*) const;
+        std::vector<Instruction> program() const { return fProgram; }
 
     private:
         // We reserve the last Val ID as a sentinel meaning none, n/a, null, nil, etc.
         static const Val NA = ~0;
-
-        struct Instruction {
-            Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
-            Val x,y,z;      // Enough arguments for mad().
-            int imm;        // Immediate bit pattern, shift count, argument index, etc.
-
-            bool operator==(const Instruction& o) const {
-                return op  == o.op
-                    && x   == o.x
-                    && y   == o.y
-                    && z   == o.z
-                    && imm == o.imm;
-            }
-        };
 
         struct InstructionHash {
             template <typename T>

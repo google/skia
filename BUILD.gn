@@ -2567,8 +2567,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  # TODO: remove SkVM dependency on SkWStream, then *SAN should work?
-  if (skia_enable_skvm_jit && sanitize == "") {
+  if (skia_enable_skvm_jit) {
     test_app("skvmtool") {
       defines = [
         "SKVM_JIT",
