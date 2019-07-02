@@ -43,7 +43,9 @@ public:
 class SK_API GrBackendFormat {
 public:
     // Creates an invalid backend format.
-    GrBackendFormat() : fValid(false) {}
+    GrBackendFormat() {}
+
+    GrBackendFormat(const GrBackendFormat& src);
 
     static GrBackendFormat MakeGL(GrGLenum format, GrGLenum target) {
         return GrBackendFormat(format, target);
@@ -114,8 +116,8 @@ private:
 
     GrBackendFormat(const GrPixelConfig config);
 
-    GrBackendApi fBackend;
-    bool         fValid;
+    GrBackendApi fBackend = GrBackendApi::kMock;
+    bool         fValid = false;
 
     union {
         GrGLenum         fGLFormat; // the sized, internal format of the GL resource
@@ -128,7 +130,7 @@ private:
 #endif
         GrPixelConfig    fMockFormat;
     };
-    GrTextureType fTextureType;
+    GrTextureType fTextureType = GrTextureType::kNone;
 };
 
 class SK_API GrBackendTexture {

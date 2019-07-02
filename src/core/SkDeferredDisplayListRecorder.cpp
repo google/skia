@@ -108,6 +108,7 @@ bool SkDeferredDisplayListRecorder::init() {
                                                     new SkDeferredDisplayList::LazyProxyData);
 
     auto proxyProvider = fContext->priv().proxyProvider();
+    const GrCaps* caps = fContext->priv().caps();
 
     bool usesGLFBO0 = fCharacterization.usesGLFBO0();
     if (usesGLFBO0) {
@@ -129,11 +130,17 @@ bool SkDeferredDisplayListRecorder::init() {
         }
     }
 
+    GrPixelConfig config = caps->getConfigFromBackendFormat(fCharacterization.backendFormat(),
+                                                            fCharacterization.colorType());
+    if (config == kUnknown_GrPixelConfig) {
+        return false;
+    }
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = fCharacterization.width();
     desc.fHeight = fCharacterization.height();
-    desc.fConfig = fCharacterization.config();
+    desc.fConfig = config;
     desc.fSampleCnt = fCharacterization.sampleCount();
 
     sk_sp<SkDeferredDisplayList::LazyProxyData> lazyProxyData = fLazyProxyData;

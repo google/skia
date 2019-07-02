@@ -20,6 +20,38 @@
 #include "src/gpu/mtl/GrMtlCppUtil.h"
 #endif
 
+GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
+        : fBackend(that.fBackend)
+        , fValid(that.fValid)
+        , fTextureType(that.fTextureType) {
+    if (!fValid) {
+        return;
+    }
+
+    switch (fBackend) {
+#ifdef SK_GL
+        case GrBackendApi::kOpenGL:
+            fGLFormat = that.fGLFormat;
+            break;
+#endif
+#ifdef SK_VULKAN
+        case GrBackendApi::kVulkan:
+            fVk = that.fVk;
+            break;
+#endif
+#ifdef SK_METAL
+        case GrBackendApi::kMetal:
+            fMtlFormat = that.fMtlFormat;
+            break;
+#endif
+        case GrBackendApi::kMock:
+            fMockFormat = that.fMockFormat;
+            break;
+        default:
+            SK_ABORT("Unknown GrBackend");
+    }
+}
+
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
         : fBackend(GrBackendApi::kOpenGL)
         , fValid(true)

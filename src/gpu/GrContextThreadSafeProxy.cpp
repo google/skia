@@ -53,6 +53,11 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
+
+    if (!this->caps()->areColorTypeAndFormatCompatible(ii.colorType(), backendFormat)) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
     sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, ii.colorType(), backendFormat);
     if (!sampleCnt) {
         return SkSurfaceCharacterization(); // return an invalid characterization
@@ -67,14 +72,9 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat, ii.colorType());
-    if (kUnknown_GrPixelConfig == config) {
-        return SkSurfaceCharacterization(); // return an invalid characterization
-    }
-
     return SkSurfaceCharacterization(sk_ref_sp<GrContextThreadSafeProxy>(this),
-                                     cacheMaxResourceBytes, ii,
-                                     origin, config, sampleCnt,
+                                     cacheMaxResourceBytes, ii, backendFormat,
+                                     origin, sampleCnt,
                                      SkSurfaceCharacterization::Textureable(isTextureable),
                                      SkSurfaceCharacterization::MipMapped(isMipMapped),
                                      SkSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),
