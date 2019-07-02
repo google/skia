@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "64138973_193a3792",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T14:38:07Z",
+      "side": 1,
+      "message": "Sounds like a good idea. I\u0027ll do that in a follow up CL to keep the changes separate.",
+      "parentUuid": "69e8a751_1ba98def",
+      "range": {
+        "startLine": 1436,
+        "startChar": 3,
+        "endLine": 1448,
+        "endChar": 5
+      },
+      "revId": "c1757a62df8694f4fab0d38ef543029b6a59fce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "02aa7e31_84277803",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 4
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "6d4e00b0_47e2cec8",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1582,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T14:38:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1495eb72_e79e721b",
+      "range": {
+        "startLine": 1582,
+        "startChar": 9,
+        "endLine": 1582,
+        "endChar": 32
+      },
+      "revId": "c1757a62df8694f4fab0d38ef543029b6a59fce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d79a6e4_44073226",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 4
@@ -92,6 +140,30 @@
       "revId": "c1757a62df8694f4fab0d38ef543029b6a59fce3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3f5c15e_b3db92a2",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T14:38:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d79a6e4_44073226",
+      "range": {
+        "startLine": 1624,
+        "startChar": 8,
+        "endLine": 1638,
+        "endChar": 9
+      },
+      "revId": "c1757a62df8694f4fab0d38ef543029b6a59fce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
