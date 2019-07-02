@@ -30,8 +30,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMapBufferType = kNone_MapBufferType;
     fTransferBufferType = kNone_TransferBufferType;
     fMaxFragmentUniformVectors = 0;
-    fUnpackRowLengthSupport = false;
-    fPackRowLengthSupport = false;
     fPackFlipYSupport = false;
     fTextureUsageSupport = false;
     fAlpha8IsRenderable = false;
@@ -100,20 +98,20 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
 
     if (GR_IS_GR_GL(standard)) {
-        fUnpackRowLengthSupport = true;
-        fPackRowLengthSupport = true;
+        fWritePixelsRowBytesSupport = true;
+        fReadPixelsRowBytesSupport = true;
         fPackFlipYSupport = false;
     } else if (GR_IS_GR_GL_ES(standard)) {
-        fUnpackRowLengthSupport = version >= GR_GL_VER(3,0) ||
-                                  ctxInfo.hasExtension("GL_EXT_unpack_subimage");
-        fPackRowLengthSupport = version >= GR_GL_VER(3,0) ||
-                                ctxInfo.hasExtension("GL_NV_pack_subimage");
+        fWritePixelsRowBytesSupport =
+                version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_EXT_unpack_subimage");
+        fReadPixelsRowBytesSupport =
+                version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_NV_pack_subimage");
         fPackFlipYSupport =
             ctxInfo.hasExtension("GL_ANGLE_pack_reverse_row_order");
     } else if (GR_IS_GR_WEBGL(standard)) {
         // WebGL 2.0 has these
-        fUnpackRowLengthSupport = version >= GR_GL_VER(2,0);
-        fPackRowLengthSupport = version >= GR_GL_VER(2,0);
+        fWritePixelsRowBytesSupport = version >= GR_GL_VER(2, 0);
+        fReadPixelsRowBytesSupport = version >= GR_GL_VER(2, 0);
     }
 
     if (fDriverBugWorkarounds.pack_parameters_workaround_with_pack_buffer) {
@@ -122,7 +120,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // through every row and conditionally clobbering that value, but
         // Skia already has a scratch buffer workaround when pack row length
         // is not supported, so just use that.
-        fPackRowLengthSupport = false;
+        fReadPixelsRowBytesSupport = false;
     }
 
     fTextureUsageSupport = GR_IS_GR_GL_ES(standard) &&
@@ -1253,8 +1251,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendString("Invalidate FB Type", kInvalidateFBTypeStr[fInvalidateFBType]);
     writer->appendString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
     writer->appendS32("Max FS Uniform Vectors", fMaxFragmentUniformVectors);
-    writer->appendBool("Unpack Row length support", fUnpackRowLengthSupport);
-    writer->appendBool("Pack Row length support", fPackRowLengthSupport);
     writer->appendBool("Pack Flip Y support", fPackFlipYSupport);
 
     writer->appendBool("Texture Usage support", fTextureUsageSupport);
@@ -3470,7 +3466,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // is to just blacklist the feature.
     // https://github.com/flutter/flutter/issues/16718
     // https://bugreport.apple.com/web/?problemID=39948888
-    fUnpackRowLengthSupport = false;
+    fWritePixelsRowBytesSupport = false;
 #endif
 
     // CCPR edge AA is busted on Mesa, Sandy Bridge/Valley View (Bay Trail).

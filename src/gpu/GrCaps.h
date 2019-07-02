@@ -254,6 +254,16 @@ public:
                                                        const GrBackendFormat& srcFormat,
                                                        GrColorType dstColorType) const;
 
+    /**
+     * Do GrGpu::writePixels() and GrGpu::transferPixelsTo() support a src buffer where the row
+     * bytes is not equal to bpp * w?
+     */
+    bool writePixelsRowBytesSupport() const { return fWritePixelsRowBytesSupport; }
+    /**
+     * Does GrGpu::readPixels() support a dst buffer where the row bytes is not equal to bpp * w?
+     */
+    bool readPixelsRowBytesSupport() const { return fReadPixelsRowBytesSupport; }
+
     /** Are transfer buffers (to textures and from surfaces) supported? */
     bool transferBufferSupport() const { return fTransferBufferSupport; }
 
@@ -430,6 +440,8 @@ protected:
     bool fPerformStencilClearsAsDraws                : 1;
     bool fAllowCoverageCounting                      : 1;
     bool fTransferBufferSupport                      : 1;
+    bool fWritePixelsRowBytesSupport                 : 1;
+    bool fReadPixelsRowBytesSupport                  : 1;
 
     // Driver workaround
     bool fDriverBlacklistCCPR                        : 1;

@@ -162,6 +162,10 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     // Metal does not support scissor + clear
     fPerformPartialClearsAsDraws = true;
 
+    // We always copy in/out of a transfer buffer so it's trivial to support row bytes.
+    fReadPixelsRowBytesSupport = true;
+    fWritePixelsRowBytesSupport = true;
+
     // RenderTarget and Texture size
     if (this->isMac()) {
         fMaxRenderTargetSize = 16384;

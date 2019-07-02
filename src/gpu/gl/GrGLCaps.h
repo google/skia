@@ -142,7 +142,7 @@ public:
         return this->canFormatBeFBOColorAttachment(format);
     }
 
-    bool isConfigTexSupportEnabled(GrPixelConfig config) const {
+    bool configSupportsTexStorage(GrPixelConfig config) const {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseTexStorage_Flag);
     }
 
@@ -270,12 +270,6 @@ public:
      * RGBA.
      */
     bool bgraIsInternalFormat() const;
-
-    /// Is there support for GL_UNPACK_ROW_LENGTH
-    bool unpackRowLengthSupport() const { return fUnpackRowLengthSupport; }
-
-    /// Is there support for GL_PACK_ROW_LENGTH
-    bool packRowLengthSupport() const { return fPackRowLengthSupport; }
 
     /// Is there support for GL_PACK_REVERSE_ROW_ORDER
     bool packFlipYSupport() const { return fPackFlipYSupport; }
@@ -489,8 +483,6 @@ private:
     MapBufferType       fMapBufferType;
     TransferBufferType  fTransferBufferType;
 
-    bool fUnpackRowLengthSupport : 1;
-    bool fPackRowLengthSupport : 1;
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
     bool fAlpha8IsRenderable: 1;
