@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f6bf01e1_a8e4bb44",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-02T16:53:13Z",
+      "side": 0,
+      "message": "For these and all below, the idea is that these ought to be covered by the corresponding Debug Test bots.",
+      "parentUuid": "e4c23e01_10fdead2",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 63
+      },
+      "revId": "e783ba4238a2d34c63ab0f63820832267ec506c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe02a3ac_60ad6f12",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 2
