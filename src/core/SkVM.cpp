@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkString.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
@@ -1248,8 +1247,10 @@ namespace skvm {
                     return hash;
                 };
 
+
                 uint32_t hash = fnv1a(fJIT.buf, fJIT.size);
-                SkString name = SkStringPrintf("skvm-jit-%u", hash);
+                char name[64];
+                sprintf(name, "skvm-jit-%u", hash);
 
                 // Create a jit-<pid>.dump file that we can `perf inject -j` into a
                 // perf.data captured with `perf record -k 1`, letting us see each
@@ -1262,6 +1263,12 @@ namespace skvm {
                 //
                 // Running `perf inject -j` will also dump an .so for each JIT'd
                 // program, named jitted-<pid>-<hash>.so.
+                //
+                //    https://lwn.net/Articles/638566/
+                //    https://v8.dev/docs/linux-perf
+                //    https://cs.chromium.org/chromium/src/v8/src/diagnostics/perf-jit.cc
+                //    https://lore.kernel.org/patchwork/patch/622240/
+
 
                 auto timestamp_ns = []() -> uint64_t {
                     // It's important to use CLOCK_MONOTONIC here so that perf can
@@ -1277,7 +1284,9 @@ namespace skvm {
                 // and just leave it open forever because we're lazy.
                 static FILE* jitdump = [&]{
                     // Must map as w+ for the mmap() call below to work.
-                    FILE* f = fopen(SkStringPrintf("jit-%d.dump", getpid()).c_str(), "w+");
+                    char path[64];
+                    sprintf(path, "jit-%d.dump", getpid());
+                    FILE* f = fopen(path, "w+");
 
                     // Calling mmap() on the file adds a "hey they mmap()'d this" record to
                     // the perf.data file that will point `perf inject -j` at this log file.
@@ -1291,11 +1300,19 @@ namespace skvm {
                     SkASSERT_RELEASE(marker != MAP_FAILED);
                     // Like never calling fclose(f), we'll also just always leave marker mmap()'d.
 
+                #if defined(__x86_64__)
+                    const uint32_t elf_mach = 62;
+                #elif defined(__aarch64__)
+                    const uint32_t elf_mach = 183;
+                #else
+                    const uint32_t elf_mach = 0;  // TODO
+                #endif
+
                     struct Header {
                         uint32_t magic, version, header_size, elf_mach, reserved, pid;
                         uint64_t timestamp_us, flags;
                     } header = {
-                        0x4A695444, 1, sizeof(Header), 62/*x86-64*/, 0, (uint32_t)getpid(),
+                        0x4A695444, 1, sizeof(Header), elf_mach, 0, (uint32_t)getpid(),
                         timestamp_ns() / 1000, 0,
                     };
                     fwrite(&header, sizeof(header), 1, f);
@@ -1310,7 +1327,7 @@ namespace skvm {
                     uint32_t pid, tid;
                     uint64_t vma/*???*/, code_addr, code_size, id;
                 } load = {
-                    0/*code load*/, (uint32_t)(sizeof(CodeLoad) + name.size() + 1 + fJIT.size),
+                    0/*code load*/, (uint32_t)(sizeof(CodeLoad) + strlen(name) + 1 + fJIT.size),
                     timestamp_ns(),
 
                     (uint32_t)getpid(), (uint32_t)SkGetThreadID(),
@@ -1319,7 +1336,7 @@ namespace skvm {
 
                 // Write the header, the JIT'd function name, and the JIT'd code itself.
                 fwrite(&load, sizeof(load), 1, jitdump);
-                fwrite(name.c_str(), 1, name.size(), jitdump);
+                fwrite(name, 1, strlen(name), jitdump);
                 fwrite("\0", 1, 1, jitdump);
                 fwrite(fJIT.buf, 1, fJIT.size, jitdump);
             #endif
