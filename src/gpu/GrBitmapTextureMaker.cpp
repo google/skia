@@ -19,7 +19,7 @@
 
 static GrColorSpaceInfo make_info(const SkBitmap& bm) {
     return GrColorSpaceInfo(SkColorTypeToGrColorType(bm.colorType()), bm.alphaType(),
-                            bm.refColorSpace(), SkImageInfo2GrPixelConfig(bm.info()));
+                            bm.refColorSpace());
 }
 
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,

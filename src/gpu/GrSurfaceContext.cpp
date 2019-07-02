@@ -34,9 +34,8 @@
 GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
                                    GrColorType colorType,
                                    SkAlphaType alphaType,
-                                   sk_sp<SkColorSpace> colorSpace,
-                                   GrPixelConfig config)
-        : fContext(context), fColorSpaceInfo(colorType, alphaType, std::move(colorSpace), config) {}
+                                   sk_sp<SkColorSpace> colorSpace)
+        : fContext(context), fColorSpaceInfo(colorType, alphaType, std::move(colorSpace)) {}
 
 GrAuditTrail* GrSurfaceContext::auditTrail() {
     return fContext->priv().auditTrail();

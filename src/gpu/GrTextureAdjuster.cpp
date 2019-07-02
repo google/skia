@@ -21,11 +21,7 @@ GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context,
                                      SkColorSpace* cs,
                                      bool useDecal)
         : INHERITED(context, original->width(), original->height(),
-                    GrColorSpaceInfo(colorType,
-                                     alphaType,
-                                     sk_ref_sp(cs),
-                                     original->config()),
-                                     useDecal)
+                    GrColorSpaceInfo(colorType, alphaType, sk_ref_sp(cs)), useDecal)
         , fOriginal(std::move(original))
         , fUniqueID(uniqueID) {}
 

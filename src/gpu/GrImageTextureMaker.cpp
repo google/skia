@@ -16,8 +16,7 @@
 static GrColorSpaceInfo make_info(const SkImage*& image) {
     return GrColorSpaceInfo(SkColorTypeToGrColorType(image->colorType()),
                             image->alphaType(),
-                            image->refColorSpace(),
-                            SkImageInfo2GrPixelConfig(image->imageInfo()));
+                            image->refColorSpace());
 }
 
 GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
