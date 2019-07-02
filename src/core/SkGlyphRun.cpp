@@ -294,7 +294,7 @@ SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
         if (count > 0) {
             fScratchGlyphIDs.resize(count);
             font.textToGlyphs(bytes, byteLength, encoding, fScratchGlyphIDs.data(), count);
-            return SkSpan<const SkGlyphID>{fScratchGlyphIDs};
+            return SkMakeSpan(fScratchGlyphIDs);
         } else {
             return SkSpan<const SkGlyphID>();
         }
@@ -326,7 +326,7 @@ void SkGlyphRunBuilder::makeGlyphRunList(
 
     fGlyphRunList.~SkGlyphRunList();
     new (&fGlyphRunList) SkGlyphRunList{
-        paint, blob, origin, SkSpan<const SkGlyphRun>{fGlyphRunListStorage}};
+        paint, blob, origin, SkMakeSpan(fGlyphRunListStorage)};
 }
 
 void SkGlyphRunBuilder::simplifyDrawText(
