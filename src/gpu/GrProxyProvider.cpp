@@ -415,15 +415,10 @@ static bool validate_backend_format_and_config(const GrCaps* caps,
         // We have no way to verify these at the moment.
         return true;
     }
-    SkColorType colorType = GrColorTypeToSkColorType(GrPixelConfigToColorType(config));
-    if (colorType == kUnknown_SkColorType) {
-        // We should add support for validating GrColorType with a GrBackendFormat. Currently we
-        // only support SkColorType. For now we just assume things that don't have a corresponding
-        // SkColorType are correct.
-        return true;
-    }
 
-    return caps->areColorTypeAndFormatCompatible(colorType, format);
+    GrColorType grCT = GrPixelConfigToColorType(config);
+
+    return caps->areColorTypeAndFormatCompatible(grCT, format);
 }
 #endif
 
@@ -618,8 +613,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
     GrColorType colorType = GrPixelConfigToColorType(backendRT.config());
 #ifdef SK_DEBUG
     GrPixelConfig testConfig =
-            this->caps()->validateBackendRenderTarget(backendRT,
-                                                      GrColorTypeToSkColorType(colorType));
+            this->caps()->validateBackendRenderTarget(backendRT, colorType);
     SkASSERT(testConfig != kUnknown_GrPixelConfig);
 #endif
 
