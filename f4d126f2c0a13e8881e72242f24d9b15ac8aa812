@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcc4f13f_fb4b0273",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-02T20:57:30Z",
+      "side": 1,
+      "message": "and sizeof(U) \u003d\u003d sizeof(T)",
+      "range": {
+        "startLine": 21,
+        "startChar": 83,
+        "endLine": 21,
+        "endChar": 84
+      },
+      "revId": "f4d126f2c0a13e8881e72242f24d9b15ac8aa812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c326d8b7_c0e52b2d",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-02T20:57:30Z",
+      "side": 1,
+      "message": "Maybe want a comment why this is const to stave off people trying to remove the const willy-nilly.",
+      "range": {
+        "startLine": 54,
+        "startChar": 23,
+        "endLine": 54,
+        "endChar": 29
+      },
+      "revId": "f4d126f2c0a13e8881e72242f24d9b15ac8aa812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
