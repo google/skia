@@ -140,20 +140,20 @@ DEF_TEST(Skottie_Properties, reporter) {
 
     const auto& transforms = observer->transforms();
     REPORTER_ASSERT(reporter, transforms.size() == 2);
-    REPORTER_ASSERT(reporter, transforms[0].node_name.equals("shape_transform_0"));
+    REPORTER_ASSERT(reporter, transforms[0].node_name.equals("layer_0"));
     REPORTER_ASSERT(reporter, transforms[0].transform == skottie::TransformPropertyValue({
         SkPoint::Make(0, 0),
         SkPoint::Make(0, 0),
-        SkVector::Make(50, 50),
+        SkVector::Make(100, 100),
         0,
         0,
         0
     }));
-    REPORTER_ASSERT(reporter, transforms[1].node_name.equals("layer_0"));
+    REPORTER_ASSERT(reporter, transforms[1].node_name.equals("shape_transform_0"));
     REPORTER_ASSERT(reporter, transforms[1].transform == skottie::TransformPropertyValue({
         SkPoint::Make(0, 0),
         SkPoint::Make(0, 0),
-        SkVector::Make(100, 100),
+        SkVector::Make(50, 50),
         0,
         0,
         0
