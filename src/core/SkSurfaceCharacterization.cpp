@@ -23,7 +23,7 @@ bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& othe
     return fCacheMaxResourceBytes == other.fCacheMaxResourceBytes &&
            fOrigin == other.fOrigin &&
            fImageInfo == other.fImageInfo &&
-           fConfig == other.fConfig &&
+           fBackendFormat == other.fBackendFormat &&
            fSampleCnt == other.fSampleCnt &&
            fIsTextureable == other.fIsTextureable &&
            fIsMipMapped == other.fIsMipMapped &&
@@ -44,7 +44,7 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, in
     }
 
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
-                                     fImageInfo.makeWH(width, height), fOrigin, fConfig,
+                                     fImageInfo.makeWH(width, height), fBackendFormat, fOrigin,
                                      fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
                                      fVulkanSecondaryCBCompatible, fSurfaceProps);
 }
@@ -56,17 +56,8 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
 
     const GrCaps* caps = fContextInfo->priv().caps();
 
-    // TODO: remove this block involving the pixel config
-    {
-        GrPixelConfig config = caps->getConfigFromBackendFormat(backendTex.getBackendFormat(),
-                                                                this->colorType());
-        if (GrPixelConfig::kUnknown_GrPixelConfig == config) {
-            return false;
-        }
-
-        if (this->config() != config) {
-            return false;
-        }
+    if (fBackendFormat != backendTex.getBackendFormat()) {
+        return false;
     }
 
     if (this->usesGLFBO0()) {
@@ -78,8 +69,7 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
         return false;
     }
 
-    int maxColorSamples = caps->maxRenderTargetSampleCount(this->colorType(),
-                                                           backendTex.getBackendFormat());
+    int maxColorSamples = caps->maxRenderTargetSampleCount(this->colorType(), fBackendFormat);
     if (0 == maxColorSamples) {
         return false;  // backendTex isn't renderable
     }
@@ -90,7 +80,7 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
         return false;
     }
 
-    if (!caps->areColorTypeAndFormatCompatible(this->colorType(), backendTex.getBackendFormat())) {
+    if (!caps->areColorTypeAndFormatCompatible(this->colorType(), fBackendFormat)) {
         return false;
     }
 
