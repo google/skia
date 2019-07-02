@@ -8,6 +8,7 @@
 #ifndef SKSL_EXPRESSION
 #define SKSL_EXPRESSION
 
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
@@ -18,7 +19,7 @@ namespace SkSL {
 struct Expression;
 class IRGenerator;
 
-typedef std::unordered_map<const Variable*, std::unique_ptr<Expression>*> DefinitionMap;
+typedef std::unordered_map<const Variable*, IRNode::ID> DefinitionMap;
 
 /**
  * Abstract supertype of all expressions.
@@ -48,10 +49,10 @@ struct Expression : public IRNode {
         kDefined_Kind
     };
 
-    Expression(int offset, Kind kind, const Type& type)
-    : INHERITED(offset)
+    Expression(IRGenerator* irGenerator, int offset, Kind kind, IRNode::ID type)
+    : INHERITED(irGenerator, offset)
     , fKind(kind)
-    , fType(std::move(type)) {}
+    , fType(type) {}
 
     /**
      * Returns true if this expression is constant. compareConstant must be implemented for all
@@ -66,7 +67,7 @@ struct Expression : public IRNode {
      * an error to call this on non-constant expressions, or if the types of the expressions do not
      * match.
      */
-    virtual bool compareConstant(const Context& context, const Expression& other) const {
+    virtual bool compareConstant(const Expression& other) const {
         ABORT("cannot call compareConstant on this type");
     }
 
@@ -83,6 +84,7 @@ struct Expression : public IRNode {
      * ABORT.
      */
     virtual double getConstantFloat() const {
+        printf("FAILURE: %d: %s\n", fKind, description().c_str());
         ABORT("not a constant float");
     }
 
@@ -100,13 +102,13 @@ struct Expression : public IRNode {
      * Returns a new expression which replaces this expression, or null if no replacements were
      * made. If a new expression is returned, this expression is no longer valid.
      */
-    virtual std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                          const DefinitionMap& definitions) {
-        return nullptr;
+    virtual IRNode::ID constantPropagate(const DefinitionMap& definitions) {
+        return IRNode::ID();
     }
 
     virtual int coercionCost(const Type& target) const {
-        return fType.coercionCost(target);
+        printf("type: %s\n", fType.node().description().c_str());
+        return fType.typeNode().coercionCost(target);
     }
 
     /**
@@ -137,10 +139,10 @@ struct Expression : public IRNode {
         return 0;
     }
 
-    virtual std::unique_ptr<Expression> clone() const = 0;
+    virtual IRNode::ID clone() const = 0;
 
     const Kind fKind;
-    const Type& fType;
+    const IRNode::ID fType;
 
     typedef IRNode INHERITED;
 };

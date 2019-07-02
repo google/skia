@@ -17,19 +17,19 @@ namespace SkSL {
  * A lone expression being used as a statement.
  */
 struct ExpressionStatement : public Statement {
-    ExpressionStatement(std::unique_ptr<Expression> expression)
-    : INHERITED(expression->fOffset, kExpression_Kind)
-    , fExpression(std::move(expression)) {}
+    ExpressionStatement(IRGenerator* irGenerator, IRNode::ID expression)
+    : INHERITED(irGenerator, -1, kExpression_Kind)
+    , fExpression(expression) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new ExpressionStatement(fExpression->clone()));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new ExpressionStatement(fIRGenerator, fExpression));
     }
 
     String description() const override {
-        return fExpression->description() + ";";
+        return fExpression.node().description() + ";";
     }
 
-    std::unique_ptr<Expression> fExpression;
+    IRNode::ID fExpression;
 
     typedef Statement INHERITED;
 };

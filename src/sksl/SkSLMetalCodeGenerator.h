@@ -51,6 +51,7 @@ namespace SkSL {
 /**
  * Converts a Program into Metal code.
  */
+    /*
 class MetalCodeGenerator : public CodeGenerator {
 public:
     static constexpr const char* SAMPLER_SUFFIX = "Smplr";
@@ -77,12 +78,11 @@ public:
         kTopLevel_Precedence       = kSequence_Precedence
     };
 
-    MetalCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                      OutputStream* out)
-    : INHERITED(program, errors, out)
+    MetalCodeGenerator(IRGenerator* irGenerator, const Program* program, OutputStream* out)
+    : INHERITED(program, &irGenerator->fErrors, out)
     , fReservedWords({"atan2", "rsqrt", "dfdx", "dfdy", "vertex", "fragment"})
     , fLineEnding("\n")
-    , fContext(*context) {
+    , fContext(irGenerator->fContext) {
         this->setupIntrinsics();
     }
 
@@ -249,10 +249,15 @@ protected:
     typedef std::pair<IntrinsicKind, int32_t> Intrinsic;
     std::unordered_map<String, Intrinsic> fIntrinsicMap;
     std::unordered_set<String> fReservedWords;
-    std::vector<const VarDeclaration*> fInitNonConstGlobalVars;
-    std::vector<const Variable*> fTextures;
-    std::unordered_map<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
-    std::unordered_map<const InterfaceBlock*, String> fInterfaceBlockNameMap;
+    // contains VarDeclarations
+//    std::vector<IRNode::ID> fInitNonConstGlobalVars;
+    // contains Variables
+//    std::vector<IRNode::ID> fTextures;
+    // contains InterfaceBlocks
+    // FIXME Type::Field* is not ok
+//    std::unordered_map<const Type::Field*, IRNode::ID> fInterfaceBlockMap;
+    // contains InterfaceBlocks
+    //std::unordered_map<IRNode::ID, String> fInterfaceBlockNameMap;
     int fAnonInterfaceCount = 0;
     int fPaddingCount = 0;
     bool fNeedsGlobalStructInit = false;
@@ -268,11 +273,11 @@ protected:
     // Keeps track of which struct types we have written. Given that we are unlikely to ever write
     // more than one or two structs per shader, a simple linear search will be faster than anything
     // fancier.
-    std::vector<const Type*> fWrittenStructs;
+    std::vector<IRNode::ID> fWrittenStructs;
     std::set<String> fWrittenIntrinsics;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
-    std::unordered_map<const FunctionDeclaration*, Requirements> fRequirements;
+//    std::unordered_map<IRNode::ID, Requirements> fRequirements;
     bool fSetupFragPositionGlobal = false;
     bool fSetupFragPositionLocal = false;
     std::unordered_map<String, String> fHelpers;
@@ -280,7 +285,7 @@ protected:
 
     typedef CodeGenerator INHERITED;
 };
-
+*/
 }
 
 #endif

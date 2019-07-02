@@ -17,23 +17,23 @@ namespace SkSL {
  * A 'do' statement.
  */
 struct DoStatement : public Statement {
-    DoStatement(int offset, std::unique_ptr<Statement> statement,
-                std::unique_ptr<Expression> test)
-    : INHERITED(offset, kDo_Kind)
+    DoStatement(IRGenerator* irGenerator, int offset, IRNode::ID statement, IRNode::ID test)
+    : INHERITED(irGenerator, offset, kDo_Kind)
     , fStatement(std::move(statement))
     , fTest(std::move(test)) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new DoStatement(fOffset, fStatement->clone(),
-                                                          fTest->clone()));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new DoStatement(fIRGenerator, fOffset, fStatement,
+                                                        fTest));
     }
 
     String description() const override {
-        return "do " + fStatement->description() + " while (" + fTest->description() + ");";
+        return "do " + fStatement.node().description() + " while (" +
+               fTest.node().description() + ");";
     }
 
-    std::unique_ptr<Statement> fStatement;
-    std::unique_ptr<Expression> fTest;
+    IRNode::ID fStatement;
+    IRNode::ID fTest;
 
     typedef Statement INHERITED;
 };
