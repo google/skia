@@ -32,6 +32,8 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ct
 
     sk_sp<GrRenderTargetContext> rtc(
             ctx->priv().makeVulkanSecondaryCBRenderTargetContext(imageInfo, vkInfo, props));
+    // These spring forth fully formed like unto Athena from Zeus' brow
+    SkASSERT(rtc->asSurfaceProxy()->isInstantiated());
 
     int width = rtc->width();
     int height = rtc->height();
@@ -96,9 +98,11 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
     SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
                                        rtc->colorSpaceInfo().refColorSpace());
 
-    GrPixelConfig config = rtc->asSurfaceProxy()->config();
-    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(), config,
-                          rtc->numSamples(), SkSurfaceCharacterization::Textureable(false),
+    GrBackendFormat format = rtc->asRenderTargetProxy()->backendFormat();
+
+    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, format,
+                          rtc->origin(), rtc->numSamples(),
+                          SkSurfaceCharacterization::Textureable(false),
                           SkSurfaceCharacterization::MipMapped(false),
                           SkSurfaceCharacterization::UsesGLFBO0(false),
                           SkSurfaceCharacterization::VulkanSecondaryCBCompatible(true),
@@ -141,11 +145,12 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
         return false;
     }
 
-    GrPixelConfig config = rtc->asSurfaceProxy()->config();
+    GrBackendFormat rtcFormat = rtc->asRenderTargetProxy()->backendFormat();
+
     return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
-           characterization.config() == config &&
+           characterization.backendFormat() == rtcFormat &&
            characterization.width() == rtc->width() &&
            characterization.height() == rtc->height() &&
            characterization.colorType() == rtColorType &&
