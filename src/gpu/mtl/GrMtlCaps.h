@@ -65,9 +65,9 @@ public:
     }
 
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
-                                              SkColorType) const override;
+                                              GrColorType) const override;
 
-    bool areColorTypeAndFormatCompatible(SkColorType, const GrBackendFormat&) const override;
+    bool areColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
     GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override;
 

@@ -1677,8 +1677,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
         format = fContext->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     }
 
-    auto config = fContext->priv().caps()->getConfigFromBackendFormat(
-            format, GrColorTypeToSkColorType(colorType));
+    auto config = fContext->priv().caps()->getConfigFromBackendFormat(format, colorType);
     sk_sp<GrRenderTargetContext> rtc(fContext->priv().makeDeferredRenderTargetContext(
             format,
             fit,

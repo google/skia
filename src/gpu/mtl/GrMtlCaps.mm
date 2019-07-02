@@ -556,7 +556,7 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, SkColorType ct) {
 }
 
 GrPixelConfig GrMtlCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                     SkColorType ct) const {
+                                                     GrColorType ct) const {
     GrMtlTextureInfo fbInfo;
     if (!rt.getMtlTextureInfo(&fbInfo)) {
         return kUnknown_GrPixelConfig;
@@ -566,7 +566,7 @@ GrPixelConfig GrMtlCaps::validateBackendRenderTarget(const GrBackendRenderTarget
     return validate_sized_format(texture.pixelFormat, ct);
 }
 
-bool GrMtlCaps::areColorTypeAndFormatCompatible(SkColorType ct,
+bool GrMtlCaps::areColorTypeAndFormatCompatible(GrColorType ct,
                                                 const GrBackendFormat& format) const {
     const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
     if (!mtlFormat) {

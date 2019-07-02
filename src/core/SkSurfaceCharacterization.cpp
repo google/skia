@@ -90,7 +90,7 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
         return false;
     }
 
-    if (!caps->areColorTypeAndFormatCompatible(this->colorType(), backendTex.getBackendFormat())) {
+    if (!caps->bogusAreColorTypeAndFormatCompatible(this->colorType(), backendTex.getBackendFormat())) {
         return false;
     }
 
