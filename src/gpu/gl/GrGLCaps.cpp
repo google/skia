@@ -701,13 +701,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSamplerObjectSupport = version >= GR_GL_VER(2,0);
     }
 
+    FormatWorkarounds formatWorkarounds;
+
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
-        this->applyDriverCorrectnessWorkarounds(ctxInfo, contextOptions, shaderCaps);
+        this->applyDriverCorrectnessWorkarounds(ctxInfo, contextOptions, shaderCaps,
+                                                &formatWorkarounds);
     }
 
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.
-    this->initFormatTable(contextOptions, ctxInfo, gli);
+    this->initFormatTable(contextOptions, ctxInfo, gli, formatWorkarounds);
     this->initConfigTable(contextOptions, ctxInfo, gli);
 
     this->applyOptionsOverrides(contextOptions);
@@ -1419,7 +1422,8 @@ GrGLCaps::FormatInfo& GrGLCaps::getFormatInfo(GrGLenum glFormat) {
 }
 
 void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
-                               const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
+                               const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
+                               const FormatWorkarounds& formatWorkarounds) {
     GrGLStandard standard = ctxInfo.standard();
     // standard can be unused (optimized away) if SK_ASSUME_GL_ES is set
     sk_ignore_unused_variable(standard);
@@ -1431,21 +1435,6 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         msaaRenderFlags |= FormatInfo::kFBOColorAttachmentWithMSAA_Flag;
     }
 
-    // Correctness workarounds.
-    bool disableTextureRedForMesa = false;
-    bool disableSRGBRenderWithMSAAForMacAMD = false;
-
-    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
-        // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
-        // and GL_RG on FBO textures.
-        disableTextureRedForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
-
-        // MacPro devices with AMD cards fail to create MSAA sRGB render buffers.
-#if defined(SK_BUILD_FOR_MAC)
-        disableSRGBRenderWithMSAAForMacAMD = kATI_GrGLVendor == ctxInfo.vendor();
-#endif
-    }
-
     // This is set when we know we have both texture and render support for:
     // R 8/16/16F
     // RG 8/16/16F
@@ -1453,7 +1442,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
     // the device which we query later on.
     bool textureRedSupport = false;
 
-    if (!disableTextureRedForMesa) {
+    if (!formatWorkarounds.fDisableTextureRedForMesa) {
         if (GR_IS_GR_GL(standard)) {
             textureRedSupport =
                     version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg");
@@ -1840,7 +1829,8 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         FormatInfo& info = this->getFormatInfo(GR_GL_SRGB8_ALPHA8);
         if (fSRGBSupport) {
-            uint32_t srgbRenderFlags = disableSRGBRenderWithMSAAForMacAMD ? nonMSAARenderFlags
+            uint32_t srgbRenderFlags =
+                    formatWorkarounds.fDisableSRGBRenderWithMSAAForMacAMD ? nonMSAARenderFlags
                                                                           : msaaRenderFlags;
 
             info.fFlags = FormatInfo::kTextureable_Flag | srgbRenderFlags;
@@ -3088,7 +3078,8 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
 
 void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
                                                  const GrContextOptions& contextOptions,
-                                                 GrShaderCaps* shaderCaps) {
+                                                 GrShaderCaps* shaderCaps,
+                                                 FormatWorkarounds* formatWorkarounds) {
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
@@ -3491,6 +3482,15 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer()) {
         fSRGBWriteControl = false;
     }
+
+    // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
+    // and GL_RG on FBO textures.
+    formatWorkarounds->fDisableTextureRedForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
+
+    // MacPro devices with AMD cards fail to create MSAA sRGB render buffers.
+#if defined(SK_BUILD_FOR_MAC)
+    formatWorkarounds->fDisableSRGBRenderWithMSAAForMacAMD = kATI_GrGLVendor == ctxInfo.vendor();
+#endif
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
