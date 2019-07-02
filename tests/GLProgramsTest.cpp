@@ -157,11 +157,9 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
     sampleCnt = SkTMax(1, sampleCnt);
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->priv().makeDeferredRenderTargetContext(format,
-                                                            SkBackingFit::kExact,
+            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
                                                             kRenderTargetWidth,
                                                             kRenderTargetHeight,
-                                                            kRGBA_8888_GrPixelConfig,
                                                             GrColorType::kRGBA_8888,
                                                             nullptr,
                                                             sampleCnt,
@@ -323,15 +321,11 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(),
                           GrPrepareForExternalIORequests());
 
-    const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     // Validate that GrFPs work correctly without an input.
     sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->priv().makeDeferredRenderTargetContext(format,
-                                                            SkBackingFit::kExact,
+            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
                                                             kRenderTargetWidth,
                                                             kRenderTargetHeight,
-                                                            kRGBA_8888_GrPixelConfig,
                                                             GrColorType::kRGBA_8888,
                                                             nullptr));
     if (!renderTargetContext) {

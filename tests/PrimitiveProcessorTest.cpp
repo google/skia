@@ -132,12 +132,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrGpu* gpu = context->priv().getGpu();
 #endif
 
-    const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kApprox, 1, 1,
-                                                            kRGBA_8888_GrPixelConfig,
+            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox, 1, 1,
                                                             GrColorType::kRGBA_8888, nullptr));
     if (!renderTargetContext) {
         ERRORF(reporter, "Could not create render target context.");

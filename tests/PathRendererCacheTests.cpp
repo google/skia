@@ -79,12 +79,9 @@ static void test_path(skiatest::Reporter* reporter,
     ctx->setResourceCacheLimits(100, 8000000);
     GrResourceCache* cache = ctx->priv().getResourceCache();
 
-    const GrBackendFormat format =
-            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     sk_sp<GrRenderTargetContext> rtc(ctx->priv().makeDeferredRenderTargetContext(
-            format, SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig,
-            GrColorType::kRGBA_8888, nullptr, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
+            SkBackingFit::kApprox, 800, 800, GrColorType::kRGBA_8888, nullptr, 1, GrMipMapped::kNo,
+            kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
         return;
     }

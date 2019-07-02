@@ -460,13 +460,9 @@ public:
             return nullptr;
         }
 
-        GrBackendFormat format =
-            fContext->priv().caps()->getBackendFormatFromColorType(outProps.colorType());
-
-        return SkSpecialSurface::MakeRenderTarget(
-            fContext, format, size.width(), size.height(),
-            SkColorType2GrPixelConfig(outProps.colorType()), sk_ref_sp(outProps.colorSpace()),
-            props);
+        return SkSpecialSurface::MakeRenderTarget(fContext, size.width(), size.height(),
+                                                  SkColorTypeToGrColorType(outProps.colorType()),
+                                                  sk_ref_sp(outProps.colorSpace()), props);
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {

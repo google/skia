@@ -472,10 +472,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
     sk_sp<GrTextureProxy> srcTexture(input->asTextureProxyRef(context));
     SkASSERT(srcTexture);
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
-    SkColorType colorType = outputProperties.colorType();
-    GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(colorType);
-    GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
+    GrColorType colorType = SkColorTypeToGrColorType(outputProperties.colorType());
 
     // setup new clip
     const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));
@@ -487,12 +484,10 @@ static sk_sp<SkSpecialImage> apply_morphology(
 
     if (radius.fWidth > 0) {
         sk_sp<GrRenderTargetContext> dstRTContext(context->priv().makeDeferredRenderTargetContext(
-                format,
                 SkBackingFit::kApprox,
                 rect.width(),
                 rect.height(),
-                config,
-                SkColorTypeToGrColorType(colorType),
+                colorType,
                 colorSpace,
                 1,
                 GrMipMapped::kNo,
@@ -517,12 +512,10 @@ static sk_sp<SkSpecialImage> apply_morphology(
     }
     if (radius.fHeight > 0) {
         sk_sp<GrRenderTargetContext> dstRTContext(context->priv().makeDeferredRenderTargetContext(
-                format,
                 SkBackingFit::kApprox,
                 rect.width(),
                 rect.height(),
-                config,
-                SkColorTypeToGrColorType(colorType),
+                colorType,
                 colorSpace,
                 1,
                 GrMipMapped::kNo,

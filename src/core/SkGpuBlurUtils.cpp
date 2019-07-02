@@ -92,7 +92,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                                  SkRect::Make(dstRect), localMatrix);
 }
 
-static GrPixelConfig get_blur_config(GrTextureProxy* proxy) {
+static GrColorType get_blur_color_type(GrTextureProxy* proxy) {
     GrPixelConfig config = proxy->config();
 
     SkASSERT(kBGRA_8888_GrPixelConfig == config || kRGBA_8888_GrPixelConfig == config ||
@@ -101,7 +101,7 @@ static GrPixelConfig get_blur_config(GrTextureProxy* proxy) {
              kRGBA_half_GrPixelConfig == config || kAlpha_8_GrPixelConfig == config ||
              kRGBA_1010102_GrPixelConfig == config || kRGBA_half_Clamped_GrPixelConfig == config);
 
-    return config;
+    return GrPixelConfigToColorType(config);
 }
 
 static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* context,
@@ -115,9 +115,8 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* con
                                                          GrTextureDomain::Mode mode,
                                                          const SkImageInfo& dstII,
                                                          SkBackingFit dstFit) {
-
-    GrPixelConfig config = get_blur_config(proxy.get());
-    GrColorType colorType = GrPixelConfigToColorType(config);
+    // TODO: Once GrPixelConfig is gone, we need will need the source's color type.
+    GrColorType colorType = get_blur_color_type(proxy.get());
 
     GrBackendFormat format = proxy->backendFormat().makeTexture2D();
     if (!format.isValid()) {
@@ -126,11 +125,9 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* con
 
     sk_sp<GrRenderTargetContext> renderTargetContext;
     renderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            format,
             dstFit,
             dstII.width(),
             dstII.height(),
-            config,
             colorType,
             dstII.refColorSpace(),
             1,
@@ -181,21 +178,14 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* contex
                                                       SkBackingFit fit) {
     SkASSERT(srcRect.width() <= dstII.width() && srcRect.height() <= dstII.height());
 
-    GrPixelConfig config = get_blur_config(proxy.get());
-    GrColorType colorType = GrPixelConfigToColorType(config);
-
-    GrBackendFormat format = proxy->backendFormat().makeTexture2D();
-    if (!format.isValid()) {
-        return nullptr;
-    }
+    // TODO: Once GrPixelConfig is gone we'll need the source's color type here.
+    GrColorType colorType = get_blur_color_type(proxy.get());
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
     dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            format,
             fit,
             srcRect.width(),
             srcRect.height(),
-            config,
             colorType,
             dstII.refColorSpace(),
             1,
@@ -299,8 +289,8 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
     SkASSERT(SkIsPow2(scaleFactorX) && SkIsPow2(scaleFactorY));
     SkASSERT(scaleFactorX > 1 || scaleFactorY > 1);
 
-    GrPixelConfig config = get_blur_config(src.get());
-    GrColorType colorType = GrPixelConfigToColorType(config);
+    // TODO: Once GrPixelConfig is gone we'll need the source's color type here.
+    GrColorType colorType = get_blur_color_type(src.get());
 
     SkIRect srcRect;
     if (GrTextureDomain::kIgnore_Mode == mode) {
@@ -317,21 +307,14 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
 
-    GrBackendFormat format = src->backendFormat().makeTexture2D();
-    if (!format.isValid()) {
-        return nullptr;
-    }
-
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
 
         // We know this will not be the final draw so we are free to make it an approx match.
         dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
-                format,
                 SkBackingFit::kApprox,
                 dstRect.fRight,
                 dstRect.fBottom,
-                config,
                 colorType,
                 dstII.refColorSpace(),
                 1,
@@ -443,17 +426,13 @@ static sk_sp<GrRenderTargetContext> reexpand(GrRecordingContext* context,
 
     srcRenderTargetContext = nullptr; // no longer needed
 
-    GrPixelConfig config = get_blur_config(srcProxy.get());
-    GrColorType colorType = GrPixelConfigToColorType(config);
-    GrBackendFormat format = srcProxy->backendFormat().makeTexture2D();
-    if (!format.isValid()) {
-        return nullptr;
-    }
+    // TODO: Once GrPixelConfig is gone we'll need the source's color type here.
+    GrColorType colorType = get_blur_color_type(srcProxy.get());
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext =
-            context->priv().makeDeferredRenderTargetContext(
-                    format, fit, dstII.width(), dstII.height(), config, colorType,
-                    dstII.refColorSpace(), 1, GrMipMapped::kNo, srcProxy->origin());
+            context->priv().makeDeferredRenderTargetContext(fit, dstII.width(), dstII.height(),
+                                                            colorType, dstII.refColorSpace(), 1,
+                                                            GrMipMapped::kNo, srcProxy->origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -505,9 +484,9 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                           SkBackingFit fit) {
     SkASSERT(context);
 
-    const GrPixelConfig config = get_blur_config(srcProxy.get());
-    SkColorType ct;
-    if (!GrPixelConfigToColorType(config, &ct)) {
+    // TODO: Once GrPixelConfig is gone we'll need the source's color type here.
+    SkColorType ct = GrColorTypeToSkColorType(get_blur_color_type(srcProxy.get()));
+    if (ct == kUnknown_SkColorType) {
         return nullptr;
     }
 

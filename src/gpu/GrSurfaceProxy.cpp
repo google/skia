@@ -378,14 +378,9 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
         }
     }
     if (src->asTextureProxy()) {
-        GrBackendFormat format = src->backendFormat().makeTexture2D();
-        if (!format.isValid()) {
-            return nullptr;
-        }
-
         sk_sp<GrRenderTargetContext> dstContext = context->priv().makeDeferredRenderTargetContext(
-                format, fit, dstDesc.fWidth, dstDesc.fHeight, dstDesc.fConfig, colorType, nullptr,
-                1, mipMapped, src->origin(), nullptr, budgeted);
+                fit, dstDesc.fWidth, dstDesc.fHeight, colorType, nullptr, 1, mipMapped,
+                src->origin(), nullptr, budgeted);
 
         if (dstContext && dstContext->blitTexture(src->asTextureProxy(), srcRect, dstPoint)) {
             return dstContext->asTextureProxyRef();
