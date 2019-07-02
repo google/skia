@@ -10,6 +10,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/SkDeferredDisplayList.h"
 #include "src/core/SkSurfacePriv.h"
@@ -32,6 +33,8 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ct
 
     sk_sp<GrRenderTargetContext> rtc(
             ctx->priv().makeVulkanSecondaryCBRenderTargetContext(imageInfo, vkInfo, props));
+    // These spring forth fully formed like unto Athena from Zeus' brow
+    SkASSERT(rtc->asSurfaceProxy()->isInstantiated());
 
     int width = rtc->width();
     int height = rtc->height();
@@ -97,8 +100,11 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
     SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
                                        rtc->colorSpaceInfo().refColorSpace());
 
-    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(),
-                          rtc->colorSpaceInfo().config(), rtc->numSamples(),
+    SkASSERT(rtc->asRenderTargetProxy()->isInstantiated());
+    GrBackendFormat format = rtc->asRenderTargetProxy()->peekRenderTarget()->backendFormat();
+
+    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, format,
+                          rtc->origin(), rtc->numSamples(),
                           SkSurfaceCharacterization::Textureable(false),
                           SkSurfaceCharacterization::MipMapped(false),
                           SkSurfaceCharacterization::UsesGLFBO0(false),
@@ -143,10 +149,13 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
         return false;
     }
 
+    SkASSERT(rtc->asRenderTargetProxy()->isInstantiated());
+    GrBackendFormat format = rtc->asRenderTargetProxy()->peekRenderTarget()->backendFormat();
+
     return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
-           characterization.config() == rtc->colorSpaceInfo().config() &&
+           characterization.backendFormat() == format &&
            characterization.width() == rtc->width() &&
            characterization.height() == rtc->height() &&
            characterization.colorType() == rtcColorType &&

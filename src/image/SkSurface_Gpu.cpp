@@ -209,8 +209,11 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
     SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
                                        rtc->colorSpaceInfo().refColorSpace());
 
-    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(),
-                          rtc->colorSpaceInfo().config(), rtc->numSamples(),
+    // $$
+    GrBackendFormat format;
+
+    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, format,
+                          rtc->origin(), rtc->numSamples(),
                           SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
                           SkSurfaceCharacterization::MipMapped(mipmapped),
                           SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
@@ -304,7 +307,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
     return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
-           characterization.config() == rtc->colorSpaceInfo().config() &&
+           characterization.backendFormat() == rtc->colorSpaceInfo().config() &&
            characterization.width() == rtc->width() &&
            characterization.height() == rtc->height() &&
            characterization.colorType() == rtcColorType &&
@@ -355,26 +358,24 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(c.colorType());
-    if (!format.isValid()) {
+    if (!SkSurface_Gpu::Valid(caps, c.backendFormat())) {
         return nullptr;
     }
 
-    if (!SkSurface_Gpu::Valid(caps, format)) {
+    GrPixelConfig config = caps->getConfigFromBackendFormat(c.backendFormat(), c.colorType());
+    if (config == kUnknown_GrPixelConfig) {
         return nullptr;
     }
 
-    // In order to ensure compatibility we have to match the backend format (i.e. the GrPixelConfig
-    // of the characterization)
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = c.width();
     desc.fHeight = c.height();
-    desc.fConfig = c.config();
+    desc.fConfig = config;
     desc.fSampleCnt = c.sampleCount();
 
     sk_sp<GrSurfaceContext> sc(
-            context->priv().makeDeferredSurfaceContext(format,
+            context->priv().makeDeferredSurfaceContext(c.backendFormat(),
                                                        desc,
                                                        c.origin(),
                                                        GrMipMapped(c.isMipMapped()),
