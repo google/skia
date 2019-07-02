@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "828aa7c2_d4fb7bd9",
+        "filename": "infra/bots/compile.isolate",
+        "patchSetId": 23
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-02T19:51:20Z",
+      "side": 1,
+      "message": "This is pretty obscure. If someone adds files to the repo and the Build tasks don\u0027t see the new files, this list is not the first thing I would think to check. Not sure how often it will come up.\n\nHow hard would it be to add a presubmit check that every file/dir either has to be listed here or listed as \"not needed for compiles\"?\n\nBTW, if we could just exclude DEPS, go.mod, and go.sum, that would probably cover ~70% of all builds that we can deduplicate. (I can show you the spreadsheet I made if you\u0027re interested.)",
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d0501a8_75034aa5",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 23
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-02T19:51:20Z",
+      "side": 1,
+      "message": "IMO, it\u0027s not worth the extra complexity to have different isolates for specific cases. The files listed in these other isolates change pretty infrequently, so it\u0027s relatively rare that changes there would prevent deduplication.",
+      "range": {
+        "startLine": 907,
+        "startChar": 0,
+        "endLine": 914,
+        "endChar": 37
+      },
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76198af2_94cbce42",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-02T19:51:20Z",
+      "side": 1,
+      "message": "We should keep this at self.m.vars.cache_dir.join(\u0027work\u0027, \u0027skia\u0027, \u0027out\u0027, api.vars.builder_name, api.vars.configuration) so that our builds continue to be incremental.",
+      "range": {
+        "startLine": 29,
+        "startChar": 12,
+        "endLine": 30,
+        "endChar": 67
+      },
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d50929c_dde3e993",
+        "filename": "infra/bots/recipes/sync_and_compile.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-02T19:51:20Z",
+      "side": 1,
+      "message": "nit, not related to this change: unused",
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7ed7212_2a6fe63b",
+        "filename": "infra/bots/recipes/sync_and_compile.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-02T19:51:20Z",
+      "side": 1,
+      "message": "Maybe remove those that should run through compile.py?",
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
