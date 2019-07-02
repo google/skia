@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0ead9b9_3768d1d7",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 3631,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-02T20:14:28Z",
+      "side": 1,
+      "message": "not terribly important but getConfigFromBackendFormat will fail for kUnknown. Tiny code size improvement for a tiny perf cost in a case that hopefully never happens.\n\nThere are lot more of these checks for unknown in other functions that could be removed, too.",
+      "range": {
+        "startLine": 3629,
+        "startChar": 0,
+        "endLine": 3631,
+        "endChar": 5
+      },
+      "revId": "fe22896883a966853a6ecfa93c77481b511cbb9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
