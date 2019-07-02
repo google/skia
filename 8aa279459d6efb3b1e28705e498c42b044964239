@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "daeb1869_7bbfd276",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T15:15:51Z",
+      "side": 1,
+      "message": "There are still a lot more workarounds in initConfigTable, but I figured it would be easier to migrate them to here as I\u0027m moving their related code from initConfigTable to initFormatTable.",
+      "range": {
+        "startLine": 462,
+        "startChar": 7,
+        "endLine": 462,
+        "endChar": 56
+      },
+      "revId": "8aa279459d6efb3b1e28705e498c42b044964239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
