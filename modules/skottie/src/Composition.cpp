@@ -127,11 +127,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(const skjson::Object
     if (!jlayers) return nullptr;
 
     std::vector<sk_sp<sksg::RenderNode>> layers;
-    AttachLayerContext                   layerCtx(*jlayers, scope);
+    AttachLayerContext                   layerCtx(*jlayers);
 
     layers.reserve(jlayers->size());
     for (const auto& l : *jlayers) {
-        if (auto layer = this->attachLayer(l, &layerCtx)) {
+        if (auto layer = this->attachLayer(l, scope, &layerCtx)) {
             layers.push_back(std::move(layer));
         }
     }
