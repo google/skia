@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f258e20c_ab6744d5",
+        "filename": "src/core/SkSurfaceCharacterization.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T17:57:12Z",
+      "side": 1,
+      "message": "why do this check here? Can\u0027t we now check this at creation time and fail there? Seems like this should be an assert at this point. Actually after talking lets just add the asserts to set and add checks where ever set is called if needed.",
+      "range": {
+        "startLine": 72,
+        "startChar": 3,
+        "endLine": 75,
+        "endChar": 5
+      },
+      "revId": "737305af42b5f3d30737ac9da3e2536501ae4bb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e84f298a_ae262347",
+        "filename": "src/core/SkSurfaceCharacterization.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-02T17:57:12Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 83,
+        "startChar": 2,
+        "endLine": 83,
+        "endChar": 84
+      },
+      "revId": "737305af42b5f3d30737ac9da3e2536501ae4bb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
