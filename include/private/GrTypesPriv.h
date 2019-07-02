@@ -568,7 +568,9 @@ static inline GrSLType GrSLCombinedSamplerTypeForTextureType(GrTextureType type)
     }
 }
 
-/** Rectangle and external textures ony support the clamp wrap mode and do not support MIP maps. */
+/** Rectangle and external textures only support the clamp wrap mode and do not support
+ *  MIP maps.
+ */
 static inline bool GrTextureTypeHasRestrictedSampling(GrTextureType type) {
     switch (type) {
         case GrTextureType::k2D:
@@ -805,7 +807,7 @@ typedef uint64_t GrFence;
  * Used to include or exclude specific GPU path renderers for testing purposes.
  */
 enum class GpuPathRenderers {
-    kNone              = 0, // Always use sofware masks and/or GrDefaultPathRenderer.
+    kNone              = 0, // Always use software masks and/or GrDefaultPathRenderer.
     kDashLine          = 1 << 0,
     kStencilAndCover   = 1 << 1,
     kCoverageCounting  = 1 << 2,
@@ -1142,6 +1144,23 @@ static constexpr GrSLPrecision GrSLSamplerPrecision(GrPixelConfig config) {
             return kMedium_GrSLPrecision;
     }
     SkUNREACHABLE;
+}
+
+static constexpr bool GrConfigsAreCompatible(GrPixelConfig expected, GrPixelConfig actual) {
+    if (GrPixelConfig::kAlpha_8_GrPixelConfig == expected) {
+        return GrPixelConfig::kAlpha_8_GrPixelConfig == actual ||
+               GrPixelConfig::kAlpha_8_as_Alpha_GrPixelConfig == actual ||
+               GrPixelConfig::kAlpha_8_as_Red_GrPixelConfig == actual;
+    } else if (GrPixelConfig::kGray_8_GrPixelConfig == expected) {
+        return GrPixelConfig::kGray_8_GrPixelConfig == actual ||
+               GrPixelConfig::kGray_8_as_Lum_GrPixelConfig == actual ||
+               GrPixelConfig::kGray_8_as_Red_GrPixelConfig == actual;
+    } else if (GrPixelConfig::kAlpha_half_GrPixelConfig == expected) {
+        return GrPixelConfig::kAlpha_half_GrPixelConfig == actual ||
+               GrPixelConfig::kAlpha_half_as_Red_GrPixelConfig == actual;
+    }
+
+    return expected == actual;
 }
 
 /**

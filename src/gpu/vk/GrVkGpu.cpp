@@ -1752,7 +1752,15 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     VK_CALL(CmdCopyBufferToImage(cmdBuffer, buffer, info->fImage, info->fImageLayout,
                                  regions.count(), regions.begin()));
 
-    if (texturable) {
+    if (!srcData && renderable) {
+        SkASSERT(color);
+
+        // Change Image layout to color-attachment-optimal since if we use this texture as a
+        // borrowed texture within Ganesh we are probably going to render to it
+        set_image_layout(this->vkInterface(), cmdBuffer, info,
+                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, mipLevels,
+                         VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+    } else if (texturable) {
         // Change Image layout to shader read since if we use this texture as a borrowed
         // texture within Ganesh we require that its layout be set to that
         set_image_layout(this->vkInterface(), cmdBuffer, info,
