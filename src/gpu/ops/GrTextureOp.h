@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef GrTextureOp_DEFINED
+#define GrTextureOp_DEFINED
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
@@ -54,3 +56,4 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext*,
                                   sk_sp<GrColorSpaceXform> textureXform);
 
 }
+#endif  // GrTextureOp_DEFINED
