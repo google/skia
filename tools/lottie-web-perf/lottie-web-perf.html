@@ -27,6 +27,32 @@
       const cvs = document.getElementById("canvas");
       const canvasContext = cvs.getContext('2d');
 
+      let findFrameCount = false
+      const hash = window.location.hash;
+      if (hash && hash === "#frame_count") {
+        const initialAnim = lottie.loadAnimation({
+          container: document.querySelector('.anim'),
+          renderer: RENDERER,
+          loop: false,
+          autoplay: true,
+          path: PATH,
+          rendererSettings: {
+            preserveAspectRatio:'xMidYMid meet'
+          },
+        });
+        initialAnim.addEventListener('data_ready', (e) => {
+          window._lottieWebDoned = true;
+          window._totalFrames = initialAnim.totalFrames;
+          console.log("RETURNING " + window._totalFrames);
+          console.log("RETURNING " + window._lottieWebDoned);
+          // We no longer need initialAnim.
+          initialAnim.destroy()
+          return;
+        });
+        return;
+      }
+      console.log("DOWN HERE>> WHY?");
+
       // Do an initial load to figure out how many frames we are working with
       // for calculating seek values later.
       let initialAnim = lottie.loadAnimation({

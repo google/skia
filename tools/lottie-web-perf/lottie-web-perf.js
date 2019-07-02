@@ -107,7 +107,10 @@ async function driveBrowser() {
     process.exit(1);
   }
 
-  console.log("Loading " + targetURL);
+  // Extract into a function and pass in the parse data funciton thingy!
+
+  const frameCountTargetURL = targetURL + "#frame_count"
+  console.log("Loading " + frameCountTargetURL);
   try {
     await page.goto(targetURL, {
       timeout: 20000,
@@ -115,6 +118,30 @@ async function driveBrowser() {
     });
     console.log('- Waiting 20s for run to be done.');
     await page.waitForFunction('window._lottieWebDone === true', {
+      timeout: 20000,
+    });
+  } catch(e) {
+    console.log('Timed out while loading or drawing. Either the JSON file was ' +
+                'too big or hit a bug in the player.', e);
+    await browser.close();
+    process.exit(0);
+  }
+  var getTotalFrames = function() {
+    return window._totalFrames
+  }
+  var data = await page.evaluate(getTotalFrames);
+  console.log('HERE HERE');
+  console.log(data)
+  return
+
+  console.log("Loading " + targetURL);
+  try {
+    await page.goto(targetURL, {
+      timeout: 20000,
+      waitUntil: 'networkidle0'
+    });
+    console.log('- Waiting 20s for run to be done.');
+    await page.waitForFunction('window._lottieWebDonee === true', {
       timeout: 20000,
     });
   } catch(e) {
