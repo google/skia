@@ -5,10 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrResourceProvider.h"
+
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/GrSingleOwner.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
@@ -19,7 +22,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceCache.h"
-#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexturePriv.h"
@@ -55,7 +57,45 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-    return fGpu->createTexture(desc, budgeted, texels, mipLevelCount);
+    SkAutoSTMalloc<14, GrMipLevel> tmpTexels;
+    SkAutoSTMalloc<14, std::unique_ptr<char[]>> tmpDatas;
+    if (mipLevelCount > 0 && texels) {
+        tmpTexels.reset(mipLevelCount);
+        tmpDatas.reset(mipLevelCount);
+        int w = desc.fWidth;
+        int h = desc.fHeight;
+        size_t bpp = GrBytesPerPixel(desc.fConfig);
+        for (int i = 0; i < mipLevelCount; ++i) {
+            if (texels->fPixels) {
+                size_t minRB = w * bpp;
+                if (!texels->fRowBytes) {
+                    tmpTexels[i].fRowBytes = minRB;
+                    tmpTexels[i].fPixels = texels[i].fPixels;
+                } else {
+                    if (texels[i].fRowBytes < minRB) {
+                        return nullptr;
+                    }
+                    if (this->caps()->writePixelsRowBytesSupport() &&
+                        texels[i].fRowBytes != minRB) {
+                        auto copy = new char[minRB * h];
+                        tmpDatas[i].reset(copy);
+                        SkRectMemcpy(copy, minRB, texels[i].fPixels, texels[i].fRowBytes, minRB, h);
+                        tmpTexels[i].fPixels = copy;
+                        tmpTexels[i].fRowBytes = minRB;
+                    } else {
+                        tmpTexels[i].fPixels = texels[i].fPixels;
+                        tmpTexels[i].fRowBytes = texels[i].fRowBytes;
+                    }
+                }
+            } else {
+                tmpTexels[i].fPixels = nullptr;
+                tmpTexels[i].fRowBytes = 0;
+            }
+            w = std::max(w / 2, 1);
+            h = std::max(h / 2, 1);
+        }
+    }
+    return fGpu->createTexture(desc, budgeted, tmpTexels.get(), mipLevelCount);
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
