@@ -10,13 +10,8 @@
 
 GrColorSpaceInfo::GrColorSpaceInfo(GrColorType colorType,
                                    SkAlphaType alphaType,
-                                   sk_sp<SkColorSpace> colorSpace,
-                                   GrPixelConfig config)
-        : fColorSpace(std::move(colorSpace))
-        , fColorType(colorType)
-        , fAlphaType(alphaType)
-        , fConfig(config)
-        , fInitializedColorSpaceXformFromSRGB(false) {}
+                                   sk_sp<SkColorSpace> colorSpace)
+        : fColorSpace(std::move(colorSpace)), fColorType(colorType), fAlphaType(alphaType) {}
 
 GrColorSpaceXform* GrColorSpaceInfo::colorSpaceXformFromSRGB() const {
     // TODO: Make this atomic if we start accessing this on multiple threads.
