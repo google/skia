@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "298ac306_a0f84a11",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-02T21:24:11Z",
+      "side": 1,
+      "message": "Fixed in a way that does not need the full class.",
+      "parentUuid": "bcc4f13f_fb4b0273",
+      "range": {
+        "startLine": 21,
+        "startChar": 83,
+        "endLine": 21,
+        "endChar": 84
+      },
+      "revId": "f4d126f2c0a13e8881e72242f24d9b15ac8aa812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c326d8b7_c0e52b2d",
         "filename": "src/core/SkSpan.h",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "f4d126f2c0a13e8881e72242f24d9b15ac8aa812",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc8f6329_6f6ddbf7",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-02T21:24:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c326d8b7_c0e52b2d",
+      "range": {
+        "startLine": 54,
+        "startChar": 23,
+        "endLine": 54,
+        "endChar": 29
+      },
+      "revId": "f4d126f2c0a13e8881e72242f24d9b15ac8aa812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
