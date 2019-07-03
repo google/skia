@@ -228,3 +228,26 @@ SkExclusiveStrikePtr SkStrikeSpec::findOrCreateExclusiveStrike(SkStrikeCache* ca
     SkScalerContextEffects effects{fPathEffect.get(), fMaskFilter.get()};
     return cache->findOrCreateStrikeExclusive(*fAutoDescriptor.getDesc(), effects, *fTypeface);
 }
+
+SkBulkGlyphMetrics::SkBulkGlyphMetrics(const SkStrikeSpec& spec)
+    : fStrike{spec.findOrCreateExclusiveStrike()} { }
+
+SkSpan<const SkGlyph*> SkBulkGlyphMetrics::glyphs(SkSpan<const SkGlyphID> glyphIDs) {
+    fGlyphs.reset(glyphIDs.size());
+    return fStrike->metrics(glyphIDs, fGlyphs.get());
+}
+
+SkBulkGlyphMetricsAndPaths::SkBulkGlyphMetricsAndPaths(const SkStrikeSpec& spec)
+    : fStrike{spec.findOrCreateExclusiveStrike()} { }
+
+SkSpan<const SkGlyph*> SkBulkGlyphMetricsAndPaths::glyphs(SkSpan<const SkGlyphID> glyphIDs) {
+    fGlyphs.reset(glyphIDs.size());
+    return fStrike->preparePaths(glyphIDs, fGlyphs.get());
+}
+
+SkBulkGlyphMetricsAndImages::SkBulkGlyphMetricsAndImages(const SkStrikeSpec& spec)
+        : fStrike{spec.findOrCreateExclusiveStrike()} { }
+
+SkSpan<const SkGlyph*> SkBulkGlyphMetricsAndImages::glyphs(SkSpan<const SkPackedGlyphID> glyphIDs) {
+    return fStrike->prepareImages(glyphIDs, fGlyphs.get());
+}
