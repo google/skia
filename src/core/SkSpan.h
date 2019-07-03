@@ -8,8 +8,11 @@
 #ifndef SkSpan_DEFINED
 #define SkSpan_DEFINED
 
+#include "include/private/SkTemplates.h"
+
 #include <cstddef>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "include/private/SkTo.h"
@@ -54,6 +57,13 @@ inline constexpr SkSpan<T> SkMakeSpan(T(&a)[N]) { return SkSpan<T>{a, N}; }
 // This takes a const Container& to create an immutable span.
 template <typename Container>
 inline auto SkMakeSpan(const Container& c)
+        -> SkSpan<typename std::remove_reference<decltype(*(c.data()))>::type> {
+    return {c.data(), c.size()};
+}
+
+// This takes a Container& to create a mutable span.
+template <typename Container>
+inline auto SkMakeSpan(Container& c)
         -> SkSpan<typename std::remove_reference<decltype(*(c.data()))>::type> {
     return {c.data(), c.size()};
 }
