@@ -7,6 +7,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 #include "tests/Test.h"
@@ -167,4 +168,43 @@ DEF_TEST(Utils, reporter) {
     test_search(reporter);
     test_autounref(reporter);
     test_autostarray(reporter);
+}
+
+#include "include/private/SkTemplates.h"
+#include <tuple>
+
+template<typename... Ts>
+class SkZip {
+public:
+    SkZip(size_t size, Ts*... pointers) : fPointers{pointers...}, fSize{size} {}
+
+    std::tuple<Ts&...> operator[](size_t i) {
+        return index(i, skstd::make_index_sequence<sizeof...(Ts)>{});
+    }
+
+private:
+    template<std::size_t... Is>
+    std::tuple<Ts&...> index(size_t i, skstd::index_sequence<Is...>) {
+        return std::tuple<Ts&...>(std::get<Is>(fPointers)[i]...);
+    }
+    std::tuple<Ts*...> fPointers;
+    size_t fSize;
+};
+
+DEF_TEST(SkZip, reporter) {
+    uint16_t A[] = {1, 2, 3, 4};
+    float    B[] = {10.f, 20.f, 30.f, 40.f};
+
+    uint16_t* a = A;
+    float* b = B;
+
+    SkZip<uint16_t, float> z{4, a, b};
+
+    auto t = z[0];
+    REPORTER_ASSERT(reporter, std::get<0>(t) == 1);
+    REPORTER_ASSERT(reporter, std::get<1>(t) == 10.f);
+    REPORTER_ASSERT(reporter, &std::get<0>(t) == &A[0]);
+    REPORTER_ASSERT(reporter, &std::get<1>(t) == &B[0]);
+
+
 }
