@@ -249,5 +249,6 @@ SkBulkGlyphMetricsAndImages::SkBulkGlyphMetricsAndImages(const SkStrikeSpec& spe
         : fStrike{spec.findOrCreateExclusiveStrike()} { }
 
 SkSpan<const SkGlyph*> SkBulkGlyphMetricsAndImages::glyphs(SkSpan<const SkPackedGlyphID> glyphIDs) {
+    fGlyphs.reset(glyphIDs.size());
     return fStrike->prepareImages(glyphIDs, fGlyphs.get());
 }
