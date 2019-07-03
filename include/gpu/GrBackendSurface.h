@@ -66,8 +66,8 @@ public:
     }
 #endif
 
-    static GrBackendFormat MakeMock(GrPixelConfig config) {
-        return GrBackendFormat(config);
+    static GrBackendFormat MakeMock(GrColorType colorType, GrSRGBEncoded srgbEncoded) {
+        return GrBackendFormat(colorType, srgbEncoded, true);
     }
 
     bool operator==(const GrBackendFormat& that) const;
@@ -93,9 +93,10 @@ public:
     const GrMTLPixelFormat* getMtlFormat() const;
 #endif
 
-    // If the backend API is Mock, this returns a pointer to a GrPixelConfig. Otherwise
+    // If the backend API is Mock, this returns a pointer to a GrColorType. Otherwise
     // it returns nullptr.
-    const GrPixelConfig* getMockFormat() const;
+    const GrColorType* getMockColorType() const;
+    const GrSRGBEncoded* getMockSRGBEncoded() const;
 
     // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D. If the
     // GrBackendFormat was for Vulkan and it originally had a GrVkYcbcrConversionInfo, we will
@@ -114,7 +115,7 @@ private:
     GrBackendFormat(const GrMTLPixelFormat mtlFormat);
 #endif
 
-    GrBackendFormat(const GrPixelConfig config);
+    GrBackendFormat(GrColorType colorType, GrSRGBEncoded srgbEncoded, bool foo);
 
     GrBackendApi fBackend = GrBackendApi::kMock;
     bool         fValid = false;
@@ -128,7 +129,10 @@ private:
 #ifdef SK_METAL
         GrMTLPixelFormat fMtlFormat;
 #endif
-        GrPixelConfig    fMockFormat;
+        struct {
+            GrColorType              fColorType;
+            GrSRGBEncoded            fSRGBEncoded;
+        }                fMock;
     };
     GrTextureType fTextureType = GrTextureType::kNone;
 };
