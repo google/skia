@@ -17,56 +17,6 @@ class GrContext;
 
 //////////////////////////////////////////////////////////////////////////////
 
-Sample::Event::Event() : Event("") {}
-
-Sample::Event::Event(const Event& that) {
-    *this = that;
-}
-
-Sample::Event::Event(const char type[]) : fType(type), f32(0) {
-    SkASSERT(type);
-}
-
-Sample::Event::~Event() {}
-
-bool Sample::Event::isType(const char type[]) const {
-    return fType.equals(type);
-}
-
-const char* Sample::kCharEvtName = "SampleCode_Char_Event";
-
-bool Sample::CharQ(const Event& evt, SkUnichar* outUni) {
-    if (evt.isType(kCharEvtName)) {
-        if (outUni) {
-            *outUni = evt.getFast32();
-        }
-        return true;
-    }
-    return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-bool Sample::doEvent(const Event& evt) {
-    return this->onEvent(evt);
-}
-
-bool Sample::onEvent(const Event&) {
-    return false;
-}
-
-bool Sample::doQuery(Event* evt) {
-    SkASSERT(evt);
-    return this->onQuery(evt);
-}
-
-bool Sample::onQuery(Sample::Event* evt) {
-    return false;
-}
-
-////////////////////////////////////////////////////////////////////////
-
-
 void Sample::setSize(SkScalar width, SkScalar height) {
     width = SkMaxScalar(0, width);
     height = SkMaxScalar(0, height);

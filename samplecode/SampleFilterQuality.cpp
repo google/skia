@@ -168,9 +168,7 @@ public:
 protected:
     SkString name() override { return SkString("FilterQuality"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case '1': fAngle.inc(-ANGLE_DELTA); return true;
                 case '2': fAngle.inc( ANGLE_DELTA); return true;
@@ -179,8 +177,7 @@ protected:
                 case '5': fShowFatBits = !fShowFatBits; return true;
                 default: break;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void drawTheImage(SkCanvas* canvas, const SkISize& size, SkFilterQuality filter,

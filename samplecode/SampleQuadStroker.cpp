@@ -211,9 +211,8 @@ public:
 protected:
     SkString name() override { return SkString("QuadStroker"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (fTextButton.fEnabled && Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
+        if (fTextButton.fEnabled) {
             switch (uni) {
                 case ' ':
                     fText = "";
@@ -230,7 +229,7 @@ protected:
             }
             return true;
         }
-        return this->INHERITED::onQuery(evt);
+        return false;
     }
 
     void onSizeChange() override {

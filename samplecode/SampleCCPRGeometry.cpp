@@ -50,7 +50,7 @@ public:
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override;
     bool onClick(Sample::Click*) override;
-    bool onQuery(Sample::Event* evt) override;
+    bool onChar(SkUnichar) override;
     SkString name() override { return SkString("CCPRGeometry"); }
 
 private:
@@ -441,9 +441,7 @@ bool CCPRGeometryView::onClick(Sample::Click* click) {
     return true;
 }
 
-bool CCPRGeometryView::onQuery(Sample::Event* evt) {
-    SkUnichar unichar;
-    if (Sample::CharQ(*evt, &unichar)) {
+bool CCPRGeometryView::onChar(SkUnichar unichar) {
         if (unichar >= '1' && unichar <= '4') {
             fPrimitiveType = PrimitiveType(unichar - '1');
             if (fPrimitiveType >= PrimitiveType::kWeightedTriangles) {
@@ -493,8 +491,7 @@ bool CCPRGeometryView::onQuery(Sample::Event* evt) {
             fDoStroke = !fDoStroke;
             this->updateAndInval();
         }
-    }
-    return this->INHERITED::onQuery(evt);
+        return false;
 }
 
 DEF_SAMPLE(return new CCPRGeometryView;)

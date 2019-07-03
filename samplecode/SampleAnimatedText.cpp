@@ -49,9 +49,7 @@ public:
 protected:
     SkString name() override { return SkString("AnimatedText"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             if ('2' == uni) {
                 if (fSizeScale == 2) {
                     fSizeScale = 1;
@@ -60,8 +58,7 @@ protected:
                 }
                 return true;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void onDrawContent(SkCanvas* canvas) override {

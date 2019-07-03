@@ -42,12 +42,7 @@ void SampleSlide::unload() {
 }
 
 bool SampleSlide::onChar(SkUnichar c) {
-    if (!fSample) {
-        return false;
-    }
-    Sample::Event evt(Sample::kCharEvtName);
-    evt.setFast32(c);
-    return fSample->doQuery(&evt);
+    return fSample && fSample->onChar(c);
 }
 
 bool SampleSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state,

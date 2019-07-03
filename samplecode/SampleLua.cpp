@@ -70,9 +70,7 @@ public:
 protected:
     SkString name() override { return SkString("Lua"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             lua_State* L = this->ensureLua();
             lua_getglobal(L, gUnicharName);
             if (lua_isfunction(L, -1)) {
@@ -87,8 +85,7 @@ protected:
                     }
                 }
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void onDrawContent(SkCanvas* canvas) override {

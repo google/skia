@@ -56,15 +56,12 @@ public:
 
     SkString name() override { return SkString(this->getName()); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar unichar;
-        if (Sample::CharQ(*evt, &unichar)) {
+    bool onChar(SkUnichar unichar) override {
             if (unichar == 'X') {
                 fDoClip = !fDoClip;
                 return true;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void onDrawContent(SkCanvas* canvas) override {
