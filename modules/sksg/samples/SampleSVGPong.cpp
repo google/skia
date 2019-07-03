@@ -150,12 +150,9 @@ protected:
         this->updatePaddleStrategy();
     }
 
-    bool onQuery(Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "SGPong");
-            return true;
-        }
+    SkString name() override { return SkString("SGPong"); }
 
+    bool onQuery(Event* evt) override {
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

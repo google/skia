@@ -27,13 +27,7 @@ public:
     AnimBlurView() : fBlurSigma(0), fCircleRadius(100) {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AnimBlur");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("AnimBlur"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         static const SkBlurStyle gStyles[] = {

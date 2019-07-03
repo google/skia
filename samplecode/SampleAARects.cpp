@@ -45,13 +45,7 @@ protected:
         fWidth = N;
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AA Rects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("AA Rects"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));

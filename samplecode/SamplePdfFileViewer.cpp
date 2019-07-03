@@ -55,15 +55,11 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            SkString name("P:");
-            const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
-            name.append(basename ? basename+1: fFilename.c_str());
-            Sample::TitleR(evt, name.c_str());
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    virtual SkString name() {
+        SkString name("P:");
+        const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
+        name.append(basename ? basename+1: fFilename.c_str());
+        return name;
     }
 
     virtual bool onEvent(const SkEvent& evt) {

@@ -179,15 +179,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            SkString str;
-            str.printf("Hair-%s", gProcs[fProcIndex].fName);
-            Sample::TitleR(evt, str.c_str());
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkStringPrintf("Hair-%s", gProcs[fProcIndex].fName); }
 
     void show_bitmaps(SkCanvas* canvas, const SkBitmap& b0, const SkBitmap& b1,
                       const SkIRect& inset) {

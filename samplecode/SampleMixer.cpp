@@ -35,13 +35,7 @@ public:
     MixerView() {}
 
 protected:
-    bool onQuery(Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Mixer");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Mixer"); }
 
     void dodraw(SkCanvas* canvas, sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float gap) {
         SkPaint paint;
@@ -131,13 +125,7 @@ public:
     }
 
 protected:
-    bool onQuery(Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ShaderMixer");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("ShaderMixer"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         if (!fSurface) {

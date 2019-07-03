@@ -103,13 +103,7 @@ class CuspView : public Sample {
 public:
     CuspView() {}
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Cusp");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Cusp"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint p;

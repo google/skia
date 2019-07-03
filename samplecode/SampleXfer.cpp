@@ -137,13 +137,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "XferDemo");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("XferDemo"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         for (int i = 0; i < N_Modes; ++i) {

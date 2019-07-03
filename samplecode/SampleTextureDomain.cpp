@@ -33,13 +33,7 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Texture Domain");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    virtual SkString name() { return SkString("Texture Domain"); }
 
     virtual void onDrawContent(SkCanvas* canvas) {
         SkRect srcRect;
