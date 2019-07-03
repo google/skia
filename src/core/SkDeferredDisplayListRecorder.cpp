@@ -160,9 +160,6 @@ bool SkDeferredDisplayListRecorder::init() {
         optionalTextureInfo = &kTextureInfo;
     }
 
-    const GrBackendFormat format = fContext->priv().caps()->getBackendFormatFromColorType(
-            fCharacterization.colorType());
-
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [lazyProxyData](GrResourceProvider* resourceProvider) {
                 // The proxy backing the destination surface had better have been instantiated
@@ -171,7 +168,7 @@ bool SkDeferredDisplayListRecorder::init() {
                 auto surface = sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->peekSurface());
                 return GrSurfaceProxy::LazyInstantiationResult(std::move(surface));
             },
-            format,
+            fCharacterization.backendFormat(),
             desc,
             fCharacterization.origin(),
             surfaceFlags,
