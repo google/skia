@@ -215,6 +215,10 @@ def dm_flags(api, bot):
       blacklist('_ test _ GLPrograms')
       blacklist('_ test _ ProcessorOptimizationValidationTest')
 
+    if 'CommandBuffer' in bot and 'MacBook10.1-' in bot:
+      # skbug.com/9235
+      blacklist('_ test _ GLPrograms')
+
     # skbug.com/9033 - these devices run out of memory on this test
     # when opList splitting reduction is enabled
     if 'GPU' in bot and ('Nexus7' in bot or
@@ -1058,6 +1062,7 @@ TEST_BUILDERS = [
   'Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC',
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
 ]
 
 
