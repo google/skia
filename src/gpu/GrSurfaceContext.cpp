@@ -126,27 +126,14 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     }
 
     if (readFlag == GrCaps::SurfaceReadPixelsSupport::kCopyToTexture2D || canvas2DFastPath) {
-        GrBackendFormat format;
-        GrPixelConfig config;
-        GrColorType colorType;
-        if (canvas2DFastPath) {
-            config = kRGBA_8888_GrPixelConfig;
-            format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-            colorType = GrColorType::kRGBA_8888;
-        } else {
-            config = srcProxy->config();
-            format = srcProxy->backendFormat().makeTexture2D();
-            if (!format.isValid()) {
-                return false;
-            }
-            colorType = this->colorSpaceInfo().colorType();
-        }
-        sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorSpaceInfo().refColorSpace();
+        GrColorType colorType = canvas2DFastPath ? GrColorType::kRGBA_8888
+                                                 : this->colorSpaceInfo().colorType();
+        sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr
+                                                  : this->colorSpaceInfo().refColorSpace();
 
         sk_sp<GrRenderTargetContext> tempCtx = direct->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kApprox, dstInfo.width(), dstInfo.height(), config, colorType,
-                std::move(cs), 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr,
-                SkBudgeted::kYes);
+                SkBackingFit::kApprox, dstInfo.width(), dstInfo.height(), colorType, std::move(cs),
+                1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes);
         if (!tempCtx) {
             return false;
         }

@@ -43,7 +43,6 @@ public:
      *  On failure (e.g. the provider had no data), this returns NULL.
      */
     sk_sp<GrTextureProxy> refAsTextureProxy(GrRecordingContext*,
-                                            const GrBackendFormat&,
                                             const GrSurfaceDesc&,
                                             GrColorType colorType,
                                             SkColorSpace* srcColorSpace,

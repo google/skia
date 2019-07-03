@@ -16,10 +16,7 @@
 @class {
     static bool TestForPreservingPMConversions(GrContext* context) {
         static constexpr int kSize = 256;
-        static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
         static constexpr GrColorType kColorType = GrColorType::kRGBA_8888;
-        const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromGrColorType(kColorType, GrSRGBEncoded::kNo);
         SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);
         uint32_t* srcData = data.get();
         uint32_t* firstRead = data.get() + kSize * kSize;
@@ -44,13 +41,13 @@
                                                  kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
         sk_sp<GrRenderTargetContext> readRTC(
-                context->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kExact,
+                context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
                                                                 kSize, kSize,
-                                                                kConfig, kColorType, nullptr));
+                                                                kColorType, nullptr));
         sk_sp<GrRenderTargetContext> tempRTC(
-                context->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kExact,
+                context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
                                                                 kSize, kSize,
-                                                                kConfig, kColorType, nullptr));
+                                                                kColorType, nullptr));
         if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
             return false;
         }
