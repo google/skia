@@ -166,11 +166,9 @@ public:
     }
 
 protected:
+    SkString name() override { return SkString("FilterQuality"); }
+
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FilterQuality");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

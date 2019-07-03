@@ -384,6 +384,7 @@ public:
                                       unsigned) override;
     bool onClick(Sample::Click*) override;
     bool onQuery(Sample::Event* evt) override;
+    SkString name() override { return SkString("DegenerateQuad"); }
 
 private:
     class Click;
@@ -496,10 +497,6 @@ bool DegenerateQuadSample::onClick(Sample::Click* click) {
 }
 
 bool DegenerateQuadSample::onQuery(Sample::Event* event) {
-    if (Sample::TitleQ(*event)) {
-        Sample::TitleR(event, "DegenerateQuad");
-        return true;
-    }
     SkUnichar code;
     if (Sample::CharQ(*event, &code)) {
         switch(code) {

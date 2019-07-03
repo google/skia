@@ -88,13 +88,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Chart");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Chart"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         bool sizeChanged = false;

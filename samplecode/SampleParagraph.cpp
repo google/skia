@@ -36,13 +36,7 @@ sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
 
 class ParagraphView1 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph1");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph1"); }
 
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
         const std::vector<
@@ -148,13 +142,7 @@ private:
 
 class ParagraphView2 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph2");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph2"); }
 
     void drawCode(SkCanvas* canvas, SkScalar w, SkScalar h) {
         SkPaint comment;
@@ -391,13 +379,7 @@ private:
 
 class ParagraphView3 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph3");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph3"); }
 
     void drawLine(SkCanvas* canvas, SkScalar w, SkScalar h, const std::string& text,
                   TextAlign align, size_t lineLimit = std::numeric_limits<size_t>::max(),
@@ -518,13 +500,7 @@ private:
 
 class ParagraphView4 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph4");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph4"); }
 
     void drawFlutter(SkCanvas* canvas, SkScalar w, SkScalar h,
                      const char* ff = "Google Sans", SkScalar fs = 30,
@@ -662,13 +638,7 @@ private:
 
 class ParagraphView5 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph4");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph4"); }
 
     void bidi(SkCanvas* canvas, SkScalar w, SkScalar h, const std::u16string& text,
               const std::u16string& expected, size_t lineLimit = std::numeric_limits<size_t>::max(),
@@ -789,13 +759,7 @@ private:
 
 class ParagraphView6 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph4");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph4"); }
 
     void hangingS(SkCanvas* canvas, SkScalar w, SkScalar h, SkScalar fs = 60.0) {
         auto ff = "HangingS";
@@ -970,13 +934,7 @@ private:
 
 class ParagraphView7 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph7");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph7"); }
 
     void drawText(SkCanvas* canvas, SkColor background, SkScalar letterSpace, SkScalar w,
                   SkScalar h) {
@@ -1048,13 +1006,7 @@ private:
 
 class ParagraphView8 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph7");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph7"); }
 
     void drawText(SkCanvas* canvas, SkColor background, SkScalar wordSpace, SkScalar w,
                   SkScalar h) {
@@ -1126,12 +1078,9 @@ private:
 
 class ParagraphView9 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph9");
-            return true;
-        }
+    SkString name() override { return SkString("Paragraph9"); }
 
+    bool onQuery(Sample::Event* evt) override {
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
@@ -1230,13 +1179,7 @@ private:
 
 class ParagraphView10 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph10");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph10"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
@@ -1277,13 +1220,7 @@ private:
 
 class ParagraphView11 : public Sample {
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paragraph11");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paragraph11"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);

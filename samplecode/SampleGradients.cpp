@@ -118,13 +118,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Gradients");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Gradients"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPoint pts[2] = {

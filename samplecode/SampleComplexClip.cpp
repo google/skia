@@ -18,13 +18,7 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ComplexClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    virtual SkString name() { return SkString("ComplexClip"); }
 
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPath path;

@@ -54,11 +54,9 @@ public:
     }
     void onSizeChange() final { this->INHERITED::onSizeChange(); this->reset(); }
 
-    bool onQuery(Sample::Event* evt) final {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, this->getName());
-            return true;
-        }
+    SkString name() override { return SkString(this->getName()); }
+
+    bool onQuery(Sample::Event* evt) override {
         SkUnichar unichar;
         if (Sample::CharQ(*evt, &unichar)) {
             if (unichar == 'X') {

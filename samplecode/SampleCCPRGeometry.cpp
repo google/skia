@@ -51,6 +51,7 @@ public:
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override;
     bool onClick(Sample::Click*) override;
     bool onQuery(Sample::Event* evt) override;
+    SkString name() override { return SkString("CCPRGeometry"); }
 
 private:
     class Click;
@@ -441,10 +442,6 @@ bool CCPRGeometryView::onClick(Sample::Click* click) {
 }
 
 bool CCPRGeometryView::onQuery(Sample::Event* evt) {
-    if (Sample::TitleQ(*evt)) {
-        Sample::TitleR(evt, "CCPRGeometry");
-        return true;
-    }
     SkUnichar unichar;
     if (Sample::CharQ(*evt, &unichar)) {
         if (unichar >= '1' && unichar <= '4') {

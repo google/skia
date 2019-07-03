@@ -38,12 +38,9 @@ protected:
         fReferenceImage = GetResourceAsImage("images/shadowreference.png");
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ShadowReference");
-            return true;
-        }
+    SkString name() override { return SkString("ShadowReference"); }
 
+    bool onQuery(Sample::Event* evt) override {
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;

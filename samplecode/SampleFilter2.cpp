@@ -26,13 +26,13 @@ static const char* gNames[] = {
 
 class Filter2View : public Sample {
 public:
-    SkBitmap*   fBitmaps;
-    int         fBitmapCount;
-    int         fCurrIndex;
+    std::unique_ptr<SkBitmap[]> fBitmaps;
+    int fBitmapCount;
+    int fCurrIndex;
 
     Filter2View() {
         fBitmapCount = SK_ARRAY_COUNT(gNames)*2;
-        fBitmaps = new SkBitmap[fBitmapCount];
+        fBitmaps.reset(new SkBitmap[fBitmapCount]);
 
         for (int i = 0; i < fBitmapCount/2; i++) {
             decode_file(gNames[i], &fBitmaps[i]);
@@ -45,22 +45,10 @@ public:
         this->setBGColor(SK_ColorGRAY);
     }
 
-    virtual ~Filter2View() {
-        delete[] fBitmaps;
-    }
-
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            SkString str("Filter/Dither ");
-            str.append(gNames[fCurrIndex]);
-            Sample::TitleR(evt, str.c_str());
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkStringPrintf("Filter/Dither %s", gNames[fCurrIndex]); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(50));
 
         const SkScalar W = SkIntToScalar(fBitmaps[0].width() + 1);

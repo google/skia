@@ -30,13 +30,7 @@ protected:
         fEmojiFont.fText     = ToolUtils::emoji_sample_text();
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Glyph Transform");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Glyph Transform"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;

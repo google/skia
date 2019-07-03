@@ -68,11 +68,9 @@ public:
     }
 
 protected:
+    SkString name() override { return SkString("Lua"); }
+
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Lua");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             lua_State* L = this->ensureLua();

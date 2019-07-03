@@ -96,12 +96,9 @@ protected:
         fDrawable = recorder.finishRecordingAsDrawable();
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AnimatedImage");
-            return true;
-        }
+    SkString name() override { return SkString("AnimatedImage"); }
 
+    bool onQuery(Sample::Event* evt) override {
         SkUnichar uni;
         if (fImage && Sample::CharQ(*evt, &uni)) {
             switch (uni) {

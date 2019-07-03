@@ -26,12 +26,9 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "MegaStroke");
-            return true;
-        }
+    SkString name() override { return SkString("MegaStroke"); }
 
+    bool onQuery(Sample::Event* evt) override {
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
            fClip.set(0, 0, 950, 600);

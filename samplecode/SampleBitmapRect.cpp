@@ -99,13 +99,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "BitmapRect");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("BitmapRect"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkRect srcR;
@@ -194,13 +188,7 @@ public:
     BitmapRectView2() { }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "BigBitmapRect");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("BigBitmapRect"); }
 
     void onOnceBeforeDraw() override {
         make_big_bitmap(&fBitmap);

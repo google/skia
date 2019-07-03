@@ -44,12 +44,9 @@ protected:
         fRectPath.addRect(SkRect::MakeXYWH(-50, -50, 100, 100));
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ShadowColor");
-            return true;
-        }
+    SkString name() override { return SkString("ShadowColor"); }
 
+    bool onQuery(Sample::Event* evt) override {
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;

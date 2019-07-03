@@ -373,12 +373,9 @@ protected:
         return true;
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Thin-AA");
-            return true;
-        }
+    SkString name() override { return SkString("Thin-AA"); }
 
+    bool onQuery(Sample::Event* evt) override {
         SkUnichar key;
         if (Sample::CharQ(*evt, &key)) {
             switch(key) {

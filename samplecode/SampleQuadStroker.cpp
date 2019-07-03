@@ -209,11 +209,9 @@ public:
     }
 
 protected:
+    SkString name() override { return SkString("QuadStroker"); }
+
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "QuadStroker");
-            return true;
-        }
         SkUnichar uni;
         if (fTextButton.fEnabled && Sample::CharQ(*evt, &uni)) {
             switch (uni) {

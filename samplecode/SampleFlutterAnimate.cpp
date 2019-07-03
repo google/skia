@@ -33,14 +33,7 @@ protected:
         initChars();
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FlutterAnimate");
-            return true;
-        }
-
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("FlutterAnimate"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkFont font(fTypeface, 50);

@@ -111,13 +111,7 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FontCache");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("FontCache"); }
 
     virtual void onDrawContent(SkCanvas* canvas) {
         SkScalar x = 0;

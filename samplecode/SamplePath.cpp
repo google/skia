@@ -130,13 +130,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paths");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paths"); }
 
     void drawPath(SkCanvas* canvas, const SkPath& path, SkPaint::Join j) {
         SkPaint paint;
@@ -250,11 +244,9 @@ public:
     }
 
 protected:
+    SkString name() override { return SkString("ArcTo"); }
+
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ArcTo");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
@@ -367,11 +359,9 @@ public:
     }
 
 protected:
+    SkString name() override { return SkString("FatStroke"); }
+
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FatStroke");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
@@ -488,13 +478,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "CubicCurve");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("CubicCurve"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
@@ -617,11 +601,9 @@ public:
     }
 
 protected:
+    SkString name() override { return SkString("CubicCurve2"); }
+
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "CubicCurve2");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

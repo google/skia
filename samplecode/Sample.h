@@ -83,6 +83,8 @@ public:
     void setBGColor(SkColor color) { fBGColor = color; }
     bool animate(const AnimTimer& timer) { return this->onAnimate(timer); }
 
+    virtual SkString name() = 0;
+
     class Event {
     public:
         Event();
@@ -189,7 +191,6 @@ public:
     static bool CharQ(const Event&, SkUnichar* outUni);
     static bool TitleQ(const Event&);
     static void TitleR(Event*, const char title[]);
-    static bool RequestTitle(Sample* view, SkString* title);
 
 protected:
     /** Override to handle events in your subclass.

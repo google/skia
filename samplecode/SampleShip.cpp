@@ -88,13 +88,7 @@ public:
     ~DrawShipView() override {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, fName);
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString(fName); }
 
     void onDrawContent(SkCanvas* canvas) override {
         const float kCosDiff = 0.99984769515f;
