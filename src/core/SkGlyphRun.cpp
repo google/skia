@@ -338,16 +338,15 @@ void SkGlyphRunBuilder::simplifyDrawText(
     auto runSize = glyphIDs.size();
 
     if (!glyphIDs.empty()) {
-        fScratchAdvances.resize(runSize);
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(font);
-        auto cache = strikeSpec.findOrCreateExclusiveStrike();
-        cache->getAdvances(glyphIDs, fScratchAdvances.data());
+        SkBulkGlyphMetrics storage{strikeSpec};
+        auto glyphs = storage.glyphs(glyphIDs);
 
         SkPoint endOfLastGlyph = origin;
-
-        for (size_t i = 0; i < runSize; i++) {
-            positions[i] = endOfLastGlyph;
-            endOfLastGlyph += fScratchAdvances[i];
+        SkPoint* cursor = positions;
+        for (auto glyph : glyphs) {
+            *cursor++ = endOfLastGlyph;
+            endOfLastGlyph += glyph->advanceVector();
         }
 
         this->makeGlyphRun(

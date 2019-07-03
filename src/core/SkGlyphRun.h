@@ -172,9 +172,6 @@ private:
     // glyph ids will ever be needed because blobs are already glyph based.
     std::vector<SkGlyphID> fScratchGlyphIDs;
 
-    // Used as temporary storage for calculating positions for drawText.
-    std::vector<SkPoint> fScratchAdvances;
-
     // Used for collecting the set of unique glyphs.
     SkGlyphIDSet fGlyphIDSet;
     SkAutoTMalloc<SkGlyphID> fUniqueGlyphIDs;
