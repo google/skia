@@ -1178,7 +1178,11 @@ enum class GrColorType {
     // Experimental (for Y416 and mutant P016/P010)
     kRGBA_16161616, // Not in SkColorType
     kRG_F16,        // Not in SkColorType
+
+    kLast = kRG_F16
 };
+
+static const int kGrColorTypeCnt = static_cast<int>(GrColorType::kLast) + 1;
 
 static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
     switch (ct) {
