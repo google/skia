@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b05354cf_a87d2a6c",
+        "filename": "src/pdf/SkPDFFont.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-03T16:06:27Z",
+      "side": 1,
+      "message": "Ben and I found this problem with shadowing emSize. There was an emSize above, and that value was passed below in insertScalar. Calculate the needed emSize in this scope for the insertScalar call.\n\nCan you please re-run your tool?",
+      "range": {
+        "startLine": 374,
+        "startChar": 8,
+        "endLine": 374,
+        "endChar": 52
+      },
+      "revId": "03e52b197afc0d4f390a34fbc5d3fbfba290308b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
