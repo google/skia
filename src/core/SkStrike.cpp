@@ -123,17 +123,6 @@ SkSpan<const SkGlyph*> SkStrike::internalPrepare(
     return {results, glyphIDs.size()};
 }
 
-SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
-    auto cursor = advances;
-    SkAutoSTArray<50, const SkGlyph*> glyphStorage{SkTo<int>(glyphIDs.size())};
-    auto glyphs = this->internalPrepare(glyphIDs, kMetricsOnly, glyphStorage.get());
-    for (const SkGlyph* glyph : glyphs) {
-        *cursor++ = glyph->advanceVector();
-    }
-    return {advances, glyphIDs.size()};
-}
-
-
 const void* SkStrike::prepareImage(SkGlyph* glyph) {
     if (glyph->setImage(&fAlloc, fScalerContext.get())) {
         fMemoryUsed += glyph->imageSize();
