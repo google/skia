@@ -32,7 +32,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN/Release",
-      "--args=extra_cflags=[\"-DDUMMY_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" ndk_api=21 sanitize=\"ASAN\" target_cpu=\"arm\" werror=true"
+      "--args=extra_cflags=[\"-DDUMMY_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" sanitize=\"ASAN\" target_cpu=\"arm\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
