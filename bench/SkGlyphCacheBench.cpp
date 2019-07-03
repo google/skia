@@ -24,16 +24,15 @@ static void do_font_stuff(SkFont* font) {
         auto strikeSpec = SkStrikeSpec::MakeMask(
                 *font,  defaultPaint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
                 SkScalerContextFlags::kNone, SkMatrix::I());
-        auto cache = strikeSpec.findOrCreateExclusiveStrike();
         SkPackedGlyphID glyphs['z'];
         for (int c = ' '; c < 'z'; c++) {
             glyphs[c] = SkPackedGlyphID{font->unicharToGlyph(c)};
         }
         constexpr size_t glyphCount = 'z' - ' ';
         SkSpan<const SkPackedGlyphID> glyphIDs{&glyphs[SkTo<int>(' ')], glyphCount};
-        const SkGlyph* result[glyphCount];
+        SkBulkGlyphMetricsAndImages images{strikeSpec};
         for (int lookups = 0; lookups < 10; lookups++) {
-            cache->prepareImages(glyphIDs, result);
+            (void)images.glyphs(glyphIDs);
         }
     }
 }
