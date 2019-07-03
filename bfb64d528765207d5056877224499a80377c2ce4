@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89d4528b_43c7645a",
+        "filename": "src/pdf/SkPDFFont.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-03T19:24:37Z",
+      "side": 1,
+      "message": "Interestingly, this is no longer used outside this block, so could be moved into it.",
+      "range": {
+        "startLine": 369,
+        "startChar": 4,
+        "endLine": 369,
+        "endChar": 30
+      },
+      "revId": "bfb64d528765207d5056877224499a80377c2ce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
