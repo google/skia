@@ -22,6 +22,30 @@
       "revId": "be5b94cf4efe7f18e829a8808a7fa5d5ff381d3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e5bef64_7cf75810",
+        "filename": "src/pdf/SkPDFMakeCIDGlyphWidthsArray.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-03T19:15:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55f0bc68_81445c07",
+      "range": {
+        "startLine": 21,
+        "startChar": 57,
+        "endLine": 21,
+        "endChar": 64
+      },
+      "revId": "be5b94cf4efe7f18e829a8808a7fa5d5ff381d3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
