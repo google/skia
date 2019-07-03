@@ -26,6 +26,10 @@ class SkZip {
 
     class Iterator {
     public:
+        using value_type = ReturnTuple;
+        using difference_type = ptrdiff_t;
+        using pointer = value_type*;
+        using reference = value_type&;
         constexpr Iterator(const SkZip* zip, size_t index) : fZip{zip}, fIndex{index} { }
         constexpr Iterator(const Iterator& that) : Iterator{ that.fZip, that.fIndex } { }
         constexpr Iterator& operator++() { ++fIndex; return *this; }
@@ -33,6 +37,10 @@ class SkZip {
         constexpr bool operator==(const Iterator& rhs) const { return fIndex == rhs.fIndex; }
         constexpr bool operator!=(const Iterator& rhs) const { return fIndex != rhs.fIndex; }
         constexpr ReturnTuple operator*() { return (*fZip)[fIndex]; }
+
+        friend difference_type operator-(Iterator lhs, Iterator rhs) {
+            return SkTo<difference_type>(lhs.fIndex - rhs.fIndex);
+        }
 
     private:
         const SkZip* const fZip = nullptr;
@@ -147,4 +155,51 @@ template<typename... Ts>
 inline constexpr auto SkMakeZip(Ts&& ... ts) {
     return SkMakeZipDetail::MakeZip(std::forward<Ts>(ts)...);
 }
+
+// SkIota returns a tuple with an index and the value returned by the iterator. The index always
+// starts at 0.
+template <typename Iter, typename C = skstd::monostate>
+class SkIota {
+    using Result = std::tuple<size_t, decltype(*std::declval<Iter>())>;
+
+    class Iterator {
+    public:
+        Iterator(size_t index, Iter it) : fIndex{index}, fIt{it} { }
+        Iterator(const Iterator&) = default;
+        Iterator operator++() { ++fIndex; ++fIt; return *this; }
+        Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
+        bool operator==(const Iterator& rhs) const { return fIt == rhs.fIt; }
+        bool operator!=(const Iterator& rhs) const { return fIt != rhs.fIt; }
+        Result operator*() { return std::forward_as_tuple(fIndex, *fIt); }
+
+    private:
+        size_t fIndex;
+        Iter fIt;
+    };
+
+public:
+    SkIota(Iter begin, Iter end) : fBegin{begin}, fEnd{end} { }
+    SkIota(C&& c)
+            : fCollection{std::move(c)}
+            , fBegin{std::begin(fCollection)}
+            , fEnd{std::end(fCollection)} { }
+    SkIota(const SkIota& that) = default;
+    SkIota& operator=(const SkIota& that) { fBegin = that.fBegin;  fEnd = that.fEnd; return *this; }
+    Iterator begin() const { return Iterator{0, fBegin}; }
+    Iterator end() const { return Iterator{SkTo<size_t>(fEnd - fBegin), fEnd}; }
+
+private:
+    C fCollection;
+    Iter fBegin;
+    Iter fEnd;
+};
+
+template <typename C, typename Iter = decltype(std::begin(std::declval<C>()))>
+inline SkIota<Iter> SkMakeIota(C& c) { return SkIota<Iter>{std::begin(c), std::end(c)}; }
+
+template <typename C, typename Iter = decltype(std::begin(std::declval<C>()))>
+inline SkIota<Iter, C> SkMakeIota(C&& c) { return SkIota<Iter, C>{std::forward<C>(c)}; }
+
+template <class T, std::size_t N, typename Iter = decltype(std::begin(std::declval<T(&)[N]>()))>
+inline SkIota<Iter> SkMakeIota(T (&a)[N]) { return SkIota<Iter>{std::begin(a), std::end(a)}; }
 #endif //SkZip_DEFINED
