@@ -170,6 +170,7 @@ void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
 
     if (obj == nullptr) {
         fWriter.write32(0);
+        return;
     } else if (fProcs.fTypefaceProc) {
         auto data = fProcs.fTypefaceProc(obj, fProcs.fTypefaceCtx);
         if (data) {
