@@ -142,6 +142,9 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
             return kR_16_GrPixelConfig == config;
         case VK_FORMAT_R16G16_UNORM:
             return kRG_1616_GrPixelConfig == config;
+        case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
+            return kRGB_888_GrPixelConfig == config;
         // Experimental (for Y416 and mutant P016/P010)
         case VK_FORMAT_R16G16B16A16_UNORM:
             return kRGBA_16161616_GrPixelConfig == config;
@@ -173,6 +176,8 @@ bool GrVkFormatIsSupported(VkFormat format) {
         case VK_FORMAT_R16_SFLOAT:
         case VK_FORMAT_R16_UNORM:
         case VK_FORMAT_R16G16_UNORM:
+        case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         // Experimental (for Y416 and mutant P016/P010)
         case VK_FORMAT_R16G16B16A16_UNORM:
         case VK_FORMAT_R16G16_SFLOAT:

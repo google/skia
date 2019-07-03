@@ -679,6 +679,8 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
     VK_FORMAT_R16_UNORM,
     VK_FORMAT_R16G16_UNORM,
+    VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM,
+    VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
     // Experimental (for Y416 and mutant P016/P010)
     VK_FORMAT_R16G16B16A16_UNORM,
     VK_FORMAT_R16G16_SFLOAT,
@@ -985,6 +987,10 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
             if (VK_FORMAT_R8G8B8A8_UNORM == format) {
                 return kRGB_888X_GrPixelConfig;
             }
+            if (VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM == format ||
+                VK_FORMAT_G8_B8R8_2PLANE_420_UNORM == format) {
+                return kRGB_888_GrPixelConfig;
+            }
             break;
         case GrColorType::kRG_88:
             if (VK_FORMAT_R8G8_UNORM == format) {
@@ -1105,6 +1111,9 @@ static GrPixelConfig get_yuva_config(VkFormat vkFormat) {
             return kR_16_GrPixelConfig;
         case VK_FORMAT_R16G16_UNORM:
             return kRG_1616_GrPixelConfig;
+        case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
+            return kRGB_888_GrPixelConfig;
         // Experimental (for Y416 and mutant P016/P010)
         case VK_FORMAT_R16G16B16A16_UNORM:
             return kRGBA_16161616_GrPixelConfig;
@@ -1164,7 +1173,9 @@ static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorTyp
             GR_STATIC_ASSERT(GrCompressionTypeClosestColorType(SkImage::kETC1_CompressionType) ==
                              GrColorType::kRGB_888x);
             return VK_FORMAT_R8G8B8_UNORM == vkFormat || VK_FORMAT_R8G8B8A8_UNORM == vkFormat ||
-                   VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK == vkFormat;
+                   VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK == vkFormat ||
+                   VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM == vkFormat ||
+                   VK_FORMAT_G8_B8R8_2PLANE_420_UNORM == vkFormat;
         case GrColorType::kRG_88:
             return VK_FORMAT_R8G8_UNORM == vkFormat;
         case GrColorType::kBGRA_8888:
