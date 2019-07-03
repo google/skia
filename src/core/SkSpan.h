@@ -9,9 +9,10 @@
 #define SkSpan_DEFINED
 
 #include <cstddef>
-#include <string>
-#include <vector>
+#include <tuple>
+#include <type_traits>
 
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 template <typename T>
@@ -56,4 +57,109 @@ inline auto SkMakeSpan(Container& c)
         -> SkSpan<typename std::remove_reference<decltype(*(c.data()))>::type> {
     return {c.data(), c.size()};
 }
+
+// Take a list of things that have operator[], and use them all in parallel. The iterators and
+// accessor operator[] for the class produce a tuple of the items.
+template<typename... Ts>
+class SkZip {
+    using ReturnTuple = std::tuple<decltype(std::declval<Ts*>()[0])..., size_t>;
+
+    class Iterator {
+    public:
+        Iterator(const SkZip* zip, size_t index) : fZip{zip}, fIndex{index} { }
+        Iterator(const Iterator& that) : Iterator{ that.fZip, that.fIndex } { }
+        Iterator& operator++() { ++fIndex; return *this; }
+        Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
+        bool operator==(const Iterator& rhs) const { return fIndex == rhs.fIndex; }
+        bool operator!=(const Iterator& rhs) const { return fIndex != rhs.fIndex; }
+        ReturnTuple operator*() { return (*fZip)[fIndex]; }
+
+    private:
+        const SkZip* const fZip = nullptr;
+        size_t fIndex = 0;
+    };
+
+public:
+    SkZip(size_t) = delete;
+    explicit SkZip(size_t size, Ts*... ts)
+            : fPointers{ts...}
+            , fSize{size} {}
+
+    template<typename... Us>
+    explicit SkZip(const SkZip<Us...>& that)
+    : fPointers{that.fPointers}
+    , fSize{that.fSize} {}
+
+    ReturnTuple operator[](size_t i) const {
+        return this->index(i);
+    }
+
+    size_t size() const { return fSize; }
+    bool empty() const { return this->size() == 0; }
+    ReturnTuple front() const { return this->index(0); }
+    ReturnTuple back() const { return this->index(this->size() - 1); }
+    Iterator begin() const { return Iterator{this, 0}; }
+    Iterator end() const { return Iterator{this, this->size()}; }
+
+private:
+    ReturnTuple index(size_t i) const {
+        SkASSERT( this->size() > 0);
+        SkASSERT( i < this->size());
+        return indexDetail(i, skstd::make_index_sequence<sizeof...(Ts)>{});
+    }
+
+    template<std::size_t... Is>
+    ReturnTuple indexDetail(size_t i, skstd::index_sequence<Is...>) const {
+        return ReturnTuple((std::get<Is>(fPointers))[i]..., i);
+    }
+
+    std::tuple<Ts*...> fPointers;
+    size_t fSize;
+};
+
+class SkMakeZipDetail {
+    template<typename C> struct Size {
+        static decltype(std::declval<C>().size(), size_t()) size(const C& c) { return c.size(); }
+    };
+    template<typename T, size_t N> struct Size<T(&)[N]> {
+        static size_t size(const T(&)[N]) { return N; }
+    };
+    template<typename T> struct Size<T*> { static size_t size(const T* s) { return 0; } };
+
+    template<typename C> struct Type {
+        using type = typename std::remove_pointer<decltype(std::declval<C>().data())>::type;
+        static type* ptr(C& c) { return c.data(); }
+    };
+    template<typename T, size_t N> struct Type<T(&)[N]> {
+        using type = T;
+        static type* ptr(T* t) { return t; }
+    };
+    template<typename T> struct Type<T*> {
+        using type = T;
+        static type* ptr(T* t) { return t; }
+    };
+
+public:
+    template<typename... Ts>
+    static auto MakeZip(Ts&& ... ts) -> SkZip<typename Type<Ts>::type...> {
+        size_t minSize = SIZE_MAX;
+        size_t maxSize = 0;
+        for (size_t s : {Size<typename std::remove_const<Ts>::type>::size(ts)...}) {
+            if (s != 0) {
+                minSize = std::min(minSize, s);
+                maxSize = std::max(maxSize, s);
+            }
+        }
+        SkASSERT(maxSize > 0);
+        SkASSERT(minSize == maxSize);
+
+        return SkZip<typename Type<Ts>::type...>{maxSize, Type<Ts>::ptr(std::forward<Ts>(ts))...};
+    }
+};
+
+template<typename... Ts>
+inline auto SkMakeZip(Ts&& ... ts) -> decltype(SkMakeZipDetail::MakeZip(std::forward<Ts>(ts)...)) {
+    return SkMakeZipDetail::MakeZip(std::forward<Ts>(ts)...);
+}
+
 #endif  // SkSpan_DEFINED
