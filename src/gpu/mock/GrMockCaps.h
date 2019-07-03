@@ -37,49 +37,47 @@ public:
     }
 
     bool isFormatSRGB(const GrBackendFormat& format) const override {
-        if (!format.getMockFormat()) {
+        if (!format.getMockSRGBEncoded()) {
             return false;
         }
 
-        return kSRGBA_8888_GrPixelConfig == *format.getMockFormat();
+        return GrSRGBEncoded::kYes == *format.getMockSRGBEncoded();
     }
 
     bool isFormatTexturable(SkColorType, const GrBackendFormat& format) const override {
-        if (!format.getMockFormat()) {
+        if (!format.getMockColorType()) {
             return false;
         }
 
-        return this->isConfigTexturable(*format.getMockFormat());
+        // We are ignoring the srgb encoding here
+        return fOptions.fConfigOptions[(int)*format.getMockColorType()].fTexturable;
     }
 
     bool isConfigTexturable(GrPixelConfig config) const override {
-        return fOptions.fConfigOptions[config].fTexturable;
+        GrColorType ct = GrPixelConfigToColorType(config);
+
+        return fOptions.fConfigOptions[(int)ct].fTexturable;
     }
 
     bool isFormatCopyable(SkColorType, const GrBackendFormat& format) const override {
-        if (!format.getMockFormat()) {
+        if (!format.getMockColorType() || !format.getMockSRGBEncoded()) {
             return false;
         }
 
-        return this->isConfigCopyable(*format.getMockFormat());
+        GrPixelConfig config = GrColorTypeToPixelConfig(*format.getMockColorType(),
+                                                        *format.getMockSRGBEncoded());
+
+        return this->isConfigCopyable(config);
     }
 
     bool isConfigCopyable(GrPixelConfig config) const override {
         return false;
     }
 
-    int getRenderTargetSampleCount(int requestCount,
-                                   SkColorType, const GrBackendFormat& format) const override {
-        if (!format.getMockFormat()) {
-            return 0;
-        }
-
-        return this->getRenderTargetSampleCount(requestCount, *format.getMockFormat());
-    }
-
-    int getRenderTargetSampleCount(int requestCount, GrPixelConfig config) const override {
+    int getRenderTargetSampleCount(int requestCount, GrColorType ct) const {
         requestCount = SkTMax(requestCount, 1);
-        switch (fOptions.fConfigOptions[config].fRenderability) {
+
+        switch (fOptions.fConfigOptions[(int)ct].fRenderability) {
             case GrMockOptions::ConfigOptions::Renderability::kNo:
                 return 0;
             case GrMockOptions::ConfigOptions::Renderability::kNonMSAA:
@@ -90,16 +88,23 @@ public:
         return 0;
     }
 
-    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat& format) const override {
-        if (!format.getMockFormat()) {
+    int getRenderTargetSampleCount(int requestCount,
+                                   SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockColorType()) {
             return 0;
         }
 
-        return this->maxRenderTargetSampleCount(*format.getMockFormat());
+        return this->getRenderTargetSampleCount(requestCount, *format.getMockColorType());
     }
 
-    int maxRenderTargetSampleCount(GrPixelConfig config) const override {
-        switch (fOptions.fConfigOptions[config].fRenderability) {
+    int getRenderTargetSampleCount(int requestCount, GrPixelConfig config) const override {
+        GrColorType ct = GrPixelConfigToColorType(config);
+
+        return this->getRenderTargetSampleCount(requestCount, ct);
+    }
+
+    int maxRenderTargetSampleCount(GrColorType ct) const {
+        switch (fOptions.fConfigOptions[(int)ct].fRenderability) {
             case GrMockOptions::ConfigOptions::Renderability::kNo:
                 return 0;
             case GrMockOptions::ConfigOptions::Renderability::kNonMSAA:
@@ -108,6 +113,20 @@ public:
                 return kMaxSampleCnt;
         }
         return 0;
+    }
+
+    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockColorType()) {
+            return 0;
+        }
+
+        return this->maxRenderTargetSampleCount(*format.getMockColorType());
+    }
+
+    int maxRenderTargetSampleCount(GrPixelConfig config) const override {
+        GrColorType ct = GrPixelConfigToColorType(config);
+
+        return this->maxRenderTargetSampleCount(ct);
     }
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
@@ -126,11 +145,18 @@ public:
 
     bool areColorTypeAndFormatCompatible(GrColorType ct,
                                          const GrBackendFormat& format) const override {
-        const GrPixelConfig* mockFormat = format.getMockFormat();
-        if (!mockFormat) {
-            return kUnknown_GrPixelConfig;
+        const GrColorType* mockColorType = format.getMockColorType();
+        if (!mockColorType) {
+            return false;
         }
 
+        if (GrColorType::kUnknown == ct) {
+            return false;
+        }
+
+        return ct == *mockColorType;
+
+#if 0
         switch (ct) {
             case GrColorType::kUnknown:
                 return false;
@@ -232,41 +258,38 @@ public:
         }
 
         return false;
+#endif
     }
 
     GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
                                              GrColorType) const override {
-        const GrPixelConfig* mockFormat = format.getMockFormat();
-        if (!mockFormat) {
+        if (!format.getMockColorType() || !format.getMockSRGBEncoded()) {
             return kUnknown_GrPixelConfig;
         }
-        return *mockFormat;
+
+        GrPixelConfig config = GrColorTypeToPixelConfig(*format.getMockColorType(),
+                                                        *format.getMockSRGBEncoded());
+
+        return config;
     }
 
     GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const override {
-        const GrPixelConfig* mockFormat = format.getMockFormat();
-        if (!mockFormat) {
+        if (!format.getMockColorType() || !format.getMockSRGBEncoded()) {
             return kUnknown_GrPixelConfig;
         }
-        return *mockFormat;
+
+        GrPixelConfig config = GrColorTypeToPixelConfig(*format.getMockColorType(),
+                                                        *format.getMockSRGBEncoded());
+
+        return config;
     }
 
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override {
-        GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
-        if (config == kUnknown_GrPixelConfig) {
-            return GrBackendFormat();
-        }
-        return GrBackendFormat::MakeMock(config);
+        return GrBackendFormat::MakeMock(ct, srgbEncoded);
     }
 
-    GrBackendFormat getBackendFormatFromCompressionType(
-            SkImage::CompressionType compressionType) const override {
-        switch (compressionType) {
-            case SkImage::kETC1_CompressionType:
-                return GrBackendFormat::MakeMock(kRGB_ETC1_GrPixelConfig);
-        }
-        SK_ABORT("Invalid compression type");
+    GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override {
         return {};
     }
 
