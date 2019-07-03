@@ -906,6 +906,7 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcR
     int srcSampleCnt = get_surface_sample_cnt(src);
 
     if (dstSampleCnt > 1 || srcSampleCnt > 1) {
+        // TODO: implement here
         SkASSERT(false); // Currently dont support MSAA. TODO: add copySurfaceAsResolve().
         return false;
     }

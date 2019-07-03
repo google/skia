@@ -44,6 +44,7 @@ GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(GrMtlGpu* gpu,
     id<MTLTexture> renderTexture = [gpu->device() newTextureWithDescriptor:texDesc];
     SkASSERT(nil != renderTexture);
     if (desc.fSampleCnt > 1) {
+        // TODO: implement here
         return nullptr;
     }
     SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & renderTexture.usage);
@@ -61,6 +62,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
                                             ? GrMipMapsStatus::kDirty
                                             : GrMipMapsStatus::kNotAllocated;
     if (desc.fSampleCnt > 1) {
+        // TODO: implement here
         return nullptr;
     }
     SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & renderTexture.usage);

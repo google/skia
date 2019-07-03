@@ -28,6 +28,7 @@ public:
     ResolveType getResolveType() const override {
         return kCantResolve_ResolveType;
 #if 0 // TODO figure this once we support msaa
+        // TODO: implement here
         if (this->numSamples() > 1) {
             return kCanResolve_ResolveType;
         }
