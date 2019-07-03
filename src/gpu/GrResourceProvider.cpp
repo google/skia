@@ -75,7 +75,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
                     if (texels[i].fRowBytes < minRB) {
                         return nullptr;
                     }
-                    if (this->caps()->writePixelsRowBytesSupport() &&
+                    if (!this->caps()->writePixelsRowBytesSupport() &&
                         texels[i].fRowBytes != minRB) {
                         auto copy = new char[minRB * h];
                         tmpDatas[i].reset(copy);
