@@ -169,10 +169,12 @@ config("default") {
       "--sysroot=$ndk/platforms/$ndk_platform",
       "--target=$ndk_target",
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
+      "-static-libstdc++",
     ]
     lib_dirs = [
       "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
       "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
+      "$ndk/toolchains/llvm/prebuilt/$ndk_host/sysroot/usr/lib/$ndk_target/$ndk_api",
     ]
 
     libs += [
