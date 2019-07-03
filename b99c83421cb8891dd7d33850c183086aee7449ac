@@ -22,6 +22,30 @@
       "revId": "b99c83421cb8891dd7d33850c183086aee7449ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d403a4a7_38cc8c15",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-03T14:35:01Z",
+      "side": 1,
+      "message": "Oh that\u0027s actually how I was reading it. It\u0027s the 10.1 revision of the device... I\u0027ll update the change to be more specific.",
+      "parentUuid": "e45737dc_efe8739d",
+      "range": {
+        "startLine": 7,
+        "startChar": 31,
+        "endLine": 7,
+        "endChar": 35
+      },
+      "revId": "b99c83421cb8891dd7d33850c183086aee7449ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
