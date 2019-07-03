@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef92d7e0_0f7cb631",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-03T15:04:43Z",
+      "side": 1,
+      "message": "I think this sort of code snippet would be easier to follow with one less auto or so, e.g.\n\n  SkSpan\u003cconst SkGlyph*\u003e glyphs \u003d paths.glyphs(...);\n  for (auto glyph : glyphs) {\n    ...\n  }",
+      "range": {
+        "startLine": 323,
+        "startChar": 9,
+        "endLine": 323,
+        "endChar": 14
+      },
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df02c96c_5d2d65ed",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-03T15:04:43Z",
+      "side": 1,
+      "message": "What\u0027s the deal with some routines taking\n\n   const SkGlyph** results\n\nand others\n\n   const SkGlyph* results[]\n\n?  I mildly prefer the second, but I\u0027d mostly prefer either to both.",
+      "range": {
+        "startLine": 189,
+        "startChar": 64,
+        "endLine": 189,
+        "endChar": 87
+      },
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48a608c0_448bb0f6",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-03T15:04:43Z",
+      "side": 1,
+      "message": "Think it\u0027s clearer to\n\n   (void)this-\u003eprepareImage(glyphPtr);\n\nfor these sorts of calls where we\u0027re ignoring the return value?",
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adeef2e6_41475292",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-03T15:04:43Z",
+      "side": 1,
+      "message": "Maybe clearer to positively describe what we\u0027re preparing rather than what we\u0027re not?\n\n   kMetricsOnly,\n   kMetricsAndPath,\n\n?",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 6
+      },
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ed7f08d_ac132e09",
+        "filename": "src/core/SkStrikeSpec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-03T15:04:43Z",
+      "side": 1,
+      "message": "Maybe if it were named\n\n   SkBulkGlyphMetricsAndPaths\n\nit wouldn\u0027t need the comment?",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 24
+      },
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0da3bc42_60817146",
+        "filename": "src/core/SkStrikeSpec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-03T15:04:43Z",
+      "side": 1,
+      "message": "Same deal?",
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
