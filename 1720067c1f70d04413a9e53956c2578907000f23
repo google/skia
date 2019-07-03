@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac4da849_6af12e42",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-07-03T00:14:17Z",
+      "side": 0,
+      "message": "Should we also delete the infra/bots/recipes/test.expected/Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs.json file??",
+      "revId": "1720067c1f70d04413a9e53956c2578907000f23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
