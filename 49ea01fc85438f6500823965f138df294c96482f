@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0aba1596_3771cb3b",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-03T17:07:55Z",
+      "side": 1,
+      "message": "I was hesitant to pull that trigger since about 10% of the devices out there fall between 16 and 21.  I\u0027m glad you did and like the simplicity in our setup.",
+      "revId": "49ea01fc85438f6500823965f138df294c96482f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
