@@ -4,14 +4,16 @@ declare_args() {
   host_cxx = cxx
 
   if (is_android) {
+    _prefix = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin"
     if (host_os == "win") {
-      target_ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar.exe"
-      target_cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang.exe"
-      target_cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++.exe"
+      target_ar = "$_prefix/llvm-ar.exe"
+      target_cc = "$_prefix/clang.exe --target=$ndk_target$ndk_api -fno-addrsig"
+      target_cxx =
+          "$_prefix/clang++.exe --target=$ndk_target$ndk_api -fno-addrsig"
     } else {
-      target_ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
-      target_cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
-      target_cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
+      target_ar = "$_prefix/llvm-ar"
+      target_cc = "$_prefix/$ndk_target$ndk_api-clang"
+      target_cxx = "$_prefix/$ndk_target$ndk_api-clang++"
     }
   } else {
     target_ar = ar
