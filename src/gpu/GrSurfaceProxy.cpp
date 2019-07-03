@@ -465,12 +465,6 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         return false;
     }
 
-    // We currently assume we can always change the stencil attachment on lazy render targets (see
-    // GrRenderTargetProxy::canUseMixedSamples). If the time ever comes that we need to to break
-    // this assumption, we will have to add plumbing to relay this restriction back to the proxy.
-    SkASSERT(!surface->asRenderTarget() ||
-             surface->asRenderTarget()->canAttemptStencilAttachment());
-
     if (fProxy->fWidth <= 0 || fProxy->fHeight <= 0) {
         // This was a fully lazy proxy. We need to fill in the width & height. For partially
         // lazy proxies we must preserve the original width & height since that indicates
