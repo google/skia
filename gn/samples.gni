@@ -65,7 +65,6 @@ samples_sources = [
   "$_samplecode/SamplePathClip.cpp",
   "$_samplecode/SamplePathEffects.cpp",
   "$_samplecode/SamplePathOverstroke.cpp",
-  "$_samplecode/SamplePdfFileViewer.cpp",
   "$_samplecode/SamplePolyToPoly.cpp",
   "$_samplecode/SampleQuadStroker.cpp",
   "$_samplecode/SampleRectanizer.cpp",
