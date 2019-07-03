@@ -58,7 +58,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
     }
 
     SkAutoSTMalloc<14, GrMipLevel> tmpTexels;
-    SkAutoSTMalloc<14, std::unique_ptr<char[]>> tmpDatas;
+    SkAutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
     if (mipLevelCount > 0 && texels) {
         tmpTexels.reset(mipLevelCount);
         tmpDatas.reset(mipLevelCount);
