@@ -8,8 +8,11 @@
 #ifndef SkSpan_DEFINED
 #define SkSpan_DEFINED
 
+#include "include/private/SkTemplates.h"
+
 #include <cstddef>
 #include <string>
+#include <tuple>
 #include <vector>
 
 template <typename T>
