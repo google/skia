@@ -152,19 +152,10 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
         return nullptr;
     }
 
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo);
-    if (kUnknown_GrPixelConfig == config) {
-        return nullptr;
-    }
-    GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(origInfo.colorType());
-    if (!format.isValid()) {
-        return nullptr;
-    }
     // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
     // they need to be exact.
     return context->priv().makeDeferredRenderTargetContext(
-            format, SkBackingFit::kExact, origInfo.width(), origInfo.height(), config,
+            SkBackingFit::kExact, origInfo.width(), origInfo.height(),
             SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(), sampleCount,
             mipMapped, origin, surfaceProps, budgeted);
 }
@@ -1665,26 +1656,17 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
                                                             : SkBackingFit::kExact;
 
     GrColorType colorType = fRenderTargetContext->colorSpaceInfo().colorType();
-    const GrBackendFormat& origFormat = fRenderTargetContext->asSurfaceProxy()->backendFormat();
-    GrBackendFormat format = origFormat.makeTexture2D();
-    if (!format.isValid()) {
-        return nullptr;
-    }
     if (colorType == GrColorType::kRGBA_1010102) {
         // If the original device is 1010102, fall back to 8888 so that we have a usable alpha
         // channel in the layer.
         colorType = GrColorType::kRGBA_8888;
-        format = fContext->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     }
 
-    auto config = fContext->priv().caps()->getConfigFromBackendFormat(format, colorType);
     sk_sp<GrRenderTargetContext> rtc(fContext->priv().makeDeferredRenderTargetContext(
-            format,
             fit,
             cinfo.fInfo.width(),
             cinfo.fInfo.height(),
-            config,
-            fRenderTargetContext->colorSpaceInfo().colorType(),
+            colorType,
             fRenderTargetContext->colorSpaceInfo().refColorSpace(),
             fRenderTargetContext->numSamples(),
             GrMipMapped::kNo,
