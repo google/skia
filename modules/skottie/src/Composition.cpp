@@ -129,6 +129,15 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(const skjson::Object
     std::vector<sk_sp<sksg::RenderNode>> layers;
     AttachLayerContext                   layerCtx(*jlayers);
 
+    // Optional motion blur params.
+    if (const skjson::ObjectValue* jmb = jcomp["mb"]) {
+        static constexpr size_t kMaxSamplesPerFrame = 64;
+        layerCtx.fMotionBlurSamples = std::min(ParseDefault<size_t>((*jmb)["spf"], 1ul),
+                                               kMaxSamplesPerFrame);
+        layerCtx.fMotionBlurAngle = SkTPin(ParseDefault((*jmb)["sa"], 0.0f),    0.0f, 720.0f);
+        layerCtx.fMotionBlurPhase = SkTPin(ParseDefault((*jmb)["sp"], 0.0f), -360.0f, 360.0f);
+    }
+
     layers.reserve(jlayers->size());
     for (const auto& l : *jlayers) {
         if (auto layer = this->attachLayer(l, scope, &layerCtx)) {

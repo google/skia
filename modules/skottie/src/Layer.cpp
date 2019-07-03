@@ -10,6 +10,7 @@
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/effects/Effects.h"
+#include "modules/skottie/src/effects/MotionBlurEffect.h"
 #include "modules/sksg/include/SkSGClipEffect.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
@@ -193,6 +194,60 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     return sksg::MaskEffect::Make(std::move(childNode), std::move(maskNode));
 }
 
+class LayerController final : public sksg::Animator {
+public:
+    LayerController(sksg::AnimatorList&& layer_animators,
+                    sk_sp<sksg::RenderNode> layer,
+                    size_t tanim_count, float in, float out)
+        : fLayerAnimators(std::move(layer_animators))
+        , fLayerNode(std::move(layer))
+        , fTransformAnimatorsCount(tanim_count)
+        , fIn(in)
+        , fOut(out) {}
+
+protected:
+    void onTick(float t) override {
+        const auto active = (t >= fIn && t < fOut);
+
+        if (fLayerNode) {
+            fLayerNode->setVisible(active);
+        }
+
+        // When active, dispatch ticks to all layer animators.
+        // When inactive, we must still dispatch ticks to the layer transform animators
+        // (active child layers depend on transforms being updated).
+        const auto dispatch_count = active ? fLayerAnimators.size()
+                                           : fTransformAnimatorsCount;
+        for (size_t i = 0; i < dispatch_count; ++i) {
+            fLayerAnimators[i]->tick(t);
+        }
+    }
+
+private:
+    const sksg::AnimatorList      fLayerAnimators;
+    const sk_sp<sksg::RenderNode> fLayerNode;
+    const size_t                  fTransformAnimatorsCount;
+    const float                   fIn,
+                                  fOut;
+};
+
+class MotionBlurController final : public sksg::Animator {
+public:
+    explicit MotionBlurController(sk_sp<MotionBlurEffect> mbe)
+        : fMotionBlurEffect(std::move(mbe)) {}
+
+protected:
+    // When motion blur is present, time ticks are not passed to layer animators
+    // but to the motion blur effect. The effect then drives the animators/scene-graph
+    // during reval and render phases.
+    void onTick(float t) override {
+        fMotionBlurEffect->setT(t);
+    }
+
+private:
+    const sk_sp<MotionBlurEffect> fMotionBlurEffect;
+};
+
 } // namespace
 
 AnimationBuilder::AttachLayerContext::AttachLayerContext(const skjson::ArrayValue& jlayers)
@@ -315,6 +370,12 @@ AnimationBuilder::AttachLayerContext::attachLayerTransformImpl(const skjson::Obj
     return fLayerTransformMap.set(layer_index, { std::move(transform), std::move(ascope) });
 }
 
+bool AnimationBuilder::AttachLayerContext::hasMotionBlur(const skjson::ObjectValue& jlayer) const {
+    return fMotionBlurSamples > 1
+        && fMotionBlurAngle   > 0
+        && ParseDefault(jlayer["mb"], false);
+}
+
 sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue* jlayer,
                                                       AnimatorScope* ascope,
                                                       AttachLayerContext* layerCtx) const {
@@ -434,46 +495,28 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     // Optional blend mode.
     layer = this->attachBlendMode(*jlayer, std::move(layer));
 
-    class LayerController final : public sksg::Animator {
-    public:
-        LayerController(sksg::AnimatorList&& layer_animators,
-                        sk_sp<sksg::RenderNode> layer,
-                        size_t tanim_count, float in, float out)
-            : fLayerAnimators(std::move(layer_animators))
-            , fLayerNode(std::move(layer))
-            , fTransformAnimatorsCount(tanim_count)
-            , fIn(in)
-            , fOut(out) {}
+    const auto has_animators = !layer_animators.empty();
 
-        void onTick(float t) override {
-            const auto active = (t >= fIn && t < fOut);
+    std::unique_ptr<sksg::Animator> controller =
+            skstd::make_unique<LayerController>(std::move(layer_animators), layer,
+                                                transform_animator_count,
+                                                layer_info.fInPoint,
+                                                layer_info.fOutPoint);
 
-            if (fLayerNode) {
-                fLayerNode->setVisible(active);
-            }
+    // Optional motion blur.
+    if (has_animators && layerCtx->hasMotionBlur(*jlayer)) {
+        SkASSERT(layerCtx->fMotionBlurAngle >= 0);
 
-            // When active, dispatch ticks to all layer animators.
-            // When inactive, we must still dispatch ticks to the layer transform animators
-            // (active child layers depend on transforms being updated).
-            const auto dispatch_count = active ? fLayerAnimators.size()
-                                               : fTransformAnimatorsCount;
-            for (size_t i = 0; i < dispatch_count; ++i) {
-                fLayerAnimators[i]->tick(t);
-            }
-        }
+        // Wrap both the layer node and the controller.
+        auto motion_blur = MotionBlurEffect::Make(std::move(controller), std::move(layer),
+                                                  layerCtx->fMotionBlurSamples,
+                                                  layerCtx->fMotionBlurAngle,
+                                                  layerCtx->fMotionBlurPhase);
+        controller = skstd::make_unique<MotionBlurController>(motion_blur);
+        layer = std::move(motion_blur);
+    }
 
-    private:
-        const sksg::AnimatorList      fLayerAnimators;
-        const sk_sp<sksg::RenderNode> fLayerNode;
-        const size_t                  fTransformAnimatorsCount;
-        const float                   fIn,
-                                      fOut;
-    };
-
-    ascope->push_back(skstd::make_unique<LayerController>(std::move(layer_animators), layer,
-                                                          transform_animator_count,
-                                                          layer_info.fInPoint,
-                                                          layer_info.fOutPoint));
+    ascope->push_back(std::move(controller));
 
     if (!layer) {
         return nullptr;
