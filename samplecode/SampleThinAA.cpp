@@ -375,9 +375,7 @@ protected:
 
     SkString name() override { return SkString("Thin-AA"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar key;
-        if (Sample::CharQ(*evt, &key)) {
+    bool onChar(SkUnichar key) override {
             switch(key) {
                 case 't':
                     // Toggle translation animation.
@@ -409,8 +407,7 @@ protected:
                 case '-': fStrokeWidth = SkMaxScalar(0.1f, fStrokeWidth - 0.05f); return true;
                 case '=': fStrokeWidth = SkMinScalar(1.f, fStrokeWidth + 0.05f); return true;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
 private:

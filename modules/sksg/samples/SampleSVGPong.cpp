@@ -152,9 +152,7 @@ protected:
 
     SkString name() override { return SkString("SGPong"); }
 
-    bool onQuery(Event* evt) override {
-        SkUnichar uni;
-        if (Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case '[':
                     fTimeScale = SkTPin(fTimeScale - 0.1f, kTimeScaleMin, kTimeScaleMax);
@@ -169,8 +167,7 @@ protected:
                 default:
                     break;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void onSizeChange() override {

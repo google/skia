@@ -28,15 +28,9 @@ public:
 protected:
     SkString name() override { return SkString("MegaStroke"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (Sample::CharQ(*evt, &uni)) {
-           fClip.set(0, 0, 950, 600);
-        }
-        if (evt->isType("SampleCode_Key_Event")) {
-           fClip.set(0, 0, 950, 600);
-        }
-        return this->INHERITED::onQuery(evt);
+    bool onChar(SkUnichar uni) override {
+        fClip.set(0, 0, 950, 600);
+        return true;
     }
 
     void onDrawBackground(SkCanvas* canvas) override {

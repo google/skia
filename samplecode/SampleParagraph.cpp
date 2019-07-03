@@ -1080,9 +1080,7 @@ class ParagraphView9 : public Sample {
 protected:
     SkString name() override { return SkString("Paragraph9"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case 'w':
                     ++wordSpacing;
@@ -1099,9 +1097,7 @@ protected:
                 default:
                     break;
             }
-        }
-
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void drawText(SkCanvas* canvas, SkColor background, SkScalar w, SkScalar h) {

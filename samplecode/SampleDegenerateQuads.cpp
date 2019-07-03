@@ -383,7 +383,7 @@ public:
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                       unsigned) override;
     bool onClick(Sample::Click*) override;
-    bool onQuery(Sample::Event* evt) override;
+    bool onChar(SkUnichar) override;
     SkString name() override { return SkString("DegenerateQuad"); }
 
 private:
@@ -496,9 +496,7 @@ bool DegenerateQuadSample::onClick(Sample::Click* click) {
     return true;
 }
 
-bool DegenerateQuadSample::onQuery(Sample::Event* event) {
-    SkUnichar code;
-    if (Sample::CharQ(*event, &code)) {
+bool DegenerateQuadSample::onChar(SkUnichar code) {
         switch(code) {
             case '1':
                 fEdgeAA[0] = !fEdgeAA[0];
@@ -522,8 +520,7 @@ bool DegenerateQuadSample::onQuery(Sample::Event* event) {
                 fCoverageMode = CoverageMode::kGPUMesh;
                 return true;
         }
-    }
-    return this->INHERITED::onQuery(event);
+        return false;
 }
 
 DEF_SAMPLE(return new DegenerateQuadSample(SkRect::MakeWH(4.f, 4.f));)

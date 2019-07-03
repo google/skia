@@ -972,7 +972,7 @@ public:
 
     SkString name() override { return SkString("AAGeometry"); }
 
-    bool onQuery(Sample::Event* evt) override;
+    bool onChar(SkUnichar) override;
 
     void onSizeChange() override {
         setControlButtonsPos();
@@ -1821,12 +1821,7 @@ void AAGeometryView::draw_legend(SkCanvas* canvas) {
     }
 }
 
-bool AAGeometryView::onQuery(Sample::Event* evt) {
-    SkUnichar uni;
-    if (false) {
-        return this->INHERITED::onQuery(evt);
-    }
-    if (Sample::CharQ(*evt, &uni)) {
+bool AAGeometryView::onChar(SkUnichar uni) {
         for (int index = 0; index < kButtonCount; ++index) {
             Button* button = kButtonList[index].fButton;
             if (button->fVisible && uni == button->fLabel) {
@@ -1853,8 +1848,7 @@ bool AAGeometryView::onQuery(Sample::Event* evt) {
                 }
             }
         }
-    }
-    return this->INHERITED::onQuery(evt);
+        return false;
 }
 
 DEF_SAMPLE( return new AAGeometryView; )

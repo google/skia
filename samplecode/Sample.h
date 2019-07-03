@@ -47,6 +47,8 @@ public:
     /** Call this to have the view draw into the specified canvas. */
     virtual void draw(SkCanvas* canvas);
 
+    virtual bool onChar(SkUnichar) { return false; }
+
     //  Click handling
     class Click {
     public:
@@ -85,120 +87,7 @@ public:
 
     virtual SkString name() = 0;
 
-    class Event {
-    public:
-        Event();
-        explicit Event(const char type[]);
-        Event(const Event& src);
-        ~Event();
-
-        /** Returns true if the event's type matches exactly the specified type (case sensitive) */
-        bool isType(const char type[]) const;
-
-        /** Return the event's unnamed 32bit field. Default value is 0 */
-        uint32_t getFast32() const { return f32; }
-
-        /** Set the event's unnamed 32bit field. */
-        void setFast32(uint32_t x) { f32 = x; }
-
-        /** Return true if the event contains the named 32bit field, and return the field
-            in value (if value is non-null). If there is no matching named field, return false
-            and ignore the value parameter.
-        */
-        bool findS32(const char name[], int32_t* value = nullptr) const {
-            return fMeta.findS32(name, value);
-        }
-        /** Return true if the event contains the named SkScalar field, and return the field
-            in value (if value is non-null). If there is no matching named field, return false
-            and ignore the value parameter.
-        */
-        bool findScalar(const char name[], SkScalar* value = nullptr) const {
-            return fMeta.findScalar(name, value);
-        }
-        /** Return true if the event contains the named SkScalar field, and return the fields
-            in value[] (if value is non-null), and return the number of SkScalars in count
-            (if count is non-null). If there is no matching named field, return false
-            and ignore the value and count parameters.
-        */
-        const SkScalar* findScalars(const char name[], int* count, SkScalar values[]=nullptr) const{
-            return fMeta.findScalars(name, count, values);
-        }
-        /** Return the value of the named string field, or nullptr. */
-        const char* findString(const char name[]) const { return fMeta.findString(name); }
-        /** Return true if the event contains the named pointer field, and return the field
-            in value (if value is non-null). If there is no matching named field, return false
-            and ignore the value parameter.
-        */
-        bool findPtr(const char name[], void** value) const { return fMeta.findPtr(name, value); }
-        bool findBool(const char name[], bool* value) const { return fMeta.findBool(name, value); }
-        const void* findData(const char name[], size_t* byteCount = nullptr) const {
-            return fMeta.findData(name, byteCount);
-        }
-
-        /** Returns true if ethe event contains the named 32bit field, and if it equals the specified value */
-        bool hasS32(const char name[], int32_t value) const { return fMeta.hasS32(name, value); }
-        /** Returns true if ethe event contains the named SkScalar field, and if it equals the specified value */
-        bool hasScalar(const char name[], SkScalar value) const { return fMeta.hasScalar(name, value); }
-        /** Returns true if ethe event contains the named string field, and if it equals (using strcmp) the specified value */
-        bool hasString(const char name[], const char value[]) const { return fMeta.hasString(name, value); }
-        /** Returns true if ethe event contains the named pointer field, and if it equals the specified value */
-        bool hasPtr(const char name[], void* value) const { return fMeta.hasPtr(name, value); }
-        bool hasBool(const char name[], bool value) const { return fMeta.hasBool(name, value); }
-        bool hasData(const char name[], const void* data, size_t byteCount) const {
-            return fMeta.hasData(name, data, byteCount);
-        }
-
-        /** Add/replace the named 32bit field to the event. */
-        void setS32(const char name[], int32_t value) { fMeta.setS32(name, value); }
-        /** Add/replace the named SkScalar field to the event. */
-        void setScalar(const char name[], SkScalar value) { fMeta.setScalar(name, value); }
-        /** Add/replace the named SkScalar[] field to the event. */
-        SkScalar* setScalars(const char name[], int count, const SkScalar values[] = nullptr) {
-            return fMeta.setScalars(name, count, values);
-        }
-        /** Add/replace the named string field to the event. */
-        void setString(const char name[], const char value[]) { fMeta.setString(name, value); }
-        /** Add/replace the named pointer field to the event. */
-        void setPtr(const char name[], void* value) { fMeta.setPtr(name, value); }
-        void setBool(const char name[], bool value) { fMeta.setBool(name, value); }
-        void setData(const char name[], const void* data, size_t byteCount) {
-            fMeta.setData(name, data, byteCount);
-        }
-
-        /** Return the underlying metadata object */
-        SkMetaData& getMetaData() { return fMeta; }
-        /** Return the underlying metadata object */
-        const SkMetaData& getMetaData() const { return fMeta; }
-
-        ///////////////////////////////////////////////////////////////////////////
-
-    private:
-        SkMetaData      fMeta;
-        SkString        fType;
-        uint32_t        f32;
-    };
-
-    /** Pass an event to this object for processing. Returns true if the event was handled. */
-    bool doEvent(const Event&);
-
-    /** Returns true if the sink (or one of its subclasses) understands the event as a query.
-        If so, the sink may modify the event to communicate its "answer".
-    */
-    bool doQuery(Event* query);
-
-    static const char* kCharEvtName;
-    static const char* kTitleEvtName;
-    static bool CharQ(const Event&, SkUnichar* outUni);
-    static bool TitleQ(const Event&);
-    static void TitleR(Event*, const char title[]);
-
 protected:
-    /** Override to handle events in your subclass.
-     *  Overriders must call the super class for unhandled events.
-     */
-    virtual bool onEvent(const Event&);
-    virtual bool onQuery(Event*);
-
     /** Override to be notified of size changes. Overriders must call the super class. */
     virtual void onSizeChange();
 

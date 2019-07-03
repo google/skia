@@ -44,9 +44,7 @@ public:
 protected:
     SkString name() override { return SkString("unpremul"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];
             size_t size = SkUTF::ToUTF8(uni, utf8);
             // Only consider events for single char keys
@@ -62,8 +60,7 @@ protected:
                         break;
                 }
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void onDrawBackground(SkCanvas* canvas) override {

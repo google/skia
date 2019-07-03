@@ -135,9 +135,7 @@ public:
 protected:
     SkString name() override { return SkString("ClipDrawMatch"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case '1': fGeom = kRect_Geometry; return true;
                 case '2': fGeom = kRRect_Geometry; return true;
@@ -152,8 +150,7 @@ protected:
                 case 't': fClipFirst = !fClipFirst; return true;
                 default: break;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void drawClippedGeom(SkCanvas* canvas, const SkPoint& offset, bool useAA) {

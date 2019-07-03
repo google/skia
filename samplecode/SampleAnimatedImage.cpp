@@ -98,9 +98,8 @@ protected:
 
     SkString name() override { return SkString("AnimatedImage"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (fImage && Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
+        if (fImage) {
             switch (uni) {
                 case kPauseKey:
                     fRunning = !fRunning;
@@ -118,7 +117,7 @@ protected:
                     break;
             }
         }
-        return this->INHERITED::onQuery(evt);
+        return false;
     }
 
 private:

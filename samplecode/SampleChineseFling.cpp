@@ -124,9 +124,7 @@ public:
 protected:
     SkString name() override { return SkString("chinese-zoom"); }
 
-    bool onQuery(Sample::Event* evt) override {
-        SkUnichar uni;
-        if (Sample::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             if ('>' == uni) {
                 fScale += 0.125f;
                 return true;
@@ -135,8 +133,7 @@ protected:
                 fScale -= 0.125f;
                 return true;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void onDrawContent(SkCanvas* canvas) override {
