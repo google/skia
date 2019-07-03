@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55615f6d_ac17b815",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-03T00:09:22Z",
+      "side": 0,
+      "message": "This looks like it should have been kAlpha_F16 before. I probably goofed it up when I added GrColorType as a param.",
+      "range": {
+        "startLine": 195,
+        "startChar": 44,
+        "endLine": 195,
+        "endChar": 65
+      },
+      "revId": "b2adbef6f6510e6e9bbb1a4d8fd0ac1e0f9f31b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
