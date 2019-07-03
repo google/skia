@@ -105,12 +105,10 @@ SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
 sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingContext* context,
                                                                     const SkMatrix& inMatrix,
                                                                     const SkIRect& bounds) const {
-    GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
     sk_sp<GrRenderTargetContext> rtContext(
             context->priv().makeDeferredRenderTargetContextWithFallback(
-                    format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                    kAlpha_8_GrPixelConfig, GrColorType::kAlpha_8, nullptr));
+                    SkBackingFit::kApprox, bounds.width(), bounds.height(), GrColorType::kAlpha_8,
+                    nullptr));
     if (!rtContext) {
         return nullptr;
     }

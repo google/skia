@@ -191,11 +191,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     auto textContext = drawingManager->getTextContext();
     auto opMemoryPool = context->priv().opMemoryPool();
 
-    GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
-    auto rtc = context->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kApprox, 32,
-                                                               32, kRGBA_8888_GrPixelConfig,
+    auto rtc = context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox, 32, 32,
                                                                GrColorType::kRGBA_8888, nullptr);
 
     SkPaint paint;

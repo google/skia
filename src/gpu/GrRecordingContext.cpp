@@ -198,11 +198,9 @@ sk_sp<GrSurfaceContext> GrRecordingContext::makeDeferredSurfaceContext(
 }
 
 sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext(
-        const GrBackendFormat& format,
         SkBackingFit fit,
         int width,
         int height,
-        GrPixelConfig config,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         int sampleCnt,
@@ -213,6 +211,15 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
         GrProtected isProtected) {
     SkASSERT(sampleCnt > 0);
     if (this->abandoned()) {
+        return nullptr;
+    }
+
+    auto format = this->caps()->getBackendFormatFromGrColorType(colorType, GrSRGBEncoded::kNo);
+    if (!format.isValid()) {
+        return nullptr;
+    }
+    auto config = this->caps()->getConfigFromBackendFormat(format, colorType);
+    if (config == kUnknown_GrPixelConfig) {
         return nullptr;
     }
 
@@ -247,85 +254,31 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
     return renderTargetContext;
 }
 
-static inline bool color_type_and_config_fallback(GrColorType* ct, GrPixelConfig* config) {
-    switch (*ct) {
+static inline GrColorType color_type_fallback(GrColorType ct) {
+    switch (ct) {
+        // kRGBA_8888 is our default fallback for many color types that may not have renderable
+        // backend formats.
         case GrColorType::kAlpha_8:
-            if (*config != kAlpha_8_GrPixelConfig && *config != kAlpha_8_as_Red_GrPixelConfig &&
-                *config != kAlpha_8_as_Alpha_GrPixelConfig) {
-                return false;
-            }
-            *config = kRGBA_8888_GrPixelConfig;
-            *ct = GrColorType::kRGBA_8888;
-            return true;
         case GrColorType::kBGR_565:
-            if (*config != kRGB_565_GrPixelConfig) {
-                return false;
-            }
-            *config = kRGBA_8888_GrPixelConfig;
-            *ct = GrColorType::kRGBA_8888;
-            return true;
         case GrColorType::kABGR_4444:
-            if (*config != kRGBA_4444_GrPixelConfig) {
-                return false;
-            }
-            *config = kRGBA_8888_GrPixelConfig;
-            *ct = GrColorType::kRGBA_8888;
-            return true;
         case GrColorType::kBGRA_8888:
-            if (*config != kBGRA_8888_GrPixelConfig) {
-                return false;
-            }
-            *config = kRGBA_8888_GrPixelConfig;
-            *ct = GrColorType::kRGBA_8888;
-            return true;
         case GrColorType::kRGBA_1010102:
-            if (*config != kRGBA_1010102_GrPixelConfig) {
-                return false;
-            }
-            *config = kRGBA_8888_GrPixelConfig;
-            *ct = GrColorType::kRGBA_8888;
-            return true;
         case GrColorType::kRGBA_F16:
-            if (*config != kRGBA_half_GrPixelConfig) {
-                return false;
-            }
-            *config = kRGBA_8888_GrPixelConfig;
-            *ct = GrColorType::kRGBA_8888;
-            return true;
         case GrColorType::kRGBA_F16_Clamped:
-            if (*config != kRGBA_half_Clamped_GrPixelConfig) {
-                return false;
-            }
-            *config = kRGBA_8888_GrPixelConfig;
-            *ct = GrColorType::kRGBA_8888;
-            return true;
+            return GrColorType::kRGBA_8888;
         case GrColorType::kAlpha_F16:
-            if (*config != kAlpha_half_GrPixelConfig &&
-                *config != kAlpha_half_as_Red_GrPixelConfig) {
-                return false;
-            }
-            *config = kRGBA_half_GrPixelConfig;
-            *ct = GrColorType::kRGBA_F16;
-            return true;
+            return GrColorType::kRGBA_F16;
         case GrColorType::kGray_8:
-            if (*config != kGray_8_GrPixelConfig && *config != kGray_8_as_Red_GrPixelConfig &&
-                *config != kGray_8_as_Lum_GrPixelConfig) {
-                return false;
-            }
-            *config = kRGB_888_GrPixelConfig;
-            *ct = GrColorType::kRGB_888x;
-            return true;
+            return GrColorType::kRGB_888x;
         default:
-            return false;
+            return GrColorType::kUnknown;
     }
 }
 
 sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContextWithFallback(
-        const GrBackendFormat& format,
         SkBackingFit fit,
         int width,
         int height,
-        GrPixelConfig config,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         int sampleCnt,
@@ -334,21 +287,15 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
         const SkSurfaceProps* surfaceProps,
         SkBudgeted budgeted,
         GrProtected isProtected) {
-    GrBackendFormat localFormat = format;
     SkASSERT(sampleCnt > 0);
-    if (0 == this->caps()->getRenderTargetSampleCount(sampleCnt, config)) {
-        // TODO: Make the fallback part of GrCaps?
-        if (!color_type_and_config_fallback(&colorType, &config)) {
-            return nullptr;
-        }
-        // Figure out what the new backend format should be for the new color type.
-        auto srgb = GrPixelConfigIsSRGBEncoded(config);
-        localFormat = this->caps()->getBackendFormatFromGrColorType(colorType, srgb);
-    }
-
-    return this->makeDeferredRenderTargetContext(localFormat, fit, width, height, config, colorType,
-                                                 std::move(colorSpace), sampleCnt, mipMapped,
-                                                 origin, surfaceProps, budgeted, isProtected);
+    sk_sp<GrRenderTargetContext> rtc;
+    do {
+        rtc = this->makeDeferredRenderTargetContext(fit, width, height, colorType, colorSpace,
+                                                    sampleCnt, mipMapped, origin, surfaceProps,
+                                                    budgeted, isProtected);
+        colorType = color_type_fallback(colorType);
+    } while (!rtc && colorType != GrColorType::kUnknown);
+    return rtc;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -395,11 +342,9 @@ sk_sp<GrSurfaceContext> GrRecordingContextPriv::makeDeferredSurfaceContext(
 }
 
 sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContext(
-        const GrBackendFormat& format,
         SkBackingFit fit,
         int width,
         int height,
-        GrPixelConfig config,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         int sampleCnt,
@@ -408,17 +353,15 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
         const SkSurfaceProps* surfaceProps,
         SkBudgeted budgeted,
         GrProtected isProtected) {
-    return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config, colorType,
+    return fContext->makeDeferredRenderTargetContext(fit, width, height, colorType,
                                                      std::move(colorSpace), sampleCnt, mipMapped,
                                                      origin, surfaceProps, budgeted, isProtected);
 }
 
 sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContextWithFallback(
-        const GrBackendFormat& format,
         SkBackingFit fit,
         int width,
         int height,
-        GrPixelConfig config,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         int sampleCnt,
@@ -427,11 +370,9 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
         const SkSurfaceProps* surfaceProps,
         SkBudgeted budgeted,
         GrProtected isProtected) {
-    return fContext->makeDeferredRenderTargetContextWithFallback(format,
-                                                                 fit,
+    return fContext->makeDeferredRenderTargetContextWithFallback(fit,
                                                                  width,
                                                                  height,
-                                                                 config,
                                                                  colorType,
                                                                  std::move(colorSpace),
                                                                  sampleCnt,

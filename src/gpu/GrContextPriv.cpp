@@ -73,11 +73,9 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrBacken
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
-        const GrBackendFormat& format,
         SkBackingFit fit,
         int width,
         int height,
-        GrPixelConfig config,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         int sampleCnt,
@@ -86,19 +84,18 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
         const SkSurfaceProps* surfaceProps,
         SkBudgeted budgeted,
         GrProtected isProtected) {
-    return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config, colorType,
+    return fContext->makeDeferredRenderTargetContext(fit, width, height, colorType,
                                                      std::move(colorSpace), sampleCnt, mipMapped,
                                                      origin, surfaceProps, budgeted, isProtected);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithFallback(
-        const GrBackendFormat& format, SkBackingFit fit, int width, int height,
-        GrPixelConfig config, GrColorType colorType, sk_sp<SkColorSpace> colorSpace, int sampleCnt,
-        GrMipMapped mipMapped, GrSurfaceOrigin origin, const SkSurfaceProps* surfaceProps,
-        SkBudgeted budgeted) {
+        SkBackingFit fit, int width, int height, GrColorType colorType,
+        sk_sp<SkColorSpace> colorSpace, int sampleCnt, GrMipMapped mipMapped,
+        GrSurfaceOrigin origin, const SkSurfaceProps* surfaceProps, SkBudgeted budgeted) {
     return fContext->makeDeferredRenderTargetContextWithFallback(
-            format, fit, width, height, config, colorType, std::move(colorSpace), sampleCnt,
-            mipMapped, origin, surfaceProps, budgeted);
+            fit, width, height, colorType, std::move(colorSpace), sampleCnt, mipMapped, origin,
+            surfaceProps, budgeted);
 }
 
 sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackendTexture& tex,

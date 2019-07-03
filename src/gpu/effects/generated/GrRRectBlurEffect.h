@@ -54,13 +54,11 @@ public:
         sk_sp<GrTextureProxy> mask(
                 proxyProvider->findOrCreateProxyByUniqueKey(key, kBottomLeft_GrSurfaceOrigin));
         if (!mask) {
-            GrBackendFormat format =
-                    context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
             // TODO: this could be approx but the texture coords will need to be updated
             sk_sp<GrRenderTargetContext> rtc(
                     context->priv().makeDeferredRenderTargetContextWithFallback(
-                            format, SkBackingFit::kExact, size.fWidth, size.fHeight,
-                            kAlpha_8_GrPixelConfig, GrColorType::kAlpha_8, nullptr));
+                            SkBackingFit::kExact, size.fWidth, size.fHeight, GrColorType::kAlpha_8,
+                            nullptr));
             if (!rtc) {
                 return nullptr;
             }

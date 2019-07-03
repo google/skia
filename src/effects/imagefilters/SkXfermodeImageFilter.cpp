@@ -307,14 +307,11 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    SkColorType colorType = outputProperties.colorType();
-    GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(colorType);
+    GrColorType colorType = SkColorTypeToGrColorType(outputProperties.colorType());
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
             context->priv().makeDeferredRenderTargetContext(
-                    format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                    SkColorType2GrPixelConfig(colorType), SkColorTypeToGrColorType(colorType),
+                    SkBackingFit::kApprox, bounds.width(), bounds.height(), colorType,
                     sk_ref_sp(outputProperties.colorSpace())));
     if (!renderTargetContext) {
         return nullptr;

@@ -431,8 +431,6 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
         const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(this->imageInfo());
 
         SkColorType colorType = this->colorType();
-        GrBackendFormat format =
-                ctx->priv().caps()->getBackendFormatFromColorType(colorType);
 
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
@@ -446,7 +444,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
 
         // TODO: Update to create the mipped surface in the YUV generator and draw the base
         // layer directly into the mipped surface.
-        proxy = provider.refAsTextureProxy(ctx, format, desc, SkColorTypeToGrColorType(colorType),
+        proxy = provider.refAsTextureProxy(ctx, desc, SkColorTypeToGrColorType(colorType),
                                            generatorColorSpace, thisColorSpace);
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,

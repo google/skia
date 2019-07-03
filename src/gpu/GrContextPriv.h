@@ -96,11 +96,9 @@ public:
      * renderTargetContexts created via this entry point.
      */
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
-            const GrBackendFormat& format,
             SkBackingFit fit,
             int width,
             int height,
-            GrPixelConfig config,
             GrColorType,
             sk_sp<SkColorSpace> colorSpace,
             int sampleCnt = 1,
@@ -117,11 +115,9 @@ public:
      * SRGB-ness will be preserved.
      */
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
-            const GrBackendFormat& format,
             SkBackingFit fit,
             int width,
             int height,
-            GrPixelConfig config,
             GrColorType,
             sk_sp<SkColorSpace> colorSpace,
             int sampleCnt = 1,

@@ -301,26 +301,20 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
-        SkColorType colorType = ctx.outputProperties().colorType();
-        GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-        GrBackendFormat format =
-                context->priv().caps()->getBackendFormatFromColorType(colorType);
+        GrColorType colorType = SkColorTypeToGrColorType(ctx.outputProperties().colorType());
 
         sk_sp<GrRenderTargetContext> renderTargetContext(
-                context->priv().makeDeferredRenderTargetContext(
-                        format,
-                        SkBackingFit::kApprox,
-                        bounds.width(),
-                        bounds.height(),
-                        config,
-                        SkColorTypeToGrColorType(colorType),
-                        sk_ref_sp(colorSpace),
-                        1,
-                        GrMipMapped::kNo,
-                        kBottomLeft_GrSurfaceOrigin,
-                        nullptr,
-                        SkBudgeted::kYes,
-                        isProtected));
+                context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                                bounds.width(),
+                                                                bounds.height(),
+                                                                colorType,
+                                                                sk_ref_sp(colorSpace),
+                                                                1,
+                                                                GrMipMapped::kNo,
+                                                                kBottomLeft_GrSurfaceOrigin,
+                                                                nullptr,
+                                                                SkBudgeted::kYes,
+                                                                isProtected));
         if (!renderTargetContext) {
             return nullptr;
         }

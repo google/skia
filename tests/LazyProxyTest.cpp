@@ -207,18 +207,11 @@ DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
     for (bool nullTexture : {false, true}) {
         LazyProxyTest test(reporter);
         ctx->priv().addOnFlushCallbackObject(&test);
-        GrBackendFormat format =
-            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
         sk_sp<GrRenderTargetContext> rtc = ctx->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig,
-                GrColorType::kRGBA_8888, nullptr);
+                SkBackingFit::kExact, 100, 100, GrColorType::kRGBA_8888, nullptr);
         REPORTER_ASSERT(reporter, rtc);
-        format =
-                ctx->priv().caps()->getBackendFormatFromGrColorType(GrColorType::kAlpha_F16,
-                                                                           GrSRGBEncoded::kNo);
         sk_sp<GrRenderTargetContext> mockAtlas = ctx->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kExact, 10, 10, kAlpha_half_GrPixelConfig,
-                GrColorType::kAlpha_F16, nullptr);
+                SkBackingFit::kExact, 10, 10, GrColorType::kAlpha_F16, nullptr);
         REPORTER_ASSERT(reporter, mockAtlas);
         rtc->priv().testingOnly_addDrawOp(LazyProxyTest::Clip(&test, mockAtlas->asTextureProxy()),
                         LazyProxyTest::Op::Make(ctx.get(), proxyProvider, &test, nullTexture));
@@ -374,12 +367,9 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
     GrMockOptions mockOptions;
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
-    GrBackendFormat format =
-                ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     for (bool failInstantiation : {false, true}) {
         sk_sp<GrRenderTargetContext> rtc = ctx->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig,
-                GrColorType::kRGBA_8888, nullptr);
+                SkBackingFit::kExact, 100, 100, GrColorType::kRGBA_8888, nullptr);
         REPORTER_ASSERT(reporter, rtc);
 
         rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xbaaaaaad),
@@ -449,8 +439,7 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
     using LazyType = GrSurfaceProxy::LazyInstantiationType;
     for (auto lazyType : {LazyType::kSingleUse, LazyType::kMultipleUse, LazyType::kDeinstantiate}) {
         sk_sp<GrRenderTargetContext> rtc = ctx->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig,
-                GrColorType::kRGBA_8888, nullptr);
+                SkBackingFit::kExact, 100, 100, GrColorType::kRGBA_8888, nullptr);
         REPORTER_ASSERT(reporter, rtc);
 
         rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xbaaaaaad),

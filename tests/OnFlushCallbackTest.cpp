@@ -433,15 +433,10 @@ private:
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
 static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject* object, int start,
                                                  sk_sp<GrTextureProxy> atlasProxy) {
-    const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     sk_sp<GrRenderTargetContext> rtc(
-            context->priv().makeDeferredRenderTargetContext(format,
-                                                            SkBackingFit::kApprox,
+            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                             3*kDrawnTileSize,
                                                             kDrawnTileSize,
-                                                            kRGBA_8888_GrPixelConfig,
                                                             GrColorType::kRGBA_8888,
                                                             nullptr));
 
@@ -556,15 +551,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kFinalWidth = 6*kDrawnTileSize;
     static const int kFinalHeight = kDrawnTileSize;
 
-    const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     sk_sp<GrRenderTargetContext> rtc(
-            context->priv().makeDeferredRenderTargetContext(format,
-                                                            SkBackingFit::kApprox,
+            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                             kFinalWidth,
                                                             kFinalHeight,
-                                                            kRGBA_8888_GrPixelConfig,
                                                             GrColorType::kRGBA_8888,
                                                             nullptr));
 
