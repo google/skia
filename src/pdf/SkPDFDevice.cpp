@@ -711,10 +711,9 @@ struct PositionedGlyph {
 };
 }
 
-static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkStrike* cache,
+static SkRect get_glyph_bounds_device_space(const SkGlyph* glyph,
                                             SkScalar xScale, SkScalar yScale,
                                             SkPoint xy, const SkMatrix& ctm) {
-    SkGlyph* glyph = cache->glyph(gid);
     SkRect glyphBounds = SkMatrix::MakeScale(xScale, yScale).mapRect(glyph->rect());
     glyphBounds.offset(xy);
     ctm.mapRect(&glyphBounds); // now in dev space.
@@ -767,37 +766,31 @@ void SkPDFDevice::drawGlyphRunAsPath(
     }
 }
 
-static bool needs_new_font(SkPDFFont* font, SkGlyphID gid, SkStrike* cache,
+static bool needs_new_font(SkPDFFont* font, const SkGlyph* glyph,
                            SkAdvancedTypefaceMetrics::FontType fontType) {
-    if (!font || !font->hasGlyph(gid)) {
+    if (!font || !font->hasGlyph(glyph->getGlyphID())) {
         return true;
     }
     if (fontType == SkAdvancedTypefaceMetrics::kOther_Font) {
         return false;
     }
-    SkGlyph* glyph = cache->glyph(gid);
     if (glyph->isEmpty()) {
         return false;
     }
 
-    bool bitmapOnly = nullptr == cache->preparePath(glyph);
+    bool bitmapOnly = nullptr == glyph->path();
     bool convertedToType3 = (font->getType() == SkAdvancedTypefaceMetrics::kOther_Font);
     return convertedToType3 != bitmapOnly;
-}
-
-namespace {
-constexpr int kTypicalGlyphCount = 20;
-using SmallPointsArray = SkAutoSTArray<kTypicalGlyphCount, SkPoint>;
 }
 
 void SkPDFDevice::internalDrawGlyphRun(
         const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint) {
 
-    const SkGlyphID* glyphs = glyphRun.glyphsIDs().data();
+    const SkGlyphID* glyphIDs = glyphRun.glyphsIDs().data();
     uint32_t glyphCount = SkToU32(glyphRun.glyphsIDs().size());
     const SkFont& glyphRunFont = glyphRun.font();
 
-    if (!glyphCount || !glyphs || glyphRunFont.getSize() <= 0 || this->hasEmptyClip()) {
+    if (!glyphCount || !glyphIDs || glyphRunFont.getSize() <= 0 || this->hasEmptyClip()) {
         return;
     }
     if (runPaint.getPathEffect()
@@ -827,7 +820,6 @@ void SkPDFDevice::internalDrawGlyphRun(
 
     int emSize;
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*typeface, &emSize);
-    auto glyphCache = strikeSpec.findOrCreateExclusiveStrike();
 
     SkScalar textSize = glyphRunFont.getSize();
     SkScalar advanceScale = textSize * glyphRunFont.getScaleX() / emSize;
@@ -870,8 +862,8 @@ void SkPDFDevice::internalDrawGlyphRun(
     GlyphPositioner glyphPositioner(out, glyphRunFont.getSkewX(), offset);
     SkPDFFont* font = nullptr;
 
-    SmallPointsArray advances(glyphRun.runSize());
-    glyphCache->getAdvances(glyphRun.glyphsIDs(), advances.get());
+    SkBulkGlyphMetricsAndPaths paths{strikeSpec};
+    auto glyphs = paths.glyphs(glyphRun.glyphsIDs());
 
     while (SkClusterator::Cluster c = clusterator.next()) {
         int index = c.fGlyphIndex;
@@ -892,7 +884,7 @@ void SkPDFDevice::internalDrawGlyphRun(
             }
             if (textPtr < textEnd ||                                  // more characters left
                 glyphLimit > index + 1 ||                             // toUnicode wouldn't work
-                unichar != map_glyph(glyphToUnicode, glyphs[index]))  // test single Unichar map
+                unichar != map_glyph(glyphToUnicode, glyphIDs[index]))  // test single Unichar map
             {
                 glyphPositioner.flush();
                 out->writeText("/Span<</ActualText <");
@@ -912,14 +904,14 @@ void SkPDFDevice::internalDrawGlyphRun(
             }
         }
         for (; index < glyphLimit; ++index) {
-            SkGlyphID gid = glyphs[index];
+            SkGlyphID gid = glyphIDs[index];
             if (gid > maxGlyphID) {
                 continue;
             }
             SkPoint xy = glyphRun.positions()[index];
             // Do a glyph-by-glyph bounds-reject if positions are absolute.
             SkRect glyphBounds = get_glyph_bounds_device_space(
-                    gid, glyphCache.get(), textScaleX, textScaleY,
+                    glyphs[index], textScaleX, textScaleY,
                     xy + offset, this->ctm());
             if (glyphBounds.isEmpty()) {
                 if (!contains(clipStackBounds, {glyphBounds.x(), glyphBounds.y()})) {
@@ -930,9 +922,9 @@ void SkPDFDevice::internalDrawGlyphRun(
                     continue;  // reject glyphs as out of bounds
                 }
             }
-            if (needs_new_font(font, gid, glyphCache.get(), fontType)) {
+            if (needs_new_font(font, glyphs[index], fontType)) {
                 // Not yet specified font or need to switch font.
-                font = SkPDFFont::GetFontResource(fDocument, glyphCache.get(), typeface, gid);
+                font = SkPDFFont::GetFontResource(fDocument, glyphs[index], typeface);
                 SkASSERT(font);  // All preconditions for SkPDFFont::GetFontResource are met.
                 glyphPositioner.flush();
                 glyphPositioner.setWideChars(font->multiByteGlyphs());
@@ -946,7 +938,7 @@ void SkPDFDevice::internalDrawGlyphRun(
             font->noteGlyphUsage(gid);
             SkGlyphID encodedGlyph = font->multiByteGlyphs()
                                    ? gid : font->glyphToPDFFontEncoding(gid);
-            SkScalar advance = advanceScale * advances[index].x();
+            SkScalar advance = advanceScale * glyphs[index]->advanceX();
             glyphPositioner.writeGlyph(xy, advance, encodedGlyph);
         }
     }
