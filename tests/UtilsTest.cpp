@@ -221,6 +221,43 @@ DEF_TEST(SkMakeSpan, reporter) {
     }
 }
 
+DEF_TEST(SkIota, reporter) {
+
+    int A[] = {1, 2, 3, 4};
+    auto iota = SkMakeIota(A);
+
+    size_t check = 0;
+    for (auto t : iota) {
+        size_t i; int v;
+        std::tie(i, v) = t;
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+
+        check++;
+    }
+
+    check = 0;
+    for (auto t : SkMakeIota(A)) {
+        size_t i; int v;
+        std::tie(i, v) = t;
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+
+        check++;
+    }
+
+    check = 0;
+    std::vector<int> vec = {1, 2, 3, 4};
+    for (auto t : SkMakeIota(vec)) {
+        size_t i; int v;
+        std::tie(i, v) = t;
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+        check++;
+    }
+    REPORTER_ASSERT(reporter, check == 4);
+}
+
 DEF_TEST(SkZip, reporter) {
     uint16_t A[] = {1, 2, 3, 4};
     const float B[] = {10.f, 20.f, 30.f, 40.f};
@@ -419,6 +456,50 @@ DEF_TEST(SkMakeZip, reporter) {
             i++;
         }
         REPORTER_ASSERT(reporter, i = 4);
+    }
+
+    {
+        // Check SkIota and SkMakeZip in ranged for
+        auto zz = SkMakeZip(A, B, C, D, S);
+        for (auto t : SkMakeIota(zz)) {
+            int i;
+            uint16_t a; float b; int c; int d; int s;
+            std::forward_as_tuple(i, std::tie(a, b, c, d, s)) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+        }
+    }
+
+    {
+        // Check SkIota and SkMakeZip in ranged for
+        const auto& zz = SkMakeZip(A, B, C, D, S);
+        for (auto t : SkMakeIota(zz)) {
+            int i;
+            uint16_t a; float b; int c; int d; int s;
+            std::forward_as_tuple(i, std::tie(a, b, c, d, s)) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+        }
+    }
+
+    {
+        // Check SkIota and SkMakeZip in ranged for
+        for (auto t : SkMakeIota(SkMakeZip(A, B, C, D, S))) {
+            int i;
+            uint16_t a; float b; int c; int d; int s;
+            std::forward_as_tuple(i, std::tie(a, b, c, d, s)) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+        }
     }
 
     {
