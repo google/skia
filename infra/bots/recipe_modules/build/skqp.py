@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-DOCKER_IMAGE = 'gcr.io/skia-public/android-skqp:8.1_v3'
+DOCKER_IMAGE = 'gcr.io/skia-public/android-skqp:r20_v1'
 INNER_BUILD_DIR = '/SRC/skia/infra/skqp'
 INNER_BUILD_SCRIPT = './build_apk.sh'
 
