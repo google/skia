@@ -59,6 +59,8 @@ template <std::size_t N> struct make_index_sequence
 template<> struct make_index_sequence<0> : skstd::index_sequence< >{};
 template<> struct make_index_sequence<1> : skstd::index_sequence<0>{};
 
+struct monostate {};
+
 }  // namespace skstd
 
 // The sknonstd namespace contains things we would like to be proposed and feel std-ish.

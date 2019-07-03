@@ -9,11 +9,11 @@
 #define SkZip_DEFINED
 
 #include <cstddef>
+#include <iterator>
 #include <tuple>
 #include <type_traits>
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTLogic.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkSpan.h"
@@ -26,13 +26,21 @@ class SkZip {
 
     class Iterator {
     public:
+        using value_type = ReturnTuple;
+        using difference_type = ptrdiff_t;
+        using pointer = value_type*;
+        using reference = value_type;
+        using iterator_category = std::input_iterator_tag;
         constexpr Iterator(const SkZip* zip, size_t index) : fZip{zip}, fIndex{index} { }
         constexpr Iterator(const Iterator& that) : Iterator{ that.fZip, that.fIndex } { }
         constexpr Iterator& operator++() { ++fIndex; return *this; }
         constexpr Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
         constexpr bool operator==(const Iterator& rhs) const { return fIndex == rhs.fIndex; }
         constexpr bool operator!=(const Iterator& rhs) const { return fIndex != rhs.fIndex; }
-        constexpr ReturnTuple operator*() { return (*fZip)[fIndex]; }
+        constexpr reference operator*() { return (*fZip)[fIndex]; }
+        friend constexpr difference_type operator-(Iterator lhs, Iterator rhs) {
+            return lhs.fIndex - rhs.fIndex;
+        }
 
     private:
         const SkZip* const fZip = nullptr;

@@ -7,6 +7,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkEnumerate.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
@@ -221,6 +222,52 @@ DEF_TEST(SkMakeSpan, reporter) {
     }
 }
 
+DEF_TEST(SkEnumerate, reporter) {
+
+    int A[] = {1, 2, 3, 4};
+    auto enumeration = SkMakeEnumerate(A);
+
+    size_t check = 0;
+    for (auto t : enumeration) {
+        size_t i; int v;
+        std::tie(i, v) = t;
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+
+        check++;
+    }
+
+    check = 0;
+    for (auto t : SkMakeEnumerate(A)) {
+        size_t i; int v;
+        std::tie(i, v) = t;
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+
+        check++;
+    }
+
+    check = 0;
+    std::vector<int> vec = {1, 2, 3, 4};
+    for (auto t : SkMakeEnumerate(vec)) {
+        size_t i; int v;
+        std::tie(i, v) = t;
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+        check++;
+    }
+    REPORTER_ASSERT(reporter, check == 4);
+
+    check = 0;
+    for (auto t : SkMakeEnumerate(SkMakeSpan(vec))) {
+        size_t i; int v;
+        std::tie(i, v) = t;
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+        check++;
+    }
+}
+
 DEF_TEST(SkZip, reporter) {
     uint16_t A[] = {1, 2, 3, 4};
     const float B[] = {10.f, 20.f, 30.f, 40.f};
@@ -419,6 +466,50 @@ DEF_TEST(SkMakeZip, reporter) {
             i++;
         }
         REPORTER_ASSERT(reporter, i = 4);
+    }
+
+    {
+        // Check SkEnumerate and SkMakeZip in ranged for
+        auto zz = SkMakeZip(A, B, C, D, S);
+        for (auto t : SkMakeEnumerate(zz)) {
+            int i;
+            uint16_t a; float b; int c; int d; int s;
+            std::forward_as_tuple(i, std::tie(a, b, c, d, s)) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+        }
+    }
+
+    {
+        // Check SkEnumerate and SkMakeZip in ranged for
+        const auto& zz = SkMakeZip(A, B, C, D, S);
+        for (auto t : SkMakeEnumerate(zz)) {
+            int i;
+            uint16_t a; float b; int c; int d; int s;
+            std::forward_as_tuple(i, std::tie(a, b, c, d, s)) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+        }
+    }
+
+    {
+        // Check SkEnumerate and SkMakeZip in ranged for
+        for (auto t : SkMakeEnumerate(SkMakeZip(A, B, C, D, S))) {
+            int i;
+            uint16_t a; float b; int c; int d; int s;
+            std::forward_as_tuple(i, std::tie(a, b, c, d, s)) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+        }
     }
 
     {
