@@ -9,9 +9,10 @@
 #define SkSpan_DEFINED
 
 #include <cstddef>
-#include <string>
-#include <vector>
+#include <tuple>
+#include <type_traits>
 
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 template <typename T>
