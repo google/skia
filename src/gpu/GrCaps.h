@@ -192,10 +192,6 @@ public:
     virtual int getRenderTargetSampleCount(int requestedCount,
                                            SkColorType, const GrBackendFormat&) const = 0;
     virtual int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const = 0;
-    // TODO: Remove. Legacy name used by Chrome.
-    int getSampleCount(int requestedCount, GrPixelConfig config) const {
-        return this->getRenderTargetSampleCount(requestedCount, config);
-    }
 
     /**
      * Backends may have restrictions on what types of surfaces support GrGpu::writePixels().
