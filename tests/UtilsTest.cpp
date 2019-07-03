@@ -7,14 +7,15 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 #include "tests/Test.h"
 
+#include <array>
+
 class RefClass : public SkRefCnt {
 public:
-
-
     RefClass(int n) : fN(n) {}
     int get() const { return fN; }
 
@@ -167,4 +168,101 @@ DEF_TEST(Utils, reporter) {
     test_search(reporter);
     test_autounref(reporter);
     test_autostarray(reporter);
+}
+
+#include "include/private/SkTemplates.h"
+#include <iterator>
+#include <tuple>
+
+template<typename... Ts>
+class SkZip {
+    class Iterator {
+    public:
+        Iterator(const SkZip* zip, size_t index) : fZip{zip}, fIndex{index} { }
+        Iterator(const Iterator& that) : Iterator{ that.fZip, that.fIndex } { }
+        Iterator& operator++() { ++fIndex; return *this; }
+        Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
+        bool operator==(const Iterator& rhs) const { return fIndex == rhs.fIndex; }
+        bool operator!=(const Iterator& rhs) const { return fIndex != rhs.fIndex; }
+        std::tuple<Ts&...> operator*() { return (*fZip)[fIndex]; }
+
+    private:
+        const SkZip* const fZip = nullptr;
+        size_t fIndex = 0;
+    };
+
+public:
+
+    SkZip(size_t) = delete;
+    SkZip(size_t size, Ts*... pointers) : fPointers{pointers...}, fSize{size} {}
+
+    template<typename... Us>
+    SkZip(const SkZip<Us...>& that) : fPointers{that.fPointers}, fSize{that.fSize} {}
+
+    std::tuple<Ts&...> operator[](size_t i) const {
+        return this->index(i);
+    }
+
+    size_t size() const { return fSize; }
+    size_t size_bytes() const {
+        std::array<size_t, sizeof...(Ts)> sizes = {{ sizeof(Ts)... }};
+        size_t sum = 0;
+        for (size_t s : sizes) { sum += s; }
+        return sum * this->size();
+    }
+    std::tuple<Ts&...> front() const { return this->index(0); }
+    std::tuple<Ts&...> back() const { return this->index(this->size() - 1); }
+    Iterator begin() const { return Iterator{this, 0}; }
+    Iterator end() const { return Iterator{this, this->size() - 1}; }
+
+private:
+    std::tuple<Ts&...> index(size_t i) const {
+        SkASSERT( this->size() > 0);
+        SkASSERT( i < this->size());
+        return indexDetail(i, skstd::make_index_sequence<sizeof...(Ts)>{});
+    }
+    template<std::size_t... Is>
+    std::tuple<Ts&...> indexDetail(size_t i, skstd::index_sequence<Is...>) const {
+        return std::tuple<Ts&...>(std::get<Is>(fPointers)[i]...);
+    }
+
+    std::tuple<Ts*...> fPointers;
+    size_t fSize;
+};
+
+DEF_TEST(SkZip, reporter) {
+    uint16_t A[] = {1, 2, 3, 4};
+    float    B[] = {10.f, 20.f, 30.f, 40.f};
+
+    SkZip<uint16_t, float> z{4, A, B};
+
+    {
+        auto t = z[0];
+        REPORTER_ASSERT(reporter, std::get<0>(t) == 1);
+        REPORTER_ASSERT(reporter, std::get<1>(t) == 10.f);
+        REPORTER_ASSERT(reporter, &std::get<0>(t) == &A[0]);
+        REPORTER_ASSERT(reporter, &std::get<1>(t) == &B[0]);
+    }
+
+    {
+        auto t = z.back();
+        REPORTER_ASSERT(reporter, std::get<0>(t) == 4);
+        REPORTER_ASSERT(reporter, std::get<1>(t) == 40.f);
+    }
+
+    REPORTER_ASSERT(reporter, z.size_bytes() == 24);
+
+    {
+        int i = 0;
+        for (auto t : z) {
+            REPORTER_ASSERT(reporter, std::get<0>(t) == A[i]);
+            REPORTER_ASSERT(reporter, std::get<1>(t) == B[i]);
+            i++;
+        }
+    }
+
+    SkZip<const uint16_t, const float> q{4, A, B};
+
+    std::tuple<uint16_t*, float*> vv{A, B};
+    std::tuple<const uint16_t*, const float*> ww{vv};
 }
