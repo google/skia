@@ -18,10 +18,23 @@
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      const GrSurfaceDesc& desc,
                                      id<MTLTexture> renderTexture,
+                                     id<MTLTexture> resolveTexture,
                                      Wrapped)
         : GrSurface(gpu, desc)
         , GrRenderTarget(gpu, desc)
-        , fRenderTexture(renderTexture)
+        , fColorTexture(renderTexture)
+        , fResolveTexture(resolveTexture) {
+    SkASSERT(1 == desc.fSampleCnt);
+    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
+}
+
+GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
+                                     const GrSurfaceDesc& desc,
+                                     id<MTLTexture> renderTexture,
+                                     Wrapped)
+        : GrSurface(gpu, desc)
+        , GrRenderTarget(gpu, desc)
+        , fColorTexture(renderTexture)
         , fResolveTexture(nil) {
     SkASSERT(1 == desc.fSampleCnt);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -30,10 +43,20 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
 // Called by subclass constructors.
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      const GrSurfaceDesc& desc,
+                                     id<MTLTexture> renderTexture,
+                                     id<MTLTexture> resolveTexture)
+        : GrSurface(gpu, desc)
+        , GrRenderTarget(gpu, desc)
+        , fColorTexture(renderTexture)
+        , fResolveTexture(resolveTexture) {
+    SkASSERT(1 == desc.fSampleCnt);
+}
+GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
+                                     const GrSurfaceDesc& desc,
                                      id<MTLTexture> renderTexture)
         : GrSurface(gpu, desc)
         , GrRenderTarget(gpu, desc)
-        , fRenderTexture(renderTexture)
+        , fColorTexture(renderTexture)
         , fResolveTexture(nil) {
     SkASSERT(1 == desc.fSampleCnt);
 }
@@ -48,18 +71,18 @@ GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gpu, const GrSurfaceDesc& d
 }
 
 GrMtlRenderTarget::~GrMtlRenderTarget() {
-    SkASSERT(nil == fRenderTexture);
+    SkASSERT(nil == fColorTexture);
     SkASSERT(nil == fResolveTexture);
 }
 
 GrBackendRenderTarget GrMtlRenderTarget::getBackendRenderTarget() const {
     GrMtlTextureInfo info;
-    info.fTexture.reset(GrRetainPtrFromId(fRenderTexture));
-    return GrBackendRenderTarget(this->width(), this->height(), fRenderTexture.sampleCount, info);
+    info.fTexture.reset(GrRetainPtrFromId(fColorTexture));
+    return GrBackendRenderTarget(this->width(), this->height(), fColorTexture.sampleCount, info);
 }
 
 GrBackendFormat GrMtlRenderTarget::backendFormat() const {
-    return GrBackendFormat::MakeMtl(fRenderTexture.pixelFormat);
+    return GrBackendFormat::MakeMtl(fColorTexture.pixelFormat);
 }
 
 GrMtlGpu* GrMtlRenderTarget::getMtlGpu() const {
@@ -68,13 +91,13 @@ GrMtlGpu* GrMtlRenderTarget::getMtlGpu() const {
 }
 
 void GrMtlRenderTarget::onAbandon() {
-    fRenderTexture = nil;
+    fColorTexture = nil;
     fResolveTexture = nil;
     INHERITED::onAbandon();
 }
 
 void GrMtlRenderTarget::onRelease() {
-    fRenderTexture = nil;
+    fColorTexture = nil;
     fResolveTexture = nil;
     INHERITED::onRelease();
 }

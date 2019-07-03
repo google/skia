@@ -268,7 +268,7 @@ id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface, bool doResolve) {
             // have any multisampled render targets.
             SkASSERT(false);
         } else {
-            mtlTexture = renderTarget->mtlRenderTexture();
+            mtlTexture = renderTarget->mtlColorTexture();
         }
     } else {
         texture = static_cast<GrMtlTexture*>(surface->asTexture());

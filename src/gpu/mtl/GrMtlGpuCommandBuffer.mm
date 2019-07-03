@@ -273,7 +273,7 @@ void GrMtlGpuRTCommandBuffer::setupRenderPass(
 
     auto renderPassDesc = [MTLRenderPassDescriptor renderPassDescriptor];
     renderPassDesc.colorAttachments[0].texture =
-            static_cast<GrMtlRenderTarget*>(fRenderTarget)->mtlRenderTexture();
+            static_cast<GrMtlRenderTarget*>(fRenderTarget)->mtlColorTexture();
     renderPassDesc.colorAttachments[0].slice = 0;
     renderPassDesc.colorAttachments[0].level = 0;
     const SkPMColor4f& clearColor = colorInfo.fClearColor;

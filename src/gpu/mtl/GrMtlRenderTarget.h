@@ -26,26 +26,29 @@ public:
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
-        return kCantResolve_ResolveType;
-#if 0 // TODO figure this once we support msaa
         if (this->numSamples() > 1) {
             return kCanResolve_ResolveType;
         }
         return kAutoResolves_ResolveType;
-#endif
     }
 
     bool canAttemptStencilAttachment() const override {
         return true;
     }
 
-    id<MTLTexture> mtlRenderTexture() const { return fRenderTexture; }
+    id<MTLTexture> mtlColorTexture() const { return fColorTexture; }
+    id<MTLTexture> mtlResolveTexture() const { return fResolveTexture; }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
     GrBackendFormat backendFormat() const override;
 
 protected:
+    GrMtlRenderTarget(GrMtlGpu* gpu,
+                      const GrSurfaceDesc& desc,
+                      id<MTLTexture> renderTexture,
+                      id<MTLTexture> resolveTexture);
+
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,
                       id<MTLTexture> renderTexture);
@@ -68,12 +71,17 @@ protected:
                                       numColorSamples, GrMipMapped::kNo);
     }
 
-    id<MTLTexture> fRenderTexture;
+    id<MTLTexture> fColorTexture; // fRenderTexture;
     id<MTLTexture> fResolveTexture;
 
 private:
     // Extra param to disambiguate from constructor used by subclasses.
     enum Wrapped { kWrapped };
+    GrMtlRenderTarget(GrMtlGpu* gpu,
+                      const GrSurfaceDesc& desc,
+                      id<MTLTexture> renderTexture,
+                      id<MTLTexture> resolveTexture,
+                      Wrapped);
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,
                       id<MTLTexture> renderTexture,
