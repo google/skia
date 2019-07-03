@@ -16,11 +16,7 @@
 static const int kSize = 64;
 
 static sk_sp<GrRenderTargetContext> get_rtc(GrContext* ctx) {
-    const GrBackendFormat format =
-            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
-    return ctx->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kExact, kSize, kSize,
-                                                       kRGBA_8888_GrPixelConfig,
+    return ctx->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact, kSize, kSize,
                                                        GrColorType::kRGBA_8888, nullptr);
 }
 

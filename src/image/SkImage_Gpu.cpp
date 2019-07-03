@@ -86,16 +86,10 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
 
     sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef(context);
 
-    GrBackendFormat format = context->priv().caps()->getBackendFormatFromColorType(targetCT);
-    if (!format.isValid()) {
-        return nullptr;
-    }
-
     sk_sp<GrRenderTargetContext> renderTargetContext(
             context->priv().makeDeferredRenderTargetContextWithFallback(
-                    format, SkBackingFit::kExact, this->width(), this->height(),
-                    SkColorType2GrPixelConfig(targetCT), SkColorTypeToGrColorType(targetCT),
-                    nullptr));
+                    SkBackingFit::kExact, this->width(), this->height(),
+                    SkColorTypeToGrColorType(targetCT), nullptr));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -228,13 +222,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
     const int width = imageSize.width();
     const int height = imageSize.height();
 
-    const GrBackendFormat format =
-            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
     sk_sp<GrRenderTargetContext> renderTargetContext(ctx->priv().makeDeferredRenderTargetContext(
-            format, SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
-            GrColorType::kRGBA_8888, std::move(imageColorSpace), 1, GrMipMapped::kNo, imageOrigin));
+            SkBackingFit::kExact, width, height, GrColorType::kRGBA_8888,
+            std::move(imageColorSpace), 1, GrMipMapped::kNo, imageOrigin));
     if (!renderTargetContext) {
         return nullptr;
     }
