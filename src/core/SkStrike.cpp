@@ -109,11 +109,14 @@ int SkStrike::countCachedGlyphs() const {
     return fGlyphMap.count();
 }
 
-SkSpan<const SkGlyph*> SkStrike::internalMetrics(
-        SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) {
+SkSpan<const SkGlyph*> SkStrike::internalPrepare(
+        SkSpan<const SkGlyphID> glyphIDs, PathDetail pathDetail, const SkGlyph** results) {
     const SkGlyph** cursor = results;
     for (auto glyphID : glyphIDs) {
-        const SkGlyph* glyphPtr = this->glyph(glyphID);
+        SkGlyph* glyphPtr = this->glyph(glyphID);
+        if (pathDetail == kMetricsAndPath) {
+            this->preparePath(glyphPtr);
+        }
         *cursor++ = glyphPtr;
     }
 
@@ -123,7 +126,7 @@ SkSpan<const SkGlyph*> SkStrike::internalMetrics(
 SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
     auto cursor = advances;
     SkAutoSTArray<50, const SkGlyph*> glyphStorage{SkTo<int>(glyphIDs.size())};
-    auto glyphs = this->internalMetrics(glyphIDs, glyphStorage.get());
+    auto glyphs = this->internalPrepare(glyphIDs, kMetricsOnly, glyphStorage.get());
     for (const SkGlyph* glyph : glyphs) {
         *cursor++ = glyph->advanceVector();
     }
@@ -174,7 +177,24 @@ SkVector SkStrike::rounding() const {
 
 SkSpan<const SkGlyph*> SkStrike::metrics(SkSpan<const SkGlyphID> glyphIDs,
                                          const SkGlyph* results[]) {
-    return this->internalMetrics(glyphIDs, results);
+    return this->internalPrepare(glyphIDs, kMetricsOnly, results);
+}
+
+SkSpan<const SkGlyph*> SkStrike::preparePaths(SkSpan<const SkGlyphID> glyphIDs,
+                                              const SkGlyph* results[]) {
+    return this->internalPrepare(glyphIDs, kMetricsAndPath, results);
+}
+
+SkSpan<const SkGlyph*>
+SkStrike::prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* results[]) {
+    const SkGlyph** cursor = results;
+    for (auto glyphID : glyphIDs) {
+        SkGlyph* glyphPtr = this->glyph(glyphID);
+        (void)this->prepareImage(glyphPtr);
+        *cursor++ = glyphPtr;
+    }
+
+    return {results, glyphIDs.size()};
 }
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
