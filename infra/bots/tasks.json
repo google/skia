@@ -3094,7 +3094,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -3189,7 +3189,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -3489,7 +3489,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -3584,7 +3584,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -3679,7 +3679,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -3774,7 +3774,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -3869,7 +3869,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -4169,7 +4169,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -4264,7 +4264,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -4359,7 +4359,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -4454,7 +4454,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -4549,7 +4549,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -4644,7 +4644,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -4739,7 +4739,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -4954,7 +4954,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -5049,7 +5049,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -5239,7 +5239,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -5334,7 +5334,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -5429,7 +5429,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -5524,7 +5524,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
@@ -10940,7 +10940,7 @@
         {
           "name": "skia/bots/android_ndk_darwin",
           "path": "android_ndk_darwin",
-          "version": "version:8"
+          "version": "version:9"
         }
       ],
       "command": [
@@ -13319,7 +13319,7 @@
         {
           "name": "skia/bots/android_ndk_windows",
           "path": "n",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "command": [
@@ -17631,7 +17631,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:14"
+          "version": "version:15"
         }
       ],
       "command": [
