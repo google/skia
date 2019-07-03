@@ -153,37 +153,9 @@ config("default") {
   }
 
   if (is_android) {
-    asmflags += [ "--target=$ndk_target" ]
-    cflags += [
-      "--sysroot=$ndk/sysroot",
-      "-isystem$ndk/sysroot/usr/include/$ndk_target",
-      "-D__ANDROID_API__=$ndk_api",
-      "--target=$ndk_target",
-    ]
-    cflags_cc += [
-      "-isystem$ndk/sources/cxx-stl/llvm-libc++/include",
-      "-isystem$ndk/sources/cxx-stl/llvm-libc++abi/include",
-      "-isystem$ndk/sources/android/support/include",
-    ]
-    ldflags += [
-      "--sysroot=$ndk/platforms/$ndk_platform",
-      "--target=$ndk_target",
-      "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
-      "-static-libstdc++",
-    ]
-    lib_dirs = [
-      "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
-      "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
-      "$ndk/toolchains/llvm/prebuilt/$ndk_host/sysroot/usr/lib/$ndk_target/$ndk_api",
-    ]
-
-    libs += [
-      "c++_static",
-      "c++abi",
-    ]
-    if (ndk_api < 21) {
-      libs += [ "android_support" ]
-    }
+    cflags += [ "--sysroot=$ndk/sysroot" ]
+    cflags_cc += [ "-isystem$ndk/sources/cxx-stl/llvm-libc++/include" ]
+    ldflags += [ "-static-libstdc++" ]
   }
 
   if (is_ios) {

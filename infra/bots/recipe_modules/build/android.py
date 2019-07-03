@@ -45,8 +45,6 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_enable_vulkan_debug_layers'] = 'false'
   if 'ASAN' in extra_tokens:
     args['sanitize'] = '"ASAN"'
-    if target_arch == 'arm' and 'ndk_api' not in args:
-      args['ndk_api'] = 21
 
   # If an Android API level is specified, use that.
   for t in extra_tokens:

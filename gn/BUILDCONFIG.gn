@@ -12,12 +12,8 @@ declare_args() {
   is_component_build = false
   ndk = ""
 
-  # It's nice to keep ndk_api set to what Clank targets, but probably no big deal if we can't.
-  if (target_cpu == "x86" || target_cpu == "arm") {
-    ndk_api = 16
-  } else {
-    ndk_api = 21
-  }
+  # Android 5.0, Lollipop
+  ndk_api = 21
 
   sanitize = ""
 
@@ -92,9 +88,6 @@ if (!is_clang && !is_win) {
 if (is_android) {
   ndk_host = ""
   ndk_target = ""
-  ndk_platform = ""
-  ndk_stdlib = ""
-  ndk_gccdir = ""
   ndk_gdbserver = ""
 
   if (host_os == "linux") {
@@ -107,27 +100,15 @@ if (is_android) {
 
   if (target_cpu == "arm64") {
     ndk_target = "aarch64-linux-android"
-    ndk_platform = "android-${ndk_api}/arch-arm64"
-    ndk_stdlib = "arm64-v8a"
-    ndk_gccdir = ndk_target
     ndk_gdbserver = "prebuilt/android-arm64/gdbserver/gdbserver"
   } else if (target_cpu == "arm") {
-    ndk_target = "arm-linux-androideabi"
-    ndk_platform = "android-${ndk_api}/arch-arm"
-    ndk_stdlib = "armeabi-v7a"
-    ndk_gccdir = ndk_target
+    ndk_target = "armv7a-linux-androideabi"
     ndk_gdbserver = "prebuilt/android-arm/gdbserver/gdbserver"
   } else if (target_cpu == "x64") {
     ndk_target = "x86_64-linux-android"
-    ndk_platform = "android-${ndk_api}/arch-x86_64"
-    ndk_stdlib = "x86_64"
-    ndk_gccdir = ndk_stdlib
     ndk_gdbserver = "prebuilt/android-x86_64/gdbserver/gdbserver"
   } else if (target_cpu == "x86") {
     ndk_target = "i686-linux-android"
-    ndk_platform = "android-${ndk_api}/arch-x86"
-    ndk_stdlib = "x86"
-    ndk_gccdir = ndk_stdlib
     ndk_gdbserver = "prebuilt/android-x86/gdbserver/gdbserver"
   }
 }
