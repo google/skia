@@ -487,6 +487,9 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
         SkASSERT(bounds.contains(subRect));
     )
     int bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    if (rowBytes == 0) {
+        rowBytes = bpp * width;
+    }
 
     // Set up copy region
     VkBufferImageCopy region;
@@ -652,6 +655,9 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
     )
     int bpp = GrColorTypeBytesPerPixel(dataColorType);
     size_t trimRowBytes = width * bpp;
+    if (!rowBytes) {
+        rowBytes = trimRowBytes;
+    }
 
     SkASSERT(VK_IMAGE_LAYOUT_PREINITIALIZED == tex->currentLayout() ||
              VK_IMAGE_LAYOUT_GENERAL == tex->currentLayout());
@@ -832,7 +838,9 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         if (texelsShallowCopy[currentMipLevel].fPixels) {
             SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
             const size_t trimRowBytes = currentWidth * bpp;
-            const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
+            const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes
+                                    ? texelsShallowCopy[currentMipLevel].fRowBytes
+                                    : trimRowBytes;
 
             // copy data into the buffer, skipping the trailing bytes
             char* dst = buffer + individualMipOffsets[currentMipLevel];

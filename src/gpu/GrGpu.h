@@ -91,9 +91,7 @@ public:
      *                       Each level begins with full-size palette data for paletted textures.
      *                       It contains width*height texels. If there is only one
      *                       element and it contains nullptr fPixels, texture data is
-     *                       uninitialized. Levels' row bytes Must be a multiple of
-     *                       config's bytes-per-pixel. Must be tight to width if
-     *                       !caps->writePixelsRowBytesSupport().
+     *                       uninitialized.
      * @param mipLevelCount  the number of levels in 'texels'
      * @return  The texture object if successful, otherwise nullptr.
      */
@@ -175,9 +173,8 @@ public:
      * @param height        height of rectangle to read in pixels.
      * @param dstColorType  the color type of the destination buffer.
      * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      the number of bytes between consecutive rows. Must be a multiple of
-     *                      dstColorType's bytes-per-pixel. Must be tight to width if
-     *                      !caps->readPixelsRowBytesSupport().
+     * @param rowBytes      the number of bytes between consecutive rows. Zero
+     *                      means rows are tightly packed.
      * @param invertY       buffer should be populated bottom-to-top as opposed
      *                      to top-to-bottom (skia's usual order)
      *
@@ -198,9 +195,7 @@ public:
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
      * @param srcColorType  the color type of the source buffer.
-     * @param texels        array of mipmap levels containing texture data. Row bytes must be a
-     *                      multiple of srcColorType's bytes-per-pixel. Must be tight to level width
-     *                      if !caps->writePixelsRowBytesSupport().
+     * @param texels        array of mipmap levels containing texture data
      * @param mipLevelCount number of levels in 'texels'
      *
      * @return true if the write succeeded, false if not. The read can fail
@@ -232,9 +227,8 @@ public:
      * @param bufferColorType  the color type of the transfer buffer's pixel data
      * @param transferBuffer   GrBuffer to read pixels from (type must be "kXferCpuToGpu")
      * @param offset           offset from the start of the buffer
-     * @param rowBytes         number of bytes between consecutive rows in the buffer. Must be a
-     *                         multiple of bufferColorType's bytes-per-pixel. Must be tight to width
-     *                         if !caps->writePixelsRowBytesSupport().
+     * @param rowBytes         number of bytes between consecutive rows in the buffer. Zero
+     *                         means rows are tightly packed.
      */
     bool transferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                           GrColorType bufferColorType, GrGpuBuffer* transferBuffer, size_t offset,

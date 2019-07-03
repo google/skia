@@ -70,10 +70,9 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
         return false;
     }
 
-    size_t tightRowBytes = origDstInfo.minRowBytes();
     if (!rowBytes) {
-        rowBytes = tightRowBytes;
-    } else if (rowBytes < tightRowBytes) {
+        rowBytes = origDstInfo.minRowBytes();
+    } else if (rowBytes < origDstInfo.minRowBytes()) {
         return false;
     }
 
@@ -94,8 +93,6 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     if (!dstInfo.clip(this->width(), this->height(), &pt, &dst, rowBytes)) {
         return false;
     }
-    // Our tight row bytes may have been changed by clipping.
-    tightRowBytes = dstInfo.minRowBytes();
 
     bool premul   = this->colorSpaceInfo().alphaType() == kUnpremul_SkAlphaType &&
                     dstInfo.alphaType() == kPremul_SkAlphaType;
@@ -174,9 +171,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     auto supportedRead = caps->supportedReadPixelsColorType(
             srcProxy->config(), srcProxy->backendFormat(), dstInfo.colorType());
 
-    bool makeTight = !caps->readPixelsRowBytesSupport() && tightRowBytes != rowBytes;
-
-    bool convert = unpremul || premul || needColorConversion || flip || makeTight ||
+    bool convert = unpremul || premul || needColorConversion || flip ||
                    (dstInfo.colorType() != supportedRead.fColorType) ||
                    supportedRead.fSwizzle != GrSwizzle::RGBA();
 
@@ -231,10 +226,9 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
         return false;
     }
 
-    size_t tightRowBytes = origSrcInfo.minRowBytes();
     if (!rowBytes) {
-        rowBytes = tightRowBytes;
-    } else if (rowBytes < tightRowBytes) {
+        rowBytes = origSrcInfo.minRowBytes();
+    } else if (rowBytes < origSrcInfo.minRowBytes()) {
         return false;
     }
 
@@ -253,8 +247,6 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
     if (!srcInfo.clip(this->width(), this->height(), &pt, &src, rowBytes)) {
         return false;
     }
-    // Our tight row bytes may have been changed by clipping.
-    tightRowBytes = srcInfo.minRowBytes();
 
     bool premul = this->colorSpaceInfo().alphaType() == kPremul_SkAlphaType &&
             srcInfo.alphaType() == kUnpremul_SkAlphaType;
@@ -365,8 +357,7 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
     GrColorType allowedColorType =
             caps->supportedWritePixelsColorType(dstProxy->config(), srcInfo.colorType());
     bool flip = dstProxy->origin() == kBottomLeft_GrSurfaceOrigin;
-    bool makeTight = !caps->writePixelsRowBytesSupport() && rowBytes != tightRowBytes;
-    bool convert = premul || unpremul || needColorConversion || makeTight ||
+    bool convert = premul || unpremul || needColorConversion ||
                    (srcInfo.colorType() != allowedColorType) || flip;
 
     std::unique_ptr<char[]> tmpPixels;

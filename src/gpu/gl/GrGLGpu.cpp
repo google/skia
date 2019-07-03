@@ -640,10 +640,10 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
     // we assume these values
     if (resetBits & kPixelStore_GrGLBackendState) {
-        if (this->caps()->writePixelsRowBytesSupport()) {
+        if (this->glCaps().unpackRowLengthSupport()) {
             GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
         }
-        if (this->glCaps().readPixelsRowBytesSupport()) {
+        if (this->glCaps().packRowLengthSupport()) {
             GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
         }
         if (this->glCaps().packFlipYSupport()) {
@@ -932,6 +932,9 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
 
     int bpp = GrColorTypeBytesPerPixel(bufferColorType);
     const size_t trimRowBytes = width * bpp;
+    if (!rowBytes) {
+        rowBytes = trimRowBytes;
+    }
     const void* pixels = (void*)offset;
     if (width < 0 || height < 0) {
         return false;
@@ -940,7 +943,7 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     bool restoreGLRowLength = false;
     if (trimRowBytes != rowBytes) {
         // we should have checked for this support already
-        SkASSERT(this->glCaps().writePixelsRowBytesSupport());
+        SkASSERT(this->glCaps().unpackRowLengthSupport());
         GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
         restoreGLRowLength = true;
     }
@@ -1006,14 +1009,11 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                           GrGLenum internalFormatForTexStorage,
                                           GrGLenum externalFormat,
                                           GrGLenum externalType,
-                                          const GrMipLevel texels[],
-                                          int mipLevelCount,
-                                          int baseWidth,
-                                          int baseHeight,
-                                          bool* changedUpackRowLength) {
+                                          const GrMipLevel texels[], int mipLevelCount,
+                                          int baseWidth, int baseHeight) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
 
-    if (caps.configSupportsTexStorage(config)) {
+    if (caps.isConfigTexSupportEnabled(config)) {
         // We never resize or change formats of textures.
         GL_ALLOC_CALL(&interface,
                       TexStorage2D(target, SkTMax(mipLevelCount, 1), internalFormatForTexStorage,
@@ -1022,23 +1022,14 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
         if (error != GR_GL_NO_ERROR) {
             return  false;
         } else {
-            size_t bpp = GrBytesPerPixel(config);
             for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
                 const void* currentMipData = texels[currentMipLevel].fPixels;
                 if (currentMipData == nullptr) {
                     continue;
                 }
                 int twoToTheMipLevel = 1 << currentMipLevel;
-                const int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
-                const int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
-                const size_t trimRowBytes = currentWidth * bpp;
-                const size_t rowBytes = texels[currentMipLevel].fRowBytes;
-
-                if (caps.writePixelsRowBytesSupport() && rowBytes != trimRowBytes) {
-                    GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
-                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
-                    *changedUpackRowLength = true;
-                }
+                int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
+                int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
 
                 GR_GL_CALL(&interface,
                            TexSubImage2D(target,
@@ -1068,20 +1059,10 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 return false;
             }
         } else {
-            size_t bpp = GrBytesPerPixel(config);
             for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
                 int twoToTheMipLevel = 1 << currentMipLevel;
-                const int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
-                const int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
-                const size_t trimRowBytes = currentWidth * bpp;
-                const size_t rowBytes = texels[currentMipLevel].fRowBytes;
-
-                if (caps.writePixelsRowBytesSupport() && rowBytes != trimRowBytes) {
-                    GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
-                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
-                    *changedUpackRowLength = true;
-                }
-
+                int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
+                int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
                 const void* currentMipData = texels[currentMipLevel].fPixels;
                 // Even if curremtMipData is nullptr, continue to call TexImage2D.
                 // This will allocate texture memory which we can later populate.
@@ -1116,7 +1097,7 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
 static void restore_pixelstore_state(const GrGLInterface& interface, const GrGLCaps& caps,
                                      bool restoreGLRowLength) {
     if (restoreGLRowLength) {
-        SkASSERT(caps.writePixelsRowBytesSupport());
+        SkASSERT(caps.unpackRowLengthSupport());
         GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
     }
 }
@@ -1148,6 +1129,18 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
              (0 == left && 0 == top && width == texWidth && height == texHeight));
 
     this->unbindCpuToGpuXferBuffer();
+
+    // texels is const.
+    // But we may need to flip the texture vertically to prepare it.
+    // Rather than flip in place and alter the incoming data,
+    // we allocate a new buffer to flip into.
+    // This means we need to make a non-const shallow copy of texels.
+    SkAutoTMalloc<GrMipLevel> texelsShallowCopy;
+
+    if (mipLevelCount) {
+        texelsShallowCopy.reset(mipLevelCount);
+        memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
+    }
 
     const GrGLInterface* interface = this->glInterface();
     const GrGLCaps& caps = this->glCaps();
@@ -1185,8 +1178,87 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         *mipMapsStatus = GrMipMapsStatus::kValid;
     }
 
+    const bool usesMips = mipLevelCount > 1;
+
+    // find the combined size of all the mip levels and the relative offset of
+    // each into the collective buffer
+    bool willNeedData = false;
+    size_t combinedBufferSize = 0;
+    SkTArray<size_t> individualMipOffsets(mipLevelCount);
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        if (texelsShallowCopy[currentMipLevel].fPixels) {
+            int twoToTheMipLevel = 1 << currentMipLevel;
+            int currentWidth = SkTMax(1, width / twoToTheMipLevel);
+            int currentHeight = SkTMax(1, height / twoToTheMipLevel);
+            const size_t trimRowBytes = currentWidth * bpp;
+            const size_t trimmedSize = trimRowBytes * currentHeight;
+
+            const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes
+                    ? texelsShallowCopy[currentMipLevel].fRowBytes
+                    : trimRowBytes;
+
+            if (((!caps.unpackRowLengthSupport() || usesMips) && trimRowBytes != rowBytes)) {
+                willNeedData = true;
+            }
+
+            individualMipOffsets.push_back(combinedBufferSize);
+            combinedBufferSize += trimmedSize;
+        } else {
+            if (mipMapsStatus) {
+                *mipMapsStatus = GrMipMapsStatus::kDirty;
+            }
+            individualMipOffsets.push_back(0);
+        }
+    }
     if (mipMapsStatus && mipLevelCount <= 1) {
         *mipMapsStatus = GrMipMapsStatus::kNotAllocated;
+    }
+    char* buffer = nullptr;
+    if (willNeedData) {
+        buffer = (char*)tempStorage.reset(combinedBufferSize);
+    }
+
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        if (!texelsShallowCopy[currentMipLevel].fPixels) {
+            continue;
+        }
+        int twoToTheMipLevel = 1 << currentMipLevel;
+        int currentWidth = SkTMax(1, width / twoToTheMipLevel);
+        int currentHeight = SkTMax(1, height / twoToTheMipLevel);
+        const size_t trimRowBytes = currentWidth * bpp;
+
+        /*
+         *  check whether to allocate a temporary buffer for flipping y or
+         *  because our srcData has extra bytes past each row. If so, we need
+         *  to trim those off here, since GL ES may not let us specify
+         *  GL_UNPACK_ROW_LENGTH.
+         */
+        restoreGLRowLength = false;
+
+        const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes
+                ? texelsShallowCopy[currentMipLevel].fRowBytes
+                : trimRowBytes;
+
+        // TODO: This optimization should be enabled with or without mips.
+        // For use with mips, we must set GR_GL_UNPACK_ROW_LENGTH once per
+        // mip level, before calling glTexImage2D.
+        if (caps.unpackRowLengthSupport() && !usesMips) {
+            // can't use this for flipping, only non-neg values allowed. :(
+            if (rowBytes != trimRowBytes) {
+                GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
+                GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
+                restoreGLRowLength = true;
+            }
+        } else if (trimRowBytes != rowBytes) {
+            // copy data into our new storage, skipping the trailing bytes
+            const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
+            char* dst = buffer + individualMipOffsets[currentMipLevel];
+            SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
+            // now point data to our copied version
+            texelsShallowCopy[currentMipLevel].fPixels = buffer +
+                individualMipOffsets[currentMipLevel];
+            texelsShallowCopy[currentMipLevel].fRowBytes = trimRowBytes;
+        }
     }
 
     if (mipLevelCount) {
@@ -1198,27 +1270,19 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         if (0 == left && 0 == top && texWidth == width && texHeight == height) {
             succeeded = allocate_and_populate_texture(
                     texConfig, *interface, caps, target, internalFormat,
-                    internalFormatForTexStorage, externalFormat, externalType, texels,
-                    mipLevelCount, width, height, &restoreGLRowLength);
+                    internalFormatForTexStorage, externalFormat, externalType,
+                    texelsShallowCopy, mipLevelCount, width, height);
         } else {
             succeeded = false;
         }
     } else {
         for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-            if (!texels[currentMipLevel].fPixels) {
+            if (!texelsShallowCopy[currentMipLevel].fPixels) {
                 continue;
             }
             int twoToTheMipLevel = 1 << currentMipLevel;
-            const int currentWidth = SkTMax(1, width / twoToTheMipLevel);
-            const int currentHeight = SkTMax(1, height / twoToTheMipLevel);
-            const size_t trimRowBytes = currentWidth * bpp;
-            const size_t rowBytes = texels[currentMipLevel].fRowBytes;
-
-            if (caps.writePixelsRowBytesSupport() && rowBytes != trimRowBytes) {
-                GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
-                GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
-                restoreGLRowLength = true;
-            }
+            int currentWidth = SkTMax(1, width / twoToTheMipLevel);
+            int currentHeight = SkTMax(1, height / twoToTheMipLevel);
 
             GL_CALL(TexSubImage2D(target,
                                   currentMipLevel,
@@ -1226,7 +1290,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                                   currentWidth,
                                   currentHeight,
                                   externalFormat, externalType,
-                                  texels[currentMipLevel].fPixels));
+                                  texelsShallowCopy[currentMipLevel].fPixels));
         }
     }
 
@@ -1246,7 +1310,7 @@ GrGLenum GrGLGpu::uploadCompressedTexData(SkImage::CompressionType compressionTy
         return 0;
     }
 
-    bool useTexStorage = caps.configSupportsTexStorage(config);
+    bool useTexStorage = caps.isConfigTexSupportEnabled(config);
 
     static constexpr int kMipLevelCount = 1;
 
@@ -2303,7 +2367,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
 
     // determine if GL can read using the passed rowBytes or if we need a scratch buffer.
     if (rowWidthInPixels != width) {
-        SkASSERT(this->glCaps().readPixelsRowBytesSupport());
+        SkASSERT(this->glCaps().packRowLengthSupport());
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, rowWidthInPixels));
     }
     GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, config_alignment(dstAsConfig)));
@@ -2330,7 +2394,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     }
 
     if (rowWidthInPixels != width) {
-        SkASSERT(this->glCaps().readPixelsRowBytesSupport());
+        SkASSERT(this->glCaps().packRowLengthSupport());
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
     }
 
@@ -2348,15 +2412,35 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
     // GL_PACK_ROW_LENGTH is in terms of pixels not bytes.
     int rowPixelWidth;
+    void* readDst = buffer;
 
-    if (rowBytes == SkToSizeT(width * bytesPerPixel)) {
+    // determine if GL can read using the passed rowBytes or if we need a scratch buffer.
+    SkAutoSMalloc<32 * sizeof(GrColor)> scratch;
+    if (!rowBytes || rowBytes == (size_t)(width * bytesPerPixel)) {
         rowPixelWidth = width;
     } else {
-        SkASSERT(!(rowBytes % bytesPerPixel));
-        rowPixelWidth = rowBytes / bytesPerPixel;
+        if (this->glCaps().packRowLengthSupport() && !(rowBytes % bytesPerPixel)) {
+            rowPixelWidth = rowBytes / bytesPerPixel;
+        } else {
+            scratch.reset(width * bytesPerPixel * height);
+            readDst = scratch.get();
+            rowPixelWidth = width;
+        }
     }
-    return this->readOrTransferPixelsFrom(surface, left, top, width, height, dstColorType, buffer,
-                                          rowPixelWidth);
+    if (!this->readOrTransferPixelsFrom(surface, left, top, width, height, dstColorType, readDst,
+                                        rowPixelWidth)) {
+        return false;
+    }
+
+    if (readDst != buffer) {
+        SkASSERT(readDst != buffer);
+        SkASSERT(rowBytes != (size_t)(rowPixelWidth * bytesPerPixel));
+        const char* src = reinterpret_cast<const char*>(readDst);
+        char* dst = reinterpret_cast<char*>(buffer);
+        SkRectMemcpy(dst, rowBytes, src, rowPixelWidth * bytesPerPixel, width * bytesPerPixel,
+                     height);
+    }
+    return true;
 }
 
 GrGpuRTCommandBuffer* GrGLGpu::getCommandBuffer(
