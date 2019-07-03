@@ -231,11 +231,17 @@ struct AnimationBuilder::AttachLayerContext {
     sk_sp<sksg::RenderNode>       fCurrentMatte;
     sk_sp<sksg::Transform>        fCameraTransform;
 
+    size_t                        fMotionBlurSamples = 1;
+    float                         fMotionBlurAngle   = 0,
+                                  fMotionBlurPhase   = 0;
+
     enum class TransformType { kLayer, kCamera };
 
     TransformRec attachLayerTransform(const skjson::ObjectValue& jlayer,
                                       const AnimationBuilder* abuilder,
                                       TransformType type = TransformType::kLayer);
+
+    bool hasMotionBlur(const skjson::ObjectValue& jlayer) const;
 
 private:
     sk_sp<sksg::Transform> attachParentLayerTransform(const skjson::ObjectValue& jlayer,
