@@ -79,8 +79,14 @@ let lottieJS = fs.readFileSync(options.lottie_player, 'utf8');
 let driverHTML = fs.readFileSync('lottie-web-perf.html', 'utf8');
 let lottieJSON = fs.readFileSync(options.input, 'utf8');
 
+// Find number of frames from the lottie JSON.
+let lottieJSONContent = JSON.parse(lottieJSON);
+const totalFrames = lottieJSONContent.op - lottieJSONContent.ip;
+console.log('Total frames: ' + totalFrames);
+
 const app = express();
 app.get('/', (req, res) => res.send(driverHTML));
+app.get('/total_frames', (req, res) => res.send(totalFrames));
 app.get('/res/lottie.js', (req, res) => res.send(lottieJS));
 app.get('/res/lottie.json', (req, res) => res.send(lottieJSON));
 app.listen(options.port, () => console.log('- Local web server started.'))
@@ -91,7 +97,7 @@ async function wait(ms) {
     return ms;
 }
 
-const targetURL = "http://localhost:" + options.port + "/";
+const targetURL = "http://localhost:" + options.port + "/#" + totalFrames;
 
 // Drive chrome to load the web page from the server we have running.
 async function driveBrowser() {
@@ -109,14 +115,32 @@ async function driveBrowser() {
 
   console.log("Loading " + targetURL);
   try {
+    // Start trace.
+    await page.tracing.start({
+      path: 'trace.json',
+      screenshots: false,
+      categories: ["blink", "cc"]
+    });
+
     await page.goto(targetURL, {
       timeout: 20000,
       waitUntil: 'networkidle0'
     });
+    // WAIT EXPERIMENT
+    // var waitTill = new Date(new Date().getTime() + 10 * 1000);
+    // while(waitTill > new Date()){}
+
     console.log('- Waiting 20s for run to be done.');
     await page.waitForFunction('window._lottieWebDone === true', {
       timeout: 20000,
     });
+
+    // WAIT EXPERIMENT
+    // var waitTill = new Date(new Date().getTime() + 10 * 1000);
+    // while(waitTill > new Date()){}
+
+    // Stop trace.
+    await page.tracing.stop();
   } catch(e) {
     console.log('Timed out while loading or drawing. Either the JSON file was ' +
                 'too big or hit a bug in the player.', e);
