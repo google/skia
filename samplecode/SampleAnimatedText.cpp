@@ -47,12 +47,9 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AnimatedText");
-            return true;
-        }
+    SkString name() override { return SkString("AnimatedText"); }
 
+    bool onQuery(Sample::Event* evt) override {
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             if ('2' == uni) {

@@ -970,6 +970,8 @@ public:
 
     #undef SET_BUTTON
 
+    SkString name() override { return SkString("AAGeometry"); }
+
     bool onQuery(Sample::Event* evt) override;
 
     void onSizeChange() override {
@@ -1820,10 +1822,6 @@ void AAGeometryView::draw_legend(SkCanvas* canvas) {
 }
 
 bool AAGeometryView::onQuery(Sample::Event* evt) {
-    if (Sample::TitleQ(*evt)) {
-        Sample::TitleR(evt, "AAGeometry");
-        return true;
-    }
     SkUnichar uni;
     if (false) {
         return this->INHERITED::onQuery(evt);

@@ -42,11 +42,9 @@ public:
     }
 
 protected:
+    SkString name() override { return SkString("unpremul"); }
+
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "unpremul");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];

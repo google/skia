@@ -59,14 +59,8 @@ protected:
         this->INHERITED::onSizeChange();
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, fLabel.c_str());
-            return true;
-        }
+    SkString name() override { return fLabel; }
 
-        return this->INHERITED::onQuery(evt);
-    }
 private:
     sk_sp<SkSVGDOM> fDom;
     SkString        fPath;

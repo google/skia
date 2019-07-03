@@ -73,12 +73,9 @@ protected:
         fConcavePaths.back().cubicTo(0, -25, 40, -50, 50, 0);
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ShadowUtils");
-            return true;
-        }
+    SkString name() override { return SkString("ShadowUtils"); }
 
+    bool onQuery(Sample::Event* evt) override {
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;

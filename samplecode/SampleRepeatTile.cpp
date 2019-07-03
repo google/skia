@@ -45,13 +45,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "RepeatTile");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("RepeatTile"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
