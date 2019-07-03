@@ -10,6 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkStrike.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/pdf/SkPDFGlyphUse.h"
 
 #include <vector>
@@ -143,9 +144,8 @@ static void compose_advance_data(const AdvanceMetric& range,
 /** Retrieve advance data for glyphs. Used by the PDF backend. */
 // TODO(halcanary): this function is complex enough to need its logic
 // tested with unit tests.
-std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(SkStrike* cache,
+std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typeface,
                                                          const SkPDFGlyphUse* subset,
-                                                         uint16_t emSize,
                                                          int16_t* defaultAdvance) {
     // Assuming that on average, the ASCII representation of an advance plus
     // a space is 8 characters and the ASCII representation of a glyph id is 3
@@ -162,8 +162,12 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(SkStrike* cache,
     //  d. Removing a leading 0/don't cares is a win because it is omitted
     //  e. Removing 2 repeating advances is a win
 
+    int emSize;
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(typeface, &emSize);
+    SkBulkGlyphPaths paths{strikeSpec};
+
     auto result = SkPDFMakeArray();
-    int num_glyphs = SkToInt(cache->getGlyphCount());
+    int num_glyphs = SkToInt(typeface.countGlyphs());
 
     bool prevRange = false;
 
@@ -186,16 +190,13 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(SkStrike* cache,
         glyphIDs[gId] = gId;
     }
 
-    SkAutoTArray<SkPoint> advances{lastIndex + 1};
-
-    cache->getAdvances(
-            SkSpan<const SkGlyphID>{glyphIDs.get(), SkTo<size_t>(lastIndex + 1)}, advances.get());
+    auto glyphs = paths.glyphs(SkMakeSpan(glyphIDs.get(), lastIndex + 1));
 
     for (int gId = 0; gId <= lastIndex; gId++) {
         int16_t advance = kInvalidAdvance;
         if (gId < lastIndex) {
             if (!subset || 0 == gId || subset->has(gId)) {
-                advance = (int16_t)advances[gId].x();
+                advance = (int16_t)glyphs[gId]->advanceX();
             } else {
                 advance = kDontCareAdvance;
             }
