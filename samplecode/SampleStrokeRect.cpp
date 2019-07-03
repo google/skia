@@ -13,13 +13,7 @@ public:
     StrokeRectSample() {}
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Stroke Rects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    virtual SkString name() { return SkString("Stroke Rects"); }
 
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;

@@ -236,13 +236,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Patch");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Patch"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         const int nu = 10;
@@ -387,13 +381,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "PseudoInk");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("PseudoInk"); }
 
     bool onAnimate(const AnimTimer& timer) override { return true; }
 
@@ -458,13 +446,7 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ManyStrokes");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("ManyStrokes"); }
 
     bool onAnimate(const AnimTimer& timer) override { return true; }
 

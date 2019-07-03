@@ -72,13 +72,7 @@ public:
     SkBitmap    fTexture[SK_ARRAY_COUNT(gColorTypes)];
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Tiling");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    virtual SkString name() { return SkString("Tiling"); }
 
     virtual void onDrawContent(SkCanvas* canvas) {
         SkRect r = { 0, 0, SkIntToScalar(gWidth*2), SkIntToScalar(gHeight*2) };

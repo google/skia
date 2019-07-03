@@ -54,11 +54,9 @@ public:
     }
 
 protected:
+    SkString name() override { return SkString("Rectanizer"); }
+
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Rectanizer");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];

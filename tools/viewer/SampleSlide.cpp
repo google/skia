@@ -15,9 +15,10 @@ using namespace sk_app;
 
 SampleSlide::SampleSlide(const SampleFactory factory)
     : fSampleFactory(factory)
-    , fClick(nullptr) {
+    , fClick(nullptr)
+{
     sk_sp<Sample> sample(factory());
-    Sample::RequestTitle(sample.get(), &fName);
+    fName = sample->name();
 }
 
 SampleSlide::~SampleSlide() { delete fClick; }

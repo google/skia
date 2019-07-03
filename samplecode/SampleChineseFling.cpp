@@ -42,13 +42,7 @@ public:
     ChineseFlingView() : fBlobs(kNumBlobs) {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "chinese-fling");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("chinese-fling"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         if (!fInitialized) {
@@ -128,11 +122,9 @@ public:
     ChineseZoomView() : fBlobs(kNumBlobs), fScale(15.0f), fTranslate(0.0f) {}
 
 protected:
+    SkString name() override { return SkString("chinese-zoom"); }
+
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "chinese-zoom");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             if ('>' == uni) {
