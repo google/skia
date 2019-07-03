@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "489ca224_297e99b0",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-03T16:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef92d7e0_0f7cb631",
+      "range": {
+        "startLine": 323,
+        "startChar": 9,
+        "endLine": 323,
+        "endChar": 14
+      },
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df02c96c_5d2d65ed",
         "filename": "src/core/SkStrike.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8e6d032a_7cc06103",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-03T16:18:17Z",
+      "side": 1,
+      "message": "This is my IDE trying to be helpful.",
+      "parentUuid": "df02c96c_5d2d65ed",
+      "range": {
+        "startLine": 189,
+        "startChar": 64,
+        "endLine": 189,
+        "endChar": 87
+      },
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48a608c0_448bb0f6",
         "filename": "src/core/SkStrike.cpp",
         "patchSetId": 2
@@ -62,6 +110,24 @@
       "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f09ddc2_ff324578",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-03T16:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48a608c0_448bb0f6",
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "375620f1_b7c89ddb",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-03T16:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "adeef2e6_41475292",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 6
+      },
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ed7f08d_ac132e09",
         "filename": "src/core/SkStrikeSpec.h",
         "patchSetId": 2
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "39d21cac_62ac6ebd",
+        "filename": "src/core/SkStrikeSpec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-03T16:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ed7f08d_ac132e09",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 24
+      },
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0da3bc42_60817146",
         "filename": "src/core/SkStrikeSpec.h",
         "patchSetId": 2
@@ -125,6 +239,24 @@
       "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b179e56c_f291c3dc",
+        "filename": "src/core/SkStrikeSpec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-03T16:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0da3bc42_60817146",
+      "revId": "b3fd37901acbbb38ab16b28a0e43ce0821fa59f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
