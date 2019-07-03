@@ -67,25 +67,16 @@
     // to CPU and add a ck-replaced class to the canvas element.
     window._gpu = CK.gpu && !c.classList.contains('ck-replaced');
 
-    console.log("start")
     const t_rate = 1.0 / (frames-1);
-    let time = 0;
-    let max = -1;
-    let min = 1000000000;
     let seek = 0;
     let frame = 0;
     const drawFrame = () => {
       if (frame >= frames) {
-        console.log("On average, took "+ (time/frames) +" us" );
         // These are global variables to talk with puppeteer.
-        window._avgFrameTimeUs = time/frames;
-        window._minFrameTimeUs = min;
-        window._maxFrameTimeUs = max;
         window._skottieDone = true;
         return;
       }
 
-      let start = window.performance.now();
       animation.seek(seek);
       animation.render(canvas, {
                        fLeft: 0,
@@ -95,17 +86,6 @@
                        });
       if (shouldFlush) {
         surface.flush();
-      }
-      const t = (window.performance.now() - start) * 1000;
-
-      time += t;
-      console.log("Frame " + frame + " took " + t + " us");
-      console.log("Used seek: " + seek);
-      if (t < min) {
-        min = t;
-      }
-      if (t > max) {
-        max = t;
       }
       seek += t_rate;
       frame++;
