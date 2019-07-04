@@ -12,6 +12,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkVertices.h"
@@ -19,20 +20,19 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/DecodeFile.h"
 #include "samplecode/Sample.h"
-#include "src/utils/SkUTF.h"
-#include "tools/timer/AnimTimer.h"
-
-#include "include/core/SkStream.h"
-#include "src/core/SkOSFile.h"
-
 #include "src/core/SkGeometry.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkUTF.h"
+#include "tools/Resources.h"
+#include "tools/timer/AnimTimer.h"
 
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     SkBitmap    bm;
-
-//    decode_file("/skimages/progressivejpg.jpg", &bm);
-    decode_file("/skimages/logo.png", &bm);
-    size->set(bm.width(), bm.height());
+    // decode_file("/skimages/progressivejpg.jpg", &bm);
+    if (!decode_file("/skimages/logo.png", &bm)) {
+        decode_file(GetResourceAsData("images/dog.jpg"), &bm);
+    }
+    *size = SkIPoint{bm.width(), bm.height()};
     return bm.makeShader();
 }
 
@@ -46,6 +46,7 @@ static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
 class Patch {
 public:
     Patch() { sk_bzero(fPts, sizeof(fPts)); }
@@ -64,6 +65,7 @@ private:
     SkPoint fPts[13];
     int     fW, fH;
 };
+}  // namespace
 
 static void eval_patch_edge(const SkPoint cubic[], SkPoint samples[], int segs) {
     SkScalar t = 0;
@@ -198,44 +200,41 @@ static void drawpatches(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
     patch->draw(canvas, paint, nu, nv, true, true);
 }
 
-const SkScalar DX = 20;
-const SkScalar DY = 0;
+static constexpr SkScalar DX = 20;
+static constexpr SkScalar DY = 0;
 
-class PatchView : public Sample {
-    SkScalar    fAngle;
+namespace {
+struct PatchView : public Sample {
     sk_sp<SkShader> fShader0;
     sk_sp<SkShader> fShader1;
-    SkIPoint    fSize0, fSize1;
-    SkPoint     fPts[12];
+    SkScalar fAngle = 0;
+    SkIPoint fSize0 = {0, 0},
+             fSize1 = {0, 0};
+    SkPoint  fPts[12] = {
+        {50.0f * 0, 40.0f * 1},
+        {50.0f * 1, 40.0f * 1},
+        {50.0f * 2, 40.0f * 1},
+        {50.0f * 3, 40.0f * 1},
+        {50.0f * 3, 40.0f * 2},
+        {50.0f * 3, 40.0f * 3},
+        {50.0f * 3, 40.0f * 4},
+        {50.0f * 2, 40.0f * 4},
+        {50.0f * 1, 40.0f * 4},
+        {50.0f * 0, 40.0f * 4},
+        {50.0f * 0, 40.0f * 3},
+        {50.0f * 0, 40.0f * 2},
+    };
 
-public:
-    PatchView() : fAngle(0) {
+    void onOnceBeforeDraw() override {
         fShader0 = make_shader0(&fSize0);
         fSize1 = fSize0;
         if (fSize0.fX == 0 || fSize0.fY == 0) {
             fSize1.set(2, 2);
         }
         fShader1 = make_shader1(fSize1);
-
-        const SkScalar S = SkIntToScalar(50);
-        const SkScalar T = SkIntToScalar(40);
-        fPts[0].set(S*0, T);
-        fPts[1].set(S*1, T);
-        fPts[2].set(S*2, T);
-        fPts[3].set(S*3, T);
-        fPts[4].set(S*3, T*2);
-        fPts[5].set(S*3, T*3);
-        fPts[6].set(S*3, T*4);
-        fPts[7].set(S*2, T*4);
-        fPts[8].set(S*1, T*4);
-        fPts[9].set(S*0, T*4);
-        fPts[10].set(S*0, T*3);
-        fPts[11].set(S*0, T*2);
-
         this->setBGColor(SK_ColorGRAY);
     }
 
-protected:
     SkString name() override { return SkString("Patch"); }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -271,12 +270,12 @@ protected:
 
         paint.setAntiAlias(false);
         paint.setShader(fShader1);
-        if (true) {
+        {
             SkMatrix m;
             m.setSkew(1, 0);
             paint.setShader(paint.getShader()->makeWithLocalMatrix(m));
         }
-        if (true) {
+        {
             SkMatrix m;
             m.setRotate(fAngle);
             paint.setShader(paint.getShader()->makeWithLocalMatrix(m));
@@ -319,6 +318,7 @@ protected:
 private:
     typedef Sample INHERITED;
 };
+}  // namespace
 DEF_SAMPLE( return new PatchView(); )
 
 //////////////////////////////////////////////////////////////////////////////
