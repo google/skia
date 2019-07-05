@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6935380_4a1a1590",
+        "filename": "resources/dog.jpg",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-05T14:31:00Z",
+      "side": 1,
+      "message": "Where did this image come from?",
+      "revId": "d16084ffdc688bad6d0e9c04f3f98049b3412633",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
