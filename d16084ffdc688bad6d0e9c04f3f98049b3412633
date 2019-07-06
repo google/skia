@@ -16,6 +16,24 @@
       "revId": "d16084ffdc688bad6d0e9c04f3f98049b3412633",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be23b225_199b22a8",
+        "filename": "resources/dog.jpg",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-06T01:07:36Z",
+      "side": 1,
+      "message": "I don\u0027t remember.  But I do remember asking Matt at the time and thinking his answer seemed sensible.",
+      "parentUuid": "e6935380_4a1a1590",
+      "revId": "d16084ffdc688bad6d0e9c04f3f98049b3412633",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
