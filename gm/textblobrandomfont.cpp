@@ -25,6 +25,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/gpu/GrContext.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/fonts/RandomScalerContext.h"
 
 #include <string.h>
@@ -57,7 +58,7 @@ protected:
         // Setup our random scaler context
         auto typeface = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
         if (!typeface) {
-            typeface = SkTypeface::MakeDefault();
+            typeface = ToolUtils::DefaultTypeface();
         }
         font.setTypeface(sk_make_sp<SkRandomTypeface>(std::move(typeface), paint, false));
 

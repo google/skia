@@ -28,6 +28,7 @@
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkTDPQueue.h"
 #include "src/utils/SkUTF.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <hb.h>
 #include <hb-icu.h>
@@ -756,7 +757,7 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
                            RunHandler* handler) const
 {
     SkASSERT(handler);
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     UBiDiLevel defaultLevel = leftToRight ? UBIDI_DEFAULT_LTR : UBIDI_DEFAULT_RTL;
 
     std::unique_ptr<BiDiRunIterator> bidi(MakeIcuBiDiRunIterator(utf8, utf8Bytes, defaultLevel));

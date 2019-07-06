@@ -27,6 +27,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
+#include "tools/flags/CommandLineFlags.h"
 
 class SkBitmap;
 class SkCanvas;
@@ -70,6 +71,10 @@ static inline sk_sp<SkTypeface> create_portable_typeface() {
     return create_portable_typeface(nullptr, SkFontStyle());
 }
 
+DECLARE_bool(nativeFonts);
+#if defined(SK_BUILD_FOR_WIN)
+DECLARE_bool(gdi);
+#endif
 /**
  *  Turn on portable (--nonativeFonts) or GDI font rendering (--gdi).
  */

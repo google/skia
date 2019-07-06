@@ -32,6 +32,7 @@ public:
 SkFontStyleSet* SkFontStyleSet::CreateEmpty() { return new SkEmptyFontStyleSet; }
 
 ///////////////////////////////////////////////////////////////////////////////
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 
 class SkEmptyFontMgr : public SkFontMgr {
 protected:
@@ -83,6 +84,7 @@ protected:
         return nullptr;
     }
 };
+#endif
 
 static SkFontStyleSet* emptyOnNull(SkFontStyleSet* fsset) {
     if (nullptr == fsset) {
@@ -172,6 +174,7 @@ sk_sp<SkTypeface> SkFontMgr::onMakeFromFontData(std::unique_ptr<SkFontData> data
     return this->makeFromStream(data->detachStream(), data->getIndex());
 }
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 // A global function pointer that's not declared, but can be overriden at startup by test tools.
 sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)() = nullptr;
 
@@ -181,11 +184,12 @@ sk_sp<SkFontMgr> SkFontMgr::RefDefault() {
 
     once([]{
         sk_sp<SkFontMgr> fm = gSkFontMgr_DefaultFactory ? gSkFontMgr_DefaultFactory()
-                                                        : SkFontMgr::Factory();
+                              : nullptr; // SkFontMgr::Factory();
         singleton = fm ? std::move(fm) : sk_make_sp<SkEmptyFontMgr>();
     });
     return singleton;
 }
+#endif
 
 /**
 * Width has the greatest priority.

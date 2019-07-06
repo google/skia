@@ -15,6 +15,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "include/ports/SkNativeFontMgrFactory.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkSpan.h"
@@ -292,12 +293,13 @@ static SkString identifier(const FontFamilyDesc& family, const FontDesc& font) {
 
 static void generate_fonts(const char* basepath, const SkSpan<const FontFamilyDesc>& families) {
     FILE* out = nullptr;
+    auto fm = SkNativeFontMgrFactory();
     for (const FontFamilyDesc& family : families) {
         out = font_header(family.fGenericName);
         for (const FontDesc& font : family.fFonts) {
             SkString filepath(SkOSPath::Join(basepath, font.fFile));
             SkASSERTF(sk_exists(filepath.c_str()), "The file %s does not exist.", filepath.c_str());
-            sk_sp<SkTypeface> resourceTypeface = SkTypeface::MakeFromFile(filepath.c_str());
+            auto resourceTypeface = fm->makeFromFile(filepath.c_str());
             SkASSERTF(resourceTypeface, "The file %s is not a font.", filepath.c_str());
             output_font(std::move(resourceTypeface), identifier(family, font).c_str(), out);
         }

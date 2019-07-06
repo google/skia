@@ -216,7 +216,10 @@ void SkStrikeSpec::commonSetup(const SkFont& font, const SkPaint& paint,
 
     fMaskFilter = sk_ref_sp(effects.fMaskFilter);
     fPathEffect = sk_ref_sp(effects.fPathEffect);
-    fTypeface = font.refTypefaceOrDefault();
+    fTypeface = font.refTypeface();
+    if (!fTypeface) {
+        fTypeface = SkTypeface::MakeEmpty();
+    }
 }
 
 SkScopedStrike SkStrikeSpec::findOrCreateScopedStrike(SkStrikeCacheInterface* cache) const {

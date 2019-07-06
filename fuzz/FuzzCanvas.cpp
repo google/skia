@@ -65,6 +65,7 @@
 // SRC
 #include "src/utils/SkUTF.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/gl/GrGLFunctions.h"
@@ -462,7 +463,7 @@ static sk_sp<SkTypeface> make_fuzz_typeface(Fuzz* fuzz) {
     if (make_fuzz_t<bool>(fuzz)) {
         return nullptr;
     }
-    auto fontMugger = SkFontMgr::RefDefault();
+    auto fontMugger = ToolUtils::GlobalFontMgr();
     SkASSERT(fontMugger);
     int familyCount = fontMugger->countFamilies();
     int i, j;
@@ -902,7 +903,7 @@ constexpr int kMaxGlyphCount = 30;
 static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextEncoding encoding) {
     SkTDArray<uint8_t> array;
     if (SkTextEncoding::kGlyphID == encoding) {
-        int glyphRange = font.getTypefaceOrDefault()->countGlyphs();
+        int glyphRange = font.getTypeface()->countGlyphs();
         if (glyphRange == 0) {
             // Some fuzzing environments have no fonts, so empty array is the best
             // we can do.
@@ -977,7 +978,7 @@ static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
     int8_t runCount;
     fuzz->nextRange(&runCount, (int8_t)1, (int8_t)8);
     while (runCount-- > 0) {
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
         SkTextEncoding encoding = fuzz_paint_text_encoding(fuzz);
         font.setEdging(make_fuzz_t<bool>(fuzz) ? SkFont::Edging::kAlias : SkFont::Edging::kAntiAlias);
         SkTDArray<uint8_t> text = make_fuzz_text(fuzz, font, encoding);

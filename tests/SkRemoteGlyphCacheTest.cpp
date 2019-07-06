@@ -20,6 +20,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/fonts/TestEmptyTypeface.h"
 
 #include "src/gpu/text/GrTextContext.h"
@@ -193,7 +194,7 @@ DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
 
-    auto server_tf = SkTypeface::MakeDefault();
+    auto server_tf = ToolUtils::DefaultTypeface();
     auto tf_data = server.serializeTypeface(server_tf.get());
 
     auto client_tf = client.deserializeTypeface(tf_data->data(), tf_data->size());
@@ -212,7 +213,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
     const SkPaint paint;
 
     // Server.
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     auto serverTfData = server.serializeTypeface(serverTf.get());
 
     int glyphCount = 10;
@@ -274,7 +275,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
 
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     server.serializeTypeface(serverTf.get());
     int glyphCount = 10;
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
@@ -308,7 +309,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
 
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     server.serializeTypeface(serverTf.get());
     int glyphCount = 10;
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
@@ -337,7 +338,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
     SkStrikeClient client(discardableManager, false);
 
     // Server.
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     auto serverTfData = server.serializeTypeface(serverTf.get());
 
     int glyphCount = 10;
@@ -376,7 +377,7 @@ DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
     SkStrikeClient client(discardableManager, false);
 
     // Server.
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     auto serverTfData = server.serializeTypeface(serverTf.get());
 
     int glyphCount = 10;
@@ -406,7 +407,7 @@ DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
     SkStrikeClient client(discardableManager, false);
 
     {
-        auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+        auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
         int glyphCount = 10;
         auto serverBlob = buildTextBlob(serverTf, glyphCount);
 
@@ -427,7 +428,7 @@ DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
     // Use a different typeface. Creating a new strike should evict the previous
     // one.
     {
-        auto serverTf = SkTypeface::MakeFromName("Georgia", SkFontStyle());
+        auto serverTf = ToolUtils::TypefaceFromName("Georgia", SkFontStyle());
         int glyphCount = 10;
         auto serverBlob = buildTextBlob(serverTf, glyphCount);
 
@@ -454,7 +455,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
             SkStrikeSpec::ShouldDrawAsPath(paint, SkFont(), SkMatrix::I()));
 
     // Server.
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     auto serverTfData = server.serializeTypeface(serverTf.get());
 
     int glyphCount = 10;
@@ -644,7 +645,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY, reporter, ctxI
     paint.setAntiAlias(true);
 
     // Server.
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     auto serverTfData = server.serializeTypeface(serverTf.get());
 
     int glyphCount = 10;
@@ -691,7 +692,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
                                       paint, font, matrix, surfaceProps, true, options));
 
     // Server.
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     auto serverTfData = server.serializeTypeface(serverTf.get());
 
     int glyphCount = 10;
@@ -726,7 +727,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting, report
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
 
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     auto tfData = server.serializeTypeface(serverTf.get());
     auto clientTf = client.deserializeTypeface(tfData->data(), tfData->size());
     REPORTER_ASSERT(reporter, clientTf);
@@ -817,7 +818,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
 
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     auto tfData = server.serializeTypeface(serverTf.get());
     auto clientTf = client.deserializeTypeface(tfData->data(), tfData->size());
     REPORTER_ASSERT(reporter, clientTf);
@@ -927,7 +928,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
 
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     auto tfData = server.serializeTypeface(serverTf.get());
     auto clientTf = client.deserializeTypeface(tfData->data(), tfData->size());
     REPORTER_ASSERT(reporter, clientTf);

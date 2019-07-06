@@ -17,6 +17,7 @@
 #include "include/core/SkTypeface.h"
 #include "src/core/SkGlyphRun.h"
 #include "tools/fonts/RandomScalerContext.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #include "include/ports/SkTypeface_win.h"
@@ -71,7 +72,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
 
     SkCanvas* canvas = surface->getCanvas();
 
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(ToolUtils::GlobalFontMgr());
 
     int count = SkMin32(fm->countFamilies(), maxFamilies);
 

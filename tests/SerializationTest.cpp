@@ -31,6 +31,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static const uint32_t kArraySize = 64;
 static const int kBitmapSize = 256;
@@ -386,7 +387,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
             INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
         } else {
             SkFixed axis = SK_FixedSqrt2;
-            sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
+            sk_sp<SkTypeface> typeface(ToolUtils::GlobalFontMgr()->makeFromFontData(
                 skstd::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
             if (!typeface) {
                 INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
@@ -742,7 +743,7 @@ DEF_TEST(WriteBuffer_storage, reporter) {
 
 DEF_TEST(WriteBuffer_external_memory_textblob, reporter) {
     SkFont font;
-    font.setTypeface(SkTypeface::MakeDefault());
+    font.setTypeface(ToolUtils::DefaultTypeface());
 
     SkTextBlobBuilder builder;
     int glyph_count = 5;

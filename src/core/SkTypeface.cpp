@@ -24,6 +24,7 @@ SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
 
 SkTypeface::~SkTypeface() { }
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 #ifdef SK_WHITELIST_SERIALIZED_TYPEFACES
 extern void WhitelistSerializeTypeface(const SkTypeface*, SkWStream* );
 #define SK_TYPEFACE_DELEGATE WhitelistSerializeTypeface
@@ -33,6 +34,7 @@ extern void WhitelistSerializeTypeface(const SkTypeface*, SkWStream* );
 
 void (*gSerializeTypefaceDelegate)(const SkTypeface*, SkWStream* ) = SK_TYPEFACE_DELEGATE;
 sk_sp<SkTypeface> (*gDeserializeTypefaceDelegate)(SkStream* ) = nullptr;
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -92,6 +94,9 @@ protected:
 
 }  // namespace
 
+sk_sp<SkTypeface> SkTypeface::MakeEmpty() { return SkEmptyTypeface::Make(); }
+
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 SkFontStyle SkTypeface::FromOldStyle(Style oldStyle) {
     return SkFontStyle((oldStyle & SkTypeface::kBold) ? SkFontStyle::kBold_Weight
                                                       : SkFontStyle::kNormal_Weight,
@@ -116,10 +121,15 @@ SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
 sk_sp<SkTypeface> SkTypeface::MakeDefault() {
     return sk_ref_sp(GetDefaultTypeface());
 }
+#endif
 
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
     if (nullptr == face) {
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
         face = GetDefaultTypeface();
+#else
+        return 0;
+#endif
     }
     return face->uniqueID();
 }
@@ -130,6 +140,7 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[],
                                            SkFontStyle fontStyle) {
     if (nullptr == name && (fontStyle.slant() == SkFontStyle::kItalic_Slant ||
@@ -166,6 +177,7 @@ sk_sp<SkTypeface> SkTypeface::MakeFromFontData(std::unique_ptr<SkFontData> data)
 sk_sp<SkTypeface> SkTypeface::MakeFromFile(const char path[], int index) {
     return SkFontMgr::RefDefault()->makeFromFile(path, index);
 }
+#endif
 
 sk_sp<SkTypeface> SkTypeface::makeClone(const SkFontArguments& args) const {
     return this->onMakeClone(args);
@@ -174,10 +186,12 @@ sk_sp<SkTypeface> SkTypeface::makeClone(const SkFontArguments& args) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const {
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     if (gSerializeTypefaceDelegate) {
         (*gSerializeTypefaceDelegate)(this, wstream);
         return;
     }
+#endif
 
     bool isLocalData = false;
     SkFontDescriptor desc;
@@ -205,6 +219,7 @@ sk_sp<SkData> SkTypeface::serialize(SerializeBehavior behavior) const {
     return stream.detachAsData();
 }
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
     if (gDeserializeTypefaceDelegate) {
         return (*gDeserializeTypefaceDelegate)(stream);
@@ -225,6 +240,24 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
 
     return SkTypeface::MakeFromName(desc.getFamilyName(), desc.getStyle());
 }
+#else
+sk_sp<SkTypeface> SkTypeface::MakeDeserialize(sk_sp<SkFontMgr> fontmgr, SkStream* stream) {
+    SkFontDescriptor desc;
+    if (!SkFontDescriptor::Deserialize(stream, &desc)) {
+        return nullptr;
+    }
+
+    std::unique_ptr<SkFontData> data = desc.detachFontData();
+    if (data) {
+        sk_sp<SkTypeface> typeface = fontmgr->makeFromFontData(std::move(data));
+        if (typeface) {
+            return typeface;
+        }
+    }
+    // TODO(dogben): use matchFamilyStyle instead?
+    return fontmgr->legacyMakeTypeface(desc.getFamilyName(), desc.getStyle());
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
