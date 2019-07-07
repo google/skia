@@ -14,7 +14,7 @@
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlPipelineStateDataManager.h"
 
-#import <metal/metal.h>
+#import <Metal/Metal.h>
 
 class GrMtlGpu;
 class GrMtlPipelineStateDataManager;

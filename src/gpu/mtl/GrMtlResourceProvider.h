@@ -15,7 +15,7 @@
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 #include "src/gpu/mtl/GrMtlSampler.h"
 
-#import <metal/metal.h>
+#import <Metal/Metal.h>
 
 class GrMtlGpu;
 class GrMtlCommandBuffer;
