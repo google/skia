@@ -22,16 +22,11 @@
 #include "tools/ToolUtils.h"
 #include "tools/timer/AnimTimer.h"
 
-class AddArcGM : public skiagm::GM {
-public:
-    AddArcGM() : fRotate(0) {}
+////////////////////////////////////////////////////////////////////////////////
 
-protected:
-    SkString onShortName() override { return SkString("addarc"); }
+static void addarc(SkCanvas* canvas, double nanos) {
+        SkScalar rotate = AnimTimer::Scaled(nanos * 1e-9, 1, 360);
 
-    SkISize onISize() override { return SkISize::Make(1040, 1040); }
-
-    void onDraw(SkCanvas* canvas) override {
         canvas->translate(20, 20);
 
         SkRect r = SkRect::MakeWH(1000, 1000);
@@ -51,7 +46,7 @@ protected:
             SkScalar startAngle = rand.nextUScalar1() * 360;
 
             SkScalar speed = SkScalarSqrt(16 / r.width()) * 0.5f;
-            startAngle += fRotate * 360 * speed * sign;
+            startAngle += rotate * 360 * speed * sign;
 
             SkPath path;
             path.addArc(r, startAngle, sweepAngle);
@@ -60,25 +55,15 @@ protected:
             r.inset(inset, inset);
             sign = -sign;
         }
-    }
+}
+DEF_ANIMATED_GM(addarc, 1040, 1040);
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fRotate = timer.scaled(1, 360);
-        return true;
-    }
+////////////////////////////////////////////////////////////////////////////////
 
-private:
-    SkScalar fRotate;
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new AddArcGM; )
+static constexpr int R = 400;
 
-///////////////////////////////////////////////////
-
-#define R   400
-
-DEF_SIMPLE_GM(addarc_meas, canvas, 2*R + 40, 2*R + 40) {
-        canvas->translate(R + 20, R + 20);
+DEF_SIMPLE_GM(addarc_meas, canvas, 2 * R + 40, 2 * R + 40) {
+        canvas->translate(R + 20.0f, R + 20.0f);
 
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -113,17 +98,8 @@ DEF_SIMPLE_GM(addarc_meas, canvas, 2*R + 40, 2*R + 40) {
 
 // Emphasize drawing a stroked oval (containing conics) and then scaling the results up,
 // to ensure that we compute the stroke taking the CTM into account
-//
-class StrokeCircleGM : public skiagm::GM {
-public:
-    StrokeCircleGM() : fRotate(0) {}
-
-protected:
-    SkString onShortName() override { return SkString("strokecircle"); }
-
-    SkISize onISize() override { return SkISize::Make(520, 520); }
-
-    void onDraw(SkCanvas* canvas) override {
+static void strokecircle(SkCanvas* canvas, double nanos) {
+        SkScalar rotate = AnimTimer::Scaled(nanos * 1e-9, 60, 360);
         canvas->scale(20, 20);
         canvas->translate(13, 13);
 
@@ -139,41 +115,22 @@ protected:
         SkScalar sign = 1;
         while (r.width() > paint.getStrokeWidth() * 2) {
             SkAutoCanvasRestore acr(canvas, true);
-            canvas->rotate(fRotate * sign);
+            canvas->rotate(rotate * sign);
 
             paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
             canvas->drawOval(r, paint);
             r.inset(delta, delta);
             sign = -sign;
         }
-    }
+}
+DEF_ANIMATED_GM(strokecircle, 520, 520);
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fRotate = timer.scaled(60, 360);
-        return true;
-    }
-
-private:
-    SkScalar fRotate;
-
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new StrokeCircleGM; )
-
-//////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 // Fill circles and rotate them to test our Analytic Anti-Aliasing.
 // This test is based on StrokeCircleGM.
-class FillCircleGM : public skiagm::GM {
-public:
-    FillCircleGM() : fRotate(0) {}
-
-protected:
-    SkString onShortName() override { return SkString("fillcircle"); }
-
-    SkISize onISize() override { return SkISize::Make(520, 520); }
-
-    void onDraw(SkCanvas* canvas) override {
+static void fillcircle(SkCanvas* canvas, double nanos) {
+        SkScalar rotate = AnimTimer::Scaled(nanos * 1e-9, 60, 360);
         canvas->scale(20, 20);
         canvas->translate(13, 13);
 
@@ -193,27 +150,16 @@ protected:
         SkScalar sign = 1;
         while (r.width() > strokeWidth * 2) {
             SkAutoCanvasRestore acr(canvas, true);
-            canvas->rotate(fRotate * sign);
+            canvas->rotate(rotate * sign);
             paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
             canvas->drawOval(r, paint);
             r.inset(delta, delta);
             sign = -sign;
         }
-    }
+}
+DEF_ANIMATED_GM(fillcircle, 520, 520);
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fRotate = timer.scaled(60, 360);
-        return true;
-    }
-
-private:
-    SkScalar fRotate;
-
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new FillCircleGM; )
-
-//////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 static void html_canvas_arc(SkPath* path, SkScalar x, SkScalar y, SkScalar r, SkScalar start,
                             SkScalar end, bool ccw, bool callArcTo) {

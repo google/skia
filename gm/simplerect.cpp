@@ -11,28 +11,10 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
 #include "tools/ToolUtils.h"
 
-class AnimTimer;
-
-class SimpleRectGM : public skiagm::GM {
-public:
-    SimpleRectGM() {}
-
-protected:
-    SkString onShortName() override {
-        SkString name;
-        name.printf("simplerect");
-        return name;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 800);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+static void simplerect(SkCanvas* canvas, double /*nanoseconds*/) {
         canvas->translate(1, 1);    // want to exercise non-identity ctm performance
 
         const SkScalar min = -20;
@@ -49,12 +31,5 @@ protected:
             SkScalar h = rand.nextRangeScalar(0, size);
             canvas->drawRect(SkRect::MakeXYWH(x, y, w, h), paint);
         }
-    }
-
-    bool onAnimate(const AnimTimer& timer) override { return true; }
-
-private:
-
-    typedef GM INHERITED;
-};
-DEF_GM(return new SimpleRectGM;)
+}
+DEF_ANIMATED_GM(simplerect, 800, 800);

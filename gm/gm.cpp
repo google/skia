@@ -21,6 +21,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/ToolUtils.h"
+#include "tools/timer/AnimTimer.h"
 
 #include <stdarg.h>
 
@@ -182,6 +183,16 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     }
     return this->onDraw(ctx, rtc, canvas, errorMsg);
 }
+
+AnimGM::~AnimGM() = default;
+
+SkString AnimGM::onShortName() { return fName; }
+
+SkISize AnimGM::onISize() { return fSize; }
+
+void AnimGM::onDraw(SkCanvas* canvas) { fDrawFn(canvas, fNanos); }
+
+bool AnimGM::onAnimate(const AnimTimer& t) { fNanos = t.nsecs(); return true; }
 
 template <typename Fn>
 static void mark(SkCanvas* canvas, SkScalar x, SkScalar y, Fn&& fn) {

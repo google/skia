@@ -36,17 +36,10 @@ struct DashExample {
     { dash4, SK_ARRAY_COUNT(dash4) }
 };
 
+static void dashcircle(SkCanvas* canvas, double nanos) {
+        constexpr SkScalar kDesiredDurationSecs = 100.0f;
+        SkScalar rotation = AnimTimer::Scaled(nanos * 1e-9, 360.0f/kDesiredDurationSecs, 360.0f);
 
-class DashCircleGM : public skiagm::GM {
-public:
-    DashCircleGM() : fRotation(0) { }
-
-protected:
-    SkString onShortName() override { return SkString("dashcircle"); }
-
-    SkISize onISize() override { return SkISize::Make(900, 1200); }
-
-    void onDraw(SkCanvas* canvas) override {
         SkPaint refPaint;
         refPaint.setAntiAlias(true);
         refPaint.setColor(0xFFbf3f7f);
@@ -80,7 +73,7 @@ protected:
                     }
                 }
                 canvas->save();
-                canvas->rotate(fRotation);
+                canvas->rotate(rotation);
                 canvas->drawPath(refPath, refPaint);
                 canvas->restore();
                 SkPaint p;
@@ -95,7 +88,7 @@ protected:
                 }
                 p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
                 canvas->save();
-                canvas->rotate(fRotation);
+                canvas->rotate(rotation);
                 canvas->drawPath(circle, p);
                 canvas->restore();
                 canvas->translate(0, radius * 2 + 50);
@@ -103,33 +96,14 @@ protected:
             canvas->restore();
             canvas->translate(radius * 2 + 50, 0);
         }
-    }
+}
+DEF_ANIMATED_GM(dashcircle, 900, 1200)
 
-    bool onAnimate(const AnimTimer& timer) override {
-        constexpr SkScalar kDesiredDurationSecs = 100.0f;
+////////////////////////////////////////////////////////////////////////////////
 
-        fRotation = timer.scaled(360.0f/kDesiredDurationSecs, 360.0f);
-        return true;
-    }
+static void dashcircle2(SkCanvas* canvas, double nanos) {
+        SkScalar phaseDegrees = 12.0f + 1e-9 * nanos;
 
-private:
-    SkScalar fRotation;
-
-    typedef GM INHERITED;
-};
-
-DEF_GM(return new DashCircleGM; )
-
-class DashCircle2GM : public skiagm::GM {
-public:
-    DashCircle2GM() {}
-
-protected:
-    SkString onShortName() override { return SkString("dashcircle2"); }
-
-    SkISize onISize() override { return SkISize::Make(635, 900); }
-
-    void onDraw(SkCanvas* canvas) override {
         // These intervals are defined relative to tau.
         static constexpr SkScalar kIntervals[][2]{
                 {0.333f, 0.333f},
@@ -163,12 +137,12 @@ protected:
             SkScalar scaledIntervals[2] = {kCircumference * kIntervals[i][0],
                                            kCircumference * kIntervals[i][1]};
             deffects[i] = SkDashPathEffect::Make(
-                    scaledIntervals, 2, kCircumference * fPhaseDegrees * kTau / 360.f);
+                    scaledIntervals, 2, kCircumference * phaseDegrees * kTau / 360.f);
             static constexpr SkScalar kThinCircumference = kThinRadius * kTau;
             scaledIntervals[0] = kThinCircumference * kIntervals[i][0];
             scaledIntervals[1] = kThinCircumference * kIntervals[i][1];
             thinDEffects[i] = SkDashPathEffect::Make(
-                    scaledIntervals, 2, kThinCircumference * fPhaseDegrees * kTau / 360.f);
+                    scaledIntervals, 2, kThinCircumference * phaseDegrees * kTau / 360.f);
         }
 
         SkMatrix rotate;
@@ -223,19 +197,8 @@ protected:
             canvas->translate(0, bounds.height() + kPad);
         }
         canvas->restore();
-    }
-
-protected:
-    bool onAnimate(const AnimTimer& timer) override {
-        fPhaseDegrees = timer.secs();
-        return true;
-    }
-
-    // Init with a non-zero phase for when run as a non-animating GM.
-    SkScalar fPhaseDegrees = 12.f;
-};
-
-DEF_GM(return new DashCircle2GM;)
+}
+DEF_ANIMATED_GM(dashcircle2, 635, 900)
 
 DEF_SIMPLE_GM(maddash, canvas, 1600, 1600) {
     canvas->drawRect({0, 0, 1600, 1600}, SkPaint());
