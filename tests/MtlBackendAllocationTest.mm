@@ -9,7 +9,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "tests/Test.h"
 
-#import <metal/metal.h>
+#import <Metal/Metal.h>
 #include "src/gpu/mtl/GrMtlCaps.h"
 
 // In BackendAllocationTest.cpp
