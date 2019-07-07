@@ -15,7 +15,7 @@
 #include "src/gpu/mtl/GrMtlVaryingHandler.h"
 #include "src/sksl/SkSLCompiler.h"
 
-#import <metal/metal.h>
+#import <Metal/Metal.h>
 
 class GrMtlGpu;
 class GrMtlPipelineState;

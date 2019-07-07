@@ -11,7 +11,7 @@
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/mtl/GrMtlUniformHandler.h"
 
-#import <metal/metal.h>
+#import <Metal/Metal.h>
 
 class GrMtlCaps;
 class GrMtlGpu;

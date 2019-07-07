@@ -8,7 +8,7 @@
 #ifndef GrMtlSampler_DEFINED
 #define GrMtlSampler_DEFINED
 
-#import <metal/metal.h>
+#import <Metal/Metal.h>
 
 #include "src/core/SkOpts.h"
 #include <atomic>
