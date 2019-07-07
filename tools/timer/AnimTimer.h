@@ -91,6 +91,12 @@ public:
     }
 
     /**
+     *  Return the time in nanoseconds the timer has been in the running state.
+     *  Returns 0 if the timer is stopped.
+     */
+    double nsecs() const { return fElapsedNanos; }
+
+    /**
      *  Return the time in seconds the timer has been in the running state.
      *  Returns 0 if the timer is stopped.
      */
@@ -102,7 +108,12 @@ public:
      *  Returns 0 if the timer is stopped.
      */
     SkScalar scaled(SkScalar speed, SkScalar period = 0) const {
-        double value = this->secs() * speed;
+        return Scaled(this->secs(), speed, period);
+    }
+
+    /** Helper for computing a scaled value without a AnimTimer object. */
+    static SkScalar Scaled(double seconds, SkScalar speed, SkScalar period = 0) {
+        double value = seconds * speed;
         if (period) {
             value = ::fmod(value, SkScalarToDouble(period));
         }

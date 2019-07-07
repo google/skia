@@ -228,6 +228,22 @@ namespace skiagm {
         const DrawProc fDrawProc;
     };
 
+    class AnimGM : public skiagm::GM {
+    public:
+        using DrawFn = void (*)(SkCanvas*, double nanos);
+        AnimGM(const char* n, DrawFn f, SkISize s) : fName(n), fDrawFn(f), fSize(s) {}
+        ~AnimGM() override;
+        SkString onShortName() override;
+        SkISize onISize() override;
+        void onDraw(SkCanvas*) override;
+        bool onAnimate(const AnimTimer&) override;
+
+    private:
+        SkString fName;
+        DrawFn fDrawFn;
+        SkISize fSize;
+        double fNanos = 0;
+    };
 }
 
 void MarkGMGood(SkCanvas*, SkScalar x, SkScalar y);
