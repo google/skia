@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f0298e5_ddfbdde6",
+        "filename": "tools/lottie-web-perf/lottie-web-perf.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-07-08T19:42:44Z",
+      "side": 1,
+      "message": "const targetURL \u003d `http://localhost:${options.port}/#${totalFrames}`;\n\nis easier to read.",
+      "revId": "6aef6b7b63171b25c80f49ee640356e6837a0236",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
