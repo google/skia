@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42bcaead_f98cd6e1",
+        "filename": "infra/bots/recipes/perf_skottiewasm_lottieweb.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-07-08T20:14:17Z",
+      "side": 1,
+      "message": "leftover?",
+      "revId": "e43896c8ce89287ee48ef42f9070adbd12a66f9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be6f5684_7b8181fe",
+        "filename": "infra/bots/recipes/perf_skottiewasm_lottieweb.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-07-08T20:14:17Z",
+      "side": 1,
+      "message": "Maybe make a list erroneous_termination_statuses ?",
+      "revId": "e43896c8ce89287ee48ef42f9070adbd12a66f9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
