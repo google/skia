@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6af7375f_b58aceee",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-08T20:35:44Z",
+      "side": 1,
+      "message": "You don\u0027t want to make this: onGetBackendFormatFromColorType ?",
+      "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "278e9a97_602c6ae6",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-08T20:35:44Z",
+      "side": 1,
+      "message": "We should probably do:\n\nct \u003d kRGBA_8888_SkColorType;\ngrCT \u003d GrColorType::kRGBA_8888;\nformat \u003d this-\u003ecaps()-\u003egetBackendFormatFromColorType(grCT);",
+      "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d68f47ec_1a78d571",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-08T20:35:44Z",
+      "side": 1,
+      "message": "Here to:\n\ngrColorType \u003d GrColorType::kRGBA_8888;\nformat \u003d this-\u003ecaps()-\u003egetBackendFormatFromColorType(grColorType);",
+      "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1039a6de_78033f6a",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-08T20:35:44Z",
+      "side": 1,
+      "message": "Might as well use colorType here now",
+      "range": {
+        "startLine": 291,
+        "startChar": 57,
+        "endLine": 291,
+        "endChar": 80
+      },
+      "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
