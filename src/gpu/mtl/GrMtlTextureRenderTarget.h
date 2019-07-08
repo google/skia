@@ -13,11 +13,11 @@
 
 class GrMtlTextureRenderTarget: public GrMtlTexture, public GrMtlRenderTarget {
 public:
-    static sk_sp<GrMtlTextureRenderTarget> CreateNewTextureRenderTarget(GrMtlGpu*,
-                                                                        SkBudgeted,
-                                                                        const GrSurfaceDesc&,
-                                                                        MTLTextureDescriptor*,
-                                                                        GrMipMapsStatus);
+    static sk_sp<GrMtlTextureRenderTarget> MakeNewTextureRenderTarget(GrMtlGpu*,
+                                                                      SkBudgeted,
+                                                                      const GrSurfaceDesc&,
+                                                                      MTLTextureDescriptor*,
+                                                                      GrMipMapsStatus);
 
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
                                                                           const GrSurfaceDesc&,
@@ -56,7 +56,8 @@ private:
                              const GrSurfaceDesc& desc,
                              id<MTLTexture> renderTexture,
                              id<MTLTexture> resolveTexture,
-                             GrMipMapsStatus);
+                             GrMipMapsStatus,
+                             GrWrapCacheable cacheable);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              const GrSurfaceDesc& desc,
