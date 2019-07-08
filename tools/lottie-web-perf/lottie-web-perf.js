@@ -79,6 +79,11 @@ let lottieJS = fs.readFileSync(options.lottie_player, 'utf8');
 let driverHTML = fs.readFileSync('lottie-web-perf.html', 'utf8');
 let lottieJSON = fs.readFileSync(options.input, 'utf8');
 
+// Find number of frames from the lottie JSON.
+let lottieJSONContent = JSON.parse(lottieJSON);
+const totalFrames = lottieJSONContent.op - lottieJSONContent.ip;
+console.log('Total frames: ' + totalFrames);
+
 const app = express();
 app.get('/', (req, res) => res.send(driverHTML));
 app.get('/res/lottie.js', (req, res) => res.send(lottieJS));
@@ -91,7 +96,7 @@ async function wait(ms) {
     return ms;
 }
 
-const targetURL = "http://localhost:" + options.port + "/";
+const targetURL = "http://localhost:" + options.port + "/#" + totalFrames;
 
 // Drive chrome to load the web page from the server we have running.
 async function driveBrowser() {
@@ -109,32 +114,31 @@ async function driveBrowser() {
 
   console.log("Loading " + targetURL);
   try {
+    // Start trace.
+    await page.tracing.start({
+      path: options.output,
+      screenshots: false,
+      categories: ["blink", "cc"]
+    });
+
     await page.goto(targetURL, {
       timeout: 20000,
       waitUntil: 'networkidle0'
     });
+
     console.log('- Waiting 20s for run to be done.');
     await page.waitForFunction('window._lottieWebDone === true', {
       timeout: 20000,
     });
+
+    // Stop trace.
+    await page.tracing.stop();
   } catch(e) {
     console.log('Timed out while loading or drawing. Either the JSON file was ' +
                 'too big or hit a bug in the player.', e);
     await browser.close();
     process.exit(0);
   }
-
-  // Write results.
-  var extractResults = function() {
-    return {
-      'frame_avg_us': window._avgFrameTimeUs,
-      'frame_max_us': window._maxFrameTimeUs,
-      'frame_min_us': window._minFrameTimeUs,
-    };
-  }
-  var data = await page.evaluate(extractResults);
-  console.log(data)
-  fs.writeFileSync(options.output, JSON.stringify(data), 'utf-8');
 
   await browser.close();
   // Need to call exit() because the web server is still running.
