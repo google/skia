@@ -37,10 +37,11 @@ bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& othe
            fImageInfo == other.fImageInfo &&
            fBackendFormat == other.fBackendFormat &&
            fSampleCnt == other.fSampleCnt &&
-           fIsTextureable == other.fIsTextureable &&
-           fIsMipMapped == other.fIsMipMapped &&
+           fIsTextureable1 == other.fIsTextureable1 &&
+           fIsMipMapped1 == other.fIsMipMapped1 &&
            fUsesGLFBO0 == other.fUsesGLFBO0 &&
-           fVulkanSecondaryCBCompatible == other.fVulkanSecondaryCBCompatible &&
+           fVulkanSecondaryCBCompatible1 == other.fVulkanSecondaryCBCompatible1 &&
+           fIsProtected == other.fIsProtected &&
            fSurfaceProps == other.fSurfaceProps;
 }
 
@@ -57,8 +58,8 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, in
 
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeWH(width, height), fBackendFormat, fOrigin,
-                                     fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
-                                     fVulkanSecondaryCBCompatible, fSurfaceProps);
+                                     fSampleCnt, fIsTextureable1, fIsMipMapped1, fUsesGLFBO0,
+                                     fVulkanSecondaryCBCompatible1, fIsProtected, fSurfaceProps);
 }
 
 bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex) const {
@@ -75,11 +76,11 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
         return false;
     }
 
-    if (this->vulkanSecondaryCBCompatible()) {
+    if (this->vulkanSecondaryCBCompatible1()) {
         return false;
     }
 
-    if (this->isMipMapped() && !backendTex.hasMipMaps()) {
+    if (this->isMipMapped1() && !backendTex.hasMipMaps()) {
         // backend texture is allowed to have mipmaps even if the characterization doesn't require
         // them.
         return false;
@@ -89,7 +90,10 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
         return false;
     }
 
-    // TODO: need to check protected status here
+    if (this->isProtected() != GrProtected(backendTex.isProtected())) {
+        return false;
+    }
+
     return true;
 }
 
