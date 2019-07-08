@@ -91,7 +91,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
                                        SkColors::kTransparent,
                                        GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
-    if (!backendTexture1.isValid() || !gpu1->isTestingOnlyBackendTexture(backendTexture1)) {
+    if (!backendTexture1.isValid()) {
         ERRORF(reporter, "Error creating texture for EGL Image");
         cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;

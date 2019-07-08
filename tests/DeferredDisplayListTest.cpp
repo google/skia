@@ -197,7 +197,7 @@ public:
         *backend = context->createBackendTexture(fWidth, fHeight, fColorType,
                                                  SkColors::kTransparent,
                                                  mipmapped, GrRenderable::kYes, GrProtected::kNo);
-        if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
+        if (!backend->isValid()) {
             return nullptr;
         }
 
