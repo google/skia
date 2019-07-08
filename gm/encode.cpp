@@ -18,6 +18,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 namespace skiagm {
 
@@ -45,7 +46,7 @@ protected:
         canvas->drawImage(pngImage.get(), 0.0f, 0.0f);
         canvas->drawImage(jpgImage.get(), 512.0f, 0.0f);
 
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
         font.setEdging(SkFont::Edging::kAlias);
         canvas->drawString("Images should look identical.", 450.0f, 550.0f, font, SkPaint());
     }

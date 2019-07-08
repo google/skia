@@ -11,6 +11,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkDisplacementMapEffect.h"
 #include "include/effects/SkImageSource.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #define FILTER_WIDTH_SMALL  32
 #define FILTER_HEIGHT_SMALL 32
@@ -39,7 +40,7 @@ protected:
         SkPaint paint;
         paint.setColor(0xFF884422);
 
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
         font.setSize(SkIntToScalar(96));
         canvas.drawSimpleText("g", 1, SkTextEncoding::kUTF8, SkIntToScalar(15), SkIntToScalar(55), font, paint);
     }

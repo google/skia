@@ -20,6 +20,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 // NOTE: The positions define hardstops for the red and green borders. For the repeating degenerate
 // gradients, that means the red and green are never visible, so the average color used should only
@@ -47,7 +48,7 @@ static void draw_tile_header(SkCanvas* canvas) {
     canvas->save();
 
     for (int i = 0; i < TILE_MODE_CT; ++i) {
-        canvas->drawString(TILE_NAMES[i], 0, 0, SkFont(), SkPaint());
+        canvas->drawString(TILE_NAMES[i], 0, 0, SkFont(ToolUtils::DefaultTypeface()), SkPaint());
         canvas->translate(TILE_SIZE + TILE_GAP, 0);
     }
 
@@ -64,7 +65,7 @@ static void draw_row(SkCanvas* canvas, const char* desc, GradientFactory factory
     text.setAntiAlias(true);
 
     canvas->translate(0, TILE_GAP);
-    canvas->drawString(desc, 0, 0, SkFont(), text);
+    canvas->drawString(desc, 0, 0, SkFont(ToolUtils::DefaultTypeface()), text);
     canvas->translate(0, TILE_GAP);
 
     SkPaint paint;

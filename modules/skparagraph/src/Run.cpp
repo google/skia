@@ -10,9 +10,8 @@ Run::Run(SkSpan<const char> text,
          const SkShaper::RunHandler::RunInfo& info,
          SkScalar lineHeight,
          size_t index,
-         SkScalar offsetX) {
+         SkScalar offsetX) : fFont(info.fFont) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    fFont = info.fFont;
     fHeightMultiplier = lineHeight;
     fBidiLevel = info.fBidiLevel;
     fAdvance = info.fAdvance;

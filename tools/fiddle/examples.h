@@ -4,6 +4,7 @@
 #define examples_DEFINED
 
 #include "tools/Registry.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "skia.h"
 
 #include <cmath>

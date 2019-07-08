@@ -25,6 +25,7 @@
 #include "src/core/SkReader32.h"
 #include "src/core/SkWriter32.h"
 #include "tests/Test.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <cmath>
 #include <utility>
@@ -5426,11 +5427,11 @@ DEF_TEST(path_last_move_to_index, r) {
     constexpr size_t len = sizeof(text) - 1;
     SkGlyphID glyphs[len];
 
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs, len);
 
     SkPath copyPath;
-    SkFont().getPaths(glyphs, len, [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+    font.getPaths(glyphs, len, [](const SkPath* src, const SkMatrix& mx, void* ctx) {
         if (src) {
             ((SkPath*)ctx)->addPath(*src, mx);
         }

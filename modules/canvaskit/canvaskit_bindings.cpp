@@ -43,8 +43,8 @@
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkShadowUtils.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkMakeUnique.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <iostream>
 #include <string>
@@ -830,7 +830,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("size", &SkData::size);
 
     class_<SkFont>("SkFont")
-        .constructor<>()
         .constructor<sk_sp<SkTypeface>>()
         .constructor<sk_sp<SkTypeface>, SkScalar>()
         .constructor<sk_sp<SkTypeface>, SkScalar, SkScalar, SkScalar>()
@@ -874,7 +873,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkFontMgr>("SkFontMgr")
         .smart_ptr<sk_sp<SkFontMgr>>("sk_sp<SkFontMgr>")
-        .class_function("RefDefault", &SkFontMgr::RefDefault)
+        .class_function("RefDefault", &ToolUtils::GlobalFontMgr)
 #ifdef SK_DEBUG
         .function("dumpFamilies", optional_override([](SkFontMgr& self) {
             int numFam = self.countFamilies();

@@ -13,6 +13,7 @@
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <initializer_list>
 #include <limits>
@@ -44,7 +45,7 @@ static void test_font(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, glyphs[2] == glyphs[3]); // 'l' == 'l'
 
     const SkFont newFont(font.makeWithSize(36));
-    REPORTER_ASSERT(reporter, font.getTypefaceOrDefault() == newFont.getTypefaceOrDefault());
+    REPORTER_ASSERT(reporter, font.getTypeface() == newFont.getTypeface());
     REPORTER_ASSERT(reporter, 36 == newFont.getSize());   // double check we haven't changed
     REPORTER_ASSERT(reporter, 24 == font.getSize());   // double check we haven't changed
 }
@@ -60,12 +61,12 @@ static void test_alias_names(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(inNames); ++i) {
-        sk_sp<SkTypeface> first(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
+        sk_sp<SkTypeface> first(ToolUtils::TypefaceFromName(inNames[i], SkFontStyle()));
         if (nullptr == first.get()) {
             continue;
         }
         for (int j = 0; j < 10; ++j) {
-            sk_sp<SkTypeface> face(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
+            sk_sp<SkTypeface> face(ToolUtils::TypefaceFromName(inNames[i], SkFontStyle()));
     #if 0
             SkString name;
             face->getFamilyName(&name);
@@ -78,7 +79,7 @@ static void test_alias_names(skiatest::Reporter* reporter) {
 }
 
 static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(ToolUtils::GlobalFontMgr());
     int count = fm->countFamilies();
 
     for (int i = 0; i < count; ++i) {
@@ -111,7 +112,7 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
 }
 
 static void test_match(skiatest::Reporter* reporter) {
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(ToolUtils::GlobalFontMgr());
     sk_sp<SkFontStyleSet> styleSet(fm->matchFamily(nullptr));
     REPORTER_ASSERT(reporter, styleSet);
 }
