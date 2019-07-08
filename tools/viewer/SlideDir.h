@@ -36,7 +36,7 @@ protected:
     bool animate(const AnimTimer&) override;
 
     bool onChar(SkUnichar) override;
-    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) override;
+    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, ModifierKey modifiers) override;
 
 private:
     struct Rec;

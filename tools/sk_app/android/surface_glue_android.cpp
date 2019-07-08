@@ -166,8 +166,8 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             auto it = ANDROID_TO_WINDOW_KEYMAP.find(message.fKeycode);
             SkASSERT(it != ANDROID_TO_WINDOW_KEYMAP.end());
             // No modifier is supported so far
-            skiaAndroidApp->fWindow->onKey(it->second, Window::kDown_InputState, 0);
-            skiaAndroidApp->fWindow->onKey(it->second, Window::kUp_InputState, 0);
+            skiaAndroidApp->fWindow->onKey(it->second, Window::kDown_InputState, ModifierKey::kNone);
+            skiaAndroidApp->fWindow->onKey(it->second, Window::kUp_InputState, ModifierKey::kNone);
             break;
         }
         case kTouched: {
