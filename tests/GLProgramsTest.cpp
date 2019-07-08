@@ -148,7 +148,7 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
     GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
                                                 : kBottomLeft_GrSurfaceOrigin;
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
     int sampleCnt = random->nextBool()
                            ? caps->getRenderTargetSampleCount(2, kRGBA_8888_SkColorType, format)
@@ -274,7 +274,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fHeight = 18;
         dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
         const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
         proxies[0] = proxyProvider->createProxy(format, dummyDesc, kBottomLeft_GrSurfaceOrigin,
                                                 mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrInternalSurfaceFlags::kNone);
@@ -286,7 +286,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fHeight = 22;
         dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
         const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_8);
         proxies[1] = proxyProvider->createProxy(format, dummyDesc, kTopLeft_GrSurfaceOrigin,
                                                 mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrInternalSurfaceFlags::kNone);

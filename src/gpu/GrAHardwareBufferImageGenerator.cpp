@@ -96,7 +96,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
                                                                              false);
 
     GrPixelConfig pixelConfig = context->priv().caps()->getConfigFromBackendFormat(
-            backendFormat, this->getInfo().colorType());
+            backendFormat, SkColorTypeToGrColorType(this->getInfo().colorType()));
 
     if (pixelConfig == kUnknown_GrPixelConfig) {
         return nullptr;

@@ -164,13 +164,10 @@ public:
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                               GrColorType) const override;
 
-    bool areColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
-
-    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
     GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
 
-    GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
-                                                    GrSRGBEncoded srgbEncoded) const override;
+    GrBackendFormat getBackendFormatFromColorType(GrColorType ct,
+                                                  GrSRGBEncoded srgbEncoded) const override;
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -208,6 +205,9 @@ private:
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
     size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override;
+
+    GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
+    bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
     struct FormatInfo {
         FormatInfo() : fOptimalFlags(0), fLinearFlags(0) {}

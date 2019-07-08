@@ -529,7 +529,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
         const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
                 format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
