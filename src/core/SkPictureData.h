@@ -17,6 +17,7 @@
 #include <memory>
 
 class SkData;
+class SkFontMgr;
 class SkPictureRecord;
 class SkReader32;
 struct SkSerialProcs;
@@ -137,8 +138,10 @@ public:
 private:
     // these help us with reading/writing
     // Does not affect ownership of SkStream.
+    // TODO(dogben): plumb through fontmgr
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
-                        const SkDeserialProcs&, SkTypefacePlayback*);
+                        const SkDeserialProcs&, SkTypefacePlayback*,
+                        sk_sp<SkFontMgr> fontmgr = nullptr);
     void parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&, bool textBlobsOnly) const;
 

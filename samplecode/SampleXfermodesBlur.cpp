@@ -27,9 +27,10 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkStream.h"
 #include "include/effects/SkBlurMaskFilter.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static void setNamedTypeface(SkFont* font, const char name[]) {
-    font->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
+    font->setTypeface(ToolUtils::TypefaceFromName(name, SkFontStyle()));
 }
 
 static uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };

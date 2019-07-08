@@ -182,7 +182,7 @@ static sk_sp<SkPicture> make_picture(sk_sp<SkTypeface> tf0, sk_sp<SkTypeface> tf
     SkPictureRecorder rec;
     SkCanvas* canvas = rec.beginRecording(100, 100);
     SkPaint paint;
-    SkFont font;
+    SkFont font(nullptr);
     font.setTypeface(tf0); canvas->drawString("hello", 0, 0, font, paint);
     font.setTypeface(tf1); canvas->drawString("hello", 0, 0, font, paint);
     font.setTypeface(tf0); canvas->drawString("hello", 0, 0, font, paint);
@@ -212,4 +212,3 @@ DEF_TEST(serial_typeface, reporter) {
     // only have written the data 1 time per typeface.
     REPORTER_ASSERT(reporter, counter == 2);
 }
-

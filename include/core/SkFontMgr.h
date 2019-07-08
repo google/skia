@@ -123,8 +123,10 @@ public:
 
     sk_sp<SkTypeface> legacyMakeTypeface(const char familyName[], SkFontStyle style) const;
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     /** Return the default fontmgr. */
     static sk_sp<SkFontMgr> RefDefault();
+#endif
 
 protected:
     virtual int onCountFamilies() const = 0;
@@ -153,9 +155,10 @@ protected:
     virtual sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const = 0;
 
 private:
-
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     /** Implemented by porting layer to return the default factory. */
     static sk_sp<SkFontMgr> Factory();
+#endif
 
     typedef SkRefCnt INHERITED;
 };

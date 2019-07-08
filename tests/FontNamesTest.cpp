@@ -10,6 +10,7 @@
 #include "src/sfnt/SkOTTable_name.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <stddef.h>
 
@@ -145,7 +146,7 @@ static void test_synthetic(skiatest::Reporter* reporter, bool verbose) {
 static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
     static const SkFontTableTag nameTag = SkSetFourByteTag('n','a','m','e');
 
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(ToolUtils::GlobalFontMgr());
     int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
     for (int i = 0; i < count; ++i) {
         sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));

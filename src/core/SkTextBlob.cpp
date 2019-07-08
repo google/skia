@@ -706,13 +706,19 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
         SkPoint offset;
         reader.readPoint(&offset);
-        SkFont font;
+        SkFont font(nullptr);
         if (reader.isVersionLT(SkReadBuffer::kSerializeFonts_Version)) {
             SkPaint paint;
             reader.readPaint(&paint, &font);
         } else {
             SkFontPriv::Unflatten(&font, reader);
         }
+#if !defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+        if (!font.getTypeface()) {
+            // TODO(dogben): Do we need to plumb through the SkFontMgr?
+            return nullptr;
+        }
+#endif
 
         // Compute the expected size of the buffer and ensure we have enough to deserialize
         // a run before allocating it.

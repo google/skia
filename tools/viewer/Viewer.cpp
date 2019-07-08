@@ -12,6 +12,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
+#include "include/ports/SkNativeFontMgrFactory.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -262,6 +263,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fDrawTileBoundaries(false)
     , fTileScale{0.25f, 0.25f}
     , fPerspectiveMode(kPerspective_Off)
+    , fFont(SkNativeFontMgrFactory()->legacyMakeTypeface(nullptr, SkFontStyle::Normal()))
 {
     SkGraphics::Init();
 

@@ -14,6 +14,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 class IntDrawable : public SkDrawable {
 public:
@@ -259,7 +260,7 @@ DEF_TEST(FlattenRecordedDrawable, r) {
     canvas->drawPaint(paint);
     SkPaint textPaint;
     textPaint.setColor(SK_ColorBLUE);
-    canvas->drawString("TEXT", 467.0f, 100.0f, SkFont(), textPaint);
+    canvas->drawString("TEXT", 467.0f, 100.0f, SkFont(ToolUtils::DefaultTypeface()), textPaint);
 
     // Draw some drawables as well
     sk_sp<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));
@@ -299,4 +300,3 @@ DEF_TEST(Flattenable_EmptyDeserialze, reporter) {
     test(SkDrawLooper);
     #undef test
 }
-

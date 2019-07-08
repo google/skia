@@ -19,6 +19,7 @@
 #include "src/pdf/SkPDFUnion.h"
 #include "src/utils/SkFloatToDecimal.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 namespace {
 struct WStreamWriteTextBenchmark : public Benchmark {
@@ -373,7 +374,7 @@ void big_pdf_test(SkDocument* doc, const SkBitmap& background) {
     float y = 36;
     constexpr size_t kLineCount = SK_ARRAY_COUNT(kText);
     constexpr int kLoopCount = 200;
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     SkPaint paint;
     for (int loop = 0; loop < kLoopCount; ++loop) {
         for (size_t line = 0; line < kLineCount; ++line) {

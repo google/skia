@@ -27,6 +27,7 @@
 #include "src/core/SkFontPriv.h"
 #include "src/utils/SkMetaData.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <utility>
 
@@ -74,7 +75,7 @@ public:
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
 
         fName.set("fontmgr_iter");
-        fFM = SkFontMgr::RefDefault();
+        fFM = ToolUtils::GlobalFontMgr();
     }
 
 protected:
@@ -88,7 +89,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar y = 20;
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         font.setSubpixel(true);
         font.setSize(17);
@@ -99,7 +100,8 @@ protected:
         for (int i = 0; i < count; ++i) {
             SkString familyName;
             fm->getFamilyName(i, &familyName);
-            font.setTypeface(nullptr);
+            // TODO(dogben): Is this what was intended?
+            font.setTypeface(ToolUtils::DefaultTypeface());
             (void)drawString(canvas, familyName, 20, y, font);
 
             SkScalar x = 220;
@@ -134,7 +136,7 @@ class FontMgrMatchGM : public skiagm::GM {
     sk_sp<SkFontMgr> fFM;
 
 public:
-    FontMgrMatchGM() : fFM(SkFontMgr::RefDefault()) {
+    FontMgrMatchGM() : fFM(ToolUtils::GlobalFontMgr()) {
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
     }
 
@@ -184,7 +186,7 @@ protected:
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        SkFont font;
+        SkFont font(nullptr);  // Typeface is set in exploreFamily and iterFamily.
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         font.setSubpixel(true);
         font.setSize(17);
@@ -219,7 +221,7 @@ private:
 class FontMgrBoundsGM : public skiagm::GM {
 public:
     FontMgrBoundsGM(double scale, double skew)
-        : fFM(SkFontMgr::RefDefault())
+        : fFM(ToolUtils::GlobalFontMgr())
         , fName("fontmgr_bounds")
         , fScaleX(SkDoubleToScalar(scale))
         , fSkewX(SkDoubleToScalar(skew))
@@ -273,7 +275,7 @@ public:
 
         SkGlyphID left = 0, right = 0, top = 0, bottom = 0;
         {
-            int numGlyphs = font.getTypefaceOrDefault()->countGlyphs();
+            int numGlyphs = font.getTypeface()->countGlyphs();
             SkRect min = {0, 0, 0, 0};
             for (int i = 0; i < numGlyphs; ++i) {
                 SkGlyphID glyphId = i;
@@ -293,13 +295,12 @@ public:
             {fontBounds.centerX(), fontBounds.bottom()}
         };
 
-        SkFont labelFont;
+        SkFont labelFont(ToolUtils::create_portable_typeface());
         labelFont.setEdging(SkFont::Edging::kAntiAlias);
-        labelFont.setTypeface(ToolUtils::create_portable_typeface());
 
         if (labelBounds) {
             SkString name;
-            font.getTypefaceOrDefault()->getFamilyName(&name);
+            font.getTypeface()->getFamilyName(&name);
             canvas->drawString(name, fontBounds.fLeft, fontBounds.fBottom, labelFont, SkPaint());
         }
         for (size_t i = 0; i < SK_ARRAY_COUNT(str); ++i) {
@@ -331,7 +332,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkFont font;
+        SkFont font(nullptr);
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSubpixel(true);
         font.setSize(100);
@@ -351,10 +352,15 @@ protected:
         for (int i = 0; i < count; ++i) {
             sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count() && j < 3; ++j) {
-                font.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
+                // TODO(dogben): Is this allowed to return nullptr?
+                auto tf = sk_sp<SkTypeface>(set->createTypeface(j));
+                if (!tf) {
+                    continue;
+                }
+                font.setTypeface(std::move(tf));
                 // Fonts with lots of glyphs are interesting, but can take a long time to find
                 // the glyphs which make up the maximum extent.
-                if (font.getTypefaceOrDefault() && font.getTypefaceOrDefault()->countGlyphs() < 1000) {
+                if (font.getTypeface() && font.getTypeface()->countGlyphs() < 1000) {
                     SkRect fontBounds = SkFontPriv::GetFontBounds(font);
                     x -= fontBounds.fLeft;
                     show_bounds(canvas, font, x, y, boundsColors[index & 1], fLabelBounds);
