@@ -265,7 +265,7 @@ public:
 
     /** Returns minimum memory required for pixel storage.
         Does not include unused memory on last row when rowBytesAsPixels() exceeds width().
-        Returns zero if result does not fit in size_t.
+        Returns SIZE_MAX if result does not fit in size_t.
         Returns zero if height() or width() is 0.
         Returns height() times rowBytes() if colorType() is kUnknown_SkColorType.
 
