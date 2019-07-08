@@ -2554,6 +2554,7 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
 }
 
 STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
     // If N is less than the interpreter's VecWidth, then we are doing more work than necessary in
     // the interpreter. This is a known issue, and will be addressed at some point.
     float rr[N];
@@ -2583,6 +2584,9 @@ STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
     g = sk_unaligned_load<F>(gg);
     b = sk_unaligned_load<F>(bb);
     a = sk_unaligned_load<F>(aa);
+#else
+    SkDEBUGFAIL("Interpreter stage being called, but not enabled");
+#endif
 }
 
 STAGE(gauss_a_to_rgba, Ctx::None) {
