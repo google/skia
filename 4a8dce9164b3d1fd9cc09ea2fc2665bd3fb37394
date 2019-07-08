@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "95d85986_8f3ec0a4",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:48:53Z",
+      "side": 1,
+      "message": "Normally we don\u0027t really make the \"on*\" public functions. Also there is no work I am trying to do in GrCaps here. So I didn\u0027t think it followed our normal pattern for on",
+      "parentUuid": "6af7375f_b58aceee",
+      "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "278e9a97_602c6ae6",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "4bb2e68c_ceadd777",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:48:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "278e9a97_602c6ae6",
+      "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d68f47ec_1a78d571",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 2
@@ -50,6 +86,24 @@
       "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c979e1e_d6febfc1",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:48:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d68f47ec_1a78d571",
+      "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -73,6 +127,30 @@
       "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1df07ed_8ea0be76",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:48:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1039a6de_78033f6a",
+      "range": {
+        "startLine": 291,
+        "startChar": 57,
+        "endLine": 291,
+        "endChar": 80
+      },
+      "revId": "4a8dce9164b3d1fd9cc09ea2fc2665bd3fb37394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
