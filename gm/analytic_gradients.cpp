@@ -128,22 +128,7 @@ static void shade_rect(SkCanvas* canvas, sk_sp<SkShader> shader, int cellRow, in
     canvas->restore();
 }
 
-class AnalyticGradientShaderGM : public skiagm::GM {
-public:
-    AnalyticGradientShaderGM() {
-
-    }
-
-protected:
-    SkString onShortName() override {
-        return SkString("analytic_gradients");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1024, 512);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(analytic_gradients, canvas, 1024, 512) {
         const SkPoint points[2] = { SkPoint::Make(0, 0), SkPoint::Make(RECT_WIDTH, 0.0) };
 
         for (int cellRow = 0; cellRow < NUM_ROWS; cellRow++) {
@@ -181,10 +166,4 @@ protected:
                 shade_rect(canvas, shader, cellRow, cellCol);
             }
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-DEF_GM(return new AnalyticGradientShaderGM;)
+}

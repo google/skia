@@ -34,21 +34,21 @@ struct GrContextOptions;
 //   *   Optionally, a background color (default is white).
 //   *   A standalone function pointer that implements its onDraw method.
 #define DEF_SIMPLE_GM(NAME, CANVAS, W, H) \
-    DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, SK_ColorWHITE, SkString(#NAME))
+    DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, SK_ColorWHITE, #NAME)
 #define DEF_SIMPLE_GM_BG(NAME, CANVAS, W, H, BGCOLOR) \
-    DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, SkString(#NAME))
+    DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, #NAME)
 #define DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, NAME_STR) \
     static void SK_MACRO_CONCAT(NAME,_GM_inner)(SkCanvas*); \
-    DEF_SIMPLE_GM_BG_NAME_CAN_FAIL(NAME, CANVAS,, W, H, BGCOLOR, NAME_STR) { \
+    DEF_SIMPLE_GM_BG_NAME_CAN_FAIL(NAME, CANVAS, ERRMSG, W, H, BGCOLOR, NAME_STR) { \
         SK_MACRO_CONCAT(NAME,_GM_inner)(CANVAS); \
         return skiagm::DrawResult::kOk; \
     } \
     void SK_MACRO_CONCAT(NAME,_GM_inner)(SkCanvas* CANVAS)
 
 #define DEF_SIMPLE_GM_CAN_FAIL(NAME, CANVAS, ERR_MSG, W, H) \
-    DEF_SIMPLE_GM_BG_NAME_CAN_FAIL(NAME, CANVAS, ERR_MSG, W, H, SK_ColorWHITE, SkString(#NAME))
+    DEF_SIMPLE_GM_BG_NAME_CAN_FAIL(NAME, CANVAS, ERR_MSG, W, H, SK_ColorWHITE, #NAME)
 #define DEF_SIMPLE_GM_BG_CAN_FAIL(NAME, CANVAS, ERR_MSG, W, H, BGCOLOR) \
-    DEF_SIMPLE_GM_BG_NAME_CAN_FAIL(NAME, CANVAS, ERR_MSG, W, H, BGCOLOR, SkString(#NAME))
+    DEF_SIMPLE_GM_BG_NAME_CAN_FAIL(NAME, CANVAS, ERR_MSG, W, H, BGCOLOR, #NAME)
 #define DEF_SIMPLE_GM_BG_NAME_CAN_FAIL(NAME, CANVAS, ERR_MSG, W, H, BGCOLOR, NAME_STR) \
     static skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)(SkCanvas*, SkString*); \
     DEF_GM(return new skiagm::SimpleGM(BGCOLOR, NAME_STR, {W,H}, SK_MACRO_CONCAT(NAME,_GM));) \
@@ -76,7 +76,7 @@ struct GrContextOptions;
                                       H, BGCOLOR) \
     static skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)( \
             GrContext*, GrRenderTargetContext*, SkCanvas*, SkString*); \
-    DEF_GM(return new skiagm::SimpleGpuGM(BGCOLOR, SkString(#NAME), {W,H}, \
+    DEF_GM(return new skiagm::SimpleGpuGM(BGCOLOR, #NAME, {W,H}, \
                                           SK_MACRO_CONCAT(NAME,_GM));) \
     skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)( \
             GrContext* GR_CONTEXT, GrRenderTargetContext* RENDER_TARGET_CONTEXT, SkCanvas* CANVAS, \
@@ -94,7 +94,11 @@ namespace skiagm {
     public:
         using DrawResult = skiagm::DrawResult;
 
-        GM(SkColor backgroundColor = SK_ColorWHITE);
+        GM() {}
+        GM(SkColor backgroundColor) : fBGColor(backgroundColor) {}
+        GM(const char* n, SkISize s) : fShortName(n), fSize(s) {}
+        GM(const char* n, SkISize s, SkColor c) : fShortName(n), fSize(s), fBGColor(c) {}
+
         virtual ~GM();
 
         enum Mode {
@@ -121,8 +125,15 @@ namespace skiagm {
         }
         DrawResult drawContent(SkCanvas*, SkString* errorMsg);
 
-        SkISize getISize() { return this->onISize(); }
-        const char* getName();
+        SkISize getISize() {
+            if (fSize.isZero()) {
+                fSize = this->onISize();
+                SkASSERT(!fSize.isZero());
+            }
+            return fSize;
+        }
+        const SkString& name();
+        const char* getName() { return this->name().c_str(); }
 
         virtual bool runAsBench() const;
 
@@ -159,8 +170,8 @@ namespace skiagm {
         virtual DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg);
         virtual void onDraw(SkCanvas*);
 
-        virtual SkISize onISize() = 0;
-        virtual SkString onShortName() = 0;
+        virtual SkISize onISize() { return {0, 0}; }
+        virtual SkString onShortName() { return SkString(); }
 
         virtual bool onAnimate(const AnimTimer&);
         virtual bool onHandleKey(SkUnichar uni);
@@ -168,11 +179,12 @@ namespace skiagm {
         virtual void onSetControls(const SkMetaData&);
 
     private:
-        Mode     fMode;
+        Mode     fMode = kGM_Mode;
         SkString fShortName;
-        SkColor  fBGColor;
-        bool     fCanvasIsDeferred; // work-around problem in srcmode.cpp
-        bool     fHaveCalledOnceBeforeDraw;
+        SkISize  fSize = {0, 0};
+        SkColor  fBGColor = SK_ColorWHITE;
+        bool     fCanvasIsDeferred = false; // work-around problem in srcmode.cpp
+        bool     fHaveCalledOnceBeforeDraw = false;
     };
 
     typedef GM*(*GMFactory)(void*) ;
@@ -184,6 +196,7 @@ namespace skiagm {
     class GpuGM : public GM {
     public:
         GpuGM(SkColor backgroundColor = SK_ColorWHITE) : GM(backgroundColor) {}
+        GpuGM(const char* n, SkISize s, SkColor c) : GM(n, s, c) {}
     private:
         using GM::onDraw;
         DrawResult onDraw(SkCanvas*, SkString* errorMsg) final;
@@ -198,33 +211,25 @@ namespace skiagm {
     class SimpleGM : public GM {
     public:
         using DrawProc = DrawResult(*)(SkCanvas*, SkString*);
-        SimpleGM(SkColor bgColor, const SkString& name, const SkISize& size, DrawProc drawProc)
-                : GM(bgColor), fName(name), fSize(size), fDrawProc(drawProc) {}
+        SimpleGM(SkColor bgColor, const char* name, const SkISize& size, DrawProc drawProc)
+                : GM(name, size, bgColor), fDrawProc(drawProc) {}
 
     private:
-        SkISize onISize() override;
-        SkString onShortName() override;
         DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override;
 
-        const SkString fName;
-        const SkISize fSize;
         const DrawProc fDrawProc;
     };
 
     class SimpleGpuGM : public GpuGM {
     public:
         using DrawProc = DrawResult(*)(GrContext*, GrRenderTargetContext*, SkCanvas*, SkString*);
-        SimpleGpuGM(SkColor bgColor, const SkString& name, const SkISize& size, DrawProc drawProc)
-                : GpuGM(bgColor), fName(name), fSize(size), fDrawProc(drawProc) {}
+        SimpleGpuGM(SkColor bgColor, const char* name, const SkISize& size, DrawProc drawProc)
+                : GpuGM(name, size, bgColor), fDrawProc(drawProc) {}
 
     private:
-        SkISize onISize() override;
-        SkString onShortName() override;
         DrawResult onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                           SkString* errorMsg) override;
 
-        const SkString fName;
-        const SkISize fSize;
         const DrawProc fDrawProc;
     };
 

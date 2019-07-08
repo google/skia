@@ -177,38 +177,25 @@ private:
 };
 DEF_GM(return new AnimatedGifGM);
 
+////////////////////////////////////////////////////////////////////////////////
 
-static std::unique_ptr<SkCodec> load_codec(const char filename[]) {
-    return SkCodec::MakeFromData(SkData::MakeFromFileName(filename));
-}
-
-class AnimCodecPlayerGM : public skiagm::GM {
-private:
+struct AnimCodecPlayerGM : public skiagm::GM {
     std::vector<std::unique_ptr<SkAnimCodecPlayer> > fPlayers;
     uint32_t          fBaseMSec = 0;
 
-public:
-    AnimCodecPlayerGM() {
+    AnimCodecPlayerGM() : skiagm::GM("AnimCodecPlayer", {1024, 768}) {}
+
+    void onOnceBeforeDraw() override {
         const char* root = "/skia/anim/";
         SkOSFile::Iter iter(root);
         SkString path;
         while (iter.next(&path)) {
-            SkString completepath;
-            completepath.printf("%s%s", root, path.c_str());
-            auto codec = load_codec(completepath.c_str());
+            SkString completepath = SkStringPrintf("%s%s", root, path.c_str());
+            auto codec = SkCodec::MakeFromData(SkData::MakeFromFileName(completepath.c_str()));
             if (codec) {
                 fPlayers.push_back(skstd::make_unique<SkAnimCodecPlayer>(std::move(codec)));
             }
         }
-    }
-
-private:
-    SkString onShortName() override {
-        return SkString("AnimCodecPlayer");
-    }
-
-    SkISize onISize() override {
-        return { 1024, 768 };
     }
 
     void onDraw(SkCanvas* canvas) override {

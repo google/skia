@@ -15,28 +15,10 @@
 #include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
 
-namespace skiagm {
-
 // This GM draws a lot of arcs in a 'Z' shape. It particularly exercises
 // the 'drawArc' code near a singularly of its processing (i.e., near the
 // edge of one of its underlying quads).
-class ArcOfZorroGM : public GM {
-public:
-    ArcOfZorroGM() {
-        this->setBGColor(0xFFCCCCCC);
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("arcofzorro");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1000, 1000);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM_BG(arcofzorro, canvas, 1000, 1000, 0xFFCCCCCC) {
         SkRandom rand;
 
         SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
@@ -77,14 +59,4 @@ protected:
                 break;
             }
         }
-
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new ArcOfZorroGM;)
 }

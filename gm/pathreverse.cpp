@@ -71,8 +71,7 @@ static void test_rev(SkCanvas* canvas, const SkPath& path) {
     canvas->restore();
 }
 
-DEF_SIMPLE_GM_BG_NAME(pathreverse, canvas, 640, 480, SK_ColorWHITE,
-                      SkString("path-reverse")) {
+DEF_SIMPLE_GM_BG_NAME(pathreverse, canvas, 640, 480, SK_ColorWHITE, "path-reverse") {
         SkRect r = { 10, 10, 100, 60 };
 
         SkPath path;

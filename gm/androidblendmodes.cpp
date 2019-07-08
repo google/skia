@@ -22,24 +22,12 @@
 
 #include <initializer_list>
 
-namespace skiagm {
-
+namespace {
 // This GM recreates the blend mode images from the Android documentation
-class AndroidBlendModesGM : public GM {
-public:
-    AndroidBlendModesGM() {
-        this->setBGColor(SK_ColorBLACK);
-    }
-
-protected:
-    SkString onShortName() override {
-        return SkString("androidblendmodes");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(kNumCols * kBitmapSize, kNumRows * kBitmapSize);
-    }
-
+struct AndroidBlendModesGM : public skiagm::GM {
+    AndroidBlendModesGM() : skiagm::GM("androidblendmodes",
+                                       {kNumCols * kBitmapSize, kNumRows * kBitmapSize},
+                                       SK_ColorBLACK) {}
     void onOnceBeforeDraw() override {
         SkImageInfo ii = SkImageInfo::MakeN32Premul(kBitmapSize, kBitmapSize);
         {
@@ -114,7 +102,6 @@ protected:
         }
     }
 
-private:
     static const int kBitmapSize = 256;
     static const int kNumRows = 5;
     static const int kNumCols = 4;
@@ -129,8 +116,5 @@ private:
 
     typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
+}  // namespace
 DEF_GM(return new AndroidBlendModesGM;)
-}
