@@ -444,7 +444,6 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     texDesc.mipmapLevelCount = mipLevels;
     texDesc.sampleCount = 1;
     texDesc.arrayLength = 1;
-    texDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
     // Make all textures have private gpu only access. We can use transfer buffers or textures
     // to copy to them.
     texDesc.storageMode = MTLStorageModePrivate;
@@ -463,10 +462,10 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     }
 
     if (renderTarget) {
-        tex = GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted,
-                                                                     desc, texDesc, mipMapsStatus);
+        tex = GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(this, budgeted,
+                                                                   desc, texDesc, mipMapsStatus);
     } else {
-        tex = GrMtlTexture::CreateNewTexture(this, budgeted, desc, texDesc, mipMapsStatus);
+        tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc, mipMapsStatus);
     }
 
     if (!tex) {
@@ -554,6 +553,7 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
 sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
     // TODO: Revisit this when the Metal backend is completed. It may support MSAA render targets.
     if (backendRT.sampleCnt() > 1) {
+        //*** MSAA
         return nullptr;
     }
     id<MTLTexture> mtlTexture = get_texture_from_backend(backendRT);
@@ -906,6 +906,8 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcR
     int srcSampleCnt = get_surface_sample_cnt(src);
 
     if (dstSampleCnt > 1 || srcSampleCnt > 1) {
+        // TODO: implement here
+        //**** MSAA
         SkASSERT(false); // Currently dont support MSAA. TODO: add copySurfaceAsResolve().
         return false;
     }
