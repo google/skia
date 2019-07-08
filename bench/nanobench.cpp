@@ -18,6 +18,7 @@
 #include "bench/RecordingBench.h"
 #include "bench/ResultsWriter.h"
 #include "bench/SKPAnimationBench.h"
+#include "bench/SKPMultiFrameBench.h"
 #include "bench/SKPBench.h"
 #include "include/android/SkBitmapRegionDecoder.h"
 #include "include/codec/SkAndroidCodec.h"
@@ -167,6 +168,8 @@ static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driv
 
 static DEFINE_string(skps, "skps", "Directory to read skps from.");
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
+static DEFINE_string(mskps, "", "Directory to read MSKPs from, or a single MSKP file.\n"
+    "MSKP refers to SkMultiPictureDocument files");
 
 static DEFINE_int_2(threads, j, -1,
                "Run threadsafe tests on a threadpool with this many extra threads, "
@@ -651,8 +654,9 @@ public:
                       , fCurrentSubsetType(0)
                       , fCurrentSampleSize(0)
                       , fCurrentAnimSKP(0) {
-        collect_files(FLAGS_skps, ".skp", &fSKPs);
-        collect_files(FLAGS_svgs, ".svg", &fSVGs);
+        collect_files(FLAGS_mskps, ".mskp", &fMSKPs);
+        collect_files(FLAGS_skps,  ".skp",  &fSKPs);
+        collect_files(FLAGS_svgs,  ".svg",  &fSVGs);
 
         if (4 != sscanf(FLAGS_clip[0], "%d,%d,%d,%d",
                         &fClip.fLeft, &fClip.fTop, &fClip.fRight, &fClip.fBottom)) {
@@ -845,22 +849,40 @@ public:
         }
 
         // Now loop over each skp again if we have an animation
+        // fZoomMax and fZoomPeriodMs come from a flag.
         if (fZoomMax != 1.0f && fZoomPeriodMs > 0) {
+            // fCurrentAnimSKP is a counter initialized to 0
+            // fSKPs is an array of SKP filenames.
             while (fCurrentAnimSKP < fSKPs.count()) {
+                // Grab the filename of a SKP.
                 const SkString& path = fSKPs[fCurrentAnimSKP];
+                // Deserialize the SKP
                 sk_sp<SkPicture> pic = ReadPicture(path.c_str());
+                // Skip duds (but why are there duds in the dataset?)
                 if (!pic) {
                     fCurrentAnimSKP++;
                     continue;
                 }
 
                 fCurrentAnimSKP++;
+                // Get full file path
                 SkString name = SkOSPath::Basename(path.c_str());
+                // Create an instance of SKPAnimationBench's Animation class, which we have to
+                // pass to it's constructor. Why on earth would it not just make this itself and
+                // keep it private?
                 sk_sp<SKPAnimationBench::Animation> animation(
                     SKPAnimationBench::CreateZoomAnimation(fZoomMax, fZoomPeriodMs));
+                // Create the SKPAnimationBench from a name, an SKP pointer, the animation above,
+                // and a boolean flag saying to loop it.
                 return new SKPAnimationBench(name.c_str(), pic.get(), fClip, animation.get(),
                                              FLAGS_loopSKP);
             }
+        }
+
+        // Create a benchmark for each multi frame skp
+        while (fCurrentMSKP < fMSKPs.count()) {
+            const SkString& path = fMSKPs[fCurrentMSKP++];
+            return new SKPMultiFrameBench(SkString("unique"), path, fClip);
         }
 
         for (; fCurrentCodec < fImages.count(); fCurrentCodec++) {
@@ -1101,6 +1123,7 @@ private:
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
     SkTArray<SkString> fSVGs;
+    SkTArray<SkString> fMSKPs;
     SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
     SkTArray<SkColorType, true> fColorTypes;
@@ -1125,6 +1148,7 @@ private:
     int fCurrentSubsetType;
     int fCurrentSampleSize;
     int fCurrentAnimSKP;
+    int fCurrentMSKP;
 };
 
 // Some runs (mostly, Valgrind) are so slow that the bot framework thinks we've hung.
