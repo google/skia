@@ -163,8 +163,6 @@ public:
 
     // Create the surface with the current set of parameters
     sk_sp<SkSurface> make(GrContext* context, GrBackendTexture* backend) const {
-        GrGpu* gpu = context->priv().getGpu();
-
         const SkSurfaceCharacterization c = this->createCharacterization(context);
 
         GrMipMapped mipmapped = !fIsTextureable
@@ -197,7 +195,7 @@ public:
         *backend = context->createBackendTexture(fWidth, fHeight, fColorType,
                                                  SkColors::kTransparent,
                                                  mipmapped, GrRenderable::kYes, GrProtected::kNo);
-        if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
+        if (!backend->isValid()) {
             return nullptr;
         }
 
