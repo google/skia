@@ -22,6 +22,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
 
+namespace {
 enum {
     kXfermodeCount = (int)SkBlendMode::kLastMode + 1 + 1,   // extra for arith
     kShapeSize = 22,
@@ -55,27 +56,23 @@ enum Shape {
  * Verifies AA works properly on all Xfermodes, including arithmetic, with both opaque and unknown
  * src colors.
  */
-class AAXfermodesGM : public skiagm::GM {
-public:
-    AAXfermodesGM() {}
+static constexpr SkISize kSize = {2 * kMargin + 2 * kXfermodeTypeSpacing -
+                                  (kXfermodeTypeSpacing - (kLabelSpacing + 2 * kPaintSpacing)),
+                                  2 * kMargin + kTitleSpacing + kSubtitleSpacing +
+                                  (1 + (int)SkBlendMode::kLastCoeffMode) * kShapeSpacing};
+struct AAXfermodesGM : public skiagm::GM {
 
-protected:
+    SkFont fLabelFont;
+    SkPath fOval;
+    SkPath fConcave;
+
+    AAXfermodesGM() : skiagm::GM("aaxfermodes", kSize) {}
+
     enum DrawingPass {
         kCheckerboard_Pass,
         kBackground_Pass,
         kShape_Pass
     };
-
-    SkString onShortName() override {
-        return SkString("aaxfermodes");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(2 * kMargin + 2 * kXfermodeTypeSpacing -
-                             (kXfermodeTypeSpacing - (kLabelSpacing + 2 * kPaintSpacing)),
-                             2 * kMargin + kTitleSpacing + kSubtitleSpacing +
-                             (1 + (int)SkBlendMode::kLastCoeffMode) * kShapeSpacing);
-    }
 
     void onOnceBeforeDraw() override {
         fLabelFont.setTypeface(ToolUtils::create_portable_typeface());
@@ -272,12 +269,6 @@ protected:
                 SK_ABORT("Invalid shape.");
         }
     }
-
-private:
-    SkFont    fLabelFont;
-    SkPath    fOval;
-    SkPath    fConcave;
-
-    typedef skiagm::GM INHERITED;
 };
+}  // namespace
 DEF_GM( return new AAXfermodesGM; )

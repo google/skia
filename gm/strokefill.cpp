@@ -260,8 +260,7 @@ static void path_bold(SkCanvas* canvas, const SkPath& path,
         canvas->restore();
 }
 
-DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
-                      SkString("stroke-fill")) {
+DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE, "stroke-fill") {
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(88);
 

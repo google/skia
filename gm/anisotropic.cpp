@@ -17,24 +17,16 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 
-namespace skiagm {
-
+namespace {
 // This GM exercises HighQuality anisotropic filtering.
-class AnisotropicGM : public GM {
+class AnisotropicGM : public skiagm::GM {
 public:
-    AnisotropicGM() : fFilterQuality(kHigh_SkFilterQuality) {
-        this->setBGColor(0xFFCCCCCC);
-    }
+    AnisotropicGM() : skiagm::GM("anisotropic_hq",
+                                 {2*kImageSize + 3*kSpacer,
+                                  kNumVertImages*kImageSize + (kNumVertImages+1)*kSpacer},
+                                  0xFFCCCCCC) {}
 
 protected:
-
-    SkString onShortName() override { return SkString("anisotropic_hq"); }
-
-    SkISize onISize() override {
-        return SkISize::Make(2*kImageSize + 3*kSpacer,
-                             kNumVertImages*kImageSize + (kNumVertImages+1)*kSpacer);
-    }
-
     // Create an image consisting of lines radiating from its center
     void onOnceBeforeDraw() override {
         constexpr int kNumLines = 100;
@@ -113,12 +105,9 @@ private:
     static constexpr int kNumVertImages = 5;
 
     SkBitmap         fBM;
-    SkFilterQuality  fFilterQuality;
+    SkFilterQuality  fFilterQuality = kHigh_SkFilterQuality;
 
     typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
+}  // namespace
 DEF_GM(return new AnisotropicGM;)
-}

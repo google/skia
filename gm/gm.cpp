@@ -63,13 +63,6 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     canvas->drawPaint(paint);
 }
 
-GM::GM(SkColor bgColor) {
-    fMode = kGM_Mode;
-    fBGColor = bgColor;
-    fCanvasIsDeferred = false;
-    fHaveCalledOnceBeforeDraw = false;
-}
-
 GM::~GM() {}
 
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
@@ -112,27 +105,25 @@ DrawResult GM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     this->onDraw(canvas);
     return DrawResult::kOk;
 }
+
 void GM::onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
 
-
-SkISize SimpleGM::onISize() { return fSize; }
-SkString SimpleGM::onShortName() { return fName; }
 DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(canvas, errorMsg);
 }
 
-SkISize SimpleGpuGM::onISize() { return fSize; }
-SkString SimpleGpuGM::onShortName() { return fName; }
 DrawResult SimpleGpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                                SkString* errorMsg) {
     return fDrawProc(ctx, rtc, canvas, errorMsg);
 }
 
-const char* GM::getName() {
-    if (fShortName.size() == 0) {
+
+const SkString& GM::name() {
+    if (fShortName.isEmpty()) {
         fShortName = this->onShortName();
+        SkASSERT(!fShortName.isEmpty());
     }
-    return fShortName.c_str();
+    return fShortName;
 }
 
 void GM::setBGColor(SkColor color) {

@@ -29,16 +29,10 @@ static const SkScalar kBlurAnimationDuration = 4.0f; // in secs
 // This GM draws a lot of layers with animating BlurImageFilters
 class AnimatedImageBlurs : public skiagm::GM {
 public:
-    AnimatedImageBlurs() : fLastTime(0.0f) {
-        this->setBGColor(0xFFCCCCCC);
-    }
+    AnimatedImageBlurs() : skiagm::GM("animated-image-blurs", {kWidth, kHeight}, 0xFFCCCCCC) {}
 
 protected:
     bool runAsBench() const override { return true; }
-
-    SkString onShortName() override { return SkString("animated-image-blurs"); }
-
-    SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onOnceBeforeDraw() override {
         for (int i = 0; i < kNumNodes; ++i) {
@@ -82,15 +76,6 @@ protected:
 private:
     class Node {
     public:
-        Node()
-            : fSize(0.0f)
-            , fPos { 0.0f, 0.0f }
-            , fDir { 1.0f, 0.0f }
-            , fBlurOffset(0.0f)
-            , fBlur(fBlurOffset)
-            , fSpeed(0.0f) {
-        }
-
         void init(SkRandom* rand) {
             fSize = rand->nextRangeF(10.0f, 60.f);
             fPos.fX = rand->nextRangeF(fSize, kWidth - fSize);
@@ -127,17 +112,17 @@ private:
         SkScalar size() const { return fSize; }
 
     private:
-        SkScalar fSize;
-        SkPoint  fPos;
-        SkVector fDir;
-        SkScalar fBlurOffset;
-        SkScalar fBlur;
-        SkScalar fSpeed;
+        SkScalar fSize = 0.0f;
+        SkPoint  fPos = { 0.0f, 0.0f };
+        SkVector fDir = { 1.0f, 0.0f };
+        SkScalar fBlurOffset = 0.0f;
+        SkScalar fBlur = 0.0f;
+        SkScalar fSpeed = 0.0f;
     };
 
     Node     fNodes[kNumNodes];
     SkRandom fRand;
-    SkScalar fLastTime;
+    SkScalar fLastTime = 0.0f;
 
     typedef GM INHERITED;
 };
