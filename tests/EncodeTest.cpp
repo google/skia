@@ -13,6 +13,7 @@
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
@@ -134,6 +135,44 @@ static inline bool almost_equals(const SkBitmap& a, const SkBitmap& b, int toler
     }
 
     return true;
+}
+
+DEF_TEST(Encode_JPG, r) {
+    auto image = GetResourceAsImage("images/mandrill_128.png");
+    if (!image) {
+        return;
+    }
+
+    for (auto ct : { kRGBA_8888_SkColorType,
+                     kBGRA_8888_SkColorType,
+                     kRGB_565_SkColorType,
+                     kARGB_4444_SkColorType,
+                     kGray_8_SkColorType,
+                     kRGBA_F16_SkColorType }) {
+        for (auto at : { kPremul_SkAlphaType, kUnpremul_SkAlphaType, kOpaque_SkAlphaType }) {
+            auto info = SkImageInfo::Make(image->width(), image->height(), ct, at);
+            auto surface = SkSurface::MakeRaster(info);
+            auto canvas = surface->getCanvas();
+            canvas->drawImage(image, 0, 0);
+
+            SkBitmap bm;
+            bm.allocPixels(info);
+            if (!surface->makeImageSnapshot()->readPixels(bm.pixmap(), 0, 0)) {
+                ERRORF(r, "failed to readPixels! ct: %i\tat: %i\n", ct, at);
+                continue;
+            }
+            for (auto alphaOption : { SkJpegEncoder::AlphaOption::kIgnore,
+                                      SkJpegEncoder::AlphaOption::kBlendOnBlack }) {
+                SkJpegEncoder::Options opts;
+                opts.fAlphaOption = alphaOption;
+                SkNullWStream dummy;
+                if (!SkJpegEncoder::Encode(&dummy, bm.pixmap(), opts)) {
+                    REPORTER_ASSERT(r, ct == kARGB_4444_SkColorType
+                                    && alphaOption == SkJpegEncoder::AlphaOption::kBlendOnBlack);
+                }
+            }
+        }
+    }
 }
 
 DEF_TEST(Encode_JpegDownsample, r) {
