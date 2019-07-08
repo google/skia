@@ -253,8 +253,7 @@ bool GrMtlCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(static_cast<MTLPixelFormat>(*format.getMtlFormat()));
 }
 
-bool GrMtlCaps::isFormatTexturable(SkColorType skCT, const GrBackendFormat& format) const {
-    GrColorType grCT = SkColorTypeToGrColorType(skCT);
+bool GrMtlCaps::isFormatTexturable(GrColorType grCT, const GrBackendFormat& format) const {
     if (GrColorType::kUnknown == grCT) {
         return false;
     }

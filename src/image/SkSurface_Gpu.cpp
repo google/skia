@@ -407,6 +407,8 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
 static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex,
                                      GrPixelConfig* config, int sampleCnt, SkColorType ct,
                                      bool texturable) {
+    GrColorType grCT = SkColorTypeToGrColorType(ct);
+
     if (!tex.isValid()) {
         return false;
     }
@@ -426,7 +428,7 @@ static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex
         return false;
     }
 
-    if (texturable && !ctx->priv().caps()->isFormatTexturable(ct, backendFormat)) {
+    if (texturable && !ctx->priv().caps()->isFormatTexturable(grCT, backendFormat)) {
         return false;
     }
     return true;

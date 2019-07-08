@@ -795,15 +795,15 @@ bool GrVkCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(*format.getVkFormat());
 }
 
-bool GrVkCaps::isFormatTexturable(SkColorType, const GrBackendFormat& format) const {
+bool GrVkCaps::isFormatTexturable(GrColorType, const GrBackendFormat& format) const {
     if (!format.getVkFormat()) {
         return false;
     }
 
-    return this->isFormatTexturable(*format.getVkFormat());
+    return this->isVkFormatTexturable(*format.getVkFormat());
 }
 
-bool GrVkCaps::isFormatTexturable(VkFormat format) const {
+bool GrVkCaps::isVkFormatTexturable(VkFormat format) const {
     if (!GrVkFormatIsSupported(format)) {
         return false;
     }
@@ -817,7 +817,7 @@ bool GrVkCaps::isConfigTexturable(GrPixelConfig config) const {
     if (!GrPixelConfigToVkFormat(config, &format)) {
         return false;
     }
-    return this->isFormatTexturable(format);
+    return this->isVkFormatTexturable(format);
 }
 
 bool GrVkCaps::isFormatRenderable(VkFormat format) const {

@@ -3612,13 +3612,12 @@ bool GrGLCaps::isGLFormatTexturable(GrColorType ct, GrGLenum glFormat) const {
            SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kUploadData_Flag);
 }
 
-bool GrGLCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format) const {
+bool GrGLCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format) const {
     const GrGLenum* glFormat = format.getGLFormat();
     if (!glFormat) {
         return false;
     }
-    GrColorType grCT = SkColorTypeToGrColorType(ct);
-    return this->isGLFormatTexturable(grCT, *glFormat);
+    return this->isGLFormatTexturable(ct, *glFormat);
 }
 
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, SkColorType skCT,

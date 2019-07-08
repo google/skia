@@ -53,6 +53,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
+    GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
 
     if (!this->caps()->areColorTypeAndFormatCompatible(ii.colorType(), backendFormat)) {
         return SkSurfaceCharacterization(); // return an invalid characterization
@@ -67,7 +68,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (isTextureable && !this->caps()->isFormatTexturable(ii.colorType(), backendFormat)) {
+    if (isTextureable && !this->caps()->isFormatTexturable(grColorType, backendFormat)) {
         // Skia doesn't agree that this is textureable.
         return SkSurfaceCharacterization(); // return an invalid characterization
     }

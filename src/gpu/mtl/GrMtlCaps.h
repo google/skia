@@ -28,7 +28,7 @@ public:
 
     bool isFormatSRGB(const GrBackendFormat& format) const override;
 
-    bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
+    bool isFormatTexturable(GrColorType, const GrBackendFormat&) const override;
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
