@@ -54,7 +54,6 @@ samples_sources = [
   "$_samplecode/SampleLayers.cpp",
   "$_samplecode/SampleLCD.cpp",
   "$_samplecode/SampleLighting.cpp",
-  "$_samplecode/SampleLines.cpp",
   "$_samplecode/SampleLitAtlas.cpp",
   "$_samplecode/SampleManyRects.cpp",
   "$_samplecode/SampleMegaStroke.cpp",
