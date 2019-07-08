@@ -996,6 +996,7 @@ void ByteCodeFunction::disassemble() const {
 
 void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int N,
                    const float* uniforms, int uniformCount) const {
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
 #ifdef TRACE
     f->disassemble();
 #endif
@@ -1055,11 +1056,15 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         N -= w;
         baseIndex += w;
     }
+#else
+    SkDEBUGFAIL("ByteCode interpreter not enabled");
+#endif
 }
 
 void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, int N,
                           const float* uniforms, int uniformCount,
                           float* outArgs[], int outCount) const {
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
 #ifdef TRACE
     f->disassemble();
 #endif
@@ -1110,6 +1115,9 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         N -= w;
         baseIndex += w;
     }
+#else
+    SkDEBUGFAIL("ByteCode interpreter not enabled");
+#endif
 }
 
 } // namespace SkSL
