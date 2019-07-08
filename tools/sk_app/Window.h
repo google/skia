@@ -120,14 +120,6 @@ public:
     };
     static const int kKeyCount = static_cast<int>(Key::kLast) + 1;
 
-    enum ModifierKeys {
-        kShift_ModifierKey = 1 << 0,
-        kControl_ModifierKey = 1 << 1,
-        kOption_ModifierKey = 1 << 2,   // same as ALT
-        kCommand_ModifierKey = 1 << 3,
-        kFirstPress_ModifierKey = 1 << 4,
-    };
-
     enum InputState {
         kDown_InputState,
         kUp_InputState,
