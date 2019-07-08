@@ -156,7 +156,7 @@ protected:
         return true;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         // search backwards to find the top-most
         for (int i = N - 1; i >= 0; --i) {
             if (fArray[i].fDrawable->hitTest(x, y)) {

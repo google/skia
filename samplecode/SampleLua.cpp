@@ -109,7 +109,7 @@ protected:
     }
 
     virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) override {
+                                              ModifierKey modi) override {
         lua_State* L = this->ensureLua();
         lua_getglobal(L, gClickName);
         if (lua_isfunction(L, -1)) {

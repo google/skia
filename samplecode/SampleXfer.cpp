@@ -161,7 +161,7 @@ protected:
         canvas->restore();
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         // Check mode buttons first
         for (int i = 0; i < N_Modes; ++i) {
             if (fModeButtons[i].hitTest(x, y)) {

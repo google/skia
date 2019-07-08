@@ -10,6 +10,7 @@
 #include "tools/sk_app/unix/WindowContextFactory_unix.h"
 
 #include "src/utils/SkUTF.h"
+#include "tools/ModifierKey.h"
 #include "tools/sk_app/GLWindowContext.h"
 #include "tools/sk_app/unix/Window_unix.h"
 #include "tools/timer/Timer.h"
@@ -224,17 +225,17 @@ static Window::Key get_key(KeySym keysym) {
     return Window::Key::kNONE;
 }
 
-static uint32_t get_modifiers(const XEvent& event) {
+static ModifierLKey get_modifiers(const XEvent& event) {
     static const struct {
         unsigned    fXMask;
-        unsigned    fSkMask;
+        ModifierKey  fSkMask;
     } gModifiers[] = {
-        { ShiftMask,   Window::kShift_ModifierKey },
-        { ControlMask, Window::kControl_ModifierKey },
-        { Mod1Mask,    Window::kOption_ModifierKey },
+        { ShiftMask,   ModifierKey::kShift },
+        { ControlMask, ModifierKey::kControl },
+        { Mod1Mask,    ModifierKey::kOption },
     };
 
-    auto modifiers = 0;
+    ModifierKey modifiers = ModifierKey::kNone;
     for (size_t i = 0; i < SK_ARRAY_COUNT(gModifiers); ++i) {
         if (event.xkey.state & gModifiers[i].fXMask) {
             modifiers |= gModifiers[i].fSkMask;

@@ -28,7 +28,7 @@ public:
 
     bool onChar(SkUnichar c) override;
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
-                 uint32_t modifiers) override;
+                 ModifierKey modifiers) override;
 
 private:
     const SampleFactory fSampleFactory;

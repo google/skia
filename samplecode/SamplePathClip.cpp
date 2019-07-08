@@ -52,7 +52,7 @@ protected:
         canvas->drawOval(oval, p);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         return new Click(this);
     }
 
@@ -278,7 +278,7 @@ protected:
         return dx*dx + dy*dy <= rad*rad;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         for (int i = 0; i < N; ++i) {
             if (hit_test(fPoly[i], x, y)) {
                 return new VertClick(this, &fPoly[i]);

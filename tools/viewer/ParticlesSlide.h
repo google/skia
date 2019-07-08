@@ -30,7 +30,7 @@ public:
     bool animate(const AnimTimer& timer) override;
 
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
-                 uint32_t modifiers) override;
+                 ModifierKey modifiers) override;
 
 private:
     void loadEffects(const char* dirname);
