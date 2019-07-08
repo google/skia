@@ -93,15 +93,16 @@ static bool crop_rect_edge(const SkRect& clipDevRect, int v0, int v1, int v2, in
     return false;
 }
 
-// Updates x and y to intersect with clipDevRect.  lx, ly, and lw are updated appropriately and may
-// be null to skip calculations. Returns bit mask of edges that were clipped.
-static GrQuadAAFlags crop_rect(const SkRect& clipDevRect, float x[4], float y[4],
-                               float lx[4], float ly[4], float lw[4]) {
+// Updates x and y to intersect with clipDevRect, and applies clipAA policy to edgeFlags for each
+// intersected edge. lx, ly, and lw are updated appropriately and may be null to skip calculations.
+static void crop_rect(const SkRect& clipDevRect, GrAA clipAA, GrQuadAAFlags* edgeFlags,
+                      float x[4], float y[4], float lx[4], float ly[4], float lw[4]) {
+    // Filled in as if clipAA were true, will be inverted at the end if needed.
     GrQuadAAFlags clipEdgeFlags = GrQuadAAFlags::kNone;
 
-    // The quad's left edge may not align with the SkRect notion of left due to 90 degree rotations
-    // or mirrors. So, this processes the logical edges of the quad and clamps it to the 4 sides of
-    // clipDevRect.
+    // However, the quad's left edge may not align with the SkRect notion of left due to 90 degree
+    // rotations or mirrors. So, this processes the logical edges of the quad and clamps it to the 4
+    // sides of clipDevRect.
 
     // Quad's left is v0 to v1 (op. v2 and v3)
     if (crop_rect_edge(clipDevRect, 0, 1, 2, 3, x, y, lx, ly, lw)) {
@@ -120,68 +121,13 @@ static GrQuadAAFlags crop_rect(const SkRect& clipDevRect, float x[4], float y[4]
         clipEdgeFlags |= GrQuadAAFlags::kBottom;
     }
 
-    return clipEdgeFlags;
-}
-
-// Similar to crop_rect, but assumes that both the device coordinates and optional local coordinates
-// geometrically match the TL, BL, TR, BR vertex ordering, i.e. axis-aligned but not flipped, etc.
-static GrQuadAAFlags crop_simple_rect(const SkRect& clipDevRect, float x[4], float y[4],
-                                      float lx[4], float ly[4]) {
-    GrQuadAAFlags clipEdgeFlags = GrQuadAAFlags::kNone;
-
-    // Update local coordinates proportionately to how much the device rect edge was clipped
-    const SkScalar dx = lx ? (lx[2] - lx[0]) / (x[2] - x[0]) : 0.f;
-    const SkScalar dy = ly ? (ly[1] - ly[0]) / (y[1] - y[0]) : 0.f;
-    if (clipDevRect.fLeft > x[0]) {
-        if (lx) {
-            lx[0] += (clipDevRect.fLeft - x[0]) * dx;
-            lx[1] = lx[0];
-        }
-        x[0] = clipDevRect.fLeft;
-        x[1] = clipDevRect.fLeft;
-        clipEdgeFlags |= GrQuadAAFlags::kLeft;
+    if (clipAA == GrAA::kYes) {
+        // Turn on all edges that were clipped
+        *edgeFlags |= clipEdgeFlags;
+    } else {
+        // Turn off all edges that were clipped
+        *edgeFlags &= ~clipEdgeFlags;
     }
-    if (clipDevRect.fTop > y[0]) {
-        if (ly) {
-            ly[0] += (clipDevRect.fTop - y[0]) * dy;
-            ly[2] = ly[0];
-        }
-        y[0] = clipDevRect.fTop;
-        y[2] = clipDevRect.fTop;
-        clipEdgeFlags |= GrQuadAAFlags::kTop;
-    }
-    if (clipDevRect.fRight < x[2]) {
-        if (lx) {
-            lx[2] -= (x[2] - clipDevRect.fRight) * dx;
-            lx[3] = lx[2];
-        }
-        x[2] = clipDevRect.fRight;
-        x[3] = clipDevRect.fRight;
-        clipEdgeFlags |= GrQuadAAFlags::kRight;
-    }
-    if (clipDevRect.fBottom < y[1]) {
-        if (ly) {
-            ly[1] -= (y[1] - clipDevRect.fBottom) * dy;
-            ly[3] = ly[1];
-        }
-        y[1] = clipDevRect.fBottom;
-        y[3] = clipDevRect.fBottom;
-        clipEdgeFlags |= GrQuadAAFlags::kBottom;
-    }
-
-    return clipEdgeFlags;
-}
-// Consistent with GrQuad::asRect()'s return value but requires fewer operations since we don't need
-// to calculate the bounds of the quad.
-static bool is_simple_rect(const GrQuad& quad) {
-    if (quad.quadType() != GrQuad::Type::kAxisAligned) {
-        return false;
-    }
-    // v0 at the geometric top-left is unique, so we only need to compare x[0] < x[2] for left
-    // and y[0] < y[1] for top, but add a little padding to protect against numerical precision
-    // on R90 and R270 transforms tricking this check.
-    return ((quad.x(0) + SK_ScalarNearlyZero) < quad.x(2)) &&
-           ((quad.y(0) + SK_ScalarNearlyZero) < quad.y(1));
 }
 
 // Calculates barycentric coordinates for each point in (testX, testY) in the triangle formed by
@@ -252,34 +198,13 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
     SkASSERT(quad->isFinite());
 
     if (quad->quadType() == GrQuad::Type::kAxisAligned) {
-        // crop_rect and crop_rect_simple keep the rectangles as rectangles, so the intersection
-        // of the crop and quad can be calculated exactly. Some care must be taken if the quad
-        // is axis-aligned but does not satisfy asRect() due to flips, etc.
-        GrQuadAAFlags clippedEdges;
+        // crop_rect keeps the rectangles as rectangles, so there's no need to modify types
         if (local) {
-            if (is_simple_rect(*quad) && is_simple_rect(*local)) {
-                clippedEdges = crop_simple_rect(cropRect, quad->xs(), quad->ys(),
-                                                local->xs(), local->ys());
-            } else {
-                clippedEdges = crop_rect(cropRect, quad->xs(), quad->ys(),
-                                         local->xs(), local->ys(), local->ws());
-            }
+            crop_rect(cropRect, cropAA, edgeFlags, quad->xs(), quad->ys(),
+                      local->xs(), local->ys(), local->ws());
         } else {
-            if (is_simple_rect(*quad)) {
-                clippedEdges = crop_simple_rect(cropRect, quad->xs(), quad->ys(), nullptr, nullptr);
-            } else {
-                clippedEdges = crop_rect(cropRect, quad->xs(), quad->ys(),
-                                         nullptr, nullptr, nullptr);
-            }
-        }
-
-        // Apply the clipped edge updates to the original edge flags
-        if (cropAA == GrAA::kYes) {
-            // Turn on all edges that were clipped
-            *edgeFlags |= clippedEdges;
-        } else {
-            // Turn off all edges that were clipped
-            *edgeFlags &= ~clippedEdges;
+            crop_rect(cropRect, cropAA, edgeFlags, quad->xs(), quad->ys(),
+                      nullptr, nullptr, nullptr);
         }
         return true;
     }
