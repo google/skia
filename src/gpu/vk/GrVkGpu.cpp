@@ -725,7 +725,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         mipLevelCount = 1;
     }
 
-    SkASSERT(this->vkCaps().isFormatTexturable(tex->imageFormat()));
+    SkASSERT(this->vkCaps().isVkFormatTexturable(tex->imageFormat()));
     int bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     // texels is const.
@@ -905,7 +905,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
         return false;
     }
 
-    SkASSERT(this->vkCaps().isFormatTexturable(tex->imageFormat()));
+    SkASSERT(this->vkCaps().isVkFormatTexturable(tex->imageFormat()));
 
     size_t dataSize = GrCompressedDataSize(compressionType, width, height);
 
@@ -1137,12 +1137,12 @@ static bool check_image_info(const GrVkCaps& caps,
 
 static bool check_tex_image_info(const GrVkCaps& caps, const GrVkImageInfo& info) {
     if (info.fImageTiling == VK_IMAGE_TILING_OPTIMAL) {
-        if (!caps.isFormatTexturable(info.fFormat)) {
+        if (!caps.isVkFormatTexturable(info.fFormat)) {
             return false;
         }
     } else {
         SkASSERT(info.fImageTiling == VK_IMAGE_TILING_LINEAR);
-        if (!caps.isFormatTexturableLinearly(info.fFormat)) {
+        if (!caps.isVkFormatTexturableLinearly(info.fFormat)) {
             return false;
         }
     }
@@ -1566,7 +1566,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         return false;
     }
 
-    if (texturable && !fVkCaps->isFormatTexturable(vkFormat)) {
+    if (texturable && !fVkCaps->isVkFormatTexturable(vkFormat)) {
         return false;
     }
 
@@ -1922,7 +1922,7 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();
     }
 
-    if (!caps.isFormatTexturable(*vkFormat)) {
+    if (!caps.isVkFormatTexturable(*vkFormat)) {
         SkDebugf("Config is not texturable\n");
         return GrBackendTexture();
     }

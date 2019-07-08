@@ -44,7 +44,7 @@ public:
         return kSRGBA_8888_GrPixelConfig == *format.getMockFormat();
     }
 
-    bool isFormatTexturable(SkColorType, const GrBackendFormat& format) const override {
+    bool isFormatTexturable(GrColorType, const GrBackendFormat& format) const override {
         if (!format.getMockFormat()) {
             return false;
         }

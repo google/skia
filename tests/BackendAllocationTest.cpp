@@ -593,7 +593,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             // We current disallow uninitialized ETC1 textures in the GL backend
             continue;
         }
-        if (!glCaps->isFormatTexturable(combo.fColorType, format)) {
+        if (!glCaps->isFormatTexturable(SkColorTypeToGrColorType(combo.fColorType), format)) {
             continue;
         }
 
@@ -725,7 +725,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
     };
 
     for (auto combo : combinations) {
-        if (!vkCaps->isFormatTexturable(combo.fFormat)) {
+        if (!vkCaps->isVkFormatTexturable(combo.fFormat)) {
             continue;
         }
 

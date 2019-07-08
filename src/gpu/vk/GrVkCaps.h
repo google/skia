@@ -34,8 +34,8 @@ public:
 
     bool isFormatSRGB(const GrBackendFormat& format) const override;
 
-    bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
-    bool isFormatTexturable(VkFormat) const;
+    bool isFormatTexturable(GrColorType, const GrBackendFormat&) const override;
+    bool isVkFormatTexturable(VkFormat) const;
     bool isConfigTexturable(GrPixelConfig config) const override;
 
     bool isFormatCopyable(SkColorType, const GrBackendFormat&) const override { return true; }
@@ -54,7 +54,7 @@ public:
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
 
-    bool isFormatTexturableLinearly(VkFormat format) const {
+    bool isVkFormatTexturableLinearly(VkFormat format) const {
         return SkToBool(FormatInfo::kTextureable_Flag & this->getFormatInfo(format).fLinearFlags);
     }
 

@@ -158,7 +158,7 @@ public:
 
     virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
 
-    virtual bool isFormatTexturable(SkColorType, const GrBackendFormat&) const = 0;
+    virtual bool isFormatTexturable(GrColorType, const GrBackendFormat&) const = 0;
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
 
     // Returns whether a texture of the given config can be copied to a texture of the same config.
