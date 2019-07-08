@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "30d55576_fb36eb89",
+        "filename": "samplecode/SampleShaders.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-08T19:07:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2651032a_4bdf7360",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 11
+      },
+      "revId": "ba424e6173e5ec0bb3dc5ef3dc242e7d64292eaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2227b4fb_dd81dfbb",
         "filename": "samplecode/SampleShaders.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "ba424e6173e5ec0bb3dc5ef3dc242e7d64292eaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5133e291_895bb3da",
+        "filename": "samplecode/SampleShaders.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-08T19:07:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2227b4fb_dd81dfbb",
+      "range": {
+        "startLine": 56,
+        "startChar": 51,
+        "endLine": 56,
+        "endChar": 69
+      },
+      "revId": "ba424e6173e5ec0bb3dc5ef3dc242e7d64292eaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
