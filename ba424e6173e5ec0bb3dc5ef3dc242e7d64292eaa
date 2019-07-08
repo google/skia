@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2651032a_4bdf7360",
+        "filename": "samplecode/SampleShaders.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T14:55:39Z",
+      "side": 1,
+      "message": "any reason not to put this all the way up, just after the includes?",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 11
+      },
+      "revId": "ba424e6173e5ec0bb3dc5ef3dc242e7d64292eaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2227b4fb_dd81dfbb",
+        "filename": "samplecode/SampleShaders.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T14:55:39Z",
+      "side": 1,
+      "message": "This has never existed except on one machine ever. I think it is safe to just use images/dog.jpg and not have this conditional.",
+      "range": {
+        "startLine": 56,
+        "startChar": 51,
+        "endLine": 56,
+        "endChar": 69
+      },
+      "revId": "ba424e6173e5ec0bb3dc5ef3dc242e7d64292eaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
