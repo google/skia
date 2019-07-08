@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b453272_2adb9654",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3257,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-08T13:30:14Z",
+      "side": 1,
+      "message": "I think this should be:\n\nctxInfo.glslGeneration() \u003c GrGLSLGeneration::k330_GrGLSLGeneration\n\nbecause sometimes we limit the GLSL version to be lower than the equivalent GL version.",
+      "range": {
+        "startLine": 3257,
+        "startChar": 9,
+        "endLine": 3257,
+        "endChar": 45
+      },
+      "revId": "f04a57cdb34d4682209589b7e2fb859192965c9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
