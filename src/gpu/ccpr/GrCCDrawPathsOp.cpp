@@ -116,6 +116,8 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
     if (!clippedDrawBounds.intersect(conservativeDevBounds, SkRect::Make(maskDevIBounds))) {
         clippedDrawBounds.setEmpty();
     }
+    // We always have AA bloat, even in MSAA atlas mode. This is because by the time this Op comes
+    // along and draws to the main canvas, the atlas has been resolved to analytic coverage.
     this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
 }
 
@@ -426,8 +428,12 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
         const GrTextureProxy* atlas = range.fAtlasProxy;
         SkASSERT(atlas->isInstantiated());
 
+        auto flags = (GrCCAtlas::CoverageType::kFP16_CoverageCount == resources->coverageType())
+                ? GrCCPathProcessor::Flags::kResolveCoverageCount
+                : GrCCPathProcessor::Flags::kNone;
+
         GrCCPathProcessor pathProc(
-                atlas->peekTexture(), atlas->textureSwizzle(), atlas->origin(),
+                flags, atlas->peekTexture(), atlas->textureSwizzle(), atlas->origin(),
                 fViewMatrixIfUsingLocalCoords);
         GrTextureProxy* atlasProxy = range.fAtlasProxy;
         fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;

@@ -112,7 +112,7 @@ int GrRenderTargetPriv::getSamplePatternKey() const {
     if (fRenderTarget->fSampleCnt <= 1) {
         // If the color buffer is not multisampled, the sample pattern better come from the stencil
         // buffer (mixed samples).
-        SkASSERT(stencil && stencil->numSamples() > 1);
+        SkASSERT(stencil);
     } else {
         // The color sample count and stencil count cannot both be unequal and both greater than
         // one. If this were the case, there would be more than one sample pattern associated with

@@ -66,8 +66,10 @@ struct GrCCPerFlushResourceSpecs {
  */
 class GrCCPerFlushResources : public GrNonAtomicRef<GrCCPerFlushResources> {
 public:
-    GrCCPerFlushResources(GrOnFlushResourceProvider*, const GrCCPerFlushResourceSpecs&);
+    GrCCPerFlushResources(
+            GrOnFlushResourceProvider*, GrCCAtlas::CoverageType,const GrCCPerFlushResourceSpecs&);
 
+    GrCCAtlas::CoverageType coverageType() const { return fRenderedAtlasStack.coverageType(); }
     bool isMapped() const { return SkToBool(fPathInstanceData); }
 
     // Copies a coverage-counted path out of the given texture proxy, and into a cached, 8-bit,
@@ -138,6 +140,7 @@ private:
     GrCCPathProcessor::Instance* fPathInstanceData = nullptr;
     int fNextCopyInstanceIdx;
     SkDEBUGCODE(int fEndCopyInstance);
+    int fBasePathInstanceIdx;
     int fNextPathInstanceIdx;
     SkDEBUGCODE(int fEndPathInstance);
 

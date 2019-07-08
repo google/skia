@@ -50,9 +50,14 @@ public:
         float fX[3];
         float fY[3];
 
-        void set(const SkPoint[3], const Sk2f& trans);
-        void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans);
-        void set(const Sk2f& P0, const Sk2f& P1, const Sk2f& P2, const Sk2f& trans);
+        enum class Ordering : bool {
+            kXYTransposed,
+            kXYInterleaved,
+        };
+
+        void set(const SkPoint[3], const Sk2f& translate, Ordering);
+        void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& translate, Ordering);
+        void set(const Sk2f& P0, const Sk2f& P1, const Sk2f& P2, const Sk2f& translate, Ordering);
     };
 
     // Defines a single primitive shape with 4 input points, or 3 input points plus a "weight"
@@ -150,6 +155,8 @@ public:
         void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
                               const char* skOutputColor, const char* skOutputCoverage) const;
 
+        virtual void emitStencilCode(GrGLSLFPFragmentBuilder*) const = 0;
+
         // Calculates the winding direction of the input points (+1, -1, or 0). Wind for extremely
         // thin triangles gets rounded to zero.
         static void CalcWind(const GrCCCoverageProcessor&, GrGLSLVertexGeoBuilder*, const char* pts,
@@ -239,21 +246,29 @@ inline const char* GrCCCoverageProcessor::PrimitiveTypeName(PrimitiveType type) 
     return "";
 }
 
-inline void GrCCCoverageProcessor::TriPointInstance::set(const SkPoint p[3], const Sk2f& trans) {
-    this->set(p[0], p[1], p[2], trans);
+inline void GrCCCoverageProcessor::TriPointInstance::set(
+        const SkPoint p[3], const Sk2f& translate, Ordering ordering) {
+    this->set(p[0], p[1], p[2], translate, ordering);
 }
 
-inline void GrCCCoverageProcessor::TriPointInstance::set(const SkPoint& p0, const SkPoint& p1,
-                                                         const SkPoint& p2, const Sk2f& trans) {
+inline void GrCCCoverageProcessor::TriPointInstance::set(
+        const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, const Sk2f& translate,
+        Ordering ordering) {
     Sk2f P0 = Sk2f::Load(&p0);
     Sk2f P1 = Sk2f::Load(&p1);
     Sk2f P2 = Sk2f::Load(&p2);
-    this->set(P0, P1, P2, trans);
+    this->set(P0, P1, P2, translate, ordering);
 }
 
-inline void GrCCCoverageProcessor::TriPointInstance::set(const Sk2f& P0, const Sk2f& P1,
-                                                         const Sk2f& P2, const Sk2f& trans) {
-    Sk2f::Store3(this, P0 + trans, P1 + trans, P2 + trans);
+inline void GrCCCoverageProcessor::TriPointInstance::set(
+        const Sk2f& P0, const Sk2f& P1, const Sk2f& P2, const Sk2f& translate, Ordering ordering) {
+    if (Ordering::kXYTransposed == ordering) {
+        Sk2f::Store3(this, P0 + translate, P1 + translate, P2 + translate);
+    } else {
+        (P0 + translate).store(fX);
+        (P1 + translate).store(fX + 2);
+        (P2 + translate).store(fY + 1);
+    }
 }
 
 inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint p[4], float dx, float dy) {

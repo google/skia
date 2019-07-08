@@ -380,7 +380,7 @@ GrCCPathCacheEntry::ReleaseAtlasResult GrCCPathCacheEntry::upgradeToLiteralCover
     SkASSERT(!this->hasBeenEvicted());
     SkASSERT(fOnFlushRefCnt > 0);
     SkASSERT(fCachedAtlas);
-    SkASSERT(GrCCAtlas::CoverageType::kFP16_CoverageCount == fCachedAtlas->coverageType());
+    SkASSERT(GrCCAtlas::CoverageType::kA8_LiteralCoverage != fCachedAtlas->coverageType());
 
     ReleaseAtlasResult releaseAtlasResult = this->releaseCachedAtlas(pathCache);
 
