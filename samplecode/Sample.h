@@ -14,6 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkMacros.h"
 #include "src/utils/SkMetaData.h"
+#include "tools/ModifierKey.h"
 #include "tools/Registry.h"
 
 class AnimTimer;
@@ -60,16 +61,10 @@ public:
             kMoved_State,
             kUp_State
         };
-        enum ModifierKeys {
-            kShift_ModifierKey    = 1 << 0,
-            kControl_ModifierKey  = 1 << 1,
-            kOption_ModifierKey   = 1 << 2,   // same as ALT
-            kCommand_ModifierKey  = 1 << 3,
-        };
         SkPoint     fOrig, fPrev, fCurr;
         SkIPoint    fIOrig, fIPrev, fICurr;
         State       fState;
-        unsigned    fModifierKeys;
+        ModifierKey fModifierKeys = ModifierKey::kNone;
 
         SkMetaData  fMeta;
     private:
@@ -77,10 +72,10 @@ public:
 
         friend class Sample;
     };
-    Click* findClickHandler(SkScalar x, SkScalar y, unsigned modifierKeys);
-    static void DoClickDown(Click*, int x, int y, unsigned modi);
-    static void DoClickMoved(Click*, int x, int y, unsigned modi);
-    static void DoClickUp(Click*, int x, int y, unsigned modi);
+    Click* findClickHandler(SkScalar x, SkScalar y, ModifierKey modifierKeys);
+    static void DoClickDown(Click*, int x, int y, ModifierKey modi);
+    static void DoClickMoved(Click*, int x, int y, ModifierKey modi);
+    static void DoClickUp(Click*, int x, int y, ModifierKey modi);
 
     void setBGColor(SkColor color) { fBGColor = color; }
     bool animate(const AnimTimer& timer) { return this->onAnimate(timer); }
@@ -92,7 +87,7 @@ protected:
     virtual void onSizeChange();
 
     /** Override this if you might handle the click */
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi);
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi);
 
     /** Override to track clicks. Return true as long as you want to track the pen/mouse. */
     virtual bool onClick(Click*);
