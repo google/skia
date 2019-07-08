@@ -380,8 +380,7 @@ public:
         }
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                      unsigned) override;
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override;
     bool onClick(Sample::Click*) override;
     bool onChar(SkUnichar) override;
     SkString name() override { return SkString("DegenerateQuad"); }
@@ -480,7 +479,7 @@ private:
     }
 };
 
-Sample::Click* DegenerateQuadSample::onFindClickHandler(SkScalar x, SkScalar y, unsigned) {
+Sample::Click* DegenerateQuadSample::onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) {
     SkPoint inCTM = SkPoint::Make((x - kViewOffset) / kViewScale, (y - kViewOffset) / kViewScale);
     for (int i = 0; i < 4; ++i) {
         if ((fCorners[i] - inCTM).length() < 10.f / kViewScale) {

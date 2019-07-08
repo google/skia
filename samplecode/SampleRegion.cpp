@@ -326,7 +326,7 @@ protected:
     }
 
     virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) override {
+                                              ModifierKey modi) override {
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click(this) : nullptr;
     }

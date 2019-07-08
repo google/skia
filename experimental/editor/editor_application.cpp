@@ -8,6 +8,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
 
+#include "tools/ModifierKey.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
 
@@ -30,15 +31,15 @@ static const char* key_name(sk_app::Window::Key k) {
     }
 }
 
-static SkString modifiers_desc(uint32_t m) {
+static SkString modifiers_desc(ModifierKey m) {
     SkString s;
-    #define M(X) if (m & sk_app::Window::k ## X ##_ModifierKey) { s.append(" {" #X "}"); }
+    #define M(X) if (m & ModifierKey::k ## X ##) { s.append(" {" #X "}"); }
     M(Shift) M(Control) M(Option) M(Command) M(FirstPress)
     #undef M
     return s;
 }
 
-static void debug_on_char(SkUnichar c, uint32_t modifiers) {
+static void debug_on_char(SkUnichar c, ModifierKey modifiers) {
     SkString m = modifiers_desc(modifiers);
     if ((unsigned)c < 0x100) {
         SkDebugf("char: %c (0x%02X)%s\n", (char)(c & 0xFF), (unsigned)c, m.c_str());
@@ -47,8 +48,8 @@ static void debug_on_char(SkUnichar c, uint32_t modifiers) {
     }
 }
 
-static void debug_on_key(sk_app::Window::Key key, sk_app::Window::InputState, uint32_t modifiers) {
-    SkDebugf("key: %s%s\n", key_name(key), modifiers_desc(modifiers).c_str());
+static void debug_on_key(sk_app::Window::Key key, sk_app::Window::InputState, ModifierKey modi) {
+    SkDebugf("key: %s%s\n", key_name(key), modifiers_desc(modi).c_str());
 }
 #endif  // SK_EDITOR_DEBUG_OUT
 
@@ -146,12 +147,12 @@ struct EditorLayer : public sk_app::Window::Layer {
 
     void inval() { if (fParent) { fParent->inval(); } }
 
-    bool onMouseWheel(float delta, uint32_t modifiers) override {
+    bool onMouseWheel(float delta, ModifierKey modifiers) override {
         this->scroll(-(int)(delta * fEditor.font().getSpacing()));
         return true;
     }
 
-    bool onMouse(int x, int y, sk_app::Window::InputState state, uint32_t modifiers) override {
+    bool onMouse(int x, int y, sk_app::Window::InputState state, ModifierKey modifiers) override {
         if (sk_app::Window::kDown_InputState == state) {
             y += fPos;
             editor::Editor::TextPosition pos = fEditor.getPosition(SkIPoint{x, y});
@@ -166,10 +167,10 @@ struct EditorLayer : public sk_app::Window::Layer {
         return true;
     }
 
-    bool onChar(SkUnichar c, uint32_t modifiers) override {
-        if (0 == (modifiers & (sk_app::Window::kControl_ModifierKey |
-                               sk_app::Window::kOption_ModifierKey |
-                               sk_app::Window::kCommand_ModifierKey))) {
+    bool onChar(SkUnichar c, ModifierKey modifiers) override {
+        if (!ModifierKeyIsSet(modifiers & (ModifierKey::kControl |
+                                           ModifierKey::kOption  |
+                                           ModifierKey::kCommand))) {
             if (((unsigned)c < 0x7F && (unsigned)c >= 0x20) || c == '\n') {
                 char ch = (char)c;
                 fEditor.insert(fTextPos, &ch, 1);
@@ -179,7 +180,7 @@ struct EditorLayer : public sk_app::Window::Layer {
                 return this->moveCursor(editor::Editor::Movement::kRight);
             }
         }
-        if (modifiers == sk_app::Window::kControl_ModifierKey) {
+        if (modifiers == ModifierKey::kControl) {
             switch (c) {
                 case 'p':
                     for (const editor::StringSlice& str : fEditor.text()) {
@@ -232,7 +233,7 @@ struct EditorLayer : public sk_app::Window::Layer {
     }
     bool onKey(sk_app::Window::Key key,
                sk_app::Window::InputState state,
-               uint32_t modifiers) override {
+               ModifierKey modifiers) override {
         if (state == sk_app::Window::kDown_InputState) {
             switch (key) {
                 case sk_app::Window::Key::kPageDown:
@@ -246,7 +247,7 @@ struct EditorLayer : public sk_app::Window::Layer {
                 case sk_app::Window::Key::kHome:
                 case sk_app::Window::Key::kEnd:
                     return this->moveCursor(convert(key),
-                                            modifiers & sk_app::Window::kShift_ModifierKey);
+                                            (int)(modifiers & ModifierKey::kShift));
                 case sk_app::Window::Key::kDelete:
                     if (fMarkPos != editor::Editor::TextPosition()) {
                         fTextPos = fEditor.remove(fMarkPos, fTextPos);

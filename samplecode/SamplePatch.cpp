@@ -297,7 +297,7 @@ struct PatchView : public Sample {
         return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         x -= DX;
         y -= DY;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
@@ -396,7 +396,7 @@ protected:
  //       canvas->drawPath(fPath, fSkeletonP);
     }
 
-    Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         Click* click = new Click(this);
         fPath.reset();
         fPath.moveTo(x, y);
@@ -484,7 +484,7 @@ protected:
         this->dodraw(canvas, nullptr, 600, 0, &p);
     }
 
-    Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         Click* click = new Click(this);
         fPath.reset();
         fPath.moveTo(x, y);

@@ -71,7 +71,7 @@ protected:
         }
     }
 
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click(this) : nullptr;
     }
@@ -154,7 +154,7 @@ protected:
         canvas->restore();
     }
 
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         fMode = (fMode == SkBlendMode::kSrcOver) ? SkBlendMode::kClear : SkBlendMode::kSrcOver;
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click(this) : nullptr;

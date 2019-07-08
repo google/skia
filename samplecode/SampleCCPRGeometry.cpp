@@ -48,7 +48,7 @@ public:
     CCPRGeometryView() { this->updateGpuData(); }
     void onDrawContent(SkCanvas*) override;
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override;
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override;
     bool onClick(Sample::Click*) override;
     bool onChar(SkUnichar) override;
     SkString name() override { return SkString("CCPRGeometry"); }
@@ -422,7 +422,7 @@ private:
     int fPtIdx;
 };
 
-Sample::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, unsigned) {
+Sample::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) {
     for (int i = 0; i < 4; ++i) {
         if (PrimitiveType::kCubics != fPrimitiveType && 2 == i) {
             continue;

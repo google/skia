@@ -109,7 +109,7 @@ void HelloWorld::onIdle() {
     fWindow->inval();
 }
 
-bool HelloWorld::onChar(SkUnichar c, uint32_t modifiers) {
+bool HelloWorld::onChar(SkUnichar c, ModifierKey modifiers) {
     if (' ' == c) {
         fBackendType = Window::kRaster_BackendType == fBackendType ? Window::kNativeGL_BackendType
                                                                    : Window::kRaster_BackendType;

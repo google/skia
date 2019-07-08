@@ -31,7 +31,7 @@ public:
 
     virtual bool onChar(SkUnichar c) { return false; }
     virtual bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
-                         uint32_t modifiers) { return false; }
+                         ModifierKey modifiers) { return false; }
 
     virtual bool onGetControls(SkMetaData*) { return false; }
     virtual void onSetControls(const SkMetaData&) {}

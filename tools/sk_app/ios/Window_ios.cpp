@@ -6,6 +6,7 @@
 */
 
 #include "src/core/SkUtils.h"
+#include "tools/ModifierKey.h"
 #include "tools/sk_app/ios/WindowContextFactory_ios.h"
 #include "tools/sk_app/ios/Window_ios.h"
 #include "tools/timer/Timer.h"
@@ -135,17 +136,17 @@ static Window::Key get_key(const SDL_Keysym& keysym) {
     return Window::Key::kNONE;
 }
 
-static uint32_t get_modifiers(const SDL_Event& event) {
+static ModifierKey get_modifiers(const SDL_Event& event) {
     static const struct {
         unsigned    fSDLMask;
-        unsigned    fSkMask;
+        ModifierKey fSkMask;
     } gModifiers[] = {
-        { KMOD_SHIFT, Window::kShift_ModifierKey },
-        { KMOD_CTRL,  Window::kControl_ModifierKey },
-        { KMOD_ALT,   Window::kOption_ModifierKey },
+        { KMOD_SHIFT, ModifierKey::kShift },
+        { KMOD_CTRL,  ModifierKey::kControl },
+        { KMOD_ALT,   ModifierKey::kOption },
     };
 
-    auto modifiers = 0;
+    ModifierKey modifiers = ModifierKey::kNone;
 
     switch (event.type) {
         case SDL_KEYDOWN:
@@ -157,7 +158,7 @@ static uint32_t get_modifiers(const SDL_Event& event) {
                 }
             }
             if (0 == event.key.repeat) {
-                modifiers |= Window::kFirstPress_ModifierKey;
+                modifiers |= ModifierKey::kFirstPress;
             }
             break;
         }

@@ -11,6 +11,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
+#include "tools/ModifierKey.h"
 #include "tools/sk_app/DisplayParams.h"
 
 class GrContext;
@@ -120,14 +121,6 @@ public:
     };
     static const int kKeyCount = static_cast<int>(Key::kLast) + 1;
 
-    enum ModifierKeys {
-        kShift_ModifierKey = 1 << 0,
-        kControl_ModifierKey = 1 << 1,
-        kOption_ModifierKey = 1 << 2,   // same as ALT
-        kCommand_ModifierKey = 1 << 3,
-        kFirstPress_ModifierKey = 1 << 4,
-    };
-
     enum InputState {
         kDown_InputState,
         kUp_InputState,
@@ -145,10 +138,10 @@ public:
         // return value of 'true' means 'I have handled this event'
         virtual void onBackendCreated() {}
         virtual void onAttach(Window* window) {}
-        virtual bool onChar(SkUnichar c, uint32_t modifiers) { return false; }
-        virtual bool onKey(Key key, InputState state, uint32_t modifiers) { return false; }
-        virtual bool onMouse(int x, int y, InputState state, uint32_t modifiers) { return false; }
-        virtual bool onMouseWheel(float delta, uint32_t modifiers) { return false; }
+        virtual bool onChar(SkUnichar c, ModifierKey modifiers) { return false; }
+        virtual bool onKey(Key key, InputState state, ModifierKey modifiers) { return false; }
+        virtual bool onMouse(int x, int y, InputState state, ModifierKey modifiers) { return false; }
+        virtual bool onMouseWheel(float delta, ModifierKey modifiers) { return false; }
         virtual bool onTouch(intptr_t owner, InputState state, float x, float y) { return false; }
         virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
         virtual void onPrePaint() {}
@@ -166,10 +159,10 @@ public:
     }
 
     void onBackendCreated();
-    bool onChar(SkUnichar c, uint32_t modifiers);
-    bool onKey(Key key, InputState state, uint32_t modifiers);
-    bool onMouse(int x, int y, InputState state, uint32_t modifiers);
-    bool onMouseWheel(float delta, uint32_t modifiers);
+    bool onChar(SkUnichar c, ModifierKey modifiers);
+    bool onKey(Key key, InputState state, ModifierKey modifiers);
+    bool onMouse(int x, int y, InputState state, ModifierKey modifiers);
+    bool onMouseWheel(float delta, ModifierKey modifiers);
     bool onTouch(intptr_t owner, InputState state, float x, float y);  // multi-owner = multi-touch
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     void onPaint();

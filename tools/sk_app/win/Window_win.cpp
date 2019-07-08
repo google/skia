@@ -14,8 +14,10 @@
 #include <windowsx.h>
 
 #include "src/core/SkUtils.h"
+#include "tools/ModifierKey.h"
 #include "tools/sk_app/WindowContext.h"
 #include "tools/sk_app/win/WindowContextFactory_win.h"
+
 #ifdef SK_VULKAN
 #include "tools/sk_app/VulkanWindowContext.h"
 #endif
@@ -158,34 +160,34 @@ static Window::Key get_key(WPARAM vk) {
     return Window::Key::kNONE;
 }
 
-static uint32_t get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
-    uint32_t modifiers = 0;
+static ModifierKey get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
+    ModifierKey modifiers = ModifierKey::kNone;
 
     switch (message) {
         case WM_UNICHAR:
         case WM_CHAR:
             if (0 == (lParam & (1 << 30))) {
-                modifiers |= Window::kFirstPress_ModifierKey;
+                modifiers |= ModifierKey::kFirstPress;
             }
             if (lParam & (1 << 29)) {
-                modifiers |= Window::kOption_ModifierKey;
+                modifiers |= ModifierKey::kOption;
             }
             break;
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
             if (0 == (lParam & (1 << 30))) {
-                modifiers |= Window::kFirstPress_ModifierKey;
+                modifiers |= ModifierKey::kFirstPress;
             }
             if (lParam & (1 << 29)) {
-                modifiers |= Window::kOption_ModifierKey;
+                modifiers |= ModifierKey::kOption;
             }
             break;
 
         case WM_KEYUP:
         case WM_SYSKEYUP:
             if (lParam & (1 << 29)) {
-                modifiers |= Window::kOption_ModifierKey;
+                modifiers |= ModifierKey::kOption;
             }
             break;
 
@@ -194,10 +196,10 @@ static uint32_t get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
         case WM_MOUSEMOVE:
         case WM_MOUSEWHEEL:
             if (wParam & MK_CONTROL) {
-                modifiers |= Window::kControl_ModifierKey;
+                modifiers |= ModifierKey::kControl;
             }
             if (wParam & MK_SHIFT) {
-                modifiers |= Window::kShift_ModifierKey;
+                modifiers |= ModifierKey::kShift;
             }
             break;
     }

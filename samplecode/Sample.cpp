@@ -68,7 +68,7 @@ Sample::Click::Click(Sample* target) {
 
 Sample::Click::~Click() {}
 
-Sample::Click* Sample::findClickHandler(SkScalar x, SkScalar y, unsigned modi) {
+Sample::Click* Sample::findClickHandler(SkScalar x, SkScalar y, ModifierKey modi) {
     if (x < 0 || y < 0 || x >= fWidth || y >= fHeight) {
         return nullptr;
     }
@@ -76,7 +76,7 @@ Sample::Click* Sample::findClickHandler(SkScalar x, SkScalar y, unsigned modi) {
     return this->onFindClickHandler(x, y, modi);
 }
 
-void Sample::DoClickDown(Click* click, int x, int y, unsigned modi) {
+void Sample::DoClickDown(Click* click, int x, int y, ModifierKey modi) {
     SkASSERT(click);
 
     Sample* target = click->fTarget.get();
@@ -95,7 +95,7 @@ void Sample::DoClickDown(Click* click, int x, int y, unsigned modi) {
     target->onClick(click);
 }
 
-void Sample::DoClickMoved(Click* click, int x, int y, unsigned modi) {
+void Sample::DoClickMoved(Click* click, int x, int y, ModifierKey modi) {
     SkASSERT(click);
 
     Sample* target = click->fTarget.get();
@@ -114,7 +114,7 @@ void Sample::DoClickMoved(Click* click, int x, int y, unsigned modi) {
     target->onClick(click);
 }
 
-void Sample::DoClickUp(Click* click, int x, int y, unsigned modi) {
+void Sample::DoClickUp(Click* click, int x, int y, ModifierKey modi) {
     SkASSERT(click);
 
     Sample* target = click->fTarget.get();
@@ -137,7 +137,7 @@ void Sample::DoClickUp(Click* click, int x, int y, unsigned modi) {
 
 void Sample::onSizeChange() {}
 
-Sample::Click* Sample::onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) {
+Sample::Click* Sample::onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) {
     return nullptr;
 }
 
