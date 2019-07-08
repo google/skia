@@ -404,7 +404,7 @@ public:
     //  and VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL if renderable is kYes
     GrBackendTexture createBackendTexture(int width, int height,
                                           SkColorType,
-                                          const SkColor4f& color,
+                                          SkColor4f color,
                                           GrMipMapped,
                                           GrRenderable,
                                           GrProtected = GrProtected::kNo);
