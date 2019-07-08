@@ -89,8 +89,13 @@ def nanobench_flags(api, bot):
           'Nexus7'      in bot):
         sample_count = ''
     elif 'Intel' in bot:
-      # We don't want to test MSAA on older Intel chipsets. These are all newer (Gen9).
-      if 'Iris655' not in bot and 'Iris640' not in bot and 'Iris540' not in bot:
+      # We don't want to test MSAA on older Intel chipsets. These are all newer (Gen8/9).
+      if ('Iris655'       not in bot and  # Gen9
+          'Iris640'       not in bot and
+          'Iris540'       not in bot and
+          'IntelHD405'    not in bot and  # Gen8
+          'IntelHD6000'   not in bot and
+          'IntelIris6100' not in bot):
         sample_count = ''
     elif 'ChromeOS' in bot:
       gl_prefix = 'gles'
