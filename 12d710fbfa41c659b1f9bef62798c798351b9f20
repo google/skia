@@ -222,6 +222,30 @@
       "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c876e1a_c4e036fc",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:10:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f67aaf10_8f79385d",
+      "range": {
+        "startLine": 596,
+        "startChar": 71,
+        "endLine": 596,
+        "endChar": 81
+      },
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
