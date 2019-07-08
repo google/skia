@@ -127,33 +127,31 @@ async function driveBrowser() {
   }
   console.log("Loading " + targetURL);
   try {
+    // Start trace.
+    await page.tracing.start({
+      path: options.output,
+      screenshots: false,
+      categories: ["blink", "cc"]
+    });
+
     await page.goto(targetURL, {
       timeout: 20000,
       waitUntil: 'networkidle0'
     });
+
     console.log('Waiting 20s for run to be done');
     await page.waitForFunction('window._skottieDone === true', {
       timeout: 20000,
     });
+
+    // Stop Trace.
+    await page.tracing.stop();
   } catch(e) {
     console.log('Timed out while loading or drawing. Either the JSON file was ' +
                 'too big or hit a bug.', e);
     await browser.close();
     process.exit(0);
   }
-
-  // Write results.
-  var extractResults = function() {
-    return {
-      'frame_avg_us': window._avgFrameTimeUs,
-      'frame_max_us': window._maxFrameTimeUs,
-      'frame_min_us': window._minFrameTimeUs,
-      'gpu': window._gpu,
-    };
-  }
-  var data = await page.evaluate(extractResults);
-  console.log(data)
-  fs.writeFileSync(options.output, JSON.stringify(data), 'utf-8');
 
   await browser.close();
   // Need to call exit() because the web server is still running.
