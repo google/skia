@@ -226,7 +226,13 @@ public:
 
         @return  size in bytes of image buffer
     */
-    size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
+    size_t computeByteSize() const {
+        size_t computedSize = fInfo.computeByteSize(fRowBytes);
+        if (SkImageInfo::ByteSizeOverflowed(computedSize)) {
+            return 0;
+        }
+        return computedSize;
+    }
 
     /** Returns true if all pixels are opaque. SkColorType determines how pixels
         are encoded, and whether pixel describes alpha. Returns true for SkColorType
