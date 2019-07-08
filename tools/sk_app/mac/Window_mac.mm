@@ -6,6 +6,7 @@
 */
 
 #include "src/core/SkUtils.h"
+#include "tools/ModifierKey.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
 #include "tools/sk_app/mac/Window_mac.h"
 
@@ -233,18 +234,18 @@ static uint32_t get_modifiers(const NSEvent* event) {
     auto modifiers = 0;
 
     if (modifierFlags & NSEventModifierFlagShift) {
-        modifiers |= Window::kShift_ModifierKey;
+        modifiers |= ModifierKey::kShift;
     }
     if (modifierFlags & NSEventModifierFlagControl) {
-        modifiers |= Window::kControl_ModifierKey;
+        modifiers |= ModifierKey::kControl;
     }
     if (modifierFlags & NSEventModifierFlagOption) {
-        modifiers |= Window::kOption_ModifierKey;
+        modifiers |= ModifierKey::kOption;
     }
 
     if ((NSKeyDown == [event type] || NSKeyUp == [event type]) &&
         NO == [event isARepeat]) {
-        modifiers |= Window::kFirstPress_ModifierKey;
+        modifiers |= ModifierKey::kFirstPress;
     }
 
     return modifiers;

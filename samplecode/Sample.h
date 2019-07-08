@@ -60,12 +60,6 @@ public:
             kMoved_State,
             kUp_State
         };
-        enum ModifierKeys {
-            kShift_ModifierKey    = 1 << 0,
-            kControl_ModifierKey  = 1 << 1,
-            kOption_ModifierKey   = 1 << 2,   // same as ALT
-            kCommand_ModifierKey  = 1 << 3,
-        };
         SkPoint     fOrig, fPrev, fCurr;
         SkIPoint    fIOrig, fIPrev, fICurr;
         State       fState;
