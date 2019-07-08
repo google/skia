@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "596f8c99_fe9d5458",
+        "filename": "tools/ModifierKey.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T22:36:17Z",
+      "side": 1,
+      "message": "Any reason for this not to be an \u0027enum class\u0027 and use skstd::is_bitmask_enum? Then these would have a type name to pass around, instead of having me complain about how these are unsigned but then usually passed as uint32_t.",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 9
+      },
+      "revId": "c01b5cdd7d0c3448e41e158287629ff726514d58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
