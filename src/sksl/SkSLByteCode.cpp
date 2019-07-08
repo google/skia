@@ -17,9 +17,6 @@
 #include <vector>
 
 namespace SkSL {
-
-#if defined(SK_ENABLE_SKSL_INTERPRETER)
-
 namespace Interpreter {
 
 constexpr int VecWidth = ByteCode::kVecWidth;
@@ -988,22 +985,17 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 
 } // namespace Interpreter
 
-#endif // SK_ENABLE_SKSL_INTERPRETER
-
 void ByteCodeFunction::disassemble() const {
-#if defined(SK_ENABLE_SKSL_INTERPRETER)
     const uint8_t* ip = fCode.data();
     while (ip < fCode.data() + fCode.size()) {
         printf("%d: ", (int)(ip - fCode.data()));
         ip = Interpreter::disassemble_instruction(ip);
         printf("\n");
     }
-#endif
 }
 
 void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int N,
                    const float* uniforms, int uniformCount) const {
-#if defined(SK_ENABLE_SKSL_INTERPRETER)
 #ifdef TRACE
     f->disassemble();
 #endif
@@ -1063,15 +1055,11 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         N -= w;
         baseIndex += w;
     }
-#else
-    SkDEBUGFAIL("ByteCode interpreter not enabled");
-#endif
 }
 
 void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, int N,
                           const float* uniforms, int uniformCount,
                           float* outArgs[], int outCount) const {
-#if defined(SK_ENABLE_SKSL_INTERPRETER)
 #ifdef TRACE
     f->disassemble();
 #endif
@@ -1122,9 +1110,6 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         N -= w;
         baseIndex += w;
     }
-#else
-    SkDEBUGFAIL("ByteCode interpreter not enabled");
-#endif
 }
 
 } // namespace SkSL
