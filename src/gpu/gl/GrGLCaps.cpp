@@ -3249,8 +3249,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
     // Galaxy S7.
+    // Besides, when use OpenGL ES 2.0 in 600 series Adrenos, this extension is also unusable. See
+    // http://crbug.com/978354.
     // TODO: Once this is fixed we can update the check here to look at a driver version number too.
-    if (kAdreno5xx_GrGLRenderer == ctxInfo.renderer()) {
+    if (kAdreno5xx_GrGLRenderer == ctxInfo.renderer() ||
+        (kAdreno6xx_GrGLRenderer == ctxInfo.renderer() &&
+         ctxInfo.version() == GR_GL_VER(2, 0))) {
         shaderCaps->fFBFetchSupport = false;
     }
 

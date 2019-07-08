@@ -58,6 +58,7 @@ enum GrGLRenderer {
     kAdreno430_GrGLRenderer,
     kAdreno4xx_other_GrGLRenderer,
     kAdreno5xx_GrGLRenderer,
+    kAdreno6xx_GrGLRenderer,
     kOSMesa_GrGLRenderer,
     kGoogleSwiftShader_GrGLRenderer,
 
