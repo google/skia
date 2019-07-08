@@ -16,6 +16,24 @@
       "revId": "1720067c1f70d04413a9e53956c2578907000f23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1769e74_b2abbacd",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-07-08T14:10:04Z",
+      "side": 0,
+      "message": "Yes. It turns out that if I don\u0027t do it manually, then\n\n  cd infra/bots\n  make train\n\nwill do it (and some other things) for me. But \"make train\" was hanging for me last week. This week, it gave me some error messages, and I was able to run the command after running:\n\n  go get -u go.skia.org/infra/...\n  go run infra/bots/gen_tasks.go",
+      "parentUuid": "ac4da849_6af12e42",
+      "revId": "1720067c1f70d04413a9e53956c2578907000f23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
