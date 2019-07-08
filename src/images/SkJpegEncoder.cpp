@@ -14,6 +14,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkMSAN.h"
 #include "src/images/SkImageEncoderFns.h"
 #include "src/images/SkJPEGWriteUtility.h"
 
@@ -214,10 +215,14 @@ bool SkJpegEncoder::onEncodeRows(int numRows) {
         return false;
     }
 
+    const size_t srcBytes = SkColorTypeBytesPerPixel(fSrc.colorType()) * fSrc.width();
+    const size_t jpegSrcBytes = fEncoderMgr->cinfo()->input_components * fSrc.width();
+
     const void* srcRow = fSrc.addr(0, fCurrRow);
     for (int i = 0; i < numRows; i++) {
         JSAMPLE* jpegSrcRow = (JSAMPLE*) srcRow;
         if (fEncoderMgr->proc()) {
+            sk_msan_assert_initialized(srcRow, SkTAddOffset<const void>(srcRow, srcBytes));
             fEncoderMgr->proc()((char*)fStorage.get(),
                                 (const char*)srcRow,
                                 fSrc.width(),
@@ -225,6 +230,7 @@ bool SkJpegEncoder::onEncodeRows(int numRows) {
             jpegSrcRow = fStorage.get();
         }
 
+        sk_msan_assert_initialized(jpegSrcRow, SkTAddOffset<const void>(jpegSrcRow, jpegSrcBytes));
         jpeg_write_scanlines(fEncoderMgr->cinfo(), &jpegSrcRow, 1);
         srcRow = SkTAddOffset<const void>(srcRow, fSrc.rowBytes());
     }
