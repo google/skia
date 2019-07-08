@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f90d1b7b_6a994a57",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T19:07:00Z",
+      "side": 1,
+      "message": "nit: usually these \u0027,\u0027 are right under the \u0027:\u0027",
+      "range": {
+        "startLine": 93,
+        "startChar": 8,
+        "endLine": 93,
+        "endChar": 10
+      },
+      "revId": "f07a5500a05a055fd3df2eb991dc6be0b041eb1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
