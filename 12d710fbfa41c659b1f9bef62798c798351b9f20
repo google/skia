@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7853afea_4ded2b51",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:10:24Z",
+      "side": 1,
+      "message": "doing in follow on cl",
+      "parentUuid": "5fd1d6ab_b85c60e8",
+      "range": {
+        "startLine": 58,
+        "startChar": 55,
+        "endLine": 58,
+        "endChar": 69
+      },
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca241853_d3920474",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9faee19e_5e7bfd45",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:10:24Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "ca241853_d3920474",
+      "range": {
+        "startLine": 216,
+        "startChar": 73,
+        "endLine": 216,
+        "endChar": 75
+      },
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "921d74f3_5bc56775",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 1
@@ -62,6 +110,24 @@
       "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f24c6ef3_2e6a5ec2",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:10:24Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "921d74f3_5bc56775",
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "6ce759a8_afbc6ece",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:10:24Z",
+      "side": 1,
+      "message": "ditto.",
+      "parentUuid": "4b6ff4b0_6aa4bd3e",
+      "range": {
+        "startLine": 420,
+        "startChar": 34,
+        "endLine": 420,
+        "endChar": 60
+      },
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "384a6646_28308efa",
         "filename": "tests/BackendAllocationTest.cpp",
         "patchSetId": 1
@@ -99,6 +189,30 @@
       "writtenOn": "2019-07-08T18:45:46Z",
       "side": 1,
       "message": "Can we just make the field a GrColorType ?",
+      "range": {
+        "startLine": 596,
+        "startChar": 71,
+        "endLine": 596,
+        "endChar": 81
+      },
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f67aaf10_8f79385d",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-08T20:10:24Z",
+      "side": 1,
+      "message": "The skcolortype sadly is still used.",
+      "parentUuid": "384a6646_28308efa",
       "range": {
         "startLine": 596,
         "startChar": 71,
