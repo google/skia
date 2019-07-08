@@ -158,7 +158,7 @@ public:
         fState = State::kUnfocusing;
     }
 
-    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state, uint32_t modifiers) {
+    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state, ModifierKey modifiers) {
         SkASSERT(fTarget);
 
         if (!fRect.contains(x, y)) {
@@ -379,8 +379,8 @@ bool SlideDir::onChar(SkUnichar c) {
 }
 
 bool SlideDir::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
-                       uint32_t modifiers) {
-    if (state == sk_app::Window::kMove_InputState || modifiers)
+                       ModifierKey modifiers) {
+    if (state == sk_app::Window::kMove_InputState || ModifierKeyIsSet(modifiers))
         return false;
 
     if (fFocusController->hasFocus()) {

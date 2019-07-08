@@ -46,14 +46,7 @@ bool SampleSlide::onChar(SkUnichar c) {
 }
 
 bool SampleSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state,
-                          uint32_t modifiers) {
-    // map to Sample::Click modifiers
-    unsigned modifierKeys = 0;
-    modifierKeys |= (modifiers & Window::kShift_ModifierKey) ? Sample::Click::kShift_ModifierKey : 0;
-    modifierKeys |= (modifiers & Window::kControl_ModifierKey) ? Sample::Click::kControl_ModifierKey : 0;
-    modifierKeys |= (modifiers & Window::kOption_ModifierKey) ? Sample::Click::kOption_ModifierKey : 0;
-    modifierKeys |= (modifiers & Window::kCommand_ModifierKey) ? Sample::Click::kCommand_ModifierKey : 0;
-
+                          ModifierKey modifierKeys) {
     bool handled = false;
     switch (state) {
         case Window::kDown_InputState: {

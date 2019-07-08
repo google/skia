@@ -10,6 +10,7 @@
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkPatchUtils.h"
+#include "tools/ModifierKey.h"
 #include "tools/timer/AnimTimer.h"
 
 static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
@@ -167,13 +168,11 @@ protected:
         return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        // holding down shift
-        if (1 == modi) {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+        if (ModifierKey::kShift == modi) {
             return new PtClick(this, -1);
         }
-        // holding down ctrl
-        if (2 == modi) {
+        if (ModifierKey::kControl == modi) {
             return new PtClick(this, -2);
         }
         SkPoint clickPoint = {x, y};

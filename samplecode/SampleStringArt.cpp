@@ -50,7 +50,7 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         fAngle = x/width();
         return nullptr;
     }

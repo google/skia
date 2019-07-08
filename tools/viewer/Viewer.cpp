@@ -1375,7 +1375,7 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
     }
 
     const auto slidePt = this->mapEvent(x, y);
-    if (fSlides[fCurrentSlide]->onMouse(slidePt.x(), slidePt.y(), state, 0)) {
+    if (fSlides[fCurrentSlide]->onMouse(slidePt.x(), slidePt.y(), state, ModifierKey::kNone)) {
         fWindow->inval();
         return true;
     }
@@ -1417,7 +1417,7 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
     return true;
 }
 
-bool Viewer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers) {
+bool Viewer::onMouse(int x, int y, Window::InputState state, ModifierKey modifiers) {
     if (GestureDevice::kTouch == fGestureDevice) {
         return false;
     }
@@ -2341,11 +2341,11 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
     }
 }
 
-bool Viewer::onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers) {
+bool Viewer::onKey(sk_app::Window::Key key, sk_app::Window::InputState state, ModifierKey modifiers) {
     return fCommands.onKey(key, state, modifiers);
 }
 
-bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
+bool Viewer::onChar(SkUnichar c, ModifierKey modifiers) {
     if (fSlides[fCurrentSlide]->onChar(c)) {
         fWindow->inval();
         return true;

@@ -347,7 +347,7 @@ bool ParticlesSlide::animate(const AnimTimer& timer) {
     return true;
 }
 
-bool ParticlesSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state, uint32_t modifiers) {
+bool ParticlesSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state, ModifierKey modifiers) {
     if (gDragIndex == -1) {
         if (state == Window::kDown_InputState) {
             float bestDistance = kDragSize;
