@@ -14,6 +14,7 @@
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <cstdint>
 #include <memory>
@@ -75,7 +76,7 @@ static void cluster_test(skiatest::Reporter* reporter, const char* resource) {
     }
 
     constexpr float kWidth = 400;
-    SkFont font(SkTypeface::MakeDefault());
+    SkFont font(ToolUtils::DefaultTypeface());
     RunHandler rh(resource, reporter);
     shaper->shape((const char*)data->data(), data->size(), font, true, kWidth, &rh);
 

@@ -10,11 +10,12 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkSurface.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 // This passes by not crashing.
 static void test(SkCanvas* canvas) {
     canvas->scale(63, 0);
-    canvas->drawString("A", 50, 50, SkFont(), SkPaint());
+    canvas->drawString("A", 50, 50, SkFont(ToolUtils::DefaultTypeface()), SkPaint());
 }
 
 DEF_TEST(skbug5221, r) {

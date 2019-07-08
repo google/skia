@@ -221,6 +221,7 @@ SkPaint GrTextContext::InitDistanceFieldPaint(const SkPaint& paint) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
+//#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 
 #include "src/gpu/GrRenderTargetContext.h"
 
@@ -243,7 +244,8 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     SkPaint skPaint;
     skPaint.setColor(random->nextU());
 
-    SkFont font;
+    // DO NOT SUBMIT
+    SkFont font(nullptr);
     if (random->nextBool()) {
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
     } else {
@@ -264,4 +266,5 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
                                               skPaint, font, viewMatrix, text, xInt, yInt);
 }
 
+//#endif
 #endif

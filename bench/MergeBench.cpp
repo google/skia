@@ -11,6 +11,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageSource.h"
 #include "include/effects/SkMergeImageFilter.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #define FILTER_WIDTH_SMALL  SkIntToScalar(32)
 #define FILTER_HEIGHT_SMALL SkIntToScalar(32)
@@ -22,7 +23,7 @@ static sk_sp<SkImage> make_bitmap() {
     surface->getCanvas()->clear(0x00000000);
     SkPaint paint;
     paint.setColor(0xFF884422);
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(SkIntToScalar(96));
     surface->getCanvas()->drawSimpleText("g", 1, SkTextEncoding::kUTF8, 15, 55, font, paint);
     return surface->makeImageSnapshot();

@@ -5,7 +5,7 @@
 // HASH=bec2252bc36dc8fd023015629d60c405
 REG_FIDDLE(TextBlob_MakeFromText, 256, 24, false, 0) {
 void draw(SkCanvas* canvas) {
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(24);
     SkPaint canvasPaint;
     canvasPaint.setColor(SK_ColorBLUE); // respected

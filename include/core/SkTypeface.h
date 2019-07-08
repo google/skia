@@ -21,6 +21,7 @@ class SkData;
 class SkDescriptor;
 class SkFontData;
 class SkFontDescriptor;
+class SkFontMgr;
 class SkScalerContext;
 class SkStream;
 class SkStreamAsset;
@@ -104,6 +105,10 @@ public:
      */
     static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
 
+    /** Returns a typeface with no glyphs. */
+    static sk_sp<SkTypeface> MakeEmpty();
+
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     /** Returns the default normal typeface, which is never nullptr. */
     static sk_sp<SkTypeface> MakeDefault();
 
@@ -138,6 +143,7 @@ public:
         is not valid font data, returns nullptr.
     */
     static sk_sp<SkTypeface> MakeFromFontData(std::unique_ptr<SkFontData>);
+#endif
 
     /** Return a new typeface based on this typeface but parameterized as specified in the
         SkFontArguments. If the SkFontArguments does not supply an argument for a parameter
@@ -169,12 +175,21 @@ public:
      */
     sk_sp<SkData> serialize(SerializeBehavior = SerializeBehavior::kIncludeDataIfLocal) const;
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     /** Given the data previously written by serialize(), return a new instance
         of a typeface referring to the same font. If that font is not available,
         return nullptr.
         Does not affect ownership of SkStream.
      */
     static sk_sp<SkTypeface> MakeDeserialize(SkStream*);
+#else
+    /** Given the data previously written by serialize(), return a new instance
+        of a typeface referring to the same font from the given FontMgr. If that font is not
+        available, return nullptr.
+        Does not affect ownership of SkStream.
+     */
+    static sk_sp<SkTypeface> MakeDeserialize(sk_sp<SkFontMgr>, SkStream*);
+#endif
 
     /**
      *  Given an array of UTF32 character codes, return their corresponding glyph IDs.
@@ -411,6 +426,7 @@ private:
     friend class SkRandomTypeface; // getAdvancedMetrics
     friend class SkPDFFont;        // getAdvancedMetrics
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     /** Style specifies the intrinsic style attributes of a given typeface */
     enum Style {
         kNormal = 0,
@@ -422,6 +438,7 @@ private:
     };
     static SkFontStyle FromOldStyle(Style oldStyle);
     static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
+#endif
 
     friend class SkFontPriv;       // GetDefaultTypeface
     friend class SkPaintPriv;      // GetDefaultTypeface

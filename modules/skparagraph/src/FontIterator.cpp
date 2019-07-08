@@ -20,6 +20,7 @@ FontIterator::FontIterator(SkSpan<const char> utf8,
         : fText(utf8)
         , fStyles(styles)
         , fCurrentChar(utf8.begin())
+        , fFont(nullptr)
         , fFontResolver(std::move(fonts)) {
     findAllFontsForAllStyledBlocks();
 }
@@ -31,7 +32,7 @@ void FontIterator::consume() {
 
     // Move until we find the first character that cannot be resolved with the current font
     while (++fCurrentChar != fText.end()) {
-        SkFont font;
+        SkFont font(nullptr);
         SkScalar height;
         found = fFontResolver.findNext(fCurrentChar, &font, &height);
         if (found) {
