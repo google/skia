@@ -120,7 +120,9 @@ public:
 
     bool toH(Program& program, String name, OutputStream& out);
 
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
     std::unique_ptr<ByteCode> toByteCode(Program& program);
+#endif
 
     bool toPipelineStage(const Program& program, String* out,
                          std::vector<FormatArg>* outFormatArgs);

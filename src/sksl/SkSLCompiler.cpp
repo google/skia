@@ -1501,6 +1501,7 @@ bool Compiler::toPipelineStage(const Program& program, String* out,
 
 #endif
 
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
 std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
     if (!this->optimize(program)) {
         return nullptr;
@@ -1512,6 +1513,7 @@ std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
     }
     return nullptr;
 }
+#endif
 
 const char* Compiler::OperatorName(Token::Kind kind) {
     switch (kind) {
