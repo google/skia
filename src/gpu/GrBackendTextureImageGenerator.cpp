@@ -56,7 +56,8 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
         return nullptr;
     }
     backendTexture.fConfig =
-            context->priv().caps()->getConfigFromBackendFormat(backendFormat, colorType);
+            context->priv().caps()->getConfigFromBackendFormat(backendFormat,
+                                                               SkColorTypeToGrColorType(colorType));
     if (backendTexture.fConfig == kUnknown_GrPixelConfig) {
         return nullptr;
     }
