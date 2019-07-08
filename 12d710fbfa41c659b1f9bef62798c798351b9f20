@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fd1d6ab_b85c60e8",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-08T18:45:46Z",
+      "side": 1,
+      "message": "pass in grColorType here too ?",
+      "range": {
+        "startLine": 58,
+        "startChar": 55,
+        "endLine": 58,
+        "endChar": 69
+      },
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca241853_d3920474",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-08T18:45:46Z",
+      "side": 1,
+      "message": "Pass in grCT here w/ GrSRGBEncoded::kNo ?",
+      "range": {
+        "startLine": 216,
+        "startChar": 73,
+        "endLine": 216,
+        "endChar": 75
+      },
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "921d74f3_5bc56775",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-08T18:45:46Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b6ff4b0_6aa4bd3e",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-08T18:45:46Z",
+      "side": 1,
+      "message": "reverse args and pass grCT in here ?",
+      "range": {
+        "startLine": 420,
+        "startChar": 34,
+        "endLine": 420,
+        "endChar": 60
+      },
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "384a6646_28308efa",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-08T18:45:46Z",
+      "side": 1,
+      "message": "Can we just make the field a GrColorType ?",
+      "range": {
+        "startLine": 596,
+        "startChar": 71,
+        "endLine": 596,
+        "endChar": 81
+      },
+      "revId": "12d710fbfa41c659b1f9bef62798c798351b9f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
