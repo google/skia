@@ -82,7 +82,7 @@ public:
            LazyProxyTest* test, bool nullTexture)
                     : GrDrawOp(ClassID()), fTest(test) {
             const GrBackendFormat format =
-                    ctx->priv().caps()->getBackendFormatFromColorType(kRGB_565_SkColorType);
+                    ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kBGR_565);
             fProxy = GrProxyProvider::MakeFullyLazyProxy(
                     [this, nullTexture](
                             GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationResult {
@@ -130,8 +130,8 @@ public:
                 , fTest(test)
                 , fAtlas(atlas) {
             const GrBackendFormat format =
-                ctx->priv().caps()->getBackendFormatFromGrColorType(GrColorType::kAlpha_F16,
-                                                                    GrSRGBEncoded::kNo);
+                ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_F16,
+                                                                  GrSRGBEncoded::kNo);
             fLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
                     [this](GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationResult {
                         REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
@@ -232,7 +232,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     GrBackendFormat format =
-            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
     using LazyInstantiationResult = GrSurfaceProxy::LazyInstantiationResult;
@@ -322,7 +322,7 @@ private:
         desc.fHeight = kSize;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
         GrBackendFormat format =
-                ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+                ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
         fLazyProxy = proxyProvider->createLazyProxy(
                 [testExecuteValue, shouldFailInstantiation,
@@ -434,7 +434,7 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
 
     GrBackendFormat format =
-                ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+                ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
     using LazyType = GrSurfaceProxy::LazyInstantiationType;
     for (auto lazyType : {LazyType::kSingleUse, LazyType::kMultipleUse, LazyType::kDeinstantiate}) {

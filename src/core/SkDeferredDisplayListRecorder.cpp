@@ -130,8 +130,10 @@ bool SkDeferredDisplayListRecorder::init() {
         }
     }
 
+    GrColorType grColorType = SkColorTypeToGrColorType(fCharacterization.colorType());
+
     GrPixelConfig config = caps->getConfigFromBackendFormat(fCharacterization.backendFormat(),
-                                                            fCharacterization.colorType());
+                                                            grColorType);
     if (config == kUnknown_GrPixelConfig) {
         return false;
     }
@@ -179,7 +181,7 @@ bool SkDeferredDisplayListRecorder::init() {
 
     sk_sp<GrSurfaceContext> c = fContext->priv().makeWrappedSurfaceContext(
             std::move(proxy),
-            SkColorTypeToGrColorType(fCharacterization.colorType()),
+            grColorType,
             kPremul_SkAlphaType,
             fCharacterization.refColorSpace(),
             &fCharacterization.surfaceProps());

@@ -41,7 +41,7 @@ static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider, const
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
     return proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin,
                                       SkBackingFit::kApprox, SkBudgeted::kYes);
 }
