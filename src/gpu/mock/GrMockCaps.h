@@ -124,8 +124,62 @@ public:
         return kUnknown_GrPixelConfig;
     }
 
-    bool areColorTypeAndFormatCompatible(GrColorType ct,
-                                         const GrBackendFormat& format) const override {
+    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const override {
+        const GrPixelConfig* mockFormat = format.getMockFormat();
+        if (!mockFormat) {
+            return kUnknown_GrPixelConfig;
+        }
+        return *mockFormat;
+    }
+
+    GrBackendFormat getBackendFormatFromColorType(GrColorType ct,
+                                                  GrSRGBEncoded srgbEncoded) const override {
+        GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
+        if (config == kUnknown_GrPixelConfig) {
+            return GrBackendFormat();
+        }
+        return GrBackendFormat::MakeMock(config);
+    }
+
+    GrBackendFormat getBackendFormatFromCompressionType(
+            SkImage::CompressionType compressionType) const override {
+        switch (compressionType) {
+            case SkImage::kETC1_CompressionType:
+                return GrBackendFormat::MakeMock(kRGB_ETC1_GrPixelConfig);
+        }
+        SK_ABORT("Invalid compression type");
+        return {};
+    }
+
+    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override {
+        return GrSwizzle();
+    }
+    GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override {
+        return GrSwizzle();
+    }
+
+private:
+    bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
+    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+                          const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
+        return true;
+    }
+    size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override {
+        // arbitrary
+        return GrSizeAlignUp(GrColorTypeBytesPerPixel(bufferColorType), 4);
+    }
+
+    GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,
+                                               GrColorType) const override {
+        const GrPixelConfig* mockFormat = format.getMockFormat();
+        if (!mockFormat) {
+            return kUnknown_GrPixelConfig;
+        }
+        return *mockFormat;
+    }
+
+    bool onAreColorTypeAndFormatCompatible(GrColorType ct,
+                                           const GrBackendFormat& format) const override {
         const GrPixelConfig* mockFormat = format.getMockFormat();
         if (!mockFormat) {
             return kUnknown_GrPixelConfig;
@@ -234,59 +288,7 @@ public:
         return false;
     }
 
-    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
-                                             GrColorType) const override {
-        const GrPixelConfig* mockFormat = format.getMockFormat();
-        if (!mockFormat) {
-            return kUnknown_GrPixelConfig;
-        }
-        return *mockFormat;
-    }
 
-    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const override {
-        const GrPixelConfig* mockFormat = format.getMockFormat();
-        if (!mockFormat) {
-            return kUnknown_GrPixelConfig;
-        }
-        return *mockFormat;
-    }
-
-    GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
-                                                    GrSRGBEncoded srgbEncoded) const override {
-        GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
-        if (config == kUnknown_GrPixelConfig) {
-            return GrBackendFormat();
-        }
-        return GrBackendFormat::MakeMock(config);
-    }
-
-    GrBackendFormat getBackendFormatFromCompressionType(
-            SkImage::CompressionType compressionType) const override {
-        switch (compressionType) {
-            case SkImage::kETC1_CompressionType:
-                return GrBackendFormat::MakeMock(kRGB_ETC1_GrPixelConfig);
-        }
-        SK_ABORT("Invalid compression type");
-        return {};
-    }
-
-    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override {
-        return GrSwizzle();
-    }
-    GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override {
-        return GrSwizzle();
-    }
-
-private:
-    bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
-    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                          const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
-        return true;
-    }
-    size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override {
-        // arbitrary
-        return GrSizeAlignUp(GrColorTypeBytesPerPixel(bufferColorType), 4);
-    }
 
     static const int kMaxSampleCnt = 16;
 

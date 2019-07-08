@@ -214,7 +214,7 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
         return nullptr;
     }
 
-    auto format = this->caps()->getBackendFormatFromGrColorType(colorType, GrSRGBEncoded::kNo);
+    auto format = this->caps()->getBackendFormatFromColorType(colorType, GrSRGBEncoded::kNo);
     if (!format.isValid()) {
         return nullptr;
     }

@@ -169,7 +169,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             GrSRGBEncoded srgbEncoded = GrSRGBEncoded::kNo;
             GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(config, &srgbEncoded);
             const GrBackendFormat format =
-                    caps->getBackendFormatFromGrColorType(colorType, srgbEncoded);
+                    caps->getBackendFormatFromColorType(colorType, srgbEncoded);
             if (!format.isValid()) {
                 continue;
             }
@@ -277,7 +277,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(desc.fConfig,
                                                                                 &srgbEncoded);
                     const GrBackendFormat format =
-                            caps->getBackendFormatFromGrColorType(colorType, srgbEncoded);
+                            caps->getBackendFormatFromColorType(colorType, srgbEncoded);
 
                     // Try creating the texture as a deferred proxy.
                     for (int i = 0; i < 2; ++i) {
