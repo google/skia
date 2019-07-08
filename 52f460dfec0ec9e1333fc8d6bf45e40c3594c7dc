@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9554219_9088c61d",
+        "filename": "samplecode/SampleFilter2.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T15:13:05Z",
+      "side": 1,
+      "message": "Just delete, these images haven\u0027t existed for some time.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 9
+      },
+      "revId": "52f460dfec0ec9e1333fc8d6bf45e40c3594c7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7aed26b_cee5470c",
+        "filename": "samplecode/SampleFilter2.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T15:13:05Z",
+      "side": 1,
+      "message": "Just use GetResourceAsData",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 1
+      },
+      "revId": "52f460dfec0ec9e1333fc8d6bf45e40c3594c7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90af04e2_92e45e10",
+        "filename": "samplecode/SampleFilter2.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T15:13:05Z",
+      "side": 1,
+      "message": "Don\u0027t think we need this?",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 39,
+        "endChar": 31
+      },
+      "revId": "52f460dfec0ec9e1333fc8d6bf45e40c3594c7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
