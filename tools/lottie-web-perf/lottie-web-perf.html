@@ -15,97 +15,55 @@
 </head>
 <body>
   <main>
-    <div class=anim></div>
-    <canvas id=canvas width=1000 height=1000 style="height: 1000px; width: 1000px;"></canvas>
+    <div style="width:1000px;height:1000px" class=anim></div>
   </main>
   <script type="text/javascript" charset="utf-8">
     (function () {
       const PATH = '/res/lottie.json';
-      const RENDERER = 'canvas';
+      const RENDERER = 'svg';
       const FRAMES = 25;
 
-      const cvs = document.getElementById("canvas");
-      const canvasContext = cvs.getContext('2d');
+      // Get total number of frames of the animation from the hash.
+      const hash = window.location.hash;
+      const totalFrames = hash.slice(1);
+      console.log("Lottie has " + totalFrames + "total frames");
 
-      // Do an initial load to figure out how many frames we are working with
-      // for calculating seek values later.
-      let initialAnim = lottie.loadAnimation({
+      // Load the animation with autoplay false. We will control which
+      // frame to seek to and then will measure performance.
+      let anim = lottie.loadAnimation({
         container: document.querySelector('.anim'),
         renderer: RENDERER,
         loop: false,
-        autoplay: true,
+        autoplay: false,
         path: PATH,
         rendererSettings: {
           preserveAspectRatio:'xMidYMid meet'
         },
       });
 
-     initialAnim.addEventListener('data_ready', (e) => {
-        // We no longer need initialAnim.
-        initialAnim.destroy()
+      const t_rate = 1.0 / (FRAMES - 1);
+      let frame = 0;
+      const drawFrame = () => {
+        if (frame >= FRAMES) {
+          // These are global variables to talk with puppeteer.
+          window._lottieWebDone = true;
+          return;
+        }
 
-        console.log("Lottie has " + initialAnim.totalFrames + "total frames");
-        totalFrames = initialAnim.totalFrames;
+        let t1 = Math.max(Math.min(t_rate * frame, 1.0), 0.0);
+        let seekToFrame = totalFrames * t1;
+        if (seekToFrame >= totalFrames-1) {
+          // bodymovin player sometimes draws blank when requesting
+          // to draw the very last frame.  Subtracting a small value
+          // seems to fix this and make it draw the last frame.
+          seekToFrame -= .001;
+        }
 
-        // Load the animation with autoplay false. We will control which
-        // frame to seek to and then will measure performance.
-        let anim = lottie.loadAnimation({
-          renderer: RENDERER,
-          loop: false,
-          autoplay: false,
-          path: PATH,
-          rendererSettings: {
-            context: canvasContext,
-            scaleMode: 'noScale',
-            clearCanvas: true,
-            preserveAspectRatio:'xMidYMid meet'
-          },
-        });
-
-        console.log("start")
-        const t_rate = 1.0 / (FRAMES - 1);
-        let time = 0;
-        let max = -1;
-        let min = 1000000000;
-        let frame = 0;
-        const drawFrame = () => {
-          if (frame >= FRAMES) {
-            console.log("On average, took "+ (time/FRAMES) +" us" );
-            // These are global variables to talk with puppeteer.
-            window._avgFrameTimeUs = time/FRAMES;
-            window._minFrameTimeUs = min;
-            window._maxFrameTimeUs = max;
-            window._lottieWebDone = true;
-            return;
-          }
-
-          let t1 = Math.max(Math.min(t_rate * frame, 1.0), 0.0);
-          let seekToFrame = totalFrames * t1;
-            if (seekToFrame >= totalFrames-1) {
-              // bodymovin player sometimes draws blank when requesting
-              // to draw the very last frame.  Subtracting a small value
-              // seems to fix this and make it draw the last frame.
-              seekToFrame -= .001;
-            }
-
-          let start = window.performance.now();
-          anim.goToAndStop(seekToFrame, true /* isFrame */);
-          const t = (window.performance.now() - start) * 1000;
-
-          time += t;
-          console.log("Frame " + frame + " took " + t + " us");
-          console.log("Used seek: " + (seekToFrame/totalFrames));
-          if (t < min) {
-            min = t;
-          }
-          if (t > max) {
-            max = t;
-          }
-          frame++;
-          window.requestAnimationFrame(drawFrame);
-        };
+        anim.goToAndStop(seekToFrame, true /* isFrame */);
+        frame++;
         window.requestAnimationFrame(drawFrame);
-      });
+      };
+      window.requestAnimationFrame(drawFrame);
     })();
   </script>
 </body>
