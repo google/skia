@@ -135,7 +135,7 @@ protected:
         return true;
     }
 
-    bool onHandleKey(SkUnichar uni) override {
+    bool onChar(SkUnichar uni) override {
         static constexpr SkColor kColors[] = {
             SK_ColorBLACK,
             SK_ColorRED,

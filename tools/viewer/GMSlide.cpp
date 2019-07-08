@@ -18,7 +18,7 @@ GMSlide::GMSlide(skiagm::GM* gm) : fGM(gm) {
     fName.printf("GM_%s", gm->getName());
 }
 
-GMSlide::~GMSlide() { delete fGM; }
+GMSlide::~GMSlide() = default;
 
 void GMSlide::draw(SkCanvas* canvas) {
     // Do we care about timing the draw of the background (once)?
@@ -29,9 +29,7 @@ void GMSlide::draw(SkCanvas* canvas) {
 
 bool GMSlide::animate(const AnimTimer& timer) { return fGM->animate(timer); }
 
-bool GMSlide::onChar(SkUnichar c) {
-    return fGM->handleKey(c);
-}
+bool GMSlide::onChar(SkUnichar c) { return fGM->onChar(c); }
 
 bool GMSlide::onGetControls(SkMetaData* controls) {
     return fGM->getControls(controls);

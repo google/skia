@@ -117,7 +117,7 @@ protected:
 
     SkString onShortName() override { return SkString("macaatest"); }
 
-    bool onHandleKey(SkUnichar uni) override {
+    bool onChar(SkUnichar uni) override {
         switch (uni) {
             case 'i': fSize += 1; return true;
             case 'k': fSize -= 1; return true;

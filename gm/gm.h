@@ -145,9 +145,7 @@ namespace skiagm {
         }
 
         bool animate(const AnimTimer&);
-        bool handleKey(SkUnichar uni) {
-            return this->onHandleKey(uni);
-        }
+        virtual bool onChar(SkUnichar);
 
         bool getControls(SkMetaData* controls) { return this->onGetControls(controls); }
         void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
@@ -163,7 +161,6 @@ namespace skiagm {
         virtual SkString onShortName() = 0;
 
         virtual bool onAnimate(const AnimTimer&);
-        virtual bool onHandleKey(SkUnichar uni);
         virtual bool onGetControls(SkMetaData*);
         virtual void onSetControls(const SkMetaData&);
 

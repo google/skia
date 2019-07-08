@@ -27,7 +27,7 @@ public:
     void onSetControls(const SkMetaData&) override;
 
 private:
-    skiagm::GM* fGM;
+    std::unique_ptr<skiagm::GM> fGM;
 };
 
 
