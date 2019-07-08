@@ -133,7 +133,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             GrColorType colorType =
                                     GrPixelConfigToColorTypeAndEncoding(config, &srgbEncoded);
                             const GrBackendFormat format =
-                                    caps.getBackendFormatFromGrColorType(colorType, srgbEncoded);
+                                    caps.getBackendFormatFromColorType(colorType, srgbEncoded);
                             if (!format.isValid()) {
                                 continue;
                             }
@@ -224,13 +224,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto colorType : { kAlpha_8_SkColorType, kRGBA_8888_SkColorType,
                                 kRGBA_1010102_SkColorType }) {
+            GrColorType grColorType = SkColorTypeToGrColorType(colorType);
             // External on-screen render target.
             // Tests wrapBackendRenderTarget with a GrBackendRenderTarget
             // Our test-only function that creates a backend render target doesn't currently support
             // sample counts :(.
             if (ctxInfo.grContext()->colorTypeSupportedAsSurface(colorType)) {
                 GrBackendRenderTarget backendRT = gpu->createTestingOnlyBackendRenderTarget(
-                        kWidthHeight, kWidthHeight, SkColorTypeToGrColorType(colorType));
+                        kWidthHeight, kWidthHeight, grColorType);
                 sk_sp<GrSurfaceProxy> sProxy(
                         proxyProvider->wrapBackendRenderTarget(backendRT, origin, nullptr,
                                                                nullptr));
@@ -244,7 +245,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             }
 
             for (auto numSamples : {1, 4}) {
-                GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
+                GrPixelConfig config = GrColorTypeToPixelConfig(grColorType, GrSRGBEncoded::kNo);
                 SkASSERT(kUnknown_GrPixelConfig != config);
                 int supportedNumSamples = caps.getRenderTargetSampleCount(numSamples, config);
 
@@ -255,7 +256,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 // Test wrapping FBO 0 (with made up properties). This tests sample count and the
                 // special case where FBO 0 doesn't support window rectangles.
                 if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
-                    GrBackendFormat beFormat = caps.getBackendFormatFromColorType(colorType);
+                    GrBackendFormat beFormat = caps.getBackendFormatFromColorType(grColorType);
                     GrGLFramebufferInfo fboInfo;
                     fboInfo.fFBOID = 0;
                     SkASSERT(beFormat.getGLFormat());
@@ -383,7 +384,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
 
                     const GrBackendFormat format =
                         ctxInfo.grContext()->priv().caps()->getBackendFormatFromColorType(
-                                kRGBA_8888_SkColorType);
+                                GrColorType::kRGBA_8888);
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(
                             format, desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kNo);

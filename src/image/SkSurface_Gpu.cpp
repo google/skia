@@ -358,7 +358,8 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
-    GrPixelConfig config = caps->getConfigFromBackendFormat(c.backendFormat(), c.colorType());
+    GrColorType grColorType = SkColorTypeToGrColorType(c.colorType());
+    GrPixelConfig config = caps->getConfigFromBackendFormat(c.backendFormat(), grColorType);
     if (config == kUnknown_GrPixelConfig) {
         return nullptr;
     }
@@ -377,7 +378,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
                                                        GrMipMapped(c.isMipMapped()),
                                                        SkBackingFit::kExact,
                                                        budgeted,
-                                                       SkColorTypeToGrColorType(c.colorType()),
+                                                       grColorType,
                                                        kPremul_SkAlphaType,
                                                        c.refColorSpace(),
                                                        &c.surfaceProps()));
@@ -417,7 +418,7 @@ static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex
     if (!backendFormat.isValid()) {
         return false;
     }
-    *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, ct);
+    *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, grCT);
     if (*config == kUnknown_GrPixelConfig) {
         return false;
     }

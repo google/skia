@@ -29,7 +29,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
 
     const GrCaps* caps = context->priv().caps();
 
-    const GrBackendFormat format = caps->getBackendFormatFromGrColorType(colorType, srgbEncoded);
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(colorType, srgbEncoded);
     if (!format.isValid()) {
         return nullptr;
     }

@@ -360,33 +360,26 @@ public:
     virtual GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                                       GrColorType) const = 0;
 
-    bool areColorTypeAndFormatCompatible(SkColorType skCT,
+    bool areColorTypeAndFormatCompatible(GrColorType grCT,
                                          const GrBackendFormat& format) const {
-        GrColorType grCT = SkColorTypeToGrColorType(skCT);
         if (GrColorType::kUnknown == grCT) {
             return false;
         }
 
-        return this->areColorTypeAndFormatCompatible(grCT, format);
-    }
-
-    virtual bool areColorTypeAndFormatCompatible(GrColorType ct, const GrBackendFormat&) const = 0;
-
-    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
-                                             SkColorType skCT) const {
-        GrColorType grCT = SkColorTypeToGrColorType(skCT);
-        if (GrColorType::kUnknown == grCT) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        return this->getConfigFromBackendFormat(format, grCT);
+        return this->onAreColorTypeAndFormatCompatible(grCT, format);
     }
 
     // TODO: replace validateBackendRenderTarget with calls to getConfigFromBackendFormat?
     // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
     // Returns kUnknown if a valid config could not be determined.
-    virtual GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
-                                                     GrColorType ct) const = 0;
+    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
+                                             GrColorType grCT) const {
+        if (GrColorType::kUnknown == grCT) {
+            return kUnknown_GrPixelConfig;
+        }
+
+        return this->onGetConfigFromBackendFormat(format, grCT);
+    }
 
     /**
      * Special method only for YUVA images. Returns a config that matches the backend format or
@@ -395,9 +388,9 @@ public:
     virtual GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const = 0;
 
     /** These are used when creating a new texture internally. */
-    virtual GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
-                                                            GrSRGBEncoded srgbEncoded) const = 0;
-    GrBackendFormat getBackendFormatFromColorType(SkColorType ct) const;
+    virtual GrBackendFormat getBackendFormatFromColorType(GrColorType ct,
+                                                          GrSRGBEncoded srgbEncoded) const = 0;
+    GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const;
 
     virtual GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const = 0;
 
@@ -509,6 +502,12 @@ private:
     virtual bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const {
         return true;
     }
+
+    virtual GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,
+                                                       GrColorType ct) const = 0;
+
+    virtual bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const = 0;
+
 
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;

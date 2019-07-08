@@ -169,7 +169,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
     const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
     auto proxy = context->priv().proxyProvider()->createProxy(
             format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,

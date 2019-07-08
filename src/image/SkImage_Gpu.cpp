@@ -415,7 +415,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     }
 
     GrPixelConfig config =
-            context->priv().caps()->getConfigFromBackendFormat(backendFormat, colorType);
+            context->priv().caps()->getConfigFromBackendFormat(backendFormat,
+                                                               SkColorTypeToGrColorType(colorType));
     if (config == kUnknown_GrPixelConfig) {
         return nullptr;
     }
@@ -600,8 +601,8 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     SkColorType colorType =
             GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
 
-    backendTexture.fConfig = context->priv().caps()->getConfigFromBackendFormat(backendFormat,
-                                                                                colorType);
+    backendTexture.fConfig = context->priv().caps()->getConfigFromBackendFormat(
+            backendFormat, SkColorTypeToGrColorType(colorType));
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     if (!proxyProvider) {

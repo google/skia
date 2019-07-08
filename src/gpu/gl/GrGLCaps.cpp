@@ -3835,8 +3835,8 @@ GrPixelConfig GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget&
     return validate_sized_format(fbInfo.fFormat, ct, fStandard);
 }
 
-bool GrGLCaps::areColorTypeAndFormatCompatible(GrColorType ct,
-                                               const GrBackendFormat& format) const {
+bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
+                                                 const GrBackendFormat& format) const {
     const GrGLenum* glFormat = format.getGLFormat();
     if (!glFormat) {
         return false;
@@ -3845,8 +3845,8 @@ bool GrGLCaps::areColorTypeAndFormatCompatible(GrColorType ct,
     return kUnknown_GrPixelConfig != validate_sized_format(*glFormat, ct, fStandard);
 }
 
-GrPixelConfig GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
-                                                   GrColorType ct) const {
+GrPixelConfig GrGLCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
+                                                     GrColorType ct) const {
     const GrGLenum* glFormat = format.getGLFormat();
     if (!glFormat) {
         return kUnknown_GrPixelConfig;
@@ -3908,8 +3908,8 @@ GrPixelConfig GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& fo
     return get_yuva_config(*glFormat);
 }
 
-GrBackendFormat GrGLCaps::getBackendFormatFromGrColorType(GrColorType ct,
-                                                          GrSRGBEncoded srgbEncoded) const {
+GrBackendFormat GrGLCaps::getBackendFormatFromColorType(GrColorType ct,
+                                                        GrSRGBEncoded srgbEncoded) const {
     GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
     if (config == kUnknown_GrPixelConfig) {
         return GrBackendFormat();

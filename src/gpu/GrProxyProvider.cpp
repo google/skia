@@ -213,7 +213,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     SkColorType ct = info.colorType();
     GrColorType grCT = SkColorTypeToGrColorType(ct);
 
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(ct);
+    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(grCT);
     if (!format.isValid()) {
         return nullptr;
     }
@@ -227,7 +227,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         copy8888.setImmutable();
         srcImage = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
         ct = kRGBA_8888_SkColorType;
-        format = this->caps()->getBackendFormatFromColorType(ct);
+        grCT = GrColorType::kRGBA_8888;
+        format = this->caps()->getBackendFormatFromColorType(grCT);
         if (!format.isValid()) {
             return nullptr;
         }
@@ -331,9 +332,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
                                         SkBudgeted::kYes, SkBackingFit::kExact);
     }
 
-    SkColorType colorType = bitmap.info().colorType();
-    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(colorType);
+    GrColorType grColorType = SkColorTypeToGrColorType(bitmap.info().colorType());
+    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(grColorType);
     if (!format.isValid()) {
         return nullptr;
     }
@@ -348,8 +348,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         copy8888.setImmutable();
         baseLevel = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
         desc.fConfig = kRGBA_8888_GrPixelConfig;
-        colorType = kRGBA_8888_SkColorType;
-        format = this->caps()->getBackendFormatFromColorType(colorType);
+        grColorType = GrColorType::kRGBA_8888;
+        format = this->caps()->getBackendFormatFromColorType(grColorType);
         if (!format.isValid()) {
             return nullptr;
         }

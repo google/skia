@@ -369,8 +369,8 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) 
     return true;
 }
 
-GrBackendFormat GrCaps::getBackendFormatFromColorType(SkColorType ct) const {
-    return this->getBackendFormatFromGrColorType(SkColorTypeToGrColorType(ct), GrSRGBEncoded::kNo);
+GrBackendFormat GrCaps::getBackendFormatFromColorType(GrColorType ct) const {
+    return this->getBackendFormatFromColorType(ct, GrSRGBEncoded::kNo);
 }
 
 GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrPixelConfig config,

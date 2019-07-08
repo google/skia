@@ -1320,14 +1320,14 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
     if (!backendFormat.isValid()) {
         return nullptr;
     }
+    GrColorType grColorType = SkColorTypeToGrColorType(imageInfo.colorType());
     int sampleCnt = this->caps()->getRenderTargetSampleCount(1, imageInfo.colorType(),
                                                              backendFormat);
     if (!sampleCnt) {
         return nullptr;
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat,
-                                                                    imageInfo.colorType());
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat, grColorType);
     if (config == kUnknown_GrPixelConfig) {
         return nullptr;
     }

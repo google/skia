@@ -129,7 +129,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 
-    GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+    GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
     sk_sp<GrRenderTarget> smallRT0 = create_RT_with_SB(resourceProvider, 4, 1, SkBudgeted::kYes);
     REPORTER_ASSERT(reporter, smallRT0);
@@ -1640,7 +1640,7 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
     auto origin = (descFlags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
                                                             : kTopLeft_GrSurfaceOrigin;
 

@@ -42,7 +42,7 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter, GrContex
                                           GrProxyProvider* proxyProvider, SkBackingFit fit) {
     const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
     GrBackendFormat format =
-            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
     sk_sp<GrTextureProxy> proxy =
             proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin, fit,
@@ -56,7 +56,7 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter, GrCont
                                             GrProxyProvider* proxyProvider, SkBackingFit fit) {
     const GrSurfaceDesc desc = make_desc(kRenderTarget_GrSurfaceFlag);
     GrBackendFormat format =
-            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
     sk_sp<GrTextureProxy> proxy =
             proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin, fit,

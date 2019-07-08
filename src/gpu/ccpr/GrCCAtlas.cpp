@@ -79,7 +79,7 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
     GrColorType colorType = (CoverageType::kFP16_CoverageCount == fCoverageType)
             ? GrColorType::kAlpha_F16 : GrColorType::kAlpha_8;
     const GrBackendFormat format =
-            caps.getBackendFormatFromGrColorType(colorType, GrSRGBEncoded::kNo);
+            caps.getBackendFormatFromColorType(colorType, GrSRGBEncoded::kNo);
     GrPixelConfig pixelConfig = (CoverageType::kFP16_CoverageCount == fCoverageType)
             ? kAlpha_half_GrPixelConfig : kAlpha_8_GrPixelConfig;
 

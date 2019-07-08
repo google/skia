@@ -1065,8 +1065,8 @@ GrPixelConfig GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget&
     return validate_image_info(imageInfo.fFormat, ct, imageInfo.fYcbcrConversionInfo.isValid());
 }
 
-bool GrVkCaps::areColorTypeAndFormatCompatible(GrColorType ct,
-                                               const GrBackendFormat& format) const {
+bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
+                                                 const GrBackendFormat& format) const {
     const VkFormat* vkFormat = format.getVkFormat();
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
     if (!vkFormat || !ycbcrInfo) {
@@ -1077,8 +1077,8 @@ bool GrVkCaps::areColorTypeAndFormatCompatible(GrColorType ct,
 }
 
 
-GrPixelConfig GrVkCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
-                                                   GrColorType ct) const {
+GrPixelConfig GrVkCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
+                                                     GrColorType ct) const {
     const VkFormat* vkFormat = format.getVkFormat();
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
     if (!vkFormat || !ycbcrInfo) {
@@ -1123,8 +1123,8 @@ GrPixelConfig GrVkCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& fo
     return get_yuva_config(*vkFormat);
 }
 
-GrBackendFormat GrVkCaps::getBackendFormatFromGrColorType(GrColorType ct,
-                                                          GrSRGBEncoded srgbEncoded) const {
+GrBackendFormat GrVkCaps::getBackendFormatFromColorType(GrColorType ct,
+                                                        GrSRGBEncoded srgbEncoded) const {
     GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
     if (config == kUnknown_GrPixelConfig) {
         return GrBackendFormat();

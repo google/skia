@@ -416,7 +416,8 @@ GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], i
         }
     }
 
-    GrBackendFormat backendFormat = this->caps()->getBackendFormatFromColorType(colorType);
+    GrBackendFormat backendFormat =
+            this->caps()->getBackendFormatFromColorType(SkColorTypeToGrColorType(colorType));
     if (!backendFormat.isValid()) {
         return {};
     }

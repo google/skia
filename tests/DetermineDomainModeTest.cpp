@@ -134,7 +134,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     GrBackendFormat format =
-            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
     static const char* name = "proxy";
 

@@ -355,7 +355,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(colorType);
+    GrBackendFormat format =
+            this->caps()->getBackendFormatFromColorType(SkColorTypeToGrColorType(colorType));
     if (!format.isValid()) {
         return GrBackendTexture();
     }
@@ -383,7 +384,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return {};
     }
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(c.colorType());
+    const GrBackendFormat format =
+            caps->getBackendFormatFromColorType(SkColorTypeToGrColorType(c.colorType()));
     if (!format.isValid()) {
         return GrBackendTexture();
     }
@@ -422,7 +424,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return {};
     }
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(c.colorType());
+    const GrBackendFormat format =
+            caps->getBackendFormatFromColorType(SkColorTypeToGrColorType(c.colorType()));
     if (!format.isValid()) {
         return GrBackendTexture();
     }
@@ -478,7 +481,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(colorType);
+    GrBackendFormat format =
+            this->caps()->getBackendFormatFromColorType(SkColorTypeToGrColorType(colorType));
     if (!format.isValid()) {
         return GrBackendTexture();
     }
