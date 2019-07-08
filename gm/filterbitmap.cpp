@@ -130,7 +130,7 @@ class FilterBitmapTextGM: public FilterBitmapGM {
           canvas.drawColor(SK_ColorWHITE);
 
           SkPaint paint;
-          SkFont font;
+          SkFont font(nullptr);
           font.setSize(fTextSize);
           font.setSubpixel(true);
 

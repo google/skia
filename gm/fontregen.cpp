@@ -74,11 +74,10 @@ protected:
             SkString("NOPQRSTUV")
         };
 
-        SkFont font;
+        SkFont font(tf);
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSubpixel(false);
         font.setSize(80);
-        font.setTypeface(tf);
 
         fBlobs[0] = make_blob(kTexts[0], font);
         font.setSize(162);

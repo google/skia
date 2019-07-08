@@ -23,6 +23,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "tools/timer/AnimTimer.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 // Mimics https://output.jsbin.com/falefice/1/quiet?CC_POSTER_CIRCLE, which can't be captured as
 // an SKP due to many 3D layers being composited post-SKP capture.
@@ -54,7 +55,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setEmbolden(true);
         font.setSize(24.f);
