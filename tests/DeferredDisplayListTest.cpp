@@ -48,7 +48,7 @@
 
 class SurfaceParameters {
 public:
-    static const int kNumParams   = 11;
+    static const int kNumParams   = 12;
     static const int kSampleCount = 5;
     static const int kMipMipCount = 8;
     static const int kFBO0Count   = 9;
@@ -62,9 +62,10 @@ public:
             , fColorSpace(SkColorSpace::MakeSRGB())
             , fSampleCount(1)
             , fSurfaceProps(0x0, kUnknown_SkPixelGeometry)
-            , fShouldCreateMipMaps(true)
-            , fUsesGLFBO0(false)
-            , fIsTextureable(true) {
+            , fShouldCreateMipMaps1(true)
+            , fUsesGLFBO01(false)
+            , fIsTextureable1(true)
+            , fIsProtected(GrProtected::kNo) {
     }
 
     int sampleCount() const { return fSampleCount; }
@@ -72,9 +73,9 @@ public:
     void setColorType(SkColorType ct) { fColorType = ct; }
     SkColorType colorType() const { return fColorType; }
     void setColorSpace(sk_sp<SkColorSpace> cs) { fColorSpace = std::move(cs); }
-    void setTextureable(bool isTextureable) { fIsTextureable = isTextureable; }
+    void setTextureable(bool isTextureable) { fIsTextureable1 = isTextureable; }
     void setShouldCreateMipMaps(bool shouldCreateMipMaps) {
-        fShouldCreateMipMaps = shouldCreateMipMaps;
+        fShouldCreateMipMaps1 = shouldCreateMipMaps;
     }
 
     // Modify the SurfaceParameters in just one way
@@ -108,18 +109,21 @@ public:
                                            kUnknown_SkPixelGeometry);
             break;
         case 8:
-            fShouldCreateMipMaps = false;
+            fShouldCreateMipMaps1 = false;
             break;
         case 9:
             if (GrBackendApi::kOpenGL == fBackend) {
-                fUsesGLFBO0 = true;
-                fShouldCreateMipMaps = false; // needs to changed in tandem w/ textureability
-                fIsTextureable = false;
+                fUsesGLFBO01 = true;
+                fShouldCreateMipMaps1 = false; // needs to changed in tandem w/ textureability
+                fIsTextureable1 = false;
             }
             break;
         case 10:
-            fShouldCreateMipMaps = false; // needs to changed in tandem w/ textureability
-            fIsTextureable = false;
+            fShouldCreateMipMaps1 = false; // needs to changed in tandem w/ textureability
+            fIsTextureable1 = false;
+            break;
+        case 11:
+            fIsProtected = GrProtected::kYes;
             break;
         }
     }
@@ -141,8 +145,8 @@ public:
 
         SkSurfaceCharacterization c = context->threadSafeProxy()->createCharacterization(
                                                 maxResourceBytes, ii, backendFormat, fSampleCount,
-                                                fOrigin, fSurfaceProps, fShouldCreateMipMaps,
-                                                fUsesGLFBO0, fIsTextureable);
+                                                fOrigin, fSurfaceProps, fShouldCreateMipMaps1,
+                                                fUsesGLFBO01, fIsTextureable1, fIsProtected);
         return c;
     }
 
@@ -167,11 +171,11 @@ public:
 
         const SkSurfaceCharacterization c = this->createCharacterization(context);
 
-        GrMipMapped mipmapped = !fIsTextureable
+        GrMipMapped mipmapped = !fIsTextureable1
                                         ? GrMipMapped::kNo
-                                        : GrMipMapped(fShouldCreateMipMaps);
+                                        : GrMipMapped(fShouldCreateMipMaps1);
 
-        if (fUsesGLFBO0) {
+        if (fUsesGLFBO01) {
             if (GrBackendApi::kOpenGL != context->backend()) {
                 return nullptr;
             }
@@ -196,7 +200,7 @@ public:
 
         *backend = context->createBackendTexture(fWidth, fHeight, fColorType,
                                                  SkColors::kTransparent,
-                                                 mipmapped, GrRenderable::kYes, GrProtected::kNo);
+                                                 mipmapped, GrRenderable::kYes, fIsProtected);
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
         }
@@ -206,7 +210,7 @@ public:
         SkASSERT(!c.isValid() || c.isCompatible(*backend));
 
         sk_sp<SkSurface> surface;
-        if (!fIsTextureable) {
+        if (!fIsTextureable1) {
             // Create a surface w/ the current parameters but make it non-textureable
             surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
                                             context, *backend, fOrigin, fSampleCount, fColorType,
@@ -241,9 +245,10 @@ private:
     sk_sp<SkColorSpace> fColorSpace;
     int                 fSampleCount;
     SkSurfaceProps      fSurfaceProps;
-    bool                fShouldCreateMipMaps;
-    bool                fUsesGLFBO0;
-    bool                fIsTextureable;
+    bool                fShouldCreateMipMaps1;
+    bool                fUsesGLFBO01;
+    bool                fIsTextureable1;
+    GrProtected         fIsProtected;
 };
 
 // Test out operator== && operator!=

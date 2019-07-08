@@ -379,7 +379,7 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return GrBackendTexture();
     }
 
-    if (c.vulkanSecondaryCBCompatible()) {
+    if (c.vulkanSecondaryCBCompatible1()) {
         return {};
     }
 
@@ -392,11 +392,10 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return GrBackendTexture();
     }
 
-    // TODO (PROT-CHAR): pass in protection status once added to characterization
     GrBackendTexture result = this->createBackendTexture(c.width(), c.height(), format,
-                                                         GrMipMapped(c.isMipMapped()),
+                                                         GrMipMapped(c.isMipMapped1()),
                                                          GrRenderable::kYes,
-                                                         GrProtected::kNo);
+                                                         c.isProtected());
     SkASSERT(c.isCompatible(result));
     return result;
 }
@@ -418,7 +417,7 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return GrBackendTexture();
     }
 
-    if (c.vulkanSecondaryCBCompatible()) {
+    if (c.vulkanSecondaryCBCompatible1()) {
         return {};
     }
 
@@ -431,11 +430,10 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return GrBackendTexture();
     }
 
-    // TODO (PROT-CHAR): pass in protection status once added to characterization
     GrBackendTexture result = this->createBackendTexture(c.width(), c.height(), format, color,
-                                                         GrMipMapped(c.isMipMapped()),
+                                                         GrMipMapped(c.isMipMapped1()),
                                                          GrRenderable::kYes,
-                                                         GrProtected::kNo);
+                                                         c.isProtected());
     SkASSERT(c.isCompatible(result));
     return result;
 }
