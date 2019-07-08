@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6e332f0_a843a831",
+        "filename": "samplecode/SamplePatch.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T15:09:37Z",
+      "side": 1,
+      "message": "Just delete these two lines, they\u0027re useless.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 50
+      },
+      "revId": "9425e45cf747e76d48f8c087c9eaf452e52a1da8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b285b78_f0b916a5",
+        "filename": "samplecode/SamplePatch.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T15:09:37Z",
+      "side": 1,
+      "message": "Not sure what this is for, I\u0027d remove it at this point.",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 79
+      },
+      "revId": "9425e45cf747e76d48f8c087c9eaf452e52a1da8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74f5801f_264f591d",
+        "filename": "samplecode/SamplePatch.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T15:09:37Z",
+      "side": 1,
+      "message": "Can just put this at the top, and stick basically everything in namespace{} and just put the DEF_SAMPLE(...) down at the end? There are a number of classes in here which aren\u0027t in namespace{} even after this change, at it looks strange to have some in and some out.",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 11
+      },
+      "revId": "9425e45cf747e76d48f8c087c9eaf452e52a1da8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71a88412_cc13da5e",
+        "filename": "samplecode/SamplePatch.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-08T15:09:37Z",
+      "side": 1,
+      "message": "Any reason not to keep S and T as constexpr and use them instead of inlining them here? I think part of this was allowing the dev to muck with these values at compile time.",
+      "range": {
+        "startLine": 214,
+        "startChar": 9,
+        "endLine": 214,
+        "endChar": 14
+      },
+      "revId": "9425e45cf747e76d48f8c087c9eaf452e52a1da8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
