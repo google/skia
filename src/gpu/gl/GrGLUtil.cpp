@@ -376,6 +376,9 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                 if (adrenoNumber < 600) {
                     return kAdreno5xx_GrGLRenderer;
                 }
+                if (adrenoNumber < 700) {
+                    return kAdreno6xx_GrGLRenderer;
+                }
             }
         }
         if (0 == strcmp("Google SwiftShader", rendererString)) {
