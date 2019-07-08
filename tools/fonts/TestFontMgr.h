@@ -14,6 +14,12 @@
 
 namespace ToolUtils {
 sk_sp<SkFontMgr> MakePortableFontMgr();
+
+/** This is a magic function that causes other magic functions to use
+    MakePortableFontMgr(). You must only call it near the beginning of main().
+*/
+void SetGlobalPortableFontMgr();
+
 }  // namespace ToolUtils
 
 #endif  // TestFontMgr_DEFINED

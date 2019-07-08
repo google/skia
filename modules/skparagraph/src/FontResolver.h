@@ -43,7 +43,7 @@ private:
 
     SkTHashMap<const char*, std::pair<SkFont, SkScalar>> fFontMapping;
     SkTHashSet<std::pair<SkFont, SkScalar>, Hash> fResolvedFonts;
-    std::pair<SkFont, SkScalar> fFirstResolvedFont;
+    std::pair<SkFont, SkScalar> fFirstResolvedFont{SkFont(nullptr), 0.0};
 
     SkTArray<SkUnichar> fCodepoints;
     SkTArray<const char*> fCharacters;

@@ -7,6 +7,7 @@
 
 #include "src/core/SkFontDescriptor.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/fonts/TestFontMgr.h"
 #include "tools/fonts/TestTypeface.h"
 
@@ -199,5 +200,11 @@ private:
 }  // namespace
 
 namespace ToolUtils {
+
 sk_sp<SkFontMgr> MakePortableFontMgr() { return sk_make_sp<FontMgr>(); }
+
+void SetGlobalPortableFontMgr() {
+    SetGlobalFontMgr(sk_make_sp<FontMgr>());
+}
+
 }  // namespace ToolUtils

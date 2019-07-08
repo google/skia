@@ -14,7 +14,6 @@
 #include "include/private/SkFixed.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkTypefaceCache.h"
@@ -24,6 +23,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/fonts/TestEmptyTypeface.h"
 
 #include <memory>
@@ -56,9 +56,9 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
     using WidthType = SkOTTableOS2_V0::WidthClass::Value;
     os2Table->usWidthClass.value = static_cast<WidthType>(SkEndian_SwapBE16(width));
 
-    sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromData(sk_ref_sp(data)));
+    sk_sp<SkTypeface> newTypeface(ToolUtils::GlobalFontMgr()->makeFromData(sk_ref_sp(data)));
     if (!newTypeface) {
-        // Not all SkFontMgr can MakeFromStream().
+        // Not all SkFontMgr can MakeFromData().
         return;
     }
 
@@ -111,7 +111,7 @@ DEF_TEST(TypefaceRoundTrip, reporter) {
     int fontIndex;
     std::unique_ptr<SkStreamAsset> stream = typeface->openStream(&fontIndex);
 
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fm = ToolUtils::GlobalFontMgr();
     sk_sp<SkTypeface> typeface2 = fm->makeFromStream(std::move(stream), fontIndex);
     REPORTER_ASSERT(reporter, typeface2);
 }
@@ -148,7 +148,7 @@ DEF_TEST(TypefaceAxes, reporter) {
     }
     constexpr int numberOfAxesInDistortable = 1;
 
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fm = ToolUtils::GlobalFontMgr();
     // The position may be over specified. If there are multiple values for a given axis,
     // ensure the last one since that's what css-fonts-4 requires.
     const SkFontArguments::VariationPosition::Coordinate position[] = {
@@ -190,7 +190,7 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
         return;
     }
 
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fm = ToolUtils::GlobalFontMgr();
     SkFontArguments params;
     // The first named variation position in Distortable is 'Thin'.
     params.setCollectionIndex(0x00010000);
@@ -222,8 +222,8 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
 
 DEF_TEST(Typeface, reporter) {
 
-    sk_sp<SkTypeface> t1(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
-    sk_sp<SkTypeface> t2(SkTypeface::MakeDefault());
+    sk_sp<SkTypeface> t1(ToolUtils::TypefaceFromName(nullptr, SkFontStyle()));
+    sk_sp<SkTypeface> t2(ToolUtils::DefaultTypeface());
 
     REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), t2.get()));
     REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t1.get()));
@@ -244,7 +244,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
     constexpr SkScalar maxAxisInDistortable = 2;
     constexpr bool axisIsHiddenInDistortable = false;
 
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fm = ToolUtils::GlobalFontMgr();
 
     SkFontArguments params;
     sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
@@ -321,11 +321,10 @@ static void check_serialize_behaviors(sk_sp<SkTypeface> tf, bool isLocalData,
 }
 
 DEF_TEST(Typeface_serialize, reporter) {
-    check_serialize_behaviors(SkTypeface::MakeDefault(), false, reporter);
-    check_serialize_behaviors(SkTypeface::MakeFromStream(
-                                         GetResourceAsStream("fonts/Distortable.ttf")),
-                              true, reporter);
-
+    check_serialize_behaviors(ToolUtils::DefaultTypeface(), false, reporter);
+    auto distortable = ToolUtils::GlobalFontMgr()->makeFromStream(
+        GetResourceAsStream("fonts/Distortable.ttf"));
+    check_serialize_behaviors(std::move(distortable), true, reporter);
 }
 
 DEF_TEST(Typeface_glyph_to_char, reporter) {
@@ -350,7 +349,7 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
     for (size_t i = 0; i < codepointCount; ++i) {
 #if defined(SK_BUILD_FOR_WIN)
         // GDI does not support character to glyph mapping outside BMP.
-        if (gSkFontMgr_DefaultFactory == &SkFontMgr_New_GDI &&
+        if (ToolUtils::nativeFonts && ToolUtils::gdi &&
             0xFFFF < originalCodepoints[i] && newCodepoints[i] == 0)
         {
             continue;
@@ -368,7 +367,7 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
 // style. See https://bugs.chromium.org/p/skia/issues/detail?id=8447 for more
 // context.
 DEF_TEST(LegacyMakeTypeface, reporter) {
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fm = ToolUtils::GlobalFontMgr();
     sk_sp<SkTypeface> typeface1 = fm->legacyMakeTypeface(nullptr, SkFontStyle::Italic());
     sk_sp<SkTypeface> typeface2 = fm->legacyMakeTypeface(nullptr, SkFontStyle::Bold());
     sk_sp<SkTypeface> typeface3 = fm->legacyMakeTypeface(nullptr, SkFontStyle::BoldItalic());

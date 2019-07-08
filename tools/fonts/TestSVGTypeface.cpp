@@ -689,8 +689,7 @@ void TestSVGTypeface::exportTtxCommon(SkWStream*                out,
 
 void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes) const {
     SkPaint paint;
-    SkFont  font;
-    font.setTypeface(sk_ref_sp(const_cast<TestSVGTypeface*>(this)));
+    SkFont  font(sk_ref_sp(const_cast<TestSVGTypeface*>(this)));
     SkString name;
     this->getFamilyName(&name);
 
@@ -915,8 +914,7 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
     this->exportTtxCommon(out, "sbix");
 
     SkPaint paint;
-    SkFont  font;
-    font.setTypeface(sk_ref_sp(const_cast<TestSVGTypeface*>(this)));
+    SkFont  font(sk_ref_sp(const_cast<TestSVGTypeface*>(this)));
 
     out->writeText("  <glyf>\n");
     for (int i = 0; i < fGlyphCount; ++i) {

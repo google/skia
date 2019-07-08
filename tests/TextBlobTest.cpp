@@ -14,6 +14,7 @@
 
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 class TextBlobTester {
 public:
@@ -102,7 +103,7 @@ public:
     // This unit test verifies blob bounds computation.
     static void TestBounds(skiatest::Reporter* reporter) {
         SkTextBlobBuilder builder;
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
 
         // Explicit bounds.
         {
@@ -154,7 +155,7 @@ public:
         {
             // Exercise the empty bounds path, and ensure that RunRecord-aligned pos buffers
             // don't trigger asserts (http://crbug.com/542643).
-            SkFont font;
+            SkFont font(ToolUtils::DefaultTypeface());
             font.setSize(0);
 
             const char* txt = "BOOO";
@@ -172,11 +173,10 @@ public:
 
     // Verify that text-related properties are captured in run paints.
     static void TestPaintProps(skiatest::Reporter* reporter) {
-        SkFont font;
+        SkFont font(ToolUtils::create_portable_typeface());
         // Kitchen sink font.
         font.setSize(42);
         font.setScaleX(4.2f);
-        font.setTypeface(ToolUtils::create_portable_typeface());
         font.setSkewX(0.42f);
         font.setHinting(SkFontHinting::kFull);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
@@ -187,10 +187,10 @@ public:
         font.setForceAutoHinting(true);
 
         // Ensure we didn't pick default values by mistake.
-        SkFont defaultFont;
+        SkFont defaultFont(nullptr);
         REPORTER_ASSERT(reporter, defaultFont.getSize() != font.getSize());
         REPORTER_ASSERT(reporter, defaultFont.getScaleX() != font.getScaleX());
-        REPORTER_ASSERT(reporter, defaultFont.getTypefaceOrDefault() != font.getTypefaceOrDefault());
+        REPORTER_ASSERT(reporter, defaultFont.getTypeface() != font.getTypeface());
         REPORTER_ASSERT(reporter, defaultFont.getSkewX() != font.getSkewX());
         REPORTER_ASSERT(reporter, defaultFont.getHinting() != font.getHinting());
         REPORTER_ASSERT(reporter, defaultFont.getEdging() != font.getEdging());
@@ -226,7 +226,7 @@ private:
     static void RunBuilderTest(skiatest::Reporter* reporter, SkTextBlobBuilder& builder,
                                const RunDef in[], unsigned inCount,
                                const RunDef out[], unsigned outCount) {
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
 
         unsigned glyphCount = 0;
         unsigned posCount = 0;
@@ -315,7 +315,7 @@ DEF_TEST(TextBlob_paint, reporter) {
 
 DEF_TEST(TextBlob_extended, reporter) {
     SkTextBlobBuilder textBlobBuilder;
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     const char text1[] = "Foo";
     const char text2[] = "Bar";
 
@@ -356,11 +356,10 @@ DEF_TEST(TextBlob_extended, reporter) {
 
 static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, SkScalar y,
                     sk_sp<SkTypeface> tf) {
-    SkFont font;
+    SkFont font(tf);
     font.setEdging(SkFont::Edging::kAntiAlias);
     font.setSubpixel(true);
     font.setSize(16);
-    font.setTypeface(tf);
 
     int glyphCount = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
 
@@ -407,7 +406,7 @@ static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, vo
  */
 DEF_TEST(TextBlob_serialize, reporter) {
     sk_sp<SkTextBlob> blob0 = []() {
-        sk_sp<SkTypeface> tf = SkTypeface::MakeDefault();
+        sk_sp<SkTypeface> tf = ToolUtils::DefaultTypeface();
 
         SkTextBlobBuilder builder;
         add_run(&builder, "Hello", 10, 20, nullptr);    // don't flatten a typeface
@@ -435,7 +434,8 @@ DEF_TEST(TextBlob_serialize, reporter) {
 
 DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
     const char text[] = "Hello";
-    auto blob = SkTextBlob::MakeFromString(text, SkFont(), SkTextEncoding::kUTF8);
+    auto blob = SkTextBlob::MakeFromString(text, SkFont(ToolUtils::DefaultTypeface()),
+                                           SkTextEncoding::kUTF8);
 
     int runs = 0;
     for(SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {

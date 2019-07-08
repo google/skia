@@ -30,7 +30,9 @@ declare_args() {
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
-  skia_use_lua = is_skia_dev_build && !is_ios
+
+  # TODO(dogben): DO NOT SUBMIT
+  skia_use_lua = false  #is_skia_dev_build && !is_ios
   skia_use_opencl = false
   skia_use_piex = !is_win
   skia_use_wuffs = false
@@ -1156,6 +1158,19 @@ executable("cpu_modules") {
   ]
 }
 
+source_set("global_fontmgr") {
+  sources = [
+    "tools/fonts/GlobalFontMgr.cpp",
+    "tools/fonts/GlobalFontMgr.h",
+  ]
+  configs += skia_library_configs
+  deps = [
+    ":skia",
+  ]
+  set_sources_assignment_filter([])
+  defines = []
+}
+
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
   skia_public_includes = [
@@ -1641,6 +1656,7 @@ if (skia_enable_tools) {
     deps = [
       ":experimental_svg_model",
       ":flags",
+      ":global_fontmgr",
     ]
     public_deps = [
       ":gpu_tool_utils",
@@ -1719,7 +1735,7 @@ if (skia_enable_tools) {
       ":skvm_builders",
       ":tool_utils",
       "modules/skottie:tests",
-      "modules/skparagraph:tests",
+      #"modules/skparagraph:tests",
       "modules/sksg:tests",
       "modules/skshaper",
       "//third_party/libpng",
@@ -1741,7 +1757,7 @@ if (skia_enable_tools) {
       ":skia",
       ":skvm_builders",
       ":tool_utils",
-      "modules/skparagraph:bench",
+      #"modules/skparagraph:bench",
       "modules/skshaper",
     ]
   }
@@ -1793,6 +1809,8 @@ if (skia_enable_tools) {
 
   if (skia_use_lua) {
     test_lib("lua") {
+      # TODO(dogben): Get this to work without the legacy define.
+      public_defines = [ "SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR" ]
       sources = [
         "src/utils/SkLua.cpp",
         "src/utils/SkLuaCanvas.cpp",
@@ -1847,29 +1865,29 @@ if (skia_enable_tools) {
 
   if (target_cpu != "wasm") {
     import("gn/samples.gni")
-    test_lib("samples") {
-      sources = samples_sources
-      public_deps = [
-        ":tool_utils",
-      ]
-      deps = [
-        ":experimental_svg_model",
-        ":flags",
-        ":gpu_tool_utils",
-        ":xml",
-        "modules/skparagraph:samples",
-        "modules/sksg",
-        "modules/skshaper",
-      ]
-
-      if (skia_use_lua) {
-        sources += [ "samplecode/SampleLua.cpp" ]
-        deps += [
-          ":lua",
-          "//third_party/lua",
-        ]
-      }
-    }
+    #test_lib("samples") {
+    #  sources = samples_sources
+    #  public_deps = [
+    #    ":tool_utils",
+    #  ]
+    #  deps = [
+    #    ":experimental_svg_model",
+    #    ":flags",
+    #    ":gpu_tool_utils",
+    #    ":xml",
+    #    "modules/skparagraph:samples",
+    #    "modules/sksg",
+    #    "modules/skshaper",
+    #  ]
+    #
+    #  if (skia_use_lua) {
+    #    sources += [ "samplecode/SampleLua.cpp" ]
+    #    deps += [
+    #      ":lua",
+    #      "//third_party/lua",
+    #    ]
+    #  }
+    #}
     test_app("imgcvt") {
       sources = [
         "tools/imgcvt.cpp",
@@ -1965,7 +1983,7 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
       ":trace",
-      "modules/skparagraph:bench",
+      #"modules/skparagraph:bench",
       "modules/sksg",
       "modules/skshaper",
     ]
@@ -2241,7 +2259,7 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         "modules/skottie",
-        "modules/sksg:samples",
+        #"modules/sksg:samples",
       ]
     }
   }
@@ -2377,6 +2395,7 @@ if (skia_enable_tools) {
         cflags = [ "/wd4756" ]  # Overflow in constant arithmetic
       }
       deps = [
+        ":global_fontmgr",
         ":skia",
         ":skia.h",
         "modules/skottie",
@@ -2393,7 +2412,7 @@ if (skia_enable_tools) {
       "tools/viewer/ImageSlide.cpp",
       "tools/viewer/ParticlesSlide.cpp",
       "tools/viewer/SKPSlide.cpp",
-      "tools/viewer/SampleSlide.cpp",
+      #"tools/viewer/SampleSlide.cpp",
       "tools/viewer/SkottieSlide.cpp",
       "tools/viewer/SlideDir.cpp",
       "tools/viewer/StatsLayer.cpp",
@@ -2410,7 +2429,7 @@ if (skia_enable_tools) {
       ":flags",
       ":gm",
       ":gpu_tool_utils",
-      ":samples",
+      #":samples",
       ":sk_app",
       ":skia",
       ":tool_utils",
@@ -2419,7 +2438,7 @@ if (skia_enable_tools) {
       "modules/skottie",
       "modules/skottie:utils",
       "modules/sksg",
-      "modules/sksg:samples",
+      #"modules/sksg:samples",
       "//third_party/imgui",
     ]
     if (skia_use_experimental_xform) {

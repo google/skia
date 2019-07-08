@@ -15,6 +15,7 @@
 #include "src/core/SkTextBlobPriv.h"
 
 #include "tests/Test.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <cmath>
 #include <tuple>
@@ -260,7 +261,7 @@ static SkRect ComputeShapeResultBounds(const skottie::Shaper::Result& res) {
 }
 
 DEF_TEST(Skottie_Shaper_HAlign, reporter) {
-    auto typeface = SkTypeface::MakeDefault();
+    auto typeface = ToolUtils::DefaultTypeface();
     REPORTER_ASSERT(reporter, typeface);
 
     static constexpr struct {
@@ -324,7 +325,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
 }
 
 DEF_TEST(Skottie_Shaper_VAlign, reporter) {
-    auto typeface = SkTypeface::MakeDefault();
+    auto typeface = ToolUtils::DefaultTypeface();
     REPORTER_ASSERT(reporter, typeface);
 
     static constexpr struct {
@@ -390,7 +391,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
 
 DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
     skottie::Shaper::TextDesc desc = {
-        SkTypeface::MakeDefault(),
+        ToolUtils::DefaultTypeface(),
         18,
         18,
          0,

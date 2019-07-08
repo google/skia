@@ -13,6 +13,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBlendModePriv.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class XfermodeBench : public Benchmark {
@@ -36,7 +37,7 @@ protected:
             paint.setColor(random.nextU());
             if (fAA) {
                 // Draw text to exercise AA code paths.
-                SkFont font;
+                SkFont font(ToolUtils::DefaultTypeface());
                 font.setSize(random.nextRangeScalar(12, 96));
                 SkScalar x = random.nextRangeScalar(0, (SkScalar)size.fWidth),
                          y = random.nextRangeScalar(0, (SkScalar)size.fHeight);

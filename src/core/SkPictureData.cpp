@@ -7,6 +7,7 @@
 
 #include "src/core/SkPictureData.h"
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTo.h"
@@ -289,7 +290,8 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                                    uint32_t tag,
                                    uint32_t size,
                                    const SkDeserialProcs& procs,
-                                   SkTypefacePlayback* topLevelTFPlayback) {
+                                   SkTypefacePlayback* topLevelTFPlayback,
+                                   sk_sp<SkFontMgr> fontmgr) {
     switch (tag) {
         case SK_PICT_READER_TAG:
             SkASSERT(nullptr == fOpData);
@@ -315,12 +317,22 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
         case SK_PICT_TYPEFACE_TAG: {
             fTFPlayback.setCount(size);
             for (uint32_t i = 0; i < size; ++i) {
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
                 sk_sp<SkTypeface> tf(SkTypeface::MakeDeserialize(stream));
                 if (!tf.get()) {    // failed to deserialize
                     // fTFPlayback asserts it never has a null, so we plop in
                     // the default here.
                     tf = SkTypeface::MakeDefault();
                 }
+#else
+                if (!fontmgr) {
+                    return false;
+                }
+                sk_sp<SkTypeface> tf(SkTypeface::MakeDeserialize(fontmgr, stream));
+                if (!tf) {    // failed to deserialize
+                    return false;
+                }
+#endif
                 fTFPlayback[i] = std::move(tf);
             }
         } break;

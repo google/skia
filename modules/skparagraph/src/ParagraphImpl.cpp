@@ -12,6 +12,7 @@
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 namespace {
 
@@ -171,7 +172,7 @@ void ParagraphImpl::resolveStrut() {
         }
     }
     if (typeface.get() == nullptr) {
-        typeface = SkTypeface::MakeDefault();
+        typeface = ToolUtils::DefaultTypeface();
     }
 
     SkFont font(typeface, strutStyle.getFontSize());

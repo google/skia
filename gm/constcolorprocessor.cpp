@@ -126,8 +126,7 @@ protected:
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.
-                    SkFont labelFont;
-                    labelFont.setTypeface(ToolUtils::create_portable_typeface());
+                    SkFont labelFont(ToolUtils::create_portable_typeface());
                     labelFont.setEdging(SkFont::Edging::kAntiAlias);
                     labelFont.setSize(10.f);
                     SkPaint labelPaint;
