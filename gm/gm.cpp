@@ -147,8 +147,11 @@ void GM::modifyGrContextOptions(GrContextOptions* options) {}
 void GM::onOnceBeforeDraw() {}
 
 bool GM::onAnimate(const AnimTimer&) { return false; }
-bool GM::onHandleKey(SkUnichar uni) { return false; }
+
+bool GM::onChar(SkUnichar uni) { return false; }
+
 bool GM::onGetControls(SkMetaData*) { return false; }
+
 void GM::onSetControls(const SkMetaData&) {}
 
 /////////////////////////////////////////////////////////////////////////////////////////////

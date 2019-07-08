@@ -204,7 +204,7 @@ protected:
         fAnimT = fmod(timer.secs(), dur) / dur;
         return true;
     }
-    bool onHandleKey(SkUnichar uni) override {
+    bool onChar(SkUnichar uni) override {
         switch (uni) {
             case 'a': fEye.fX += 0.125f; return true;
             case 'd': fEye.fX -= 0.125f; return true;
