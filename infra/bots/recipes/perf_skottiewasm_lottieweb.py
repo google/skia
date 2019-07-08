@@ -16,6 +16,7 @@ DEPS = [
   'infra',
   'recipe_engine/context',
   'recipe_engine/file',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -36,10 +37,6 @@ LOTTIE_WEB_BLACKLIST = [
   'obama_caricature.json',
   'lottiefiles.com - Nudge.json',
   'lottiefiles.com - Retweet.json',
-  # Works in SVG but not in Canvas.
-  'Hello World.json',
-  'interactive_menu.json',
-  'Name.json',
 ]
 
 
@@ -101,18 +98,9 @@ def RunSteps(api):
                                '--input', lottie_file,
                                '--output', output_file,
                            ], infra_step=True)
-      output_json = api.file.read_json(
-          'Read perf json', output_file,
-          test_data={'frame_avg_us': 185.79982221126556,
-                     'frame_max_us': 860.0000292062759,
-                     'frame_min_us': 84.9999487400055}
-      )
+
       perf_results[lottie_filename] = {
-          'gl': {
-              'frame_avg_us': float('%.2f' % output_json['frame_avg_us']),
-              'frame_max_us': float('%.2f' % output_json['frame_max_us']),
-              'frame_min_us': float('%.2f' % output_json['frame_min_us']),
-          }
+          'gl': parse_trace(output_file, lottie_filename, api, renderer),
       }
 
   # Construct contents of the output JSON.
@@ -163,7 +151,104 @@ with open('%s', 'w') as outfile:
   """ % (json_path, perf_json))
 
 
+def parse_trace(trace_json, lottie_filename, api, renderer):
+  """parse_trace parses the specified trace JSON.
+
+  Parses the trace JSON and calculates the time of a single frame.
+  A dictionary is returned that has the following structure:
+  {
+    'frame_max_us': 100,
+    'frame_min_us': 90,
+    'frame_avg_us': 95,
+  }
+  """
+  step_result = api.run(
+      api.python.inline,
+      'parse %s trace' % lottie_filename,
+      program="""
+  import json
+  import sys
+
+  trace_output = sys.argv[1]
+  with open(trace_output, 'r') as f:
+    trace_json = json.load(f)
+  output_json_file = sys.argv[2]
+  renderer = sys.argv[3]
+
+  erroneous_termination_statuses = [
+      'replaced_by_new_reporter_at_same_stage',
+      'did_not_produce_frame',
+      'main_frame_aborted',
+  ]
+  accepted_termination_statuses = []
+  if renderer == 'skottie-wasm':
+    accepted_termination_statuses.extend(['main_frame_aborted'])
+  elif renderer == 'lottie-web':
+    accepted_termination_statuses.extend(['missed_frame', 'submitted_frame'])
+
+  frame_max = 0
+  frame_min = 0
+  frame_cumulative = 0
+  current_frame_duration = 0
+  total_frames = 0
+  frame_id_to_start_ts = {}
+  for trace in trace_json['traceEvents']:
+    if 'PipelineReporter' in trace['name']:
+      frame_id = trace['id']
+      args = trace.get('args')
+      if args and args.get('step') == 'BeginImplFrameToSendBeginMainFrame':
+        frame_id_to_start_ts[frame_id] = trace['ts']
+      elif args and (args.get('termination_status') in
+                     accepted_termination_statuses):
+        current_frame_duration = trace['ts'] - frame_id_to_start_ts[frame_id]
+        total_frames += 1
+        frame_max = max(frame_max, current_frame_duration)
+        frame_min = (min(frame_min, current_frame_duration)
+                     if frame_min else current_frame_duration)
+        frame_cumulative += current_frame_duration
+        # We are done with this frame_id so remove it from the dict.
+        frame_id_to_start_ts.pop(frame_id)
+        print '%d (%s with %s): %d' % (
+            total_frames, frame_id, args['termination_status'],
+            current_frame_duration)
+      elif args and (args.get('termination_status') in
+                     erroneous_termination_statuses):
+        # Invalidate previously collected results for this frame_id.
+        if frame_id_to_start_ts.get(frame_id):
+          print '[Invalidating %s due to %s]' % (
+              frame_id, args['termination_status'])
+          frame_id_to_start_ts.pop(frame_id)
+
+  perf_results = {}
+  perf_results['frame_max_us'] = frame_max
+  perf_results['frame_min_us'] = frame_min
+  perf_results['frame_avg_us'] = frame_cumulative/total_frames
+  print 'For %d frames got: %s' % (total_frames, perf_results)
+
+  # Write perf_results to the output json.
+  with open(output_json_file, 'w') as f:
+    f.write(json.dumps(perf_results))
+  """, args=[trace_json, api.json.output(), renderer])
+
+  # Sanitize float outputs to 2 precision points.
+  output = dict(step_result.json.output)
+  output['frame_max_us'] = float("%.2f" % output['frame_max_us'])
+  output['frame_min_us'] = float("%.2f" % output['frame_min_us'])
+  output['frame_avg_us'] = float("%.2f" % output['frame_avg_us'])
+  return output
+
+
 def GenTests(api):
+  trace_output = """
+[{"ph":"X","name":"void skottie::Animation::seek(SkScalar)","ts":452,"dur":2.57,"tid":1,"pid":0},{"ph":"X","name":"void SkCanvas::drawPaint(const SkPaint &)","ts":473,"dur":2.67e+03,"tid":1,"pid":0},{"ph":"X","name":"void skottie::Animation::seek(SkScalar)","ts":3.15e+03,"dur":2.25,"tid":1,"pid":0},{"ph":"X","name":"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const","ts":3.15e+03,"dur":216,"tid":1,"pid":0},{"ph":"X","name":"void SkCanvas::drawPath(const SkPath &, const SkPaint &)","ts":3.35e+03,"dur":15.1,"tid":1,"pid":0},{"ph":"X","name":"void skottie::Animation::seek(SkScalar)","ts":3.37e+03,"dur":1.17,"tid":1,"pid":0},{"ph":"X","name":"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const","ts":3.37e+03,"dur":140,"tid":1,"pid":0}]
+"""
+  parse_trace_json = {
+      'frame_avg_us': 179.71,
+      'frame_min_us': 141.17,
+      'frame_max_us': 218.25
+  }
+
+
   skottie_cpu_buildername = ('Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-'
                              'SkottieWASM')
   yield (
@@ -172,7 +257,14 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     trace_test_data=trace_output,
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie3.json trace',
+                    api.json.output(parse_trace_json))
   )
   yield (
       api.test('skottie_wasm_perf_trybot') +
@@ -180,6 +272,7 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
+                     trace_test_data=trace_output,
                      swarm_out_dir='[SWARM_OUT_DIR]',
                      patch_ref='89/456789/12',
                      patch_repo='https://skia.googlesource.com/skia.git',
@@ -187,7 +280,13 @@ def GenTests(api):
                      patch_set=7,
                      patch_issue=1234,
                      gerrit_project='skia',
-                     gerrit_url='https://skia-review.googlesource.com/')
+                     gerrit_url='https://skia-review.googlesource.com/') +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie3.json trace',
+                    api.json.output(parse_trace_json))
   )
 
   lottieweb_cpu_buildername = ('Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-'
@@ -198,7 +297,14 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     trace_test_data=trace_output,
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie3.json trace',
+                    api.json.output(parse_trace_json))
   )
   yield (
       api.test('lottie_web_perf_trybot') +
@@ -206,6 +312,7 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
+                     trace_test_data=trace_output,
                      swarm_out_dir='[SWARM_OUT_DIR]',
                      patch_ref='89/456789/12',
                      patch_repo='https://skia.googlesource.com/skia.git',
@@ -213,7 +320,13 @@ def GenTests(api):
                      patch_set=7,
                      patch_issue=1234,
                      gerrit_project='skia',
-                     gerrit_url='https://skia-review.googlesource.com/')
+                     gerrit_url='https://skia-review.googlesource.com/') +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie3.json trace',
+                    api.json.output(parse_trace_json))
   )
 
   unrecognized_buildername = ('Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-'
