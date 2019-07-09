@@ -195,6 +195,32 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
     return fGpu->createTexture(desc, budgeted);
 }
 
+// Map 'value' to a larger multiple of 2. Values below 'kMagicTol' will pop up to
+// the next power of 2. Those above 'kMagicTol' will only go up half the floor power of 2.
+uint32_t make_approx(uint32_t value) {
+    static const int kMagicTol = 1024;
+
+    value = SkTMax(GrResourceProvider::kMinScratchTextureSize, value);
+
+    if (GrIsPow2(value)) {
+        return value;
+    }
+
+    uint32_t ceilPow2 = GrNextPow2(value);
+    if (value < kMagicTol) {
+        return ceilPow2;
+    } else {
+        uint32_t floorPow2 = GrPrevPow2(value);
+        uint32_t mid = floorPow2 + (floorPow2 >> 1);
+
+        if (value <= mid) {
+            return mid;
+        } else {
+            return ceilPow2;
+        }
+    }
+}
+
 sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc,
                                                          Flags flags) {
     ASSERT_SINGLE_OWNER
@@ -219,12 +245,12 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> copyDesc(desc);
 
-    // bin by pow2 with a reasonable min
+    // bin by some multiple or power of 2 with a reasonable min
     if (!SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
         (fGpu->caps()->reuseScratchTextures() || (desc.fFlags & kRenderTarget_GrSurfaceFlag))) {
         GrSurfaceDesc* wdesc = copyDesc.writable();
-        wdesc->fWidth  = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fWidth));
-        wdesc->fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fHeight));
+        wdesc->fWidth = make_approx(wdesc->fWidth);
+        wdesc->fHeight = make_approx(wdesc->fHeight);
     }
 
     if (auto tex = this->refScratchTexture(*copyDesc, flags)) {

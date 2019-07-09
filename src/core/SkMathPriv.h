@@ -214,6 +214,17 @@ static inline int SkPrevLog2(uint32_t value) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static inline bool GrIsPow2(uint32_t n) {
+    return n ? (n & (n - 1)) == 0 : false;
+}
+
+/**
+ *  Return the next power of 2 >= n.
+ */
+static inline uint32_t GrPrevPow2(uint32_t n) {
+    return n ? (1 << (32 - SkCLZ(n >> 1))) : 0;
+}
+
 /**
  *  Return the next power of 2 >= n.
  */
