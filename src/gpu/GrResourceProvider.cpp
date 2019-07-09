@@ -42,6 +42,33 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     fCaps = sk_ref_sp(fGpu->caps());
 }
 
+// Ensures the row bytes are populated (not 0) and makes a copy to a temporary
+// to make the row bytes tight if necessary. Returns false if the input row bytes are invalid.
+static bool prepare_level(const GrMipLevel& inLevel, size_t bpp, int w, int h, bool rowBytesSupport,
+                          GrMipLevel* outLevel, std::unique_ptr<char[]>* data) {
+    if (!inLevel.fPixels) {
+        outLevel->fPixels = nullptr;
+        outLevel->fRowBytes = 0;
+        return true;
+    }
+    size_t minRB = w * bpp;
+    size_t actualRB = inLevel.fRowBytes ? inLevel.fRowBytes : minRB;
+    if (actualRB < minRB) {
+        return false;
+    }
+    if (actualRB == minRB || rowBytesSupport) {
+        outLevel->fRowBytes = actualRB;
+        outLevel->fPixels = inLevel.fPixels;
+    } else {
+        data->reset(new char[minRB * h]);
+        outLevel->fPixels = data->get();
+        outLevel->fRowBytes = minRB;
+        SkRectMemcpy(data->get(), outLevel->fRowBytes, inLevel.fPixels, inLevel.fRowBytes, minRB,
+                     h);
+    }
+    return true;
+}
+
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                    const GrMipLevel texels[], int mipLevelCount) {
     ASSERT_SINGLE_OWNER
@@ -66,30 +93,9 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         int h = desc.fHeight;
         size_t bpp = GrBytesPerPixel(desc.fConfig);
         for (int i = 0; i < mipLevelCount; ++i) {
-            if (texels->fPixels) {
-                size_t minRB = w * bpp;
-                if (!texels->fRowBytes) {
-                    tmpTexels[i].fRowBytes = minRB;
-                    tmpTexels[i].fPixels = texels[i].fPixels;
-                } else {
-                    if (texels[i].fRowBytes < minRB) {
-                        return nullptr;
-                    }
-                    if (!this->caps()->writePixelsRowBytesSupport() &&
-                        texels[i].fRowBytes != minRB) {
-                        auto copy = new char[minRB * h];
-                        tmpDatas[i].reset(copy);
-                        SkRectMemcpy(copy, minRB, texels[i].fPixels, texels[i].fRowBytes, minRB, h);
-                        tmpTexels[i].fPixels = copy;
-                        tmpTexels[i].fRowBytes = minRB;
-                    } else {
-                        tmpTexels[i].fPixels = texels[i].fPixels;
-                        tmpTexels[i].fRowBytes = texels[i].fRowBytes;
-                    }
-                }
-            } else {
-                tmpTexels[i].fPixels = nullptr;
-                tmpTexels[i].fRowBytes = 0;
+            if (!prepare_level(texels[i], bpp, w, h, this->caps()->writePixelsRowBytesSupport(),
+                               &tmpTexels[i], &tmpDatas[i])) {
+                return nullptr;
             }
             w = std::max(w / 2, 1);
             h = std::max(h / 2, 1);
@@ -130,6 +136,14 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     GrContext* context = fGpu->getContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
+    size_t bpp = GrBytesPerPixel(desc.fConfig);
+    std::unique_ptr<char[]> tmpData;
+    GrMipLevel tmpLevel;
+    if (!prepare_level(mipLevel, bpp, desc.fWidth, desc.fHeight,
+                       this->caps()->writePixelsRowBytesSupport(), &tmpLevel, &tmpData)) {
+        return nullptr;
+    }
+
     SkColorType colorType;
     if (GrPixelConfigToColorType(desc.fConfig, &colorType)) {
         sk_sp<GrTexture> tex = (SkBackingFit::kApprox == fit)
@@ -155,10 +169,10 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
             return nullptr;
         }
         SkAssertResult(
-                sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, {0, 0}));
+                sContext->writePixels(srcInfo, tmpLevel.fPixels, tmpLevel.fRowBytes, {0, 0}));
         return sk_ref_sp(sContext->asTextureProxy()->peekTexture());
     } else {
-        return fGpu->createTexture(desc, budgeted, &mipLevel, 1);
+        return fGpu->createTexture(desc, budgeted, &tmpLevel, 1);
     }
 }
 
