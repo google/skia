@@ -107,3 +107,77 @@ SkPoint SkCubicMap::computeFromT(float t) const {
     (((a * t + b) * t + c) * t).store(&result);
     return result;
 }
+
+SkCubicMapExperiment::SkCubicMapExperiment(SkPoint P1, SkPoint P2) {
+
+    // 3 * p1 * t + (-6 * p1 + 3 * p2) * t^2 + (1 + 3 * p1 - 3 * p2) * t^3
+    SkPoint P1x3 = P1 * 3,
+            P2x3 = P2 * 3;
+
+    // A, B, C for A * t^3 + B * t^2 + C * t
+    fA = P1x3 - P2x3 + SkPoint{1, 1};
+    fB = P1x3 * -2 + P2x3;
+    fC = P1x3;
+
+    // Derivative of x only.
+    fDA = 3 * fA.fX;
+    fDB = 2 * fB.fX;
+    fDC = 1 * fC.fX;
+
+    float a = fA.fX,
+          b = fB.fX,
+          c = fC.fX,
+          d = 0;
+
+    // The code for calculating the interpolating parabolas is overly general. If this works it
+    // out, I can squash the code way down.
+    int quadCount = 2;
+    float quadInterval = 1.0f / quadCount;
+
+    for (int i = 0; i < quadCount; i++) {
+        float s1 = i * quadInterval,
+              s3 = (i + 1) * quadInterval,
+              s2 = (s1 + s3) / 2;
+
+        float d1213 = 1 / ((s1 - s2) * (s1 - s3)),
+              d1223 = 1 / ((s1 - s2) * (s2 - s3)),
+              d1323 = 1 / ((s1 - s3) * (s2 - s3));
+
+        float v1 = EvalPoly(s1, a, b, c, d),
+              v2 = EvalPoly(s2, a, b, c, d),
+              v3 = EvalPoly(s3, a, b, c, d);
+
+        fCuts[i] = v3;
+
+        // qa = v1/((s1-s2)(s1-s3))-v2/((s1-s2)(s2-s3))+v3/((s1-s3)(s2-s3))
+        // qb =
+        // -((s3+s2)v1)/((s1-s2)(s1-s3))+((s1+s3)v2)/((s1-s2)(s2-s3))-((s2+s1)v3)/((s1-s3)(s2-s3))
+        // qa = (s2 s3 v1)/((s1-s2)(s1-s3))-(s1 s3 v2)/((s1-s2)(s2-s3))+(s1 s2 v3)/((s1-s3)(s2-s3))
+        float qa = v1 * d1213 - v2 * d1223 + v3 * d1323,
+              qb = -((s2 + s3) * v1) * d1213 + ((s1 + s3) * v2) * d1223 - ((s1 + s2) * v3) * d1323,
+              qc = (v1 * s2 * s3) * d1213 - (s1 * v2 * s3) * d1223 + (s1 * s2 * v3) * d1323;
+
+        fT[i] = -qb / (2 * qa);
+        fU[i] = 1 / (2 * qa);
+        fV[i] = qb * qb;
+        fW[i] = 4 * qa;
+        fX[i] = qc;
+    }
+
+    A = {fA.fX, 0, 0, 0};
+    B = {fB.fX, fDA, 0, 0};
+    C = {fC.fX, fDB, 0, 0};
+}
+
+#ifdef SK_CUBICMAP_TRACK_MAX_ERROR
+void SkCubicMapExperiment::StatsError::sample(SkScalar a, SkScalar b) {
+    SkScalar e = std::abs(a - b);
+    sum0 += 1;
+    sum1 += e;
+    maxError = std::max(maxError, e);
+}
+
+SkCubicMapExperiment::StatsError::~StatsError() {
+    SkDebugf("maxError %g avg %g\n", maxError, sum1/sum0);
+}
+#endif
