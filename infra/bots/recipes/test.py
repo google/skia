@@ -738,6 +738,7 @@ def dm_flags(api, bot):
     match.append('~^TextureStripAtlasManagerColorFilterTest$')
     match.append('~^WritePixelsNonTextureMSAA_Gpu$')
     match.append('~^AsyncReadPixels$')
+    match.append('~^VkBackendAllocationTest$')
 
   if 'ANGLE' in bot:
     # skia:7835
