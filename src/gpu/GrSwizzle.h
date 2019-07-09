@@ -42,7 +42,8 @@ public:
     }
 
     /** Applies this swizzle to the input color and returns the swizzled color. */
-    constexpr SkPMColor4f applyTo(const SkPMColor4f& color) const;
+    template <SkAlphaType AlphaType>
+    constexpr SkRGBA4f<AlphaType> applyTo(const SkRGBA4f<AlphaType>& color) const;
 
     void apply(SkRasterPipeline*) const;
 
@@ -54,7 +55,8 @@ public:
     static constexpr GrSwizzle RGB1() { return GrSwizzle("rgb1"); }
 
 private:
-    static constexpr float ComponentIndexToFloat(const SkPMColor4f& color, int idx);
+    template <SkAlphaType AlphaType>
+    static constexpr float ComponentIndexToFloat(const SkRGBA4f<AlphaType>& color, int idx);
     static constexpr int CToI(char c);
     static constexpr char IToC(int idx);
 
@@ -80,7 +82,8 @@ constexpr GrSwizzle& GrSwizzle::operator=(const GrSwizzle& that) {
     return *this;
 }
 
-constexpr SkPMColor4f GrSwizzle::applyTo(const SkPMColor4f& color) const {
+template <SkAlphaType AlphaType>
+constexpr SkRGBA4f<AlphaType> GrSwizzle::applyTo(const SkRGBA4f<AlphaType>& color) const {
     uint32_t key = fKey;
     // Index of the input color that should be mapped to output r.
     int idx = (key & 15);
@@ -107,7 +110,8 @@ constexpr void GrSwizzle::setFromKey(uint16_t key) {
     SkASSERT(fSwiz[4] == '\0');
 }
 
-constexpr float GrSwizzle::ComponentIndexToFloat(const SkPMColor4f& color, int idx) {
+template <SkAlphaType AlphaType>
+constexpr float GrSwizzle::ComponentIndexToFloat(const SkRGBA4f<AlphaType>& color, int idx) {
     if (idx <= 3) {
         return color[idx];
     }
