@@ -445,7 +445,6 @@
       "_",
       "filltypespersp",
       "--match",
-      "~^SRGBReadWritePixels$",
       "~^ClearOp$",
       "~^CopySurface$",
       "~^ImageNewShader_GPU$",

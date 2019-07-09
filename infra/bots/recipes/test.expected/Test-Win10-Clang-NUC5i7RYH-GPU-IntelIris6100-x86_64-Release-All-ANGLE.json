@@ -276,8 +276,6 @@
       "angle_d3d9_es2",
       "angle_gl_es2",
       "angle_d3d11_es3",
-      "angle_d3d11_es2_msaa8",
-      "angle_d3d11_es3_msaa8",
       "--src",
       "tests",
       "gm",

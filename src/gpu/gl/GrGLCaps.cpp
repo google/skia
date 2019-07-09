@@ -1096,10 +1096,10 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
         fMSFBOType = kNone_MSFBOType;
     }
 
-    // We disable MSAA for older (pre-Gen8) Intel GPUs for performance reasons.
-    // CherryView (aka Braswell) is the first Gen8 chipset.
+    // We disable MSAA for older (pre-Gen9) Intel GPUs for performance reasons.
+    // ApolloLake is the first Gen9 chipset.
     if (kIntel_GrGLVendor == ctxInfo.vendor() &&
-        (ctxInfo.renderer() < kIntelCherryView_GrGLRenderer ||
+        (ctxInfo.renderer() < kIntelApolloLake_GrGLRenderer ||
          ctxInfo.renderer() == kOther_GrGLRenderer)) {
         fMSFBOType = kNone_MSFBOType;
     }
