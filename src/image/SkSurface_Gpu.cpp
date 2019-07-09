@@ -200,6 +200,9 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
         return false;
     }
 
+    GrProtected isProtected = rtc->asRenderTargetProxy()->isProtected() ? GrProtected::kYes
+                                                                        : GrProtected::kNo;
+
     bool usesGLFBO0 = rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0();
     // We should never get in the situation where we have a texture render target that is also
     // backend by FBO 0.
@@ -215,7 +218,8 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
                           SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
                           SkSurfaceCharacterization::MipMapped(mipmapped),
                           SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
-                          SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
+                          SkSurfaceCharacterization::VulkanSecondaryCBCompatible1(false),
+                          isProtected,
                           this->props());
     return true;
 }
@@ -291,6 +295,9 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
     }
 
+    GrProtected isProtected = rtc->asSurfaceProxy()->isProtected() ? GrProtected::kYes
+                                                                   : GrProtected::kNo;
+
     if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
         return false;
     }
@@ -310,6 +317,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.sampleCount() == rtc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(),
                                 rtc->colorSpaceInfo().colorSpace()) &&
+           characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
@@ -367,6 +375,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = c.width();
     desc.fHeight = c.height();
+    desc.fIsProtected = c.isProtected();
     desc.fConfig = config;
     desc.fSampleCnt = c.sampleCount();
 
