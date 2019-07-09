@@ -47,6 +47,7 @@ declare_args() {
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_skpicture = true
+  skia_enable_sksl_interpreter = is_skia_dev_build
   skia_enable_skvm_jit = is_skia_dev_build && target_cpu == "x64" && is_linux
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_qt_path = getenv("QT_PATH")
@@ -631,8 +632,7 @@ optional("gpu") {
       if (using_fuchsia_sdk) {
         public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
       } else {
-        public_deps +=
-            [ "//src/graphics/lib/vulkan" ]
+        public_deps += [ "//src/graphics/lib/vulkan" ]
       }
     }
   }
@@ -817,6 +817,11 @@ optional("xml") {
   ]
 }
 
+optional("sksl_interpreter") {
+  enabled = skia_enable_sksl_interpreter
+  public_defines = [ "SK_ENABLE_SKSL_INTERPRETER" ]
+}
+
 optional("skvm_jit") {
   enabled = skia_enable_skvm_jit
   public_defines = [ "SKVM_JIT" ]
@@ -880,6 +885,7 @@ component("skia") {
     ":none",
     ":png",
     ":raw",
+    ":sksl_interpreter",
     ":skvm_jit",
     ":sse2",
     ":sse41",
