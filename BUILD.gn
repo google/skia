@@ -36,16 +36,19 @@ declare_args() {
   skia_use_wuffs = false
   skia_use_zlib = true
   skia_use_metal = false
+  skia_use_dawn = false
   skia_use_libheif = is_skia_dev_build
   skia_use_x11 = is_linux
   skia_use_xps = true
+}
 
+declare_args() {
   skia_android_serial = ""
   skia_enable_ccpr = true
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_discrete_gpu = true
   skia_enable_pdf = true
-  skia_enable_spirv_validation = is_skia_dev_build && is_debug
+  skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_enable_skpicture = true
   skia_enable_sksl_interpreter = is_skia_dev_build
   skia_enable_skvm_jit = is_skia_dev_build && target_cpu == "x64" && is_linux
@@ -63,6 +66,11 @@ declare_args() {
   skia_tools_require_resources = false
   skia_include_multiframe_procs = false
 }
+
+if (skia_use_dawn) {
+  import("third_party/externals/dawn/scripts/dawn_features.gni")
+}
+
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
@@ -634,6 +642,24 @@ optional("gpu") {
       } else {
         public_deps += [ "//src/graphics/lib/vulkan" ]
       }
+    }
+  }
+
+  if (skia_use_dawn) {
+    public_defines += [ "SK_DAWN" ]
+    public_deps += [
+      "//third_party/dawn:dawn_headers",
+      "//third_party/dawn:libdawn",
+      "//third_party/dawn:libdawn_native_sources",
+    ]
+    if (dawn_enable_d3d12) {
+      libs += [
+        "d3d12.lib",
+        "dxgi.lib",
+        "d3dcompiler.lib",
+      ]
+    } else if (dawn_enable_metal) {
+      libs += [ "Metal.framework" ]
     }
   }
 
@@ -1252,6 +1278,10 @@ if (skia_enable_tools) {
       "modules/skottie",
       "modules/skshaper",
     ]
+
+    if (skia_use_dawn) {
+      deps += [ "//third_party/dawn:dawn_headers" ]
+    }
   }
 
   template("test_lib") {
