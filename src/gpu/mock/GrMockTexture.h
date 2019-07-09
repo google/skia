@@ -40,7 +40,7 @@ public:
     }
 
     GrBackendFormat backendFormat() const override {
-        return GrBackendFormat::MakeMock(fInfo.fConfig);
+        return fInfo.getBackendFormat();
     }
 
     void textureParamsModified() override {}
@@ -109,7 +109,7 @@ public:
     }
 
     GrBackendFormat backendFormat() const override {
-        return GrBackendFormat::MakeMock(fInfo.fConfig);
+        return fInfo.getBackendFormat();
     }
 
 protected:

@@ -111,16 +111,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto widthHeight : { 100, 128, 1048576 }) {
-            for (auto config : { kAlpha_8_GrPixelConfig, kRGB_565_GrPixelConfig,
-                                 kRGBA_8888_GrPixelConfig, kRGBA_1010102_GrPixelConfig,
-                                 kRGB_ETC1_GrPixelConfig }) {
+            for (auto ct : { GrColorType::kAlpha_8, GrColorType::kBGR_565,
+                             GrColorType::kRGBA_8888, GrColorType::kRGBA_1010102 } ) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : {1, 4, 16, 128}) {
-                            // We don't have recycling support for compressed textures
-                            if (GrPixelConfigIsCompressed(config) && SkBackingFit::kApprox == fit) {
-                                continue;
-                            }
+
+                            auto config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
+                            SkASSERT(kUnknown_GrPixelConfig != config);
 
                             GrSurfaceDesc desc;
                             desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -129,11 +127,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             desc.fConfig = config;
                             desc.fSampleCnt = numSamples;
 
-                            GrSRGBEncoded srgbEncoded;
-                            GrColorType colorType =
-                                    GrPixelConfigToColorTypeAndEncoding(config, &srgbEncoded);
                             const GrBackendFormat format =
-                                    caps.getBackendFormatFromColorType(colorType, srgbEncoded);
+                                    caps.getBackendFormatFromColorType(ct, GrSRGBEncoded::kNo);
                             if (!format.isValid()) {
                                 continue;
                             }

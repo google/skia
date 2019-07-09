@@ -11,22 +11,67 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
 
+class GrBackendFormat;
+
 struct GrMockTextureInfo {
-    GrPixelConfig fConfig;
-    int fID;
+    GrMockTextureInfo()
+        : fColorType(GrColorType::kUnknown)
+        , fSRGBEncoded(GrSRGBEncoded::kNo)
+        , fID(0) {}
+
+    GrMockTextureInfo(GrColorType colorType, GrSRGBEncoded srgbEncoded, int id)
+            : fColorType(colorType)
+            , fSRGBEncoded(srgbEncoded)
+            , fID(id) {
+        SkASSERT(fID);
+    }
 
     bool operator==(const GrMockTextureInfo& that) const {
-        return fConfig == that.fConfig && fID == that.fID;
+        return fColorType == that.fColorType &&
+               fSRGBEncoded == that.fSRGBEncoded &&
+               fID == that.fID;
     }
+
+    GrPixelConfig pixelConfig() const {
+        return GrColorTypeToPixelConfig(fColorType, fSRGBEncoded);
+    }
+
+    GrBackendFormat getBackendFormat() const;
+
+    GrColorType   fColorType;
+    GrSRGBEncoded fSRGBEncoded;
+    int           fID;
 };
 
 struct GrMockRenderTargetInfo {
-    GrPixelConfig fConfig;
-    int fID;
+    GrMockRenderTargetInfo()
+            : fColorType(GrColorType::kUnknown)
+            , fSRGBEncoded(GrSRGBEncoded::kNo)
+            , fID(0) {}
+
+    GrMockRenderTargetInfo(GrColorType colorType, GrSRGBEncoded srgbEncoded, int id)
+            : fColorType(colorType)
+            , fSRGBEncoded(srgbEncoded)
+            , fID(id) {
+        SkASSERT(fID);
+    }
 
     bool operator==(const GrMockRenderTargetInfo& that) const {
-        return fConfig == that.fConfig && fID == that.fID;
+        return fColorType == that.fColorType &&
+               fSRGBEncoded == that.fSRGBEncoded &&
+               fID == that.fID;
     }
+
+    GrPixelConfig pixelConfig() const {
+        return GrColorTypeToPixelConfig(fColorType, fSRGBEncoded);
+    }
+
+    GrBackendFormat getBackendFormat() const;
+
+private:
+    GrColorType   fColorType;
+    GrSRGBEncoded fSRGBEncoded;
+    int           fID;
 };
 
 /**
@@ -39,14 +84,12 @@ struct GrMockOptions {
         using Renderability = ConfigOptions::Renderability;
         // By default RGBA_8888 and BGRA_8888 are textureable and renderable and
         // A8 and RGB565 are texturable.
-        fConfigOptions[kRGBA_8888_GrPixelConfig].fRenderability = Renderability::kNonMSAA;
-        fConfigOptions[kRGBA_8888_GrPixelConfig].fTexturable = true;
-        fConfigOptions[kAlpha_8_GrPixelConfig].fTexturable = true;
-        fConfigOptions[kAlpha_8_as_Alpha_GrPixelConfig].fTexturable = true;
-        fConfigOptions[kAlpha_8_as_Red_GrPixelConfig].fTexturable = true;
-        fConfigOptions[kRGB_565_GrPixelConfig].fTexturable = true;
+        fConfigOptions[(int)GrColorType::kRGBA_8888].fRenderability = Renderability::kNonMSAA;
+        fConfigOptions[(int)GrColorType::kRGBA_8888].fTexturable = true;
+        fConfigOptions[(int)GrColorType::kAlpha_8].fTexturable = true;
+        fConfigOptions[(int)GrColorType::kBGR_565].fTexturable = true;
 
-        fConfigOptions[kBGRA_8888_GrPixelConfig] = fConfigOptions[kRGBA_8888_GrPixelConfig];
+        fConfigOptions[(int)GrColorType::kBGRA_8888] = fConfigOptions[(int)GrColorType::kRGBA_8888];
     }
 
     struct ConfigOptions {
@@ -62,7 +105,7 @@ struct GrMockOptions {
     int fMaxTextureSize = 2048;
     int fMaxRenderTargetSize = 2048;
     int fMaxVertexAttributes = 16;
-    ConfigOptions fConfigOptions[kGrPixelConfigCnt];
+    ConfigOptions fConfigOptions[kGrColorTypeCnt];
 
     // GrShaderCaps options.
     bool fGeometryShaderSupport = false;

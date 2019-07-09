@@ -45,7 +45,7 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
             break;
 #endif
         case GrBackendApi::kMock:
-            fMockFormat = that.fMockFormat;
+            fMock = that.fMock;
             break;
         default:
             SK_ABORT("Unknown GrBackend");
@@ -154,19 +154,28 @@ const GrMTLPixelFormat* GrBackendFormat::getMtlFormat() const {
 }
 #endif
 
-GrBackendFormat::GrBackendFormat(GrPixelConfig config)
+GrBackendFormat::GrBackendFormat(GrColorType colorType, GrSRGBEncoded srgbEncoded)
         : fBackend(GrBackendApi::kMock)
         , fValid(true)
-        , fMockFormat(config)
         , fTextureType(GrTextureType::k2D) {
+    fMock.fColorType = colorType;
+    fMock.fSRGBEncoded = srgbEncoded;
 }
 
-const GrPixelConfig* GrBackendFormat::getMockFormat() const {
+const GrColorType* GrBackendFormat::getMockColorType() const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
-        return &fMockFormat;
+        return &fMock.fColorType;
     }
     return nullptr;
 }
+
+const GrSRGBEncoded* GrBackendFormat::getMockSRGBEncoded() const {
+    if (this->isValid() && GrBackendApi::kMock == fBackend) {
+        return &fMock.fSRGBEncoded;
+    }
+    return nullptr;
+}
+
 
 GrBackendFormat GrBackendFormat::makeTexture2D() const {
     GrBackendFormat copy = *this;
@@ -208,7 +217,8 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
 #endif
             break;
         case GrBackendApi::kMock:
-            return fMockFormat == that.fMockFormat;
+            return fMock.fColorType == that.fMock.fColorType &&
+                   fMock.fSRGBEncoded == that.fMock.fSRGBEncoded;
         default:
             SK_ABORT("Unknown GrBackend");
     }
@@ -299,7 +309,7 @@ GrBackendTexture::GrBackendTexture(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fConfig(mockInfo.fConfig)
+        , fConfig(mockInfo.pixelConfig())
         , fMipMapped(mipMapped)
         , fBackend(GrBackendApi::kMock)
         , fMockInfo(mockInfo) {}
@@ -492,7 +502,7 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
         }
 #endif
         case GrBackendApi::kMock:
-            return GrBackendFormat::MakeMock(fMockInfo.fConfig);
+            return fMockInfo.getBackendFormat();
         default:
             return GrBackendFormat();
     }
@@ -625,7 +635,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
-        , fConfig(mockInfo.fConfig)
+        , fConfig(mockInfo.pixelConfig())
         , fMockInfo(mockInfo) {}
 
 GrBackendRenderTarget::~GrBackendRenderTarget() {
@@ -757,7 +767,7 @@ GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
         }
 #endif
         case GrBackendApi::kMock:
-            return GrBackendFormat::MakeMock(fMockInfo.fConfig);
+            return fMockInfo.getBackendFormat();
         default:
             return GrBackendFormat();
     }

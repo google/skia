@@ -143,12 +143,12 @@ public:
         mockOptions.fInstanceAttribSupport = true;
         mockOptions.fHalfFloatVertexAttributeSupport = true;
         mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
-        mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fRenderability =
+        mockOptions.fConfigOptions[(int)GrColorType::kAlpha_F16].fRenderability =
                 GrMockOptions::ConfigOptions::Renderability::kNonMSAA;
-        mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fTexturable = true;
-        mockOptions.fConfigOptions[kAlpha_8_GrPixelConfig].fRenderability =
+        mockOptions.fConfigOptions[(int)GrColorType::kAlpha_F16].fTexturable = true;
+        mockOptions.fConfigOptions[(int)GrColorType::kAlpha_8].fRenderability =
                 GrMockOptions::ConfigOptions::Renderability::kNonMSAA;
-        mockOptions.fConfigOptions[kAlpha_8_GrPixelConfig].fTexturable = true;
+        mockOptions.fConfigOptions[(int)GrColorType::kAlpha_8].fTexturable = true;
         mockOptions.fGeometryShaderSupport = true;
         mockOptions.fIntegerSupport = true;
         mockOptions.fFlatInterpolationSupport = true;
