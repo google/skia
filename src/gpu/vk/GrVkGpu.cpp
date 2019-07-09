@@ -1281,7 +1281,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    if (!check_image_info(this->vkCaps(), imageInfo, tex.config(), false)) {
+    // In some cases, we use this method to create an MSAA RT with the given texture
+    // as the resolve RT. Because of this, the texture may have no backing memory,
+    // so we treat the texture as an RT.
+    if (!check_image_info(this->vkCaps(), imageInfo, tex.config(), true)) {
         return nullptr;
     }
     if (!check_rt_image_info(this->vkCaps(), imageInfo)) {
