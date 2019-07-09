@@ -94,6 +94,87 @@
     },
     {
       "key": {
+        "uuid": "2172fdee_2ab9dfc9",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-09T21:36:50Z",
+      "side": 1,
+      "message": "I think it\u0027s more about making a GrColorTypeEncoding::kSRGBUnorm (oh look it\u0027s already there just commented out!). It looks really simple to add it as the encoding is only used in one place...",
+      "parentUuid": "2923d5a7_02ac5a89",
+      "range": {
+        "startLine": 1346,
+        "startChar": 8,
+        "endLine": 1347,
+        "endChar": 77
+      },
+      "revId": "2c1caafbae66b50f42fae95de0a99346c86da179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6000195e_f0b775ae",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1381,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-09T21:36:50Z",
+      "side": 1,
+      "message": "...right here.",
+      "revId": "2c1caafbae66b50f42fae95de0a99346c86da179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75756f31_d20cb885",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1549,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-09T21:36:50Z",
+      "side": 1,
+      "message": "up to you, but this would look prettier like this:\n\n    switch (colorType) {\n        case GrColorType::kUnknown:        return kUnknown_GrPixelConfig;\n        case GrColorType::kAlpha_8:        return kAlpha_8_GrPixelConfig;\n        case GrColorType::kGray_8:         return kGray_8_GrPixelConfig;\n        case GrColorType::kBGR_565:        return kRGB_565_GrPixelConfig;\n        case GrColorType::kABGR_4444:      return kRGBA_4444_GrPixelConfig;\n\nthough, it\u0027s on its deathbed anyway.",
+      "range": {
+        "startLine": 1507,
+        "startChar": 2,
+        "endLine": 1549,
+        "endChar": 42
+      },
+      "revId": "2c1caafbae66b50f42fae95de0a99346c86da179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9d213ba_4d0b7319",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-09T21:36:50Z",
+      "side": 1,
+      "message": "This and the store seem wrong to me. I think they have to actually do the srgb\u003c-\u003elinear conversions.\n\nThese are available as stages named from_srgb and to_srgb. These functions have to be extended to support multiple stages, though. Either generically or by passing something else back to indicate the srgb/linear conversion as was done for swizzle.",
+      "revId": "2c1caafbae66b50f42fae95de0a99346c86da179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19cd1cd2_ee96eaf6",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
