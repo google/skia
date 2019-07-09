@@ -8,10 +8,12 @@
 #ifndef SKSL_CODEGENERATOR
 #define SKSL_CODEGENERATOR
 
-#include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 namespace SkSL {
+
+class ErrorReporter;
+class OutputStream;
 
 /**
  * Abstract superclass of all code generators, which take a Program as input and produce code as

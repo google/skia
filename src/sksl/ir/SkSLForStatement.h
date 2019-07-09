@@ -18,46 +18,45 @@ namespace SkSL {
  * A 'for' statement.
  */
 struct ForStatement : public Statement {
-    ForStatement(int offset, std::unique_ptr<Statement> initializer,
-                 std::unique_ptr<Expression> test, std::unique_ptr<Expression> next,
-                 std::unique_ptr<Statement> statement, std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(offset, kFor_Kind)
+    ForStatement(IRGenerator* irGenerator, int offset, IRNode::ID initializer, IRNode::ID test,
+                 IRNode::ID next, IRNode::ID statement, std::shared_ptr<SymbolTable> symbols)
+    : INHERITED(irGenerator, offset, kFor_Kind)
     , fSymbols(symbols)
-    , fInitializer(std::move(initializer))
-    , fTest(std::move(test))
-    , fNext(std::move(next))
-    , fStatement(std::move(statement)) {}
+    , fInitializer(initializer)
+    , fTest(test)
+    , fNextExpression(next)
+    , fStatement(statement) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new ForStatement(fOffset, fInitializer->clone(),
-                                                           fTest->clone(), fNext->clone(),
-                                                           fStatement->clone(), fSymbols));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new ForStatement(fIRGenerator, fOffset, fInitializer,
+                                                         fTest, fNextExpression, fStatement,
+                                                         fSymbols));
     }
 
     String description() const override {
         String result("for (");
         if (fInitializer) {
-            result += fInitializer->description();
+            result += fInitializer.node().description();
         }
         result += " ";
         if (fTest) {
-            result += fTest->description();
+            result += fTest.node().description();
         }
         result += "; ";
-        if (fNext) {
-            result += fNext->description();
+        if (fNextExpression) {
+            result += fNextExpression.node().description();
         }
-        result += ") " + fStatement->description();
+        result += ") " + fStatement.node().description();
         return result;
     }
 
     // it's important to keep fSymbols defined first (and thus destroyed last) because destroying
     // the other fields can update symbol reference counts
     const std::shared_ptr<SymbolTable> fSymbols;
-    std::unique_ptr<Statement> fInitializer;
-    std::unique_ptr<Expression> fTest;
-    std::unique_ptr<Expression> fNext;
-    std::unique_ptr<Statement> fStatement;
+    IRNode::ID fInitializer;
+    IRNode::ID fTest;
+    IRNode::ID fNextExpression;
+    IRNode::ID fStatement;
 
     typedef Statement INHERITED;
 };

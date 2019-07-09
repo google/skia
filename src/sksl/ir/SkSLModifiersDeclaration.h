@@ -19,12 +19,12 @@ namespace SkSL {
  * layout(blend_support_all_equations) out;
  */
 struct ModifiersDeclaration : public ProgramElement {
-    ModifiersDeclaration(Modifiers modifiers)
-    : INHERITED(-1, kModifiers_Kind)
+    ModifiersDeclaration(IRGenerator* irGenerator, Modifiers modifiers)
+    : INHERITED(irGenerator, -1, kModifiers_Kind)
     , fModifiers(modifiers) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new ModifiersDeclaration(fModifiers));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new ModifiersDeclaration(fIRGenerator, fModifiers));
     }
 
     String description() const override {
