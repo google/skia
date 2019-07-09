@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3c3cbdf_2a4de96a",
+        "filename": "src/core/SkCubicMap.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-09T14:49:11Z",
+      "side": 1,
+      "message": "Think this is a domain where we can half-precision invert and multiply instead of divide?",
+      "revId": "bb06022a6374214969f60944ee1a4602826339f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
