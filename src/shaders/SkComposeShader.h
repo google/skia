@@ -13,8 +13,9 @@
 
 class SkShader_Blend final : public SkShaderBase {
 public:
-    SkShader_Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src)
-        : fDst(std::move(dst))
+    SkShader_Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src, const SkMatrix* lm)
+        : INHERITED(lm)
+        , fDst(std::move(dst))
         , fSrc(std::move(src))
         , fMode(mode)
     {}
@@ -40,8 +41,9 @@ private:
 
 class SkShader_Lerp final : public SkShaderBase {
 public:
-    SkShader_Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src)
-        : fDst(std::move(dst))
+    SkShader_Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src, const SkMatrix* lm)
+        : INHERITED(lm)
+        , fDst(std::move(dst))
         , fSrc(std::move(src))
         , fWeight(weight)
     {
@@ -69,8 +71,10 @@ private:
 
 class SkShader_LerpRed final : public SkShaderBase {
 public:
-    SkShader_LerpRed(sk_sp<SkShader> red, sk_sp<SkShader> dst, sk_sp<SkShader> src)
-        : fDst(std::move(dst))
+    SkShader_LerpRed(sk_sp<SkShader> red, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                     const SkMatrix* lm)
+        : INHERITED(lm)
+        , fDst(std::move(dst))
         , fSrc(std::move(src))
         , fRed(std::move(red))
     {}

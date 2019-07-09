@@ -16,39 +16,68 @@
 #include "src/shaders/SkColorShader.h"
 #include "src/shaders/SkComposeShader.h"
 
-sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
-    switch (mode) {
-        case SkBlendMode::kClear: return Color(0);
-        case SkBlendMode::kDst:   return dst;
-        case SkBlendMode::kSrc:   return src;
-        default: break;
-    }
-    return sk_sp<SkShader>(new SkShader_Blend(mode, std::move(dst), std::move(src)));
+namespace {
+
+sk_sp<SkShader> wrap_lm(sk_sp<SkShader> shader, const SkMatrix* lm) {
+    return (shader && lm) ? shader->makeWithLocalMatrix(*lm) : shader;
 }
 
-sk_sp<SkShader> SkShaders::Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
+struct LocalMatrixStageRec final : public SkStageRec {
+    LocalMatrixStageRec(const SkStageRec& rec, const SkMatrix& lm)
+        : INHERITED(rec) {
+        if (!lm.isIdentity()) {
+            if (fLocalM) {
+                fStorage.setConcat(lm, *fLocalM);
+                fLocalM = fStorage.isIdentity() ? nullptr : &fStorage;
+            } else {
+                fLocalM = &lm;
+            }
+        }
+    }
+
+private:
+    SkMatrix fStorage;
+
+    using INHERITED = SkStageRec;
+};
+
+} // namespace
+
+sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                 const SkMatrix* lm) {
+    switch (mode) {
+        case SkBlendMode::kClear: return Color(0);
+        case SkBlendMode::kDst:   return wrap_lm(std::move(dst), lm);
+        case SkBlendMode::kSrc:   return wrap_lm(std::move(src), lm);
+        default: break;
+    }
+    return sk_sp<SkShader>(new SkShader_Blend(mode, std::move(dst), std::move(src), lm));
+}
+
+sk_sp<SkShader> SkShaders::Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                const SkMatrix* lm) {
     if (SkScalarIsNaN(weight)) {
         return nullptr;
     }
-    if (dst == src) {
-        return dst;
+    if (dst == src || weight <= 0) {
+        return wrap_lm(std::move(dst), lm);
     }
-    if (weight <= 0) {
-        return dst;
-    } else if (weight >= 1) {
-        return src;
+    if (weight >= 1) {
+        return wrap_lm(std::move(src), lm);
     }
-    return sk_sp<SkShader>(new SkShader_Lerp(weight, std::move(dst), std::move(src)));
+    return sk_sp<SkShader>(new SkShader_Lerp(weight, std::move(dst), std::move(src), lm));
 }
 
-sk_sp<SkShader> SkShaders::Lerp(sk_sp<SkShader> red, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
+sk_sp<SkShader> SkShaders::Lerp(sk_sp<SkShader> red, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                const SkMatrix* lm) {
     if (!red) {
         return nullptr;
     }
     if (dst == src) {
-        return dst;
+        return wrap_lm(std::move(dst), lm);
     }
-    return sk_sp<SkShader>(new SkShader_LerpRed(std::move(red), std::move(dst), std::move(src)));
+    return sk_sp<SkShader>(new SkShader_LerpRed(std::move(red), std::move(dst), std::move(src),
+                                                lm));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -102,7 +131,9 @@ void SkShader_Blend::flatten(SkWriteBuffer& buffer) const {
     buffer.write32((int)fMode);
 }
 
-bool SkShader_Blend::onAppendStages(const SkStageRec& rec) const {
+bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
+    const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
+
     float* res0 = append_two_shaders(rec, fDst.get(), fSrc.get());
     if (!res0) {
         return false;
@@ -126,7 +157,9 @@ void SkShader_Lerp::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fWeight);
 }
 
-bool SkShader_Lerp::onAppendStages(const SkStageRec& rec) const {
+bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
+    const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
+
     float* res0 = append_two_shaders(rec, fDst.get(), fSrc.get());
     if (!res0) {
         return false;
@@ -151,7 +184,9 @@ void SkShader_LerpRed::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fRed.get());
 }
 
-bool SkShader_LerpRed::onAppendStages(const SkStageRec& rec) const {
+bool SkShader_LerpRed::onAppendStages(const SkStageRec& orig_rec) const {
+    const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
+
     struct Storage {
         float   fRed[4 * SkRasterPipeline_kMaxStride];
     };
@@ -184,7 +219,9 @@ static std::unique_ptr<GrFragmentProcessor> as_fp(const GrFPArgs& args, SkShader
     return shader ? as_SB(shader)->asFragmentProcessor(args) : nullptr;
 }
 
-std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(const GrFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
+        const GrFPArgs& orig_args) const {
+    const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
     if (!fpA || !fpB) {
@@ -194,13 +231,17 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(const G
                                                               std::move(fpA), fMode);
 }
 
-std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(const GrFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
+        const GrFPArgs& orig_args) const {
+    const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
     return GrComposeLerpEffect::Make(std::move(fpA), std::move(fpB), fWeight);
 }
 
-std::unique_ptr<GrFragmentProcessor> SkShader_LerpRed::asFragmentProcessor(const GrFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor> SkShader_LerpRed::asFragmentProcessor(
+        const GrFPArgs& orig_args) const {
+    const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
     auto red = as_SB(fRed)->asFragmentProcessor(args);
