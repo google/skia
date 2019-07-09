@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e9aaed9_9d1c80e2",
+        "filename": "tools/sk_app/unix/Window_unix.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-09T14:29:36Z",
+      "side": 1,
+      "message": "Well, that\u0027s annoying.",
+      "range": {
+        "startLine": 228,
+        "startChar": 15,
+        "endLine": 228,
+        "endChar": 16
+      },
+      "revId": "e9f2d235ab988e13be5ab2d39be139bdace17c26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
