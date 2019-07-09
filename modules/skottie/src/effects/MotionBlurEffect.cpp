@@ -80,9 +80,21 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
 
     canvas->saveLayer(this->bounds(), nullptr);
 
-    SkPaint frame_paint;
-    frame_paint.setAlphaf(1.0f / fSampleCount);
-    frame_paint.setBlendMode(SkBlendMode::kPlus);
+    const auto frame_alpha = 1.0f / fSampleCount;
+
+    // Depending on whether we can defer frame blending,
+    // use a local (deferred) RenderContext or an explicit layer for frame/content rendering.
+    ScopedRenderContext frame_ctx(canvas, ctx);
+    SkPaint             frame_paint;
+
+    const auto isolate_frames = ctx->fBlendMode != SkBlendMode::kSrcOver;
+    if (isolate_frames) {
+        frame_paint.setAlphaf(frame_alpha);
+        frame_paint.setBlendMode(SkBlendMode::kPlus);
+    } else {
+        frame_ctx = frame_ctx.modulateOpacity(frame_alpha)
+                             .modulateBlendMode(SkBlendMode::kPlus);
+    }
 
     sksg::InvalidationController ic;
 
@@ -98,9 +110,12 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
 
         child->revalidate(&ic, canvas->getTotalMatrix());
 
-        canvas->saveLayer(nullptr, &frame_paint);
-        child->render(canvas, ctx);
-        canvas->restore();
+        SkAutoCanvasRestore acr(canvas, false);
+        if (isolate_frames) {
+            canvas->saveLayer(nullptr, &frame_paint);
+        }
+
+        child->render(canvas, frame_ctx);
     }
 }
 
