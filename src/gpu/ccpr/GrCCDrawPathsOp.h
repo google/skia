@@ -84,7 +84,7 @@ private:
                     const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
                     const SkRect& conservativeDevBounds, GrPaint&&);
 
-    void recordInstance(GrTextureProxy* atlasProxy, int instanceIdx);
+    void recordInstance(GrTextureProxy* atlasProxy, GrCCPathProcessor::Mode, int instanceIdx);
 
     const SkMatrix fViewMatrixIfUsingLocalCoords;
 
@@ -134,6 +134,7 @@ private:
 
     struct InstanceRange {
         GrTextureProxy* fAtlasProxy;
+        GrCCPathProcessor::Mode fDrawToCanvasMode;
         int fEndInstanceIdx;
     };
 
