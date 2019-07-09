@@ -17287,7 +17287,6 @@
           "go/go/bin"
         ]
       },
-      "idempotent": true,
       "isolate": "task_drivers.isolate"
     },
     "Housekeeper-PerCommit-BundleRecipes": {
@@ -17331,7 +17330,6 @@
           "cipd_bin_packages/bin"
         ]
       },
-      "idempotent": true,
       "isolate": "recipes.isolate"
     },
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
@@ -17647,7 +17645,6 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
       "isolate": "empty.isolate"
     },
     "Housekeeper-PerCommit-IsolateSKP": {
@@ -17671,7 +17668,6 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
       "isolate": "empty.isolate"
     },
     "Housekeeper-PerCommit-IsolateSVG": {
@@ -17695,7 +17691,6 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
       "isolate": "empty.isolate"
     },
     "Housekeeper-PerCommit-IsolateSkImage": {
@@ -17719,7 +17714,6 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
       "isolate": "empty.isolate"
     },
     "Housekeeper-PerCommit-IsolateWinToolchain": {
@@ -17743,7 +17737,6 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
       "isolate": "empty.isolate"
     },
     "Housekeeper-Weekly-RecreateSKPs": {
