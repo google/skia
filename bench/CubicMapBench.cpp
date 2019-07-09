@@ -23,18 +23,19 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
+        volatile float accum = 0;
         for (int outer = 0; outer < 100; ++outer) {
             for (int i = 0; i < loops; ++i) {
-                for (SkScalar x = 0; x <= 1; x += 1.0f / 512) {
-                    fCMap.computeYFromX(x);
+                for (SkScalar x = 0; x <= 1; x += 1.0f / 512.0f) {
+                    accum = fCMap.computeYFromX(x);
                 }
             }
         }
     }
 
 private:
-    SkCubicMap  fCMap;
-    SkString    fName;
+    SkCubicMap fCMap;
+    SkString   fName;
 
     typedef Benchmark INHERITED;
 };
@@ -51,3 +52,49 @@ DEF_BENCH( return new CubicMapBench({0, 1}, {1,1}); )
 
 DEF_BENCH( return new CubicMapBench({0, 0}, {1,1}); )
 DEF_BENCH( return new CubicMapBench({1, 1}, {0,0}); )
+
+class CubicMapBenchExperimental : public Benchmark {
+public:
+    CubicMapBenchExperimental(SkPoint p1, SkPoint p2) : fCMap(p1, p2) {
+        fName.printf("cubicmap_experimental_%g_%g_%g_%g", p1.fX, p1.fY, p2.fX, p2.fY);
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        volatile float accum = 0;
+        for (int outer = 0; outer < 100; ++outer) {
+            for (int i = 0; i < loops; ++i) {
+                for (SkScalar x = 0; x <= 1; x += 1.0f / 512.0f) {
+                    accum = fCMap.computeYFromX(x);
+                }
+            }
+        }
+    }
+
+private:
+    SkCubicMapExperiment fCMap;
+    SkString             fName;
+
+    typedef Benchmark INHERITED;
+};
+
+DEF_BENCH( return new CubicMapBenchExperimental({1, 0}, {0,0}); )
+DEF_BENCH( return new CubicMapBenchExperimental({1, 0}, {0,1}); )
+DEF_BENCH( return new CubicMapBenchExperimental({1, 0}, {1,0}); )
+DEF_BENCH( return new CubicMapBenchExperimental({1, 0}, {1,1}); )
+
+DEF_BENCH( return new CubicMapBenchExperimental({0, 1}, {0,0}); )
+DEF_BENCH( return new CubicMapBenchExperimental({0, 1}, {0,1}); )
+DEF_BENCH( return new CubicMapBenchExperimental({0, 1}, {1,0}); )
+DEF_BENCH( return new CubicMapBenchExperimental({0, 1}, {1,1}); )
+
+DEF_BENCH( return new CubicMapBenchExperimental({0, 0}, {1,1}); )
+DEF_BENCH( return new CubicMapBenchExperimental({1, 1}, {0,0}); )
+DEF_BENCH( return new CubicMapBenchExperimental({0.25f, 0}, {0.5f, 0}); )
