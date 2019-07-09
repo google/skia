@@ -119,7 +119,7 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     procs.fImageProc = SkSharingSerialContext::serializeImage;
     procs.fImageCtx = &ctx;
 
-    // Create the mulit picture document used for recording frames.
+    // Create the multi picture document used for recording frames.
     sk_sp<SkDocument> multipic = SkMakeMultiPictureDocument(&stream, &procs);
 
     static const int NUM_FRAMES = 12;

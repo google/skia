@@ -48,9 +48,6 @@ public:
 
     size_t approxBytesUsedBySubPictures() const { return fApproxBytesUsedBySubPictures; }
 
-    SkDrawableList* getDrawableList() const { return fDrawableList.get(); }
-    std::unique_ptr<SkDrawableList> detachDrawableList() { return std::move(fDrawableList); }
-
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
 
@@ -136,7 +133,6 @@ private:
     DrawPictureMode fDrawPictureMode;
     size_t fApproxBytesUsedBySubPictures;
     SkRecord* fRecord;
-    std::unique_ptr<SkDrawableList> fDrawableList;
 
     SkMiniRecorder* fMiniRecorder;
 };

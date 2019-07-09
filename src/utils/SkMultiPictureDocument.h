@@ -18,6 +18,8 @@ class SkStreamSeekable;
 
 /**
  *  Writes into a file format that is similar to SkPicture::serialize()
+ *  Pages are written as subpictures separated by annotations.
+ *  All serialization work is performed when close() is called.
  */
 SK_API sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst, const SkSerialProcs* = nullptr);
 

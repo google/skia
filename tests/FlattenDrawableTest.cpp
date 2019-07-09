@@ -262,6 +262,7 @@ DEF_TEST(FlattenRecordedDrawable, r) {
     canvas->drawString("TEXT", 467.0f, 100.0f, SkFont(), textPaint);
 
     // Draw some drawables as well
+    // We expect them not to be recorded as drawables, but immediately played back.
     sk_sp<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));
     sk_sp<RootDrawable> root(new RootDrawable(5, 6, 7, 8, paint, 9, 10, 11, 12, drawable.get()));
     canvas->drawDrawable(root.get(), 747.0f, 242.0f);
