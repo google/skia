@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+/*
 #include "src/sksl/SkSLCompiler.h"
 
 #include "tests/Test.h"
@@ -131,3 +131,4 @@ DEF_TEST(SkSLMetalConstantSwizzle, r) {
          "    return *_out;\n"
          "}\n");
 }
+*/

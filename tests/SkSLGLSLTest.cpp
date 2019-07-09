@@ -23,20 +23,23 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
     SkSL::String output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkSL::String(src),
                                                                      settings);
-    if (!program) {
+    REPORTER_ASSERT(r, compiler.errorCount() == 0);
+    if (compiler.errorCount()) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
-    REPORTER_ASSERT(r, program);
     if (program) {
         *inputs = program->fInputs;
         REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
-        if (program) {
+        REPORTER_ASSERT(r, compiler.errorCount() == 0);
+        if (!compiler.errorCount()) {
             SkSL::String skExpected(expected);
             if (output != skExpected) {
                 SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src,
                          expected, output.c_str());
             }
             REPORTER_ASSERT(r, output == skExpected);
+        } else {
+            SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
         }
     }
 }
@@ -1396,6 +1399,37 @@ DEF_TEST(SkSLGeometry, r) {
          "    EndPrimitive();\n"
          "}\n",
          SkSL::Program::kGeometry_Kind);
+}
+
+this is producing a different CFG than it does in ToT
+DEF_TEST(SkSL_TEMP, r) {
+    // basic "does a switch even work" test
+    test(r,
+         "void main() {"
+         "    float x;"
+         "    switch (int(sqrt(1))) {"
+         "        default:"
+         "            x = sqrt(2.0);"
+         "    }"
+         "    sk_FragColor = half4(half(x));"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x;\n"
+         "    switch (int(sqrt(1.0))) {\n"
+         "        case 0:\n"
+         "            x = 0.0;\n"
+         "            break;\n"
+         "        case 1:\n"
+         "            x = 1.0;\n"
+         "            break;\n"
+         "        default:\n"
+         "            x = 2.0;\n"
+         "    }\n"
+         "    sk_FragColor = vec4(x);\n"
+         "}\n");
 }
 
 DEF_TEST(SkSLSwitch, r) {

@@ -50,7 +50,7 @@ public:
     //
     // The returned mapper can support tracking even if tracking is disabled based on the flags in
     // the layout.
-    static const UniformCTypeMapper* Get(const Context& context, const Type& type,
+    static const UniformCTypeMapper* Get(const Context& context, IRNode::ID type,
                                          const Layout& layout);
 
     static const UniformCTypeMapper* Get(const Context& context, const Variable& variable) {
