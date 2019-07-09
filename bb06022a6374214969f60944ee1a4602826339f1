@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "bfd4d183_e26af4bb",
+        "filename": "include/core/SkCubicMap.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-09T15:59:56Z",
+      "side": 1,
+      "message": "SG, I wouldn\u0027t hold this change over it.",
+      "parentUuid": "94fef728_9d4e1610",
+      "revId": "bb06022a6374214969f60944ee1a4602826339f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3c3cbdf_2a4de96a",
         "filename": "src/core/SkCubicMap.cpp",
         "patchSetId": 5
