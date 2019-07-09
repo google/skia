@@ -274,6 +274,70 @@ void GrGLClearErr(const GrGLInterface* gl);
 // call glGetError without doing a redundant error check or logging.
 #define GR_GL_GET_ERROR(IFACE) (IFACE)->fFunctions.fGetError()
 
+static constexpr GrGLenum GrGLSizedInternalFormatToGLenum(GrGLSizedInternalFormat format) {
+    switch (format) {
+        case GrGLSizedInternalFormat::kUnknown: return 0;
+
+        case GrGLSizedInternalFormat::kRGBA8: return GR_GL_RGBA8;
+        case GrGLSizedInternalFormat::kR8: return GR_GL_R8;
+        case GrGLSizedInternalFormat::kALPHA8: return GR_GL_ALPHA8;
+        case GrGLSizedInternalFormat::kLUMINANCE8: return GR_GL_LUMINANCE8;
+        case GrGLSizedInternalFormat::kBGRA8: return GR_GL_BGRA8;
+        case GrGLSizedInternalFormat::kRGB565: return GR_GL_RGB565;
+        case GrGLSizedInternalFormat::kRGBA16F: return GR_GL_RGBA16F;
+        case GrGLSizedInternalFormat::kR16F: return GR_GL_R16F;
+        case GrGLSizedInternalFormat::kRGB8: return GR_GL_RGB8;
+        case GrGLSizedInternalFormat::kRG8: return GR_GL_RG8;
+        case GrGLSizedInternalFormat::kRGB10_A2: return GR_GL_RGB10_A2;
+        case GrGLSizedInternalFormat::kRGBA4: return GR_GL_RGBA4;
+        case GrGLSizedInternalFormat::kRGBA32F: return GR_GL_RGBA32F;
+        case GrGLSizedInternalFormat::kRG32F: return GR_GL_RG32F;
+        case GrGLSizedInternalFormat::kSRGB8_ALPHA8: return GR_GL_SRGB8_ALPHA8;
+        case GrGLSizedInternalFormat::kCOMPRESSED_RGB8_ETC2: return GR_GL_COMPRESSED_RGB8_ETC2;
+        case GrGLSizedInternalFormat::kCOMPRESSED_ETC1_RGB8: return GR_GL_COMPRESSED_ETC1_RGB8;
+        case GrGLSizedInternalFormat::kR16: return GR_GL_R16;
+        case GrGLSizedInternalFormat::kRG16: return GR_GL_RG16;
+        case GrGLSizedInternalFormat::kRGBA16: return GR_GL_RGBA16;
+        case GrGLSizedInternalFormat::kRG16F: return GR_GL_RG16F;
+    }
+    SkUNREACHABLE;
+}
+
+static constexpr GrGLSizedInternalFormat GrGLSizedInternalFormatFromGLenum(GrGLenum glFormat) {
+    switch (glFormat) {
+        case GR_GL_RGBA8: return GrGLSizedInternalFormat::kRGBA8;
+        case GR_GL_R8: return GrGLSizedInternalFormat::kR8;
+        case GR_GL_ALPHA8: return GrGLSizedInternalFormat::kALPHA8;
+        case GR_GL_LUMINANCE8: return GrGLSizedInternalFormat::kLUMINANCE8;
+        case GR_GL_BGRA8: return GrGLSizedInternalFormat::kBGRA8;
+        case GR_GL_RGB565: return GrGLSizedInternalFormat::kRGB565;
+        case GR_GL_RGBA16F: return GrGLSizedInternalFormat::kRGBA16F;
+        case GR_GL_R16F: return GrGLSizedInternalFormat::kR16F;
+        case GR_GL_RGB8: return GrGLSizedInternalFormat::kRGB8;
+        case GR_GL_RG8: return GrGLSizedInternalFormat::kRG8;
+        case GR_GL_RGB10_A2: return GrGLSizedInternalFormat::kRGB10_A2;
+        case GR_GL_RGBA4: return GrGLSizedInternalFormat::kRGBA4;
+        case GR_GL_RGBA32F: return GrGLSizedInternalFormat::kRGBA32F;
+        case GR_GL_RG32F: return GrGLSizedInternalFormat::kRG32F;
+        case GR_GL_SRGB8_ALPHA8: return GrGLSizedInternalFormat::kSRGB8_ALPHA8;
+        case GR_GL_COMPRESSED_RGB8_ETC2: return GrGLSizedInternalFormat::kCOMPRESSED_RGB8_ETC2;
+        case GR_GL_COMPRESSED_ETC1_RGB8: return GrGLSizedInternalFormat::kCOMPRESSED_ETC1_RGB8;
+        case GR_GL_R16: return GrGLSizedInternalFormat::kR16;
+        case GR_GL_RG16: return GrGLSizedInternalFormat::kRG16;
+        case GR_GL_RGBA16: return GrGLSizedInternalFormat::kRGBA16;
+        case GR_GL_RG16F: return GrGLSizedInternalFormat::kRG16F;
+
+        default: return GrGLSizedInternalFormat::kUnknown;
+    }
+}
+
+static inline GrGLSizedInternalFormat GrGLBackendFormatToSizedInternalFormat(const GrBackendFormat& format) {
+    if (const GrGLenum* glFormat = format.getGLFormat()) {
+        return GrGLSizedInternalFormatFromGLenum(*glFormat);
+    }
+    return GrGLSizedInternalFormat::kUnknown;
+}
+
 GrGLenum GrToGLStencilFunc(GrStencilTest test);
 
 /**
@@ -287,7 +351,5 @@ bool GrGLFormatIsCompressed(GrGLenum glFormat);
 bool GrGLFormatToCompressionType(GrGLenum glFormat, SkImage::CompressionType*);
 
 size_t GrGLBytesPerFormat(GrGLenum glFormat);
-
-bool GrGLFormatIsSupported(GrGLenum format);
 
 #endif
