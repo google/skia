@@ -520,6 +520,7 @@
       "~^TextureStripAtlasManagerColorFilterTest$",
       "~^WritePixelsNonTextureMSAA_Gpu$",
       "~^AsyncReadPixels$",
+      "~^VkBackendAllocationTest$",
       "--nonativeFonts",
       "--verbose"
     ],
