@@ -258,7 +258,7 @@ enum GrGLBackendState {
     kMSAAEnable_GrGLBackendState       = 1 << 4,
     kVertex_GrGLBackendState           = 1 << 5,
     kStencil_GrGLBackendState          = 1 << 6,
-    kPixelStore_GrGLBackendState       = 1 << 7,
+    kPixelStore_GrGLBackendState       = 1 << 7,  // Remove when no longer used by Chrome.
     kProgram_GrGLBackendState          = 1 << 8,
     kFixedFunction_GrGLBackendState    = 1 << 9,
     kMisc_GrGLBackendState             = 1 << 10,
