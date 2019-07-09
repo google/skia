@@ -22,7 +22,7 @@ using sk_gpu_test::GrContextFactory;
 
 static const char defaultConfigs[] = "8888 " DEFAULT_GPU_CONFIG
                                      " nonrendering "
-#if defined(SK_BUILD_FOR_WIN)
+#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
                                      " angle_d3d11_es2"
 #endif
         ;
