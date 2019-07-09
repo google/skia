@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "53e81e44_6b6273ef",
+        "filename": "infra/bots/compile.isolate",
+        "patchSetId": 23
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-09T18:48:43Z",
+      "side": 1,
+      "message": "I would like to auto-generate this file based on our GN files so that, if a file is needed as part of the build, it\u0027s included here.  Then we could add a presubmit check to verify that this file is correct.  But I\u0027m not sure how to make that work.\n\nYou have a spreadsheet for deduplicating builds? I\u0027m definitely interested in seeing it.",
+      "parentUuid": "828aa7c2_d4fb7bd9",
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7d0501a8_75034aa5",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 23
@@ -39,6 +57,30 @@
       "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae8fb0a8_a3c850eb",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 23
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-09T18:48:43Z",
+      "side": 1,
+      "message": "Done. This was also to save some time in the common case where most of these files aren\u0027t needed. But they should be cached anyway.",
+      "parentUuid": "7d0501a8_75034aa5",
+      "range": {
+        "startLine": 907,
+        "startChar": 0,
+        "endLine": 914,
+        "endChar": 37
+      },
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "d6efc9c5_eb7fc9d0",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-09T18:48:43Z",
+      "side": 1,
+      "message": "Good catch, done.",
+      "parentUuid": "76198af2_94cbce42",
+      "range": {
+        "startLine": 29,
+        "startChar": 12,
+        "endLine": 30,
+        "endChar": 67
+      },
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d50929c_dde3e993",
         "filename": "infra/bots/recipes/sync_and_compile.py",
         "patchSetId": 23
@@ -82,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "870d8e2a_d64c354e",
+        "filename": "infra/bots/recipes/sync_and_compile.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-09T18:48:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d50929c_dde3e993",
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7ed7212_2a6fe63b",
         "filename": "infra/bots/recipes/sync_and_compile.py",
         "patchSetId": 23
@@ -96,6 +180,24 @@
       "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfde0e0b_ef1fcded",
+        "filename": "infra/bots/recipes/sync_and_compile.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-09T18:48:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7ed7212_2a6fe63b",
+      "revId": "2a057c36d76650921fe995fb5bf446d97eb628b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
