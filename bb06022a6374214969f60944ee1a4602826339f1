@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "94fef728_9d4e1610",
+        "filename": "include/core/SkCubicMap.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-09T15:37:53Z",
+      "side": 1,
+      "message": "I could land with a very small N (e.g. 4) for now, and then we can consider the need/value of variants.\n\nIs 6K really a set-back for you in RAM?",
+      "parentUuid": "a6cf994c_044057c9",
+      "revId": "bb06022a6374214969f60944ee1a4602826339f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3c3cbdf_2a4de96a",
         "filename": "src/core/SkCubicMap.cpp",
         "patchSetId": 5
