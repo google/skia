@@ -139,7 +139,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
 
     const GrBackendFormat format =
             ctxInfo.grContext()->priv().caps()->getBackendFormatFromColorType(
-                    kRGBA_8888_SkColorType);
+                    GrColorType::kRGBA_8888);
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                 format, desc, kBottomLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);

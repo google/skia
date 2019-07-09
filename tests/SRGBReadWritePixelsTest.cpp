@@ -205,7 +205,7 @@ static sk_sp<GrSurfaceContext> make_surface_context(Encoding contextEncoding, Gr
     GrSRGBEncoded srgbEncoded = GrSRGBEncoded::kNo;
     GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(desc.fConfig, &srgbEncoded);
     const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromGrColorType(colorType, srgbEncoded);
+            context->priv().caps()->getBackendFormatFromColorType(colorType, srgbEncoded);
 
     auto surfaceContext = context->priv().makeDeferredSurfaceContext(
             format, desc, kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,

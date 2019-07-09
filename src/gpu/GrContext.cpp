@@ -355,7 +355,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(colorType);
+    GrBackendFormat format =
+            this->caps()->getBackendFormatFromColorType(SkColorTypeToGrColorType(colorType));
     if (!format.isValid()) {
         return GrBackendTexture();
     }
@@ -383,7 +384,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return {};
     }
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(c.colorType());
+    const GrBackendFormat format =
+            caps->getBackendFormatFromColorType(SkColorTypeToGrColorType(c.colorType()));
     if (!format.isValid()) {
         return GrBackendTexture();
     }
@@ -422,7 +424,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return {};
     }
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(c.colorType());
+    const GrBackendFormat format =
+            caps->getBackendFormatFromColorType(SkColorTypeToGrColorType(c.colorType()));
     if (!format.isValid()) {
         return GrBackendTexture();
     }
@@ -478,13 +481,15 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(colorType);
+    GrColorType ct = SkColorTypeToGrColorType(colorType);
+    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(ct);
     if (!format.isValid()) {
         return GrBackendTexture();
     }
+    SkColor4f swizzledColor = this->caps()->getOutputSwizzle(format, ct).applyTo(color);
 
-    return this->createBackendTexture(width, height, format, color,
-                                      mipMapped, renderable, isProtected);
+    return this->createBackendTexture(width, height, format, swizzledColor, mipMapped, renderable,
+                                      isProtected);
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {

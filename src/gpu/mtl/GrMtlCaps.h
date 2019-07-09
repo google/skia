@@ -67,14 +67,10 @@ public:
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                               GrColorType) const override;
 
-    bool areColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
-
-    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
-
     GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
 
-    GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
-                                                    GrSRGBEncoded srgbEncoded) const override;
+    GrBackendFormat getBackendFormatFromColorType(GrColorType ct,
+                                                  GrSRGBEncoded srgbEncoded) const override;
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -97,6 +93,8 @@ private:
         // Transfer buffers not yet supported.
         return 0;
     }
+    GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
+    bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
     struct ConfigInfo {
         ConfigInfo() : fFlags(0) {}
