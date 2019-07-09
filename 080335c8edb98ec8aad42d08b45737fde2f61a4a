@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47dacdce_3fef318d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1284,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-07-09T14:47:12Z",
+      "side": 1,
+      "message": "It\u0027s really a rendertarget, so we need to treat it like a rendertarget for this check.",
+      "range": {
+        "startLine": 1284,
+        "startChar": 67,
+        "endLine": 1284,
+        "endChar": 71
+      },
+      "revId": "080335c8edb98ec8aad42d08b45737fde2f61a4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
