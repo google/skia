@@ -22,6 +22,30 @@
       "revId": "080335c8edb98ec8aad42d08b45737fde2f61a4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4640691_4b7b9f70",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1284,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-09T15:13:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "47dacdce_3fef318d",
+      "range": {
+        "startLine": 1284,
+        "startChar": 67,
+        "endLine": 1284,
+        "endChar": 71
+      },
+      "revId": "080335c8edb98ec8aad42d08b45737fde2f61a4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
