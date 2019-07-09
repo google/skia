@@ -121,6 +121,8 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
             // R4G4B4A4 is not required to be supported so we actually
             // store RGBA_4444 data as B4G4R4A4.
             return kRGBA_4444_GrPixelConfig == config;
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
+            return kRGBA_4444_GrPixelConfig == config;
         case VK_FORMAT_R8_UNORM:
             return kAlpha_8_GrPixelConfig == config ||
                    kAlpha_8_as_Red_GrPixelConfig == config ||
