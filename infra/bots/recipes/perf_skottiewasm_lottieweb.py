@@ -200,6 +200,9 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
         frame_id_to_start_ts[frame_id] = trace['ts']
       elif args and (args.get('termination_status') in
                      accepted_termination_statuses):
+        if not frame_id_to_start_ts.get(frame_id):
+          print '[No start ts found for %s]' % frame_id
+          continue
         current_frame_duration = trace['ts'] - frame_id_to_start_ts[frame_id]
         total_frames += 1
         frame_max = max(frame_max, current_frame_duration)
