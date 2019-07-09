@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "355032ee_4a1863c9",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-09T11:46:07Z",
+      "side": 1,
+      "message": "are these limits (e.g. +-360) part of the effect itself (i.e. impl limits) or are they skottie/AE specific? i.e. should we perform the pinning here, or up where you parsed the JSON?",
+      "range": {
+        "startLine": 25,
+        "startChar": 29,
+        "endLine": 25,
+        "endChar": 30
+      },
+      "revId": "501a2d66209238a9dab1d3f3fecec287daab98ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81037163_52ce4df2",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-09T11:46:07Z",
+      "side": 1,
+      "message": "can you tell if/when the child is a singleton, so we can skip this sub-layer? (just like we do when we apply alpha)?",
+      "range": {
+        "startLine": 102,
+        "startChar": 13,
+        "endLine": 102,
+        "endChar": 14
+      },
+      "revId": "501a2d66209238a9dab1d3f3fecec287daab98ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
