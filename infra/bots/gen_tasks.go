@@ -891,8 +891,26 @@ func attempts(name string) int {
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
-	task := kitchenTask(name, "compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), EXTRA_PROPS, OUTPUT_BUILD)
-	usesGit(task, name)
+	recipe := "compile"
+	isolate := "compile.isolate"
+	var props map[string]string
+	needSync := false
+	if strings.Contains(name, "NoDEPS") ||
+		strings.Contains(name, "CMake") ||
+		strings.Contains(name, "CommandBuffer") ||
+		strings.Contains(name, "Flutter") ||
+		strings.Contains(name, "ParentRevision") {
+		recipe = "sync_and_compile"
+		isolate = "swarm_recipe.isolate"
+		props = EXTRA_PROPS
+		needSync = true
+	}
+	task := kitchenTask(name, recipe, isolate, SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), props, OUTPUT_BUILD)
+	if needSync {
+		usesGit(task, name)
+	} else {
+		task.Idempotent = true
+	}
 	usesDocker(task, name)
 
 	// Android bots require a toolchain.
@@ -1058,7 +1076,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 		}
 	}
 	extraProps := map[string]string{
-		"repository":           specs.PLACEHOLDER_REPO,
+		"repository": specs.PLACEHOLDER_REPO,
 	}
 	task := kitchenTask(name, "infra", "infra_tests.isolate", SERVICE_ACCOUNT_COMPILE, dims, extraProps, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GSUTIL...)
