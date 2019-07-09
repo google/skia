@@ -13,6 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkPictureRecorder.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecorder.h"
 #include "src/utils/SkMultiPictureDocument.h"
@@ -120,7 +121,8 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     procs.fImageCtx = &ctx;
 
     // Create the mulit picture document used for recording frames.
-    sk_sp<SkDocument> multipic = SkMakeMultiPictureDocument(&stream, &procs);
+    sk_sp<SkDocument> multipic = SkMakeMultiPictureDocument(&stream, &procs,
+        SkPictureRecorder::kPlaybackDrawPicture_RecordFlag);
 
     static const int NUM_FRAMES = 12;
     static const int WIDTH = 256;

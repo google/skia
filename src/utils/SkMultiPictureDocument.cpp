@@ -53,15 +53,17 @@ struct MultiPictureDocument final : public SkDocument {
     SkSize fCurrentPageSize;
     SkTArray<sk_sp<SkPicture>> fPages;
     SkTArray<SkSize> fSizes;
-    MultiPictureDocument(SkWStream* s, const SkSerialProcs* procs)
+    uint32_t fRecordFlags;
+    MultiPictureDocument(SkWStream* s, const SkSerialProcs* procs, uint32_t recordFlags)
         : SkDocument(s)
         , fProcs(procs ? *procs : SkSerialProcs())
+        , fRecordFlags(recordFlags)
     {}
     ~MultiPictureDocument() override { this->close(); }
 
     SkCanvas* onBeginPage(SkScalar w, SkScalar h) override {
         fCurrentPageSize.set(w, h);
-        return fPictureRecorder.beginRecording(w, h);
+        return fPictureRecorder.beginRecording(w, h, nullptr /* bbhFactory */, fRecordFlags);
     }
     void onEndPage() override {
         fSizes.push_back(fCurrentPageSize);
@@ -96,8 +98,9 @@ struct MultiPictureDocument final : public SkDocument {
 };
 }
 
-sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
-    return sk_make_sp<MultiPictureDocument>(wStream, procs);
+sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs,
+                                             uint32_t recordFlags) {
+    return sk_make_sp<MultiPictureDocument>(wStream, procs, recordFlags);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

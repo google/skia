@@ -18,8 +18,17 @@ class SkStreamSeekable;
 
 /**
  *  Writes into a file format that is similar to SkPicture::serialize()
+ *  pages are written as subpictures separated by annotations.
+ *
+ *  All serialization work is performed when close() is called.
+ *  If you expect to write Drawables that may be invalid at the time close() is called
+ *  set recordFlags to SkPictureRecorder::kPlaybackDrawPicture_RecordFlag which causes them
+ *  to be recorded immediately.
  */
-SK_API sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst, const SkSerialProcs* = nullptr);
+SK_API sk_sp<SkDocument> SkMakeMultiPictureDocument(
+    SkWStream* dst,
+    const SkSerialProcs* = nullptr,
+    uint32_t recordFlags = 0);
 
 struct SkDocumentPage {
     sk_sp<SkPicture> fPicture;
