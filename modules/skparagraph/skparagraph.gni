@@ -20,7 +20,7 @@ skparagraph_sources = [
   "$_src/FontCollection.cpp",
   "$_src/FontResolver.h",
   "$_src/FontResolver.cpp",
-  "$_src/Iterator.h",
+  "$_src/Iterators.h",
   "$_src/ParagraphBuilderImpl.h",
   "$_src/ParagraphBuilderImpl.cpp",
   "$_src/ParagraphImpl.h",
