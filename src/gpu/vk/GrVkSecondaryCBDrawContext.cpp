@@ -98,13 +98,16 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
                                        rtc->colorSpaceInfo().refColorSpace());
 
     GrBackendFormat format = rtc->asRenderTargetProxy()->backendFormat();
+    GrProtected isProtected = rtc->asRenderTargetProxy()->isProtected() ? GrProtected::kYes
+                                                                        : GrProtected::kNo;
 
     characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, format,
                           rtc->origin(), rtc->numSamples(),
-                          SkSurfaceCharacterization::Textureable(false),
-                          SkSurfaceCharacterization::MipMapped(false),
+                          SkSurfaceCharacterization::Textureable1(false),
+                          SkSurfaceCharacterization::MipMapped1(false),
                           SkSurfaceCharacterization::UsesGLFBO0(false),
-                          SkSurfaceCharacterization::VulkanSecondaryCBCompatible(true),
+                          SkSurfaceCharacterization::VulkanSecondaryCBCompatible1(true),
+                          isProtected,
                           this->props());
 
     return true;
@@ -119,7 +122,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
         return false;
     }
 
-    if (!characterization.vulkanSecondaryCBCompatible()) {
+    if (!characterization.vulkanSecondaryCBCompatible1()) {
         return false;
     }
 
@@ -130,7 +133,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
     size_t maxResourceBytes;
     ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
 
-    if (characterization.isTextureable()) {
+    if (characterization.isTextureable1()) {
         // We don't support textureable DDL when rendering to a GrVkSecondaryCBDrawContext.
         return false;
     }
@@ -145,6 +148,8 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
     }
 
     GrBackendFormat rtcFormat = rtc->asRenderTargetProxy()->backendFormat();
+    GrProtected isProtected = rtc->asRenderTargetProxy()->isProtected() ? GrProtected::kYes
+                                                                        : GrProtected::kNo;
 
     return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
@@ -156,6 +161,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
            characterization.sampleCount() == rtc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(),
                                 rtc->colorSpaceInfo().colorSpace()) &&
+           characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
