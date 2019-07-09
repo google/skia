@@ -22,6 +22,30 @@
       "revId": "f04a57cdb34d4682209589b7e2fb859192965c9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dd257f8_44d6bbed",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3257,
+      "author": {
+        "id": 9900
+      },
+      "writtenOn": "2019-07-09T06:57:38Z",
+      "side": 1,
+      "message": "I tested in Adreno630, its GLSL version is k320es_GrGLSLGeneration. So\nctxInfo.glslGeneration() \u003c GrGLSLGeneration::k330_GrGLSLGeneration doesn\u0027t\ndisable this Extension.\n\nwhen \u0027use_es2_for_oopr\u0027 flag is enabled in Chromium, Skia uses GL ES 2.0,\nbut the GLSL version is not changed. Do we need to set GLSL ES version to k110_GrGLSLGeneration? I try this in GrGLContext::Make(...) method without\ndisable framebuffer fetch, and it works.\n\nSo there may be two options right now:\n1. current patch, it will only affect Adreno6xx devices;\n    May need to be revised.\n2. set GLSL ES version to k110_GrGLSLGeneration;\n    It could be a better solution, but it will affect more GPUs and need more testing.\n    This can be modified in Chromium code:\n    https://cs.chromium.org/chromium/src/ui/gl/init/create_gr_gl_interface.cc?type\u003dcs\u0026g\u003d0\u0026l\u003d135",
+      "parentUuid": "9b453272_2adb9654",
+      "range": {
+        "startLine": 3257,
+        "startChar": 9,
+        "endLine": 3257,
+        "endChar": 45
+      },
+      "revId": "f04a57cdb34d4682209589b7e2fb859192965c9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
