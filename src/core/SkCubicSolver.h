@@ -24,7 +24,7 @@ namespace SK_OPTS_NS {
         return eval_poly(t, sk_fmaf(m,t,b), rest...);
     }
 
-    inline float cubic_solver(float A, float B, float C, float D) {
+    inline float cubic_solver(float A, float B, float C, float D, float guess) {
     #ifdef CUBICMAP_TRACK_MAX_ERROR
         static int max_iters = 0;
     #endif
@@ -35,10 +35,7 @@ namespace SK_OPTS_NS {
         };
     #endif
 
-        auto guess_nice_cubic_root = [](float a, float b, float c, float d) {
-            return -d;
-        };
-        float t = guess_nice_cubic_root(A, B, C, D);
+        float t = guess;
 
         int iters = 0;
         const int MAX_ITERS = 8;

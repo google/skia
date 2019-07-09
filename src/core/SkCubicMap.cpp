@@ -39,7 +39,7 @@ static float compute_t_from_x(float A, float B, float C, float x) {
 #ifdef CUBICMAP_TRACK_MAX_ERROR
     float answer = compute_slow(A, B, C, x);
 #endif
-    float answer2 = SkOpts::cubic_solver(A, B, C, -x);
+    float answer2 = SkOpts::cubic_solver(A, B, C, -x, x);
 
 #ifdef CUBICMAP_TRACK_MAX_ERROR
     float err = sk_float_abs(answer - answer2);
