@@ -266,8 +266,7 @@ bool GrMtlCaps::isFormatTexturable(GrColorType grCT, const GrBackendFormat& form
     return this->isConfigTexturable(config);
 }
 
-int GrMtlCaps::maxRenderTargetSampleCount(SkColorType skCT, const GrBackendFormat& format) const {
-    GrColorType grCT = SkColorTypeToGrColorType(skCT);
+int GrMtlCaps::maxRenderTargetSampleCount(GrColorType grCT, const GrBackendFormat& format) const {
     if (GrColorType::kUnknown == grCT) {
         return 0;
     }
@@ -290,8 +289,7 @@ int GrMtlCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
 }
 
 int GrMtlCaps::getRenderTargetSampleCount(int requestedCount,
-                                          SkColorType skCT, const GrBackendFormat& format) const {
-    GrColorType grCT = SkColorTypeToGrColorType(skCT);
+                                          GrColorType grCT, const GrBackendFormat& format) const {
     if (GrColorType::kUnknown == grCT) {
         return 0;
     }

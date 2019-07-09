@@ -235,7 +235,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     }
 
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
-        sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, ct, format);
+        sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, grCT, format);
         if (!sampleCnt) {
             return nullptr;
         }
