@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "051528ec_eda39378",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-09T15:33:13Z",
+      "side": 1,
+      "message": "presubmit insisted I run gn format",
+      "revId": "6cfe2f835fbcb3410a8daaf72cd382d36d70eb08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
