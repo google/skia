@@ -81,7 +81,9 @@ id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
 
     this->endAllEncoding();
     fActiveRenderCommandEncoder = [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor];
-    gpuCommandBuffer->initRenderState(fActiveRenderCommandEncoder);
+    if (gpuCommandBuffer) {
+        gpuCommandBuffer->initRenderState(fActiveRenderCommandEncoder);
+    }
     fPreviousRenderPassDescriptor = descriptor;
 
     return fActiveRenderCommandEncoder;
