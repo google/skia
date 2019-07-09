@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "a6cf994c_044057c9",
+        "filename": "include/core/SkCubicMap.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-09T15:08:33Z",
+      "side": 1,
+      "message": "Non-trivial animations have lots of cubic mappers (high-hundreds for some complex animations), so these 15 extra floats can add up fast.\n\nSince the seek() phase is currently barely registering in profiles, I would favor runtime footprint over speed at this point.\n\nMaybe have as a separate FastCubicMap so clients can make the choice?",
+      "revId": "bb06022a6374214969f60944ee1a4602826339f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3c3cbdf_2a4de96a",
         "filename": "src/core/SkCubicMap.cpp",
         "patchSetId": 5
