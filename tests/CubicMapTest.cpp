@@ -73,4 +73,21 @@ DEF_TEST(CubicMap, r) {
             }
         }
     }
+
+    const SkPoint pts[] = {
+        // input x, expected y
+        {0.025391f,  0.117627f},
+        {0.333984f,  0.276221f},
+        {0.662109f,  0.366052f},
+        {0.939453f,  0.643296f},
+    };
+    SkPoint p1{0, 0.5f};
+    SkPoint p2{1, 0};
+    SkCubicMap map(p1, p2);
+    for (auto p : pts) {
+        float y = map.computeYFromX(p.fX);
+        float accr = accurate_solve(p1, p2, p.fX);
+        float err = SkScalarAbs(y - accr);
+        SkDebugf("x=%g map %g accur %g expected %g err=%g\n", p.fX, y, accr, p.fY, err);
+    }
 }
