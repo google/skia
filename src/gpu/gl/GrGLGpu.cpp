@@ -638,19 +638,6 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         }
     }
 
-    // we assume these values
-    if (resetBits & kPixelStore_GrGLBackendState) {
-        if (this->caps()->writePixelsRowBytesSupport()) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-        }
-        if (this->glCaps().readPixelsRowBytesSupport()) {
-            GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
-        }
-        if (this->glCaps().packFlipYSupport()) {
-            GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, GR_GL_FALSE));
-        }
-    }
-
     if (resetBits & kProgram_GrGLBackendState) {
         fHWProgramID = 0;
         fHWProgram.reset();
@@ -937,12 +924,12 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
         return false;
     }
 
-    bool restoreGLRowLength = false;
     if (trimRowBytes != rowBytes) {
         // we should have checked for this support already
         SkASSERT(this->glCaps().writePixelsRowBytesSupport());
         GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
-        restoreGLRowLength = true;
+    } else if (this->glCaps().writePixelsRowBytesSupport()) {
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
     }
 
     // Internal format comes from the texture desc.
@@ -964,11 +951,6 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
                           height,
                           externalFormat, externalType,
                           pixels));
-
-    if (restoreGLRowLength) {
-        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-    }
-
     return true;
 }
 
@@ -1009,8 +991,7 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                           const GrMipLevel texels[],
                                           int mipLevelCount,
                                           int baseWidth,
-                                          int baseHeight,
-                                          bool* changedUpackRowLength) {
+                                          int baseHeight) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
 
     if (caps.configSupportsTexStorage(config)) {
@@ -1034,10 +1015,12 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 const size_t trimRowBytes = currentWidth * bpp;
                 const size_t rowBytes = texels[currentMipLevel].fRowBytes;
 
-                if (caps.writePixelsRowBytesSupport() && rowBytes != trimRowBytes) {
-                    GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
-                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
-                    *changedUpackRowLength = true;
+                if (trimRowBytes != rowBytes) {
+                    // we should have checked for this support already
+                    SkASSERT(caps.writePixelsRowBytesSupport());
+                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
+                } else if (caps.writePixelsRowBytesSupport()) {
+                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
                 }
 
                 GR_GL_CALL(&interface,
@@ -1076,10 +1059,12 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 const size_t trimRowBytes = currentWidth * bpp;
                 const size_t rowBytes = texels[currentMipLevel].fRowBytes;
 
-                if (caps.writePixelsRowBytesSupport() && rowBytes != trimRowBytes) {
-                    GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
-                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
-                    *changedUpackRowLength = true;
+                if (trimRowBytes != rowBytes) {
+                    // we should have checked for this support already
+                    SkASSERT(caps.writePixelsRowBytesSupport());
+                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
+                } else if (caps.writePixelsRowBytesSupport()) {
+                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
                 }
 
                 const void* currentMipData = texels[currentMipLevel].fPixels;
@@ -1102,23 +1087,6 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
         }
     }
     return true;
-}
-
-/**
- * After a texture is created, any state which was altered during its creation
- * needs to be restored.
- *
- * @param interface          The GL interface to use.
- * @param caps               The capabilities of the GL device.
- * @param restoreGLRowLength Should the row length unpacking be restored?
- * @param glFlipY            Did GL flip the texture vertically?
- */
-static void restore_pixelstore_state(const GrGLInterface& interface, const GrGLCaps& caps,
-                                     bool restoreGLRowLength) {
-    if (restoreGLRowLength) {
-        SkASSERT(caps.writePixelsRowBytesSupport());
-        GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-    }
 }
 
 void GrGLGpu::unbindCpuToGpuXferBuffer() {
@@ -1170,14 +1138,6 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     // TexStorage requires a sized format, and internalFormat may or may not be
     GrGLenum internalFormatForTexStorage = this->glCaps().configSizedInternalFormat(texConfig);
 
-    /*
-     *  Check whether to allocate a temporary buffer for flipping y or
-     *  because our srcData has extra bytes past each row. If so, we need
-     *  to trim those off here, since GL ES may not let us specify
-     *  GL_UNPACK_ROW_LENGTH.
-     */
-    bool restoreGLRowLength = false;
-
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
 
@@ -1196,10 +1156,10 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     bool succeeded = true;
     if (kNewTexture_UploadType == uploadType) {
         if (0 == left && 0 == top && texWidth == width && texHeight == height) {
-            succeeded = allocate_and_populate_texture(
-                    texConfig, *interface, caps, target, internalFormat,
-                    internalFormatForTexStorage, externalFormat, externalType, texels,
-                    mipLevelCount, width, height, &restoreGLRowLength);
+            succeeded = allocate_and_populate_texture(texConfig, *interface, caps, target,
+                                                      internalFormat, internalFormatForTexStorage,
+                                                      externalFormat, externalType, texels,
+                                                      mipLevelCount, width, height);
         } else {
             succeeded = false;
         }
@@ -1214,10 +1174,12 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             const size_t trimRowBytes = currentWidth * bpp;
             const size_t rowBytes = texels[currentMipLevel].fRowBytes;
 
-            if (caps.writePixelsRowBytesSupport() && rowBytes != trimRowBytes) {
-                GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
-                GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
-                restoreGLRowLength = true;
+            if (trimRowBytes != rowBytes) {
+                // we should have checked for this support already
+                SkASSERT(caps.writePixelsRowBytesSupport());
+                GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
+            } else if (caps.writePixelsRowBytesSupport()) {
+                GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
             }
 
             GL_CALL(TexSubImage2D(target,
@@ -1229,8 +1191,6 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                                   texels[currentMipLevel].fPixels));
         }
     }
-
-    restore_pixelstore_state(*interface, caps, restoreGLRowLength);
 
     return succeeded;
 }
@@ -2305,6 +2265,11 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     if (rowWidthInPixels != width) {
         SkASSERT(this->glCaps().readPixelsRowBytesSupport());
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, rowWidthInPixels));
+    } else if (this->glCaps().readPixelsRowBytesSupport()) {
+        GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
+    }
+    if (this->glCaps().packFlipYSupport()) {
+        GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, GR_GL_FALSE));
     }
     GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, config_alignment(dstAsConfig)));
 
@@ -2327,11 +2292,6 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
                 renderTarget->renderTargetPriv().getStencilAttachment());
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
                                         GR_GL_RENDERBUFFER, stencilAttachment->renderbufferID()));
-    }
-
-    if (rowWidthInPixels != width) {
-        SkASSERT(this->glCaps().readPixelsRowBytesSupport());
-        GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
     }
 
     if (!renderTarget) {
