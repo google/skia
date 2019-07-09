@@ -200,6 +200,9 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
         return false;
     }
 
+    GrProtected isProtected = rtc->asRenderTargetProxy()->isProtected() ? GrProtected::kYes
+                                                                        : GrProtected::kNo;
+
     bool usesGLFBO0 = rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0();
     // We should never get in the situation where we have a texture render target that is also
     // backend by FBO 0.
@@ -212,10 +215,11 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
 
     characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, format,
                           rtc->origin(), rtc->numSamples(),
-                          SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
-                          SkSurfaceCharacterization::MipMapped(mipmapped),
+                          SkSurfaceCharacterization::Textureable1(SkToBool(rtc->asTextureProxy())),
+                          SkSurfaceCharacterization::MipMapped1(mipmapped),
                           SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
-                          SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
+                          SkSurfaceCharacterization::VulkanSecondaryCBCompatible1(false),
+                          isProtected,
                           this->props());
     return true;
 }
@@ -264,7 +268,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         return false;
     }
 
-    if (characterization.vulkanSecondaryCBCompatible()) {
+    if (characterization.vulkanSecondaryCBCompatible1()) {
         return false;
     }
 
@@ -275,7 +279,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
     size_t maxResourceBytes;
     ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
 
-    if (characterization.isTextureable()) {
+    if (characterization.isTextureable1()) {
         if (!rtc->asTextureProxy()) {
             // If the characterization was textureable we require the replay dest to also be
             // textureable. If the characterized surface wasn't textureable we allow the replay
@@ -283,13 +287,16 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
             return false;
         }
 
-        if (characterization.isMipMapped() &&
+        if (characterization.isMipMapped1() &&
             GrMipMapped::kNo == rtc->asTextureProxy()->mipMapped()) {
             // Fail if the DDL's surface was mipmapped but the replay surface is not.
             // Allow drawing to proceed if the DDL was not mipmapped but the replay surface is.
             return false;
         }
     }
+
+    GrProtected isProtected = rtc->asSurfaceProxy()->isProtected() ? GrProtected::kYes
+                                                                   : GrProtected::kNo;
 
     if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
         return false;
@@ -310,6 +317,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.sampleCount() == rtc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(),
                                 rtc->colorSpaceInfo().colorSpace()) &&
+           characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
@@ -350,7 +358,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
-    if (c.vulkanSecondaryCBCompatible()) {
+    if (c.vulkanSecondaryCBCompatible1()) {
         return nullptr;
     }
 
@@ -367,6 +375,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = c.width();
     desc.fHeight = c.height();
+    desc.fIsProtected = c.isProtected();
     desc.fConfig = config;
     desc.fSampleCnt = c.sampleCount();
 
@@ -374,7 +383,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
             context->priv().makeDeferredSurfaceContext(c.backendFormat(),
                                                        desc,
                                                        c.origin(),
-                                                       GrMipMapped(c.isMipMapped()),
+                                                       GrMipMapped(c.isMipMapped1()),
                                                        SkBackingFit::kExact,
                                                        budgeted,
                                                        SkColorTypeToGrColorType(c.colorType()),

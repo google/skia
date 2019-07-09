@@ -46,12 +46,17 @@
 #include <memory>
 #include <utility>
 
+#ifdef SK_VULKAN
+#include "src/gpu/vk/GrVkCaps.h"
+#endif
+
 class SurfaceParameters {
 public:
-    static const int kNumParams   = 11;
-    static const int kSampleCount = 5;
-    static const int kMipMipCount = 8;
-    static const int kFBO0Count   = 9;
+    static const int kNumParams      = 12;
+    static const int kSampleCount    = 5;
+    static const int kMipMipCount    = 8;
+    static const int kFBO0Count      = 9;
+    static const int kProtectedCount = 11;
 
     SurfaceParameters(GrBackendApi backend)
             : fBackend(backend)
@@ -62,9 +67,10 @@ public:
             , fColorSpace(SkColorSpace::MakeSRGB())
             , fSampleCount(1)
             , fSurfaceProps(0x0, kUnknown_SkPixelGeometry)
-            , fShouldCreateMipMaps(true)
-            , fUsesGLFBO0(false)
-            , fIsTextureable(true) {
+            , fShouldCreateMipMaps1(true)
+            , fUsesGLFBO01(false)
+            , fIsTextureable1(true)
+            , fIsProtected(GrProtected::kNo) {
     }
 
     int sampleCount() const { return fSampleCount; }
@@ -72,9 +78,9 @@ public:
     void setColorType(SkColorType ct) { fColorType = ct; }
     SkColorType colorType() const { return fColorType; }
     void setColorSpace(sk_sp<SkColorSpace> cs) { fColorSpace = std::move(cs); }
-    void setTextureable(bool isTextureable) { fIsTextureable = isTextureable; }
+    void setTextureable(bool isTextureable) { fIsTextureable1 = isTextureable; }
     void setShouldCreateMipMaps(bool shouldCreateMipMaps) {
-        fShouldCreateMipMaps = shouldCreateMipMaps;
+        fShouldCreateMipMaps1 = shouldCreateMipMaps;
     }
 
     // Modify the SurfaceParameters in just one way
@@ -108,18 +114,21 @@ public:
                                            kUnknown_SkPixelGeometry);
             break;
         case 8:
-            fShouldCreateMipMaps = false;
+            fShouldCreateMipMaps1 = false;
             break;
         case 9:
             if (GrBackendApi::kOpenGL == fBackend) {
-                fUsesGLFBO0 = true;
-                fShouldCreateMipMaps = false; // needs to changed in tandem w/ textureability
-                fIsTextureable = false;
+                fUsesGLFBO01 = true;
+                fShouldCreateMipMaps1 = false; // needs to changed in tandem w/ textureability
+                fIsTextureable1 = false;
             }
             break;
         case 10:
-            fShouldCreateMipMaps = false; // needs to changed in tandem w/ textureability
-            fIsTextureable = false;
+            fShouldCreateMipMaps1 = false; // needs to changed in tandem w/ textureability
+            fIsTextureable1 = false;
+            break;
+        case 11:
+            fIsProtected = GrProtected::kYes;
             break;
         }
     }
@@ -141,8 +150,8 @@ public:
 
         SkSurfaceCharacterization c = context->threadSafeProxy()->createCharacterization(
                                                 maxResourceBytes, ii, backendFormat, fSampleCount,
-                                                fOrigin, fSurfaceProps, fShouldCreateMipMaps,
-                                                fUsesGLFBO0, fIsTextureable);
+                                                fOrigin, fSurfaceProps, fShouldCreateMipMaps1,
+                                                fUsesGLFBO01, fIsTextureable1, fIsProtected);
         return c;
     }
 
@@ -167,11 +176,11 @@ public:
 
         const SkSurfaceCharacterization c = this->createCharacterization(context);
 
-        GrMipMapped mipmapped = !fIsTextureable
+        GrMipMapped mipmapped = !fIsTextureable1
                                         ? GrMipMapped::kNo
-                                        : GrMipMapped(fShouldCreateMipMaps);
+                                        : GrMipMapped(fShouldCreateMipMaps1);
 
-        if (fUsesGLFBO0) {
+        if (fUsesGLFBO01) {
             if (GrBackendApi::kOpenGL != context->backend()) {
                 return nullptr;
             }
@@ -196,7 +205,7 @@ public:
 
         *backend = context->createBackendTexture(fWidth, fHeight, fColorType,
                                                  SkColors::kTransparent,
-                                                 mipmapped, GrRenderable::kYes, GrProtected::kNo);
+                                                 mipmapped, GrRenderable::kYes, fIsProtected);
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
         }
@@ -206,7 +215,7 @@ public:
         SkASSERT(!c.isValid() || c.isCompatible(*backend));
 
         sk_sp<SkSurface> surface;
-        if (!fIsTextureable) {
+        if (!fIsTextureable1) {
             // Create a surface w/ the current parameters but make it non-textureable
             surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
                                             context, *backend, fOrigin, fSampleCount, fColorType,
@@ -241,9 +250,10 @@ private:
     sk_sp<SkColorSpace> fColorSpace;
     int                 fSampleCount;
     SkSurfaceProps      fSurfaceProps;
-    bool                fShouldCreateMipMaps;
-    bool                fUsesGLFBO0;
-    bool                fIsTextureable;
+    bool                fShouldCreateMipMaps1;
+    bool                fUsesGLFBO01;
+    bool                fIsTextureable1;
+    GrProtected         fIsProtected;
 };
 
 // Test out operator== && operator!=
@@ -294,8 +304,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // This tests SkSurfaceCharacterization/SkSurface compatibility
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* reporter) {
     GrGpu* gpu = context->priv().getGpu();
     const GrCaps* caps = context->priv().caps();
 
@@ -333,6 +342,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
     for (int i = 0; i < SurfaceParameters::kNumParams; ++i) {
         SurfaceParameters params(context->backend());
         params.modify(i);
+
+        if (SurfaceParameters::kProtectedCount == i) {
+            if (context->backend() != GrBackendApi::kVulkan) {
+                // Only the Vulkan backend respects the protected parameter
+                continue;
+            }
+#ifdef SK_VULKAN
+            const GrVkCaps* vkCaps = (const GrVkCaps*) context->priv().caps();
+
+            // And, even then, only when it is a protected context
+            if (!vkCaps->supportsProtectedMemory()) {
+                continue;
+            }
+#endif
+        }
 
         GrBackendTexture backend;
         sk_sp<SkSurface> s = params.make(context, &backend);
@@ -472,6 +496,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
     }
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    DDLSurfaceCharacterizationTestImpl(context, reporter);
+}
+
 // Test that a DDL created w/o textureability can be replayed into both a textureable and
 // non-textureable destination. Note that DDLSurfaceCharacterizationTest tests that a
 // textureable DDL cannot be played into a non-textureable destination but can be replayed
@@ -580,15 +610,29 @@ static void test_make_render_target(skiatest::Reporter* reporter,
 // This tests the SkSurface::MakeRenderTarget variants that take an SkSurfaceCharacterization.
 // In particular, the SkSurface, backendTexture and SkSurfaceCharacterization
 // should always be compatible.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-
+void DDLMakeRenderTargetTestImpl(GrContext* context, skiatest::Reporter* reporter) {
     for (int i = 0; i < SurfaceParameters::kNumParams; ++i) {
 
         if (SurfaceParameters::kFBO0Count == i) {
             // MakeRenderTarget doesn't support FBO0
             continue;
         }
+
+        if (SurfaceParameters::kProtectedCount == i) {
+            if (context->backend() != GrBackendApi::kVulkan) {
+                // Only the Vulkan backend respects the protected parameter
+                continue;
+            }
+#ifdef SK_VULKAN
+            const GrVkCaps* vkCaps = (const GrVkCaps*) context->priv().caps();
+
+            // And, even then, only when it is a protected context
+            if (!vkCaps->supportsProtectedMemory()) {
+                continue;
+            }
+#endif
+        }
+
 
         SurfaceParameters params(context->backend());
         params.modify(i);
@@ -599,6 +643,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest, reporter, ctxInfo) {
 
         test_make_render_target(reporter, context, params);
     }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    DDLMakeRenderTargetTestImpl(context, reporter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -113,18 +113,18 @@ bool SkDeferredDisplayListRecorder::init() {
     bool usesGLFBO0 = fCharacterization.usesGLFBO0();
     if (usesGLFBO0) {
         if (GrBackendApi::kOpenGL != fContext->backend() ||
-            fCharacterization.isTextureable()) {
+            fCharacterization.isTextureable1()) {
             return false;
         }
     }
 
-    if (fCharacterization.vulkanSecondaryCBCompatible()) {
+    if (fCharacterization.vulkanSecondaryCBCompatible1()) {
         // Because of the restrictive API allowed for a GrVkSecondaryCBDrawContext, we know ahead
         // of time that we don't be able to support certain parameter combinations. Specifially we
         // fail on usesGLFBO0 since we can't mix GL and Vulkan. We can't have a texturable object.
         // And finally the GrVkSecondaryCBDrawContext always assumes a top left origin.
         if (usesGLFBO0 ||
-            fCharacterization.isTextureable() ||
+            fCharacterization.isTextureable1() ||
             fCharacterization.origin() == kBottomLeft_GrSurfaceOrigin) {
             return false;
         }
@@ -140,6 +140,7 @@ bool SkDeferredDisplayListRecorder::init() {
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = fCharacterization.width();
     desc.fHeight = fCharacterization.height();
+    desc.fIsProtected = fCharacterization.isProtected();
     desc.fConfig = config;
     desc.fSampleCnt = fCharacterization.sampleCount();
 
@@ -156,7 +157,7 @@ bool SkDeferredDisplayListRecorder::init() {
     static constexpr GrProxyProvider::TextureInfo kTextureInfo{GrMipMapped::kNo,
                                                                GrTextureType::k2D};
     const GrProxyProvider::TextureInfo* optionalTextureInfo = nullptr;
-    if (fCharacterization.isTextureable()) {
+    if (fCharacterization.isTextureable1()) {
         optionalTextureInfo = &kTextureInfo;
     }
 
@@ -175,7 +176,7 @@ bool SkDeferredDisplayListRecorder::init() {
             optionalTextureInfo,
             SkBackingFit::kExact,
             SkBudgeted::kYes,
-            fCharacterization.vulkanSecondaryCBCompatible());
+            fCharacterization.vulkanSecondaryCBCompatible1());
 
     sk_sp<GrSurfaceContext> c = fContext->priv().makeWrappedSurfaceContext(
             std::move(proxy),
