@@ -3620,9 +3620,8 @@ bool GrGLCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format)
     return this->isGLFormatTexturable(ct, *glFormat);
 }
 
-int GrGLCaps::getRenderTargetSampleCount(int requestedCount, SkColorType skCT,
+int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grCT,
                                          const GrBackendFormat& format) const {
-    GrColorType grCT = SkColorTypeToGrColorType(skCT);
     if (GrColorType::kUnknown == grCT) {
         return 0;
     }
@@ -3658,8 +3657,7 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig confi
     return 0;
 }
 
-int GrGLCaps::maxRenderTargetSampleCount(SkColorType skCT, const GrBackendFormat& format) const {
-    GrColorType grCT = SkColorTypeToGrColorType(skCT);
+int GrGLCaps::maxRenderTargetSampleCount(GrColorType grCT, const GrBackendFormat& format) const {
     if (GrColorType::kUnknown == grCT) {
         return 0;
     }
@@ -3691,7 +3689,7 @@ bool GrGLCaps::canGLFormatBeFBOColorAttachment(GrGLenum glFormat) const {
     return SkToBool(this->getFormatInfo(glFormat).fFlags & FormatInfo::kFBOColorAttachment_Flag);
 }
 
-bool GrGLCaps::isFormatCopyable(SkColorType ct, const GrBackendFormat& format) const {
+bool GrGLCaps::isFormatCopyable(GrColorType, const GrBackendFormat& format) const {
     const GrGLenum* glFormat = format.getGLFormat();
     if (!glFormat || !GrGLFormatIsSupported(*glFormat)) {
         return false;

@@ -825,7 +825,7 @@ bool GrVkCaps::isFormatRenderable(VkFormat format) const {
 }
 
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount,
-                                         SkColorType, const GrBackendFormat& format) const {
+                                         GrColorType, const GrBackendFormat& format) const {
     if (!format.getVkFormat()) {
         return 0;
     }
@@ -872,7 +872,7 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) co
     return 0;
 }
 
-int GrVkCaps::maxRenderTargetSampleCount(SkColorType, const GrBackendFormat& format) const {
+int GrVkCaps::maxRenderTargetSampleCount(GrColorType, const GrBackendFormat& format) const {
     if (!format.getVkFormat()) {
         return 0;
     }

@@ -406,10 +406,8 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
 }
 
 static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex,
-                                     GrPixelConfig* config, int sampleCnt, SkColorType ct,
+                                     GrPixelConfig* config, int sampleCnt, GrColorType grCT,
                                      bool texturable) {
-    GrColorType grCT = SkColorTypeToGrColorType(ct);
-
     if (!tex.isValid()) {
         return false;
     }
@@ -425,7 +423,7 @@ static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex
 
     // We don't require that the client gave us an exact valid sample cnt. However, it must be
     // less than the max supported sample count and 1 if MSAA is unsupported for the color type.
-    if (!ctx->priv().caps()->getRenderTargetSampleCount(sampleCnt, ct, backendFormat)) {
+    if (!ctx->priv().caps()->getRenderTargetSampleCount(sampleCnt, grCT, backendFormat)) {
         return false;
     }
 
@@ -453,9 +451,11 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
         return nullptr;
     }
 
+    GrColorType grCT = SkColorTypeToGrColorType(c.colorType());
+
     GrBackendTexture texCopy = backendTexture;
     if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
-                                  c.sampleCount(), c.colorType(), true)) {
+                                  c.sampleCount(), grCT, true)) {
         return nullptr;
     }
 
@@ -464,7 +464,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     }
 
     sk_sp<GrRenderTargetContext> rtc(context->priv().makeBackendTextureRenderTargetContext(
-                texCopy, c.origin(), c.sampleCount(), SkColorTypeToGrColorType(c.colorType()),
+                texCopy, c.origin(), c.sampleCount(), grCT,
                 c.refColorSpace(), &c.surfaceProps(), textureReleaseProc, releaseContext));
     if (!rtc) {
         return nullptr;
@@ -538,9 +538,10 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
         return nullptr;
     }
     sampleCnt = SkTMax(1, sampleCnt);
+    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
     GrBackendTexture texCopy = tex;
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
-                                  sampleCnt, colorType, true)) {
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig, sampleCnt, grColorType,
+                                  true)) {
         return nullptr;
     }
 
@@ -552,8 +553,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     }
 
     sk_sp<GrRenderTargetContext> rtc(context->priv().makeBackendTextureRenderTargetContext(
-                                texCopy, origin, sampleCnt, SkColorTypeToGrColorType(colorType),
-                                std::move(colorSpace), props, textureReleaseProc, releaseContext));
+            texCopy, origin, sampleCnt, grColorType, std::move(colorSpace), props,
+            textureReleaseProc, releaseContext));
     if (!rtc) {
         return nullptr;
     }
@@ -601,9 +602,10 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     SkASSERT(oldTexture->asRenderTarget());
     int sampleCnt = oldTexture->asRenderTarget()->numSamples();
     GrBackendTexture texCopy = backendTexture;
+    GrColorType grColorType = SkColorTypeToGrColorType(this->getCanvas()->imageInfo().colorType());
     auto colorSpace = sk_ref_sp(oldRTC->colorSpaceInfo().colorSpace());
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig, sampleCnt,
-                                  this->getCanvas()->imageInfo().colorType(), true)) {
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig, sampleCnt, grColorType,
+                                  true)) {
         return false;
     }
     sk_sp<GrRenderTargetContext> rtc(context->priv().makeBackendTextureRenderTargetContext(
@@ -703,9 +705,10 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     }
 
     sampleCnt = SkTMax(1, sampleCnt);
+    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
     GrBackendTexture texCopy = tex;
     if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
-                                  sampleCnt, colorType, false)) {
+                                  sampleCnt, grColorType, false)) {
         return nullptr;
     }
 
@@ -718,7 +721,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
                     texCopy,
                     origin,
                     sampleCnt,
-                    SkColorTypeToGrColorType(colorType),
+                    grColorType,
                     std::move(colorSpace),
                     props));
     if (!rtc) {
