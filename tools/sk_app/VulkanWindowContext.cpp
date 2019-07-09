@@ -344,14 +344,20 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
         info.fLevelCount = 1;
         info.fCurrentQueueFamily = fPresentQueueIndex;
 
-        GrBackendRenderTarget backendRT(fWidth, fHeight, fSampleCount, info);
+        if (fSampleCount == 1) {
+            GrBackendRenderTarget backendRT(fWidth, fHeight, fSampleCount, info);
 
-        fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(fContext.get(),
-                                                              backendRT,
-                                                              kTopLeft_GrSurfaceOrigin,
-                                                              colorType,
-                                                              fDisplayParams.fColorSpace,
-                                                              &fDisplayParams.fSurfaceProps);
+            fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(
+                    fContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, colorType,
+                    fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
+        } else {
+            GrBackendTexture backendTexture(fWidth, fHeight, info);
+
+            fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(
+                    fContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
+                    colorType, fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
+
+        }
     }
 
     // set up the backbuffers
