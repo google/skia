@@ -45,6 +45,7 @@ public:
             , fIsMipMapped(MipMapped::kYes)
             , fUsesGLFBO0(UsesGLFBO0::kNo)
             , fVulkanSecondaryCBCompatible(VulkanSecondaryCBCompatible::kNo)
+            , fIsProtected(GrProtected::kNo)
             , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
     }
 
@@ -79,6 +80,7 @@ public:
     bool vulkanSecondaryCBCompatible() const {
         return VulkanSecondaryCBCompatible::kYes == fVulkanSecondaryCBCompatible;
     }
+    GrProtected isProtected() const { return fIsProtected; }
     SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fImageInfo.refColorSpace(); }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
@@ -105,6 +107,7 @@ private:
                               MipMapped isMipMapped,
                               UsesGLFBO0 usesGLFBO0,
                               VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
+                              GrProtected isProtected,
                               const SkSurfaceProps& surfaceProps)
             : fContextInfo(std::move(contextInfo))
             , fCacheMaxResourceBytes(cacheMaxResourceBytes)
@@ -116,6 +119,7 @@ private:
             , fIsMipMapped(isMipMapped)
             , fUsesGLFBO0(usesGLFBO0)
             , fVulkanSecondaryCBCompatible(vulkanSecondaryCBCompatible)
+            , fIsProtected(isProtected)
             , fSurfaceProps(surfaceProps) {
         SkDEBUGCODE(this->validate());
     }
@@ -130,6 +134,7 @@ private:
              MipMapped isMipMapped,
              UsesGLFBO0 usesGLFBO0,
              VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
+             GrProtected isProtected,
              const SkSurfaceProps& surfaceProps) {
         SkASSERT(MipMapped::kNo == isMipMapped || Textureable::kYes == isTextureable);
         SkASSERT(Textureable::kNo == isTextureable || UsesGLFBO0::kNo == usesGLFBO0);
@@ -150,6 +155,7 @@ private:
         fIsMipMapped = isMipMapped;
         fUsesGLFBO0 = usesGLFBO0;
         fVulkanSecondaryCBCompatible = vulkanSecondaryCBCompatible;
+        fIsProtected = isProtected;
         fSurfaceProps = surfaceProps;
 
         SkDEBUGCODE(this->validate());
@@ -166,6 +172,7 @@ private:
     MipMapped                       fIsMipMapped;
     UsesGLFBO0                      fUsesGLFBO0;
     VulkanSecondaryCBCompatible     fVulkanSecondaryCBCompatible;
+    GrProtected                     fIsProtected;
     SkSurfaceProps                  fSurfaceProps;
 };
 
