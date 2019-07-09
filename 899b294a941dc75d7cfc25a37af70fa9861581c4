@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40f57e21_4d7566fe",
+        "filename": "include/core/SkCubicMap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-09T14:43:46Z",
+      "side": 1,
+      "message": "Don\u0027t you only need fTableX[N] if you only go up to (N-1)/N?",
+      "revId": "899b294a941dc75d7cfc25a37af70fa9861581c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "379669d0_d983e498",
+        "filename": "src/core/SkCubicMap.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-09T14:43:46Z",
+      "side": 1,
+      "message": "Might be simpler as t -\u003d f/fp?",
+      "revId": "899b294a941dc75d7cfc25a37af70fa9861581c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
