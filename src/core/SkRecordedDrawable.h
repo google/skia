@@ -18,7 +18,7 @@ public:
                        std::unique_ptr<SkDrawableList> drawableList, const SkRect& bounds)
         : fRecord(std::move(record))
         , fBBH(std::move(bbh))
-        , fDrawableList(std::move(drawableList))
+        , fDrawableList(drawableList ? std::move(drawableList) : std::make_unique<SkDrawableList>())
         , fBounds(bounds)
     {}
 

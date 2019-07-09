@@ -66,10 +66,6 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
     // TODO: delay as much of this work until just before first playback?
     SkRecordOptimize(fRecord.get());
 
-    SkDrawableList* drawableList = fRecorder->getDrawableList();
-    SkBigPicture::SnapshotArray* pictList =
-        drawableList ? drawableList->newDrawableSnapshot() : nullptr;
-
     if (fBBH.get()) {
         SkAutoTMalloc<SkRect> bounds(fRecord->count());
         SkRecordFillBounds(fCullRect, *fRecord, bounds);
@@ -84,10 +80,8 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
     }
 
     size_t subPictureBytes = fRecorder->approxBytesUsedBySubPictures();
-    for (int i = 0; pictList && i < pictList->count(); i++) {
-        subPictureBytes += pictList->begin()[i]->approximateBytesUsed();
-    }
-    return sk_make_sp<SkBigPicture>(fCullRect, fRecord.release(), pictList, fBBH.release(),
+
+    return sk_make_sp<SkBigPicture>(fCullRect, fRecord.release(), nullptr, fBBH.release(),
                                     subPictureBytes);
 }
 
@@ -102,15 +96,7 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     if (nullptr == canvas) {
         return;
     }
-
-    int drawableCount = 0;
-    SkDrawable* const* drawables = nullptr;
-    SkDrawableList* drawableList = fRecorder->getDrawableList();
-    if (drawableList) {
-        drawableCount = drawableList->count();
-        drawables = drawableList->begin();
-    }
-    SkRecordDraw(*fRecord, canvas, nullptr, drawables, drawableCount, nullptr/*bbh*/, nullptr/*callback*/);
+    SkRecordDraw(*fRecord, canvas, nullptr, nullptr, 0, nullptr/*bbh*/, nullptr/*callback*/);
 }
 
 sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFlags) {
@@ -128,7 +114,7 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFl
 
     sk_sp<SkDrawable> drawable =
          sk_make_sp<SkRecordedDrawable>(std::move(fRecord), std::move(fBBH),
-                                        fRecorder->detachDrawableList(), fCullRect);
+                                        nullptr, fCullRect);
 
     return drawable;
 }

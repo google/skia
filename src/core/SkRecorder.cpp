@@ -64,7 +64,6 @@ void SkRecorder::reset(SkRecord* record, const SkRect& bounds,
 }
 
 void SkRecorder::forgetRecord() {
-    fDrawableList.reset(nullptr);
     fApproxBytesUsedBySubPictures = 0;
     fRecord = nullptr;
 }
@@ -177,16 +176,9 @@ void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const 
 }
 
 void SkRecorder::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
-    if (fDrawPictureMode == Record_DrawPictureMode) {
-        if (!fDrawableList) {
-            fDrawableList.reset(new SkDrawableList);
-        }
-        fDrawableList->append(drawable);
-        this->append<SkRecords::DrawDrawable>(this->copy(matrix), drawable->getBounds(), fDrawableList->count() - 1);
-    } else {
-        SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
-        drawable->draw(this, matrix);
-    }
+    // Drawables are mutable and thus must be played back immediately.
+    // A reference to a drawable may not produce the same result if drawn later.
+    drawable->draw(this, matrix);
 }
 
 void SkRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
