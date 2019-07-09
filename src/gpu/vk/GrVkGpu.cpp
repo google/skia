@@ -1824,6 +1824,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     return true;
 }
 
+#if GR_TEST_UTILS
 static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
     GrPixelConfig dontCare;
     if (!config) {
@@ -1898,6 +1899,7 @@ static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
     SK_ABORT("Unexpected config");
     return false;
 }
+#endif
 
 GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
                                                const GrBackendFormat& format,
