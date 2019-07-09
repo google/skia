@@ -352,7 +352,7 @@ DEF_TEST(TextBlob_extended, reporter) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/SkTArray.h"
 
 static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, SkScalar y,
                     sk_sp<SkTypeface> tf) {
@@ -381,22 +381,25 @@ static sk_sp<SkImage> render(const SkTextBlob* blob) {
 }
 
 static sk_sp<SkData> SerializeTypeface(SkTypeface* tf, void* ctx) {
-    auto array = (SkTDArray<SkTypeface*>*)ctx;
-    *array->append() = tf;
-    return sk_sp<SkData>(nullptr);
+    auto array = (SkTArray<sk_sp<SkTypeface>>*)ctx;
+    const size_t idx = array->size();
+    array->emplace_back(sk_ref_sp(tf));
+    // In this test, we are deserializing on the same machine, so we don't worry about endianness.
+    return SkData::MakeWithCopy(&idx, sizeof(idx));
 }
 
 static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, void* ctx) {
-    auto array = (SkTDArray<SkTypeface*>*)ctx;
-    for (int i = 0; i < array->count(); ++i) {
-        auto result = (*array)[i];
-        if (result) {
-            (*array)[i] = nullptr;
-            return sk_ref_sp(result);
-        }
+    auto array = (SkTArray<sk_sp<SkTypeface>>*)ctx;
+    if (length != sizeof(size_t)) {
+        SkASSERT(false);
+        return nullptr;
     }
-    SkASSERT(false);
-    return sk_sp<SkTypeface>(nullptr);
+    size_t idx = *reinterpret_cast<const size_t*>(data);
+    if (idx >= array->size()) {
+        SkASSERT(false);
+        return nullptr;
+    }
+    return (*array)[idx];
 }
 
 /*
@@ -407,7 +410,7 @@ static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, vo
  */
 DEF_TEST(TextBlob_serialize, reporter) {
     sk_sp<SkTextBlob> blob0 = []() {
-        sk_sp<SkTypeface> tf = SkTypeface::MakeDefault();
+        sk_sp<SkTypeface> tf = SkTypeface::MakeFromName(nullptr, SkFontStyle::BoldItalic());
 
         SkTextBlobBuilder builder;
         add_run(&builder, "Hello", 10, 20, nullptr);    // don't flatten a typeface
@@ -415,7 +418,7 @@ DEF_TEST(TextBlob_serialize, reporter) {
         return builder.make();
     }();
 
-    SkTDArray<SkTypeface*> array;
+    SkTArray<sk_sp<SkTypeface>> array;
     SkSerialProcs serializeProcs;
     serializeProcs.fTypefaceProc = &SerializeTypeface;
     serializeProcs.fTypefaceCtx = (void*) &array;
