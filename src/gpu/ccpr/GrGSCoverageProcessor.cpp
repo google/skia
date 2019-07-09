@@ -42,7 +42,11 @@ protected:
         SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
 
         // Fragment shader.
-        fShader->emitFragmentCode(proc, args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
+        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
+        f->codeAppendf("half coverage;");
+        fShader->emitFragmentCoverageCode(f, "coverage");
+        f->codeAppendf("%s = half4(coverage);", args.fOutputColor);
+        f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
     }
 
     void emitGeometryShader(
@@ -66,7 +70,7 @@ protected:
         }
 
         SkString emitVertexFn;
-        SkSTArray<2, GrShaderVar> emitArgs;
+        SkSTArray<3, GrShaderVar> emitArgs;
         const char* corner = emitArgs.emplace_back("corner", kFloat2_GrSLType).c_str();
         const char* bloatdir = emitArgs.emplace_back("bloatdir", kFloat2_GrSLType).c_str();
         const char* inputCoverage = nullptr;
