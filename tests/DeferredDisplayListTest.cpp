@@ -341,7 +341,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
 
         if (SurfaceParameters::kSampleCount == i) {
             int supportedSampleCount = caps->getRenderTargetSampleCount(
-                    params.sampleCount(), params.colorType(), backend.getBackendFormat());
+                    params.sampleCount(), SkColorTypeToGrColorType(params.colorType()),
+                    backend.getBackendFormat());
             if (1 == supportedSampleCount) {
                 // If changing the sample count won't result in a different
                 // surface characterization, skip this step

@@ -60,7 +60,7 @@ public:
         return fOptions.fConfigOptions[(int)ct].fTexturable;
     }
 
-    bool isFormatCopyable(SkColorType, const GrBackendFormat& format) const override {
+    bool isFormatCopyable(GrColorType, const GrBackendFormat& format) const override {
         return false;
     }
 
@@ -83,7 +83,7 @@ public:
     }
 
     int getRenderTargetSampleCount(int requestCount,
-                                   SkColorType, const GrBackendFormat& format) const override {
+                                   GrColorType, const GrBackendFormat& format) const override {
         if (!format.getMockColorType()) {
             return 0;
         }
@@ -111,7 +111,7 @@ public:
         return 0;
     }
 
-    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat& format) const override {
+    int maxRenderTargetSampleCount(GrColorType, const GrBackendFormat& format) const override {
         if (!format.getMockColorType()) {
             return 0;
         }

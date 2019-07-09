@@ -38,17 +38,17 @@ public:
     bool isVkFormatTexturable(VkFormat) const;
     bool isConfigTexturable(GrPixelConfig config) const override;
 
-    bool isFormatCopyable(SkColorType, const GrBackendFormat&) const override { return true; }
+    bool isFormatCopyable(GrColorType, const GrBackendFormat&) const override { return true; }
     bool isConfigCopyable(GrPixelConfig config) const override { return true; }
 
     bool isFormatRenderable(VkFormat) const;
 
     int getRenderTargetSampleCount(int requestedCount,
-                                   SkColorType, const GrBackendFormat&) const override;
+                                   GrColorType, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
     int getRenderTargetSampleCount(int requestedCount, VkFormat) const;
 
-    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat&) const override;
+    int maxRenderTargetSampleCount(GrColorType, const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(GrPixelConfig config) const override;
     int maxRenderTargetSampleCount(VkFormat format) const;
 

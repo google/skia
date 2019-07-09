@@ -1324,8 +1324,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
         return nullptr;
     }
     GrColorType grColorType = SkColorTypeToGrColorType(imageInfo.colorType());
-    int sampleCnt = this->caps()->getRenderTargetSampleCount(1, imageInfo.colorType(),
-                                                             backendFormat);
+    int sampleCnt = this->caps()->getRenderTargetSampleCount(1, grColorType, backendFormat);
     if (!sampleCnt) {
         return nullptr;
     }

@@ -16,7 +16,7 @@ void SkSurfaceCharacterization::validate() const {
     const GrCaps* caps = fContextInfo->priv().caps();
 
     GrColorType grCT = SkColorTypeToGrColorType(this->colorType());
-    int maxColorSamples = caps->maxRenderTargetSampleCount(this->colorType(), fBackendFormat);
+    int maxColorSamples = caps->maxRenderTargetSampleCount(grCT, fBackendFormat);
     SkASSERT(maxColorSamples && fSampleCnt && fSampleCnt <= maxColorSamples);
 
     SkASSERT(caps->areColorTypeAndFormatCompatible(grCT, fBackendFormat));
