@@ -46,6 +46,30 @@
       "revId": "f04a57cdb34d4682209589b7e2fb859192965c9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9659b6a_53d06023",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3257,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-09T13:05:02Z",
+      "side": 1,
+      "message": "Ah I forgot we had the k3xxes_GrGLSLGeneration values. In that case I\u0027d argue this should be \u003c\u003d k110_GrGLSLGeneration.\n\nIt does seem to me that Chrome should modify both the GL_VERSION and the GL_SHADING_LANGUAGE_VERSION strings. Running a higher level shading language on a lower level context is not something that Skia is tested against outside of Chrome.",
+      "parentUuid": "2dd257f8_44d6bbed",
+      "range": {
+        "startLine": 3257,
+        "startChar": 9,
+        "endLine": 3257,
+        "endChar": 45
+      },
+      "revId": "f04a57cdb34d4682209589b7e2fb859192965c9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
