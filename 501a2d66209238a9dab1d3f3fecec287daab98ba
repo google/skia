@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5f2e82b5_e3abec6a",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-09T12:59:56Z",
+      "side": 1,
+      "message": "They\u0027re AE-specific (documented and enforced in the UI). We\u0027re currently pinning when parsing the JSON, since this effect can handle extranormal values.",
+      "parentUuid": "355032ee_4a1863c9",
+      "range": {
+        "startLine": 25,
+        "startChar": 29,
+        "endLine": 25,
+        "endChar": 30
+      },
+      "revId": "501a2d66209238a9dab1d3f3fecec287daab98ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81037163_52ce4df2",
         "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2019-07-09T11:46:07Z",
       "side": 1,
       "message": "can you tell if/when the child is a singleton, so we can skip this sub-layer? (just like we do when we apply alpha)?",
+      "range": {
+        "startLine": 102,
+        "startChar": 13,
+        "endLine": 102,
+        "endChar": 14
+      },
+      "revId": "501a2d66209238a9dab1d3f3fecec287daab98ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef6bed8b_e11257d1",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-09T12:59:56Z",
+      "side": 1,
+      "message": "Good idea. I avoided that initially since it requires SG support, but I see it already has a deferred blend mode mechanism in place.\n\nI\u0027ll take a look as a follow-up.",
+      "parentUuid": "81037163_52ce4df2",
       "range": {
         "startLine": 102,
         "startChar": 13,
