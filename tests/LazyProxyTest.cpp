@@ -199,9 +199,9 @@ private:
 
 DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
     GrMockOptions mockOptions;
-    mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fRenderability =
+    mockOptions.fConfigOptions[(int)GrColorType::kAlpha_F16].fRenderability =
             GrMockOptions::ConfigOptions::Renderability::kNonMSAA;
-    mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fTexturable = true;
+    mockOptions.fConfigOptions[(int)GrColorType::kAlpha_F16].fTexturable = true;
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     for (bool nullTexture : {false, true}) {

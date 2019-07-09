@@ -80,40 +80,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
     const GrCaps* caps = context->priv().caps();
 
-    GrPixelConfig configs[] = {
-        kUnknown_GrPixelConfig,
-        kAlpha_8_GrPixelConfig,
-        kAlpha_8_as_Alpha_GrPixelConfig,
-        kAlpha_8_as_Red_GrPixelConfig,
-        kGray_8_GrPixelConfig,
-        kGray_8_as_Lum_GrPixelConfig,
-        kGray_8_as_Red_GrPixelConfig,
-        kRGB_565_GrPixelConfig,
-        kRGBA_4444_GrPixelConfig,
-        kRGBA_8888_GrPixelConfig,
-        kRGB_888_GrPixelConfig,
-        kRGB_888X_GrPixelConfig,
-        kRG_88_GrPixelConfig,
-        kBGRA_8888_GrPixelConfig,
-        kSRGBA_8888_GrPixelConfig,
-        kRGBA_1010102_GrPixelConfig,
-        kRGBA_float_GrPixelConfig,
-        kRG_float_GrPixelConfig,
-        kAlpha_half_GrPixelConfig,
-        kAlpha_half_as_Red_GrPixelConfig,
-        kRGBA_half_GrPixelConfig,
-        kRGBA_half_Clamped_GrPixelConfig,
-        kRGB_ETC1_GrPixelConfig,
-
-        kR_16_GrPixelConfig,
-        kRG_1616_GrPixelConfig,
-
-        // Experimental (for Y416 and mutant P016/P010)
-        kRGBA_16161616_GrPixelConfig,
-        kRG_half_GrPixelConfig,
-    };
-    GR_STATIC_ASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
-
     auto createTexture = [](int width, int height, GrPixelConfig config, GrRenderable renderable,
                             GrResourceProvider* rp) -> sk_sp<GrTexture> {
         if (GrPixelConfigIsCompressed(config)) {
@@ -150,7 +116,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         }
     };
 
-    for (GrPixelConfig config : configs) {
+    for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
+        GrPixelConfig config = static_cast<GrPixelConfig>(c);
+
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
             if (config == kUnknown_GrPixelConfig) {
                 // It is not valid to be calling into GrProxyProvider with an unknown pixel config.
