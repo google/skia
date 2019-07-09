@@ -42,6 +42,7 @@ bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& othe
            fIsMipMapped == other.fIsMipMapped &&
            fUsesGLFBO0 == other.fUsesGLFBO0 &&
            fVulkanSecondaryCBCompatible == other.fVulkanSecondaryCBCompatible &&
+           fIsProtected == other.fIsProtected &&
            fSurfaceProps == other.fSurfaceProps;
 }
 
@@ -59,7 +60,7 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, in
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeWH(width, height), fBackendFormat, fOrigin,
                                      fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
-                                     fVulkanSecondaryCBCompatible, fSurfaceProps);
+                                     fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
 bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex) const {
@@ -90,7 +91,10 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
         return false;
     }
 
-    // TODO: need to check protected status here
+    if (this->isProtected() != GrProtected(backendTex.isProtected())) {
+        return false;
+    }
+
     return true;
 }
 
