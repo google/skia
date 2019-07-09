@@ -133,39 +133,6 @@ private:
 #endif
     };
 
-    class DeferredCallTarget {
-    public:
-        DeferredCallTarget(ByteCodeGenerator* generator, const FunctionDeclaration& function)
-                : fGenerator(*generator)
-                , fCode(generator->fCode)
-                , fOffset(generator->fCode->size())
-                , fFunction(function) {
-            generator->write8(0);
-        }
-
-        bool set() {
-            size_t idx;
-            const auto& functions(fGenerator.fFunctions);
-            for (idx = 0; idx < functions.size(); ++idx) {
-                if (fFunction.matches(functions[idx]->fDeclaration)) {
-                    break;
-                }
-            }
-            if (idx > 255 || idx > functions.size()) {
-                SkASSERT(false);
-                return false;
-            }
-            (*fCode)[fOffset] = idx;
-            return true;
-        }
-
-    private:
-        ByteCodeGenerator& fGenerator;
-        std::vector<uint8_t>* fCode;
-        size_t fOffset;
-        const FunctionDeclaration& fFunction;
-    };
-
     // Intrinsics which do not simply map to a single opcode
     enum class SpecialIntrinsic {
         kDot,
@@ -295,7 +262,6 @@ private:
     std::stack<std::vector<DeferredLocation>> fBreakTargets;
 
     std::vector<const FunctionDefinition*> fFunctions;
-    std::vector<DeferredCallTarget> fCallTargets;
 
     int fParameterCount;
 

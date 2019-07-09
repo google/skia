@@ -81,12 +81,7 @@ bool ByteCodeGenerator::generateCode() {
                 ; // ignore
         }
     }
-    for (auto& call : fCallTargets) {
-        if (!call.set()) {
-            return false;
-        }
-    }
-    return true;
+    return 0 == fErrors.errorCount();
 }
 
 std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const FunctionDefinition& f) {
@@ -669,7 +664,23 @@ void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
         return;
     }
 
-    // Otherwise, we may need to deal with out parameters, so the sequence is trickier...
+    // Find the index of the function we're calling. We explicitly do not allow calls to functions
+    // before they're defined. This is an easy-to-understand rule that prevents recursion.
+    size_t idx;
+    for (idx = 0; idx < fFunctions.size(); ++idx) {
+        if (f.fFunction.matches(fFunctions[idx]->fDeclaration)) {
+            break;
+        }
+    }
+    if (idx > 255) {
+        fErrors.error(f.fOffset, "Function count limit exceeded");
+        return;
+    } else if (idx >= fFunctions.size()) {
+        fErrors.error(f.fOffset, "Call to undefined function");
+        return;
+    }
+
+    // We may need to deal with out parameters, so the sequence is tricky
     if (int returnCount = SlotCount(f.fType)) {
         this->write(ByteCodeInstruction::kReserve);
         this->write8(returnCount);
@@ -689,7 +700,7 @@ void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
     }
 
     this->write(ByteCodeInstruction::kCall);
-    fCallTargets.emplace_back(this, f.fFunction);
+    this->write8(idx);
 
     // After the called function returns, the stack will still contain our arguments. We have to
     // pop them (storing any out parameters back to their lvalues as we go). We glob together slot
