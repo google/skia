@@ -642,8 +642,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
     SkASSERT(tex->isLinearTiled());
 
     // If we're uploading compressed data then we should be using uploadCompressedTexData
-    SkASSERT(!GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType,
-                                                                 GrSRGBEncoded::kNo)));
+    SkASSERT(!GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType)));
 
     SkDEBUGCODE(
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
@@ -701,8 +700,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipMapLevel() + 1));
 
     // If we're uploading compressed data then we should be using uploadCompressedTexData
-    SkASSERT(!GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType,
-                                                                 GrSRGBEncoded::kNo)));
+    SkASSERT(!GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType)));
 
     if (width == 0 || height == 0) {
         return false;
@@ -1987,7 +1985,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
         return GrBackendRenderTarget();
     }
 
-    auto config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
+    auto config = GrColorTypeToPixelConfig(ct);
     if (kUnknown_GrPixelConfig == config) {
         return {};
     }

@@ -37,11 +37,10 @@ public:
     }
 
     bool isFormatSRGB(const GrBackendFormat& format) const override {
-        if (!format.getMockSRGBEncoded()) {
+        if (!format.getMockColorType()) {
             return false;
         }
-
-        return GrSRGBEncoded::kYes == *format.getMockSRGBEncoded();
+        return *format.getMockColorType() == GrColorType::kRGBA_8888_SRGB;
     }
 
     bool isFormatTexturable(GrColorType, const GrBackendFormat& format) const override {
@@ -142,17 +141,15 @@ public:
     }
 
     GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const override {
-        if (!format.getMockColorType() || !format.getMockSRGBEncoded()) {
+        if (!format.getMockColorType()) {
             return kUnknown_GrPixelConfig;
         }
 
-        return GrColorTypeToPixelConfig(*format.getMockColorType(),
-                                        *format.getMockSRGBEncoded());
+        return GrColorTypeToPixelConfig(*format.getMockColorType());
     }
 
-    GrBackendFormat getBackendFormatFromColorType(GrColorType ct,
-                                                  GrSRGBEncoded srgbEncoded) const override {
-        return GrBackendFormat::MakeMock(ct, srgbEncoded);
+    GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override {
+        return GrBackendFormat::MakeMock(ct);
     }
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override {
@@ -179,12 +176,11 @@ private:
 
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                GrColorType) const override {
-        if (!format.getMockColorType() || !format.getMockSRGBEncoded()) {
+        if (!format.getMockColorType()) {
             return kUnknown_GrPixelConfig;
         }
 
-        return GrColorTypeToPixelConfig(*format.getMockColorType(),
-                                        *format.getMockSRGBEncoded());
+        return GrColorTypeToPixelConfig(*format.getMockColorType());
 
     }
 
