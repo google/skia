@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3563c18f_d92d77af",
+        "filename": "src/gpu/gl/GrGLUtil.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-09T21:12:02Z",
+      "side": 1,
+      "message": "This ones not actually used now. If we have the GrGLenum value on the table (in the future) then we could remove it.",
+      "range": {
+        "startLine": 277,
+        "startChar": 26,
+        "endLine": 277,
+        "endChar": 57
+      },
+      "revId": "7d3f48a6371624db741770e599021f1e099e54d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
