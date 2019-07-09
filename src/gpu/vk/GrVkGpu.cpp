@@ -1281,7 +1281,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    if (!check_image_info(this->vkCaps(), imageInfo, tex.config(), false)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, tex.config(), true)) {
         return nullptr;
     }
     if (!check_rt_image_info(this->vkCaps(), imageInfo)) {
