@@ -122,4 +122,8 @@ private:
     GrGLTextureParameters* fParams;
 };
 
+enum class GrGLFormat {
+
+};
+
 #endif
