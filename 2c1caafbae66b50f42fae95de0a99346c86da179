@@ -95,6 +95,23 @@
     },
     {
       "key": {
+        "uuid": "22ccf4b6_fb4ae82f",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-10T14:22:53Z",
+      "side": 1,
+      "message": "Leave a comment here for when we add the SkColorType?",
+      "revId": "2c1caafbae66b50f42fae95de0a99346c86da179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2923d5a7_02ac5a89",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 1
