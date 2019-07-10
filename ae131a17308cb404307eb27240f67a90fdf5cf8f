@@ -22,6 +22,30 @@
       "revId": "ae131a17308cb404307eb27240f67a90fdf5cf8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e633d80_d58e7bc3",
+        "filename": "bench/RectanizerBench.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-10T19:56:20Z",
+      "side": 1,
+      "message": "Ack - I left it in case we ever add another one.",
+      "parentUuid": "c9e279e9_3ab4b7c9",
+      "range": {
+        "startLine": 31,
+        "startChar": 9,
+        "endLine": 31,
+        "endChar": 23
+      },
+      "revId": "ae131a17308cb404307eb27240f67a90fdf5cf8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
