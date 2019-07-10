@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebb056c1_bb675ec6",
+        "filename": "src/core/SkCubicMap.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-10T14:40:08Z",
+      "side": 1,
+      "message": "Can we delete all of this now?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 1
+      },
+      "revId": "b246ff340327630579295914e6278316bb3542cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
