@@ -1058,14 +1058,11 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 		}
 	}
 	extraProps := map[string]string{
-		"repository": specs.PLACEHOLDER_REPO,
+		"repository":           specs.PLACEHOLDER_REPO,
 	}
 	task := kitchenTask(name, "infra", "infra_tests.isolate", SERVICE_ACCOUNT_COMPILE, dims, extraProps, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GSUTIL...)
 	task.Idempotent = true
-	// Repos which call into Skia's gen_tasks.go should define their own
-	// infra_tests.isolate and therefore should not use relpath().
-	task.Isolate = "infra_tests.isolate"
 	usesGit(task, name) // We don't run bot_update, but Go needs a git repo.
 	usesGo(b, task, name)
 	b.MustAddTask(name, task)
