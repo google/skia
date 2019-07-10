@@ -411,6 +411,7 @@ config("debug_symbols") {
   # to Android devices.  -gline-tables-only is a lot slimmer.
   if (is_android) {
     cflags = [
+      "-g",
       "-gline-tables-only",
       "-funwind-tables",  # Helps make in-process backtraces fuller.
     ]

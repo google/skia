@@ -1,8 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-import java.io.File
 import java.nio.file.Paths
-import org.apache.tools.ant.taskdefs.condition.Os
 
 buildscript {
     repositories {
@@ -10,7 +8,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0'
+        classpath 'com.android.tools.build:gradle:3.4.1'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -22,99 +20,4 @@ allprojects {
         google()
         jcenter()
     }
-}
-
-def setupSkiaLibraryBuild(project, appVariants, appName) {
-    appVariants.all{ variant ->
-        def buildNativeLib = project.task("${variant.name}_BuildSkiaLib", type:Exec) {
-            workingDir '../../../..' // top-level skia directory
-            final String cmd = constructBuildCommand(project, variant, appName)
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine "cmd", "/c", cmd
-            } else {
-                commandLine cmd.split()
-            }
-        }
-        buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
-
-        def copyNativeLib = project.task("${variant.name}_CopySkiaLib", type:Copy) {
-            def fromDir = getVariantOutDir(project, variant).skiaOut
-            def intoDir = getVariantOutDir(project, variant).androidOut
-            from fromDir
-            into intoDir
-            include "${appName}.so"
-        }
-
-        TaskCollection<Task> compileTask = project.tasks.matching {
-            //  println(it.name)
-            it.name.toLowerCase().contains("compile" + variant.name.toLowerCase()) &&
-                    it.name.toLowerCase().endsWith("ndk")
-        }
-        compileTask.findAll()*.dependsOn copyNativeLib
-        copyNativeLib.dependsOn buildNativeLib
-    }
-}
-
-def getLocalProperties() {
-    Properties properties = new Properties()
-    File propFile = project.rootProject.file('local.properties')
-    if (propFile.canRead()) {
-        properties.load(propFile.newDataInputStream())
-    }
-    propFile = project.rootProject.file('gradle.properties')
-    if (propFile.canRead()) {
-        properties.load(propFile.newDataInputStream())
-    }
-    return properties
-}
-
-def getVariantOutDir(project, variant) {
-    String variantPrefix = null
-    String androidLibDir = null
-    if (variant.name.startsWith("arm64")) {
-        variantPrefix = "arm64"
-        androidLibDir = "arm64-v8a"
-    } else if (variant.name.startsWith("arm")) {
-        variantPrefix = "arm"
-        androidLibDir = "armeabi-v7a"
-    } else if (variant.name.startsWith("x64")) {
-        variantPrefix = "x64"
-        androidLibDir = "x86_64"
-    } else if (variant.name.startsWith("x86")) {
-        variantPrefix = "x86"
-        androidLibDir = "x86"
-    }
-
-    String skiaOutDir = null
-    String propName = "${variantPrefix}.out.dir"
-    if (project.hasProperty(propName)) {
-        skiaOutDir = project.getProperties().getAt(propName)
-    } else {
-        skiaOutDir = getLocalProperties().getProperty(propName, "missing_variant_out")
-    }
-
-    return [skiaOut: skiaOutDir,
-            androidOut: "src/main/libs/${androidLibDir}"]
-}
-
-def constructBuildCommand(project, variant, appName) {
-    String depotToolsDir = null
-    for (String entry : System.getenv("PATH").split(File.pathSeparator)) {
-        if (Paths.get(entry).endsWith("depot_tools")) {
-            depotToolsDir = entry;
-            break;
-        }
-    }
-    if (depotToolsDir == null) {
-        depotToolsDir = getLocalProperties().getProperty('depot_tools.dir', null)
-    }
-
-    if (depotToolsDir == null) {
-        throw GradleScriptException("Depot Tools not found! Please update your path to include" +
-                " depot_tools or define depot_tools.dir in local.properties")
-    }
-
-    String ninja = Paths.get(depotToolsDir, "ninja")
-    String out_dir = getVariantOutDir(project, variant).skiaOut
-    return "$ninja -C $out_dir $appName"
 }
