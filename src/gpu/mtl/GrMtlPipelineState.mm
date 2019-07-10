@@ -116,9 +116,11 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
 void GrMtlPipelineState::setDrawState(id<MTLRenderCommandEncoder> renderCmdEncoder,
                                       const GrSwizzle& outputSwizzle,
                                       const GrXferProcessor& xferProcessor) {
+    [renderCmdEncoder pushDebugGroup:@"setDrawState"];
     this->bind(renderCmdEncoder);
     this->setBlendConstants(renderCmdEncoder, outputSwizzle, xferProcessor);
     this->setDepthStencilState(renderCmdEncoder);
+    [renderCmdEncoder popDebugGroup];
 }
 
 void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
