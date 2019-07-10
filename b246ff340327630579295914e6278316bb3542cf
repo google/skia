@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d3d79819_a9e93449",
+        "filename": "src/core/SkCubicMap.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-10T16:05:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ebb056c1_bb675ec6",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 1
+      },
+      "revId": "b246ff340327630579295914e6278316bb3542cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3a0dc29_f043d419",
         "filename": "src/core/SkCubicMap.cpp",
         "patchSetId": 4
@@ -71,6 +95,24 @@
       "side": 1,
       "message": "Er, you may need to swap the include to \u003ccmath\u003e or swap the call to fmaf()...",
       "parentUuid": "f8470a9d_1e142025",
+      "revId": "b246ff340327630579295914e6278316bb3542cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "761fa481_1275ca3d",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-10T16:05:41Z",
+      "side": 1,
+      "message": "Done -- still needs to be here in hsw, but works.",
+      "parentUuid": "d3518b61_9a12eda0",
       "revId": "b246ff340327630579295914e6278316bb3542cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
