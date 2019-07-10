@@ -111,6 +111,46 @@
     },
     {
       "key": {
+        "uuid": "29491cf1_5f35daab",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T17:04:10Z",
+      "side": 1,
+      "message": "Dunno if you\u0027re into this, but I think you can write this as a variadic function if you move \u0027t\u0027 to the front, something like\n\n    static float eval_poly(float t, float b) {\n        return b;\n    }\n\n    template \u003ctypename... Rest\u003e\n    static float eval_poly(float t, float m, float b, Rest... rest) {\n        return eval_poly(t, sk_fmaf(m,t,b), rest...);\n    }",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 1
+      },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1e483f1_69ddf925",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T17:04:10Z",
+      "side": 1,
+      "message": "Now that I\u0027m reading through again, might help readability to move this close to where we set the initial t?\n\n   ...\n        auto guess_nice_cubic_root \u003d [](float a, float b, float c, float d) {\n            return -d;\n        };\n        float t \u003d guess_nice_cubic_root(A, B, C, D);\n   ...",
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "079d6a16_ec46d9de",
         "filename": "src/core/SkCubicSolver.h",
         "patchSetId": 7
@@ -144,6 +184,29 @@
         "startChar": 19,
         "endLine": 46,
         "endChar": 36
+      },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5e71edc_5c710e03",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T17:04:10Z",
+      "side": 1,
+      "message": "Probably not a bad idea to scope this inside cubic_solver()?  These SkOpts headers all get mondo-built together, so static doesn\u0027t really quite scope as tightly as you\u0027d expect.  There\u0027s no conflict here that I can see, but it\u0027s a good habit to be in, especially in these SkOpts headers.\n\n\n(It\u0027ll need to be static int max_iters \u003d 0; there.)",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 6
       },
       "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
@@ -192,6 +255,57 @@
         "endLine": 60,
         "endChar": 33
       },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "007cbe68_de68bdb3",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T17:04:10Z",
+      "side": 1,
+      "message": "Unless you find it easier to read this way, it won\u0027t make any difference if you write these as 3*A and B+B.  Any multiples will be common sub-expression eliminated.",
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1eb848e_518857a9",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T17:04:10Z",
+      "side": 1,
+      "message": "Think it makes sense to move the in-loop valid() assert to the beginning of the loop as \n\n    SkASSERT(valid(t))\n\n?  That way checks your guess too, and lets you just finish the loop with \n\n    t -\u003d numer / denom;",
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebd65ca2_98678ebb",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T17:04:10Z",
+      "side": 1,
+      "message": "I usually try to mark these with a comment like\n\n   }  // namespace SK_OPTS_NS\n\nor just indent the entire contents of the namespace like any other brace pair.",
       "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
