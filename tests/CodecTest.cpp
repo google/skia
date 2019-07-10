@@ -1430,7 +1430,7 @@ resources/invalid_images/skbug6046.gif is:
 00000030: 0021 f904 0000 0000 002c ff00 0000 ffcc  .!.......,......
 00000040: 1b36 5266 deba 543d                      .6Rf..T=
 
-It nominally contains 3 frames, but all of them are invalid. It came from a
+It nominally contains 3 frames, but only the first one is valid. It came from a
 fuzzer doing random mutations and copies. The breakdown:
 
 @000  6 bytes magic "GIF89a"
@@ -1446,7 +1446,7 @@ fuzzer doing random mutations and copies. The breakdown:
    - height    =     0
    - flags     =  0x40, interlaced
 @017  2 bytes Image Descriptor body (pixel data): 0x01 0x00
-   - lit_width =     1, INVALID, OUTSIDE THE RANGE [2, 8]
+   - lit_width =     1
    - 0x00 byte means "end of data" for this frame
 @019  8 bytes Graphic Control Extension: 0x21 0xF9 ... 0x00
    - valid, but irrelevant here.
@@ -1468,7 +1468,7 @@ fuzzer doing random mutations and copies. The breakdown:
    - height    = 13851
    - flags     =  0x52, INVALID, 0x80 BIT ZERO IMPLIES 0x07 BITS SHOULD BE ZERO
 @043  5 bytes Image Descriptor body (pixel data): 0x66 0xDE ... unexpected-EOF
-   - lit_width =   102, INVALID, OUTSIDE THE RANGE [2, 8]
+   - lit_width =   102, INVALID, GREATER THAN 8
    - 0xDE precedes a 222 byte block of data, INVALIDLY TRUNCATED
 
 On Image Descriptor flags INVALIDITY,
@@ -1476,16 +1476,14 @@ https://www.w3.org/Graphics/GIF/spec-gif89a.txt section 20.c says that "Size of
 Local Color Table [the low 3 bits]... should be 0 if there is no Local Color
 Table specified [the high bit]."
 
-On LZW literal width (also known as Minimum Code Size) INVALIDITY outside of
-the range [2, 8], https://www.w3.org/Graphics/GIF/spec-gif89a.txt Appendix F
-says that "Normally this will be the same as the number of [palette index]
-bits. Because of some algorithmic constraints however, black & white images
-which have one color bit must be indicated as having a code size of 2."
-
-In practice, some GIF decoders, including the old third_party/gif code, don't
-enforce this. It says: "currentFrame->setDataSize(this->getOneByte())" with the
-only further check being against an upper bound of SK_MAX_DICTIONARY_ENTRY_BITS
-(the constant 12).
+On LZW literal width (also known as Minimum Code Size) INVALIDITY,
+https://www.w3.org/Graphics/GIF/spec-gif89a.txt Appendix F says that "Normally
+this will be the same as the number of [palette index] bits. Because of some
+algorithmic constraints however, black & white images which have one color bit
+must be indicated as having a code size of 2." In practice, some GIF decoders,
+including both the old third_party/gif code and the Wuffs GIF decoder, don't
+enforce this "at least 2" constraint. Nonetheless, any width greater than 8 is
+invalid, as there are only 8 bits in a byte.
 */
 
 DEF_TEST(Codec_InvalidAnimated, r) {
@@ -1514,35 +1512,6 @@ DEF_TEST(Codec_InvalidAnimated, r) {
         opts.fPriorFrame = reqFrame == i - 1 ? reqFrame : SkCodec::kNoFrame;
         auto result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), &opts);
 
-#ifdef SK_HAS_WUFFS_LIBRARY
-        // We are transitioning from an old GIF implementation to a new (Wuffs)
-        // GIF implementation.
-        //
-        // This test (without SK_HAS_WUFFS_LIBRARY) is overly specific to the
-        // old implementation. As a fuzzer-discovered test, it's likely that
-        // what's fundamentally being tested isn't that decoding an invalid GIF
-        // leads to kSuccess, but that decoding an invalid GIF doesn't lead to
-        // an ASAN violation.
-        //
-        // Each of the 3 frames of the source GIF image is fundamentally
-        // invalid, as per the "breakdown" comment above. The old
-        // implementation is happy to call startIncrementalDecode 3 times. The
-        // new implementation is happy for the first two times, but on the 3rd,
-        // SkCodec::startIncrementalDecode calls SkCodec::handleFrameIndex
-        // which calls SkCodec::getPixels on the requiredFrame (the 0'th
-        // frame), and the new implementation subsequently hits the
-        // invalid-ness and returns kErrorInInput instead of kSuccess.
-        //
-        // Once the transition is complete, we can remove the #ifdef and delete
-        // the rest of the test function.
-        if (i == 2) {
-            if (result != SkCodec::kErrorInInput) {
-                ERRORF(r, "Unexpected result for decoding frame %i (out of %i) with error %i\n", i,
-                       frameInfos.size(), result);
-            }
-            return;
-        }
-#endif
         if (result != SkCodec::kSuccess) {
             ERRORF(r, "Failed to start decoding frame %i (out of %i) with error %i\n", i,
                    frameInfos.size(), result);
