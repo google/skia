@@ -216,6 +216,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
                           SkSurfaceCharacterization::MipMapped(mipmapped),
                           SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
                           SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
+                          GrProtected(rtc->asRenderTargetProxy()->isProtected()),
                           this->props());
     return true;
 }
@@ -300,6 +301,8 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         return false;
     }
 
+    GrProtected isProtected = GrProtected(rtc->asSurfaceProxy()->isProtected());
+
     return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
@@ -310,6 +313,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.sampleCount() == rtc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(),
                                 rtc->colorSpaceInfo().colorSpace()) &&
+           characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
@@ -368,6 +372,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = c.width();
     desc.fHeight = c.height();
+    desc.fIsProtected = c.isProtected();
     desc.fConfig = config;
     desc.fSampleCnt = c.sampleCount();
 
