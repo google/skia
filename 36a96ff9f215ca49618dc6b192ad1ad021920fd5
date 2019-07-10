@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcebf8e3_b3495b6a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1382,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-10T16:09:08Z",
+      "side": 1,
+      "message": "doesn\u0027t really matter but these could be implemented in the header now if you wanted.",
+      "range": {
+        "startLine": 1377,
+        "startChar": 0,
+        "endLine": 1382,
+        "endChar": 50
+      },
+      "revId": "36a96ff9f215ca49618dc6b192ad1ad021920fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
