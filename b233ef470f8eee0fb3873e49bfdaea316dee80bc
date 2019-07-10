@@ -98,6 +98,30 @@
       "revId": "b233ef470f8eee0fb3873e49bfdaea316dee80bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80450c7c_04eda24b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3571,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-10T22:03:58Z",
+      "side": 1,
+      "message": "Okay that was my read and understanding of how things work as well. I just wanted to confirm cause every time I think I know how all these different formats are used in GL there is some place that throws a wrench into things",
+      "parentUuid": "a1e4ccb5_4f21f435",
+      "range": {
+        "startLine": 3570,
+        "startChar": 14,
+        "endLine": 3571,
+        "endChar": 63
+      },
+      "revId": "b233ef470f8eee0fb3873e49bfdaea316dee80bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
