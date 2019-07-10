@@ -2,6 +2,7 @@
 #ifndef Run_DEFINED
 #define Run_DEFINED
 
+#include <DartTypes.h>
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTextBlob.h"
@@ -11,6 +12,14 @@
 
 namespace skia {
 namespace textlayout {
+
+typedef size_t TextIndex;
+typedef size_t RunIndex;
+typedef size_t ClusterIndex;
+
+typedef SkRange<size_t> TextRange;
+typedef SkRange<size_t> RunRange;
+typedef SkRange<size_t> ClusterRange;
 
 class Cluster;
 class Run {
