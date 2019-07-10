@@ -131,7 +131,6 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
 ParagraphImpl::~ParagraphImpl() = default;
 
 void ParagraphImpl::layout(SkScalar width) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
 
     if (fState < kShaped) {
         // Layout marked as dirty for performance/testing reasons
@@ -142,7 +141,6 @@ void ParagraphImpl::layout(SkScalar width) {
         fState = kShaped;
     }
 
-    //fParagraphCache.printCache("before shaping");
     if (fState < kShaped) {
         fClusters.reset();
 
@@ -157,19 +155,18 @@ void ParagraphImpl::layout(SkScalar width) {
             fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
             fIdeographicBaseline = lineMetrics.ideographicBaseline();
             fState = kShaped;
-        } else {
-            // Could be kShaped or kClusterized if we were lucky and and found it in the cache
         }
 
+        // Could be kShaped or kClusterized if we were lucky and and found it in the cache
         if (fState < kClusterized) {
             this->buildClusterTable();
             fState = kClusterized;
             // Add the paragraph to the cache
             fParagraphCache.addParagraph(this);
+        } else {
+            SkDebugf("Found in cache: %d, %d, %d\n", this->fClusters.count(), this->fRuns.count(), this->fText.size());
         }
-
     }
-    //fParagraphCache.printCache("after shaping");
 
     if (fState < kLineBroken) {
         this->resetContext();
@@ -183,7 +180,6 @@ void ParagraphImpl::layout(SkScalar width) {
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     if (fState < kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
@@ -200,7 +196,6 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 }
 
 void ParagraphImpl::resetContext() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     fAlphabeticBaseline = 0;
     fHeight = 0;
     fWidth = 0;
@@ -212,25 +207,21 @@ void ParagraphImpl::resetContext() {
 
 // Clusters in the order of the input text
 void ParagraphImpl::buildClusterTable() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
 
     // Find all possible (soft) line breaks
     TextBreaker breaker;
     if (!breaker.initialize(fTextSpan, UBRK_LINE)) {
         return;
     }
-    size_t currentPos = breaker.first();
     SkTHashMap<const char*, bool> softLineBreaks;
     while (!breaker.eof()) {
-        currentPos = breaker.next();
+        size_t currentPos = breaker.next();
         const char* ch = currentPos + fTextSpan.begin();
         softLineBreaks.set(ch, breaker.status() == UBRK_LINE_HARD);
     }
 
     TextBlock* currentStyle = this->fTextStyles.begin();
     SkScalar shift = 0;
-    // Cannot set SkSpan<SkCluster> until the array is done - can be moved around
-    std::vector<std::tuple<Run*, size_t, size_t>> toUpdate;
 
     // Walk through all the run in the direction of input text
     for (auto& run : fRuns) {
@@ -246,7 +237,7 @@ void ParagraphImpl::buildClusterTable() {
             SkASSERT(charEnd >= charStart);
             SkSpan<const char> text(fTextSpan.begin() + charStart, charEnd - charStart);
 
-            auto& cluster = fClusters.emplace_back(&run, glyphStart, glyphEnd, text, width, height);
+            auto& cluster = fClusters.emplace_back(this, &run, glyphStart, glyphEnd, text, width, height);
 
             // Mark the line breaks
             auto found = softLineBreaks.find(cluster.text().end());
@@ -277,22 +268,14 @@ void ParagraphImpl::buildClusterTable() {
             }
         });
 
-        toUpdate.emplace_back(&run, runStart, fClusters.size() - runStart);
+        run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
     }
-    fClusters.emplace_back(nullptr, 0, 0, SkSpan<const char>(), 0, 0);
-
-    // Set SkSpan<SkCluster> ranges for all the runs
-    for (auto update : toUpdate) {
-        auto run = std::get<0>(update);
-        auto start = std::get<1>(update);
-        auto size = std::get<2>(update);
-        run->setClusters(SkSpan<Cluster>(&fClusters[start], size));
-    }
+    fClusters.emplace_back(this, nullptr, 0, 0, SkSpan<const char>(), 0, 0);
 }
 
 bool ParagraphImpl::shapeTextIntoEndlessLine() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
+
     class ShapeHandler final : public SkShaper::RunHandler {
     public:
         explicit ShapeHandler(ParagraphImpl& paragraph, FontIterator* fontIterator)
@@ -310,8 +293,8 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         void commitRunInfo() override {}
 
         Buffer runBuffer(const RunInfo& info) override {
-            TRACE_EVENT0("skia", TRACE_FUNC);
-            auto& run = fParagraph->fRuns.emplace_back(fParagraph->text(),
+            auto& run = fParagraph->fRuns.emplace_back(fParagraph,
+                                                       fParagraph->text(),
                                                        info,
                                                        fFontIterator->currentLineHeight(),
                                                        fParagraph->fRuns.count(),
@@ -320,7 +303,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         }
 
         void commitRunBuffer(const RunInfo&) override {
-            TRACE_EVENT0("skia", TRACE_FUNC);
             auto& run = fParagraph->fRuns.back();
             if (run.size() == 0) {
                 fParagraph->fRuns.pop_back();
@@ -339,6 +321,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     };
 
     if (fTextSpan.empty()) {
+        fState = kShaped;
         return false;
     }
 
@@ -360,6 +343,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
             fTextSpan.begin(), fTextSpan.size(),
             fParagraphStyle.getTextDirection() == TextDirection::kLtr ? (uint8_t)2 : (uint8_t)1);
     if (bidi == nullptr) {
+        fState = kUnknown;
         return false;
     }
     auto script = SkShaper::MakeHbIcuScriptRunIterator(fTextSpan.begin(), fTextSpan.size());
@@ -372,7 +356,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 }
 
 void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
+
     TextWrapper textWrapper;
     textWrapper.breakTextIntoLines(
             this,
@@ -390,8 +374,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 // Add the line
                 // TODO: Take in account clipped edges
                 SkSpan<const Cluster> clusters(start, end - start + 1);
-                auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters,
-                                           startPos, endPos, metrics);
+                auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters, metrics);
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
                 }
@@ -406,7 +389,6 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
 }
 
 void ParagraphImpl::formatLines(SkScalar maxWidth) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     auto effectiveAlign = fParagraphStyle.effective_align();
     for (auto& line : fLines) {
         line.format(effectiveAlign, maxWidth, &line != &fLines.back());
@@ -414,7 +396,6 @@ void ParagraphImpl::formatLines(SkScalar maxWidth) {
 }
 
 void ParagraphImpl::paintLinesIntoPicture() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     SkPictureRecorder recorder;
     SkCanvas* textCanvas = recorder.beginRecording(fWidth, fHeight, nullptr, 0);
 
@@ -426,7 +407,6 @@ void ParagraphImpl::paintLinesIntoPicture() {
 }
 
 void ParagraphImpl::resolveStrut() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     auto strutStyle = this->paragraphStyle().getStrutStyle();
     if (!strutStyle.getStrutEnabled()) {
         return;
@@ -455,7 +435,6 @@ void ParagraphImpl::resolveStrut() {
 }
 
 SkSpan<const TextBlock> ParagraphImpl::findAllBlocks(SkSpan<const char> text) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     const TextBlock* begin = nullptr;
     const TextBlock* end = nullptr;
     for (auto& block : fTextStyles) {
@@ -479,15 +458,11 @@ TextLine& ParagraphImpl::addLine(SkVector offset,
                                  SkSpan<const char> text,
                                  SkSpan<const char> textWithSpaces,
                                  SkSpan<const Cluster> clusters,
-                                 size_t start,
-                                 size_t end,
                                  LineMetrics sizes) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     // Define a list of styles that covers the line
     auto blocks = findAllBlocks(text);
 
-    return fLines.emplace_back(offset, advance, blocks, text, textWithSpaces, clusters, start, end,
-                               sizes);
+    return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, sizes);
 }
 
 // Returns a vector of bounding boxes that enclose all text between

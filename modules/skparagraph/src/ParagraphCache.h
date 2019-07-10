@@ -19,9 +19,8 @@ class ParagraphCacheKey {
 public:
     ParagraphCacheKey(ParagraphImpl* paragraph);
 
-    ParagraphStyle fParaStyle;
     SkString fText;
-    SkTHashMap<size_t, FontDescr> fMapping;
+    SkTHashMap<uint32_t, FontDescr> fMapping;
 };
 
 class ParagraphCacheValue {
@@ -48,18 +47,19 @@ struct LookupTrait {
 class ParagraphCache : public SkTDynamicHash<ParagraphCacheValue, ParagraphCacheKey, LookupTrait> {
 public:
 
-    ParagraphCache() : fChecker([](const char*, bool){ }){ }
+    ParagraphCache() : fChecker([](ParagraphImpl* impl, const char*, bool){ }){ }
     bool findParagraph(ParagraphImpl* paragraph);
     void addParagraph(ParagraphImpl* paragraph);
 
     // For testing
 
-    void setChecker(std::function<void(const char*, bool)> checker) { fChecker = checker; }
+    void setChecker(std::function<void(ParagraphImpl* impl, const char*, bool)> checker) { fChecker = checker; }
     void printCache(const char* title);
+    void printKeyValue(const char* title, ParagraphImpl* paragraph, bool found);
 
  private:
      mutable SkMutex fParagraphMutex;
-     std::function<void(const char*, bool)> fChecker;
+     std::function<void(ParagraphImpl* impl, const char*, bool)> fChecker;
 };
 
 }  // namespace textlayout

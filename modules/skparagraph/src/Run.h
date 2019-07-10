@@ -2,7 +2,8 @@
 #ifndef Run_DEFINED
 #define Run_DEFINED
 
-#include <DartTypes.h>
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTextBlob.h"
@@ -13,24 +14,95 @@
 namespace skia {
 namespace textlayout {
 
-typedef size_t TextIndex;
-typedef size_t RunIndex;
-typedef size_t ClusterIndex;
-
-typedef SkRange<size_t> TextRange;
-typedef SkRange<size_t> RunRange;
-typedef SkRange<size_t> ClusterRange;
-
+class ParagraphImpl;
 class Cluster;
+class Run;
+
+class TextBlock {
+public:
+    TextBlock() : fText(), fTextStyle() {}
+    TextBlock(SkSpan<const char> text, const TextStyle& style) : fText(text), fTextStyle(style) {}
+
+    SkSpan<const char> text() const { return fText; }
+    TextStyle style() const { return fTextStyle; }
+
+    void add(SkSpan<const char> tail) {
+        SkASSERT(fText.end() == tail.begin());
+        fText = SkSpan<const char>(fText.begin(), fText.size() + tail.size());
+    }
+
+protected:
+    SkSpan<const char> fText;
+    TextStyle fTextStyle;
+};
+
+template<class M, class T, T* access(M*)>
+class StableReference {
+
+public:
+    StableReference() : fInitialized(false) { }
+    StableReference(uint32_t index) : fInitialized(true), fIndex(index) { }
+    StableReference(M* master, T* ref)
+    : fInitialized(ref != nullptr), fIndex(ref == nullptr ? 0 : ref - access(master)) { }
+    T* reference(M* master) const { return fInitialized ? access(master) + fIndex : nullptr; }
+private:
+    bool fInitialized;
+    uint32_t fIndex;
+};
+
+template<class M, class T, T* access(M*)>
+class StableRange {
+public:
+    StableRange() : fMaster(nullptr), fRange() { }
+    StableRange(M* master) : fMaster(master), fRange() { }
+    StableRange(M* master, SkRange<uint32_t> range) : fMaster(master), fRange(range) { }
+    StableRange(M* master, uint32_t from, uint32_t to) : fMaster(master), fRange(from, to) { }
+    StableRange(M* master, SkSpan<T> span) : fMaster(master) {
+        auto base = fMaster == nullptr ? nullptr : access(fMaster);
+        fRange = SkRange<uint32_t>(span.begin() - base, span.end() - base);
+    }
+
+    constexpr T& front() const { return access(fMaster) + fRange.start; }
+    constexpr T& back()  const { return access(fMaster) + fRange.end - 1; }
+    constexpr T* begin() const { return access(fMaster) + fRange.start; }
+    constexpr T* end() const { return access(fMaster) + fRange.end; }
+    constexpr const T* cbegin() const { return access(fMaster) + fRange.start; }
+    constexpr const T* cend() const { return access(fMaster) + fRange.end; }
+    constexpr T* data() const { return access(fMaster) + fRange.start; }
+    constexpr size_t size() const { return fRange.width(); }
+    constexpr bool empty() const { return fRange.width() == 0; }
+    constexpr size_t size_bytes() const { return fRange.width() * sizeof(T); }
+
+    SkSpan<T> span() const {
+        auto base = access(fMaster);
+        return base == nullptr
+                       ? SkSpan<T>(nullptr, 0)
+                       : SkSpan<T>(base + fRange.start, fRange.width());
+    }
+
+private:
+    M* fMaster;
+    SkRange<uint32_t> fRange;
+};
+
+const char* accessText(ParagraphImpl* master);
+const Cluster* accessCluster(ParagraphImpl* master);
+const Run* accessRun(ParagraphImpl* master);
+Run* accessRunRef(ParagraphImpl* master);
+const TextBlock* accessTextBlock(ParagraphImpl* master);
+
 class Run {
 public:
     Run() = default;
-    Run(SkSpan<const char> text,
-          const SkShaper::RunHandler::RunInfo& info,
-          SkScalar lineHeight,
-          size_t index,
-          SkScalar shiftX);
+    Run(ParagraphImpl* master,
+        SkSpan<const char> text,
+        const SkShaper::RunHandler::RunInfo& info,
+        SkScalar lineHeight,
+        size_t index,
+        SkScalar shiftX);
     ~Run() {}
+
+    void setMaster(ParagraphImpl* master) { fMaster = master; }
 
     SkShaper::RunHandler::Buffer newRunBuffer();
 
@@ -52,12 +124,15 @@ public:
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
     size_t index() const { return fIndex; }
     SkScalar lineHeight() const { return fHeightMultiplier; }
-    SkSpan<const char> text() const { return fText; }
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
     SkScalar positionX(size_t pos) const { return fPositions[pos].fX + fOffsets[pos]; }
     SkScalar offset(size_t index) const { return fOffsets[index]; }
-    SkSpan<Cluster> clusters() const { return fClusters; }
-    void setClusters(SkSpan<Cluster> clusters) { fClusters = clusters; }
+
+    SkSpan<const char> textSpan() { return fTextRange.span(); }
+    SkSpan<const Cluster> clusterSpan() { return fClusterRange.span(); }
+    void setClusterRange(size_t from, size_t to) {
+        fClusterRange = StableRange<ParagraphImpl, const Cluster, &accessCluster>(fMaster, from, to);
+    }
     SkRect clip() const {
         return SkRect::MakeXYWH(fOffset.fX, fOffset.fY, fAdvance.fX, fAdvance.fY);
     }
@@ -79,7 +154,7 @@ public:
                                               SkScalar height)>;
     void iterateThroughClustersInTextOrder(const ClusterVisitor& visitor);
 
-    std::tuple<bool, Cluster*, Cluster*> findLimitingClusters(SkSpan<const char> text);
+    std::tuple<bool, const Cluster*, const Cluster*> findLimitingClusters(SkSpan<const char> text);
     SkSpan<const SkGlyphID> glyphs() {
         return SkSpan<const SkGlyphID>(fGlyphs.begin(), fGlyphs.size());
     }
@@ -90,16 +165,14 @@ public:
         return SkSpan<const uint32_t>(fClusterIndexes.begin(), fClusterIndexes.size());
     }
 
-    static Run correctRun(Run* from, size_t textDelta) {
-        Run run = *from;
-        run.fText = SkSpan<const char>(run.fText.begin() + textDelta, run.fText.size());
-        return run;
-    }
-
 private:
     friend class ParagraphImpl;
     friend class TextLine;
     friend class LineMetrics;
+
+    ParagraphImpl* fMaster;
+    StableRange<ParagraphImpl, const char, &accessText> fTextRange;
+    StableRange<ParagraphImpl, const Cluster, &accessCluster> fClusterRange;
 
     SkFont fFont;
     SkFontMetrics fFontMetrics;
@@ -107,8 +180,6 @@ private:
     size_t fIndex;
     uint8_t fBidiLevel;
     SkVector fAdvance;
-    SkSpan<const char> fText;
-    SkSpan<Cluster> fClusters;
     SkVector fOffset;
     SkShaper::RunHandler::Range fUtf8Range;
     SkSTArray<128, SkGlyphID, false> fGlyphs;
@@ -131,8 +202,9 @@ public:
     };
 
     Cluster()
-            : fText(nullptr, 0)
-            , fRun(nullptr)
+            : fMaster(nullptr)
+            , fTextRange(nullptr)
+            , fRunReference()
             , fStart(0)
             , fEnd()
             , fWidth()
@@ -141,15 +213,16 @@ public:
             , fWhiteSpaces(false)
             , fBreakType(None) {}
 
-    Cluster(Run* run,
-              size_t start,
-              size_t end,
-              SkSpan<const char>
-                      text,
-              SkScalar width,
-              SkScalar height)
-            : fText(text)
-            , fRun(run)
+    Cluster(ParagraphImpl* master,
+            Run* run,
+            size_t start,
+            size_t end,
+            SkSpan<const char> text,
+            SkScalar width,
+            SkScalar height)
+            : fMaster(master)
+            , fTextRange(master, text)
+            , fRunReference(master, run)
             , fStart(start)
             , fEnd(end)
             , fWidth(width)
@@ -160,6 +233,7 @@ public:
 
     ~Cluster() = default;
 
+    void setMaster(ParagraphImpl* master) { fMaster = master; }
     SkScalar sizeToChar(const char* ch) const;
     SkScalar sizeFromChar(const char* ch) const;
 
@@ -177,14 +251,14 @@ public:
     }
     bool isHardBreak() const { return fBreakType == HardLineBreak; }
     bool isSoftBreak() const { return fBreakType == SoftLineBreak; }
-    Run* run() const { return fRun; }
+    Run* run() const { return fRunReference.reference(fMaster); }
     size_t startPos() const { return fStart; }
     size_t endPos() const { return fEnd; }
     SkScalar width() const { return fWidth; }
     SkScalar trimmedWidth() const { return fWidth - fSpacing; }
     SkScalar lastSpacing() const { return fSpacing; }
     SkScalar height() const { return fHeight; }
-    SkSpan<const char> text() const { return fText; }
+    SkSpan<const char> text() const { return fTextRange.span(); }
     size_t size() const { return fEnd - fStart; }
 
     SkScalar trimmedWidth(size_t pos) const;
@@ -193,29 +267,22 @@ public:
 
     void setIsWhiteSpaces();
 
-    bool contains(const char* ch) const { return ch >= fText.begin() && ch < fText.end(); }
+    bool contains(const char* ch) const { return ch >= fTextRange.begin() && ch < fTextRange.end(); }
 
     bool belongs(SkSpan<const char> text) const {
-        return fText.begin() >= text.begin() && fText.end() <= text.end();
+        return fTextRange.begin() >= text.begin() && fTextRange.end() <= text.end();
     }
 
     bool startsIn(SkSpan<const char> text) const {
-        return fText.begin() >= text.begin() && fText.begin() < text.end();
-    }
-
-    static Cluster correctCluster(Cluster* from, size_t runDelta, size_t textDelta) {
-        Cluster cluster = *from;
-        if (cluster.fRun != nullptr) {
-            cluster.fRun += runDelta;
-        }
-        cluster.fText = SkSpan<const char>(cluster.fText.begin() + textDelta, cluster.fText.size());
-        return cluster;
+        return fTextRange.begin() >= text.begin() && fTextRange.begin() < text.end();
     }
 
 private:
-    SkSpan<const char> fText;
 
-    Run* fRun;
+    ParagraphImpl* fMaster;
+    StableRange<ParagraphImpl, const char, &accessText> fTextRange;
+    StableReference<ParagraphImpl, Run, &accessRunRef> fRunReference;
+
     size_t fStart;
     size_t fEnd;
     SkScalar fWidth;

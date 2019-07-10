@@ -1206,8 +1206,8 @@ protected:
         paragraph->paint(canvas, 0, 0);
         SkDEBUGCODE(auto impl = reinterpret_cast<ParagraphImpl*>(paragraph.get()));
         SkASSERT(impl->runs().size() == 3);
-        SkASSERT(impl->runs()[0].text().end() == impl->runs()[1].text().begin());
-        SkASSERT(impl->runs()[1].text().end() == impl->runs()[2].text().begin());
+        SkASSERT(impl->runs()[0].textSpan().end() == impl->runs()[1].textSpan().begin());
+        SkASSERT(impl->runs()[1].textSpan().end() == impl->runs()[2].textSpan().begin());
     }
 
 private:
@@ -1222,24 +1222,6 @@ protected:
         canvas->drawColor(SK_ColorWHITE);
         const char* text = "The same text many times";
 
-        size_t foundParagraphs = 0;
-        size_t notFoundParagraphs = 0;
-        size_t addedParagraphs = 0;
-        ParagraphImpl::setChecker([&](const char* method, bool result) {
-            if (std::strcmp(method, "findParagraph") == 0) {
-                if (result) {
-                    ++foundParagraphs;
-                } else {
-                    ++notFoundParagraphs;
-                    ParagraphImpl::printCache("notFoundParagraph");
-                }
-            } else if (std::strcmp(method, "addParagraph") == 0) {
-                ++addedParagraphs;
-                ParagraphImpl::printCache("addedParagraph");
-            } else {
-                SkASSERT(false);
-            }
-        });
         for (size_t i = 0; i < 100; i++) {
             ParagraphStyle paragraph_style;
             ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
@@ -1253,9 +1235,6 @@ protected:
             paragraph->layout(500);
             paragraph->paint(canvas, 0, 100 * (i % 10));
         }
-        SkDebugf("Added: %d\n", addedParagraphs);
-        SkDebugf("Found: %d\n", foundParagraphs);
-        SkDebugf("Not  : %d\n", notFoundParagraphs);
     }
 
 private:
@@ -1272,5 +1251,5 @@ DEF_SAMPLE(return new ParagraphView6();)
 DEF_SAMPLE(return new ParagraphView7();)
 DEF_SAMPLE(return new ParagraphView8();)
 DEF_SAMPLE(return new ParagraphView9();)
-DEF_SAMPLE(return new ParagraphView10();)
-DEF_SAMPLE(return new ParagraphView11();)
+//DEF_SAMPLE(return new ParagraphView10();)
+//DEF_SAMPLE(return new ParagraphView11();)

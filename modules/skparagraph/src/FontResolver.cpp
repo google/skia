@@ -149,6 +149,7 @@ size_t FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
                 fUnresolvedCodepoints.emplace_back(fCodepoints[w]);
             }
         } else {
+            //SkDebugf("Resolved %d @%d\n", font.fFont.getTypeface()->uniqueID(), resolved.start);
             fFontMapping.set(fCharacters[resolved.start], font);
         }
     };

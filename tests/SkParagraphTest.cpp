@@ -2162,7 +2162,7 @@ DEF_TEST(SkParagraph_Ellipsize, reporter) {
     line.scanRuns([&index, &line, reporter](Run* run, int32_t, size_t, SkRect, SkScalar, bool) {
         ++index;
         if (index == 2) {
-            REPORTER_ASSERT(reporter, run->text() == line.ellipsis()->text());
+            REPORTER_ASSERT(reporter, run->textSpan() == line.ellipsis()->textSpan());
         }
         return true;
     });
@@ -2901,8 +2901,8 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
 
     SkDEBUGCODE(auto impl = static_cast<ParagraphImpl*>(paragraph.get());)
     SkASSERT(impl->runs().size() == 3);
-    SkASSERT(impl->runs()[0].text().end() == impl->runs()[1].text().begin());
-    SkASSERT(impl->runs()[1].text().end() == impl->runs()[2].text().begin());
+    SkASSERT(impl->runs()[0].textSpan().end() == impl->runs()[1].textSpan().begin());
+    SkASSERT(impl->runs()[1].textSpan().end() == impl->runs()[2].textSpan().begin());
 }
 
 // 4 to 1
@@ -2975,7 +2975,7 @@ DEF_TEST(SkParagraph_JSON2, reporter) {
     auto cluster = 0;
     for (auto& run : impl->runs()) {
         SkShaperJSONWriter::VisualizeClusters(
-                run.text().data(), 0, run.text().size(), run.glyphs(), run.clusterIndexes(),
+                run.textSpan().data(), 0, run.textSpan().size(), run.glyphs(), run.clusterIndexes(),
                 [&](int codePointCount, SkSpan<const char> utf1to1,
                     SkSpan<const SkGlyphID> glyph1to1) {
                     if (cluster == 0) {
