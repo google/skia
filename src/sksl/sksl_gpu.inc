@@ -254,6 +254,7 @@ $genIType findLSB($genUType value);
 $genIType findMSB($genIType value);
 $genIType findMSB($genUType value);
 
+sampler2D makeSampler2D(texture2D texture, sampler sampler);
 int2 textureSize($gsampler2DRect sampler);
 
 half4 texture($gsampler1D sampler, float P);
