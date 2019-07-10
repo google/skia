@@ -623,16 +623,11 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
 }
 
 bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget& rt,
-                                    GrPixelConfig* config, SkColorType skCT,
-                                    sk_sp<SkColorSpace> cs) {
+                                    GrPixelConfig* config, SkColorType skCT) {
     GrColorType grCT = SkColorTypeToGrColorType(skCT);
     if (GrColorType::kUnknown == grCT) {
         return false;
     }
-
-    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
-    // create a fake image info here.
-    SkImageInfo info = SkImageInfo::Make(1, 1, skCT, kPremul_SkAlphaType, cs);
 
     *config = ctx->priv().caps()->validateBackendRenderTarget(rt, grCT);
     if (*config == kUnknown_GrPixelConfig) {
@@ -663,7 +658,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     }
 
     GrBackendRenderTarget rtCopy = rt;
-    if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig, colorType, colorSpace)) {
+    if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig, colorType)) {
         return nullptr;
     }
     if (!SkSurface_Gpu::Valid(context->priv().caps(), rtCopy.getBackendFormat())) {
