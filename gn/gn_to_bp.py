@@ -338,6 +338,7 @@ def generate_args(target_os, enable_gpu):
     # some dummy values.
     d['win_vc'] = '"dummy_version"'
     d['win_sdk_version'] = '"dummy_version"'
+    d['win_toolchain_version'] = '"dummy_version"'
   return d
 
 gn_args       = generate_args('"android"', True)

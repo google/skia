@@ -7,8 +7,19 @@ Skia](./download).
 Skia uses [GN](https://chromium.googlesource.com/chromium/src/tools/gn/) to
 configure its builds.
 
-`is_official_build` and Third-party Dependencies
-------------------------------------------------
+  - [`is_official_build` and Third-party Dependencies](#third-party)
+  - [A note on software backend performance](#performance)
+  - [Quickstart](#quick)
+  - [Android](#android)
+  - [ChromeOS](#cros)
+  - [Mac](#macos)
+  - [iOS](#ios)
+  - [Windows](#windows)
+  - [Windows ARM64](#win-arm64)
+  - [CMake](#cmake)
+
+<span id="third-party">`is_official_build` and Third-party Dependencies</span>
+------------------------------------------------------------------------------
 
 Most users of Skia should set `is_official_build=true`, and most developers
 should leave it to its `false` default.
@@ -33,8 +44,8 @@ link Skia against the headers and libaries found on the system paths.
 use `extra_cflags` and `extra_ldflags` to add include or library paths if
 needed.
 
-A note on software backend performance
---------------------------------------
+<span id="performance">A note on software backend performance</span>
+--------------------------------------------------------------------
 
 A number of routines in Skia's software backend have been written to run
 fastest when compiled by Clang.  If you depend on software rasterization, image
@@ -45,8 +56,8 @@ This choice was only a matter of prioritization; there is nothing fundamentally
 wrong with non-Clang compilers.  So if this is a serious issue for you, please
 let us know on the mailing list.
 
-Quickstart
-----------
+<span id="quick">Quickstart</span>
+----------------------------------
 
 Run GN to generate your build files.
 
@@ -83,8 +94,8 @@ If some header files are missing, install the corresponding dependencies
 
     tools/install_dependencies.sh
 
-Android
--------
+<span id="android">Android</span>
+---------------------------------
 
 To build Skia for Android you need an [Android
 NDK](https://developer.android.com/ndk/index.html).
@@ -116,8 +127,9 @@ and run it as normal.  You may find `bin/droid` convenient.
     adb shell "cd /data/local/tmp; ./dm --src gm --config gl"
 
 
-ChromeOS
---------------
+<span id="cros">ChromeOS</span>
+-------------------------------
+
 To cross-compile Skia for arm ChromeOS devices the following is needed:
 
   - Clang 4 or newer
@@ -206,13 +218,13 @@ To avoid "permission denied" errors, remember to run something like:
 
     sudo mount -i -o remount,exec /home/chronos
 
-Mac
----
+<span id="macos">Mac</span>
+---------------------------
 
 Mac users may want to pass `--ide=xcode` to `bin/gn gen` to generate an Xcode project.
 
-iOS
----
+<span id="ios">iOS</span>
+-------------------------
 
 Run GN to generate your build files.  Set `target_os="ios"` to build for iOS.
 This defaults to `target_cpu="arm64"`.  Choosing `x64` targets the iOS simulator.
@@ -241,15 +253,15 @@ Deploying to a device with an OS older than the current SDK doesn't currently wo
 but can be done on the command line by setting the environment variable IPHONEOS_DEPLOYMENT_TARGET
 to the desired OS version.
 
-Windows
--------
+<span id="windows">Windows</span>
+---------------------------------
 
-Skia can build on Windows with Visual Studio 2017 or Visual Studio 2015 Update 3.
+Skia can build on Windows with Visual Studio 2017 or 2019.
 If GN is unable to locate either of those, it will print an error message. In that
 case, you can pass your `VC` path to GN via `win_vc`.
 
-Skia can be compiled with the free [Build Tools for Visual Studio
-2017](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017).
+Skia can be compiled with the free [Build Tools for Visual Studio 2017 or
+2019](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2019).
 
 The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
@@ -261,7 +273,6 @@ You can then pass the VC and SDK paths to GN by setting your GN args:
     win_sdk = "C:\toolchain\win_sdk"
 
 This toolchain is the only way we support 32-bit builds, by also setting `target_cpu="x86"`.
-There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/win_toolchain_2015`.
 
 The Skia build assumes that the PATHEXT environment variable contains ".EXE".
 
@@ -272,11 +283,13 @@ unoptimized code.
 
 Setting the `cc` and `cxx` gn args is _not_ sufficient to build with clang-cl. These variables
 are ignored on Windows. Instead set the variable `clang_win` to your LLVM installation directory.
-If you installed the prebuilt LLVM downloaded from [here](https://releases.llvm.org/download.html "LLVM Download") in the default location that would be:
+If you installed the prebuilt LLVM downloaded from [here](https://releases.llvm.org/download.html
+"LLVM Download") in the default location that would be:
 
     clang_win = "C:\Program Files\LLVM"
 
-Follow the standard Windows path specification and not MinGW convention (e.g. `C:\Program Files\LLVM` not ~~`/c/Program Files/LLVM`~~).
+Follow the standard Windows path specification and not MinGW convention (e.g.
+`C:\Program Files\LLVM` not ~~`/c/Program Files/LLVM`~~).
 
 ### Visual Studio Solutions
 
@@ -297,8 +310,8 @@ and supports building and running any of them. It also adjusts syntax highlighti
 of inactive code blocks based on preprocessor definitions from the selected
 solution configuration.
 
-Windows ARM64
--------------
+<span id="win-arm64">Windows ARM64</span>
+-----------------------------------------
 
 There is early, experimental support for [Windows 10 on ARM](https://docs.microsoft.com/en-us/windows/arm/).
 This currently requires (a recent version of) MSVC, and the `Visual C++ compilers and libraries for ARM64`
@@ -314,8 +327,8 @@ This will produce a build of Skia that can use the software or ANGLE backends, i
 when launched with `--backend angle`, because the software backend tries to use OpenGL to display the
 window contents.
 
-CMake
------
+<span id="cmake">CMake</span>
+-----------------------------
 
 We have added a GN-to-CMake translator mainly for use with IDEs that like CMake
 project descriptions.  This is not meant for any purpose beyond development.

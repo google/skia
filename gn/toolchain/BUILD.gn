@@ -33,15 +33,7 @@ if (host_os == "win") {
 toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
-  if (msvc == 2015) {
-    if (target_cpu == "x86") {
-      bin = "$win_vc/bin"
-    } else {
-      bin = "$win_vc/bin/amd64"
-    }
-  } else {
-    bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
-  }
+  bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
 
   env_setup = ""
   if (target_cpu == "x86") {
