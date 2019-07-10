@@ -22,6 +22,30 @@
       "revId": "65eb084e7886aa9c9a21778124b789e2760fcbb4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01b1c265_fef1b082",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1037,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-10T12:33:21Z",
+      "side": 1,
+      "message": "Looks like the bots agree... at least skbug_8664 is crashing on Mali",
+      "parentUuid": "b72b026a_82069b6d",
+      "range": {
+        "startLine": 1037,
+        "startChar": 20,
+        "endLine": 1037,
+        "endChar": 44
+      },
+      "revId": "65eb084e7886aa9c9a21778124b789e2760fcbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
