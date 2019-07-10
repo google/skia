@@ -12,13 +12,11 @@
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrRectanizer_pow2.h"
 #include "src/gpu/GrRectanizer_skyline.h"
 
 // This slide visualizes the various GrRectanizer-derived classes behavior
 // for various input sets
 //  'j' will cycle through the various rectanizers
-//          Pow2 -> GrRectanizerPow2
 //          Skyline -> GrRectanizerSkyline
 //  'h' will cycle through the various rect sets
 //          Rand -> random rects from 2-256
@@ -47,8 +45,6 @@ public:
 
         fCurRects = &fRects[0];
 
-        fRectanizers.push_back(
-            std::unique_ptr<GrRectanizer>(new GrRectanizerPow2(kWidth, kHeight)));
         fRectanizers.push_back(
             std::unique_ptr<GrRectanizer>(new GrRectanizerSkyline(kWidth, kHeight)));
     }

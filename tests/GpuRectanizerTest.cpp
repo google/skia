@@ -8,10 +8,9 @@
 #include "include/core/SkSize.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
-#include "src/gpu/GrRectanizer_pow2.h"
+#include "src/core/SkIPoint16.h"
 #include "src/gpu/GrRectanizer_skyline.h"
 #include "tests/Test.h"
-
 static const int kWidth = 1024;
 static const int kHeight = 1024;
 
@@ -49,13 +48,6 @@ static void test_skyline(skiatest::Reporter* reporter, const SkTDArray<SkISize>&
     test_rectanizer_inserts(reporter, &skylineRectanizer, rects);
 }
 
-static void test_pow2(skiatest::Reporter* reporter, const SkTDArray<SkISize>& rects) {
-    GrRectanizerPow2 pow2Rectanizer(kWidth, kHeight);
-
-    test_rectanizer_basic(reporter, &pow2Rectanizer);
-    test_rectanizer_inserts(reporter, &pow2Rectanizer, rects);
-}
-
 DEF_GPUTEST(GpuRectanizer, reporter, factory) {
     SkTDArray<SkISize> rects;
     SkRandom rand;
@@ -66,5 +58,4 @@ DEF_GPUTEST(GpuRectanizer, reporter, factory) {
     }
 
     test_skyline(reporter, rects);
-    test_pow2(reporter, rects);
 }
