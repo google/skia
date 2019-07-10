@@ -220,10 +220,10 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
 }
 
 size_t GrContext::ComputeTextureSize(SkColorType type, int width, int height, GrMipMapped mipMapped,
-                                     bool useNextPow2) {
+                                     bool binSize) {
     int colorSamplesPerPixel = 1;
     return GrSurface::ComputeSize(SkColorType2GrPixelConfig(type), width, height,
-                                  colorSamplesPerPixel, mipMapped, useNextPow2);
+                                  colorSamplesPerPixel, mipMapped, binSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
