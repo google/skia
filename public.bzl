@@ -670,7 +670,10 @@ def sksg_lib_hdrs():
     return native.glob(["modules/sksg/include/*.h"])
 
 def sksg_lib_srcs():
-    return native.glob(["modules/sksg/src/*.cpp"])
+    return native.glob([
+        "modules/sksg/src/*.cpp",
+        "modules/sksg/src/*.h",
+    ])
 
 ################################################################################
 ## skparagraph_lib
