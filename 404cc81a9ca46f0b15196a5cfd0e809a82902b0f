@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19550826_edfa18e9",
+        "filename": "tests/FlattenDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T15:02:01Z",
+      "side": 1,
+      "message": "(Since we\u0027re recording an SkDrawable, we expect the opposite of what you\u0027ve written here.  If we were recording an SkPicture, what you wrote would be fine.)",
+      "revId": "404cc81a9ca46f0b15196a5cfd0e809a82902b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
