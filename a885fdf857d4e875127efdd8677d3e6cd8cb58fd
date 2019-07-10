@@ -42,6 +42,115 @@
     },
     {
       "key": {
+        "uuid": "d815dda8_c4443bdc",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T16:40:02Z",
+      "side": 1,
+      "message": "I think we\u0027re usually pretty happy getting this from SkTypes.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 19
+      },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "870362a7_853cc648",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T16:40:02Z",
+      "side": 1,
+      "message": "Unused?",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 33
+      },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f998f0f9_54ddcdb2",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T16:40:02Z",
+      "side": 1,
+      "message": "Doesn\u0027t look like you need this even if TRACK_MAX_ERROR is set?",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 6
+      },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "079d6a16_ec46d9de",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T16:40:02Z",
+      "side": 1,
+      "message": "If you write valid inline as a lambda,\n\n   auto valid \u003d [](float r) { return r \u003e\u003d 0 \u0026\u0026 r \u003c\u003d 1; };\n\nI _think_ nothing will yell at you for not using it in Release builds.",
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ff2ef7a_7424b627",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T16:40:02Z",
+      "side": 1,
+      "message": "This is probably poorly named now that you\u0027re testing f.  Just inline the test?",
+      "range": {
+        "startLine": 46,
+        "startChar": 19,
+        "endLine": 46,
+        "endChar": 36
+      },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad3fa0ae_d865cd4d",
         "filename": "src/core/SkCubicSolver.h",
         "patchSetId": 7
