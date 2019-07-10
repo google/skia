@@ -134,6 +134,8 @@ protected:
 
     const std::vector<sk_sp<RenderNode>>& children() const { return fChildren; }
 
+    bool hasChildrenInval() const;
+
 private:
     std::vector<sk_sp<RenderNode>> fChildren;
 

@@ -88,6 +88,7 @@ private:
     uint32_t                fNodeFlags   :  8; // Accessible from select subclasses.
     // Free bits                         : 18;
 
+    friend class NodePriv;
     friend class RenderNode; // node flags access
 
     typedef SkRefCnt INHERITED;
