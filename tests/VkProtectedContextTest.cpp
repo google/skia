@@ -424,4 +424,31 @@ DEF_GPUTEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface, reporter, o
         surface2->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Test out DDLs using a protected Vulkan context
+
+void DDLMakeRenderTargetTestImpl(GrContext* context, skiatest::Reporter* reporter);
+
+DEF_GPUTEST(VkProtectedContext_DDLMakeRenderTargetTest, reporter, ctxInfo) {
+    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
+    if (!protectedTestHelper->init(reporter)) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
+
+    DDLMakeRenderTargetTestImpl(protectedTestHelper->grContext(), reporter);
+}
+
+void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* reporter);
+
+DEF_GPUTEST(VkProtectedContext_DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
+    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
+    if (!protectedTestHelper->init(reporter)) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
+
+    DDLSurfaceCharacterizationTestImpl(protectedTestHelper->grContext(), reporter);
+}
+
 #endif  // SK_SUPPORT_GPU && defined(SK_VULKAN)

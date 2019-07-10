@@ -105,6 +105,7 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
                           SkSurfaceCharacterization::MipMapped(false),
                           SkSurfaceCharacterization::UsesGLFBO0(false),
                           SkSurfaceCharacterization::VulkanSecondaryCBCompatible(true),
+                          GrProtected(rtc->asRenderTargetProxy()->isProtected()),
                           this->props());
 
     return true;
@@ -145,6 +146,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
     }
 
     GrBackendFormat rtcFormat = rtc->asRenderTargetProxy()->backendFormat();
+    GrProtected isProtected = GrProtected(rtc->asRenderTargetProxy()->isProtected());
 
     return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
@@ -156,6 +158,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
            characterization.sampleCount() == rtc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(),
                                 rtc->colorSpaceInfo().colorSpace()) &&
+           characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
