@@ -35,7 +35,8 @@ public:
             : fColorInfo(SkColorTypeToGrColorType(info.colorType()), info.alphaType(),
                          info.refColorSpace())
             , fWidth(info.width())
-            , fHeight(info.height()) {}
+            , fHeight(info.height()) {
+    }
 
     GrPixelInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, int w, int h)
             : fColorInfo(ct, at, std::move(cs)), fWidth(w), fHeight(h) {}

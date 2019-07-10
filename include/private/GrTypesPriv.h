@@ -834,12 +834,6 @@ enum class  GrMipMapsStatus {
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 /**
- * Refers to the encoding of a GPU buffer as it will be interpreted by the GPU when sampling and
- * blending.
- */
-enum class GrSRGBEncoded : bool { kNo = false, kYes = true };
-
-/**
  * Describes whether pixel data encoding should be converted to/from linear/sRGB encoding.
  */
 enum class GrSRGBConversion {
@@ -852,11 +846,10 @@ enum class GrSRGBConversion {
  * Utility functions for GrPixelConfig
  */
 
-// Returns whether the config's color channels are sRGB encoded.
-static constexpr GrSRGBEncoded GrPixelConfigIsSRGBEncoded(GrPixelConfig config) {
+static constexpr bool GrPixelConfigIsSRGB(GrPixelConfig config) {
     switch (config) {
         case kSRGBA_8888_GrPixelConfig:
-            return GrSRGBEncoded::kYes;
+            return true;
         case kUnknown_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
         case kAlpha_8_as_Alpha_GrPixelConfig:
@@ -884,13 +877,9 @@ static constexpr GrSRGBEncoded GrPixelConfigIsSRGBEncoded(GrPixelConfig config) 
         // Experimental (for Y416 and mutant P016/P010)
         case kRGBA_16161616_GrPixelConfig:
         case kRG_half_GrPixelConfig:
-            return GrSRGBEncoded::kNo;
+            return false;
     }
     SkUNREACHABLE;
-}
-
-static constexpr bool GrPixelConfigIsSRGB(GrPixelConfig config) {
-    return GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(config);
 }
 
 static constexpr GrPixelConfig GrCompressionTypePixelConfig(SkImage::CompressionType compression) {
@@ -1161,6 +1150,7 @@ enum class GrColorType {
     kBGR_565,
     kABGR_4444,  // This name differs from SkColorType. kARGB_4444_SkColorType is misnamed.
     kRGBA_8888,
+    kRGBA_8888_SRGB,
     kRGB_888x,
     kRG_88,
     kBGRA_8888,
@@ -1191,6 +1181,8 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kBGR_565:          return kRGB_565_SkColorType;
         case GrColorType::kABGR_4444:        return kARGB_4444_SkColorType;
         case GrColorType::kRGBA_8888:        return kRGBA_8888_SkColorType;
+        // Once we a kRGBA_8888_SRGB_SkColorType we should return that here.
+        case GrColorType::kRGBA_8888_SRGB:   return kRGBA_8888_SkColorType;
         case GrColorType::kRGB_888x:         return kRGB_888x_SkColorType;
         case GrColorType::kRG_88:            return kUnknown_SkColorType;
         case GrColorType::kBGRA_8888:        return kBGRA_8888_SkColorType;
@@ -1236,6 +1228,7 @@ static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
         case GrColorType::kBGR_565:          return kRGB_SkColorTypeComponentFlags;
         case GrColorType::kABGR_4444:        return kRGBA_SkColorTypeComponentFlags;
         case GrColorType::kRGBA_8888:        return kRGBA_SkColorTypeComponentFlags;
+        case GrColorType::kRGBA_8888_SRGB:   return kRGBA_SkColorTypeComponentFlags;
         case GrColorType::kRGB_888x:         return kRGB_SkColorTypeComponentFlags;
         case GrColorType::kRG_88:            return kRed_SkColorTypeComponentFlag |
                                                     kGreen_SkColorTypeComponentFlag;
@@ -1264,7 +1257,7 @@ static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
  */
 enum class GrColorTypeEncoding {
     kUnorm,
-    // kSRGBUnorm,
+    kSRGBUnorm,
     // kSnorm,
     kFloat,
     // kSint
@@ -1351,6 +1344,8 @@ static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
             return GrColorTypeDesc::MakeRGBA(4, GrColorTypeEncoding::kUnorm);
         case GrColorType::kRGBA_8888:
             return GrColorTypeDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRGBA_8888_SRGB:
+            return GrColorTypeDesc::MakeRGBA(8, GrColorTypeEncoding::kSRGBUnorm);
         case GrColorType::kRGB_888x:
             return GrColorTypeDesc::MakeRGB(8, GrColorTypeEncoding::kUnorm);
         case GrColorType::kRG_88:
@@ -1384,7 +1379,8 @@ static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
 }
 
 static constexpr GrClampType GrColorTypeClampType(GrColorType colorType) {
-    if (GrGetColorTypeDesc(colorType).encoding() == GrColorTypeEncoding::kUnorm) {
+    if (GrGetColorTypeDesc(colorType).encoding() == GrColorTypeEncoding::kUnorm ||
+        GrGetColorTypeDesc(colorType).encoding() == GrColorTypeEncoding::kSRGBUnorm) {
         return GrClampType::kAuto;
     }
     return GrColorType::kRGBA_F16_Clamped == colorType ? GrClampType::kManual : GrClampType::kNone;
@@ -1417,6 +1413,7 @@ static constexpr int GrColorTypeBytesPerPixel(GrColorType ct) {
         case GrColorType::kBGR_565:          return 2;
         case GrColorType::kABGR_4444:        return 2;
         case GrColorType::kRGBA_8888:        return 4;
+        case GrColorType::kRGBA_8888_SRGB:   return 4;
         case GrColorType::kRGB_888x:         return 4;
         case GrColorType::kRG_88:            return 2;
         case GrColorType::kBGRA_8888:        return 4;
@@ -1446,175 +1443,92 @@ static constexpr GrColorType GrCompressionTypeClosestColorType(
     SkUNREACHABLE;
 }
 
-static constexpr GrColorType GrPixelConfigToColorTypeAndEncoding(GrPixelConfig config,
-                                                                 GrSRGBEncoded* srgbEncoded) {
-    SkASSERT(srgbEncoded);
+static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
     switch (config) {
         case kUnknown_GrPixelConfig:
             return GrColorType::kUnknown;
         case kAlpha_8_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kAlpha_8;
         case kGray_8_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kGray_8;
         case kRGB_565_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kBGR_565;
         case kRGBA_4444_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kABGR_4444;
         case kRGBA_8888_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGBA_8888;
         case kRGB_888_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGB_888x;
         case kRGB_888X_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGB_888x;
         case kRG_88_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRG_88;
         case kBGRA_8888_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kBGRA_8888;
         case kSRGBA_8888_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kYes;
-            return GrColorType::kRGBA_8888;
+            return GrColorType::kRGBA_8888_SRGB;
         case kRGBA_1010102_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGBA_1010102;
         case kRGBA_float_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGBA_F32;
         case kRG_float_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRG_F32;
         case kAlpha_half_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kAlpha_F16;
         case kRGBA_half_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGBA_F16;
         case kRGBA_half_Clamped_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGBA_F16_Clamped;
         case kRGB_ETC1_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrCompressionTypeClosestColorType(SkImage::kETC1_CompressionType);
         case kAlpha_8_as_Alpha_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kAlpha_8;
         case kAlpha_8_as_Red_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kAlpha_8;
         case kAlpha_half_as_Red_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kAlpha_F16;
         case kGray_8_as_Lum_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kGray_8;
         case kGray_8_as_Red_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kGray_8;
         case kR_16_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kR_16;
         case kRG_1616_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRG_1616;
 
         // Experimental (for Y416 and mutant P016/P010)
         case kRGBA_16161616_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGBA_16161616;
         case kRG_half_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRG_F16;
     }
     SkUNREACHABLE;
 }
 
-static inline GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
-    GrSRGBEncoded bogusEncoded;
-    return GrPixelConfigToColorTypeAndEncoding(config, &bogusEncoded);
-}
-
-static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType,
-                                                        GrSRGBEncoded srgbEncoded) {
+static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
     switch (colorType) {
-        case GrColorType::kUnknown:
-            return kUnknown_GrPixelConfig;
-        case GrColorType::kAlpha_8:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kAlpha_8_GrPixelConfig;
-
-        case GrColorType::kGray_8:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kGray_8_GrPixelConfig;
-
-        case GrColorType::kBGR_565:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGB_565_GrPixelConfig;
-
-        case GrColorType::kABGR_4444:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGBA_4444_GrPixelConfig;
-
-        case GrColorType::kRGBA_8888:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kSRGBA_8888_GrPixelConfig
-                                                        : kRGBA_8888_GrPixelConfig;
-
-        case GrColorType::kRGB_888x:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGB_888_GrPixelConfig;
-        case GrColorType::kRG_88:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRG_88_GrPixelConfig;
-
-        case GrColorType::kBGRA_8888:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kBGRA_8888_GrPixelConfig;
-
-        case GrColorType::kRGBA_1010102:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGBA_1010102_GrPixelConfig;
-
-        case GrColorType::kRGBA_F32:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGBA_float_GrPixelConfig;
-
-        case GrColorType::kRG_F32:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRG_float_GrPixelConfig;
-
-        case GrColorType::kAlpha_F16:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kAlpha_half_GrPixelConfig;
-
-        case GrColorType::kRGBA_F16:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGBA_half_GrPixelConfig;
-
-        case GrColorType::kRGBA_F16_Clamped:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGBA_half_Clamped_GrPixelConfig;
-
-        case GrColorType::kR_16:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kR_16_GrPixelConfig;
-        case GrColorType::kRG_1616:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRG_1616_GrPixelConfig;
+        case GrColorType::kUnknown:          return kUnknown_GrPixelConfig;
+        case GrColorType::kAlpha_8:          return kAlpha_8_GrPixelConfig;
+        case GrColorType::kGray_8:           return kGray_8_GrPixelConfig;
+        case GrColorType::kBGR_565:          return kRGB_565_GrPixelConfig;
+        case GrColorType::kABGR_4444:        return kRGBA_4444_GrPixelConfig;
+        case GrColorType::kRGBA_8888:        return kRGBA_8888_GrPixelConfig;
+        case GrColorType::kRGBA_8888_SRGB:   return kSRGBA_8888_GrPixelConfig;
+        case GrColorType::kRGB_888x:         return kRGB_888_GrPixelConfig;
+        case GrColorType::kRG_88:            return kRG_88_GrPixelConfig;
+        case GrColorType::kBGRA_8888:        return kBGRA_8888_GrPixelConfig;
+        case GrColorType::kRGBA_1010102:     return kRGBA_1010102_GrPixelConfig;
+        case GrColorType::kRGBA_F32:         return kRGBA_float_GrPixelConfig;
+        case GrColorType::kRG_F32:           return kRG_float_GrPixelConfig;
+        case GrColorType::kAlpha_F16:        return kAlpha_half_GrPixelConfig;
+        case GrColorType::kRGBA_F16:         return kRGBA_half_GrPixelConfig;
+        case GrColorType::kRGBA_F16_Clamped: return kRGBA_half_Clamped_GrPixelConfig;
+        case GrColorType::kR_16:             return kR_16_GrPixelConfig;
+        case GrColorType::kRG_1616:          return kRG_1616_GrPixelConfig;
 
         // Experimental (for Y416 and mutant P016/P010)
-        case GrColorType::kRGBA_16161616:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGBA_16161616_GrPixelConfig;
-        case GrColorType::kRG_F16:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRG_half_GrPixelConfig;
+        case GrColorType::kRGBA_16161616:    return kRGBA_16161616_GrPixelConfig;
+        case GrColorType::kRG_F16:           return kRG_half_GrPixelConfig;
     }
     SkUNREACHABLE;
 }
