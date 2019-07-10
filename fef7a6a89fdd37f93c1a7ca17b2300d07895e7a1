@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba803f93_4dafb7cd",
+        "filename": "bin/set-change-id-hook",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-10T18:18:10Z",
+      "side": 1,
+      "message": "skia",
+      "range": {
+        "startLine": 5,
+        "startChar": 13,
+        "endLine": 5,
+        "endChar": 19
+      },
+      "revId": "fef7a6a89fdd37f93c1a7ca17b2300d07895e7a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
