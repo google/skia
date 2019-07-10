@@ -1010,7 +1010,7 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                           int mipLevelCount,
                                           int baseWidth,
                                           int baseHeight,
-                                          bool* changedUpackRowLength) {
+                                          bool* changedUnpackRowLength) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
 
     if (caps.configSupportsTexStorage(config)) {
@@ -1034,10 +1034,15 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 const size_t trimRowBytes = currentWidth * bpp;
                 const size_t rowBytes = texels[currentMipLevel].fRowBytes;
 
-                if (caps.writePixelsRowBytesSupport() && rowBytes != trimRowBytes) {
+                if (rowBytes != trimRowBytes) {
+                    SkASSERT(caps.writePixelsRowBytesSupport());
                     GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
                     GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
-                    *changedUpackRowLength = true;
+                    *changedUnpackRowLength = true;
+                } else if (*changedUnpackRowLength) {
+                    SkASSERT(caps.writePixelsRowBytesSupport());
+                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+                    *changedUnpackRowLength = false;
                 }
 
                 GR_GL_CALL(&interface,
@@ -1076,10 +1081,15 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 const size_t trimRowBytes = currentWidth * bpp;
                 const size_t rowBytes = texels[currentMipLevel].fRowBytes;
 
-                if (caps.writePixelsRowBytesSupport() && rowBytes != trimRowBytes) {
+                if (rowBytes != trimRowBytes) {
+                    SkASSERT(caps.writePixelsRowBytesSupport());
                     GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
                     GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
-                    *changedUpackRowLength = true;
+                    *changedUnpackRowLength = true;
+                } else if (*changedUnpackRowLength) {
+                    SkASSERT(caps.writePixelsRowBytesSupport());
+                    GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+                    *changedUnpackRowLength = false;
                 }
 
                 const void* currentMipData = texels[currentMipLevel].fPixels;
