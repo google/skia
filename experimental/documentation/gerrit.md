@@ -10,9 +10,7 @@ This command sets up a Git commit-message hook to add a unique Change-Id to
 each commit.  Gerrit only accepts changes with a Change-Id and uses it to
 identify which review a change applies to.
 
-    curl -Lo "$(git rev-parse --git-dir)/hooks/commit-msg"
-      'https://gerrit-review.googlesource.com/tools/hooks/commit-msg'
-    chmod +x "$(git rev-parse --git-dir)/hooks/commit-msg"
+    experimental/tools/set-change-id-hook
 
 If you acquired Skia from a mirror (such as github), you need to change the
 `origin` remote to point to point to googlesource.  Advanced uses will note
