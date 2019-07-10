@@ -22,6 +22,40 @@
       "revId": "b246ff340327630579295914e6278316bb3542cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3a0dc29_f043d419",
+        "filename": "src/core/SkCubicMap.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T14:41:53Z",
+      "side": 1,
+      "message": "Maybe reads more clearly to hook in here than inside _halley()?",
+      "revId": "b246ff340327630579295914e6278316bb3542cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8470a9d_1e142025",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T14:41:53Z",
+      "side": 1,
+      "message": "A portable way to do this is\n\n  #include \u003cmath.h\u003e\n\n  static float mul_add(float f, float m, float a) {\n  #if defined(FP_FAST_FMA)\n     return std::fma(f,m,a);\n  #else\n     return f*m+a;\n  #endif\n  }\n\nThen call mul_add() wherever you like.",
+      "revId": "b246ff340327630579295914e6278316bb3542cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
