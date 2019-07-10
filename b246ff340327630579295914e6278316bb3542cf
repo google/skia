@@ -56,6 +56,24 @@
       "revId": "b246ff340327630579295914e6278316bb3542cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3518b61_9a12eda0",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T14:43:51Z",
+      "side": 1,
+      "message": "Er, you may need to swap the include to \u003ccmath\u003e or swap the call to fmaf()...",
+      "parentUuid": "f8470a9d_1e142025",
+      "revId": "b246ff340327630579295914e6278316bb3542cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
