@@ -47,9 +47,9 @@ namespace skvm {
     Program Builder::done() const {
         // Track per-instruction code hoisting, lifetime, and register assignment.
         struct Analysis {
-            bool hoist = true;
-            Val  life  = NA;
-            Reg  reg   = 0;
+            bool hoist = true;  // Can this instruction be hoisted outside the implicit loop?
+            Val  death = 0;     // This instruction's value is needed until instruction 'death'.
+            Reg  reg   = 0;     // Register this instruction's output is assigned to.
         };
         std::vector<Analysis> analysis(fProgram.size());
 
@@ -59,14 +59,14 @@ namespace skvm {
 
             // All side-effect-only instructions (stores) are live.
             if (inst.op <= Op::store32) {
-                analysis[id].life = id;
+                analysis[id].death = id;
             }
-            // The arguments of a live instruction must live until that instruction.
-            if (analysis[id].life != NA) {
-                // Notice how we're walking backward, storing the latest instruction in life.
-                if (inst.x != NA && analysis[inst.x].life == NA) { analysis[inst.x].life = id; }
-                if (inst.y != NA && analysis[inst.y].life == NA) { analysis[inst.y].life = id; }
-                if (inst.z != NA && analysis[inst.z].life == NA) { analysis[inst.z].life = id; }
+            // The arguments of a live instruction must live until at least that instruction.
+            if (analysis[id].death != 0) {
+                // Notice how we're walking backward, storing the latest instruction in death.
+                if (inst.x != NA && analysis[inst.x].death == 0) { analysis[inst.x].death = id; }
+                if (inst.y != NA && analysis[inst.y].death == 0) { analysis[inst.y].death = id; }
+                if (inst.z != NA && analysis[inst.z].death == 0) { analysis[inst.z].death = id; }
             }
         }
 
@@ -86,10 +86,10 @@ namespace skvm {
                 if (inst.z != NA) { analysis[id].hoist &= analysis[inst.z].hoist; }
             }
 
-            // Mark the lifetime of live hoisted instructions as the full program,
-            // mostly to avoid recycling their registers, and also helps debugging sanity.
-            if (analysis[id].hoist && analysis[id].life != NA) {
-                analysis[id].life = (Val)fProgram.size();
+            // Extend the lifetime of live hoisted instructions to the full program,
+            // mostly to avoid recycling their registers (and also helps debugging).
+            if (analysis[id].hoist && analysis[id].death != 0) {
+                analysis[id].death = (Val)fProgram.size();
             }
         }
 
@@ -98,7 +98,7 @@ namespace skvm {
 
         // Our first pass of register assignment assigns hoisted values to eternal registers.
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            if (analysis[id].life == NA || !analysis[id].hoist) {
+            if (analysis[id].death == 0 || !analysis[id].hoist) {
                 continue;
             }
             // Hoisted values are needed forever, so they each get their own register.
@@ -110,7 +110,7 @@ namespace skvm {
         std::vector<Reg> avail;
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
             const Instruction& inst = fProgram[id];
-            if (analysis[id].life == NA || analysis[id].hoist) {
+            if (analysis[id].death == 0 || analysis[id].hoist) {
                 continue;
             }
 
@@ -118,7 +118,7 @@ namespace skvm {
             auto maybe_recycle_register = [&](Val input) {
                 // If this is a real input and it's lifetime ends with this
                 // instruction, we can recycle the register it's occupying.
-                if (input != NA && analysis[input].life == id) {
+                if (input != NA && analysis[input].death == id) {
                     avail.push_back(analysis[input].reg);
                 }
             };
@@ -166,7 +166,7 @@ namespace skvm {
 
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
             const Instruction& inst = fProgram[id];
-            if (analysis[id].life == NA || !analysis[id].hoist) {
+            if (analysis[id].death == 0 || !analysis[id].hoist) {
                 continue;
             }
 
@@ -175,7 +175,7 @@ namespace skvm {
         }
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
             const Instruction& inst = fProgram[id];
-            if (analysis[id].life == NA || analysis[id].hoist) {
+            if (analysis[id].death == 0 || analysis[id].hoist) {
                 continue;
             }
 
