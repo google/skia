@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8ebb3d2_a6ddcbfc",
+        "filename": "samplecode/SampleCamera.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-10T22:19:26Z",
+      "side": 1,
+      "message": "Even in this situation I would prefer to have things clean and as private as possible. This can just be a class and everything in it default to private except the implicitly declared constructor which will be inline private.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 6
+      },
+      "revId": "7ea8850ec05163de7bc3b3b39e0578ab18c0e16c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69f90052_62dcfdcf",
+        "filename": "samplecode/SampleCamera.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-10T22:19:26Z",
+      "side": 1,
+      "message": "Making this a class also points out that fRZ is never used and should be removed.",
+      "range": {
+        "startLine": 23,
+        "startChar": 31,
+        "endLine": 23,
+        "endChar": 34
+      },
+      "revId": "7ea8850ec05163de7bc3b3b39e0578ab18c0e16c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
