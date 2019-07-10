@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d70d3fa2_3801fcaf",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T15:13:52Z",
+      "side": 1,
+      "message": "You know I rarely say this, but I think the code makes it just as clear as the comment!",
+      "revId": "580a765ce06d5129318766373e5719fd5ffc9082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
