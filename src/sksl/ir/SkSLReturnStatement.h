@@ -17,29 +17,29 @@ namespace SkSL {
  * A 'return' statement.
  */
 struct ReturnStatement : public Statement {
-    ReturnStatement(int offset)
-    : INHERITED(offset, kReturn_Kind) {}
+    ReturnStatement(IRGenerator* irGenerator, int offset)
+    : INHERITED(irGenerator, offset, kReturn_Kind) {}
 
-    ReturnStatement(std::unique_ptr<Expression> expression)
-    : INHERITED(expression->fOffset, kReturn_Kind)
-    , fExpression(std::move(expression)) {}
+    ReturnStatement(IRGenerator* irGenerator, IRNode::ID expression)
+    : INHERITED(irGenerator, expression.node().fOffset, kReturn_Kind)
+    , fExpression(expression) {}
 
-    std::unique_ptr<Statement> clone() const override {
+    IRNode::ID clone() const override {
         if (fExpression) {
-            return std::unique_ptr<Statement>(new ReturnStatement(fExpression->clone()));
+            return fIRGenerator->createNode(new ReturnStatement(fIRGenerator, fExpression));
         }
-        return std::unique_ptr<Statement>(new ReturnStatement(fOffset));
+        return fIRGenerator->createNode(new ReturnStatement(fIRGenerator, fOffset));
     }
 
     String description() const override {
         if (fExpression) {
-            return "return " + fExpression->description() + ";";
+            return "return " + fExpression.node().description() + ";";
         } else {
             return String("return;");
         }
     }
 
-    std::unique_ptr<Expression> fExpression;
+    IRNode::ID fExpression;
 
     typedef Statement INHERITED;
 };

@@ -23,20 +23,23 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
     SkSL::String output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkSL::String(src),
                                                                      settings);
-    if (!program) {
+    REPORTER_ASSERT(r, compiler.errorCount() == 0);
+    if (compiler.errorCount()) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
-    REPORTER_ASSERT(r, program);
     if (program) {
         *inputs = program->fInputs;
         REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
-        if (program) {
+        REPORTER_ASSERT(r, compiler.errorCount() == 0);
+        if (!compiler.errorCount()) {
             SkSL::String skExpected(expected);
             if (output != skExpected) {
                 SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src,
                          expected, output.c_str());
             }
             REPORTER_ASSERT(r, output == skExpected);
+        } else {
+            SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
         }
     }
 }

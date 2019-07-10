@@ -101,10 +101,10 @@ public:
         virtual void store(SpvId value, OutputStream& out) = 0;
     };
 
-    SPIRVCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                       OutputStream* out)
-    : INHERITED(program, errors, out)
-    , fContext(*context)
+    SPIRVCodeGenerator(IRGenerator* irGenerator, const Program* program, OutputStream* out)
+    : INHERITED(program, &irGenerator->fErrors, out)
+    , fIRGenerator(*irGenerator)
+    , fContext(irGenerator->fContext)
     , fDefaultLayout(MemoryLayout::k140_Standard)
     , fCapabilities(0)
     , fIdCount(1)
@@ -112,7 +112,7 @@ public:
     , fBoolFalse(0)
     , fSetupFragPosition(false)
     , fCurrentBlock(0)
-    , fSynthetics(nullptr, errors) {
+    , fSynthetics(nullptr, irGenerator) {
         this->setupIntrinsics();
     }
 
@@ -147,24 +147,24 @@ private:
 
     SpvId nextId();
 
-    Type getActualType(const Type& type);
+    IRNode::ID getActualType(IRNode::ID typeID);
 
-    SpvId getType(const Type& type);
+    SpvId getType(IRNode::ID type);
 
-    SpvId getType(const Type& type, const MemoryLayout& layout);
+    SpvId getType(IRNode::ID type, const MemoryLayout& layout);
 
-    SpvId getImageType(const Type& type);
+    SpvId getImageType(IRNode::ID type);
 
     SpvId getFunctionType(const FunctionDeclaration& function);
 
-    SpvId getPointerType(const Type& type, SpvStorageClass_ storageClass);
+    SpvId getPointerType(IRNode::ID type, SpvStorageClass_ storageClass);
 
-    SpvId getPointerType(const Type& type, const MemoryLayout& layout,
+    SpvId getPointerType(IRNode::ID type, const MemoryLayout& layout,
                          SpvStorageClass_ storageClass);
 
     void writePrecisionModifier(Precision precision, SpvId id);
 
-    void writePrecisionModifier(const Type& type, SpvId id);
+    void writePrecisionModifier(IRNode::ID type, SpvId id);
 
     std::vector<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
 
@@ -172,7 +172,7 @@ private:
 
     void writeLayout(const Layout& layout, SpvId target, int member);
 
-    void writeStruct(const Type& type, const MemoryLayout& layout, SpvId resultId);
+    void writeStruct(IRNode::ID type, const MemoryLayout& layout, SpvId resultId);
 
     void writeProgramElement(const ProgramElement& pe, OutputStream& out);
 
@@ -199,7 +199,7 @@ private:
     SpvId writeFunctionCall(const FunctionCall& c, OutputStream& out);
 
 
-    void writeGLSLExtendedInstruction(const Type& type, SpvId id, SpvId floatInst,
+    void writeGLSLExtendedInstruction(IRNode::ID type, SpvId id, SpvId floatInst,
                                       SpvId signedInst, SpvId unsignedInst,
                                       const std::vector<SpvId>& args, OutputStream& out);
 
@@ -209,8 +209,7 @@ private:
      * returns (vec2(float), vec2). It is an error to use mismatched vector sizes, e.g. (float,
      * vec2, vec3).
      */
-    std::vector<SpvId> vectorize(const std::vector<std::unique_ptr<Expression>>& args,
-                                 OutputStream& out);
+    std::vector<SpvId> vectorize(const std::vector<IRNode::ID>& args, OutputStream& out);
 
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
 
@@ -226,14 +225,14 @@ private:
      * Writes a matrix with the diagonal entries all equal to the provided expression, and all other
      * entries equal to zero.
      */
-    void writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type, OutputStream& out);
+    void writeUniformScaleMatrix(SpvId id, SpvId diagonal, IRNode::ID type, OutputStream& out);
 
     /**
      * Writes a potentially-different-sized copy of a matrix. Entries which do not exist in the
      * source matrix are filled with zero; entries which do not exist in the destination matrix are
      * ignored.
      */
-    void writeMatrixCopy(SpvId id, SpvId src, const Type& srcType, const Type& dstType,
+    void writeMatrixCopy(SpvId id, SpvId src, IRNode::ID srcType, IRNode::ID dstType,
                          OutputStream& out);
 
     void addColumnEntry(SpvId columnType, Precision precision, std::vector<SpvId>* currentColumn,
@@ -258,25 +257,25 @@ private:
      * same dimensions, and applys all() to it to fold it down to a single bool value. Otherwise,
      * returns the original id value.
      */
-    SpvId foldToBool(SpvId id, const Type& operandType, SpvOp op, OutputStream& out);
+    SpvId foldToBool(SpvId id, IRNode::ID operandType, SpvOp op, OutputStream& out);
 
-    SpvId writeMatrixComparison(const Type& operandType, SpvId lhs, SpvId rhs, SpvOp_ floatOperator,
+    SpvId writeMatrixComparison(IRNode::ID operandType, SpvId lhs, SpvId rhs, SpvOp_ floatOperator,
                                 SpvOp_ intOperator, SpvOp_ vectorMergeOperator,
                                 SpvOp_ mergeOperator, OutputStream& out);
 
-    SpvId writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs, SpvId rhs,
+    SpvId writeComponentwiseMatrixBinary(IRNode::ID operandType, SpvId lhs, SpvId rhs,
                                          SpvOp_ floatOperator, SpvOp_ intOperator,
                                          OutputStream& out);
 
-    SpvId writeBinaryOperation(const Type& resultType, const Type& operandType, SpvId lhs,
+    SpvId writeBinaryOperation(IRNode::ID resultType, IRNode::ID operandType, SpvId lhs,
                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt,
                                SpvOp_ ifBool, OutputStream& out);
 
     SpvId writeBinaryOperation(const BinaryExpression& expr, SpvOp_ ifFloat, SpvOp_ ifInt,
                                SpvOp_ ifUInt, OutputStream& out);
 
-    SpvId writeBinaryExpression(const Type& leftType, SpvId lhs, Token::Kind op,
-                                const Type& rightType, SpvId rhs, const Type& resultType,
+    SpvId writeBinaryExpression(IRNode::ID leftType, SpvId lhs, Token::Kind op,
+                                IRNode::ID rightType, SpvId rhs, IRNode::ID resultType,
                                 OutputStream& out);
 
     SpvId writeBinaryExpression(const BinaryExpression& b, OutputStream& out);
@@ -361,6 +360,7 @@ private:
 
     void writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out);
 
+    IRGenerator& fIRGenerator;
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
 

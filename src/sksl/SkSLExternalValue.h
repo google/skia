@@ -8,18 +8,17 @@
 #ifndef SKSL_EXTERNALVALUE
 #define SKSL_EXTERNALVALUE
 
-#include "src/sksl/ir/SkSLSymbol.h"
-
 namespace SkSL {
 
 class String;
 class Type;
 
-class ExternalValue : public Symbol {
+class ExternalValue {
 public:
-    ExternalValue(const char* name, const Type& type)
-        : INHERITED(-1, kExternal_Kind, name)
-        , fType(type) {}
+    ExternalValue(const char* name)
+        : fName(name) {}
+
+    virtual ~ExternalValue() {}
 
     virtual bool canRead() const {
         return false;
@@ -36,8 +35,8 @@ public:
     /**
      * Returns the type for purposes of read and write operations.
      */
-    virtual const Type& type() const {
-        return fType;
+    virtual IRNode::ID type() const {
+        return IRNode::ID();
     }
 
     virtual int callParameterCount() const {
@@ -48,15 +47,15 @@ public:
      * Fills in the outTypes array with pointers to the parameter types. outTypes must be able to
      * hold callParameterCount() pointers.
      */
-    virtual void getCallParameterTypes(const Type** outTypes) const {
+    virtual void getCallParameterTypes(const IRNode::ID* outTypes) const {
         SkASSERT(false);
     }
 
     /**
      * Returns the return type resulting from a call operation.
      */
-    virtual const Type& callReturnType() const {
-        return fType;
+    virtual IRNode::ID callReturnType() const {
+        return this->type();
     }
 
     /**
@@ -101,14 +100,7 @@ public:
         return nullptr;
     }
 
-    String description() const override {
-        return String("external<") + fName + ">";
-    }
-
-private:
-    typedef Symbol INHERITED;
-
-    const Type& fType;
+    const char* fName;
 };
 
 } // namespace
