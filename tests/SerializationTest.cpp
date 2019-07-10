@@ -446,6 +446,17 @@ static void draw_something(SkCanvas* canvas) {
     canvas->drawString("Picture", SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), font, paint);
 }
 
+static sk_sp<SkImage> render(const SkPicture& p) {
+    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(p.cullRect().width()),
+                                               SkScalarRoundToInt(p.cullRect().height()));
+    if (!surf) {
+        return nullptr; // bounds are empty?
+    }
+    surf->getCanvas()->clear(SK_ColorWHITE);
+    p.playback(surf->getCanvas());
+    return surf->makeImageSnapshot();
+}
+
 DEF_TEST(Serialization, reporter) {
     // Test matrix serialization
     {
@@ -572,6 +583,11 @@ DEF_TEST(Serialization, reporter) {
         sk_sp<SkPicture> readPict(SkPicturePriv::MakeFromBuffer(reader));
         REPORTER_ASSERT(reporter, reader.isValid());
         REPORTER_ASSERT(reporter, readPict.get());
+        sk_sp<SkImage> img0 = render(*pict);
+        sk_sp<SkImage> img1 = render(*readPict);
+        if (img0 && img1) {
+            REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img1.get()));
+        }
     }
 
     TestPictureTypefaceSerialization(reporter);
