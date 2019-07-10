@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5f63f6b_e953f196",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-10T18:06:06Z",
+      "side": 1,
+      "message": "So do I delete these?",
+      "revId": "6d841b402e471f4c9fcbc41326fff06dae7a0417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "067c75ed_a3aa6eb6",
+        "filename": "site/user/build.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-10T18:06:06Z",
+      "side": 1,
+      "message": "Do we still support Visual Studio 2015 Update 3?",
+      "revId": "6d841b402e471f4c9fcbc41326fff06dae7a0417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
