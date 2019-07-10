@@ -336,9 +336,6 @@ public:
 
     void storeVkPipelineCacheData();
 
-    static size_t ComputeTextureSize(SkColorType type, int width, int height, GrMipMapped,
-                                     bool useNextPow2 = false);
-
    /*
     * The explicitly allocated backend texture API allows clients to use Skia to create backend
     * objects outside of Skia proper (i.e., Skia's caching system will not know about them.)
