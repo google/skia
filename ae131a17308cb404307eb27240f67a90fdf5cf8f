@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9e279e9_3ab4b7c9",
+        "filename": "bench/RectanizerBench.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-07-10T19:41:31Z",
+      "side": 1,
+      "message": "For a future CL, maybe -- but do we even need this any more?",
+      "range": {
+        "startLine": 31,
+        "startChar": 9,
+        "endLine": 31,
+        "endChar": 23
+      },
+      "revId": "ae131a17308cb404307eb27240f67a90fdf5cf8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
