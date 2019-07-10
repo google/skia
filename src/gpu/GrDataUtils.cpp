@@ -369,14 +369,18 @@ void GrFillInCompressedData(SkImage::CompressionType type, int baseWidth, int ba
 }
 
 static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::StockStage* load,
-                                          bool* isNormalized) {
+                                          bool* isNormalized, bool* isSRGB) {
     GrSwizzle swizzle("rgba");
     *isNormalized = true;
+    *isSRGB = false;
     switch (ct) {
         case GrColorType::kAlpha_8:          *load = SkRasterPipeline::load_a8;       break;
         case GrColorType::kBGR_565:          *load = SkRasterPipeline::load_565;      break;
         case GrColorType::kABGR_4444:        *load = SkRasterPipeline::load_4444;     break;
         case GrColorType::kRGBA_8888:        *load = SkRasterPipeline::load_8888;     break;
+        case GrColorType::kRGBA_8888_SRGB:   *load = SkRasterPipeline::load_8888;
+                                             *isSRGB = true;
+                                             break;
         case GrColorType::kRG_88:            *load = SkRasterPipeline::load_rg88;     break;
         case GrColorType::kRGBA_1010102:     *load = SkRasterPipeline::load_1010102;  break;
         case GrColorType::kAlpha_F16:        *load = SkRasterPipeline::load_af16;     break;
@@ -416,14 +420,18 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
 }
 
 static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::StockStage* store,
-                                           bool* isNormalized) {
+                                           bool* isNormalized, bool* isSRGB) {
     GrSwizzle swizzle("rgba");
     *isNormalized = true;
+    *isSRGB = false;
     switch (ct) {
         case GrColorType::kAlpha_8:          *store = SkRasterPipeline::store_a8;       break;
         case GrColorType::kBGR_565:          *store = SkRasterPipeline::store_565;      break;
         case GrColorType::kABGR_4444:        *store = SkRasterPipeline::store_4444;     break;
         case GrColorType::kRGBA_8888:        *store = SkRasterPipeline::store_8888;     break;
+        case GrColorType::kRGBA_8888_SRGB:   *store = SkRasterPipeline::store_8888;
+                                             *isSRGB = true;
+                                             break;
         case GrColorType::kRG_88:            *store = SkRasterPipeline::store_rg88;     break;
         case GrColorType::kRGBA_1010102:     *store = SkRasterPipeline::store_1010102;  break;
         case GrColorType::kRGBA_F16_Clamped: *store = SkRasterPipeline::store_f16;      break;
@@ -499,12 +507,16 @@ bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
 
     SkRasterPipeline::StockStage load;
     bool srcIsNormalized;
-    auto loadSwizzle = get_load_and_get_swizzle(srcInfo.colorType(), &load, &srcIsNormalized);
+    bool srcIsSRGB;
+    auto loadSwizzle = get_load_and_get_swizzle(srcInfo.colorType(), &load, &srcIsNormalized,
+                                                &srcIsSRGB);
     loadSwizzle = GrSwizzle::Concat(loadSwizzle, swizzle);
 
     SkRasterPipeline::StockStage store;
     bool dstIsNormalized;
-    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &dstIsNormalized);
+    bool dstIsSRGB;
+    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &dstIsNormalized,
+                                                  &dstIsSRGB);
 
     bool premul   = srcInfo.alphaType() == kUnpremul_SkAlphaType &&
                     dstInfo.alphaType() == kPremul_SkAlphaType;
@@ -544,6 +556,9 @@ bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
     for (int i = 0; i < cnt; ++i) {
         SkRasterPipeline_<256> pipeline;
         pipeline.append(load, &srcCtx);
+        if (srcIsSRGB) {
+            pipeline.append(SkRasterPipeline::from_srgb);
+        }
 
         if (alphaOrCSConversion) {
             loadSwizzle.apply(&pipeline);
@@ -560,6 +575,9 @@ bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
             } else {
                 loadStoreSwizzle.apply(&pipeline);
             }
+        }
+        if (dstIsSRGB) {
+            pipeline.append(SkRasterPipeline::to_srgb);
         }
         pipeline.append(store, &dstCtx);
         pipeline.run(0, 0, srcInfo.width(), height);

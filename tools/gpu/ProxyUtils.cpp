@@ -20,7 +20,6 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
                                                int width,
                                                int height,
                                                GrColorType colorType, SkAlphaType alphaType,
-                                               GrSRGBEncoded srgbEncoded,
                                                GrSurfaceOrigin origin,
                                                const void* data, size_t rowBytes) {
     if (context->priv().abandoned()) {
@@ -29,7 +28,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
 
     const GrCaps* caps = context->priv().caps();
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(colorType, srgbEncoded);
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(colorType);
     if (!format.isValid()) {
         return nullptr;
     }
@@ -60,7 +59,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
         }
 
     } else {
-        GrPixelConfig config = GrColorTypeToPixelConfig(colorType, srgbEncoded);
+        GrPixelConfig config = GrColorTypeToPixelConfig(colorType);
         if (!context->priv().caps()->isConfigTexturable(config)) {
             return nullptr;
         }

@@ -16,8 +16,7 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
                         int rtHeight, const GrCaps& caps) {
     SkASSERT(!this->isInitialized());
 
-    const GrBackendFormat format = caps.getBackendFormatFromColorType(GrColorType::kAlpha_F16,
-                                                                      GrSRGBEncoded::kNo);
+    const GrBackendFormat format = caps.getBackendFormatFromColorType(GrColorType::kAlpha_F16);
 
     fAtlasLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
             [this](GrResourceProvider* resourceProvider)
