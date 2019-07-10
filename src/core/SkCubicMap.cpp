@@ -7,6 +7,7 @@
 
 #include "include/core/SkCubicMap.h"
 #include "include/private/SkNx.h"
+#include "src/core/SkOpts.h"
 
 //#define CUBICMAP_TRACK_MAX_ERROR
 
@@ -54,6 +55,7 @@ static inline bool delta_nearly_zero(float delta) {
  *        rather than compute them in parts?
  */
 static float solve_nice_cubic_halley(float A, float B, float C, float D) {
+    return SkOpts::cubic_solver(A, B, C, D);
     const int MAX_ITERS = 8;
     const float A3 = 3 * A;
     const float B2 = B + B;
