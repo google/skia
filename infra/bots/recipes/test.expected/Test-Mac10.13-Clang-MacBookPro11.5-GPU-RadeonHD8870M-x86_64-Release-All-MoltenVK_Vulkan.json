@@ -522,6 +522,7 @@
       "~^AsyncReadPixels$",
       "~^VkBackendAllocationTest$",
       "~^ColorTypeBackendAllocationTest$",
+      "~^GrTestingBackendTextureUploadTest$",
       "--nonativeFonts",
       "--verbose"
     ],
