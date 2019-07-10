@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa4dc5c4_ad0f62a8",
+        "filename": "site/user/build.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T15:37:46Z",
+      "side": 1,
+      "message": "Why don\u0027t we just update gn/BUILDCONFIG.gn so it picks these up if present, like we do for the others?",
+      "range": {
+        "startLine": 253,
+        "startChar": 0,
+        "endLine": 258,
+        "endChar": 58
+      },
+      "revId": "7c341bf99c23172bbb071da88eb12005458e9386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
