@@ -52,6 +52,8 @@ namespace SkOpts {
     extern void (*rect_memset32)(uint32_t[], uint32_t, int, size_t, int);
     extern void (*rect_memset64)(uint64_t[], uint64_t, int, size_t, int);
 
+    extern float (*cubic_solver)(float, float, float, float);
+
     // The fastest high quality 32-bit hash we can provide on this platform.
     extern uint32_t (*hash_fn)(const void*, size_t, uint32_t seed);
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
