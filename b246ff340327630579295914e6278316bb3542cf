@@ -116,6 +116,24 @@
       "revId": "b246ff340327630579295914e6278316bb3542cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "075c1db6_a2ab604f",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T16:22:14Z",
+      "side": 1,
+      "message": "Right, FP_FAST_FMA will only be defined in hsw or on ARM64 builds.",
+      "parentUuid": "761fa481_1275ca3d",
+      "revId": "b246ff340327630579295914e6278316bb3542cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

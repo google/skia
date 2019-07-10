@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52b2d0b4_fac1c54f",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T16:22:14Z",
+      "side": 1,
+      "message": "Might not want to call this \"fma\", given that it doesn\u0027t always fuse?  Or sk_fma_if_fast?",
+      "range": {
+        "startLine": 252,
+        "startChar": 23,
+        "endLine": 252,
+        "endChar": 27
+      },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad3fa0ae_d865cd4d",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T16:22:14Z",
+      "side": 1,
+      "message": "Might be worth digging into which math does that?  I guess, calculation of denom?  Are you seeing fmsub???ss instructions go missing?  I bet you can use sk_fmaf() there and it\u0027ll compile to fmsub.\n\nOr you can always\n\n  #if defined(__clang__)\n     #pragma clang ...\n  #endif",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 33
+      },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
