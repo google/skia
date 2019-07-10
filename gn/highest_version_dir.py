@@ -12,4 +12,5 @@ import sys
 dirpath = sys.argv[1]
 regex = re.compile(sys.argv[2])
 
-print sorted(filter(regex.match, os.listdir(dirpath)))[-1]
+if os.path.isdir(dirpath):
+  print sorted(filter(regex.match, os.listdir(dirpath)))[-1]
