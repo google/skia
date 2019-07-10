@@ -72,7 +72,9 @@ public:
     void testingOnly_flushGpuAndSync() override;
 #endif
 
-    bool copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+    void copySurfaceAsResolve(GrSurface* dst, GrSurface* src);
+
+    void copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
@@ -112,6 +114,10 @@ public:
     void submitIndirectCommandBuffer(GrSurface* surface, GrSurfaceOrigin origin,
                                      const SkIRect* bounds) {
         this->didWriteToSurface(surface, origin, bounds);
+    }
+
+    void resolveRenderTargetNoFlush(GrRenderTarget* target) {
+        this->internalResolveRenderTarget(target, false);
     }
 
 private:
@@ -171,7 +177,15 @@ private:
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
-    void onResolveRenderTarget(GrRenderTarget* target) override { return; }
+    void onResolveRenderTarget(GrRenderTarget* target) override {
+        // This resolve is called when we are preparing an msaa surface for external I/O. It is
+        // called after flushing, so we need to make sure we submit the command buffer after doing
+        // the resolve so that the resolve actually happens.
+        this->internalResolveRenderTarget(target, true);
+    }
+
+    void internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit);
+    void resolveTexture(id<MTLTexture> colorTexture, id<MTLTexture> resolveTexture);
 
     void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {
