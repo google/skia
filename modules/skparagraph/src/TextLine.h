@@ -13,41 +13,28 @@
 namespace skia {
 namespace textlayout {
 
-class TextBlock {
-public:
-    TextBlock() : fText(), fTextStyle() {}
-    TextBlock(SkSpan<const char> text, const TextStyle& style) : fText(text), fTextStyle(style) {}
-
-    SkSpan<const char> text() const { return fText; }
-    TextStyle style() const { return fTextStyle; }
-
-    void add(SkSpan<const char> tail) {
-        SkASSERT(fText.end() == tail.begin());
-        fText = SkSpan<const char>(fText.begin(), fText.size() + tail.size());
-    }
-
-protected:
-    SkSpan<const char> fText;
-    TextStyle fTextStyle;
-};
-
 class TextLine {
 public:
     TextLine() = default;
     TextLine(TextLine&&);
     ~TextLine() = default;
 
-    TextLine(SkVector offset, SkVector advance, SkSpan<const TextBlock> blocks,
-             SkSpan<const char> text, SkSpan<const char> textWithSpaces,
-             SkSpan<const Cluster> clusters, size_t start, size_t end, LineMetrics sizes);
+    TextLine(ParagraphImpl* master,
+             SkVector offset,
+             SkVector advance,
+             SkSpan<const TextBlock> blocks,
+             SkSpan<const char> text,
+             SkSpan<const char> textWithSpaces,
+             SkSpan<const Cluster> clusters,
+             LineMetrics sizes);
 
-    SkSpan<const char> trimmedText() const { return fText; }
-     SkSpan<const char> textWithSpaces() const { return fTextWithSpaces; }
-    SkSpan<const Cluster> clusters() const { return fClusters; }
+    SkSpan<const char> trimmedText() const { return fTextRange.span(); }
+    SkSpan<const char> textWithSpaces() const { return fTextWithWhitespacesRange.span(); }
+    SkSpan<const Cluster> clusters() const { return fClusterRange.span(); }
     SkVector offset() const { return fOffset + SkVector::Make(fShift, 0); }
     Run* ellipsis() const { return fEllipsis.get(); }
     LineMetrics sizes() const { return fSizes; }
-    bool empty() const { return fText.empty(); }
+    bool empty() const { return fTextRange.empty(); }
 
     SkScalar shift() const { return fShift; }
     SkScalar height() const { return fAdvance.fY; }
@@ -107,17 +94,19 @@ private:
                                 SkPath& path) const;
 
     bool contains(const Cluster* cluster) const {
-        return cluster->text().begin() >= fText.begin() && cluster->text().end() <= fText.end();
+        return cluster->text().begin() >= fTextRange.begin() && cluster->text().end() <= fTextRange.end();
     }
 
-    SkSpan<const TextBlock> fBlocks;
-    SkSpan<const char> fText;
-    SkSpan<const char> fTextWithSpaces;
-    SkSpan<const Cluster> fClusters;
+    ParagraphImpl* fMaster;
+    StableRange<ParagraphImpl, const TextBlock, &accessTextBlock> fBlockRange;
+    StableRange<ParagraphImpl, const char, &accessText> fTextRange;
+    StableRange<ParagraphImpl, const char, &accessText> fTextWithWhitespacesRange;
+    StableRange<ParagraphImpl, const Cluster, &accessCluster> fClusterRange;
+
     // TODO: To clip by glyph:
     //size_t fStartPos;
     //size_t fEndPos;
-    SkTArray<Run*, true> fLogical;
+    SkTArray<size_t, true> fLogical;
     SkScalar fShift;                   // Shift to left - right - center
     SkVector fAdvance;                 // Text size
     SkVector fOffset;                  // Text position

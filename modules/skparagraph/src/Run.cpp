@@ -2,22 +2,32 @@
 #include "modules/skparagraph/src/Run.h"
 #include <unicode/brkiter.h>
 #include "include/core/SkFontMetrics.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 
 namespace skia {
 namespace textlayout {
 
-Run::Run(SkSpan<const char> text,
+const char* accessText(ParagraphImpl* master) { return master->text().begin(); }
+const Cluster* accessCluster(ParagraphImpl* master) { return master->clusters().begin(); }
+const Run* accessRun(ParagraphImpl* master) { return master->runs().begin(); }
+Run* accessRunRef(ParagraphImpl* master) { return master->runs().begin(); }
+const TextBlock* accessTextBlock(ParagraphImpl* master) { return master->styles().begin(); }
+
+Run::Run(ParagraphImpl* master,
+         SkSpan<const char> text,
          const SkShaper::RunHandler::RunInfo& info,
          SkScalar lineHeight,
          size_t index,
-         SkScalar offsetX) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
+         SkScalar offsetX)
+        : fMaster(master)
+        , fTextRange(StableRange<ParagraphImpl, const char, &accessText>(
+                  master,
+                  SkSpan<const char>(text.begin() + info.utf8Range.begin(), info.utf8Range.size())))
+        , fClusterRange(StableRange<ParagraphImpl, const Cluster, &accessCluster>(master)) {
     fFont = info.fFont;
     fHeightMultiplier = lineHeight;
     fBidiLevel = info.fBidiLevel;
     fAdvance = info.fAdvance;
-    fText = SkSpan<const char>(text.begin() + info.utf8Range.begin(), info.utf8Range.size());
-
     fIndex = index;
     fUtf8Range = info.utf8Range;
     fOffset = SkVector::Make(offsetX, 0);
@@ -33,12 +43,10 @@ Run::Run(SkSpan<const char> text,
 }
 
 SkShaper::RunHandler::Buffer Run::newRunBuffer() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     return {fGlyphs.data(), fPositions.data(), nullptr, fClusterIndexes.data(), fOffset};
 }
 
 SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     SkASSERT(start <= end);
     // clip |= end == size();  // Clip at the end of the run?
     SkScalar offset = 0;
@@ -49,7 +57,6 @@ SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
 }
 
 void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector offset) const {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     SkASSERT(pos + size <= this->size());
     const auto& blobBuffer = builder.allocRunPos(fFont, SkToInt(size));
     sk_careful_memcpy(blobBuffer.glyphs, fGlyphs.data() + pos, size * sizeof(SkGlyphID));
@@ -69,10 +76,10 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector o
 }
 
 // TODO: Make the search more effective
-std::tuple<bool, Cluster*, Cluster*> Run::findLimitingClusters(SkSpan<const char> text) {
+std::tuple<bool, const Cluster*, const Cluster*> Run::findLimitingClusters(SkSpan<const char> text) {
     if (text.empty()) {
-        Cluster* found = nullptr;
-        for (auto& cluster : fClusters) {
+        const Cluster* found = nullptr;
+        for (auto& cluster : fClusterRange) {
             if (cluster.contains(text.begin())) {
                 found = &cluster;
                 break;
@@ -84,9 +91,9 @@ std::tuple<bool, Cluster*, Cluster*> Run::findLimitingClusters(SkSpan<const char
     auto first = text.begin();
     auto last = text.end() - 1;
 
-    Cluster* start = nullptr;
-    Cluster* end = nullptr;
-    for (auto& cluster : fClusters) {
+    const Cluster* start = nullptr;
+    const Cluster* end = nullptr;
+    for (auto& cluster : fClusterRange) {
         if (cluster.contains(first)) start = &cluster;
         if (cluster.contains(last)) end = &cluster;
     }
@@ -98,7 +105,6 @@ std::tuple<bool, Cluster*, Cluster*> Run::findLimitingClusters(SkSpan<const char
 }
 
 void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     // Can't figure out how to do it with one code for both cases without 100 ifs
     // Can't go through clusters because there are no cluster table yet
     if (leftToRight()) {
@@ -144,7 +150,6 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
 }
 
 SkScalar Run::addSpacesAtTheEnd(SkScalar space, Cluster* cluster) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     if (cluster->endPos() == cluster->startPos()) {
         return 0;
     }
@@ -160,7 +165,6 @@ SkScalar Run::addSpacesAtTheEnd(SkScalar space, Cluster* cluster) {
 }
 
 SkScalar Run::addSpacesEvenly(SkScalar space, Cluster* cluster) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     // Offset all the glyphs in the cluster
     SkScalar shift = 0;
     for (size_t i = cluster->startPos(); i < cluster->endPos(); ++i) {
@@ -181,7 +185,6 @@ SkScalar Run::addSpacesEvenly(SkScalar space, Cluster* cluster) {
 }
 
 void Run::shift(const Cluster* cluster, SkScalar offset) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     if (offset == 0) {
         return;
     }
@@ -197,9 +200,8 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
 }
 
 void Cluster::setIsWhiteSpaces() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    auto pos = fText.end();
-    while (--pos >= fText.begin()) {
+    auto pos = fTextRange.end();
+    while (--pos >= fTextRange.begin()) {
         auto ch = *pos;
         if (!u_isspace(ch) && u_charType(ch) != U_CONTROL_CHAR &&
             u_charType(ch) != U_NON_SPACING_MARK) {
@@ -210,29 +212,26 @@ void Cluster::setIsWhiteSpaces() {
 }
 
 SkScalar Cluster::sizeToChar(const char* ch) const {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (ch < fText.begin() || ch >= fText.end()) {
+    if (ch < fTextRange.begin() || ch >= fTextRange.end()) {
         return 0;
     }
-    auto shift = ch - fText.begin();
-    auto ratio = shift * 1.0 / fText.size();
+    auto shift = ch - fTextRange.begin();
+    auto ratio = shift * 1.0 / fTextRange.size();
 
     return SkDoubleToScalar(fWidth * ratio);
 }
 
 SkScalar Cluster::sizeFromChar(const char* ch) const {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (ch < fText.begin() || ch >= fText.end()) {
+    if (ch < fTextRange.begin() || ch >= fTextRange.end()) {
         return 0;
     }
-    auto shift = fText.end() - ch - 1;
-    auto ratio = shift * 1.0 / fText.size();
+    auto shift = fTextRange.end() - ch - 1;
+    auto ratio = shift * 1.0 / fTextRange.size();
 
     return SkDoubleToScalar(fWidth * ratio);
 }
 
 size_t Cluster::roundPos(SkScalar s) const {
-    TRACE_EVENT0("skia", TRACE_FUNC);
     auto ratio = (s * 1.0) / fWidth;
     return sk_double_floor2int(ratio * size());
 }

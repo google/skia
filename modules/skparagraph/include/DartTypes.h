@@ -80,7 +80,7 @@ template <typename T> struct SkRange {
         return start == other.start && end == other.end;
     }
 
-    T width() { return end - start; }
+    T width() const { return end - start; }
 
     void Shift(T delta) {
         start += delta;

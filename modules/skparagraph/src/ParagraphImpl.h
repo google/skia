@@ -65,7 +65,7 @@ public:
 
     TextLine& addLine(SkVector offset, SkVector advance, SkSpan<const char> text,
                       SkSpan<const char> textWithSpaces, SkSpan<const Cluster> clusters,
-                      size_t start, size_t end, LineMetrics sizes);
+                      LineMetrics sizes);
 
     SkSpan<const char> text() const { return fTextSpan; }
     InternalState state() const { return fState; }
@@ -86,12 +86,16 @@ public:
     LineMetrics strutMetrics() const { return fStrutMetrics; }
 
     void markDirty() override { fState = kUnknown; }
-    static void setChecker(std::function<void(const char*, bool)> checker) {
+    static void setChecker(std::function<void(ParagraphImpl* impl, const char*, bool)> checker) {
         fParagraphCache.setChecker(checker);
     }
 
     static void printCache(const char* title) {
         fParagraphCache.printCache(title);
+    }
+
+    void printKeyValue(const char* title, bool found) {
+        fParagraphCache.printKeyValue(title, this, found);
     }
 
 private:
