@@ -49,13 +49,6 @@ static void test_skyline(skiatest::Reporter* reporter, const SkTDArray<SkISize>&
     test_rectanizer_inserts(reporter, &skylineRectanizer, rects);
 }
 
-static void test_pow2(skiatest::Reporter* reporter, const SkTDArray<SkISize>& rects) {
-    GrRectanizerPow2 pow2Rectanizer(kWidth, kHeight);
-
-    test_rectanizer_basic(reporter, &pow2Rectanizer);
-    test_rectanizer_inserts(reporter, &pow2Rectanizer, rects);
-}
-
 DEF_GPUTEST(GpuRectanizer, reporter, factory) {
     SkTDArray<SkISize> rects;
     SkRandom rand;
@@ -66,5 +59,4 @@ DEF_GPUTEST(GpuRectanizer, reporter, factory) {
     }
 
     test_skyline(reporter, rects);
-    test_pow2(reporter, rects);
 }
