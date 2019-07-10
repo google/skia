@@ -660,33 +660,3 @@ size_t GrGLBytesPerFormat(GrGLenum glFormat) {
     SK_ABORT("Invalid GL format");
     return 0;
 }
-
-bool GrGLFormatIsSupported(GrGLenum format) {
-    switch (format) {
-        case GR_GL_LUMINANCE8:
-        case GR_GL_ALPHA8:
-        case GR_GL_R8:
-        case GR_GL_RGB565:
-        case GR_GL_RGBA4:
-        case GR_GL_RG8:
-        case GR_GL_R16F:
-        case GR_GL_R16:
-        case GR_GL_RGB8:
-        case GR_GL_RGBA8:
-        case GR_GL_SRGB8_ALPHA8:
-        case GR_GL_BGRA8:
-        case GR_GL_RGB10_A2:
-        case GR_GL_RG16:
-        case GR_GL_RGBA16F:
-        case GR_GL_RG32F:
-        case GR_GL_RGBA32F:
-        case GR_GL_COMPRESSED_RGB8_ETC2:
-        case GR_GL_COMPRESSED_ETC1_RGB8:
-        // Experimental (for Y416 and mutant P016/P010)
-        case GR_GL_RG16F:
-        case GR_GL_RGBA16:
-            return true;
-        default:
-            return false;
-    }
-}

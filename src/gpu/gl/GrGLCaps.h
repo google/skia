@@ -10,12 +10,14 @@
 #define GrGLCaps_DEFINED
 
 #include <functional>
+#include "include/private/GrGLTypesPriv.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/gl/GrGLStencilAttachment.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 class GrGLContextInfo;
 class GrGLRenderTarget;
@@ -113,7 +115,7 @@ public:
     bool isConfigTexturable(GrPixelConfig config) const override {
         GrGLenum glFormat = this->configSizedInternalFormat(config);
         GrColorType ct = GrPixelConfigToColorType(config);
-        return this->isGLFormatTexturable(ct, glFormat);
+        return this->isFormatTexturable(ct, GrGLSizedInternalFormatFromGLenum(glFormat));
     }
 
     int getRenderTargetSampleCount(int requestedCount,
@@ -132,14 +134,14 @@ public:
         return this->canConfigBeFBOColorAttachment(config);
     }
 
-    bool canGLFormatBeFBOColorAttachment(GrGLenum glFormat) const;
+    bool canFormatBeFBOColorAttachment(GrGLSizedInternalFormat) const;
 
     bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {
         GrGLenum format = this->configSizedInternalFormat(config);
         if (!format) {
             return false;
         }
-        return this->canGLFormatBeFBOColorAttachment(format);
+        return this->canFormatBeFBOColorAttachment(GrGLSizedInternalFormatFromGLenum(format));
     }
 
     bool configSupportsTexStorage(GrPixelConfig config) const {
@@ -147,7 +149,7 @@ public:
         if (!format) {
             return false;
         }
-        return this->glFormatSupportsTexStorage(format);
+        return this->formatSupportsTexStorage(GrGLSizedInternalFormatFromGLenum(format));
     }
 
     GrGLenum configSizedInternalFormat(GrPixelConfig config) const {
@@ -166,11 +168,6 @@ public:
 
     void getRenderbufferFormat(GrPixelConfig config, GrGLenum* internalFormat) const;
     void getSizedInternalFormat(GrPixelConfig config, GrGLenum* internalFormat) const;
-
-    /** The format to use read/write a texture as an image in a shader */
-    GrGLenum getImageFormat(GrPixelConfig config) const {
-        return fConfigTable[config].fFormats.fSizedInternalFormat;
-    }
 
     /**
     * Gets an array of legal stencil formats. These formats are not guaranteed
@@ -483,8 +480,8 @@ private:
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
-    bool isGLFormatTexturable(GrColorType, GrGLenum glFormat) const;
-    bool glFormatSupportsTexStorage(GrGLenum glFormat) const;
+    bool isFormatTexturable(GrColorType, GrGLSizedInternalFormat) const;
+    bool formatSupportsTexStorage(GrGLSizedInternalFormat) const;
 
     GrGLStandard fStandard;
 
@@ -649,11 +646,14 @@ private:
         SkSTArray<1, ColorTypeInfo> fColorTypeInfos;
     };
 
-    static const size_t kNumGLFormats = 21;
-    FormatInfo fFormatTable[kNumGLFormats];
+    FormatInfo fFormatTable[kGrGLSizedInternalFormatCount];
 
-    FormatInfo& getFormatInfo(GrGLenum glFormat);
-    const FormatInfo& getFormatInfo(GrGLenum glFormat) const;
+    FormatInfo& getFormatInfo(GrGLSizedInternalFormat format) {
+        return fFormatTable[static_cast<int>(format)];
+    }
+    const FormatInfo& getFormatInfo(GrGLSizedInternalFormat format) const {
+        return fFormatTable[static_cast<int>(format)];
+    }
 
     typedef GrCaps INHERITED;
 };
