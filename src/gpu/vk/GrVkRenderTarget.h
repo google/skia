@@ -125,7 +125,7 @@ protected:
             numColorSamples += 1;
         }
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numColorSamples, GrMipMapped::kNo);
+                                      numColorSamples, GrMipMapped::kNo, false);
     }
 
     void createFramebuffer(GrVkGpu* gpu);

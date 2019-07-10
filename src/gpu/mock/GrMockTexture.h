@@ -97,7 +97,7 @@ public:
             ++numColorSamples;
         }
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numColorSamples, GrMipMapped::kNo);
+                                      numColorSamples, GrMipMapped::kNo, false);
     }
 
     GrBackendRenderTarget getBackendRenderTarget() const override {
@@ -178,7 +178,7 @@ private:
         }
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                       numColorSamples,
-                                      this->texturePriv().mipMapped());
+                                      this->texturePriv().mipMapped(), false);
     }
 
     void computeScratchKey(GrScratchKey* key) const override {

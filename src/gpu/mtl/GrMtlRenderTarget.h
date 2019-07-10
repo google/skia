@@ -65,7 +65,7 @@ protected:
             ++numColorSamples;
         }
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numColorSamples, GrMipMapped::kNo);
+                                      numColorSamples, GrMipMapped::kNo, false);
     }
 
     id<MTLTexture> fRenderTexture;
