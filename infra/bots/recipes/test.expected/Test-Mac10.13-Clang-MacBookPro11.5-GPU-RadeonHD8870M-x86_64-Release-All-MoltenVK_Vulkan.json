@@ -521,6 +521,7 @@
       "~^WritePixelsNonTextureMSAA_Gpu$",
       "~^AsyncReadPixels$",
       "~^VkBackendAllocationTest$",
+      "~^ColorTypeBackendAllocationTest$",
       "--nonativeFonts",
       "--verbose"
     ],

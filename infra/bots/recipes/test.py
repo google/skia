@@ -739,6 +739,7 @@ def dm_flags(api, bot):
     match.append('~^WritePixelsNonTextureMSAA_Gpu$')
     match.append('~^AsyncReadPixels$')
     match.append('~^VkBackendAllocationTest$')
+    match.append('~^ColorTypeBackendAllocationTest$')
 
   if 'ANGLE' in bot:
     # skia:7835
