@@ -30,9 +30,9 @@ struct Variable : public Symbol {
         kParameter_Storage
     };
 
-    Variable(int offset, Modifiers modifiers, StringFragment name, const Type& type,
-             Storage storage, Expression* initialValue = nullptr)
-    : INHERITED(offset, kVariable_Kind, name)
+    Variable(IRGenerator* irGenerator, int offset, Modifiers modifiers, StringFragment name,
+             IRNode::ID type, Storage storage, IRNode::ID initialValue)
+    : INHERITED(irGenerator, offset, kVariable_Kind, name)
     , fModifiers(modifiers)
     , fType(type)
     , fStorage(storage)
@@ -40,16 +40,8 @@ struct Variable : public Symbol {
     , fReadCount(0)
     , fWriteCount(initialValue ? 1 : 0) {}
 
-    ~Variable() override {
-        // can't destroy a variable while there are remaining references to it
-        if (fInitialValue) {
-            --fWriteCount;
-        }
-        SkASSERT(!fReadCount && !fWriteCount);
-    }
-
     virtual String description() const override {
-        return fModifiers.description() + fType.fName + " " + fName;
+        return fModifiers.description() + fType.typeNode().fName + " " + fName;
     }
 
     bool dead() const {
@@ -64,10 +56,10 @@ struct Variable : public Symbol {
     }
 
     mutable Modifiers fModifiers;
-    const Type& fType;
+    IRNode::ID fType;
     const Storage fStorage;
 
-    Expression* fInitialValue = nullptr;
+    IRNode::ID fInitialValue;
 
     // Tracks how many sites read from the variable. If this is zero for a non-out variable (or
     // becomes zero during optimization), the variable is dead and may be eliminated.

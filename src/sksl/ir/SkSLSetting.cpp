@@ -11,12 +11,11 @@
 
 namespace SkSL {
 
-std::unique_ptr<Expression> Setting::constantPropagate(const IRGenerator& irGenerator,
-                                                       const DefinitionMap& definitions) {
-    if (irGenerator.fSettings->fReplaceSettings) {
-        return VariableReference::copy_constant(irGenerator, fValue.get());
+IRNode::ID Setting::constantPropagate(const DefinitionMap& definitions) {
+    if (fIRGenerator->fSettings->fReplaceSettings) {
+        return VariableReference::CopyConstant(fIRGenerator, fValue.expressionNode());
     }
-    return nullptr;
+    return IRNode::ID();
 }
 
 } // namespace
