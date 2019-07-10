@@ -20,6 +20,7 @@ skia_sksg_sources = [
   "$_src/SkSGMaskEffect.cpp",
   "$_src/SkSGMerge.cpp",
   "$_src/SkSGNode.cpp",
+  "$_src/SkSGNodePriv.h",
   "$_src/SkSGOpacityEffect.cpp",
   "$_src/SkSGPaint.cpp",
   "$_src/SkSGPath.cpp",
@@ -31,5 +32,6 @@ skia_sksg_sources = [
   "$_src/SkSGScene.cpp",
   "$_src/SkSGText.cpp",
   "$_src/SkSGTransform.cpp",
+  "$_src/SkSGTransformPriv.h",
   "$_src/SkSGTrimEffect.cpp",
 ]
