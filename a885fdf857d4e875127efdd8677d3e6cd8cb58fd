@@ -62,6 +62,30 @@
       "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c504341_a07bb30d",
+        "filename": "src/core/SkCubicSolver.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-10T16:34:53Z",
+      "side": 1,
+      "message": "Yeah, try\n\n   float denom \u003d sk_fmaf(2*fp, fp, -(f*fpp));\n\n?",
+      "parentUuid": "ad3fa0ae_d865cd4d",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 33
+      },
+      "revId": "a885fdf857d4e875127efdd8677d3e6cd8cb58fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
