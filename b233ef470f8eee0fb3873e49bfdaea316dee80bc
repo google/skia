@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "1b15e0e6_7c8346e2",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-10T21:37:47Z",
+      "side": 1,
+      "message": "FWIW the organization of this was simple guys (load only) first, complicated guys second. But I don\u0027t really care.",
+      "revId": "b233ef470f8eee0fb3873e49bfdaea316dee80bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0752383f_d002970b",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-10T21:37:47Z",
+      "side": 1,
+      "message": "Here we could do\n\nif (srcIsSRGB \u0026\u0026 dstIsSRGB) {\n    srcIsSRGB \u003d dstIsSRGB \u003d false;\n}",
+      "revId": "b233ef470f8eee0fb3873e49bfdaea316dee80bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee8a2181_0e9d0b90",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 3
@@ -13,6 +47,30 @@
       "writtenOn": "2019-07-10T21:26:30Z",
       "side": 1,
       "message": "I believe this is what we want here to avoid incorrectly doing an extra srgb conversion. Will this actually mess up GL doing the read pixel?",
+      "range": {
+        "startLine": 3570,
+        "startChar": 14,
+        "endLine": 3571,
+        "endChar": 63
+      },
+      "revId": "b233ef470f8eee0fb3873e49bfdaea316dee80bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1e4ccb5_4f21f435",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3571,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-10T21:37:47Z",
+      "side": 1,
+      "message": "So what we want to happen in GL is that we call glReadPixels() with a external type of GL_RGBA, GL_UNSIGNED_BYTE but understand that the resulting data we get back is in GrColorType::kRGBA_8888_SRGB. Given my understanding of how things are wired up in onReadPixels, the config table, etc, this seems right to me...",
+      "parentUuid": "ee8a2181_0e9d0b90",
       "range": {
         "startLine": 3570,
         "startChar": 14,
