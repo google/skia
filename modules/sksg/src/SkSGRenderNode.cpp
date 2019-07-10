@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPaint.h"
+#include "modules/sksg/src/SkSGNodePriv.h"
 
 namespace sksg {
 
@@ -198,6 +199,16 @@ CustomRenderNode::~CustomRenderNode() {
     for (const auto& child : fChildren) {
         this->unobserveInval(child);
     }
+}
+
+bool CustomRenderNode::hasChildrenInval() const {
+    for (const auto& child : fChildren) {
+        if (NodePriv::HasInval(child)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 } // namespace sksg

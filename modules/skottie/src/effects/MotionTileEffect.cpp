@@ -55,8 +55,17 @@ protected:
     const RenderNode* onNodeAt(const SkPoint&) const override { return nullptr; } // no hit-testing
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
-        SkASSERT(this->children().size() == 1ul);
-        this->children()[0]->revalidate(ic, ctm);
+        // Re-record the layer picture if needed.
+        if (!fLayerPicture || this->hasChildrenInval()) {
+            SkASSERT(this->children().size() == 1ul);
+            const auto& layer = this->children()[0];
+
+            layer->revalidate(ic, ctm);
+
+            SkPictureRecorder recorder;
+            layer->render(recorder.beginRecording(fLayerSize.width(), fLayerSize.height()));
+            fLayerPicture = recorder.finishRecordingAsPicture();
+        }
 
         // tileW and tileH use layer size percentage units.
         const auto tileW = SkTPin(fTileW, 0.0f, 100.0f) * 0.01f * fLayerSize.width(),
@@ -68,9 +77,12 @@ protected:
                                             tile_size.width(),
                                             tile_size.height());
 
-        fLayerShaderMatrix = SkMatrix::MakeRectToRect(SkRect::MakeWH(fLayerSize.width(),
-                                                                     fLayerSize.height()),
-                                                      tile, SkMatrix::kFill_ScaleToFit);
+        const auto layerShaderMatrix = SkMatrix::MakeRectToRect(
+                    SkRect::MakeWH(fLayerSize.width(), fLayerSize.height()),
+                    tile, SkMatrix::kFill_ScaleToFit);
+
+        const auto tm = fMirrorEdges ? SkTileMode::kMirror : SkTileMode::kRepeat;
+        auto layer_shader = fLayerPicture->makeShader(tm, tm, &layerShaderMatrix);
 
         if (fPhase) {
             // To implement AE phase semantics, we construct a mask shader for the pass-through
@@ -79,10 +91,10 @@ protected:
             const auto phase_vec = fHorizontalPhase
                     ? SkVector::Make(tile.width(), 0)
                     : SkVector::Make(0, tile.height());
-            const auto phase_shift = SkVector::Make(phase_vec.fX / fLayerShaderMatrix.getScaleX(),
-                                                    phase_vec.fY / fLayerShaderMatrix.getScaleY())
+            const auto phase_shift = SkVector::Make(phase_vec.fX / layerShaderMatrix.getScaleX(),
+                                                    phase_vec.fY / layerShaderMatrix.getScaleY())
                                      * std::fmod(fPhase * (1/360.0f), 1);
-            fPhaseShaderMatrix.setTranslate(phase_shift);
+            const auto phase_shader_matrix = SkMatrix::MakeTrans(phase_shift.x(), phase_shift.y());
 
             // The mask is generated using a step gradient shader, spanning 2 x tile width/height,
             // and perpendicular to the phase vector.
@@ -93,11 +105,18 @@ protected:
                                    { tile.x() + 2 * (tile.width()  - phase_vec.fX),
                                      tile.y() + 2 * (tile.height() - phase_vec.fY) }};
 
-            fMaskShader = SkGradientShader::MakeLinear(pts, colors, pos,
-                                                       SK_ARRAY_COUNT(colors),
-                                                       SkTileMode::kRepeat);
+            auto mask_shader = SkGradientShader::MakeLinear(pts, colors, pos,
+                                                            SK_ARRAY_COUNT(colors),
+                                                            SkTileMode::kRepeat);
+
+            // First drawing pass: in-place masked layer content.
+            fMainPassShader  = SkShaders::Blend(SkBlendMode::kSrcIn , mask_shader, layer_shader);
+            // Second pass: phased-shifted layer content, with an inverse mask.
+            fPhasePassShader = SkShaders::Blend(SkBlendMode::kSrcOut, mask_shader, layer_shader,
+                                                &phase_shader_matrix);
         } else {
-            fMaskShader = nullptr;
+            fMainPassShader  = std::move(layer_shader);
+            fPhasePassShader = nullptr;
         }
 
         // outputW and outputH also use layer size percentage units.
@@ -115,32 +134,14 @@ protected:
             return;
         }
 
-        const auto tm = fMirrorEdges ? SkTileMode::kMirror : SkTileMode::kRepeat;
-
-        SkPictureRecorder recorder;
-        SkASSERT(this->children().size() == 1ul);
-        this->children()[0]->render(recorder.beginRecording(fLayerSize.width(),
-                                                            fLayerSize.height()));
-        const auto layer_shader =
-            recorder.finishRecordingAsPicture()->makeShader(tm, tm, &fLayerShaderMatrix);
-
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        // First drawing pass: pass-through layer content, with an optional phase mask.
-        paint.setShader(fMaskShader
-                ? SkShaders::Blend(SkBlendMode::kSrcIn, fMaskShader, layer_shader)
-                : layer_shader);
+        paint.setShader(fMainPassShader);
         canvas->drawRect(this->bounds(), paint);
 
-        if (fMaskShader) {
-            // Second pass: phased/shifted layer rows/columns, with an inverse mask.
-
-            // TODO: would be nice for SkShaders::* to take an optional local matrix.
-            paint.setShader(
-                SkShaders::Blend(SkBlendMode::kSrcOut,
-                                 fMaskShader,
-                                 layer_shader->makeWithLocalMatrix(fPhaseShaderMatrix)));
+        if (fPhasePassShader) {
+            paint.setShader(fPhasePassShader);
             canvas->drawRect(this->bounds(), paint);
         }
     }
@@ -158,9 +159,9 @@ private:
     bool     fHorizontalPhase = false;
 
     // These are computed/cached on revalidation.
-    SkMatrix        fLayerShaderMatrix, // matrix for the pass-through layer content shader
-                    fPhaseShaderMatrix; // matrix for the phased (shifted) rows/columns
-    sk_sp<SkShader> fMaskShader;        // cached mask shader for the pass-through rows/columns
+    sk_sp<SkPicture> fLayerPicture;      // cached picture for layer content
+    sk_sp<SkShader>  fMainPassShader,    // shader for the main tile(s)
+                     fPhasePassShader;   // shader for the phased tile(s)
 
     using INHERITED = sksg::CustomRenderNode;
 };
