@@ -248,8 +248,14 @@ Skia can build on Windows with Visual Studio 2017 or Visual Studio 2015 Update 3
 If GN is unable to locate either of those, it will print an error message. In that
 case, you can pass your `VC` path to GN via `win_vc`.
 
-Skia can be compiled with the free [Build Tools for Visual Studio
-2017](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017).
+>   Skia can be compiled with the free [Build Tools for Visual Studio 2017 or
+>   2019](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2019).
+>   You can then pass the VC and SDK paths to GN by setting the `win_vc` and
+>   `win_sdk` GN args to point at the correct directories. The default paths
+>   for Visual Studio Build Tools 2019 are:
+>
+>       win_vc = "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC"
+>       win_sdk = "C:\Program Files (x86)\Windows Kits\10"
 
 The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
@@ -272,11 +278,13 @@ unoptimized code.
 
 Setting the `cc` and `cxx` gn args is _not_ sufficient to build with clang-cl. These variables
 are ignored on Windows. Instead set the variable `clang_win` to your LLVM installation directory.
-If you installed the prebuilt LLVM downloaded from [here](https://releases.llvm.org/download.html "LLVM Download") in the default location that would be:
+If you installed the prebuilt LLVM downloaded from [here](https://releases.llvm.org/download.html
+"LLVM Download") in the default location that would be:
 
     clang_win = "C:\Program Files\LLVM"
 
-Follow the standard Windows path specification and not MinGW convention (e.g. `C:\Program Files\LLVM` not ~~`/c/Program Files/LLVM`~~).
+Follow the standard Windows path specification and not MinGW convention (e.g.
+`C:\Program Files\LLVM` not ~~`/c/Program Files/LLVM`~~).
 
 ### Visual Studio Solutions
 
