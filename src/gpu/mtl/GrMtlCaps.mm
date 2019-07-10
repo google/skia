@@ -37,7 +37,6 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     // doesn't support it.
     fFenceSyncSupport = false;           // Fences are not implemented yet
     fSemaphoreSupport = false;           // Semaphores are not implemented yet
-    fMultisampleDisableSupport = true;   // MSAA and resolving not implemented yet
     fDiscardRenderTargetSupport = false; // GrMtlGpuCommandBuffer::discard() not implemented
     fCrossContextTextureSupport = false; // GrMtlGpu::prepareTextureForCrossContextUsage() not impl
 }

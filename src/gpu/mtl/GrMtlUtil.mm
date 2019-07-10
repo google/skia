@@ -257,19 +257,18 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
     return pipelineState;
 }
 
-id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface, bool doResolve) {
+id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface) {
     id<MTLTexture> mtlTexture = nil;
 
     GrMtlRenderTarget* renderTarget = static_cast<GrMtlRenderTarget*>(surface->asRenderTarget());
     GrMtlTexture* texture;
     if (renderTarget) {
-        if (doResolve) {
-            // TODO: do resolve and set mtlTexture to resolved texture. As of now, we shouldn't
-            // have any multisampled render targets.
+        // We should not be using this for multisampled rendertargets
+        if (renderTarget->numSamples() > 1) {
             SkASSERT(false);
-        } else {
-            mtlTexture = renderTarget->mtlRenderTexture();
+            return nil;
         }
+        mtlTexture = renderTarget->mtlColorTexture();
     } else {
         texture = static_cast<GrMtlTexture*>(surface->asTexture());
         if (texture) {
