@@ -340,27 +340,41 @@ public:
 
         int renderTargetBinds() const { return fRenderTargetBinds; }
         void incRenderTargetBinds() { fRenderTargetBinds++; }
+
         int shaderCompilations() const { return fShaderCompilations; }
         void incShaderCompilations() { fShaderCompilations++; }
+
         int textureCreates() const { return fTextureCreates; }
         void incTextureCreates() { fTextureCreates++; }
+
         int textureUploads() const { return fTextureUploads; }
         void incTextureUploads() { fTextureUploads++; }
+
         int transfersToTexture() const { return fTransfersToTexture; }
-        int transfersFromSurface() const { return fTransfersFromSurface; }
         void incTransfersToTexture() { fTransfersToTexture++; }
+
+        int transfersFromSurface() const { return fTransfersFromSurface; }
         void incTransfersFromSurface() { fTransfersFromSurface++; }
+
+        int stencilAttachmentCreates() const { return fStencilAttachmentCreates; }
         void incStencilAttachmentCreates() { fStencilAttachmentCreates++; }
+
+        int numDraws() const { return fNumDraws; }
         void incNumDraws() { fNumDraws++; }
+
+        int numFailedDraws() const { return fNumFailedDraws; }
         void incNumFailedDraws() { ++fNumFailedDraws; }
+
+        int numFinishFlushes() const { return fNumFinishFlushes; }
         void incNumFinishFlushes() { ++fNumFinishFlushes; }
+
+        int numScratchTexturesReused() const { return fNumScratchTexturesReused; }
+        void incNumScratchTexturesReused() { ++fNumScratchTexturesReused; }
+
 #if GR_TEST_UTILS
         void dump(SkString*);
         void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
 #endif
-        int numDraws() const { return fNumDraws; }
-        int numFailedDraws() const { return fNumFailedDraws; }
-        int numFinishFlushes() const { return fNumFinishFlushes; }
     private:
         int fRenderTargetBinds = 0;
         int fShaderCompilations = 0;
@@ -372,6 +386,7 @@ public:
         int fNumDraws = 0;
         int fNumFailedDraws = 0;
         int fNumFinishFlushes = 0;
+        int fNumScratchTexturesReused = 0;
 #else
 
 #if GR_TEST_UTILS

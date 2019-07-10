@@ -15,6 +15,9 @@
 #include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
 
+#include "src/core/SkMathPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+
 namespace skiagm {
 
 // This GM draws a lot of arcs in a 'Z' shape. It particularly exercises
@@ -37,6 +40,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+
         SkRandom rand;
 
         SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
