@@ -13,6 +13,7 @@
 #include "include/private/SkSafe_math.h"
 #include <float.h>
 #include <math.h>
+#include <cmath>
 #include <cstring>
 #include <limits>
 
@@ -246,6 +247,14 @@ static inline float sk_ieee_float_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(float 
 }
 static inline float sk_ieee_double_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(double n, double d) {
     return sk_ieee_double_divide(n,d);
+}
+
+static inline float sk_fmaf(float f, float m, float a) {
+#if defined(FP_FAST_FMA)
+    return std::fmaf(f,m,a);
+#else
+    return f*m+a;
+#endif
 }
 
 #endif
