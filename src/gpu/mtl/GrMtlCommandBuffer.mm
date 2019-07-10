@@ -59,8 +59,9 @@ static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
                              first.storeAction == MTLStoreActionDontCare;
     bool loadActionsValid = second.loadAction == MTLLoadActionLoad ||
                             second.loadAction == MTLLoadActionDontCare;
-    bool secondDoesntSampleFirst = !pipelineState ||
-                                   pipelineState->doesntSampleAttachment(first);
+    bool secondDoesntSampleFirst = (!pipelineState ||
+                                    pipelineState->doesntSampleAttachment(first)) &&
+                                   second.storeAction != MTLStoreActionMultisampleResolve;
 
     return renderTargetsMatch &&
            (nil == first.texture ||
@@ -81,7 +82,9 @@ id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
 
     this->endAllEncoding();
     fActiveRenderCommandEncoder = [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor];
-    gpuCommandBuffer->initRenderState(fActiveRenderCommandEncoder);
+    if (gpuCommandBuffer) {
+        gpuCommandBuffer->initRenderState(fActiveRenderCommandEncoder);
+    }
     fPreviousRenderPassDescriptor = descriptor;
 
     return fActiveRenderCommandEncoder;

@@ -40,10 +40,6 @@ Window* Window::CreateNativeWindow(void*) {
 }
 
 bool Window_mac::initWindow() {
-    if (fRequestedDisplayParams.fMSAASampleCount != fMSAASampleCount) {
-        this->closeWindow();
-    }
-
     // we already have a window
     if (fWindow) {
         return true;
