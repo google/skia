@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b72b026a_82069b6d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1037,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-10T00:33:45Z",
+      "side": 1,
+      "message": "currently i think it is possible to get in here with rowBytes still equal to 0. Or at least the wacky yuv gm calls GrGpu::createBackendTexture directly with rowBytes \u003d 0, which ends up here unchanged. So we don\u0027t go through any checks of caps.writePixelsRowBytesSupport() before here and thus can hit the assert.",
+      "range": {
+        "startLine": 1037,
+        "startChar": 20,
+        "endLine": 1037,
+        "endChar": 44
+      },
+      "revId": "65eb084e7886aa9c9a21778124b789e2760fcbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
