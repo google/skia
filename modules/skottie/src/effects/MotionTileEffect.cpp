@@ -135,12 +135,10 @@ protected:
 
         if (fMaskShader) {
             // Second pass: phased/shifted layer rows/columns, with an inverse mask.
-
-            // TODO: would be nice for SkShaders::* to take an optional local matrix.
-            paint.setShader(
-                SkShaders::Blend(SkBlendMode::kSrcOut,
-                                 fMaskShader,
-                                 layer_shader->makeWithLocalMatrix(fPhaseShaderMatrix)));
+            paint.setShader(SkShaders::Blend(SkBlendMode::kSrcOut,
+                                             fMaskShader,
+                                             layer_shader,
+                                             &fPhaseShaderMatrix));
             canvas->drawRect(this->bounds(), paint);
         }
     }
