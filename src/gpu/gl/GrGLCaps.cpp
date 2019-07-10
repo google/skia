@@ -1536,6 +1536,12 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
                 }
             }
         }
+
+        // kRGB_888x
+        {
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+            info.fColorTypeInfos.emplace_back(GrColorType::kRGB_888x, flags);
+        }
     }
 
     // R8
