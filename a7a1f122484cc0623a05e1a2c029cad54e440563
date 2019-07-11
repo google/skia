@@ -93,6 +93,30 @@
       "revId": "a7a1f122484cc0623a05e1a2c029cad54e440563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb29fdaf_5e744da1",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-11T14:56:21Z",
+      "side": 1,
+      "message": "Ahhh we have a bug in our code then. It looks like we don\u0027t actually do anything with the sample count in MakeFromBackendTexture. Then later on we just assume the sample count of the backend texture is the sample count we want to use.",
+      "parentUuid": "16abffd1_b86f02c1",
+      "range": {
+        "startLine": 105,
+        "startChar": 33,
+        "endLine": 105,
+        "endChar": 69
+      },
+      "revId": "a7a1f122484cc0623a05e1a2c029cad54e440563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
