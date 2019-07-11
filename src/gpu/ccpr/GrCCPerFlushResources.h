@@ -87,18 +87,30 @@ public:
                                                   const SkIRect& devPathIBounds,
                                                   SkIVector* devToAtlasOffset);
 
-    // Returns the index in instanceBuffer() of the next instance that will be added by
-    // appendDrawPathInstance().
-    int nextPathInstanceIdx() const { return fNextPathInstanceIdx; }
-
-    // Appends an instance to instanceBuffer() that will draw a path to the destination render
-    // target. The caller is responsible to call set() on the returned instance, to keep track of
-    // its atlas and index (see nextPathInstanceIdx()), and to issue the actual draw call.
-    GrCCPathProcessor::Instance& appendDrawPathInstance() {
+    // These two methods append an instance to instanceBuffer() that will draw a path to the
+    // destination render target. The caller is responsible to call set() on the returned instance,
+    // to keep track of its atlas and index (see nextCachedPathInstanceIdx()/
+    // nextRenderedPathInstanceIdx()), and to issue the actual draw call.
+    //
+    // NOTE: We separate "cached" and "rendered" instances (rendered meaning we render the path mask
+    // to an atlas rather than finding it in a cached one). In MSAA mode we need the rendered
+    // instances to all be contiguous in order to make an intermediate draw that resolves stencil
+    // winding values to coverage.
+    GrCCPathProcessor::Instance& appendCachedPathInstance() {
         SkASSERT(this->isMapped());
-        SkASSERT(fNextPathInstanceIdx < fEndPathInstance);
-        return fPathInstanceData[fNextPathInstanceIdx++];
+        SkASSERT(fNextCachedPathInstanceIdx < fEndCachedPathInstance);
+        return fPathInstanceData[fNextCachedPathInstanceIdx++];
     }
+    GrCCPathProcessor::Instance& appendRenderedPathInstance() {
+        SkASSERT(this->isMapped());
+        SkASSERT(fNextRenderedPathInstanceIdx < fEndRenderedPathInstance);
+        return fPathInstanceData[fNextRenderedPathInstanceIdx++];
+    }
+
+    // Returns the index in instanceBuffer() of the next instance that will be added by
+    // appendCachedPathInstance()/appendRenderedPathInstance().
+    int nextCachedPathInstanceIdx() const { return fNextCachedPathInstanceIdx; }
+    int nextRenderedPathInstanceIdx() const { return fNextRenderedPathInstanceIdx; }
 
     // Finishes off the GPU buffers and renders the atlas(es).
     bool finalize(GrOnFlushResourceProvider*, SkTArray<sk_sp<GrRenderTargetContext>>* out);
@@ -138,8 +150,10 @@ private:
     GrCCPathProcessor::Instance* fPathInstanceData = nullptr;
     int fNextCopyInstanceIdx;
     SkDEBUGCODE(int fEndCopyInstance);
-    int fNextPathInstanceIdx;
-    SkDEBUGCODE(int fEndPathInstance);
+    int fNextCachedPathInstanceIdx;
+    int fNextRenderedPathInstanceIdx;
+    SkDEBUGCODE(int fEndCachedPathInstance);
+    SkDEBUGCODE(int fEndRenderedPathInstance);
 
     // Represents a range of copy-path instances that all share the same source proxy. (i.e. Draw
     // instances that copy a path mask from a 16-bit coverage count atlas into an 8-bit literal

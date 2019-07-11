@@ -104,7 +104,7 @@ private:
             , fBaseInstance(baseInstance)
             , fEndInstance(endInstance) {
     }
-    sk_sp<GrTextureProxy> fSrcProxy;
+    const sk_sp<GrTextureProxy> fSrcProxy;
     const int fBaseInstance;
     const int fEndInstance;
 };
@@ -182,8 +182,12 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
         , fInstanceBuffer(onFlushRP->makeBuffer(GrGpuBufferType::kVertex,
                                                 inst_buffer_count(specs) * sizeof(PathInstance)))
         , fNextCopyInstanceIdx(0)
-        , fNextPathInstanceIdx(specs.fNumCopiedPaths[kFillIdx] +
-                               specs.fNumCopiedPaths[kStrokeIdx]) {
+        , fNextCachedPathInstanceIdx(
+                specs.fNumCopiedPaths[kFillIdx] + specs.fNumCopiedPaths[kStrokeIdx])
+        , fNextRenderedPathInstanceIdx(
+                fNextCachedPathInstanceIdx + specs.fNumCachedPaths +
+                // Copies also get a cached path instance.
+                specs.fNumCopiedPaths[kFillIdx] + specs.fNumCopiedPaths[kStrokeIdx]) {
     if (!fIndexBuffer) {
         SkDebugf("WARNING: failed to allocate CCPR index buffer. No paths will be drawn.\n");
         return;
@@ -198,9 +202,9 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
     }
     fPathInstanceData = static_cast<PathInstance*>(fInstanceBuffer->map());
     SkASSERT(fPathInstanceData);
-    SkDEBUGCODE(fEndCopyInstance =
-                        specs.fNumCopiedPaths[kFillIdx] + specs.fNumCopiedPaths[kStrokeIdx]);
-    SkDEBUGCODE(fEndPathInstance = inst_buffer_count(specs));
+    SkDEBUGCODE(fEndCopyInstance = fNextCachedPathInstanceIdx);
+    SkDEBUGCODE(fEndCachedPathInstance = fNextRenderedPathInstanceIdx);
+    SkDEBUGCODE(fEndRenderedPathInstance = inst_buffer_count(specs));
 }
 
 void GrCCPerFlushResources::upgradeEntryToLiteralCoverageAtlas(
@@ -350,17 +354,17 @@ GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
         const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape, float strokeDevWidth,
         GrOctoBounds* octoBounds, SkIRect* devIBounds, SkIVector* devToAtlasOffset) {
     SkASSERT(this->isMapped());
-    SkASSERT(fNextPathInstanceIdx < fEndPathInstance);
+    SkASSERT(fNextRenderedPathInstanceIdx < fEndRenderedPathInstance);
 
     SkPath path;
     shape.asPath(&path);
     if (path.isEmpty()) {
-        SkDEBUGCODE(--fEndPathInstance);
+        SkDEBUGCODE(--fEndRenderedPathInstance);
         return nullptr;
     }
     if (!transform_path_pts(m, path, fLocalDevPtsBuffer, octoBounds)) {
         // The transformed path had infinite or NaN bounds.
-        SkDEBUGCODE(--fEndPathInstance);
+        SkDEBUGCODE(--fEndRenderedPathInstance);
         return nullptr;
     }
 
@@ -378,7 +382,7 @@ GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
         enableScissorInAtlas = GrScissorTest::kEnabled;
     } else {
         // The clip and octo bounds do not intersect. Draw nothing.
-        SkDEBUGCODE(--fEndPathInstance);
+        SkDEBUGCODE(--fEndRenderedPathInstance);
         return nullptr;
     }
     octoBounds->roundOut(devIBounds);
@@ -443,8 +447,9 @@ void GrCCPerFlushResources::placeRenderedPathInAtlas(
 bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
                                      SkTArray<sk_sp<GrRenderTargetContext>>* out) {
     SkASSERT(this->isMapped());
-    SkASSERT(fNextPathInstanceIdx == fEndPathInstance);
     SkASSERT(fNextCopyInstanceIdx == fEndCopyInstance);
+    SkASSERT(fNextCachedPathInstanceIdx == fEndCachedPathInstance);
+    SkASSERT(fNextRenderedPathInstanceIdx == fEndRenderedPathInstance);
 
     fInstanceBuffer->unmap();
     fPathInstanceData = nullptr;

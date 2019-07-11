@@ -133,12 +133,16 @@ private:
     GrProcessorSet fProcessors;
 
     struct InstanceRange {
+        InstanceRange(GrTextureProxy* atlasProxy, int baseInstance)
+                : fAtlasProxy(atlasProxy)
+                , fBaseInstance(baseInstance)
+                , fEndInstance(baseInstance) {}
         GrTextureProxy* fAtlasProxy;
-        int fEndInstanceIdx;
+        int fBaseInstance;
+        int fEndInstance;
     };
 
     SkSTArray<2, InstanceRange, true> fInstanceRanges;
-    int fBaseInstance SkDEBUGCODE(= -1);
 };
 
 #endif

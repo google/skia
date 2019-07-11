@@ -107,7 +107,6 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
         , fDraws(m, shape, strokeDevWidth, shapeConservativeIBounds, maskDevIBounds,
                  paint.getColor4f())
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
-    SkDEBUGCODE(fBaseInstance = -1);
     // If the path is clipped, CCPR will only draw the visible portion. This helps improve batching,
     // since it eliminates the need for scissor when drawing to the main canvas.
     // FIXME: We should parse the path right here. It will provide a tighter bounding box for us to
@@ -314,15 +313,8 @@ void GrCCDrawPathsOp::setupResources(
         GrCCPathCache* pathCache, GrOnFlushResourceProvider* onFlushRP,
         GrCCPerFlushResources* resources, DoCopiesToA8Coverage doCopies) {
     SkASSERT(fNumDraws > 0);
-    SkASSERT(-1 == fBaseInstance);
-    fBaseInstance = resources->nextPathInstanceIdx();
-
     for (SingleDraw& draw : fDraws) {
         draw.setupResources(pathCache, onFlushRP, resources, doCopies, this);
-    }
-
-    if (!fInstanceRanges.empty()) {
-        fInstanceRanges.back().fEndInstanceIdx = resources->nextPathInstanceIdx();
     }
 }
 
@@ -358,8 +350,8 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
                     ? SkPMColor4f{0,0,.25,.25} : SkPMColor4f{0,.25,0,.25};
 #endif
             op->recordInstance(fCacheEntry->cachedAtlas()->getOnFlushProxy(),
-                               resources->nextPathInstanceIdx());
-            resources->appendDrawPathInstance().set(
+                               resources->nextCachedPathInstanceIdx());
+            resources->appendCachedPathInstance().set(
                     *fCacheEntry, fCachedMaskShift, SkPMColor4f_toFP16(fColor), doEvenOddFill);
             return;
         }
@@ -375,8 +367,8 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     if (auto atlas = resources->renderShapeInAtlas(
                 fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
                 &devToAtlasOffset)) {
-        op->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
-        resources->appendDrawPathInstance().set(
+        op->recordInstance(atlas->textureProxy(), resources->nextRenderedPathInstanceIdx());
+        resources->appendRenderedPathInstance().set(
                 octoBounds, devToAtlasOffset, SkPMColor4f_toFP16(fColor), doEvenOddFill);
 
         if (fDoCachePathMask) {
@@ -390,15 +382,14 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
 }
 
 inline void GrCCDrawPathsOp::recordInstance(GrTextureProxy* atlasProxy, int instanceIdx) {
-    if (fInstanceRanges.empty()) {
-        fInstanceRanges.push_back({atlasProxy, instanceIdx});
-        return;
+    if (fInstanceRanges.empty() || fInstanceRanges.back().fAtlasProxy != atlasProxy) {
+        // Start a new instance range if one did not exist of if we are switching atlases.
+        fInstanceRanges.emplace_back(atlasProxy, instanceIdx);
     }
-    if (fInstanceRanges.back().fAtlasProxy != atlasProxy) {
-        fInstanceRanges.back().fEndInstanceIdx = instanceIdx;
-        fInstanceRanges.push_back({atlasProxy, instanceIdx});
-        return;
-    }
+    // The only time we should expect instanceIdx to not be adjacent to the previous instance is
+    // when using a different atlas, and that condition is handled above.
+    SkASSERT(fInstanceRanges.back().fEndInstance == instanceIdx);
+    fInstanceRanges.back().fEndInstance = instanceIdx + 1;
 }
 
 void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -417,11 +408,8 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
     GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
 
-    int baseInstance = fBaseInstance;
-    SkASSERT(baseInstance >= 0);  // Make sure setupResources() has been called.
-
     for (const InstanceRange& range : fInstanceRanges) {
-        SkASSERT(range.fEndInstanceIdx > baseInstance);
+        SkASSERT(range.fEndInstance > range.fBaseInstance);
 
         const GrTextureProxy* atlas = range.fAtlasProxy;
         SkASSERT(atlas->isInstantiated());
@@ -431,9 +419,7 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
                 fViewMatrixIfUsingLocalCoords);
         GrTextureProxy* atlasProxy = range.fAtlasProxy;
         fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;
-        pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,
-                           range.fEndInstanceIdx, this->bounds());
-
-        baseInstance = range.fEndInstanceIdx;
+        pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources,
+                           range.fBaseInstance, range.fEndInstance, this->bounds());
     }
 }
