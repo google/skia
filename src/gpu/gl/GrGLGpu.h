@@ -208,9 +208,9 @@ private:
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                              int sampleCnt) override;
 
-    // Given a GrPixelConfig return the index into the stencil format array on GrGLCaps to a
+    // Given a GL format return the index into the stencil format array on GrGLCaps to a
     // compatible stencil format, or negative if there is no compatible stencil format.
-    int getCompatibleStencilIndex(GrPixelConfig config);
+    int getCompatibleStencilIndex(GrGLSizedInternalFormat format);
 
     void onFBOChanged();
 
