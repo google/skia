@@ -111,15 +111,6 @@ public:
     // This should really only be used internally, base classes should return their own headers
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
-protected:
-    template<typename T, size_t OFFSET> T* atOffset() {
-        return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
-    }
-
-    template<typename T, size_t OFFSET> const T* atOffset() const {
-        return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
-    }
-
     // The key, stored in fKey, is composed of two parts:
     // 1. Header struct defined above.
     // 2. A Backend specific payload which includes the per-processor keys.
@@ -141,6 +132,15 @@ protected:
 
     SkSTArray<kPreAllocSize, uint8_t, true>& key() { return fKey; }
     const SkSTArray<kPreAllocSize, uint8_t, true>& key() const { return fKey; }
+
+protected:
+    template<typename T, size_t OFFSET> T* atOffset() {
+        return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
+    }
+
+    template<typename T, size_t OFFSET> const T* atOffset() const {
+        return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
+    }
 
 private:
     SkSTArray<kPreAllocSize, uint8_t, true> fKey;
