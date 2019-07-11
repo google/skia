@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "0af1cb4f_1db979a7",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-11T12:34:53Z",
+      "side": 1,
+      "message": "The luminance_to_alpha stage is a little misnamed... it actually does a luma -\u003e alpha conversion, so it\u0027s \"correct\" to call it after to_srgb encodes the values.  It\u0027s one of those things that\u0027s kind of correct by web spec fiat, but at the same time is kind of totally bogus when you start thinking about SkColorSpaces (don\u0027t) affect it.\n\nPeople like to work with luma (dot product of encoded values) mostly as a cheap approximation to working with luminance (dot product of linear values).\n\nIf we wanted to try out luminance, that\u0027d be the Y row or column (I can never remember) of the SkColorSpace toXYZ matrix dotted with [r,g,b], then encoded with any transfer function if we want one.  Don\u0027t think we have any code for that today.  As you might expect, luma and luminance and gamma-encoded luminance could all end up with different values.",
+      "parentUuid": "047718d4_a94e78e5",
+      "revId": "b233ef470f8eee0fb3873e49bfdaea316dee80bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee8a2181_0e9d0b90",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 3
