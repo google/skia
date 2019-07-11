@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d10397d2_11488ed5",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-11T21:49:03Z",
+      "side": 1,
+      "message": "Maybe add ArmDisp19 and X86Disp32. Which type belongs to which machine gets lost.",
+      "range": {
+        "startLine": 88,
+        "startChar": 25,
+        "endLine": 88,
+        "endChar": 39
+      },
+      "revId": "cf684bd0de4ca1e368ded1a2a28fb175c7878ab5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
