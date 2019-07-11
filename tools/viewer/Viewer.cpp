@@ -1952,7 +1952,7 @@ void Viewer::drawImGui() {
             }
 
             if (ImGui::CollapsingHeader("Animation")) {
-                bool isPaused = fAnimTimer.isPaused();
+                bool isPaused = AnimationState::kPaused == fAnimTimer.state();
                 if (ImGui::Checkbox("Pause", &isPaused)) {
                     fAnimTimer.togglePauseResume();
                 }
@@ -2154,7 +2154,8 @@ void Viewer::onIdle() {
 
     fStatsLayer.beginTiming(fAnimateTimer);
     fAnimTimer.updateTime();
-    bool animateWantsInval = fSlides[fCurrentSlide]->animate(fAnimTimer);
+    bool animateWantsInval =
+        fSlides[fCurrentSlide]->animate(fAnimTimer.state(), fAnimTimer.nanos());
     fStatsLayer.endTiming(fAnimateTimer);
 
     ImGuiIO& io = ImGui::GetIO();

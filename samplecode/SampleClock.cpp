@@ -210,7 +210,7 @@ protected:
         canvas->restore();
     }
 
-    bool onAnimate(const AnimTimer&) override { return true; }
+    bool onAnimate(AnimationState, double /*nanos*/) override { return true; }
 
 private:
 

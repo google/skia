@@ -17,7 +17,7 @@
 #include "src/core/SkBlurMask.h"
 #include "src/utils/SkUTF.h"
 #include "tools/ToolUtils.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -335,11 +335,11 @@ protected:
                                lightPos, kLightWidth, .5f);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fAnimTranslate = timer.pingPong(30, 0, 125, -125);
-        fAnimAngle = timer.pingPong(15, 0, 0, 20);
+    bool onAnimate(AnimationState animationState, double nanos) override {
+        fAnimTranslate = TimeUtils::PingPong(nanos, 30, 0, 125, -125);
+        fAnimAngle = TimeUtils::PingPong(nanos, 15, 0, 0, 20);
         if (fDoAlphaAnimation) {
-            fAnimAlpha = timer.pingPong(5, 0, 1, 0);
+            fAnimAlpha = TimeUtils::PingPong(nanos, 5, 0, 1, 0);
         }
         return true;
     }

@@ -55,7 +55,7 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(AnimationState animationState, double nanos) override {
         return true;
     }
 

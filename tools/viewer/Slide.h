@@ -12,9 +12,9 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "tools/sk_app/Window.h"
+#include "tools/timer/AnimationState.h"
 
 class SkCanvas;
-class AnimTimer;
 class SkMetaData;
 
 class Slide : public SkRefCnt {
@@ -24,7 +24,7 @@ public:
     virtual SkISize getDimensions() const = 0;
 
     virtual void draw(SkCanvas* canvas) = 0;
-    virtual bool animate(const AnimTimer&) { return false; }
+    virtual bool animate(AnimationState, double nanos) { return false; }
     virtual void load(SkScalar winWidth, SkScalar winHeight) {}
     virtual void resize(SkScalar winWidth, SkScalar winHeight) {}
     virtual void unload() {}

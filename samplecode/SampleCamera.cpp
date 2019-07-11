@@ -17,7 +17,7 @@
 #include "samplecode/Sample.h"
 #include "src/effects/SkEmbossMaskFilter.h"
 #include "src/utils/SkUTF.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 class CameraView : public Sample {
     SkTArray<sk_sp<SkShader>> fShaders;
@@ -74,11 +74,11 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        if (timer.isStopped()) {
+    bool onAnimate(AnimationState animationState, double nanos) override {
+        if (animationState == AnimationState::kStopped) {
             fRY = 0;
         } else {
-            fRY = timer.scaled(90, 360);
+            fRY = TimeUtils::Scaled(1e-9 * nanos, 90, 360);
         }
         return true;
     }
