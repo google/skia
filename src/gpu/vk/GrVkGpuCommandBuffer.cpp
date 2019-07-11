@@ -378,38 +378,6 @@ bool GrVkGpuRTCommandBuffer::wrapsSecondaryCommandBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpuRTCommandBuffer::discard() {
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
-
-    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
-    if (cbInfo.fIsEmpty) {
-        // Change the render pass to do a don't-care load for both color & stencil
-        GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                                                VK_ATTACHMENT_STORE_OP_STORE);
-        GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                                                  VK_ATTACHMENT_STORE_OP_STORE);
-
-        const GrVkRenderPass* oldRP = cbInfo.fRenderPass;
-
-        const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle();
-        if (rpHandle.isValid()) {
-            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
-                                                                         vkColorOps,
-                                                                         vkStencilOps);
-        } else {
-            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
-                                                                         vkColorOps,
-                                                                         vkStencilOps);
-        }
-
-        SkASSERT(cbInfo.fRenderPass->isCompatible(*oldRP));
-        oldRP->unref(fGpu);
-        cbInfo.fBounds.join(fRenderTarget->getBoundsRect());
-        cbInfo.fLoadStoreState = LoadStoreState::kStartsWithDiscard;
-    }
-}
-
 void GrVkGpuRTCommandBuffer::insertEventMarker(const char* msg) {
     // TODO: does Vulkan have a correlate?
 }

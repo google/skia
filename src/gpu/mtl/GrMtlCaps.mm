@@ -38,7 +38,6 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     fFenceSyncSupport = false;           // Fences are not implemented yet
     fSemaphoreSupport = false;           // Semaphores are not implemented yet
     fMultisampleDisableSupport = true;   // MSAA and resolving not implemented yet
-    fDiscardRenderTargetSupport = false; // GrMtlGpuCommandBuffer::discard() not implemented
     fCrossContextTextureSupport = false; // GrMtlGpu::prepareTextureForCrossContextUsage() not impl
 }
 
@@ -214,7 +213,6 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fSRGBWriteControl = false;
     fMipMapSupport = true;   // always available in Metal
     fNPOTTextureTileSupport = true;  // always available in Metal
-    fDiscardRenderTargetSupport = true;
 
     fReuseScratchTextures = true; // Assuming this okay
 
