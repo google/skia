@@ -100,8 +100,8 @@ protected:
 
         // Write hours
         canvas->save();
-        canvas->rotate(time.fHour*(180.f/6.f) + time.fMinute*(180.f/360.f)
-                       + time.fSecond*(180.f/21600.f) );
+        canvas->rotate((float)(time.fHour * (180.0 / 6.0) + time.fMinute * (180.0 / 360.0)
+                               + time.fSecond * (180.0 / 21600.0)));
 #ifdef USE_PATH
         paintStroke.setStrokeWidth(14);
         path.reset();
@@ -121,8 +121,8 @@ protected:
 
         // Write minutes
         canvas->save();
-        canvas->rotate(time.fMinute*(180.f/30.f)
-                       + time.fSecond*(180.f/1800.f) );
+        canvas->rotate((float)(time.fMinute *  (180.f/30.f)
+                                 + (180.0 / 1800) * (time.fSecond + time.fFraction)));
 #ifdef USE_PATH
         paintStroke.setStrokeWidth(10);
         path.reset();
@@ -142,7 +142,7 @@ protected:
 
         // Write seconds
         canvas->save();
-        canvas->rotate(time.fSecond*(180.f/30.f));
+        canvas->rotate((float)((time.fSecond + time.fFraction) * (180.f / 30.f)));
         paintFill.setColor(0xffd40000);
         paintStroke.setColor(0xffd40000);
         paintStroke.setStrokeWidth(6);

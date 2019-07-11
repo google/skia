@@ -30,6 +30,7 @@ public:
         uint8_t  fHour;          //!< 0..23
         uint8_t  fMinute;        //!< 0..59
         uint8_t  fSecond;        //!< 0..59
+        double   fFraction = 0;      //!< >=0, <1
 
         void toISO8601(SkString* dst) const;
     };

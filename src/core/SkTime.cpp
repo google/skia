@@ -43,6 +43,7 @@ void SkTime::GetDateTime(DateTime* dt) {
         dt->fHour       = SkToU8(st.wHour);
         dt->fMinute     = SkToU8(st.wMinute);
         dt->fSecond     = SkToU8(st.wSecond);
+        dr->fFraction   = 0;
     }
 }
 
@@ -51,8 +52,13 @@ void SkTime::GetDateTime(DateTime* dt) {
 #include <time.h>
 void SkTime::GetDateTime(DateTime* dt) {
     if (dt) {
-        time_t m_time;
-        time(&m_time);
+        auto now = std::chrono::system_clock::now();
+        time_t m_time = std::chrono::system_clock::to_time_t(now);
+        std::chrono::nanoseconds nanos(now.time_since_epoch());
+        double nano =
+            (double)nanos.count() * std::chrono::nanoseconds::period::num / std::chrono::nanoseconds::period::den;
+        double tmp;
+        nano = ::modf(nano, &tmp);
         struct tm tstruct;
         gmtime_r(&m_time, &tstruct);
         dt->fTimeZoneMinutes = 0;
@@ -63,6 +69,7 @@ void SkTime::GetDateTime(DateTime* dt) {
         dt->fHour       = SkToU8(tstruct.tm_hour);
         dt->fMinute     = SkToU8(tstruct.tm_min);
         dt->fSecond     = SkToU8(tstruct.tm_sec);
+        dt->fFraction   = nano;
     }
 }
 #endif // SK_BUILD_FOR_WIN
