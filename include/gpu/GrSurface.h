@@ -75,9 +75,9 @@ public:
     inline GrSurfacePriv surfacePriv();
     inline const GrSurfacePriv surfacePriv() const;
 
-    static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
+    static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool binSize = false);
     static size_t ComputeSize(GrPixelConfig config, int width, int height, int colorSamplesPerPixel,
-                              GrMipMapped, bool useNextPow2 = false);
+                              GrMipMapped, bool binSize = false);
 
     /**
      * The pixel values of this surface cannot be modified (e.g. doesn't support write pixels or
