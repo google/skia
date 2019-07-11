@@ -215,10 +215,7 @@ GrBackendTexture GrMockGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid;
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(*format.getMockColorType(),
-                                                    *format.getMockSRGBEncoded());
-
-    if (!this->caps()->isConfigTexturable(config)) {
+    if (!this->caps()->isFormatTexturable(*format.getMockColorType(), format)) {
         return GrBackendTexture();  // invalid
     }
 
