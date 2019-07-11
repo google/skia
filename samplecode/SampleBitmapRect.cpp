@@ -19,7 +19,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
-#include "tools/timer/AnimTimer.h"
 
 #include "include/core/SkStream.h"
 #include "src/core/SkOSFile.h"
@@ -127,10 +126,10 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        if (timer.isStopped()) {
+    bool onAnimate(AnimationState animationState, double nanos) override {
+        if (animationState == AnimationState::kStopped) {
             this->resetBounce();
-        } else if (timer.isRunning()) {
+        } else if (animationState == AnimationState::kRunning) {
             this->bounce();
         }
         return true;
@@ -217,10 +216,10 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        if (timer.isStopped()) {
+    bool onAnimate(AnimationState animationState, double nanos) override {
+        if (animationState == AnimationState::kStopped) {
             this->resetBounce();
-        } else if (timer.isRunning()) {
+        } else if (animationState == AnimationState::kRunning) {
             this->bounceMe();
         }
         return true;

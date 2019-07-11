@@ -98,7 +98,7 @@ protected:
 
     SkString name() override { return fLabel; }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(AnimationState animationState, double nanos) override {
         if (!fDom) {
             return false;
         }
