@@ -19,7 +19,7 @@
 #endif
 
 bool SkLumaColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
-    rec.fPipeline->append(SkRasterPipeline::luminance_to_alpha);
+    rec.fPipeline->append(SkRasterPipeline::bt709_luminance_or_luma_to_alpha);
     rec.fPipeline->append(SkRasterPipeline::clamp_0);
     rec.fPipeline->append(SkRasterPipeline::clamp_1);
     return true;
