@@ -27,6 +27,8 @@ SkISize SampleSlide::getDimensions() const  {
     return SkISize::Make(SkScalarCeilToInt(fSample->width()), SkScalarCeilToInt(fSample->height()));
 }
 
+bool SampleSlide::animate(double nanos) { return fSample->animate(nanos); }
+
 void SampleSlide::draw(SkCanvas* canvas) {
     SkASSERT(fSample);
     fSample->draw(canvas);

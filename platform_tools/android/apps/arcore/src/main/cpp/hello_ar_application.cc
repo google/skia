@@ -39,7 +39,6 @@
 #include "platform_tools/android/apps/arcore/src/main/cpp/plane_renderer.h"
 #include "platform_tools/android/apps/arcore/src/main/cpp/util.h"
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
 
 namespace hello_ar {
     namespace {

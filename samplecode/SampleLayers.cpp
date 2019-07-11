@@ -179,7 +179,6 @@ DEF_SAMPLE( return new LayersView; )
 #include "include/effects/SkMorphologyImageFilter.h"
 
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
 
 class BackdropView : public Sample {
     SkPoint fCenter;
@@ -219,8 +218,8 @@ protected:
         canvas->restore();
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fAngle = SkDoubleToScalar(fmod(timer.secs() * 360 / 5, 360));
+    bool onAnimate(double nanos) override {
+        fAngle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 5, 360));
         return true;
     }
 

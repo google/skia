@@ -18,7 +18,7 @@
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/CommandSet.h"
 #include "tools/sk_app/Window.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/viewer/AnimTimer.h"
 #include "tools/viewer/ImGuiLayer.h"
 #include "tools/viewer/Slide.h"
 #include "tools/viewer/StatsLayer.h"

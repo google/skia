@@ -22,7 +22,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 #include <memory>
 #include <utility>
@@ -140,12 +140,12 @@ private:
         return DrawResult::kOk;
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         if (!fCodec || fTotalFrames == 1) {
             return false;
         }
 
-        double secs = timer.msec() * .1;
+        double secs = TimeUtils::NanosToMSec(nanos) * .1;
         if (fNextUpdate < double(0)) {
             // This is a sentinel that we have not done any updates yet.
             // I'm assuming this gets called *after* onOnceBeforeDraw, so our first frame should
@@ -219,12 +219,12 @@ private:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         if (fBaseMSec == 0) {
-            fBaseMSec = timer.msec();
+            fBaseMSec = TimeUtils::NanosToMSec(nanos);
         }
         for (auto& p : fPlayers) {
-            (void)p->seek(timer.msec() - fBaseMSec);
+            (void)p->seek(TimeUtils::NanosToMSec(nanos) - fBaseMSec);
         }
         return true;
     }

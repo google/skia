@@ -14,7 +14,6 @@
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkLightingShader.h"
 #include "src/shaders/SkLights.h"
-#include "tools/timer/AnimTimer.h"
 
 #include "tools/ToolUtils.h"
 
@@ -476,7 +475,7 @@ protected:
         canvas->drawDrawable(fDrawable.get());
     }
 
-    bool onAnimate(const AnimTimer& timer) override { return true; }
+    bool onAnimate(double nanos) override { return true; }
 
 private:
     sk_sp<DrawLitAtlasDrawable> fDrawable;

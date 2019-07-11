@@ -27,7 +27,7 @@ void GMSlide::draw(SkCanvas* canvas) {
     fGM->drawContent(canvas);
 }
 
-bool GMSlide::animate(const AnimTimer& timer) { return fGM->animate(timer); }
+bool GMSlide::animate(double nanos) { return fGM->animate(nanos); }
 
 bool GMSlide::onChar(SkUnichar c) { return fGM->onChar(c); }
 

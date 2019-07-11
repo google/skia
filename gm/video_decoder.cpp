@@ -55,7 +55,7 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         return true;
     }
 

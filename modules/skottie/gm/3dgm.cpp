@@ -25,7 +25,6 @@
 #include "include/utils/Sk3D.h"
 #include "modules/skottie/include/Skottie.h"
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
 
 #include <math.h>
 #include <algorithm>
@@ -196,12 +195,12 @@ protected:
 
     SkString onShortName() override { return SkString("3dgm"); }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         if (!fAnim) {
             return false;
         }
         SkScalar dur = fAnim->duration();
-        fAnimT = fmod(timer.secs(), dur) / dur;
+        fAnimT = fmod(1e-9 * nanos, dur) / dur;
         return true;
     }
     bool onChar(SkUnichar uni) override {

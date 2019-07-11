@@ -11,7 +11,6 @@
 #include "include/core/SkSurface.h"
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
 #include "tools/timer/Timer.h"
 
 #include <stdio.h>
@@ -150,8 +149,8 @@ protected:
 
 #if 0
     // TODO: switch over to use this for our animation
-    bool onAnimate(const AnimTimer& timer) override {
-        SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
+    bool onAnimate(double nanos) override {
+        SkScalar angle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 24, 360));
         fAnimatingDrawable->setSweep(angle);
         return true;
     }

@@ -20,7 +20,7 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/utils/SkRandom.h"
 #include "tools/ToolUtils.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 class AddArcGM : public skiagm::GM {
 public:
@@ -62,8 +62,8 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fRotate = timer.scaled(1, 360);
+    bool onAnimate(double nanos) override {
+        fRotate = TimeUtils::Scaled(1e-9 * nanos, 1, 360);
         return true;
     }
 
@@ -148,8 +148,8 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fRotate = timer.scaled(60, 360);
+    bool onAnimate(double nanos) override {
+        fRotate = TimeUtils::Scaled(1e-9 * nanos, 60, 360);
         return true;
     }
 
@@ -201,8 +201,8 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fRotate = timer.scaled(60, 360);
+    bool onAnimate(double nanos) override {
+        fRotate = TimeUtils::Scaled(1e-9 * nanos, 60, 360);
         return true;
     }
 

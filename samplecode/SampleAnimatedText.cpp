@@ -123,7 +123,7 @@ protected:
         canvas->drawString(modeString, 768.f, 540.f, font, paint);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         // We add noise to the scale and rotation animations to
         // keep the font atlas from falling into a steady state
         fRotation += (1.0f + gRand.nextRangeF(-0.1f, 0.1f));

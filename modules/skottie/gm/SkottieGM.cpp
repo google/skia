@@ -13,7 +13,6 @@
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/core/SkMakeUnique.h"
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
 
 #include <cmath>
 #include <vector>
@@ -72,13 +71,13 @@ protected:
         return DrawResult::kOk;
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         if (!fAnimation) {
             return false;
         }
 
         const auto duration = fAnimation->duration();
-        fAnimation->seek(std::fmod(timer.secs(), duration) / duration);
+        fAnimation->seek(std::fmod(1e-9 * nanos, duration) / duration);
         return true;
     }
 
@@ -125,13 +124,13 @@ protected:
         return DrawResult::kOk;
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         if (!fAnimation) {
             return false;
         }
 
         const auto duration = fAnimation->duration();
-        fAnimation->seek(std::fmod(timer.secs(), duration) / duration);
+        fAnimation->seek(std::fmod(1e-9 * nanos, duration) / duration);
         return true;
     }
 
@@ -198,13 +197,13 @@ protected:
         return DrawResult::kOk;
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         if (!fAnimation) {
             return false;
         }
 
         const auto duration = fAnimation->duration();
-        fAnimation->seek(std::fmod(timer.secs(), duration) / duration);
+        fAnimation->seek(std::fmod(1e-9 * nanos, duration) / duration);
         return true;
     }
 

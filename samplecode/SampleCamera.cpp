@@ -13,7 +13,7 @@
 #include "samplecode/Sample.h"
 #include "src/effects/SkEmbossMaskFilter.h"
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 namespace {
 class CameraView : public Sample {
@@ -67,12 +67,8 @@ class CameraView : public Sample {
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        if (timer.isStopped()) {
-            fRY = 0;
-        } else {
-            fRY = timer.scaled(90, 360);
-        }
+    bool onAnimate(double nanos) override {
+        fRY = nanos ? TimeUtils::Scaled(1e-9 * nanos, 90, 360) : 0;
         return true;
     }
 };

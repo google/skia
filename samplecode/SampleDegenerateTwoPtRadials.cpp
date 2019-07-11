@@ -10,7 +10,6 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkGradientShader.h"
 #include "samplecode/Sample.h"
-#include "tools/timer/AnimTimer.h"
 
 static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorMAGENTA };
@@ -67,8 +66,8 @@ protected:
                            SkFont(), SkPaint());
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fTime = SkDoubleToScalar(timer.secs() / 15);
+    bool onAnimate(double nanos) override {
+        fTime = SkDoubleToScalar(1e-9 * nanos / 15);
         return true;
     }
 

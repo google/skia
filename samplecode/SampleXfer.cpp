@@ -15,7 +15,6 @@
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
 #include "samplecode/Sample.h"
-#include "tools/timer/AnimTimer.h"
 
 const SkBlendMode gModes[] = {
     SkBlendMode::kSrcOver,

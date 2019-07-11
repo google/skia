@@ -19,7 +19,7 @@ public:
     SkISize getDimensions() const override { return fGM->getISize(); }
 
     void draw(SkCanvas* canvas) override;
-    bool animate(const AnimTimer&) override;
+    bool animate(double nanos) override;
 
     bool onChar(SkUnichar c) override;
 

@@ -19,7 +19,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 int dash1[] = { 1, 1 };
 int dash2[] = { 1, 3 };
@@ -105,10 +105,10 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         constexpr SkScalar kDesiredDurationSecs = 100.0f;
 
-        fRotation = timer.scaled(360.0f/kDesiredDurationSecs, 360.0f);
+        fRotation = TimeUtils::Scaled(1e-9 * nanos, 360.0f/kDesiredDurationSecs, 360.0f);
         return true;
     }
 
@@ -226,8 +226,8 @@ protected:
     }
 
 protected:
-    bool onAnimate(const AnimTimer& timer) override {
-        fPhaseDegrees = timer.secs();
+    bool onAnimate(double nanos) override {
+        fPhaseDegrees = 1e-9 * nanos;
         return true;
     }
 

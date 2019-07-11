@@ -15,7 +15,6 @@
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
 #include "tools/viewer/ImGuiLayer.h"
 
 #include "imgui.h"
@@ -282,9 +281,9 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
         SkGuiVisitor gui;
         for (int i = 0; i < fLoaded.count(); ++i) {
             ImGui::PushID(i);
-            if (fTimer && ImGui::Button("Play")) {
+            if (fAnimated && ImGui::Button("Play")) {
                 sk_sp<SkParticleEffect> effect(new SkParticleEffect(fLoaded[i].fParams, fRandom));
-                effect->start(fTimer->secs(), looped);
+                effect->start(fAnimationTime, looped);
                 fRunning.push_back({ fPlayPosition, fLoaded[i].fName, effect });
             }
             ImGui::SameLine();
@@ -339,10 +338,11 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
     }
 }
 
-bool ParticlesSlide::animate(const AnimTimer& timer) {
-    fTimer = &timer;
+bool ParticlesSlide::animate(double nanos) {
+    fAnimated = true;
+    fAnimationTime = 1e-9 * nanos;
     for (const auto& effect : fRunning) {
-        effect.fEffect->update(timer.secs());
+        effect.fEffect->update(fAnimationTime);
     }
     return true;
 }

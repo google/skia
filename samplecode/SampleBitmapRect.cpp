@@ -19,13 +19,12 @@
 #include "include/effects/SkGradientShader.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
-#include "tools/timer/AnimTimer.h"
 
 #include "include/core/SkStream.h"
 #include "src/core/SkOSFile.h"
 
-#define INT_SIZE        64
-#define SCALAR_SIZE     SkIntToScalar(INT_SIZE)
+static constexpr int INT_SIZE = 64;
+static constexpr float SCALAR_SIZE = (float)INT_SIZE;
 
 static void make_bitmap(SkBitmap* bitmap) {
     bitmap->allocN32Pixels(INT_SIZE, INT_SIZE);
@@ -38,11 +37,6 @@ static void make_bitmap(SkBitmap* bitmap) {
     const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
     canvas.drawCircle(SCALAR_SIZE/2, SCALAR_SIZE/2, SCALAR_SIZE/2, paint);
-}
-
-static SkPoint unit_vec(int degrees) {
-    SkScalar rad = SkDegreesToRadians(SkIntToScalar(degrees));
-    return SkPoint::Make(SkScalarCos(rad), SkScalarSin(rad));
 }
 
 static void bounce(SkScalar* value, SkScalar* delta, SkScalar min, SkScalar max) {
@@ -62,77 +56,43 @@ static void bounce_pt(SkPoint* pt, SkVector* vec, const SkRect& limit) {
 }
 
 class BitmapRectView : public Sample {
-    SkPoint fSrcPts[2];
-    SkPoint fSrcVec[2];
-    SkRect  fSrcLimit;
-    SkRect  fDstR[2];
+    SkPoint fSrcPt = {0, 0};
+    SkPoint fSrcVec = {0.866025f, 0.5f};
 
-    void bounce() {
-        bounce_pt(&fSrcPts[0], &fSrcVec[0], fSrcLimit);
-        bounce_pt(&fSrcPts[1], &fSrcVec[1], fSrcLimit);
-    }
+    SkRect  fSrcLimit = {-SCALAR_SIZE/4,  -SCALAR_SIZE/4,
+                          SCALAR_SIZE*5/4, SCALAR_SIZE*5/4};
+    SkRect  fDstR[2] = {{10, 100, 260, 400}, {322.5, 100, 572.5, 400}};
+    SkBitmap fBitmap;
 
-    void resetBounce() {
-        fSrcPts[0].set(0, 0);
-        fSrcPts[1].set(SCALAR_SIZE, SCALAR_SIZE);
-
-        fSrcVec[0] = unit_vec(30);
-        fSrcVec[1] = unit_vec(107);
-    }
-
-public:
-    BitmapRectView() {
-        this->setBGColor(SK_ColorGRAY);
-
-        this->resetBounce();
-
-        fSrcLimit.set(-SCALAR_SIZE/4, -SCALAR_SIZE/4,
-                      SCALAR_SIZE*5/4, SCALAR_SIZE*5/4);
-
-        fDstR[0] = SkRect::MakeXYWH(SkIntToScalar(10), SkIntToScalar(100),
-                                       SkIntToScalar(250), SkIntToScalar(300));
-        fDstR[1] = fDstR[0];
-        fDstR[1].offset(fDstR[0].width() * 5/4, 0);
-
-        fSrcPts[0].set(32, 32);
-        fSrcPts[1].set(90, 90);
-    }
-
-protected:
     SkString name() override { return SkString("BitmapRect"); }
 
+    void onOnceBeforeDraw() override {
+        this->setBGColor(SK_ColorGRAY);
+        make_bitmap(&fBitmap);
+    }
+
     void onDrawContent(SkCanvas* canvas) override {
-        SkRect srcR;
-        srcR.set(fSrcPts[0], fSrcPts[1]);
-        srcR = SkRect::MakeXYWH(fSrcPts[0].fX, fSrcPts[0].fY, 32, 32);
-        srcR.offset(-srcR.width()/2, -srcR.height()/2);
+        SkRect srcR = {fSrcPt.fX - 16, fSrcPt.fY - 16,
+                       fSrcPt.fX + 16, fSrcPt.fY + 16};
 
-        SkPaint paint;
+        SkPaint paint(SkColors::kYellow);
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorYELLOW);
-
-        SkBitmap bitmap;
-        make_bitmap(&bitmap);
 
         canvas->translate(20, 20);
 
-        canvas->drawBitmap(bitmap, 0, 0, &paint);
+        canvas->drawBitmap(fBitmap, 0, 0, &paint);
         canvas->drawRect(srcR, paint);
 
         for (int i = 0; i < 2; ++i) {
             paint.setFilterQuality(1 == i ? kLow_SkFilterQuality : kNone_SkFilterQuality);
-            canvas->drawBitmapRect(bitmap, srcR, fDstR[i], &paint,
+            canvas->drawBitmapRect(fBitmap, srcR, fDstR[i], &paint,
                                    SkCanvas::kStrict_SrcRectConstraint);
             canvas->drawRect(fDstR[i], paint);
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        if (timer.isStopped()) {
-            this->resetBounce();
-        } else if (timer.isRunning()) {
-            this->bounce();
-        }
+    bool onAnimate(double nanos) override {
+        bounce_pt(&fSrcPt, &fSrcVec, fSrcLimit);
         return true;
     }
 
@@ -142,6 +102,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
+static constexpr int BIG_H = 120;
+
 static void make_big_bitmap(SkBitmap* bm) {
     static const char gText[] =
         "We the people, in order to form a more perfect union, establish justice,"
@@ -149,8 +111,6 @@ static void make_big_bitmap(SkBitmap* bm) {
         " general welfare and ensure the blessings of liberty to ourselves and our"
         " posterity, do ordain and establish this constitution for the United"
         " States of America.";
-
-    const int BIG_H = 120;
 
     SkFont font;
     font.setSize(SkIntToScalar(BIG_H));
@@ -167,41 +127,17 @@ static void make_big_bitmap(SkBitmap* bm) {
 
 class BitmapRectView2 : public Sample {
     SkBitmap fBitmap;
+    SkRect   fSrcR = {0, 0, 3 * BIG_H, BIG_H};
+    SkRect   fLimitR;
+    SkScalar fDX = 1;
+    SkRect   fDstR[2] = {{20, 20, 620, 220}, {20, 270, 620, 470}};
 
-    SkRect  fSrcR;
-    SkRect  fLimitR;
-    SkScalar fDX;
-    SkRect  fDstR[2];
-
-    void bounceMe() {
-        SkScalar width = fSrcR.width();
-        bounce(&fSrcR.fLeft, &fDX, fLimitR.fLeft, fLimitR.fRight - width);
-        fSrcR.fRight = fSrcR.fLeft + width;
-    }
-
-    void resetBounce() {
-        fSrcR.iset(0, 0, fBitmap.height() * 3, fBitmap.height());
-        fDX = SK_Scalar1;
-    }
-
-public:
-    BitmapRectView2() { }
-
-protected:
     SkString name() override { return SkString("BigBitmapRect"); }
 
     void onOnceBeforeDraw() override {
-        make_big_bitmap(&fBitmap);
-
         this->setBGColor(SK_ColorGRAY);
-
-        this->resetBounce();
-
-        fLimitR.iset(0, 0, fBitmap.width(), fBitmap.height());
-
-        fDstR[0] = SkRect::MakeXYWH(20, 20, 600, 200);
-        fDstR[1] = fDstR[0];
-        fDstR[1].offset(0, fDstR[0].height() * 5/4);
+        make_big_bitmap(&fBitmap);
+        fLimitR = SkRect::Make(fBitmap.dimensions());
     }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -217,17 +153,12 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        if (timer.isStopped()) {
-            this->resetBounce();
-        } else if (timer.isRunning()) {
-            this->bounceMe();
-        }
+    bool onAnimate(double nanos) override {
+        SkScalar width = fSrcR.width();
+        bounce(&fSrcR.fLeft, &fDX, fLimitR.fLeft, fLimitR.fRight - width);
+        fSrcR.fRight = fSrcR.fLeft + width;
         return true;
     }
-
-private:
-    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

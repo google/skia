@@ -16,7 +16,7 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 static sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) {
     auto surface = canvas->makeSurface(info);
@@ -278,8 +278,8 @@ protected:
         canvas->drawString(SkStringPrintf("%.8g", trans[1]     ), textX, 250, font, paint);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fCurrTime = timer.msec();
+    bool onAnimate(double nanos) override {
+        fCurrTime = TimeUtils::NanosToMSec(nanos);
         return true;
     }
 

@@ -1650,7 +1650,7 @@ if (skia_enable_tools) {
       "tools/fonts/TestTypeface.h",
       "tools/fonts/ToolUtilsFont.cpp",
       "tools/random_parse_path.cpp",
-      "tools/timer/AnimTimer.h",
+      "tools/timer/TimeUtils.h",
       "tools/timer/Timer.cpp",
     ]
     libs = []
@@ -2423,6 +2423,7 @@ if (skia_enable_tools) {
   test_app("viewer") {
     is_shared_library = is_android
     sources = [
+      "tools/viewer/AnimTimer.h",
       "tools/viewer/BisectSlide.cpp",
       "tools/viewer/GMSlide.cpp",
       "tools/viewer/ImGuiLayer.cpp",

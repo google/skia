@@ -15,7 +15,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
@@ -67,11 +67,11 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         constexpr SkScalar kDesiredDurationSecs = 3.0f;
 
         // Make the animation ping-pong back and forth but start in the fully drawn state
-        SkScalar fraction = 1.0f - timer.scaled(2.0f/kDesiredDurationSecs, 2.0f);
+        SkScalar fraction = 1.0f - TimeUtils::Scaled(1e-9 * nanos, 2.0f/kDesiredDurationSecs, 2.0f);
         if (fraction <= 0.0f) {
             fraction = -fraction;
         }
@@ -147,8 +147,8 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        SkScalar time = (float)(fmod(timer.secs(), fDur) / fDur);
+    bool onAnimate(double nanos) override {
+        SkScalar time = (float)(fmod(1e-9 * nanos, fDur) / fDur);
         for (auto anim : fAnims) {
             anim->seek(time);
         }

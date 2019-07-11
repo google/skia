@@ -11,7 +11,6 @@
 #include "samplecode/Sample.h"
 #include "src/utils/SkPatchUtils.h"
 #include "tools/ModifierKey.h"
-#include "tools/timer/AnimTimer.h"
 
 static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
     //draw control points
@@ -121,7 +120,7 @@ protected:
             return false;
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         fSeed += 0.005f;
         return true;
     }

@@ -14,7 +14,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 class XformGM : public skiagm::GM {
     sk_sp<MatrixXF> fRoot, fRA, fRB, fA, fB;
@@ -91,11 +91,11 @@ protected:
         fShape->draw(ctx.get());
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        float scale = 3 + sinf(timer.scaled(1, 0)) * 2;
+    bool onAnimate(double nanos) override {
+        float scale = 3 + sinf(TimeUtils::Scaled(1e-9 * nanos, 1, 0)) * 2;
         fRoot->setScale(scale, scale);
-        fRA->setRotate(timer.scaled(40, 0));
-        fB->setRotate(timer.scaled(40*sqrtf(2), 0));
+        fRA->setRotate(TimeUtils::Scaled(1e-9 * nanos, 40, 0));
+        fB->setRotate(TimeUtils::Scaled(1e-9 * nanos, 40*sqrtf(2), 0));
         return true;
     }
 

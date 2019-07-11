@@ -14,7 +14,7 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 #include <cmath>
 
@@ -136,14 +136,15 @@ void SkottieSlide::draw(SkCanvas* canvas) {
     }
 }
 
-bool SkottieSlide::animate(const AnimTimer& timer) {
+bool SkottieSlide::animate(double nanos) {
+    SkMSec msec = TimeUtils::NanosToMSec(nanos);
     if (fTimeBase == 0) {
         // Reset the animation time.
-        fTimeBase = timer.msec();
+        fTimeBase = msec;
     }
 
     if (fAnimation) {
-        const auto t = timer.msec() - fTimeBase;
+        const auto t = msec - fTimeBase;
         const auto d = fAnimation->duration() * 1000;
         fAnimation->seek(std::fmod(t, d) / d);
     }
