@@ -37,7 +37,6 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     // doesn't support it.
     fFenceSyncSupport = false;           // Fences are not implemented yet
     fSemaphoreSupport = false;           // Semaphores are not implemented yet
-    fMultisampleDisableSupport = true;   // MSAA and resolving not implemented yet
     fCrossContextTextureSupport = false; // GrMtlGpu::prepareTextureForCrossContextUsage() not impl
 }
 
@@ -134,6 +133,30 @@ bool GrMtlCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount,
             return false;
         }
     }
+    return true;
+}
+
+bool GrMtlCaps::canCopyAsResolve(GrSurface* dst, int dstSampleCount,
+                                 GrSurface* src, int srcSampleCount,
+                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+    if (dst == src) {
+        return false;
+    }
+    if (dst->backendFormat() != src->backendFormat()) {
+        return false;
+    }
+    if (dstSampleCount > 1 || srcSampleCount == 1 || !src->asRenderTarget()) {
+        return false;
+    }
+
+    // TODO: Support copying subrectangles
+    if (dstPoint != SkIPoint::Make(0, 0)) {
+        return false;
+    }
+    if (srcRect != SkIRect::MakeXYWH(0, 0, src->width(), src->height())) {
+        return false;
+    }
+
     return true;
 }
 

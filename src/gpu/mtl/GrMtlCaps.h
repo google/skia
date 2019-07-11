@@ -59,6 +59,9 @@ public:
                        int srcSampleCount, const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool areDstSrcSameObj) const;
 
+    bool canCopyAsResolve(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
+                          const SkIRect& srcRect, const SkIPoint& dstPoint) const;
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
         return false;
@@ -104,9 +107,8 @@ private:
             kMSAA_Flag        = 0x4,
             kResolve_Flag     = 0x8,
         };
-        // TODO: Put kMSAA_Flag back when MSAA is implemented
         static const uint16_t kAllFlags = kTextureable_Flag | kRenderable_Flag |
-                                          /*kMSAA_Flag |*/ kResolve_Flag;
+                                          kMSAA_Flag | kResolve_Flag;
 
         uint16_t fFlags;
     };

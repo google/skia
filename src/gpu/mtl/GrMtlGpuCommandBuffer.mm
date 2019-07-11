@@ -15,6 +15,7 @@
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 #include "src/gpu/mtl/GrMtlRenderTarget.h"
+#include "src/gpu/mtl/GrMtlTexture.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -113,6 +114,13 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     }
 
     auto prepareSampledImage = [&](GrTexture* texture, GrSamplerState::Filter filter) {
+        GrMtlTexture* mtlTexture = static_cast<GrMtlTexture*>(texture);
+        // We may need to resolve the texture first if it is also a render target
+        GrMtlRenderTarget* texRT = static_cast<GrMtlRenderTarget*>(mtlTexture->asRenderTarget());
+        if (texRT) {
+            fGpu->resolveRenderTargetNoFlush(texRT);
+        }
+
         // Check if we need to regenerate any mip maps
         if (GrSamplerState::Filter::kMipMap == filter &&
             (texture->width() != 1 || texture->height() != 1)) {
@@ -238,6 +246,7 @@ void GrMtlGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool i
 }
 
 void GrMtlGpuRTCommandBuffer::initRenderState(id<MTLRenderCommandEncoder> encoder) {
+    [encoder pushDebugGroup:@"initRenderState"];
     [encoder setFrontFacingWinding:MTLWindingCounterClockwise];
     // Strictly speaking we shouldn't have to set this, as the default viewport is the size of
     // the drawable used to generate the renderCommandEncoder -- but just in case.
@@ -246,6 +255,7 @@ void GrMtlGpuRTCommandBuffer::initRenderState(id<MTLRenderCommandEncoder> encode
                              0.0, 1.0 };
     [encoder setViewport:viewport];
     this->resetBufferBindings();
+    [encoder popDebugGroup];
 }
 
 void GrMtlGpuRTCommandBuffer::setupRenderPass(
@@ -273,7 +283,7 @@ void GrMtlGpuRTCommandBuffer::setupRenderPass(
 
     auto renderPassDesc = [MTLRenderPassDescriptor renderPassDescriptor];
     renderPassDesc.colorAttachments[0].texture =
-            static_cast<GrMtlRenderTarget*>(fRenderTarget)->mtlRenderTexture();
+            static_cast<GrMtlRenderTarget*>(fRenderTarget)->mtlColorTexture();
     renderPassDesc.colorAttachments[0].slice = 0;
     renderPassDesc.colorAttachments[0].level = 0;
     const SkPMColor4f& clearColor = colorInfo.fClearColor;
