@@ -15,6 +15,15 @@
 #include "src/pathops/SkPathOpsCubic.h"
 #endif
 
+static float eval_poly(float t, float b) {
+    return b;
+}
+
+template <typename... Rest>
+static float eval_poly(float t, float m, float b, Rest... rest) {
+    return eval_poly(t, sk_fmaf(m,t,b), rest...);
+}
+
 static inline bool nearly_zero(SkScalar x) {
     SkASSERT(x >= 0);
     return x <= 0.0000000001f;
@@ -35,11 +44,11 @@ static float compute_slow(float A, float B, float C, float x) {
 static float max_err;
 #endif
 
-static float compute_t_from_x(float A, float B, float C, float x) {
+static float compute_t_from_x(float A, float B, float C, float x, float guess) {
 #ifdef CUBICMAP_TRACK_MAX_ERROR
     float answer = compute_slow(A, B, C, x);
 #endif
-    float answer2 = SkOpts::cubic_solver(A, B, C, -x);
+    float answer2 = SkOpts::cubic_solver(A, B, C, -x, guess);
 
 #ifdef CUBICMAP_TRACK_MAX_ERROR
     float err = sk_float_abs(answer - answer2);
@@ -64,7 +73,8 @@ float SkCubicMap::computeYFromX(float x) const {
     if (fType == kCubeRoot_Type) {
         t = sk_float_pow(x / fCoeff[0].fX, 1.0f / 3);
     } else {
-        t = compute_t_from_x(fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, x);
+        t = compute_t_from_x(fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, x,
+                             this->guessTFromX(x));
     }
     float a = fCoeff[0].fY;
     float b = fCoeff[1].fY;
@@ -96,6 +106,13 @@ SkCubicMap::SkCubicMap(SkPoint p1, SkPoint p2) {
     } else if (coeff_nearly_zero(fCoeff[1].fX) && coeff_nearly_zero(fCoeff[2].fX)) {
         fType = kCubeRoot_Type;
     }
+
+    const float delta = 1.0f / N;
+    fTableX[0] = 0;
+    for (int i = 1; i < N; ++i) {
+        fTableX[i] = eval_poly(i * delta, fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, 0);
+    }
+    fTableX[N] = 1;
 }
 
 SkPoint SkCubicMap::computeFromT(float t) const {
@@ -106,4 +123,19 @@ SkPoint SkCubicMap::computeFromT(float t) const {
     SkPoint result;
     (((a * t + b) * t + c) * t).store(&result);
     return result;
+}
+
+float SkCubicMap::guessTFromX(float x) const {
+    const float delta = 1.0f / N;
+    float offset = 0;
+    int i = 1;
+    for (; i < N; ++i) {
+        if (x <= fTableX[i]) {
+            break;
+        }
+        offset += delta;
+    }
+    float guess = offset + delta * (x - fTableX[i-1]) / (fTableX[i] - fTableX[i-1]);
+    SkASSERT(guess >= 0 && guess <= 1);
+    return guess;
 }
