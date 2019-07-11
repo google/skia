@@ -83,8 +83,14 @@ namespace skvm {
         using DstEqOpX = void(Ymm dst, Ymm x);
         DstEqOpX vcvtdq2ps, vcvttps2dq;
 
-        struct Label { int offset; };
+        struct Label {
+            int                                 offset = 0;
+            enum { None, ARMDisp19, X86Disp32 } kind = None;
+            std::vector<int>                    references;
+        };
+
         Label here();
+        void label(Label*);
 
         void jne(Label);
 
@@ -144,7 +150,7 @@ namespace skvm {
         //      cmp(t,0)
         //      beq/bne(l)
         // but without setting condition flags.
-        void cbz (X t, Label l);
+        void cbz (X t, Label* l);
         void cbnz(X t, Label l);
 
         void ldrq(V dst, Label);  // 128-bit PC-relative load
@@ -194,7 +200,14 @@ namespace skvm {
         enum class Condition { eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,al };
         void b(Condition, Label);
 
+        int disp19(const Label&);
+        int disp32(const Label&);
+
+        int disp19(Label*);
+        int disp32(Label*);
+
         uint8_t* fCode;
+        uint8_t* fCurr;
         size_t   fSize;
     };
 
