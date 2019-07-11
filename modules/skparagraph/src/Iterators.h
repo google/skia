@@ -24,7 +24,7 @@ public:
     void consume() override {
       SkASSERT(fCurrentChar < fText.end());
       SkString locale;
-      auto found = fFontResolver->findFirst(fCurrentChar, &fFont, &fLineHeight);
+      auto found = fFontResolver->findNext(fCurrentChar, &fFont, &fLineHeight);
       SkASSERT(found);
 
       // Move until we find the first character that cannot be resolved with the current font

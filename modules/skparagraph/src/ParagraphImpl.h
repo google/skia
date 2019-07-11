@@ -70,7 +70,7 @@ public:
     SkSpan<const char> text() const { return fTextSpan; }
     InternalState state() const { return fState; }
     SkSpan<Run> runs() { return SkSpan<Run>(fRuns.data(), fRuns.size()); }
-    SkTHashMap<const char*, FontDescr>& mapping() { return fFontResolver.mapping(); }
+    SkTArray<FontDescr>& switches() { return fFontResolver.switches(); }
     SkSpan<TextBlock> styles() {
         return SkSpan<TextBlock>(fTextStyles.data(), fTextStyles.size());
     }

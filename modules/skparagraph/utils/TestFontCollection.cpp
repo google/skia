@@ -14,7 +14,6 @@ std::set<std::string> TestFontCollection::fDirs;
 TestFontCollection::TestFontCollection(const std::string& resourceDir)
   : fResourceDir(resourceDir)
   , fFontsFound(0) {
-/*
     ParagraphImpl::setChecker([&](ParagraphImpl* impl, const char* method, bool result) {
         if (std::strcmp(method, "findParagraph") == 0) {
             if (result) {
@@ -23,7 +22,7 @@ TestFontCollection::TestFontCollection(const std::string& resourceDir)
                 }
             } else {
                 if (impl != nullptr) {
-                    impl->printKeyValue("not found paragraph:", false);
+                    //impl->printKeyValue("not found paragraph:", false);
                 }
             }
         } else if (std::strcmp(method, "addParagraph") == 0) {
@@ -34,7 +33,6 @@ TestFontCollection::TestFontCollection(const std::string& resourceDir)
             SkASSERT(false);
         }
     });
-*/
     if (!fDirs.count(resourceDir)) {
         if (fFontProvider == nullptr) {
             fFontProvider = sk_make_sp<TypefaceFontProvider>();

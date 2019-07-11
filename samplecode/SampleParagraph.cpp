@@ -124,7 +124,6 @@ protected:
 
             auto paragraph = builder.Build();
             paragraph->layout(w - margin * 2);
-
             paragraph->paint(canvas, margin, margin);
 
             canvas->translate(0, paragraph->getHeight());
@@ -1251,5 +1250,5 @@ DEF_SAMPLE(return new ParagraphView6();)
 DEF_SAMPLE(return new ParagraphView7();)
 DEF_SAMPLE(return new ParagraphView8();)
 DEF_SAMPLE(return new ParagraphView9();)
-//DEF_SAMPLE(return new ParagraphView10();)
-//DEF_SAMPLE(return new ParagraphView11();)
+DEF_SAMPLE(return new ParagraphView10();)
+DEF_SAMPLE(return new ParagraphView11();)

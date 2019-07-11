@@ -163,8 +163,6 @@ void ParagraphImpl::layout(SkScalar width) {
             fState = kClusterized;
             // Add the paragraph to the cache
             fParagraphCache.addParagraph(this);
-        } else {
-            SkDebugf("Found in cache: %d, %d, %d\n", this->fClusters.count(), this->fRuns.count(), this->fText.size());
         }
     }
 
