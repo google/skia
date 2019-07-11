@@ -146,10 +146,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (((GR_IS_GR_GL(standard) && version >= GR_GL_VER(4,3)) ||
          (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3,0)) ||
          ctxInfo.hasExtension("GL_ARB_invalidate_subdata"))) {
-        fDiscardRenderTargetSupport = true;
         fInvalidateFBType = kInvalidate_InvalidateFBType;
     } else if (ctxInfo.hasExtension("GL_EXT_discard_framebuffer")) {
-        fDiscardRenderTargetSupport = true;
         fInvalidateFBType = kDiscard_InvalidateFBType;
     }
 
@@ -3023,7 +3021,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() ||
         fDriverBugWorkarounds.disable_discard_framebuffer) {
-        fDiscardRenderTargetSupport = false;
         fInvalidateFBType = kNone_InvalidateFBType;
     }
 
@@ -3373,7 +3370,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #endif
         (kNVIDIA_GrGLDriver == ctxInfo.driver() ||
          kChromium_GrGLDriver == ctxInfo.driver())) {
-            fDiscardRenderTargetSupport = false;
             fInvalidateFBType = kNone_InvalidateFBType;
     }
 

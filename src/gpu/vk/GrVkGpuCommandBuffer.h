@@ -98,7 +98,6 @@ public:
     void begin() override { }
     void end() override;
 
-    void discard() override;
     void insertEventMarker(const char*) override;
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;

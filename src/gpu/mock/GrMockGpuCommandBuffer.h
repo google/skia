@@ -37,7 +37,6 @@ public:
 
     GrGpu* gpu() override { return fGpu; }
     void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) override {}
-    void discard() override {}
     void insertEventMarker(const char*) override {}
     void begin() override {}
     void end() override {}

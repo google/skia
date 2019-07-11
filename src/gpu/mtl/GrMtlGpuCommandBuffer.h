@@ -57,8 +57,6 @@ public:
     void begin() override {}
     void end() override {}
 
-    void discard() override {}
-
     void insertEventMarker(const char* msg) override {}
 
     void initRenderState(id<MTLRenderCommandEncoder>);
