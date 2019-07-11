@@ -25,7 +25,7 @@ enum TextDecoration {
     kOverline = 0x2,
     kLineThrough = 0x4,
 };
-constexpr std::initializer_list<TextDecoration> AllTextDecorations = {
+constexpr TextDecoration AllTextDecorations[] = {
         kNoDecoration,
         kUnderline,
         kOverline,
