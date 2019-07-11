@@ -23,6 +23,7 @@
       '../../include',
       '../../modules',
       '../../platform_tools/android',
+      '../../platform_tools/libraries/include/arcore_c_api.h',
       '../../resources',
       '../../samplecode',
       '../../src',
