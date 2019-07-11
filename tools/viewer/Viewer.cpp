@@ -12,6 +12,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
+#include "include/ports/SkNativeFontMgrFactory.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -30,6 +31,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/viewer/BisectSlide.h"
@@ -262,8 +264,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fDrawTileBoundaries(false)
     , fTileScale{0.25f, 0.25f}
     , fPerspectiveMode(kPerspective_Off)
+    , fFont(nullptr)
 {
     SkGraphics::Init();
+    ToolUtils::SetGlobalNativeFontMgr();
+    fFont.setTypeface(ToolUtils::DefaultTypeface());
 
     gPathRendererNames[GpuPathRenderers::kAll] = "All Path Renderers";
     gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
@@ -675,12 +680,12 @@ void Viewer::initSlides() {
     }
 
     // samples
-    for (const SampleFactory factory : SampleRegistry::Range()) {
-        sk_sp<Slide> slide(new SampleSlide(factory));
-        if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
-            fSlides.push_back(slide);
-        }
-    }
+    //for (const SampleFactory factory : SampleRegistry::Range()) {
+    //    sk_sp<Slide> slide(new SampleSlide(factory));
+    //    if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
+    //        fSlides.push_back(slide);
+    //    }
+    //}
 
     // Particle demo
     {

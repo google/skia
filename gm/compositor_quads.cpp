@@ -39,6 +39,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkLineClipper.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/gpu/YUVUtils.h"
 
 #include <array>
@@ -187,7 +188,7 @@ static void draw_clipping_boundaries(SkCanvas* canvas, const SkMatrix& local) {
 }
 
 static void draw_text(SkCanvas* canvas, const char* text) {
-    canvas->drawString(text, 0, 0, SkFont(nullptr, 12), SkPaint());
+    canvas->drawString(text, 0, 0, SkFont(ToolUtils::DefaultTypeface(), 12), SkPaint());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

@@ -5,14 +5,14 @@
 REG_FIDDLE(Canvas_drawText, 256, 200, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     float textSizes[] = { 12, 18, 24, 36 };
     for (auto size: textSizes ) {
         font.setSize(size);
         canvas->drawString("Aa", 10, 20, font, paint);
         canvas->translate(0, size * 2);
     }
-    font = SkFont();
+    font = SkFont(ToolUtils::DefaultTypeface());
     float yPos = 20;
     for (auto size: textSizes ) {
         float scale = size / 12.f;

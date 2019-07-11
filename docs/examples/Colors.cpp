@@ -21,7 +21,8 @@ void draw(SkCanvas* canvas) {
     const SkColor4f kBrown{0.5f, 0.25f, 0, 1};
     for (const auto& c : kColors) {
         canvas->drawRect(SkRect{0, y, 128, y + kSize}, SkPaint(c.fColor));
-        canvas->drawString(c.fName, 4, y + kSize * 0.7f, SkFont(), SkPaint(kBrown));
+        canvas->drawString(c.fName, 4, y + kSize * 0.7f, SkFont(ToolUtils::DefaultTypeface()),
+                           SkPaint(kBrown));
         y += kSize;
     }
 }

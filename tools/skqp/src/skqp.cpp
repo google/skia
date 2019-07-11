@@ -16,7 +16,6 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/SkImageInfoPriv.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/gpu/GrContextPriv.h"
@@ -245,7 +244,7 @@ void SkQP::init(SkQPAssetManager* am, const char* reportDirectory) {
     fReportDirectory = reportDirectory;
 
     SkGraphics::Init();
-    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+    ToolUtils::SetGlobalPortableFontMgr();
 
     /* If the file "skqp/rendertests.txt" does not exist or is empty, run all
        render tests.  Otherwise only run tests mentioned in that file.  */

@@ -14,6 +14,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <string.h>
 
@@ -36,7 +37,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         //With freetype the default (normal hinting) can be really ugly.
         //Most distros now set slight (vertical hinting only) in any event.

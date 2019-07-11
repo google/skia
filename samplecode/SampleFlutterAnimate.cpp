@@ -14,6 +14,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/timer/AnimTimer.h"
 #include "tools/timer/Timer.h"
 
@@ -29,7 +30,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fTypeface = SkTypeface::MakeFromFile("/skimages/samplefont.ttf");
+        fTypeface = ToolUtils::GlobalFontMgr()->makeFromFile("/skimages/samplefont.ttf");
         initChars();
     }
 

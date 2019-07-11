@@ -274,7 +274,7 @@ protected:
     }
 
 private:
-    SkFont    fLabelFont;
+    SkFont    fLabelFont{nullptr};
     SkPath    fOval;
     SkPath    fConcave;
 
