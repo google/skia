@@ -68,6 +68,30 @@
       "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d00fb475_face51dd",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1583,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-11T18:07:09Z",
+      "side": 1,
+      "message": "Also I htink the call would need a format and colortype",
+      "parentUuid": "eb3478ba_7c4a8e48",
+      "range": {
+        "startLine": 1583,
+        "startChar": 4,
+        "endLine": 1583,
+        "endChar": 58
+      },
+      "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
