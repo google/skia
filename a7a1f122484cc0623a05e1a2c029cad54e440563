@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "020d6b53_df3d5664",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-11T16:56:04Z",
+      "side": 1,
+      "message": "We don\u0027t support protected in metal at all. So maybe at most just assert that src and dst are not protected.",
+      "range": {
+        "startLine": 914,
+        "startChar": 8,
+        "endLine": 914,
+        "endChar": 51
+      },
+      "revId": "a7a1f122484cc0623a05e1a2c029cad54e440563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e39709b7_82f8de5c",
         "filename": "tools/sk_app/MetalWindowContext.mm",
         "patchSetId": 10
@@ -108,6 +131,30 @@
       "side": 1,
       "message": "Ahhh we have a bug in our code then. It looks like we don\u0027t actually do anything with the sample count in MakeFromBackendTexture. Then later on we just assume the sample count of the backend texture is the sample count we want to use.",
       "parentUuid": "16abffd1_b86f02c1",
+      "range": {
+        "startLine": 105,
+        "startChar": 33,
+        "endLine": 105,
+        "endChar": 69
+      },
+      "revId": "a7a1f122484cc0623a05e1a2c029cad54e440563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28f1d60e_811b6bbf",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-11T16:56:04Z",
+      "side": 1,
+      "message": "Ignore everything I\u0027ve said. Make this MakeFromBackendTexture",
+      "parentUuid": "eb29fdaf_5e744da1",
       "range": {
         "startLine": 105,
         "startChar": 33,
