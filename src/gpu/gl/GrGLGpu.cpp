@@ -1591,10 +1591,11 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 }
 }
 
-int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
+int GrGLGpu::getCompatibleStencilIndex(GrGLSizedInternalFormat format) {
     static const int kSize = 16;
-    SkASSERT(this->caps()->isConfigRenderable(config));
-    if (!this->glCaps().hasStencilFormatBeenDeterminedForConfig(config)) {
+    SkASSERT(this->glCaps().canFormatBeFBOColorAttachment(format));
+
+    if (!this->glCaps().hasStencilFormatBeenDeterminedForFormat(format)) {
         // Default to unsupported, set this if we find a stencil format that works.
         int firstWorkingStencilFormatIndex = -1;
 
@@ -1615,13 +1616,13 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
                               GR_GL_TEXTURE_WRAP_T,
                               GR_GL_CLAMP_TO_EDGE));
 
-        GrGLenum internalFormat;
-        GrGLenum externalFormat;
-        GrGLenum externalType;
-        if (!this->glCaps().getTexImageFormats(config, config, &internalFormat, &externalFormat,
-                                               &externalType)) {
-            return false;
+        GrGLenum internalFormat = this->glCaps().getTexImageInternalFormat(format);
+        GrGLenum externalFormat = this->glCaps().getBaseInternalFormat(format);
+        GrGLenum externalType   = this->glCaps().getFormatDefaultExternalType(format);
+        if (!externalFormat || !externalType || !externalType) {
+            return -1;
         }
+
         this->unbindCpuToGpuXferBuffer();
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         GL_ALLOC_CALL(this->glInterface(), TexImage2D(GR_GL_TEXTURE_2D,
@@ -1698,9 +1699,9 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         GL_CALL(DeleteTextures(1, &colorID));
         this->bindFramebuffer(GR_GL_FRAMEBUFFER, 0);
         this->deleteFramebuffer(fb);
-        fGLContext->caps()->setStencilFormatIndexForConfig(config, firstWorkingStencilFormatIndex);
+        fGLContext->caps()->setStencilFormatIndexForFormat(format, firstWorkingStencilFormatIndex);
     }
-    return this->glCaps().getStencilFormatIndexForConfig(config);
+    return this->glCaps().getStencilFormatIndexForFormat(format);
 }
 
 bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
@@ -1768,7 +1769,8 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(
 
     GrGLStencilAttachment::IDDesc sbDesc;
 
-    int sIdx = this->getCompatibleStencilIndex(rt->config());
+    auto rtFormat = GrGLBackendFormatToSizedInternalFormat(rt->backendFormat());
+    int sIdx = this->getCompatibleStencilIndex(rtFormat);
     if (sIdx < 0) {
         return nullptr;
     }
@@ -4059,7 +4061,9 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     } else {
         this->glCaps().getRenderbufferFormat(config, &colorBufferFormat);
     }
-    int sFormatIdx = this->getCompatibleStencilIndex(config);
+    auto format = GrGLBackendFormatToSizedInternalFormat(
+            this->caps()->getBackendFormatFromColorType(colorType));
+    int sFormatIdx = this->getCompatibleStencilIndex(format);
     if (sFormatIdx < 0) {
         return {};
     }
