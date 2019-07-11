@@ -36,6 +36,7 @@ public:
         } else if (fIsBorrowed) {
             fResource = new BorrowedResource(info.fImage, info.fAlloc, info.fImageTiling);
         } else {
+            SkASSERT(VK_NULL_HANDLE != info.fAlloc.fMemory);
             fResource = new Resource(info.fImage, info.fAlloc, info.fImageTiling);
         }
     }

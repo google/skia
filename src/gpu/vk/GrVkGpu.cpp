@@ -666,6 +666,9 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
                                                     &layout));
 
     const GrVkAlloc& alloc = tex->alloc();
+    if (VK_NULL_HANDLE == alloc.fMemory) {
+        return false;
+    }
     VkDeviceSize offset = top * layout.rowPitch + left * bpp;
     VkDeviceSize size = height*layout.rowPitch;
     SkASSERT(size + offset <= alloc.fSize);
@@ -1104,12 +1107,12 @@ bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
 static bool check_image_info(const GrVkCaps& caps,
                              const GrVkImageInfo& info,
                              GrPixelConfig config,
-                             bool isWrappedRT) {
+                             bool needsAllocation) {
     if (VK_NULL_HANDLE == info.fImage) {
         return false;
     }
 
-    if (VK_NULL_HANDLE == info.fAlloc.fMemory && !isWrappedRT) {
+    if (VK_NULL_HANDLE == info.fAlloc.fMemory && needsAllocation) {
         return false;
     }
 
@@ -1156,7 +1159,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config(), false)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config(),
+                          kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
     if (!check_tex_image_info(this->vkCaps(), imageInfo)) {
@@ -1190,7 +1194,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config(), false)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config(),
+                          kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
     if (!check_tex_image_info(this->vkCaps(), imageInfo)) {
@@ -1233,7 +1238,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), info, backendRT.config(), true)) {
+    if (!check_image_info(this->vkCaps(), info, backendRT.config(), false)) {
         return nullptr;
     }
     if (!check_rt_image_info(this->vkCaps(), info)) {
@@ -1273,10 +1278,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    // In some cases, we use this method to create an MSAA RT with the given texture
-    // as the resolve RT. Because of this, the texture may have no backing memory,
-    // so we treat the texture as an RT.
-    if (!check_image_info(this->vkCaps(), imageInfo, tex.config(), true)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, tex.config(), false)) {
         return nullptr;
     }
     if (!check_rt_image_info(this->vkCaps(), imageInfo)) {

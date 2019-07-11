@@ -353,7 +353,7 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
         } else {
             GrBackendTexture backendTexture(fWidth, fHeight, info);
 
-            fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(
+            fSurfaces[i] = SkSurface::MakeFromBackendTexture(
                     fContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
                     colorType, fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
 
