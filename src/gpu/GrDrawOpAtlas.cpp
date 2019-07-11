@@ -523,7 +523,7 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     }
     desc.fWidth = fTextureWidth;
     desc.fHeight = fTextureHeight;
-    desc.fConfig = GrColorTypeToPixelConfig(fColorType, GrSRGBEncoded::kNo);
+    desc.fConfig = GrColorTypeToPixelConfig(fColorType);
 
     int numPlotsX = fTextureWidth/fPlotWidth;
     int numPlotsY = fTextureHeight/fPlotHeight;

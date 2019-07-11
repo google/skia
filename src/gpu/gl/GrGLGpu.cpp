@@ -845,8 +845,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
     // When we're on ES2 and the dst is GL_SRGB_ALPHA by making the config be kSRGB_8888 we know
     // that our caps will choose GL_SRGB_ALPHA as the external format, too. On ES3 or regular GL our
     // caps knows to make the external format be GL_RGBA.
-    auto srgbEncoded = GrPixelConfigIsSRGBEncoded(surface->config());
-    auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType, srgbEncoded);
+    auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType);
 
     SkASSERT(!GrPixelConfigIsCompressed(glTex->config()));
     return this->uploadTexData(glTex->config(), glTex->width(), glTex->height(), glTex->target(),
@@ -950,7 +949,7 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     // External format and type come from the upload data.
     GrGLenum externalFormat;
     GrGLenum externalType;
-    auto bufferAsConfig = GrColorTypeToPixelConfig(bufferColorType, GrSRGBEncoded::kNo);
+    auto bufferAsConfig = GrColorTypeToPixelConfig(bufferColorType);
     if (!this->glCaps().getTexImageFormats(texConfig, bufferAsConfig, &internalFormat,
                                            &externalFormat, &externalType)) {
         return false;
@@ -2276,7 +2275,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     }
 
     // TODO: Avoid this conversion by making GrGLCaps work with color types.
-    auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kNo);
+    auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType);
 
     if (!this->readPixelsSupported(surface, dstAsConfig)) {
         return false;
@@ -4045,7 +4044,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
         return GrBackendRenderTarget();  // invalid
     }
     this->handleDirtyContext();
-    auto config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
+    auto config = GrColorTypeToPixelConfig(colorType);
     if (!this->glCaps().isConfigRenderable(config)) {
         return {};
     }

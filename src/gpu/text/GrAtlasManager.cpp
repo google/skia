@@ -166,8 +166,7 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
         SkISize atlasDimensions = fAtlasConfig.atlasDimensions(format);
         SkISize plotDimensions = fAtlasConfig.plotDimensions(format);
 
-        const GrBackendFormat format = fCaps->getBackendFormatFromColorType(grColorType,
-                                                                            GrSRGBEncoded::kNo);
+        const GrBackendFormat format = fCaps->getBackendFormatFromColorType(grColorType);
 
         fAtlases[index] = GrDrawOpAtlas::Make(
                 fProxyProvider, format, grColorType,

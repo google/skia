@@ -54,8 +54,18 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
     if (!backendFormat.isValid()) {
         return false;
     }
-    *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat,
-                                                             SkColorTypeToGrColorType(ct));
+
+    GrColorType grCT = SkColorTypeToGrColorType(ct);
+    // Until we support SRGB in the SkColorType we have to do this manual check here to make sure
+    // we use the correct GrColorType.
+    if (ctx->priv().caps()->isFormatSRGB(backendFormat)) {
+        if (grCT != GrColorType::kRGBA_8888) {
+            return false;
+        }
+        grCT = GrColorType::kRGBA_8888_SRGB;
+    }
+
+    *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, grCT);
     return *config != kUnknown_GrPixelConfig;
 }
 

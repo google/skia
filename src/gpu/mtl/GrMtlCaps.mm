@@ -526,7 +526,10 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, GrColorType ct) {
         case GrColorType::kRGBA_8888:
             if (MTLPixelFormatRGBA8Unorm == format) {
                 return kRGBA_8888_GrPixelConfig;
-            } else if (MTLPixelFormatRGBA8Unorm_sRGB == format) {
+            }
+            break;
+        case GrColorType::kRGBA_8888_SRGB:
+            if (MTLPixelFormatRGBA8Unorm_sRGB == format) {
                 return kSRGBA_8888_GrPixelConfig;
             }
             break;
@@ -685,9 +688,8 @@ GrPixelConfig GrMtlCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& f
     return get_yuva_config(*mtlFormat);
 }
 
-GrBackendFormat GrMtlCaps::getBackendFormatFromColorType(GrColorType ct,
-                                                         GrSRGBEncoded srgbEncoded) const {
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
+GrBackendFormat GrMtlCaps::getBackendFormatFromColorType(GrColorType ct) const {
+    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
     if (config == kUnknown_GrPixelConfig) {
         return GrBackendFormat();
     }
@@ -732,7 +734,9 @@ static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colo
             return MTLPixelFormatABGR4Unorm == format;
 #endif
         case GrColorType::kRGBA_8888:
-            return MTLPixelFormatRGBA8Unorm == format || MTLPixelFormatRGBA8Unorm_sRGB == format;
+            return MTLPixelFormatRGBA8Unorm == format;
+        case GrColorType::kRGBA_8888_SRGB:
+            return MTLPixelFormatRGBA8Unorm_sRGB == format;
         case GrColorType::kRGB_888x:
             GR_STATIC_ASSERT(GrCompressionTypeClosestColorType(SkImage::kETC1_CompressionType) ==
                              GrColorType::kRGB_888x);

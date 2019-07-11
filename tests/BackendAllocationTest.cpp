@@ -574,7 +574,6 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kRGBA_16161616_GrPixelConfig,     SkColors::kLtGray   },
         { kUnknown_SkColorType,             GR_GL_RG16F,
           kRG_half_GrPixelConfig,           SkColors::kYellow   },
-
     };
 
     for (auto combo : combinations) {
@@ -593,7 +592,17 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             // We current disallow uninitialized ETC1 textures in the GL backend
             continue;
         }
-        if (!glCaps->isFormatTexturable(SkColorTypeToGrColorType(combo.fColorType), format)) {
+
+        GrColorType grCT = SkColorTypeToGrColorType(combo.fColorType);
+        // TODO: Once SkColorType has an SRGB type we can remove this manual setting.
+        if (glCaps->isFormatSRGB(format)) {
+            if (grCT != GrColorType::kRGBA_8888) {
+                continue;
+            }
+            grCT = GrColorType::kRGBA_8888_SRGB;
+        }
+
+        if (!glCaps->isFormatTexturable(grCT, format)) {
             continue;
         }
 

@@ -369,9 +369,10 @@ void GrFillInCompressedData(SkImage::CompressionType type, int baseWidth, int ba
 }
 
 static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::StockStage* load,
-                                          bool* isNormalized) {
+                                          bool* isNormalized, bool* isSRGB) {
     GrSwizzle swizzle("rgba");
     *isNormalized = true;
+    *isSRGB = false;
     switch (ct) {
         case GrColorType::kAlpha_8:          *load = SkRasterPipeline::load_a8;       break;
         case GrColorType::kBGR_565:          *load = SkRasterPipeline::load_565;      break;
@@ -384,6 +385,9 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
         case GrColorType::kRG_1616:          *load = SkRasterPipeline::load_rg1616;   break;
         case GrColorType::kRGBA_16161616:    *load = SkRasterPipeline::load_16161616; break;
 
+        case GrColorType::kRGBA_8888_SRGB:   *load = SkRasterPipeline::load_8888;
+                                             *isSRGB = true;
+                                             break;
         case GrColorType::kRG_F16:           *load = SkRasterPipeline::load_rgf16;
                                              *isNormalized = false;
                                              break;
@@ -416,9 +420,10 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
 }
 
 static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::StockStage* store,
-                                           bool* isNormalized) {
+                                           bool* isNormalized, bool* isSRGB) {
     GrSwizzle swizzle("rgba");
     *isNormalized = true;
+    *isSRGB = false;
     switch (ct) {
         case GrColorType::kAlpha_8:          *store = SkRasterPipeline::store_a8;       break;
         case GrColorType::kBGR_565:          *store = SkRasterPipeline::store_565;      break;
@@ -430,6 +435,9 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
         case GrColorType::kRG_1616:          *store = SkRasterPipeline::store_rg1616;   break;
         case GrColorType::kRGBA_16161616:    *store = SkRasterPipeline::store_16161616; break;
 
+        case GrColorType::kRGBA_8888_SRGB:   *store = SkRasterPipeline::store_8888;
+                                             *isSRGB = true;
+                                             break;
         case GrColorType::kRG_F16:           *store = SkRasterPipeline::store_rgf16;
                                              *isNormalized = false;
                                              break;
@@ -499,12 +507,16 @@ bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
 
     SkRasterPipeline::StockStage load;
     bool srcIsNormalized;
-    auto loadSwizzle = get_load_and_get_swizzle(srcInfo.colorType(), &load, &srcIsNormalized);
+    bool srcIsSRGB;
+    auto loadSwizzle = get_load_and_get_swizzle(srcInfo.colorType(), &load, &srcIsNormalized,
+                                                &srcIsSRGB);
     loadSwizzle = GrSwizzle::Concat(loadSwizzle, swizzle);
 
     SkRasterPipeline::StockStage store;
     bool dstIsNormalized;
-    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &dstIsNormalized);
+    bool dstIsSRGB;
+    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &dstIsNormalized,
+                                                  &dstIsSRGB);
 
     bool premul   = srcInfo.alphaType() == kUnpremul_SkAlphaType &&
                     dstInfo.alphaType() == kPremul_SkAlphaType;
@@ -541,25 +553,40 @@ bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
         srcCtx.pixels = static_cast<char*>(srcCtx.pixels) + srcRB * (height - 1);
         std::swap(cnt, height);
     }
+
+    bool hasConversion = alphaOrCSConversion || clampGamut;
+
+    if (srcIsSRGB && dstIsSRGB && !hasConversion) {
+        // No need to convert from srgb if we are just going to immediately convert it back.
+        srcIsSRGB = dstIsSRGB = false;
+    }
+
+    hasConversion = hasConversion || srcIsSRGB || dstIsSRGB;
+
     for (int i = 0; i < cnt; ++i) {
         SkRasterPipeline_<256> pipeline;
         pipeline.append(load, &srcCtx);
-
-        if (alphaOrCSConversion) {
+        if (hasConversion) {
             loadSwizzle.apply(&pipeline);
-            steps->apply(&pipeline, srcIsNormalized);
+            if (srcIsSRGB) {
+                pipeline.append(SkRasterPipeline::from_srgb);
+            }
+            if (alphaOrCSConversion) {
+                steps->apply(&pipeline, srcIsNormalized);
+            }
             if (clampGamut) {
                 append_clamp_gamut(&pipeline);
+            }
+            // If we add support for storing to Gray we would add a luminance to alpha conversion
+            // here. We also wouldn't then need a to_srgb stage after since it would have not effect
+            // on the alpha channel. It would also mean we have an SRGB Gray color type which
+            // doesn't exist currently.
+            if (dstIsSRGB) {
+                pipeline.append(SkRasterPipeline::to_srgb);
             }
             storeSwizzle.apply(&pipeline);
         } else {
-            if (clampGamut) {
-                loadSwizzle.apply(&pipeline);
-                append_clamp_gamut(&pipeline);
-                storeSwizzle.apply(&pipeline);
-            } else {
-                loadStoreSwizzle.apply(&pipeline);
-            }
+            loadStoreSwizzle.apply(&pipeline);
         }
         pipeline.append(store, &dstCtx);
         pipeline.run(0, 0, srcInfo.width(), height);

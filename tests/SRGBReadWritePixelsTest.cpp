@@ -163,15 +163,6 @@ static sk_sp<SkColorSpace> encoding_as_color_space(Encoding encoding) {
     return nullptr;
 }
 
-static GrPixelConfig encoding_as_pixel_config(Encoding encoding) {
-    switch (encoding) {
-        case Encoding::kUntagged: return kRGBA_8888_GrPixelConfig;
-        case Encoding::kLinear:   return kRGBA_8888_GrPixelConfig;
-        case Encoding::kSRGB:     return kSRGBA_8888_GrPixelConfig;
-    }
-    return kUnknown_GrPixelConfig;
-}
-
 static const char* encoding_as_str(Encoding encoding) {
     switch (encoding) {
         case Encoding::kUntagged: return "untagged";
@@ -200,12 +191,10 @@ static sk_sp<GrSurfaceContext> make_surface_context(Encoding contextEncoding, Gr
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = kW;
     desc.fHeight = kH;
-    desc.fConfig = encoding_as_pixel_config(contextEncoding);
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    GrSRGBEncoded srgbEncoded = GrSRGBEncoded::kNo;
-    GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(desc.fConfig, &srgbEncoded);
-    const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(colorType, srgbEncoded);
+    GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
+    const GrBackendFormat format = context->priv().caps()->getBackendFormatFromColorType(colorType);
 
     auto surfaceContext = context->priv().makeDeferredSurfaceContext(
             format, desc, kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,

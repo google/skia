@@ -1889,10 +1889,10 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         }
 
         if (fSRGBSupport) {
-            // kRGBA_8888
+            // kRGBA_8888_SRGB
             {
                 uint32_t flags = ColorTypeInfo::kUploadData_Flag;
-                info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_8888, flags);
+                info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_8888_SRGB, flags);
             }
         }
     }
@@ -3525,6 +3525,8 @@ GrCaps::SupportedRead GrGLCaps::supportedReadPixelsColorType(GrPixelConfig srcPi
                 GrColorTypeHasAlpha(dstColorType)) {
                 // This can skip an unnecessary conversion.
                 return {swizzle, GrColorType::kRGB_888x};
+            } else if (kSRGBA_8888_GrPixelConfig == srcPixelConfig) {
+                return {swizzle, GrColorType::kRGBA_8888_SRGB};
             }
             return {swizzle, GrColorType::kRGBA_8888};
         case kFloat_FormatType:
@@ -3659,7 +3661,10 @@ GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandar
         case GrColorType::kRGBA_8888:
             if (GR_GL_RGBA8 == format) {
                 return kRGBA_8888_GrPixelConfig;
-            } else if (GR_GL_SRGB8_ALPHA8 == format) {
+            }
+            break;
+        case GrColorType::kRGBA_8888_SRGB:
+            if (GR_GL_SRGB8_ALPHA8 == format) {
                 return kSRGBA_8888_GrPixelConfig;
             }
             break;
@@ -3831,9 +3836,8 @@ GrPixelConfig GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& fo
     return get_yuva_config(*glFormat);
 }
 
-GrBackendFormat GrGLCaps::getBackendFormatFromColorType(GrColorType ct,
-                                                        GrSRGBEncoded srgbEncoded) const {
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
+GrBackendFormat GrGLCaps::getBackendFormatFromColorType(GrColorType ct) const {
+    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
     if (config == kUnknown_GrPixelConfig) {
         return GrBackendFormat();
     }
@@ -3862,7 +3866,9 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
         case GrColorType::kABGR_4444:
             return GR_GL_RGBA4 == format;
         case GrColorType::kRGBA_8888:
-            return GR_GL_RGBA8 == format || GR_GL_SRGB8_ALPHA8 == format;
+            return GR_GL_RGBA8 == format;
+        case GrColorType::kRGBA_8888_SRGB:
+            return GR_GL_SRGB8_ALPHA8 == format;
         case GrColorType::kRGB_888x:
             GR_STATIC_ASSERT(GrCompressionTypeClosestColorType(SkImage::kETC1_CompressionType) ==
                              GrColorType::kRGB_888x);
@@ -3965,7 +3971,7 @@ size_t GrGLCaps::onTransferFromOffsetAlignment(GrColorType bufferColorType) cons
     if (GrColorType::kRGB_888x == bufferColorType) {
         return 0;
     }
-    auto config = GrColorTypeToPixelConfig(bufferColorType, GrSRGBEncoded::kNo);
+    auto config = GrColorTypeToPixelConfig(bufferColorType);
     // This switch is derived from a table titled "Pixel data type parameter values and the
     // corresponding GL data types" in the OpenGL spec (Table 8.2 in OpenGL 4.5).
     switch (fConfigTable[config].fFormats.fExternalType) {

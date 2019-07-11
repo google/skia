@@ -130,8 +130,7 @@ public:
                 , fTest(test)
                 , fAtlas(atlas) {
             const GrBackendFormat format =
-                ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_F16,
-                                                                  GrSRGBEncoded::kNo);
+                ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_F16);
             fLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
                     [this](GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationResult {
                         REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);

@@ -16,61 +16,53 @@ class GrBackendFormat;
 struct GrMockTextureInfo {
     GrMockTextureInfo()
         : fColorType(GrColorType::kUnknown)
-        , fSRGBEncoded(GrSRGBEncoded::kNo)
         , fID(0) {}
 
-    GrMockTextureInfo(GrColorType colorType, GrSRGBEncoded srgbEncoded, int id)
+    GrMockTextureInfo(GrColorType colorType, int id)
             : fColorType(colorType)
-            , fSRGBEncoded(srgbEncoded)
             , fID(id) {
         SkASSERT(fID);
     }
 
     bool operator==(const GrMockTextureInfo& that) const {
         return fColorType == that.fColorType &&
-               fSRGBEncoded == that.fSRGBEncoded &&
                fID == that.fID;
     }
 
     GrPixelConfig pixelConfig() const {
-        return GrColorTypeToPixelConfig(fColorType, fSRGBEncoded);
+        return GrColorTypeToPixelConfig(fColorType);
     }
 
     GrBackendFormat getBackendFormat() const;
 
     GrColorType   fColorType;
-    GrSRGBEncoded fSRGBEncoded;
     int           fID;
 };
 
 struct GrMockRenderTargetInfo {
     GrMockRenderTargetInfo()
             : fColorType(GrColorType::kUnknown)
-            , fSRGBEncoded(GrSRGBEncoded::kNo)
             , fID(0) {}
 
-    GrMockRenderTargetInfo(GrColorType colorType, GrSRGBEncoded srgbEncoded, int id)
+    GrMockRenderTargetInfo(GrColorType colorType, int id)
             : fColorType(colorType)
-            , fSRGBEncoded(srgbEncoded)
             , fID(id) {
         SkASSERT(fID);
     }
 
     bool operator==(const GrMockRenderTargetInfo& that) const {
         return fColorType == that.fColorType &&
-               fSRGBEncoded == that.fSRGBEncoded &&
                fID == that.fID;
     }
 
     GrPixelConfig pixelConfig() const {
-        return GrColorTypeToPixelConfig(fColorType, fSRGBEncoded);
+        return GrColorTypeToPixelConfig(fColorType);
     }
 
     GrBackendFormat getBackendFormat() const;
 
 private:
     GrColorType   fColorType;
-    GrSRGBEncoded fSRGBEncoded;
     int           fID;
 };
 

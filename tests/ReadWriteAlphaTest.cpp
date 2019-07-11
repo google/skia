@@ -158,12 +158,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     static constexpr struct {
         GrColorType fColorType;
         SkAlphaType fAlphaType;
-        GrSRGBEncoded fSRGBEncoded;
     } kInfos[] = {
-            {GrColorType::kRGBA_8888,    kPremul_SkAlphaType, GrSRGBEncoded::kNo},
-            {GrColorType::kBGRA_8888,    kPremul_SkAlphaType, GrSRGBEncoded::kNo},
-            {GrColorType::kRGBA_8888,    kPremul_SkAlphaType, GrSRGBEncoded::kYes},
-            {GrColorType::kRGBA_1010102, kPremul_SkAlphaType, GrSRGBEncoded::kNo},
+            {GrColorType::kRGBA_8888,      kPremul_SkAlphaType},
+            {GrColorType::kBGRA_8888,      kPremul_SkAlphaType},
+            {GrColorType::kRGBA_8888_SRGB, kPremul_SkAlphaType},
+            {GrColorType::kRGBA_1010102,   kPremul_SkAlphaType},
     };
 
     for (int y = 0; y < Y_SIZE; ++y) {
@@ -191,8 +190,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             auto origin = GrRenderable::kYes == renderable ? kBottomLeft_GrSurfaceOrigin
                                                            : kTopLeft_GrSurfaceOrigin;
             auto proxy = sk_gpu_test::MakeTextureProxyFromData(
-                    context, renderable, X_SIZE, Y_SIZE, info.fColorType, info.fAlphaType,
-                    info.fSRGBEncoded, origin, rgbaData, 0);
+                    context, renderable, X_SIZE, Y_SIZE, info.fColorType, info.fAlphaType, origin,
+                    rgbaData, 0);
             if (!proxy) {
                 continue;
             }
