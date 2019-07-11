@@ -69,6 +69,30 @@
       "revId": "a7a1f122484cc0623a05e1a2c029cad54e440563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16abffd1_b86f02c1",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-11T14:38:31Z",
+      "side": 1,
+      "message": "I think that\u0027s what the other backends do. They wrap the client\u0027s texture in a GrTextureRenderTarget where the Skia-created render buffer has the number of samples passed to the function and it gets resolved to the client\u0027s single-sampled texture. The sample count passed to MakeFromBackendTexture is not intended to mean that the client\u0027s texture has multiple samples. We assume it always has 1.",
+      "parentUuid": "c7190edb_aef6a1af",
+      "range": {
+        "startLine": 105,
+        "startChar": 33,
+        "endLine": 105,
+        "endChar": 69
+      },
+      "revId": "a7a1f122484cc0623a05e1a2c029cad54e440563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
