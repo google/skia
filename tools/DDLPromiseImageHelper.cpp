@@ -83,8 +83,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
             }
         }
 
-        GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRG_88,
-                                                                     GrSRGBEncoded::kNo);
+        GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRG_88);
         tex = gpu->createBackendTexture(pm.width(), pm.height(), format,
                                         GrMipMapped::kNo, GrRenderable::kNo,
                                         pixels, 2 * pm.width(), nullptr, GrProtected::kNo);
