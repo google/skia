@@ -71,7 +71,7 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
         backendTex.setPixelConfig(kPixelConfig);
         tex = gpu->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                       kRead_GrIOType);
-        REPORTER_ASSERT(reporter, !tex);
+        REPORTER_ASSERT(reporter, tex);
         tex = gpu->wrapBackendTexture(backendTex, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo,
                                       kRead_GrIOType);
         REPORTER_ASSERT(reporter, !tex);
@@ -172,7 +172,7 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
         backendTex.setPixelConfig(kPixelConfig);
         tex = gpu->wrapRenderableBackendTexture(backendTex, 1, kBorrow_GrWrapOwnership,
                                                 GrWrapCacheable::kNo);
-        REPORTER_ASSERT(reporter, !tex);
+        REPORTER_ASSERT(reporter, tex);
         tex = gpu->wrapRenderableBackendTexture(backendTex, 1, kAdopt_GrWrapOwnership,
                                                 GrWrapCacheable::kNo);
         REPORTER_ASSERT(reporter, !tex);

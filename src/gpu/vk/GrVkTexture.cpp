@@ -95,8 +95,9 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu, const GrSurface
                                                    GrWrapCacheable cacheable, GrIOType ioType,
                                                    const GrVkImageInfo& info,
                                                    sk_sp<GrVkImageLayout> layout) {
-    // Wrapped textures require both image and allocation (because they can be mapped)
-    SkASSERT(VK_NULL_HANDLE != info.fImage && VK_NULL_HANDLE != info.fAlloc.fMemory);
+    // Adopted textures require both image and allocation because we're responsible for freeing
+    SkASSERT(VK_NULL_HANDLE != info.fImage &&
+             (kBorrow_GrWrapOwnership == wrapOwnership || VK_NULL_HANDLE != info.fAlloc.fMemory));
 
     const GrVkImageView* imageView = GrVkImageView::Create(
             gpu, info.fImage, info.fFormat, GrVkImageView::kColor_Type, info.fLevelCount,
