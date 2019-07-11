@@ -22,6 +22,7 @@
       const PATH = '/res/lottie.json';
       const RENDERER = 'svg';
       const FRAMES = 25;
+      const LOOPS = 2;
 
       // Get total number of frames of the animation from the hash.
       const hash = window.location.hash;
@@ -43,11 +44,18 @@
 
       const t_rate = 1.0 / (FRAMES - 1);
       let frame = 0;
+      let loops = 0;
       const drawFrame = () => {
         if (frame >= FRAMES) {
-          // These are global variables to talk with puppeteer.
-          window._lottieWebDone = true;
-          return;
+          // Reached the end of one loop.
+          loops++;
+          if (loops == LOOPS) {
+            // These are global variables to talk with puppeteer.
+            window._lottieWebDonee = true;
+            return;
+          }
+          // Reset frame to restart the loop.
+          frame = 0;
         }
 
         let t1 = Math.max(Math.min(t_rate * frame, 1.0), 0.0);
@@ -60,6 +68,7 @@
         }
 
         anim.goToAndStop(seekToFrame, true /* isFrame */);
+        console.log("Used seek: " + (seekToFrame/totalFrames));
         frame++;
         window.requestAnimationFrame(drawFrame);
       };
