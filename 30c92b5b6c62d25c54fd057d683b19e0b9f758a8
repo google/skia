@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "244dc98b_e22c554d",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-11T18:04:00Z",
+      "side": 1,
+      "message": "format",
+      "range": {
+        "startLine": 205,
+        "startChar": 53,
+        "endLine": 205,
+        "endChar": 60
+      },
+      "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50d1832d_280c0877",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-11T18:04:00Z",
+      "side": 1,
+      "message": "s/config/format/",
+      "range": {
+        "startLine": 212,
+        "startChar": 7,
+        "endLine": 215,
+        "endChar": 35
+      },
+      "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb3478ba_7c4a8e48",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1583,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-11T18:04:00Z",
+      "side": 1,
+      "message": "I assume this is commented out cause the function doesn\u0027t exists. It is on my radar to add very shortly but I\u0027m worried I won\u0027t remember to uncomment this. What if you make a function in GrCaps right now for it and just have it return true?",
+      "range": {
+        "startLine": 1583,
+        "startChar": 4,
+        "endLine": 1583,
+        "endChar": 58
+      },
+      "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
