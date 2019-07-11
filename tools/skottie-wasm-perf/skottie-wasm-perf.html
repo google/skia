@@ -42,7 +42,8 @@
   // Without flushing, nothing will show up on the screen, although
   // everything else has been executed.
   const shouldFlush = false;
-  const frames = 25;
+  const maxFrames = 25;
+  const maxLoops = 2;
 
   function Bench(CK, json) {
     if (!CK || !json) {
@@ -67,14 +68,22 @@
     // to CPU and add a ck-replaced class to the canvas element.
     window._gpu = CK.gpu && !c.classList.contains('ck-replaced');
 
-    const t_rate = 1.0 / (frames-1);
+    const t_rate = 1.0 / (maxFrames-1);
     let seek = 0;
     let frame = 0;
+    let loop = 0;
     const drawFrame = () => {
-      if (frame >= frames) {
-        // These are global variables to talk with puppeteer.
-        window._skottieDone = true;
-        return;
+      if (frame >= maxFrames) {
+        // Reached the end of one loop.
+        loop++;
+        if (loop == maxLoops) {
+          // These are global variables to talk with puppeteer.
+          window._skottieDone = true;
+          return;
+        }
+        // Reset frame and seek to restart the loop.
+        frame = 0;
+        seek = 0;
       }
 
       animation.seek(seek);
@@ -84,6 +93,7 @@
                        fRight: 1000,
                        fBottom: 1000
                        });
+      console.log("Used seek: " + seek);
       if (shouldFlush) {
         surface.flush();
       }

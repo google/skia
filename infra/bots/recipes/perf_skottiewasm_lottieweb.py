@@ -178,20 +178,19 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
   erroneous_termination_statuses = [
       'replaced_by_new_reporter_at_same_stage',
       'did_not_produce_frame',
-      'main_frame_aborted',
   ]
   accepted_termination_statuses = []
   if renderer == 'skottie-wasm':
     accepted_termination_statuses.extend(['main_frame_aborted'])
   elif renderer == 'lottie-web':
-    accepted_termination_statuses.extend(['missed_frame', 'submitted_frame'])
+    accepted_termination_statuses.extend(
+        ['missed_frame', 'submitted_frame', 'main_frame_aborted'])
 
-  frame_max = 0
-  frame_min = 0
-  frame_cumulative = 0
   current_frame_duration = 0
   total_frames = 0
   frame_id_to_start_ts = {}
+  # Will contain tuples of frame_ids and their duration.
+  completed_frame_id_and_duration = []
   for trace in trace_json['traceEvents']:
     if 'PipelineReporter' in trace['name']:
       frame_id = trace['id']
@@ -205,10 +204,8 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
           continue
         current_frame_duration = trace['ts'] - frame_id_to_start_ts[frame_id]
         total_frames += 1
-        frame_max = max(frame_max, current_frame_duration)
-        frame_min = (min(frame_min, current_frame_duration)
-                     if frame_min else current_frame_duration)
-        frame_cumulative += current_frame_duration
+        completed_frame_id_and_duration.append(
+            (frame_id, current_frame_duration))
         # We are done with this frame_id so remove it from the dict.
         frame_id_to_start_ts.pop(frame_id)
         print '%d (%s with %s): %d' % (
@@ -222,11 +219,28 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
               frame_id, args['termination_status'])
           frame_id_to_start_ts.pop(frame_id)
 
+  total_completed_frames = len(completed_frame_id_and_duration)
+  if total_completed_frames < 25:
+    raise Exception('Even with 2 loops found only %d frames' %
+                    total_completed_frames)
+
+  # Get frame avg/min/max for the middle 25 frames.
+  start = (total_completed_frames - 25)/2
+  print 'Got %d total completed frames. Using start_index of %d.' % (
+      total_completed_frames, start)
+  frame_max = 0
+  frame_min = 0
+  frame_cumulative = 0
+  for frame_id, duration in completed_frame_id_and_duration[start:start+25]:
+    frame_max = max(frame_max, duration)
+    frame_min = min(frame_min, duration) if frame_min else duration
+    frame_cumulative += duration
+
   perf_results = {}
   perf_results['frame_max_us'] = frame_max
   perf_results['frame_min_us'] = frame_min
-  perf_results['frame_avg_us'] = frame_cumulative/total_frames
-  print 'For %d frames got: %s' % (total_frames, perf_results)
+  perf_results['frame_avg_us'] = frame_cumulative/25
+  print 'For 25 frames got: %s' % perf_results
 
   # Write perf_results to the output json.
   with open(output_json_file, 'w') as f:
