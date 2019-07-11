@@ -69,10 +69,6 @@ TextLine::TextLine(ParagraphImpl* master,
     for (auto index : logicalOrder) {
         fLogical.push_back(firstRunIndex + index);
     }
-
-    // TODO: use fStartPos and fEndPos really
-    // SkASSERT(fStartPos <= start->run()->size());
-    // SkASSERT(fEndPos <= end->run()->size());
 }
 
 TextLine::TextLine(TextLine&& other)

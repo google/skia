@@ -18,12 +18,13 @@ namespace textlayout {
 struct FontDescr {
     FontDescr() {}
     FontDescr(SkFont font, SkScalar height)
-            : fFont(font), fHeight(height) {}
+            : fFont(font), fHeight(height), fStart(nullptr) {}
     bool operator==(const FontDescr& a) const {
         return this->fFont == a.fFont && this->fHeight == a.fHeight;
     }
     SkFont fFont;
     SkScalar fHeight;
+    const char* fStart;
 };
 
 class FontResolver {
@@ -35,10 +36,9 @@ public:
     void findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
                                         SkSpan<TextBlock> styles,
                                         sk_sp<FontCollection> fontCollection);
-    bool findFirst(const char* codepoint, SkFont* font, SkScalar* height);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
 
-    SkTHashMap<const char*, FontDescr>& mapping() { return fFontMapping; }
+    SkTArray<FontDescr>& switches() { return fFontSwitches; }
 
 private:
     void findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text);
@@ -60,10 +60,12 @@ private:
     SkSpan<const char> fText;
     SkSpan<TextBlock> fStyles;
 
-    SkTHashMap<const char*, FontDescr> fFontMapping;
+    SkTArray<FontDescr> fFontSwitches;
+    FontDescr* fFontIterator;
     SkTHashSet<FontDescr, Hash> fResolvedFonts;
     FontDescr fFirstResolvedFont;
 
+    SkTHashMap<const char*, FontDescr> fFontMapping;
     SkTArray<SkUnichar> fCodepoints;
     SkTArray<const char*> fCharacters;
     SkTArray<size_t> fUnresolvedIndexes;

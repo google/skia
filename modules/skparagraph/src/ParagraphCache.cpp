@@ -9,10 +9,8 @@ namespace textlayout {
 // TODO: We don't really need to copy anything...
 ParagraphCacheKey::ParagraphCacheKey(ParagraphImpl* paragraph)
         : fText(paragraph->fText)
-        , fMapping() {
-        paragraph->mapping().foreach([this](const char* ch, FontDescr* descr) {
-        this->fMapping.set(ch - fText.c_str(), *descr);
-    });
+        , fFontSwitches(paragraph->switches())
+        , fTextStyles(paragraph->fTextStyles) {
 }
 
 // TODO: copying clusters and runs for now (there are minor things changed on formatting)
@@ -47,7 +45,7 @@ bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
         cluster.setMaster(paragraph);
     }
 
-    //fChecker(paragraph, "findParagraph", true);
+    fChecker(paragraph, "findParagraph", true);
     return true;
 }
 
@@ -56,7 +54,6 @@ void ParagraphCache::addParagraph(ParagraphImpl* paragraph) {
     SkAutoMutexExclusive lock(fParagraphMutex);
     auto value = new ParagraphCacheValue(paragraph);
     this->add(value);
-    SkDebugf("collisions: %d\n", this->countCollisions(value->fKey));
     fChecker(paragraph, "addParagraph", true);
 }
 
@@ -68,23 +65,45 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     if (a.fText.size() != b.fText.size()) {
         return false;
     }
-    if (a.fMapping.count() != b.fMapping.count()) {
+    if (a.fFontSwitches.count() != b.fFontSwitches.count()) {
         return false;
     }
     if (a.fText != b.fText) {
         return false;
     }
+    if (a.fTextStyles.size() != b.fTextStyles.size()) {
+        return false;
+    }
 
-    bool matches = true;
-    a.fMapping.foreach([&](uint32_t index, FontDescr descr) {
-        if (!matches) return;
-        auto found = b.fMapping.find(index);
-        if (found == nullptr || descr.fFont != found->fFont) {
-            matches = false;
+    for (size_t i = 0; i < a.fFontSwitches.size(); ++i) {
+        auto& fda = a.fFontSwitches[i];
+        auto& fdb = b.fFontSwitches[i];
+        if (fda.fStart - a.fText.c_str() != fdb.fStart - b.fText.c_str()) {
+            return false;
         }
-    });
+        if (fda.fFont != fdb.fFont) {
+            return false;
+        }
+    };
 
-    return matches;
+    for (size_t i = 0; i < a.fTextStyles.size(); ++i) {
+        auto& tsa = a.fTextStyles[i];
+        auto& tsb = b.fTextStyles[i];
+        if (tsa.style().getLetterSpacing() != tsb.style().getLetterSpacing()) {
+            return false;
+        }
+        if (tsa.style().getWordSpacing() != tsb.style().getWordSpacing()) {
+            return false;
+        }
+        if (tsa.text().size() != tsb.text().size()) {
+            return false;
+        }
+        if (tsa.text().begin() - a.fText.c_str() != tsb.text().begin() - b.fText.c_str()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 uint32_t LookupTrait::mix(uint32_t hash, uint32_t data) {
@@ -96,21 +115,22 @@ uint32_t LookupTrait::mix(uint32_t hash, uint32_t data) {
 
 uint32_t LookupTrait::Hash(const ParagraphCacheKey& key) {
     uint32_t hash = 0;
-    key.fMapping.foreach([&](uint32_t index, FontDescr descr){
-        hash = mix(hash, SkGoodHash()(index));
-        hash = mix(hash, SkGoodHash()(descr.fFont.getSize()));
+    for (auto& fd : key.fFontSwitches) {
+        hash = mix(hash, SkGoodHash()(fd.fStart - key.fText.c_str()));
+        hash = mix(hash, SkGoodHash()(fd.fFont.getSize()));
 
-        if (descr.fFont.getTypeface() != nullptr) {
+        if (fd.fFont.getTypeface() != nullptr) {
             SkString name;
-            descr.fFont.getTypeface()->getFamilyName(&name);
+            fd.fFont.getTypeface()->getFamilyName(&name);
             hash = mix(hash, SkGoodHash()(name));
-            hash = mix(hash, SkGoodHash()(descr.fFont.getTypeface()->fontStyle()));
+            hash = mix(hash, SkGoodHash()(fd.fFont.getTypeface()->fontStyle()));
         }
-        SkDebugf("@%lu: hash=%lu\n", index, hash);
-    });
-    //hash = mix(hash, SkOpts::hash_fn(&key.fMapping, sizeof(key.fMapping), 0));
+    }
+    for (auto& ts : key.fTextStyles) {
+        hash = mix(hash, SkGoodHash()(ts.style().getLetterSpacing()));
+        hash = mix(hash, SkGoodHash()(ts.style().getWordSpacing()));
+    }
     hash = mix(hash, SkGoodHash()(key.fText));
-    SkDebugf("hash=%d\n", hash);
     return hash;
 }
 
@@ -128,9 +148,9 @@ void ParagraphCache::printCache(const char* title) {
 
 void ParagraphCache::printKeyValue(const char* title, ParagraphImpl* paragraph, bool found) {
     SkDebugf("%s '%s' ", title, paragraph->text().data());
-    paragraph->mapping().foreach([](const char* ch, FontDescr* descr){
-        SkDebugf("%d ", descr->fFont.getTypeface() != nullptr ? descr->fFont.getTypeface()->uniqueID(): 0);
-    });
+    for (auto& fd : paragraph->switches()) {
+        SkDebugf("%d ", fd.fFont.getTypeface() != nullptr ? fd.fFont.getTypeface()->uniqueID(): 0);
+    };
     SkDebugf("\n");
 }
 

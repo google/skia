@@ -22,28 +22,18 @@ SkUnichar utf8_next(const char** ptr, const char* end) {
 namespace skia {
 namespace textlayout {
 
-bool FontResolver::findFirst(const char* codepoint, SkFont* font, SkScalar* height) {
-    auto found = fFontMapping.find(codepoint);
-    if (found == nullptr) {
-        // Resolve the first character with the first found font
-        found = fFontMapping.set(codepoint, fFirstResolvedFont);
-    }
-    if (found == nullptr) {
-        return false;
-    }
-    *font = found->fFont;
-    *height = found->fHeight;
-    return true;
-}
-
 bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* height) {
-    auto found = fFontMapping.find(codepoint);
-    if (found == nullptr) {
-        return false;
+
+    SkASSERT(fFontIterator != nullptr);
+    while (fFontIterator != fFontSwitches.end() && fFontIterator->fStart <= codepoint) {
+        if (fFontIterator->fStart == codepoint) {
+            *font = fFontIterator->fFont;
+            *height = fFontIterator->fHeight;
+            return true;
+        }
+        ++fFontIterator;
     }
-    *font = found->fFont;
-    *height = found->fHeight;
-    return true;
+    return false;
 }
 
 void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text) {
@@ -259,9 +249,41 @@ void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
         combined = block;
     }
     this->findAllFontsForStyledBlock(combined.style(), combined.text());
-    SkFont font;
-    SkScalar height;
-    SkASSERT(this->findFirst(fText.begin(), &font, &height));
+
+
+    fFontSwitches.reset();
+    FontDescr* prev = nullptr;
+    for (auto& ch : utf8) {
+        if (fFontSwitches.count() == fFontMapping.count()) {
+            // Checked all
+            break;
+        }
+        auto found = fFontMapping.find(&ch);
+        if (found == nullptr) {
+            // Insignificant character
+            continue;
+        }
+        if (prev == nullptr) {
+            prev = found;
+            prev->fStart = utf8.begin();
+        }
+
+        if (*prev == *found) {
+            // Same font
+            continue;
+        }
+        fFontSwitches.emplace_back(*prev);
+
+        prev = found;
+        prev->fStart = &ch;
+    }
+
+    if (prev == nullptr) {
+        fFirstResolvedFont.fStart = utf8.begin();
+        prev = &fFirstResolvedFont;
+    }
+    fFontSwitches.emplace_back(*prev);
+    fFontIterator = fFontSwitches.begin();
 }
 }  // namespace textlayout
 }  // namespace skia

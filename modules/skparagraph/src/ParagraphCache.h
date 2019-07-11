@@ -20,7 +20,9 @@ public:
     ParagraphCacheKey(ParagraphImpl* paragraph);
 
     SkString fText;
-    SkTHashMap<uint32_t, FontDescr> fMapping;
+    SkTArray<FontDescr> fFontSwitches;
+    // TODO: Do not check for more than we have to (which is text styles with letter spacing and word spacing)
+    SkTArray<TextBlock, true> fTextStyles;
 };
 
 class ParagraphCacheValue {

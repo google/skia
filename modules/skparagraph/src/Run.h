@@ -73,12 +73,14 @@ public:
     constexpr bool empty() const { return fRange.width() == 0; }
     constexpr size_t size_bytes() const { return fRange.width() * sizeof(T); }
 
+    void setMaster(M* master) { fMaster = master; }
     SkSpan<T> span() const {
         auto base = access(fMaster);
         return base == nullptr
                        ? SkSpan<T>(nullptr, 0)
                        : SkSpan<T>(base + fRange.start, fRange.width());
     }
+    SkRange<uint32_t> range() const { return fRange; }
 
 private:
     M* fMaster;
@@ -102,7 +104,11 @@ public:
         SkScalar shiftX);
     ~Run() {}
 
-    void setMaster(ParagraphImpl* master) { fMaster = master; }
+    void setMaster(ParagraphImpl* master) {
+        fMaster = master;
+        this->fTextRange.setMaster(master);
+        this->fClusterRange.setMaster(master);
+    }
 
     SkShaper::RunHandler::Buffer newRunBuffer();
 
@@ -233,7 +239,10 @@ public:
 
     ~Cluster() = default;
 
-    void setMaster(ParagraphImpl* master) { fMaster = master; }
+    void setMaster(ParagraphImpl* master) {
+        fMaster = master;
+        this->fTextRange.setMaster(master);
+    }
     SkScalar sizeToChar(const char* ch) const;
     SkScalar sizeFromChar(const char* ch) const;
 
