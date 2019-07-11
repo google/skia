@@ -21,6 +21,8 @@
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkTLazy.h"
+// need SkDVector
+#include "src/pathops/SkPathOpsPoint.h"
 
 #include <cmath>
 #include <utility>
@@ -1575,29 +1577,32 @@ SkPath& SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScal
     SkVector before, after;
 
     // need to know our prev pt so we can construct tangent vectors
-    {
-        SkPoint start;
-        this->getLastPt(&start);
-        // Handle degenerate cases by adding a line to the first point and
-        // bailing out.
-        before.setNormalize(x1 - start.fX, y1 - start.fY);
-        after.setNormalize(x2 - x1, y2 - y1);
-    }
+    SkPoint start;
+    this->getLastPt(&start);
 
-    SkScalar cosh = SkPoint::DotProduct(before, after);
-    SkScalar sinh = SkPoint::CrossProduct(before, after);
+    // need double precision for these calcs.
+    SkDVector befored, afterd;
+    befored.set({x1 - start.fX, y1 - start.fY});
+    befored.normalize();
+    afterd.set({x2 - x1, y2 - y1});
+    afterd.normalize();
+    double cosh = befored.dot(afterd);//SkDVector::Dot(befored, afterd);
+    double sinh = befored.cross(afterd);//SkDVector::Cross(befored, afterd);
 
-    if (SkScalarNearlyZero(sinh)) {   // angle is too tight
+    // safe to convert back to floats now
+    before = befored.asSkVector();
+    after = afterd.asSkVector();
+
+    if (SkScalarNearlyZero(SkDoubleToScalar(sinh))) {   // angle is too tight
         return this->lineTo(x1, y1);
     }
-
-    SkScalar dist = SkScalarAbs(radius * (1 - cosh) / sinh);
+    SkScalar dist = SkScalarAbs(SkDoubleToScalar(radius * (1 - cosh) / sinh));
 
     SkScalar xx = x1 - dist * before.fX;
     SkScalar yy = y1 - dist * before.fY;
     after.setLength(dist);
     this->lineTo(xx, yy);
-    SkScalar weight = SkScalarSqrt(SK_ScalarHalf + cosh * SK_ScalarHalf);
+    SkScalar weight = SkScalarSqrt(SkDoubleToScalar(SK_ScalarHalf + cosh * 0.5));
     return this->conicTo(x1, y1, x1 + after.fX, y1 + after.fY, weight);
 }
 
