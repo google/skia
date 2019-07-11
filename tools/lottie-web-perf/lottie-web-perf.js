@@ -122,13 +122,13 @@ async function driveBrowser() {
     });
 
     await page.goto(targetURL, {
-      timeout: 20000,
+      timeout: 60000,
       waitUntil: 'networkidle0'
     });
 
-    console.log('- Waiting 20s for run to be done.');
+    console.log('- Waiting 60s for run to be done.');
     await page.waitForFunction('window._lottieWebDone === true', {
-      timeout: 20000,
+      timeout: 60000,
     });
 
     // Stop trace.
@@ -137,7 +137,7 @@ async function driveBrowser() {
     console.log('Timed out while loading or drawing. Either the JSON file was ' +
                 'too big or hit a bug in the player.', e);
     await browser.close();
-    process.exit(0);
+    process.exit(1);
   }
 
   await browser.close();
