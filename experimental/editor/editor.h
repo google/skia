@@ -107,7 +107,7 @@ private:
     int fMargin = 10;
     int fWidth = 0;
     int fHeight = 0;
-    SkFont fFont;
+    SkFont fFont{nullptr};
     SkRect fSpaceBounds = {0, 0, 0, 0};
     bool fNeedsReshape = false;
 

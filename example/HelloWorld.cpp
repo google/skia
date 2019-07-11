@@ -12,6 +12,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/ports/SkNativeFontMgrFactory.h"
 
 using namespace sk_app;
 
@@ -23,6 +24,7 @@ HelloWorld::HelloWorld(int argc, char** argv, void* platformData)
         : fBackendType(Window::kNativeGL_BackendType)
         , fRotationAngle(0) {
     SkGraphics::Init();
+    fFontMgr = SkNativeFontMgrFactory();
 
     fWindow = Window::CreateNativeWindow(platformData);
     fWindow->setRequestedDisplayParams(DisplayParams());
@@ -82,7 +84,7 @@ void HelloWorld::onPaint(SkSurface* surface) {
     }
 
     // Draw a message with a nice black paint
-    SkFont font;
+    SkFont font(fFontMgr->legacyMakeTypeface(nullptr, SkFontStyle::Normal()));
     font.setSubpixel(true);
     font.setSize(20);
     paint.setColor(SK_ColorBLACK);

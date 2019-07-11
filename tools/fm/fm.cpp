@@ -23,6 +23,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/MemoryCache.h"
 #include "tools/trace/EventTracingPriv.h"
@@ -389,7 +390,8 @@ int main(int argc, char** argv) {
             source->name = SkOSPath::Basename(name.c_str());
 
             if (name.endsWith(".skp")) {
-                if (sk_sp<SkPicture> pic = SkPicture::MakeFromData(blob.get())) {
+                if (sk_sp<SkPicture> pic = SkPicture::MakeFromData(blob.get(),
+                                                                   ToolUtils::GlobalFontMgr())) {
                     init(source, pic);
                     continue;
                 }

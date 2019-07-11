@@ -12,6 +12,7 @@
 #include "tools/sk_app/Window.h"
 
 class SkCanvas;
+class SkFontMgr;
 
 class HelloWorld : public sk_app::Application, sk_app::Window::Layer {
 public:
@@ -29,6 +30,7 @@ private:
 
     sk_app::Window* fWindow;
     sk_app::Window::BackendType fBackendType;
+    sk_sp<SkFontMgr> fFontMgr;
 
     SkScalar fRotationAngle;
 };

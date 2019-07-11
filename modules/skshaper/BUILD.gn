@@ -30,6 +30,7 @@ if (skia_enable_skshaper) {
     if (skia_use_icu && skia_use_harfbuzz) {
       sources += skia_shaper_harfbuzz_sources
       deps += [
+        "../..:global_fontmgr",
         "//third_party/harfbuzz",
         "//third_party/icu",
       ]

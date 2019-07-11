@@ -37,6 +37,7 @@
 #include "src/core/SkBlendModePriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <initializer_list>
 
@@ -133,7 +134,7 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     SkPaint paint;
     paint.setColor(SK_ColorRED);
 
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(20);
 
     const SkRect r2 = r.makeOutset(1.5f, 1.5f);

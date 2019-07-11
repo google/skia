@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "src/core/SkTSort.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 namespace sk_app {
 
@@ -102,10 +103,10 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
     SkTQSort(fCommands.begin(), fCommands.end() - 1,
              kAlphabetical_HelpMode == fHelpMode ? compareCommandKey : compareCommandGroup);
 
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(16);
 
-    SkFont groupFont;
+    SkFont groupFont(ToolUtils::DefaultTypeface());
     groupFont.setSize(18);
 
     SkPaint bgPaint;

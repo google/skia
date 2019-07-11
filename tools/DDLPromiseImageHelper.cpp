@@ -16,6 +16,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuYUVA.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
     SkASSERT(fDoneCnt == fNumImages);
@@ -143,7 +144,7 @@ sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
     procs.fImageCtx = (void*) &perRecorderContext;
     procs.fImageProc = PromiseImageCreator;
 
-    return SkPicture::MakeFromData(compressedPictureData, &procs);
+    return SkPicture::MakeFromData(compressedPictureData, ToolUtils::GlobalFontMgr(), &procs);
 }
 
 // This generates promise images to replace the indices in the compressed picture. This

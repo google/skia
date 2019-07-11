@@ -15,6 +15,7 @@
 #include "src/core/SkOSFile.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 //#define DUMP_TABLES
 //#define DUMP_TTC_TABLES
@@ -178,7 +179,7 @@ static void test_tables(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {
-        sk_sp<SkTypeface> face(SkTypeface::MakeFromName(gNames[i], SkFontStyle()));
+        sk_sp<SkTypeface> face(ToolUtils::TypefaceFromName(gNames[i], SkFontStyle()));
         if (face) {
 #ifdef DUMP_TABLES
             SkDebugf("%s\n", gNames[i]);
@@ -228,12 +229,12 @@ static void test_advances(skiatest::Reporter* reporter) {
         { SK_Scalar1/2, -SK_Scalar1/4 },
     };
 
-    SkFont font;
+    SkFont font(nullptr);
     char const * const txt = "long.text.with.lots.of.dots.";
     size_t textLen = strlen(txt);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
-        font.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
+        font.setTypeface(ToolUtils::TypefaceFromName(faces[i], SkFontStyle()));
 
         for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
             font.setHinting(settings[j].hinting);

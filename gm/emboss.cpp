@@ -21,6 +21,7 @@
 #include "include/core/SkTypeface.h"
 #include "src/core/SkBlurMask.h"
 #include "src/effects/SkEmbossMaskFilter.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static SkBitmap make_bm() {
     SkBitmap bm;
@@ -80,7 +81,7 @@ protected:
         canvas->translate(SkIntToScalar(100), 0);
 
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawString("Hello", 0, 50, SkFont(nullptr, 50), paint);
+        canvas->drawString("Hello", 0, 50, SkFont(ToolUtils::DefaultTypeface(), 50), paint);
     }
 
 private:

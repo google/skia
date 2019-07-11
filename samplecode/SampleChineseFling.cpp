@@ -8,6 +8,7 @@
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
@@ -25,13 +26,13 @@ static sk_sp<SkTypeface> chinese_typeface() {
 #ifdef SK_BUILD_FOR_ANDROID
     return MakeResourceAsTypeface("fonts/NotoSansCJK-Regular.ttc");
 #elif defined(SK_BUILD_FOR_WIN)
-    return SkTypeface::MakeFromName("SimSun", SkFontStyle());
+    return ToolUtils::TypefaceFromName("SimSun", SkFontStyle());
 #elif defined(SK_BUILD_FOR_MAC)
-    return SkTypeface::MakeFromName("Hiragino Sans GB W3", SkFontStyle());
+    return ToolUtils::TypefaceFromName("Hiragino Sans GB W3", SkFontStyle());
 #elif defined(SK_BUILD_FOR_IOS)
-    return SkTypeface::MakeFromName("Hiragino Sans GB W3", SkFontStyle());
+    return ToolUtils::TypefaceFromName("Hiragino Sans GB W3", SkFontStyle());
 #elif defined(SK_BUILD_FOR_UNIX)
-    return SkTypeface::MakeFromName("Noto Sans CJK SC", SkFontStyle());
+    return ToolUtils::TypefaceFromName("Noto Sans CJK SC", SkFontStyle());
 #else
     return nullptr;
 #endif

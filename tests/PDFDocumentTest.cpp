@@ -15,6 +15,7 @@
 #include "tools/Resources.h"
 
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
@@ -135,7 +136,7 @@ DEF_TEST(SkPDF_document_skbug_4734, r) {
     canvas->translate(20.0f, 10.0f);
     canvas->rotate(30.0f);
     const char text[] = "HELLO";
-    canvas->drawString(text, 0, 0, SkFont(), SkPaint());
+    canvas->drawString(text, 0, 0, SkFont(ToolUtils::DefaultTypeface()), SkPaint());
 }
 
 static bool contains(const uint8_t* result, size_t size, const char expectation[]) {
@@ -256,4 +257,3 @@ DEF_TEST(SkPDF_abort_jobs, rep) {
     doc->beginPage(612, 792)->drawBitmap(b, 0, 0);
     doc->abort();
 }
-

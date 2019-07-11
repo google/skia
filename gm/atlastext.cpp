@@ -52,9 +52,7 @@ static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkS
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[cnt]);
 
     // Using a paint to get the positions for each glyph.
-    SkFont font;
-    font.setSize(size);
-    font.setTypeface(std::move(typeface));
+    SkFont font(std::move(typeface), size);
 
     font.textToGlyphs(text.c_str(), text.size(), SkTextEncoding::kUTF8, glyphs.get(), cnt);
 

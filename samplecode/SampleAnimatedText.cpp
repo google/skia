@@ -14,6 +14,7 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/timer/Timer.h"
 
 #if SK_SUPPORT_GPU
@@ -62,7 +63,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        SkFont font(SkTypeface::MakeFromFile("/skimages/samplefont.ttf"));
+        SkFont font(ToolUtils::GlobalFontMgr()->makeFromFile("/skimages/samplefont.ttf"));
 
         SkPaint paint;
         paint.setAntiAlias(true);
