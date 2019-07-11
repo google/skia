@@ -374,3 +374,24 @@ GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrPixelConfig config,
                                                            GrColorType dstColorType) const {
     return SupportedRead{GrSwizzle::RGBA(), GrPixelConfigToColorType(config)};
 }
+
+#ifdef SK_DEBUG
+bool GrCaps::AreConfigsCompatible(GrPixelConfig genericConfig, GrPixelConfig specificConfig) {
+    switch (genericConfig) {
+    case kAlpha_8_GrPixelConfig:
+        return kAlpha_8_GrPixelConfig == specificConfig ||  // this is here bc of the mock context
+               kAlpha_8_as_Alpha_GrPixelConfig == specificConfig ||
+               kAlpha_8_as_Red_GrPixelConfig == specificConfig;
+    case kGray_8_GrPixelConfig:
+        return kGray_8_as_Lum_GrPixelConfig == specificConfig ||
+               kGray_8_as_Red_GrPixelConfig == specificConfig;
+    case kAlpha_half_GrPixelConfig:
+        return kAlpha_half_as_Red_GrPixelConfig == specificConfig;
+    case kRGBA_8888_GrPixelConfig:
+        return kRGBA_8888_GrPixelConfig == specificConfig ||
+               kBGRA_8888_GrPixelConfig == specificConfig;
+    default:
+        return genericConfig == specificConfig;
+    }
+}
+#endif
