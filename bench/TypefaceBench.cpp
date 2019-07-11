@@ -13,6 +13,8 @@
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkUtils.h"
 #include "src/utils/SkUTF.h"
+#include "tools/fonts/GlobalFontMgr.h"
+
 
 // From Project Guttenberg. This is UTF-8 text.
 static const char* atext[] = {
@@ -234,7 +236,7 @@ protected:
             maxGlyphs = std::max(maxGlyphs, fLines.back()->glyphCount);
         }
         fGlyphIds.insert(fGlyphIds.begin(), maxGlyphs, 0);
-        fTypeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
+        fTypeface = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
@@ -313,6 +315,3 @@ DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF16, atext, SK_ARRAY_COUNT(at
                                 "SkTypefaceUTF16ToGlyphAscii");)
 DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF8, atext, SK_ARRAY_COUNT(atext),
                                 "SkTypefaceUTF8ToGlyphAscii");)
-
-
-

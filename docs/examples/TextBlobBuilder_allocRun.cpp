@@ -6,7 +6,7 @@
 REG_FIDDLE(TextBlobBuilder_allocRun, 256, 60, false, 0) {
 void draw(SkCanvas* canvas) {
     SkTextBlobBuilder builder;
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     SkPaint paint;
     const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(font, 5, 20, 20);
     paint.textToGlyphs("hello", 5, run.glyphs);

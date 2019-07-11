@@ -10,6 +10,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkStream.h"
 #include "include/docs/SkPDFDocument.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 using PDFTag = SkPDF::StructureElementNode;
 
@@ -105,7 +106,7 @@ DEF_TEST(SkPDF_tagged, r) {
             document->beginPage(pageSize.width(),
                                 pageSize.height());
     SkPDF::SetNodeId(canvas, 2);
-    SkFont font(nullptr, 36);
+    SkFont font(ToolUtils::DefaultTypeface(), 36);
     const char* message = "This is the title";
     canvas->translate(72, 72);
     canvas->drawString(message, 0, 0, font, paint);

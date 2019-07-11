@@ -43,11 +43,10 @@ private:
             font.textToGlyphs(txt, txtLen, SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphs.count());
         }
 
-        SkFont font;
+        SkFont font(ToolUtils::create_portable_typeface());
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSize(30);
-        font.setTypeface(ToolUtils::create_portable_typeface());
 
         SkTextBlobBuilder builder;
         int glyphCount = fGlyphs.count();

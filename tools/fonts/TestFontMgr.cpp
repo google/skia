@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/ports/SkTypeface_win.h"
 #include "src/core/SkFontDescriptor.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/fonts/TestFontMgr.h"
 #include "tools/fonts/TestTypeface.h"
 
@@ -199,5 +201,17 @@ private:
 }  // namespace
 
 namespace ToolUtils {
+
 sk_sp<SkFontMgr> MakePortableFontMgr() { return sk_make_sp<FontMgr>(); }
+
+void SetGlobalPortableFontMgr() {
+    SetGlobalFontMgr(sk_make_sp<FontMgr>());
+}
+
+#if defined(SK_BUILD_FOR_WIN)
+void SetGlobalGDIFontMgr() {
+    SetGlobalFontMgr(SkFontMgr_New_GDI());
+}
+#endif
+
 }  // namespace ToolUtils

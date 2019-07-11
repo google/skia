@@ -8,6 +8,7 @@
 #include "bench/RecordingBench.h"
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkPictureRecorder.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 PictureCentricBench::PictureCentricBench(const char* name, const SkPicture* pic) : fName(name) {
     // Flatten the source picture in case it's trivially nested (useless for timing).
@@ -68,6 +69,6 @@ SkIPoint DeserializePictureBench::onGetSize() {
 
 void DeserializePictureBench::onDraw(int loops, SkCanvas*) {
     for (int i = 0; i < loops; ++i) {
-        SkPicture::MakeFromData(fEncodedPicture.get());
+        SkPicture::MakeFromData(fEncodedPicture.get(), ToolUtils::GlobalFontMgr());
     }
 }

@@ -16,6 +16,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <string.h>
 
@@ -32,15 +33,15 @@ static void excercise_draw_pos_text(SkCanvas* canvas,
     canvas->drawTextBlob(builder.make(), x, y, paint);
 }
 
-DEF_SIMPLE_GM_CAN_FAIL(pdf_never_embed, canvas, errorMsg, 512, 512) {
+DEF_SIMPLE_GM(pdf_never_embed, canvas, 512, 512) {
     SkPaint p;
 
-    SkFont font(MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf"), 60);
-    if (!font.getTypefaceOrDefault()) {
-        *errorMsg = "Could not load fonts/Roboto2-Regular_NoEmbed.ttf. "
-                    "Did you forget to set the resourcePath?";
-        return skiagm::DrawResult::kFail;
+    auto tf = MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf");
+    // TODO(dogben): Is this what was intended?
+    if (!tf) {
+        tf = ToolUtils::DefaultTypeface();
     }
+    SkFont font(tf, 60);
 
     const char text[] = "HELLO, WORLD!";
 
@@ -62,7 +63,6 @@ DEF_SIMPLE_GM_CAN_FAIL(pdf_never_embed, canvas, errorMsg, 512, 512) {
     canvas->scale(1.0, 0.5);
     p.setColor(0xF0000080);
     canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 30, 700, font, p);
-    return skiagm::DrawResult::kOk;
 }
 
 

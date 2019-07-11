@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <string.h>
 #include <initializer_list>
@@ -147,8 +148,7 @@ DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
     const char str[] = "Hamburgefons";
     const size_t len = strlen(str);
 
-    SkFont font;
-    font.setTypeface(SkTypeface::MakeFromName("Times", SkFontStyle()));
+    SkFont font(ToolUtils::TypefaceFromName("Times", SkFontStyle()));
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(colors); i += 2) {
         canvas->save();
