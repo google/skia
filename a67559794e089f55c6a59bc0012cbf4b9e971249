@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b393989d_c5ffa8b9",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-11T18:01:08Z",
+      "side": 1,
+      "message": "Note: I noticed that the Metal backend avoids this by putting the fMtlInfo outside the union, as its own member variable. I\u0027ll happily switch to that approach if the reviewers prefer. The current approach (putting it in the union) saves memory, but it\u0027s fragile.",
+      "revId": "a67559794e089f55c6a59bc0012cbf4b9e971249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
