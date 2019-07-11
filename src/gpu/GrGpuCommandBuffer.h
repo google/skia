@@ -111,12 +111,6 @@ public:
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
     /**
-     * Discards the contents render target.
-     */
-    // TODO: This should be removed in the future to favor using the load and store ops for discard
-    virtual void discard() = 0;
-
-    /**
      * Executes the SkDrawable object for the underlying backend.
      */
     virtual void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) {}
