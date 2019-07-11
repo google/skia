@@ -625,6 +625,12 @@ namespace skvm {
                   | (n     &  5_mask) <<  5
                   | (d     &  5_mask) <<  0);
     }
+    void Assembler::sub(X d, X n, int imm12) {
+        this->word( 0b1'1'0'10001'00  << 22
+                  | (imm12 & 12_mask) << 10
+                  | (n     &  5_mask) <<  5
+                  | (d     &  5_mask) <<  0);
+    }
     void Assembler::subs(X d, X n, int imm12) {
         this->word( 0b1'1'1'10001'00  << 22
                   | (imm12 & 12_mask) << 10
@@ -632,19 +638,33 @@ namespace skvm {
                   | (d     &  5_mask) <<  0);
     }
 
-    void Assembler::bne(Label l) {
+    void Assembler::b(Condition cond, Label l) {
         // Jump in insts from before this one.
         const int imm19 = (l.offset - here().offset) / 4;
-        this->word( 0b0101010'0       << 24
+        this->word( 0b0101010'0           << 24
+                  | (imm19     & 19_mask) <<  5
+                  | ((int)cond &  4_mask) <<  0);
+    }
+    void Assembler::cbz(X t, Label l) {
+        const int imm19 = (l.offset - here().offset) / 4;
+        this->word( 0b1'011010'0      << 24
                   | (imm19 & 19_mask) <<  5
-                  | 0b0'0001          <<  0);
+                  | (t     &  5_mask) <<  0);
+    }
+    void Assembler::cbnz(X t, Label l) {
+        const int imm19 = (l.offset - here().offset) / 4;
+        this->word( 0b1'011010'1      << 24
+                  | (imm19 & 19_mask) <<  5
+                  | (t     &  5_mask) <<  0);
     }
 
     void Assembler::ldrq(V dst, X src) { this->op(0b00'111'1'01'11'000000000000, src, dst); }
     void Assembler::ldrs(V dst, X src) { this->op(0b10'111'1'01'01'000000000000, src, dst); }
+    void Assembler::ldrb(V dst, X src) { this->op(0b00'111'1'01'01'000000000000, src, dst); }
 
     void Assembler::strq(V src, X dst) { this->op(0b00'111'1'01'10'000000000000, dst, src); }
     void Assembler::strs(V src, X dst) { this->op(0b10'111'1'01'00'000000000000, dst, src); }
+    void Assembler::strb(V src, X dst) { this->op(0b00'111'1'01'00'000000000000, dst, src); }
 
     void Assembler::ldrq(V dst, Label l) {
         const int imm19 = (l.offset - here().offset) / 4;

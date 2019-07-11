@@ -128,14 +128,34 @@ namespace skvm {
 
         void ret (X);
         void add (X d, X n, int imm12);
-        void subs(X d, X n, int imm12);
-        void bne (Label);
+        void sub (X d, X n, int imm12);
+        void subs(X d, X n, int imm12);  // subtract setting condition flags
+
+        // There's another encoding for unconditional branches that can jump further,
+        // but this one encoded as b.al is simple to implement and should be fine.
+        void b  (Label l) { this->b(Condition::al, l); }
+        void bne(Label l) { this->b(Condition::ne, l); }
+        void blt(Label l) { this->b(Condition::lt, l); }
+
+        // "cmp ..." is just an assembler mnemonic for "subs xzr, ..."!
+        void cmp(X n, int imm12) { this->subs(xzr, n, imm12); }
+
+        // Compare and branch if zero/non-zero, as if
+        //      cmp(t,0)
+        //      beq/bne(l)
+        // but without setting condition flags.
+        void cbz (X t, Label l);
+        void cbnz(X t, Label l);
 
         void ldrq(V dst, Label);  // 128-bit PC-relative load
+
         void ldrq(V dst, X src);  // 128-bit dst = *src
-        void ldrs(V dst, X src);  //  32-bit dst[0] = *src
+        void ldrs(V dst, X src);  //  32-bit dst = *src
+        void ldrb(V dst, X src);  //   8-bit dst = *src
+
         void strq(V src, X dst);  // 128-bit *dst = src
-        void strs(V src, X dst);  //  32-bit *dst = src[0]
+        void strs(V src, X dst);  //  32-bit *dst = src
+        void strb(V src, X dst);  //   8-bit *dst = src
 
     private:
         // dst = op(dst, imm)
@@ -169,6 +189,10 @@ namespace skvm {
         void op(uint32_t op22, int imm, V n, V d);
         void op(uint32_t op22, V n, V d) { this->op(op22,0,n,d); }
         void op(uint32_t op22, X x, V v) { this->op(op22,0,(V)x,v); }
+
+        // Order matters... value is 4-bit encoding for condition code.
+        enum class Condition { eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,al };
+        void b(Condition, Label);
 
         uint8_t* fCode;
         size_t   fSize;
