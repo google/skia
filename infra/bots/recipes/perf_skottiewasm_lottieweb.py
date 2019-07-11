@@ -173,18 +173,17 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
   with open(trace_output, 'r') as f:
     trace_json = json.load(f)
   output_json_file = sys.argv[2]
-  renderer = sys.argv[3]
+  renderer = sys.argv[3]  # Unused for now but might be useful in the future.
 
   erroneous_termination_statuses = [
       'replaced_by_new_reporter_at_same_stage',
       'did_not_produce_frame',
   ]
-  accepted_termination_statuses = []
-  if renderer == 'skottie-wasm':
-    accepted_termination_statuses.extend(['main_frame_aborted'])
-  elif renderer == 'lottie-web':
-    accepted_termination_statuses.extend(
-        ['missed_frame', 'submitted_frame', 'main_frame_aborted'])
+  accepted_termination_statuses = [
+      'missed_frame',
+      'submitted_frame',
+      'main_frame_aborted'
+  ]
 
   current_frame_duration = 0
   total_frames = 0

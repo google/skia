@@ -39,9 +39,6 @@
     });
   })();
 
-  // Without flushing, nothing will show up on the screen, although
-  // everything else has been executed.
-  const shouldFlush = false;
   const maxFrames = 25;
   const maxLoops = 2;
 
@@ -93,10 +90,8 @@
                        fRight: 1000,
                        fBottom: 1000
                        });
+      surface.flush();
       console.log("Used seek: " + seek);
-      if (shouldFlush) {
-        surface.flush();
-      }
       seek += t_rate;
       frame++;
       window.requestAnimationFrame(drawFrame);
