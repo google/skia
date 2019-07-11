@@ -91,17 +91,16 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgete
         return nullptr;
     }
 
-    GrSRGBEncoded srgbEncoding;
-    GrColorType ct = GrPixelConfigToColorTypeAndEncoding(desc.fConfig, &srgbEncoding);
+    GrColorType ct = GrPixelConfigToColorType(desc.fConfig);
     if (GrColorType::kUnknown == ct) {
         return nullptr;
     }
 
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
-    GrMockTextureInfo texInfo(ct, srgbEncoding, NextInternalTextureID());
+    GrMockTextureInfo texInfo(ct, NextInternalTextureID());
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
-        GrMockRenderTargetInfo rtInfo(ct, srgbEncoding, NextInternalRenderTargetID());
+        GrMockRenderTargetInfo rtInfo(ct, NextInternalRenderTargetID());
         return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, budgeted, desc, mipMapsStatus,
                                                               texInfo, rtInfo));
     }
@@ -148,8 +147,7 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
             tex.hasMipMaps() ? GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
 
     // The client gave us the texture ID but we supply the render target ID.
-    GrMockRenderTargetInfo rtInfo(texInfo.fColorType, texInfo.fSRGBEncoded,
-                                  NextInternalRenderTargetID());
+    GrMockRenderTargetInfo rtInfo(texInfo.fColorType, NextInternalRenderTargetID());
 
     return sk_sp<GrTexture>(
             new GrMockTextureRenderTarget(this, desc, mipMapsStatus, texInfo, rtInfo, cacheable));
@@ -182,8 +180,7 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     desc.fSampleCnt = sampleCnt;
 
     // The client gave us the texture ID but we supply the render target ID.
-    GrMockRenderTargetInfo rtInfo(texInfo.fColorType, texInfo.fSRGBEncoded,
-                                  NextInternalRenderTargetID());
+    GrMockRenderTargetInfo rtInfo(texInfo.fColorType, NextInternalRenderTargetID());
 
     return sk_sp<GrRenderTarget>(
             new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc, rtInfo));
@@ -211,19 +208,15 @@ GrBackendTexture GrMockGpu::createBackendTexture(int w, int h,
                                                  const SkColor4f* /* color */,
                                                  GrProtected /* isProtected */) {
 
-    if (!format.getMockColorType() || !format.getMockSRGBEncoded()) {
+    if (!format.getMockColorType()) {
         return GrBackendTexture();  // invalid;
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(*format.getMockColorType(),
-                                                    *format.getMockSRGBEncoded());
-
-    if (!this->caps()->isConfigTexturable(config)) {
+    if (!this->caps()->isFormatTexturable(*format.getMockColorType(), format)) {
         return GrBackendTexture();  // invalid
     }
 
-    GrMockTextureInfo info(*format.getMockColorType(), *format.getMockSRGBEncoded(),
-                           NextExternalTextureID());
+    GrMockTextureInfo info(*format.getMockColorType(), NextExternalTextureID());
 
     fOutstandingTestingOnlyTextureIDs.add(info.fID);
     return GrBackendTexture(w, h, mipMapped, info);
@@ -252,7 +245,7 @@ bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 
 GrBackendRenderTarget GrMockGpu::createTestingOnlyBackendRenderTarget(int w, int h,
                                                                       GrColorType colorType) {
-    GrMockRenderTargetInfo info(colorType, GrSRGBEncoded::kNo, NextExternalRenderTargetID());
+    GrMockRenderTargetInfo info(colorType, NextExternalRenderTargetID());
     static constexpr int kSampleCnt = 1;
     static constexpr int kStencilBits = 8;
     return GrBackendRenderTarget(w, h, kSampleCnt, kStencilBits, info);

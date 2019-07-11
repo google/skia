@@ -45,7 +45,7 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
             break;
 #endif
         case GrBackendApi::kMock:
-            fMock = that.fMock;
+            fMockColorType = that.fMockColorType;
             break;
         default:
             SK_ABORT("Unknown GrBackend");
@@ -154,28 +154,19 @@ const GrMTLPixelFormat* GrBackendFormat::getMtlFormat() const {
 }
 #endif
 
-GrBackendFormat::GrBackendFormat(GrColorType colorType, GrSRGBEncoded srgbEncoded)
+GrBackendFormat::GrBackendFormat(GrColorType colorType)
         : fBackend(GrBackendApi::kMock)
         , fValid(true)
         , fTextureType(GrTextureType::k2D) {
-    fMock.fColorType = colorType;
-    fMock.fSRGBEncoded = srgbEncoded;
+    fMockColorType = colorType;
 }
 
 const GrColorType* GrBackendFormat::getMockColorType() const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
-        return &fMock.fColorType;
+        return &fMockColorType;
     }
     return nullptr;
 }
-
-const GrSRGBEncoded* GrBackendFormat::getMockSRGBEncoded() const {
-    if (this->isValid() && GrBackendApi::kMock == fBackend) {
-        return &fMock.fSRGBEncoded;
-    }
-    return nullptr;
-}
-
 
 GrBackendFormat GrBackendFormat::makeTexture2D() const {
     GrBackendFormat copy = *this;
@@ -217,8 +208,7 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
 #endif
             break;
         case GrBackendApi::kMock:
-            return fMock.fColorType == that.fMock.fColorType &&
-                   fMock.fSRGBEncoded == that.fMock.fSRGBEncoded;
+            return fMockColorType == that.fMockColorType;
         default:
             SK_ABORT("Unknown GrBackend");
     }

@@ -974,7 +974,10 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
         case GrColorType::kRGBA_8888:
             if (VK_FORMAT_R8G8B8A8_UNORM == format) {
                 return kRGBA_8888_GrPixelConfig;
-            } else if (VK_FORMAT_R8G8B8A8_SRGB == format) {
+            }
+            break;
+        case GrColorType::kRGBA_8888_SRGB:
+            if (VK_FORMAT_R8G8B8A8_SRGB == format) {
                 return kSRGBA_8888_GrPixelConfig;
             }
             break;
@@ -1123,9 +1126,8 @@ GrPixelConfig GrVkCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& fo
     return get_yuva_config(*vkFormat);
 }
 
-GrBackendFormat GrVkCaps::getBackendFormatFromColorType(GrColorType ct,
-                                                        GrSRGBEncoded srgbEncoded) const {
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
+GrBackendFormat GrVkCaps::getBackendFormatFromColorType(GrColorType ct) const {
+    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
     if (config == kUnknown_GrPixelConfig) {
         return GrBackendFormat();
     }
@@ -1159,7 +1161,9 @@ static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorTyp
             return VK_FORMAT_B4G4R4A4_UNORM_PACK16 == vkFormat ||
                    VK_FORMAT_R4G4B4A4_UNORM_PACK16 == vkFormat;
         case GrColorType::kRGBA_8888:
-            return VK_FORMAT_R8G8B8A8_UNORM == vkFormat || VK_FORMAT_R8G8B8A8_SRGB == vkFormat;
+            return VK_FORMAT_R8G8B8A8_UNORM == vkFormat;
+        case GrColorType::kRGBA_8888_SRGB:
+            return VK_FORMAT_R8G8B8A8_SRGB == vkFormat;
         case GrColorType::kRGB_888x:
             GR_STATIC_ASSERT(GrCompressionTypeClosestColorType(SkImage::kETC1_CompressionType) ==
                              GrColorType::kRGB_888x);

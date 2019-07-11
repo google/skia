@@ -200,10 +200,6 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     // first.
     SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipMapLevel() + 1));
 
-    // If we're uploading compressed data then we should be using uploadCompressedTexData
-    SkASSERT(!GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType,
-                                                                 GrSRGBEncoded::kNo)));
-
     if (!check_max_blit_width(width)) {
         return false;
     }
@@ -308,10 +304,6 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
 
 bool GrMtlGpu::clearTexture(GrMtlTexture* tex, GrColorType dataColorType) {
     SkASSERT(this->caps()->isConfigTexturable(tex->config()));
-
-    // If we're uploading compressed data then we should be using uploadCompressedTexData
-    SkASSERT(!GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType,
-                                                                 GrSRGBEncoded::kNo)));
 
     id<MTLTexture> mtlTexture = tex->mtlTexture();
     SkASSERT(mtlTexture);
@@ -830,7 +822,7 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
         return GrBackendRenderTarget();
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
+    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
 
     MTLPixelFormat format;
     if (!GrPixelConfigToMTLFormat(config, &format)) {
