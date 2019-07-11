@@ -90,8 +90,8 @@ void GLWindowContext::resize(int w, int h) {
 }
 
 void GLWindowContext::setDisplayParams(const DisplayParams& params) {
-    this->destroyContext();
     fDisplayParams = params;
+    this->destroyContext();
     this->initializeContext();
 }
 

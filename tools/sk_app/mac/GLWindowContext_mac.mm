@@ -28,7 +28,7 @@ public:
     void onSwapBuffers() override;
 
     sk_sp<const GrGLInterface> onInitializeContext() override;
-    void onDestroyContext() override {}
+    void onDestroyContext() override;
 
     void resize(int w, int h) override;
 
@@ -134,6 +134,16 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     glViewport(0, 0, fWidth, fHeight);
 
     return GrGLMakeNativeInterface();
+}
+
+void GLWindowContext_mac::onDestroyContext() {
+    // We only need to tear down the GLContext if we've changed the sample count.
+    if (fGLContext && fSampleCount != fDisplayParams.fMSAASampleCount) {
+        [fPixelFormat release];
+        fPixelFormat = nil;
+        [fGLContext release];
+        fGLContext = nil;
+    }
 }
 
 void GLWindowContext_mac::onSwapBuffers() {
