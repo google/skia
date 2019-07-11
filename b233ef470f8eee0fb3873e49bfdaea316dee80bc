@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "dbf6ad57_bd4a3155",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-11T12:50:40Z",
+      "side": 1,
+      "message": "I just remembered another fun twist here... provided you are in sRGB, the luminance_to_alpha stage actually does do a luminance-\u003ealpha conversion when linear, and it also does the BT.709 recommended luma-\u003ealpha conversion if they\u0027re encoded, again sort of by fiat.  They just said \"hey let\u0027s use the same coefficients you\u0027d need for luminance for luma too.\"",
+      "parentUuid": "0af1cb4f_1db979a7",
+      "revId": "b233ef470f8eee0fb3873e49bfdaea316dee80bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee8a2181_0e9d0b90",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 3
