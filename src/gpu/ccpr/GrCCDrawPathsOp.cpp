@@ -115,6 +115,8 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
     if (!clippedDrawBounds.intersect(conservativeDevBounds, SkRect::Make(maskDevIBounds))) {
         clippedDrawBounds.setEmpty();
     }
+    // We always have AA bloat, even in MSAA atlas mode. This is because by the time this Op comes
+    // along and draws to the main canvas, the atlas has been resolved to analytic coverage.
     this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
 }
 
@@ -350,6 +352,7 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
                     ? SkPMColor4f{0,0,.25,.25} : SkPMColor4f{0,.25,0,.25};
 #endif
             op->recordInstance(fCacheEntry->cachedAtlas()->getOnFlushProxy(),
+                               GrCCPathProcessor::Mode::kDrawLiteralCoverageToCanvas,
                                resources->nextCachedPathInstanceIdx());
             resources->appendCachedPathInstance().set(
                     *fCacheEntry, fCachedMaskShift, SkPMColor4f_toFP16(fColor), doEvenOddFill);
@@ -367,7 +370,10 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     if (auto atlas = resources->renderShapeInAtlas(
                 fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
                 &devToAtlasOffset)) {
-        op->recordInstance(atlas->textureProxy(), resources->nextRenderedPathInstanceIdx());
+        GrCCPathProcessor::Mode drawMode = GrCCPathProcessor::GetDrawToCanvasMode(
+                resources->renderedPathCoverageType());
+        op->recordInstance(
+                atlas->textureProxy(), drawMode, resources->nextRenderedPathInstanceIdx());
         resources->appendRenderedPathInstance().set(
                 octoBounds, devToAtlasOffset, SkPMColor4f_toFP16(fColor), doEvenOddFill);
 
@@ -381,14 +387,17 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     }
 }
 
-inline void GrCCDrawPathsOp::recordInstance(GrTextureProxy* atlasProxy, int instanceIdx) {
+inline void GrCCDrawPathsOp::recordInstance(
+        GrTextureProxy* atlasProxy, GrCCPathProcessor::Mode drawToCanvasMode, int instanceIdx) {
     if (fInstanceRanges.empty() || fInstanceRanges.back().fAtlasProxy != atlasProxy) {
         // Start a new instance range if one did not exist of if we are switching atlases.
-        fInstanceRanges.emplace_back(atlasProxy, instanceIdx);
+        fInstanceRanges.emplace_back(atlasProxy, drawToCanvasMode, instanceIdx);
     }
-    // The only time we should expect instanceIdx to not be adjacent to the previous instance is
-    // when using a different atlas, and that condition is handled above.
+    // The only time we should expect instanceIdx to not be adjacent to the previous instance, or
+    // drawToCanvasMode to not match the current range, is when using a different atlas, and that
+    // condition is handled above.
     SkASSERT(fInstanceRanges.back().fEndInstance == instanceIdx);
+    SkASSERT(fInstanceRanges.back().fDrawToCanvasMode == drawToCanvasMode);
     fInstanceRanges.back().fEndInstance = instanceIdx + 1;
 }
 
@@ -415,8 +424,8 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
         SkASSERT(atlas->isInstantiated());
 
         GrCCPathProcessor pathProc(
-                atlas->peekTexture(), atlas->textureSwizzle(), atlas->origin(),
-                fViewMatrixIfUsingLocalCoords);
+                range.fDrawToCanvasMode, atlas->peekTexture(), atlas->textureSwizzle(),
+                atlas->origin(), fViewMatrixIfUsingLocalCoords);
         GrTextureProxy* atlasProxy = range.fAtlasProxy;
         fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;
         pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources,

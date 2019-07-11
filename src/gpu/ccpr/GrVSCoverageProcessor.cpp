@@ -444,7 +444,11 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
 
     // Fragment shader.
-    fShader->emitFragmentCode(proc, args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
+    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
+    f->codeAppendf("half coverage;");
+    fShader->emitFragmentCoverageCode(f, "coverage");
+    f->codeAppendf("%s = half4(coverage);", args.fOutputColor);
+    f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
 }
 
 void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider* rp) {

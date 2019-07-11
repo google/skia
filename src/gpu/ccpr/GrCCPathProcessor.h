@@ -13,6 +13,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrPipeline.h"
+#include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrOctoBounds.h"
 
 class GrCCPathCacheEntry;
@@ -53,11 +54,30 @@ public:
     static sk_sp<const GrGpuBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrGpuBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
 
-    GrCCPathProcessor(const GrTexture* atlasTexture, const GrSwizzle&, GrSurfaceOrigin atlasOrigin,
+    enum class Mode {
+        // These modes draw a path to the main canvas while reading coverage values from the atlas.
+        kDrawLiteralCoverageToCanvas,
+        kDrawCoverageCountToCanvas,
+
+        // After stencilling paths to the atlas, ccpr draws with this mode to convert MSAA stencil
+        // winding counts to coverage values in-place.
+        kResolveStencilCoverageInPlace
+    };
+
+    static Mode GetDrawToCanvasMode(GrCCAtlas::CoverageType coverageType) {
+        return (GrCCAtlas::CoverageType::kFP16_CoverageCount == coverageType)
+                ? Mode::kDrawCoverageCountToCanvas
+                : Mode::kDrawLiteralCoverageToCanvas;
+    }
+
+    GrCCPathProcessor(Mode, const GrTexture* atlasTexture, const GrSwizzle&,
+                      GrSurfaceOrigin atlasOrigin,
                       const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
 
     const char* name() const override { return "GrCCPathProcessor"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+        b->add32((uint32_t)fMode);
+    }
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
     void drawPaths(GrOpFlushState*, const GrPipeline&, const GrPipeline::FixedDynamicState*,
@@ -67,7 +87,8 @@ public:
 private:
     const TextureSampler& onTextureSampler(int) const override { return fAtlasAccess; }
 
-    const TextureSampler fAtlasAccess;
+    const Mode fMode;
+    TextureSampler fAtlasAccess;
     SkISize fAtlasSize;
     GrSurfaceOrigin fAtlasOrigin;
 
@@ -82,7 +103,8 @@ private:
     static constexpr Attribute kCornersAttrib =
             {"corners", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
 
-    class Impl;
+    class ResolveStencilCoverageInPlaceImpl;
+    class DrawPathToCanvasImpl;
 
     typedef GrGeometryProcessor INHERITED;
 };
