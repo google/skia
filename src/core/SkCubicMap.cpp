@@ -8,7 +8,9 @@
 #include "include/core/SkCubicMap.h"
 #include "include/private/SkNx.h"
 
+#ifdef SK_DEBUG
 //#define CUBICMAP_TRACK_MAX_ERROR
+#endif
 
 #ifdef CUBICMAP_TRACK_MAX_ERROR
 #include "src/pathops/SkPathOpsCubic.h"
@@ -26,10 +28,6 @@ static float eval_poly1(float a, float b, float t) {
     return a * t + b;
 }
 
-static float guess_nice_cubic_root(float A, float B, float C, float D) {
-    return -D;
-}
-
 #ifdef SK_DEBUG
 static bool valid(float r) {
     return r >= 0 && r <= 1;
@@ -42,23 +40,39 @@ static inline bool nearly_zero(SkScalar x) {
 }
 
 static inline bool delta_nearly_zero(float delta) {
-    return sk_float_abs(delta) <= 0.0001f;
+    return sk_float_abs(delta) <= 0.00005f;
 }
 
 #ifdef CUBICMAP_TRACK_MAX_ERROR
-    static int max_iters;
+static int gNewtonCalls, gNewtonIters;
+static int gHalleyCalls, gHalleyIters;
+static void log_newton_iters(int iters) {
+    gNewtonCalls += 1;
+    gNewtonIters += iters;
+    if (iters > 3) {
+        SkDebugf("newton iter %d\n", iters);
+    }
+//    SkDebugf("ave newton iters %g\n", (double)gNewtonIters / gNewtonCalls);
+}
+static void log_halley_iters(int iters) {
+    gHalleyCalls += 1;
+    gHalleyIters += iters;
+    if (iters > 2) {
+        SkDebugf("halley iter %d\n", iters);
+    }
+    SkDebugf("ave halley iters %g\n", (double)gHalleyIters / gHalleyCalls);
+}
+#else
+static void log_newton_iters(int) {}
+static void log_halley_iters(int) {}
 #endif
 
-/*
- *  TODO: will this be faster if we algebraically compute the polynomials for the numer and denom
- *        rather than compute them in parts?
- */
-static float solve_nice_cubic_halley(float A, float B, float C, float D) {
-    const int MAX_ITERS = 8;
+static float solve_halley(float A, float B, float C, float D, float guess) {
+    const int MAX_ITERS = 2;
     const float A3 = 3 * A;
     const float B2 = B + B;
 
-    float t = guess_nice_cubic_root(A, B, C, D);
+    float t = guess;
     int iters = 0;
     for (; iters < MAX_ITERS; ++iters) {
         float f = eval_poly3(A, B, C, D, t);    // f   = At^3 + Bt^2 + Ct + D
@@ -71,7 +85,6 @@ static float solve_nice_cubic_halley(float A, float B, float C, float D) {
         }
         float denom = 2 * fp * fp - f * fpp;
         float delta = numer / denom;
-//      SkDebugf("[%d] delta %g t %g\n", iters, delta, t);
         if (delta_nearly_zero(delta)) {
             break;
         }
@@ -79,60 +92,36 @@ static float solve_nice_cubic_halley(float A, float B, float C, float D) {
         SkASSERT(valid(new_t));
         t = new_t;
     }
+    log_halley_iters(iters);
     SkASSERT(valid(t));
-#ifdef CUBICMAP_TRACK_MAX_ERROR
-    if (iters > max_iters) {
-        max_iters = iters;
-        SkDebugf("max_iters %d\n", max_iters);
-    }
-#endif
     return t;
 }
 
-// At the moment, this technique does not appear to be better (i.e. faster at same precision)
-// but the code is left here (at least for a while) to document the attempt.
-static float solve_nice_cubic_householder(float A, float B, float C, float D) {
-    const int MAX_ITERS = 8;
+static float solve_newton(float A, float B, float C, float D, float guess) {
+    const int MAX_ITERS = 3;
     const float A3 = 3 * A;
     const float B2 = B + B;
 
-    float t = guess_nice_cubic_root(A, B, C, D);
+    SkASSERT(valid(guess));
+    float t = guess;
     int iters = 0;
     for (; iters < MAX_ITERS; ++iters) {
-        float f    = eval_poly3(A, B, C, D, t);     // f    = At^3 + Bt^2 + Ct + D
-        float fp   = eval_poly2(A3, B2, C, t);      // f'   = 3At^2 + 2Bt + C
-        float fpp  = eval_poly1(A3 + A3, B2, t);    // f''  = 6At + 2B
-        float fppp = A3 + A3;                       // f''' = 6A
-
-        float f2 = f * f;
-        float fp2 = fp * fp;
-
-//        float numer = 6 * f * fp * fp - 3 * f * f * fpp;
-//        float denom = 6 * fp * fp * fp - 6 * f * fp * fpp + f * f * fppp;
-
-        float numer = 6 * f * fp2 - 3 * f2 * fpp;
-        if (numer == 0) {
-            break;
+        float f = eval_poly3(A, B, C, D, t);    // f   = At^3 + Bt^2 + Ct + D
+        if (delta_nearly_zero(f)) {
+            SkASSERT(valid(guess));
+            log_newton_iters(iters);
+            return t;
         }
-        float denom = 6 * (fp2 * fp - f * fp * fpp) + f2 * fppp;
-        float delta = numer / denom;
-        //      SkDebugf("[%d] delta %g t %g\n", iters, delta, t);
-        if (delta_nearly_zero(delta)) {
-            break;
+        float fp = eval_poly2(A3, B2, C, t);    // f'  = 3At^2 + 2Bt + C
+        if (delta_nearly_zero(fp)) {
+            break;  // failed, try halley
         }
-        float new_t = t - delta;
-        SkASSERT(valid(new_t));
+        float new_t = t - f / fp;
         t = new_t;
     }
-    SkASSERT(valid(t));
-#ifdef CUBICMAP_TRACK_MAX_ERROR
-    if (iters > max_iters) {
-        max_iters = iters;
-        SkDebugf("max_iters %d\n", max_iters);
-    }
-#endif
-    return t;
+    return solve_halley(A, B, C, D, guess);
 }
+
 
 #ifdef CUBICMAP_TRACK_MAX_ERROR
 static float compute_slow(float A, float B, float C, float x) {
@@ -145,13 +134,12 @@ static float compute_slow(float A, float B, float C, float x) {
 static float max_err;
 #endif
 
-static float compute_t_from_x(float A, float B, float C, float x) {
+static float compute_t_from_x(float A, float B, float C, float x, float guess) {
 #ifdef CUBICMAP_TRACK_MAX_ERROR
     float answer = compute_slow(A, B, C, x);
 #endif
-    float answer2 = true ?
-                    solve_nice_cubic_halley(A, B, C, -x) :
-                    solve_nice_cubic_householder(A, B, C, -x);
+    float answer2 = solve_newton(A, B, C, -x, guess);
+
 #ifdef CUBICMAP_TRACK_MAX_ERROR
     float err = sk_float_abs(answer - answer2);
     if (err > max_err) {
@@ -160,6 +148,21 @@ static float compute_t_from_x(float A, float B, float C, float x) {
     }
 #endif
     return answer2;
+}
+
+float SkCubicMap::guessTFromX(float x) const {
+    const float delta = 1.0f / N;
+    float offset = 0;
+    int i = 1;
+    for (; i < N; ++i) {
+        if (x <= fTableX[i]) {
+            break;
+        }
+        offset += delta;
+    }
+    float guess = offset + delta * (x - fTableX[i-1]) / (fTableX[i] - fTableX[i-1]);
+    SkASSERT(valid(guess));
+    return guess;
 }
 
 float SkCubicMap::computeYFromX(float x) const {
@@ -175,7 +178,7 @@ float SkCubicMap::computeYFromX(float x) const {
     if (fType == kCubeRoot_Type) {
         t = sk_float_pow(x / fCoeff[0].fX, 1.0f / 3);
     } else {
-        t = compute_t_from_x(fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, x);
+        t = compute_t_from_x(fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, x, this->guessTFromX(x));
     }
     float a = fCoeff[0].fY;
     float b = fCoeff[1].fY;
@@ -207,6 +210,13 @@ SkCubicMap::SkCubicMap(SkPoint p1, SkPoint p2) {
     } else if (coeff_nearly_zero(fCoeff[1].fX) && coeff_nearly_zero(fCoeff[2].fX)) {
         fType = kCubeRoot_Type;
     }
+
+    const float delta = 1.0f / N;
+    fTableX[0] = 0;
+    for (int i = 1; i < N; ++i) {
+        fTableX[i] = eval_poly3(fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, 0, i * delta);
+    }
+    fTableX[N] = 1;
 }
 
 SkPoint SkCubicMap::computeFromT(float t) const {

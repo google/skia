@@ -35,6 +35,13 @@ private:
 
     SkPoint fCoeff[3];
     Type    fType;
+
+    enum {
+        N = 14
+    };
+    float   fTableX[N+1]; // eval at 0, 1/N, 2/N, ... (N-1)/N
+
+    float guessTFromX(float x) const;
 };
 
 #endif
