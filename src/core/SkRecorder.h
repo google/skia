@@ -35,16 +35,26 @@ private:
     SkTDArray<SkDrawable*> fArray;
 };
 
-// SkRecorder provides an SkCanvas interface for recording into an SkRecord.
-
+/**
+ *  SkRecorder provides an SkCanvas interface for recording into an SkRecord.
+ *
+ *  Sub pictures or drawables can be either refed or played back immediated depending on
+ *  drawPictureMode and drawDrawableMode.
+ *
+ *  When recording an SkPicture or SkDrawable, use SkPictureRecorder instead of using this class
+ *  directly.
+ */
 class SkRecorder final : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
     // Does not take ownership of the SkRecord.
     SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
     SkRecorder(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
 
-    enum DrawPictureMode { Record_DrawPictureMode, Playback_DrawPictureMode };
-    void reset(SkRecord*, const SkRect& bounds, DrawPictureMode, SkMiniRecorder* = nullptr);
+    // This enum is used as a type for both for the picture and drawable record/playback settings.
+    // In Record mode, the object is referenced, in playback mode, it is played back immediately.
+    enum DrawMode { Record_DrawMode, Playback_DrawMode };
+    void reset(SkRecord*, const SkRect& bounds, DrawMode pictureMode, DrawMode drawableMode,
+        SkMiniRecorder* = nullptr);
 
     size_t approxBytesUsedBySubPictures() const { return fApproxBytesUsedBySubPictures; }
 
@@ -133,9 +143,20 @@ private:
     template<typename T, typename... Args>
     void append(Args&&...);
 
-    DrawPictureMode fDrawPictureMode;
+    // Whether to ref or immediately play back subpictures
+    DrawMode fDrawPictureMode;
+    // Whether to ref of immediately play back drawables.
+    DrawMode fDrawDrawableMode;
+
+    // The size of all subpictures and drawables
     size_t fApproxBytesUsedBySubPictures;
+
+    // An unowned pointer to the record being recorded into. This record is ready to be used
+    // at any time, as there is no close or finalize method.
     SkRecord* fRecord;
+
+    // A list of drawables populated when fDrawDrawableMode is Record, and at least one drawable
+    // has been recorded.
     std::unique_ptr<SkDrawableList> fDrawableList;
 
     SkMiniRecorder* fMiniRecorder;

@@ -190,7 +190,8 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
         SkRecord record;
         // This picture mode is necessary so that we record the command contents of frame.fPicture
         // not just a 'DrawPicture' command.
-        resultRecorder.reset(&record, bounds, SkRecorder::Playback_DrawPictureMode, nullptr);
+        resultRecorder.reset(&record, bounds,
+            SkRecorder::Playback_DrawMode, SkRecorder::Playback_DrawMode, nullptr);
         frame.fPicture->playback(&resultRecorder);
         // Compare the record to the expected one
         compareRecords(record, expectedRecords[i], i, reporter);

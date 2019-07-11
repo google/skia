@@ -35,6 +35,8 @@ public:
         // If you call drawPicture() or drawDrawable() on the recording canvas, this flag forces
         // that object to playback its contents immediately rather than reffing the object.
         kPlaybackDrawPicture_RecordFlag     = 1 << 0,
+        // Same as above but for drawDrawable().
+        kPlaybackDrawDrawable_RecordFlag     = 1 << 1,
     };
 
     enum FinishFlags {
@@ -45,6 +47,9 @@ public:
                       of this rect is undefined, and may be drawn or it may not.
         @param bbhFactory factory to create desired acceleration structure
         @param recordFlags optional flags that control recording.
+            Defaults to recording pictures but playing back drawables.
+            Override the drawable setting to record if you intend to call
+            finishRecordingAsDrawable().
         @return the canvas.
     */
     SkCanvas* beginRecording(const SkRect& bounds,

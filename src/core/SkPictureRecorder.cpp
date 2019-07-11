@@ -41,10 +41,13 @@ SkCanvas* SkPictureRecorder::beginRecording(const SkRect& userCullRect,
     if (!fRecord) {
         fRecord.reset(new SkRecord);
     }
-    SkRecorder::DrawPictureMode dpm = (recordFlags & kPlaybackDrawPicture_RecordFlag)
-        ? SkRecorder::Playback_DrawPictureMode
-        : SkRecorder::Record_DrawPictureMode;
-    fRecorder->reset(fRecord.get(), cullRect, dpm, fMiniRecorder.get());
+    SkRecorder::DrawMode dpm = (recordFlags & kPlaybackDrawPicture_RecordFlag)
+        ? SkRecorder::Playback_DrawMode
+        : SkRecorder::Record_DrawMode;
+    SkRecorder::DrawMode ddm = (recordFlags & kPlaybackDrawDrawable_RecordFlag)
+        ? SkRecorder::Playback_DrawMode
+        : SkRecorder::Record_DrawMode;
+    fRecorder->reset(fRecord.get(), cullRect, dpm, ddm, fMiniRecorder.get());
     fActivelyRecording = true;
     return this->getRecordingCanvas();
 }
