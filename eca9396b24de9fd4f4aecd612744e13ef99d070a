@@ -16,6 +16,24 @@
       "revId": "eca9396b24de9fd4f4aecd612744e13ef99d070a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da218d6f_519c33e9",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1592,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-11T19:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ccaae98_0fe66b74",
+      "revId": "eca9396b24de9fd4f4aecd612744e13ef99d070a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
