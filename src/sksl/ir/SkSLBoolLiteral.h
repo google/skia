@@ -9,6 +9,7 @@
 #define SKSL_BOOLLITERAL
 
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
@@ -17,8 +18,12 @@ namespace SkSL {
  * Represents 'true' or 'false'.
  */
 struct BoolLiteral : public Expression {
-    BoolLiteral(const Context& context, int offset, bool value)
-    : INHERITED(offset, kBoolLiteral_Kind, *context.fBool_Type)
+    BoolLiteral(IRGenerator* irGenerator, int offset, bool value)
+    : INHERITED(irGenerator, offset, kBoolLiteral_Kind, irGenerator->fContext.fBool_Type)
+    , fValue(value) {}
+
+    BoolLiteral(IRGenerator* irGenerator, int offset, bool value, IRNode::ID type)
+    : INHERITED(irGenerator, offset, kBoolLiteral_Kind, type)
     , fValue(value) {}
 
     String description() const override {
@@ -33,23 +38,18 @@ struct BoolLiteral : public Expression {
         return true;
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override {
+    bool compareConstant(const Expression& other) const override {
         BoolLiteral& b = (BoolLiteral&) other;
         return fValue == b.fValue;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new BoolLiteral(fOffset, fValue, &fType));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new BoolLiteral(fIRGenerator, fOffset, fValue, fType));
     }
 
     const bool fValue;
 
     typedef Expression INHERITED;
-
-private:
-    BoolLiteral(int offset, bool value, const Type* type)
-    : INHERITED(offset, kBoolLiteral_Kind, *type)
-    , fValue(value) {}
 };
 
 } // namespace

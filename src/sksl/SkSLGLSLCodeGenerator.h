@@ -73,11 +73,11 @@ public:
         kTopLevel_Precedence       = kSequence_Precedence
     };
 
-    GLSLCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                      OutputStream* out)
-    : INHERITED(program, errors, out)
+    GLSLCodeGenerator(IRGenerator* irGenerator, const Program* program, OutputStream* out)
+    : INHERITED(program, &irGenerator->fErrors, out)
     , fLineEnding("\n")
-    , fContext(*context)
+    , fIRGenerator(*irGenerator)
+    , fContext(irGenerator->fContext)
     , fProgramKind(program->fKind) {}
 
     bool generateCode() override;
@@ -123,9 +123,9 @@ protected:
 
     virtual void writeVarInitializer(const Variable& var, const Expression& value);
 
-    const char* getTypePrecision(const Type& type);
+    const char* getTypePrecision(IRNode::ID type);
 
-    void writeTypePrecision(const Type& type);
+    void writeTypePrecision(IRNode::ID type);
 
     void writeVarDeclarations(const VarDeclarations& decl, bool global);
 
@@ -179,7 +179,7 @@ protected:
 
     void writeStatement(const Statement& s);
 
-    void writeStatements(const std::vector<std::unique_ptr<Statement>>& statements);
+    void writeStatements(const std::vector<IRNode::ID>& statements);
 
     void writeBlock(const Block& b);
 
@@ -198,6 +198,7 @@ protected:
     virtual void writeProgramElement(const ProgramElement& e);
 
     const char* fLineEnding;
+    IRGenerator& fIRGenerator;
     const Context& fContext;
     StringStream fExtensions;
     StringStream fGlobals;

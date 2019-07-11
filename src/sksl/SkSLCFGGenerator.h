@@ -19,6 +19,38 @@ namespace SkSL {
 // index of a block within CFG.fBlocks
 typedef size_t BlockId;
 
+// We can't safely store pointers to IRNode::ID while the program is still being modified, because
+// they are stored in a std::vector whose storage might be reallocated. So we instead store the ID
+// of the parent node and an offset to the ID within the node struct. If fIndex is negative,
+// the base + fOffset is the address of an IRNode::ID. If fIndex is nonnegative, then the pointer
+// instead points to a vector of IRNode::IDs, within which we grab the fIndex'th element.
+struct IRNodeIDPtr {
+    IRNode::ID fParent;
+    size_t fOffset;
+    int fIndex;
+
+    IRNode::ID* ptr() const {
+        char* base = ((char*) &fParent.node()) + fOffset;
+        if (fIndex >= 0) {
+            return &(*(std::vector<IRNode::ID>*) base)[fIndex];
+        } else {
+            return (IRNode::ID*) base;
+        }
+    }
+
+    IRNode::ID id() const {
+        return *this->ptr();
+    }
+
+    Expression& expressionNode() const {
+        return id().expressionNode();
+    }
+
+    Statement& statementNode() const {
+        return id().statementNode();
+    }
+};
+
 struct BasicBlock {
     struct Node {
         enum Kind {
@@ -26,40 +58,34 @@ struct BasicBlock {
             kExpression_Kind
         };
 
-        Node(Kind kind, bool constantPropagation, std::unique_ptr<Expression>* expression,
-             std::unique_ptr<Statement>* statement)
+        Node(Kind kind, bool constantPropagation, IRNodeIDPtr id)
         : fKind(kind)
         , fConstantPropagation(constantPropagation)
-        , fExpression(expression)
-        , fStatement(statement) {}
+        , fID(id) {}
 
-        std::unique_ptr<Expression>* expression() const {
-            SkASSERT(fKind == kExpression_Kind);
-            return fExpression;
+        IRNode::ID id() const {
+            return *fID.ptr();
         }
 
-        void setExpression(std::unique_ptr<Expression> expr) {
-            SkASSERT(fKind == kExpression_Kind);
-            *fExpression = std::move(expr);
+        IRNodeIDPtr idPtr() const {
+            return fID;
         }
 
-        std::unique_ptr<Statement>* statement() const {
-            SkASSERT(fKind == kStatement_Kind);
-            return fStatement;
+        void setID(IRNode::ID id) {
+            SkASSERT(id != fID.fParent);
+            *fID.ptr() = id;
         }
 
-        void setStatement(std::unique_ptr<Statement> stmt) {
-            SkASSERT(fKind == kStatement_Kind);
-            *fStatement = std::move(stmt);
+        Expression& expression() const {
+            return fID.ptr()->expressionNode();
+        }
+
+        Statement& statement() const {
+            return fID.ptr()->statementNode();
         }
 
         String description() const {
-            if (fKind == kStatement_Kind) {
-                return (*fStatement)->description();
-            } else {
-                SkASSERT(fKind == kExpression_Kind);
-                return (*fExpression)->description();
-            }
+            return fID.ptr()->node().description();
         }
 
         Kind fKind;
@@ -73,10 +99,9 @@ struct BasicBlock {
         bool fConstantPropagation;
 
     private:
-        // we store pointers to the unique_ptrs so that we can replace expressions or statements
-        // during optimization without having to regenerate the entire tree
-        std::unique_ptr<Expression>* fExpression;
-        std::unique_ptr<Statement>* fStatement;
+        // we store pointers to the ids so that we can replace expressions or statements during
+        // optimization without having to regenerate the entire tree
+        IRNodeIDPtr fID;
     };
 
     /**
@@ -88,27 +113,26 @@ struct BasicBlock {
     bool tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* iter);
 
     /**
-     * Locates and attempts remove an expression occurring before the expression pointed to by iter.
-     * If the expression can be cleanly removed, returns true and resets iter to a valid iterator
-     * pointing to the same expression it did initially. Otherwise returns false (and the CFG will
-     * need to be regenerated).
+     * Locates and attempts to remove an expression occurring before the expression pointed to by
+     * iter. If the expression can be cleanly removed, returns true and resets iter to a valid
+     * iterator pointing to the same expression it did initially. Otherwise returns false (and the
+     * CFG will need to be regenerated).
      */
-    bool tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter, Expression* e);
+    bool tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter, IRNode::ID e);
 
     /**
      * As tryRemoveExpressionBefore, but for lvalues. As lvalues are at most partially evaluated
      * (for instance, x[i] = 0 evaluates i but not x) this will only look for the parts of the
      * lvalue that are actually evaluated.
      */
-    bool tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter, Expression* lvalue);
+    bool tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter, IRNode::ID lvalue);
 
     /**
      * Attempts to inserts a new expression before the node pointed to by iter. If the
      * expression can be cleanly inserted, returns true and updates the iterator to point to the
      * newly inserted expression. Otherwise returns false (and the CFG will need to be regenerated).
      */
-    bool tryInsertExpression(std::vector<BasicBlock::Node>::iterator* iter,
-                             std::unique_ptr<Expression>* expr);
+    bool tryInsertExpression(std::vector<BasicBlock::Node>::iterator* iter, IRNodeIDPtr expr);
 
     std::vector<Node> fNodes;
     std::set<BlockId> fEntrances;
@@ -152,14 +176,14 @@ class CFGGenerator {
 public:
     CFGGenerator() {}
 
-    CFG getCFG(FunctionDefinition& f);
+    CFG getCFG(IRNode::ID functionDefinition);
 
 private:
-    void addStatement(CFG& cfg, std::unique_ptr<Statement>* s);
+    void addStatement(CFG& cfg, IRNodeIDPtr id);
 
-    void addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool constantPropagate);
+    void addExpression(CFG& cfg, IRNodeIDPtr id, bool constantPropagate);
 
-    void addLValue(CFG& cfg, std::unique_ptr<Expression>* e);
+    void addLValue(CFG& cfg, IRNodeIDPtr e);
 
     std::stack<BlockId> fLoopContinues;
     std::stack<BlockId> fLoopExits;

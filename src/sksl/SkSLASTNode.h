@@ -16,11 +16,6 @@
 
 namespace SkSL {
 
-// std::max isn't constexpr in some compilers
-static constexpr size_t Max(size_t a, size_t b) {
-    return a > b ? a : b;
-}
-
 /**
  * Represents a node in the abstract syntax tree (AST). The AST is based directly on the parse tree;
  * it is a parsed-but-not-yet-analyzed version of the program.
@@ -265,17 +260,17 @@ struct ASTNode {
     };
 
     struct NodeData {
-        char fBytes[Max(sizeof(Token),
-                    Max(sizeof(StringFragment),
-                    Max(sizeof(bool),
-                    Max(sizeof(SKSL_INT),
-                    Max(sizeof(SKSL_FLOAT),
-                    Max(sizeof(Modifiers),
-                    Max(sizeof(TypeData),
-                    Max(sizeof(FunctionData),
-                    Max(sizeof(ParameterData),
-                    Max(sizeof(VarData),
-                    Max(sizeof(InterfaceBlockData),
+        char fBytes[max(sizeof(Token),
+                    max(sizeof(StringFragment),
+                    max(sizeof(bool),
+                    max(sizeof(SKSL_INT),
+                    max(sizeof(SKSL_FLOAT),
+                    max(sizeof(Modifiers),
+                    max(sizeof(TypeData),
+                    max(sizeof(FunctionData),
+                    max(sizeof(ParameterData),
+                    max(sizeof(VarData),
+                    max(sizeof(InterfaceBlockData),
                         sizeof(SectionData))))))))))))];
 
         enum class Kind {

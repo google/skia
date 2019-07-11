@@ -18,23 +18,23 @@ namespace SkSL {
  * A function definition (a declaration plus an associated block of code).
  */
 struct FunctionDefinition : public ProgramElement {
-    FunctionDefinition(int offset, const FunctionDeclaration& declaration,
-                       std::unique_ptr<Statement> body)
-    : INHERITED(offset, kFunction_Kind)
+    FunctionDefinition(IRGenerator* irGenerator, int offset, IRNode::ID declaration,
+                       IRNode::ID body)
+    : INHERITED(irGenerator, offset, kFunction_Kind)
     , fDeclaration(declaration)
     , fBody(std::move(body)) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new FunctionDefinition(fOffset, fDeclaration,
-                                                                      fBody->clone()));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new FunctionDefinition(fIRGenerator, fOffset, fDeclaration,
+                                                               fBody));
     }
 
     String description() const override {
-        return fDeclaration.description() + " " + fBody->description();
+        return fDeclaration.node().description() + " " + fBody.node().description();
     }
 
-    const FunctionDeclaration& fDeclaration;
-    std::unique_ptr<Statement> fBody;
+    IRNode::ID fDeclaration;
+    IRNode::ID fBody;
 
     typedef ProgramElement INHERITED;
 };

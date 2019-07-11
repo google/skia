@@ -8,7 +8,7 @@
 #ifndef SKSL_STATEMENT
 #define SKSL_STATEMENT
 
-#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
@@ -35,15 +35,15 @@ struct Statement : public IRNode {
         kWhile_Kind
     };
 
-    Statement(int offset, Kind kind)
-    : INHERITED(offset)
+    Statement(IRGenerator* irGenerator, int offset, Kind kind)
+    : INHERITED(irGenerator, offset)
     , fKind(kind) {}
 
     virtual bool isEmpty() const {
         return false;
     }
 
-    virtual std::unique_ptr<Statement> clone() const = 0;
+    virtual IRNode::ID clone() const = 0;
 
     const Kind fKind;
 

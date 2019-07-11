@@ -26,20 +26,19 @@ namespace SkSL {
 
 class HCodeGenerator : public CodeGenerator {
 public:
-    HCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                   String name, OutputStream* out);
+    HCodeGenerator(IRGenerator* irGenerator, const Program* program, String name, OutputStream* out);
 
     bool generateCode() override;
 
-    static String ParameterType(const Context& context, const Type& type, const Layout& layout);
+    static String ParameterType(const Context& context, IRNode::ID type, const Layout& layout);
 
-    static Layout::CType ParameterCType(const Context& context, const Type& type,
+    static Layout::CType ParameterCType(const Context& context, IRNode::ID type,
                                         const Layout& layout);
 
-    static String FieldType(const Context& context, const Type& type, const Layout& layout);
+    static String FieldType(const Context& context, IRNode::ID type, const Layout& layout);
 
     // Either the field type, or a const reference of the field type if the field type is complex.
-    static String AccessType(const Context& context, const Type& type, const Layout& layout);
+    static String AccessType(const Context& context, IRNode::ID type, const Layout& layout);
 
     static String FieldName(const char* varName) {
         return String(varName);
@@ -52,7 +51,7 @@ public:
         return "fCoordTransform" + to_string(index);
     }
 
-    static String GetHeader(const Program& program, ErrorReporter& errors);
+    static String GetHeader(IRGenerator& irGenerator, const Program& program);
 
 private:
     void writef(const char* s, va_list va) SKSL_PRINTF_LIKE(2, 0);
@@ -73,7 +72,7 @@ private:
 
     void failOnSection(const char* section, const char* msg);
 
-    const Context& fContext;
+    IRGenerator& fIRGenerator;
     String fName;
     String fFullName;
     SectionAndParameterHelper fSectionAndParameterHelper;
