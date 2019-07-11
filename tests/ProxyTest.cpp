@@ -117,7 +117,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : {1, 4, 16, 128}) {
 
-                            auto config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
+                            auto config = GrColorTypeToPixelConfig(ct);
                             SkASSERT(kUnknown_GrPixelConfig != config);
 
                             GrSurfaceDesc desc;
@@ -127,8 +127,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             desc.fConfig = config;
                             desc.fSampleCnt = numSamples;
 
-                            const GrBackendFormat format =
-                                    caps.getBackendFormatFromColorType(ct, GrSRGBEncoded::kNo);
+                            const GrBackendFormat format = caps.getBackendFormatFromColorType(ct);
                             if (!format.isValid()) {
                                 continue;
                             }
@@ -240,7 +239,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             }
 
             for (auto numSamples : {1, 4}) {
-                GrPixelConfig config = GrColorTypeToPixelConfig(grColorType, GrSRGBEncoded::kNo);
+                GrPixelConfig config = GrColorTypeToPixelConfig(grColorType);
                 SkASSERT(kUnknown_GrPixelConfig != config);
                 int supportedNumSamples = caps.getRenderTargetSampleCount(numSamples, config);
 
