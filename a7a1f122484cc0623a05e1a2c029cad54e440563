@@ -45,6 +45,30 @@
       "revId": "a7a1f122484cc0623a05e1a2c029cad54e440563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7190edb_aef6a1af",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-07-11T10:38:26Z",
+      "side": 1,
+      "message": "I tried that and the semantics get a little weird. If the client creates a BackendTexture with a sampleCount of 1, how do we know to create the MSAA texture for it? It seems odd to set the BackendTexture\u0027s sampleCount to 4 when the native texture has a sampleCount of 1.",
+      "parentUuid": "e39709b7_82f8de5c",
+      "range": {
+        "startLine": 105,
+        "startChar": 33,
+        "endLine": 105,
+        "endChar": 69
+      },
+      "revId": "a7a1f122484cc0623a05e1a2c029cad54e440563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
