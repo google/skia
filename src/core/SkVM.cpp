@@ -378,14 +378,14 @@ namespace skvm {
         return vex;
     }
 
-    Assembler::Assembler(void* buf) : fCode((uint8_t*)buf), fSize(0) {}
+    Assembler::Assembler(void* buf) : fCode((uint8_t*)buf), fCurr(fCode), fSize(0) {}
 
     size_t Assembler::size() const { return fSize; }
 
     void Assembler::byte(const void* p, int n) {
-        if (fCode) {
-            memcpy(fCode, p, n);
-            fCode += n;
+        if (fCurr) {
+            memcpy(fCurr, p, n);
+            fCurr += n;
         }
         fSize += n;
     }
@@ -487,7 +487,33 @@ namespace skvm {
     void Assembler::vcvttps2dq(Ymm dst, Ymm x) { this->op(0xf3,0x0f,0x5b, dst,x); }
 
     Assembler::Label Assembler::here() {
-        return { (int)this->size() };
+        return { (int)this->size(), Label::None, {} };
+    }
+
+    // ARM 19-bit instruction count, from the beginning of this instruction.
+    int Assembler::disp19(const Label& l) {
+        return (l.offset - here().offset) / 4;
+    }
+
+    // x86 32-bit byte count, from the end of this instruction.
+    int Assembler::disp32(const Label& l) {
+        return l.offset - (here().offset + 4);
+    }
+
+    // Each as above, registering this as a location to update if l changes.
+    int Assembler::disp19(Label* l) {
+        SkASSERT(l->kind == Label::None ||
+                 l->kind == Label::ARMDisp19);
+        l->kind = Label::ARMDisp19;
+        l->references.push_back(here().offset);
+        return this->disp19(*l);
+    }
+    int Assembler::disp32(Label* l) {
+        SkASSERT(l->kind == Label::None ||
+                 l->kind == Label::X86Disp32);
+        l->kind = Label::X86Disp32;
+        l->references.push_back(here().offset);
+        return this->disp32(*l);
     }
 
     void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label l) {
@@ -499,10 +525,7 @@ namespace skvm {
         this->byte(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, dst&7, rip&7));
-
-        // IP relative addresses are relative to IP _after_ this instruction.
-        int imm = l.offset - (here().offset + 4);
-        this->byte(&imm, 4);
+        this->word(this->disp32(l));
     }
 
     void Assembler::vbroadcastss(Ymm dst, Label l) { this->op(0x66,0x380f,0x18, dst,l); }
@@ -513,17 +536,9 @@ namespace skvm {
         // jne can be either 2 bytes (short) or 6 bytes (near):
         //    75     one-byte-disp
         //    0F 85 four-byte-disp
-        // As usual, all displacements relative to the end of this instruction.
-        int shrt = l.offset - (here().offset + 2),
-            near = l.offset - (here().offset + 6);
-
-        if (SkTFitsIn<int8_t>(shrt)) {
-            this->byte(0x75);
-            this->byte(&shrt, 1);
-        } else {
-            this->byte(0x0f, 0x85);
-            this->byte(&near, 4);
-        }
+        // We always use the near displacement to make updating labels simpler.
+        this->byte(0x0f, 0x85);
+        this->word(this->disp32(l));
     }
 
     void Assembler::load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr) {
@@ -640,19 +655,19 @@ namespace skvm {
 
     void Assembler::b(Condition cond, Label l) {
         // Jump in insts from before this one.
-        const int imm19 = (l.offset - here().offset) / 4;
+        const int imm19 = this->disp19(l);
         this->word( 0b0101010'0           << 24
                   | (imm19     & 19_mask) <<  5
                   | ((int)cond &  4_mask) <<  0);
     }
-    void Assembler::cbz(X t, Label l) {
-        const int imm19 = (l.offset - here().offset) / 4;
+    void Assembler::cbz(X t, Label* l) {
+        const int imm19 = this->disp19(l);
         this->word( 0b1'011010'0      << 24
                   | (imm19 & 19_mask) <<  5
                   | (t     &  5_mask) <<  0);
     }
     void Assembler::cbnz(X t, Label l) {
-        const int imm19 = (l.offset - here().offset) / 4;
+        const int imm19 = this->disp19(l);
         this->word( 0b1'011010'1      << 24
                   | (imm19 & 19_mask) <<  5
                   | (t     &  5_mask) <<  0);
@@ -667,10 +682,50 @@ namespace skvm {
     void Assembler::strb(V src, X dst) { this->op(0b00'111'1'01'00'000000000000, dst, src); }
 
     void Assembler::ldrq(V dst, Label l) {
-        const int imm19 = (l.offset - here().offset) / 4;
+        const int imm19 = this->disp19(l);
         this->word( 0b10'011'1'00     << 24
                   | (imm19 & 19_mask) << 5
                   | (dst   &  5_mask) << 0);
+    }
+
+    void Assembler::label(Label* l) {
+        if (fCode) {
+            // The instructions all currently point to l->offset.
+            // We'll want to add a delta to point them to here().
+            int delta = here().offset - l->offset;
+            l->offset = here().offset;
+
+            if (l->kind == Label::ARMDisp19) {
+                for (int ref : l->references) {
+                    // ref points to a 32-bit instruction with 19-bit displacement in instructions.
+                    uint32_t inst;
+                    memcpy(&inst, fCode + ref, 4);
+
+                    // [ 8 bits to preserve] [ 19 bit signed displacement ] [ 5 bits to preserve ]
+                    int disp = (int)(inst << 8) >> 13;
+
+                    disp += delta/4;  // delta is in bytes, we want instructions.
+
+                    // Put it all back together, preserving the high 8 bits and low 5.
+                    inst = ((disp << 5) &  (19_mask << 5))
+                         | ((inst     ) & ~(19_mask << 5));
+
+                    memcpy(fCode + ref, &inst, 4);
+                }
+            }
+
+            if (l->kind == Label::X86Disp32) {
+                for (int ref : l->references) {
+                    // ref points to a 32-bit displacement in bytes.
+                    int disp;
+                    memcpy(&disp, fCode + ref, 4);
+
+                    disp += delta;
+
+                    memcpy(fCode + ref, &disp, 4);
+                }
+            }
+        }
     }
 
 #if defined(SKVM_JIT)
