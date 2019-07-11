@@ -14,6 +14,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/fonts/TestFontMgr.h"
 
 namespace ToolUtils {
@@ -32,7 +33,7 @@ sk_sp<SkTypeface> planet_typeface() {
         if (typeface) {
             return typeface;
         }
-        return SkTypeface::MakeFromName("Planet", SkFontStyle());
+        return ToolUtils::TypefaceFromName("Planet", SkFontStyle());
     }();
     return planetTypeface;
 }
@@ -51,7 +52,7 @@ sk_sp<SkTypeface> emoji_typeface() {
         if (typeface) {
             return typeface;
         }
-        return SkTypeface::MakeFromName("Emoji", SkFontStyle());
+        return ToolUtils::TypefaceFromName("Emoji", SkFontStyle());
     }();
     return emojiTypeface;
 }

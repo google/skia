@@ -131,8 +131,10 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
     return r.finishRecordingAsPicture();
 }
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs* procs) {
-    return MakeFromStream(stream, procs, nullptr);
+    return MakeFromStream(stream, procs, SkFontMgr::RefDefault(), nullptr);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
@@ -141,7 +143,7 @@ sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
         return nullptr;
     }
     SkMemoryStream stream(data, size);
-    return MakeFromStream(&stream, procs, nullptr);
+    return MakeFromStream(&stream, procs);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialProcs* procs) {
@@ -149,10 +151,37 @@ sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialPro
         return nullptr;
     }
     SkMemoryStream stream(data->data(), data->size());
-    return MakeFromStream(&stream, procs, nullptr);
+    return MakeFromStream(&stream, procs);
 }
 
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs* procsPtr,
+#else  // defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, sk_sp<SkFontMgr> fontmgr, const SkDeserialProcs* procs) {
+    return MakeFromStream(stream, procs, std::move(fontmgr), nullptr);
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size, sk_sp<SkFontMgr> fontmgr,
+                                         const SkDeserialProcs* procs) {
+    if (!data) {
+        return nullptr;
+    }
+    SkMemoryStream stream(data, size);
+    return MakeFromStream(&stream, procs, std::move(fontmgr), nullptr);
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, sk_sp<SkFontMgr> fontmgr, const SkDeserialProcs* procs) {
+    if (!data) {
+        return nullptr;
+    }
+    SkMemoryStream stream(data->data(), data->size());
+    return MakeFromStream(&stream, procs, std::move(fontmgr), nullptr);
+}
+
+#endif  // defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream,
+                                           const SkDeserialProcs* procsPtr,
+                                           sk_sp<SkFontMgr> fontmgr,
                                            SkTypefacePlayback* typefaces) {
     SkPictInfo info;
     if (!StreamIsSKP(stream, &info)) {
@@ -169,7 +198,7 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialPro
     switch (trailingStreamByteAfterPictInfo) {
         case kPictureData_TrailingStreamByteAfterPictInfo: {
             std::unique_ptr<SkPictureData> data(
-                    SkPictureData::CreateFromStream(stream, info, procs, typefaces));
+                SkPictureData::CreateFromStream(stream, info, procs, fontmgr, typefaces));
             return Forwardport(info, data.get(), nullptr);
         }
         case kCustom_TrailingStreamByteAfterPictInfo: {

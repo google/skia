@@ -16,6 +16,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <vector>
 
@@ -159,6 +160,7 @@ private:
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
     SkAutoGraphics ag;
+    ToolUtils::SetGlobalNativeFontMgr();
 
     if (FLAGS_input.isEmpty() || FLAGS_writePath.isEmpty()) {
         SkDebugf("Missing required 'input' and 'writePath' args.\n");

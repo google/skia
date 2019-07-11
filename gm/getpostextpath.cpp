@@ -36,9 +36,7 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     size_t len = strlen(text);
     SkPath path;
 
-    SkFont font;
-    font.setTypeface(ToolUtils::create_portable_typeface());
-    font.setSize(48);
+    SkFont font(ToolUtils::create_portable_typeface(), 48);
 
     SkPaint paint;
     paint.setAntiAlias(true);

@@ -11,7 +11,15 @@
 #include "include/core/SkFontMgr.h"
 #include "include/ports/SkTypeface_win.h"
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
+    return SkFontMgr_New_DirectWrite();
+}
+
+#endif  // defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+
+sk_sp<SkFontMgr> SkNativeFontMgrFactory() {
     return SkFontMgr_New_DirectWrite();
 }
 

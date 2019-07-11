@@ -10,6 +10,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "src/utils/SkJSONWriter.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 using namespace sk_gpu_test;
 
@@ -193,7 +194,7 @@ bool Request::enableGPU(bool enable) {
 
 bool Request::initPictureFromStream(SkStream* stream) {
     // parse picture from stream
-    fPicture = SkPicture::MakeFromStream(stream);
+    fPicture = SkPicture::MakeFromStream(stream, ToolUtils::GlobalFontMgr());
     if (!fPicture) {
         fprintf(stderr, "Could not create picture from stream.\n");
         return false;

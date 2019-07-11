@@ -7,6 +7,7 @@
 
 #include "src/core/SkPictureData.h"
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTo.h"
@@ -289,6 +290,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                                    uint32_t tag,
                                    uint32_t size,
                                    const SkDeserialProcs& procs,
+                                   sk_sp<SkFontMgr> fontmgr,
                                    SkTypefacePlayback* topLevelTFPlayback) {
     switch (tag) {
         case SK_PICT_READER_TAG:
@@ -315,12 +317,22 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
         case SK_PICT_TYPEFACE_TAG: {
             fTFPlayback.setCount(size);
             for (uint32_t i = 0; i < size; ++i) {
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
                 sk_sp<SkTypeface> tf(SkTypeface::MakeDeserialize(stream));
                 if (!tf.get()) {    // failed to deserialize
                     // fTFPlayback asserts it never has a null, so we plop in
                     // the default here.
                     tf = SkTypeface::MakeDefault();
                 }
+#else
+                if (!fontmgr) {
+                    return false;
+                }
+                sk_sp<SkTypeface> tf(SkTypeface::MakeDeserialize(fontmgr, stream));
+                if (!tf) {    // failed to deserialize
+                    return false;
+                }
+#endif
                 fTFPlayback[i] = std::move(tf);
             }
         } break;
@@ -329,7 +341,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             fPictures.reserve(SkToInt(size));
 
             for (uint32_t i = 0; i < size; i++) {
-                auto pic = SkPicture::MakeFromStream(stream, &procs, topLevelTFPlayback);
+                auto pic = SkPicture::MakeFromStream(stream, &procs, fontmgr, topLevelTFPlayback);
                 if (!pic) {
                     return false;
                 }
@@ -475,13 +487,14 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
 SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
                                                const SkPictInfo& info,
                                                const SkDeserialProcs& procs,
+                                               sk_sp<SkFontMgr> fontmgr,
                                                SkTypefacePlayback* topLevelTFPlayback) {
     std::unique_ptr<SkPictureData> data(new SkPictureData(info));
     if (!topLevelTFPlayback) {
         topLevelTFPlayback = &data->fTFPlayback;
     }
 
-    if (!data->parseStream(stream, procs, topLevelTFPlayback)) {
+    if (!data->parseStream(stream, procs, std::move(fontmgr), topLevelTFPlayback)) {
         return nullptr;
     }
     return data.release();
@@ -498,9 +511,8 @@ SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
     return data.release();
 }
 
-bool SkPictureData::parseStream(SkStream* stream,
-                                const SkDeserialProcs& procs,
-                                SkTypefacePlayback* topLevelTFPlayback) {
+bool SkPictureData::parseStream(SkStream* stream, const SkDeserialProcs& procs,
+                                sk_sp<SkFontMgr> fontmgr, SkTypefacePlayback* topLevelTFPlayback) {
     for (;;) {
         uint32_t tag;
         if (!stream->readU32(&tag)) { return false; }
@@ -510,7 +522,7 @@ bool SkPictureData::parseStream(SkStream* stream,
 
         uint32_t size;
         if (!stream->readU32(&size)) { return false; }
-        if (!this->parseStreamTag(stream, tag, size, procs, topLevelTFPlayback)) {
+        if (!this->parseStreamTag(stream, tag, size, procs, fontmgr, topLevelTFPlayback)) {
             return false; // we're invalid
         }
     }

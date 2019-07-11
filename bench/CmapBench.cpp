@@ -12,6 +12,7 @@
 #include "include/utils/SkRandom.h"
 #include "src/utils/SkCharToGlyphCache.h"
 #include "src/utils/SkUTF.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 enum {
     NGLYPHS = 100
@@ -42,7 +43,8 @@ static void charsToGlyphs_proc(const Rec& r) {
     uint16_t glyphs[NGLYPHS];
     SkASSERT(r.fCount <= NGLYPHS);
 
-    SkTypeface* face = r.fFont.getTypefaceOrDefault();
+    SkTypeface* face = r.fFont.getTypeface();
+    SkASSERT(face);
     for (int i = 0; i < r.fLoops; ++i) {
         face->unicharsToGlyphs(r.fText, r.fCount, glyphs);
     }
@@ -69,7 +71,7 @@ class CMAPBench : public Benchmark {
     TypefaceProc fProc;
     SkString     fName;
     SkUnichar    fText[NGLYPHS];
-    SkFont       fFont;
+    SkFont       fFont{ToolUtils::DefaultTypeface()};
     SkCharToGlyphCache fCache;
     int          fCount;
 
@@ -86,7 +88,6 @@ public:
             fText[i] = rand.nextU() & 0xFFFF;
             fCache.addCharAndGlyph(fText[i], i);
         }
-        fFont.setTypeface(SkTypeface::MakeDefault());
     }
 
     bool isSuitableFor(Backend backend) override {

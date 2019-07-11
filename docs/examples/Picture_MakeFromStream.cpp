@@ -14,7 +14,8 @@ void draw(SkCanvas* canvas) {
     SkDynamicMemoryWStream writableStream;
     picture->serialize(&writableStream);
     std::unique_ptr<SkStreamAsset> readableStream = writableStream.detachAsStream();
-    sk_sp<SkPicture> copy = SkPicture::MakeFromStream(readableStream.get());
+    sk_sp<SkPicture> copy = SkPicture::MakeFromStream(readableStream.get(),
+                                                      ToolUtils::GlobalFontMgr());
     copy->playback(canvas);
 }
 }  // END FIDDLE

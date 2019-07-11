@@ -7,6 +7,7 @@
 
 #include "src/utils/SkMultiPictureDocument.h"
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSerialProcs.h"
@@ -179,6 +180,7 @@ struct PagerCanvas : public SkNWayCanvas {
 bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
                                 SkDocumentPage* dstArray,
                                 int dstArrayCount,
+                                sk_sp<SkFontMgr> fontmgr,
                                 const SkDeserialProcs* procs) {
     if (!SkMultiPictureDocumentReadPageSizes(stream, dstArray, dstArrayCount)) {
         return false;
@@ -189,7 +191,10 @@ bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
                         SkTMax(joined.height(), dstArray[i].fSize.height())};
     }
 
-    auto picture = SkPicture::MakeFromStream(stream, procs);
+    auto picture = SkPicture::MakeFromStream(stream, fontmgr, procs);
+    if (!picture) {
+        return false;
+    }
 
     PagerCanvas canvas(joined.toCeil(), dstArray, dstArrayCount);
     // Must call playback(), not drawPicture() to reach

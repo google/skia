@@ -7,6 +7,7 @@
 
 #include "include/core/SkPicture.h"
 #include "include/core/SkStream.h"
+#include "include/ports/SkNativeFontMgrFactory.h"
 #include "include/utils/SkNullCanvas.h"
 #include "tools/debugger/DebugCanvas.h"
 
@@ -45,7 +46,7 @@ int main(int argc, char** argv) {
         SkDebugf("Bad file: '%s'\n", argv[1]);
         return 2;
     }
-    sk_sp<SkPicture> pic = SkPicture::MakeFromStream(&input);
+    sk_sp<SkPicture> pic = SkPicture::MakeFromStream(&input, SkNativeFontMgrFactory());
     if (!pic) {
         SkDebugf("Bad skp: '%s'\n", argv[1]);
         return 3;
