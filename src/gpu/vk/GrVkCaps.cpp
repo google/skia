@@ -1076,7 +1076,6 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     return kUnknown_GrPixelConfig != validate_image_info(*vkFormat, ct, ycbcrInfo->isValid());
 }
 
-
 GrPixelConfig GrVkCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                      GrColorType ct) const {
     const VkFormat* vkFormat = format.getVkFormat();

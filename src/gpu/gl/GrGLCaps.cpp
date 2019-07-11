@@ -3635,7 +3635,7 @@ bool GrGLCaps::formatSupportsTexStorage(GrGLSizedInternalFormat format) const {
 }
 
 // A near clone of format_color_type_valid_pair
-GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandard standard) {
+static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandard standard) {
     switch (ct) {
         case GrColorType::kUnknown:
             return kUnknown_GrPixelConfig;
@@ -3703,14 +3703,14 @@ GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandar
                 return kAlpha_half_GrPixelConfig;
             }
             break;
-        case GrColorType::kRGBA_F16:
-            if (GR_GL_RGBA16F == format) {
-                return kRGBA_half_GrPixelConfig;
-            }
-            break;
         case GrColorType::kRGBA_F16_Clamped:
             if (GR_GL_RGBA16F == format) {
                 return kRGBA_half_Clamped_GrPixelConfig;
+            }
+            break;
+        case GrColorType::kRGBA_F16:
+            if (GR_GL_RGBA16F == format) {
+                return kRGBA_half_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_F32:

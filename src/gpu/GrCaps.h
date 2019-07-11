@@ -381,6 +381,9 @@ public:
         return this->onGetConfigFromBackendFormat(format, grCT);
     }
 
+    virtual GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&,
+                                                     GrColorType) const = 0;
+
     /**
      * Special method only for YUVA images. Returns a config that matches the backend format or
      * kUnknown if a config could not be determined.
