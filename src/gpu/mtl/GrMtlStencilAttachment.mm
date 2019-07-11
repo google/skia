@@ -34,6 +34,10 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
                                                        mipmapped:NO];
     desc.resourceOptions = MTLResourceStorageModePrivate;
     desc.usage = MTLTextureUsageRenderTarget;
+    desc.sampleCount = sampleCnt;
+    if (sampleCnt > 1) {
+        desc.textureType = MTLTextureType2DMultisample;
+    }
     return new GrMtlStencilAttachment(gpu, format, [gpu->device() newTextureWithDescriptor:desc]);
 }
 

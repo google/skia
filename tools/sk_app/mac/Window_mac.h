@@ -19,8 +19,7 @@ class Window_mac : public Window {
 public:
     Window_mac()
             : INHERITED()
-            , fWindow(nil)
-            , fMSAASampleCount(1) {}
+            , fWindow(nil) {}
     ~Window_mac() override {
         this->closeWindow();
     }
@@ -50,7 +49,6 @@ public:
 private:
     NSWindow*    fWindow;
     NSInteger    fWindowNumber;
-    int          fMSAASampleCount;
 
     static SkTDynamicHash<Window_mac, NSInteger> gWindowMap;
 

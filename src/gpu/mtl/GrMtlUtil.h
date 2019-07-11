@@ -90,8 +90,8 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
         id<MTLDevice>, MTLRenderPipelineDescriptor*, bool* timedout);
 
 /**
- * Returns a MTLTexture corresponding to the GrSurface. Optionally can do a resolve.
+ * Returns a MTLTexture corresponding to the GrSurface.
  */
-id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface, bool doResolve);
+id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface);
 
 #endif
