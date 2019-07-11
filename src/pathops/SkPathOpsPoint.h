@@ -18,9 +18,10 @@ struct SkDVector {
     double fX;
     double fY;
 
-    void set(const SkVector& pt) {
+    SkDVector& set(const SkVector& pt) {
         fX = pt.fX;
         fY = pt.fY;
+        return *this;
     }
 
     // only used by testing
