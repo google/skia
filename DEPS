@@ -31,7 +31,7 @@ deps = {
   "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@e9e4393b1c5aad7553c05782acefbe32b42644bd",
   "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@28ae0a4b2810b9f72547382333f32e0a46d87709",
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
-  "third_party/externals/wuffs"           : "https://skia.googlesource.com/external/github.com/google/wuffs.git@f58ffbc927899b9534a273d3057094ce6ac1ed61",
+  "third_party/externals/wuffs"           : "https://skia.googlesource.com/external/github.com/google/wuffs.git@6ad7d00a262e862549e4963b4a43d148a8285e50",
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@47af7c547f8551bd25424e56354a2ae1e9062859",
 
   "../src": {
