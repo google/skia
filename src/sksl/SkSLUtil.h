@@ -387,6 +387,11 @@ Token::Kind remove_assignment(Token::Kind op);
 
 NORETURN void sksl_abort();
 
+// std::max isn't constexpr in some compilers
+static constexpr size_t max(size_t a, size_t b) {
+    return a > b ? a : b;
+}
+
 } // namespace
 
 #endif

@@ -200,7 +200,7 @@ static const std::vector<UniformCTypeMapper>& get_mappers() {
 
 // Greedy search through registered handlers for one that has a matching
 // ctype and supports the sksl type of the variable.
-const UniformCTypeMapper* UniformCTypeMapper::Get(const Context& context, const Type& type,
+const UniformCTypeMapper* UniformCTypeMapper::Get(const Context& context, IRNode::ID type,
                                                   const Layout& layout) {
     const std::vector<UniformCTypeMapper>& registeredMappers = get_mappers();
 
@@ -210,7 +210,7 @@ const UniformCTypeMapper* UniformCTypeMapper::Get(const Context& context, const 
         ctype = HCodeGenerator::ParameterCType(context, type, layout);
     }
 
-    const String& skslType = type.name();
+    const String& skslType = type.typeNode().name();
 
     for (size_t i = 0; i < registeredMappers.size(); i++) {
         if (registeredMappers[i].ctype() == ctype) {
