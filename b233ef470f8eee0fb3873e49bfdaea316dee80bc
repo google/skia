@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "10b50842_25f15eed",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-11T02:10:08Z",
+      "side": 1,
+      "message": "We\u0027re in the !alphaOrCSConversion case... but now that I think about it we\u0027d also have to check that there\u0027s no cross swizzling between alpha and rgb.\n\nThis made me think... suppose we had a from_srgb and a swizzle, what order should they be in? I think it should actually be swizzle then from_srgb (and reverse in the store case). When we swizzle we\u0027re saying the \"x\" channel really represents the \"y\" value. If \"x\" is \"a\" and y is \"b\" then we would want the srgb conversion to happen to \"x\".\n\nConcrete example: \nSay we supported a theoretical srgb 8bit gray format. I think we\u0027d implement loading that as:\n\nload_a8\nswizzle(\"aaa1\")\nfrom_srgb\n\nand storing as:\n\nto_srgb\nluminance_to_alpha (not supported by get_dst_swizzle_and_store currently).\nstore_a8",
+      "parentUuid": "0b7f324a_5920bd8f",
+      "revId": "b233ef470f8eee0fb3873e49bfdaea316dee80bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee8a2181_0e9d0b90",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 3
