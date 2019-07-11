@@ -58,7 +58,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
     sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
-            backendTex, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
+            backendTex, 1, GrColorType::kRGBA_8888, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
 
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());
@@ -386,7 +386,8 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable re
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
         texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(
-                backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
+                backendTexture, 1, GrColorType::kRGBA_8888, kBorrow_GrWrapOwnership,
+                GrWrapCacheable::kNo);
     } else {
         texture = context->priv().resourceProvider()->wrapBackendTexture(
                 backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
