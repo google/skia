@@ -569,6 +569,7 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Transfers from Surface: %d\n", fTransfersFromSurface);
     out->appendf("Stencil Buffer Creates: %d\n", fStencilAttachmentCreates);
     out->appendf("Number of draws: %d\n", fNumDraws);
+    out->appendf("Number of Scratch Textures reused %d\n", fNumScratchTexturesReused);
 }
 
 void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {

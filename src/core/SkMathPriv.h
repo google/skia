@@ -215,7 +215,7 @@ static inline int SkPrevLog2(uint32_t value) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  Return the next power of 2 >= n.
+ *  Return the smallest power-of-2 >= n.
  */
 static inline uint32_t GrNextPow2(uint32_t n) {
     return n ? (1 << (32 - SkCLZ(n - 1))) : 1;

@@ -316,7 +316,7 @@ int GrSurfaceProxy::worstCaseWidth() const {
     if (SkBackingFit::kExact == fFit) {
         return fWidth;
     }
-    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fWidth));
+    return GrResourceProvider::MakeApprox(fWidth);
 }
 
 int GrSurfaceProxy::worstCaseHeight() const {
@@ -328,7 +328,7 @@ int GrSurfaceProxy::worstCaseHeight() const {
     if (SkBackingFit::kExact == fFit) {
         return fHeight;
     }
-    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fHeight));
+    return GrResourceProvider::MakeApprox(fHeight);
 }
 
 #ifdef SK_DEBUG

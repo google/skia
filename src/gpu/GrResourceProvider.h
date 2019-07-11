@@ -253,6 +253,8 @@ public:
     const GrCaps* caps() const { return fCaps.get(); }
     bool overBudget() const { return fCache->overBudget(); }
 
+    static uint32_t MakeApprox(uint32_t value);
+
     inline GrResourceProviderPriv priv();
     inline const GrResourceProviderPriv priv() const;
 

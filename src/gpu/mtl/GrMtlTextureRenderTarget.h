@@ -73,7 +73,7 @@ private:
             ++numColorSamples;
         }
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numColorSamples, GrMipMapped::kNo, false);
+                                      numColorSamples, GrMipMapped::kNo);
     }
 };
 
