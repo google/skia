@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "04cbb633_a432e845",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-11T18:22:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "244dc98b_e22c554d",
+      "range": {
+        "startLine": 205,
+        "startChar": 53,
+        "endLine": 205,
+        "endChar": 60
+      },
+      "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50d1832d_280c0877",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1523b422_44687fe7",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-11T18:22:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50d1832d_280c0877",
+      "range": {
+        "startLine": 212,
+        "startChar": 7,
+        "endLine": 215,
+        "endChar": 35
+      },
+      "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -92,6 +140,30 @@
       "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffcc9486_92aece08",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1583,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-11T18:22:18Z",
+      "side": 1,
+      "message": "Replaced with canFormatBeFBOColorAttachment()",
+      "parentUuid": "d00fb475_face51dd",
+      "range": {
+        "startLine": 1583,
+        "startChar": 4,
+        "endLine": 1583,
+        "endChar": 58
+      },
+      "revId": "30c92b5b6c62d25c54fd057d683b19e0b9f758a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
