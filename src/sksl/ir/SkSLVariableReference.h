@@ -8,11 +8,10 @@
 #ifndef SKSL_VARIABLEREFERENCE
 #define SKSL_VARIABLEREFERENCE
 
+#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
-
-class IRGenerator;
 
 /**
  * A reference to a variable, through which it can be read or written. In the statement:
@@ -22,18 +21,8 @@ class IRGenerator;
  * there is only one Variable 'x', but two VariableReferences to it.
  */
 struct VariableReference : public Expression {
-    enum RefKind {
-        kRead_RefKind,
-        kWrite_RefKind,
-        kReadWrite_RefKind,
-        // taking the address of a variable - we consider this a read & write but don't complain if
-        // the variable was not previously assigned
-        kPointer_RefKind
-    };
-
-    VariableReference(int offset, const Variable& variable, RefKind refKind = kRead_RefKind);
-
-    ~VariableReference() override;
+    VariableReference(IRGenerator* irGenerator, int offset, IRNode::ID variable,
+                      RefKind refKind = kRead_RefKind);
 
     RefKind refKind() const {
         return fRefKind;
@@ -46,24 +35,23 @@ struct VariableReference : public Expression {
     }
 
     bool isConstant() const override {
-        return 0 != (fVariable.fModifiers.fFlags & Modifiers::kConst_Flag);
+        return (((Variable&) fVariable.node()).fModifiers.fFlags & Modifiers::kConst_Flag) != 0;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new VariableReference(fIRGenerator, fOffset, fVariable,
+                                                              fRefKind));
     }
 
     String description() const override {
-        return fVariable.fName;
+        return ((Variable&) fVariable.node()).fName;
     }
 
-    static std::unique_ptr<Expression> copy_constant(const IRGenerator& irGenerator,
-                                                     const Expression* expr);
+    static IRNode::ID CopyConstant(IRGenerator* irGenerator, const Expression& expr);
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override;
+    IRNode::ID constantPropagate(const DefinitionMap& definitions) override;
 
-    const Variable& fVariable;
+    IRNode::ID fVariable;
     RefKind fRefKind;
 
 private:

@@ -19,32 +19,28 @@ namespace SkSL {
  * always eventually replaced by FunctionCalls in valid programs.
  */
 struct FunctionReference : public Expression {
-    FunctionReference(const Context& context, int offset,
-                      std::vector<const FunctionDeclaration*> function)
-    : INHERITED(offset, kFunctionReference_Kind, *context.fInvalid_Type)
+    FunctionReference(IRGenerator* irGenerator, int offset, std::vector<IRNode::ID> function,
+                      IRNode::ID type = IRNode::ID())
+    : INHERITED(irGenerator, offset, kFunctionReference_Kind, type)
     , fFunctions(function) {}
 
     bool hasSideEffects() const override {
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FunctionReference(fOffset, fFunctions, &fType));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new FunctionReference(fIRGenerator, fOffset, fFunctions,
+                                                              fType));
     }
 
     String description() const override {
         return String("<function>");
     }
 
-    const std::vector<const FunctionDeclaration*> fFunctions;
+    const std::vector<IRNode::ID> fFunctions;
 
     typedef Expression INHERITED;
-
-private:
-    FunctionReference(int offset, std::vector<const FunctionDeclaration*> function,
-                      const Type* type)
-    : INHERITED(offset, kFunctionReference_Kind, *type)
-    , fFunctions(function) {}};
+};
 
 } // namespace
 

@@ -17,38 +17,33 @@ namespace SkSL {
  * A single case of a 'switch' statement.
  */
 struct SwitchCase : public Statement {
-    SwitchCase(int offset, std::unique_ptr<Expression> value,
-               std::vector<std::unique_ptr<Statement>> statements)
-    : INHERITED(offset, kSwitch_Kind)
-    , fValue(std::move(value))
+    SwitchCase(IRGenerator* irGenerator, int offset, IRNode::ID value,
+               std::vector<IRNode::ID> statements)
+    : INHERITED(irGenerator, offset, kSwitch_Kind)
+    , fValue(value)
     , fStatements(std::move(statements)) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        std::vector<std::unique_ptr<Statement>> cloned;
-        for (const auto& s : fStatements) {
-            cloned.push_back(s->clone());
-        }
-        return std::unique_ptr<Statement>(new SwitchCase(fOffset,
-                                                         fValue ? fValue->clone() : nullptr,
-                                                         std::move(cloned)));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new SwitchCase(fIRGenerator, fOffset, fValue,
+                                                       fStatements));
     }
 
     String description() const override {
         String result;
         if (fValue) {
-            result.appendf("case %s:\n", fValue->description().c_str());
+            result.appendf("case %s:\n", fValue.node().description().c_str());
         } else {
             result += "default:\n";
         }
         for (const auto& s : fStatements) {
-            result += s->description() + "\n";
+            result += s.node().description() + "\n";
         }
         return result;
     }
 
     // null value implies "default" case
-    std::unique_ptr<Expression> fValue;
-    std::vector<std::unique_ptr<Statement>> fStatements;
+    IRNode::ID fValue;
+    std::vector<IRNode::ID> fStatements;
 
     typedef Statement INHERITED;
 };
