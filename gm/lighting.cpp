@@ -20,7 +20,7 @@
 #include "include/effects/SkLightingImageFilter.h"
 #include "include/effects/SkOffsetImageFilter.h"
 #include "tools/ToolUtils.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 #define WIDTH 330
 #define HEIGHT 660
@@ -166,10 +166,10 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         constexpr SkScalar kDesiredDurationSecs = 15.0f;
 
-        fAzimuth = kStartAzimuth + timer.scaled(360.0f/kDesiredDurationSecs, 360.0f);
+        fAzimuth = kStartAzimuth + TimeUtils::Scaled(1e-9 * nanos, 360.0f/kDesiredDurationSecs, 360.0f);
         return true;
     }
 

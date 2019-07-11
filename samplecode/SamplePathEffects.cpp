@@ -17,7 +17,7 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 #define CORNER_RADIUS   12
 
@@ -132,8 +132,8 @@ protected:
         canvas->drawPath(fPath, paint);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fPhase = timer.scaled(40);
+    bool onAnimate(double nanos) override {
+        fPhase = TimeUtils::Scaled(1e-9 * nanos, 40);
         return true;
     }
 

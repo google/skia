@@ -22,7 +22,6 @@
 #include "include/utils/SkTextUtils.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
-#include "tools/timer/AnimTimer.h"
 
 #include "include/utils/SkParsePath.h"
 static void testparse() {
@@ -181,8 +180,8 @@ protected:
         canvas->drawDrawable(fRootDrawable.get());
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
+    bool onAnimate(double nanos) override {
+        SkScalar angle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 24, 360));
         if (fAnimatingDrawable) {
             fAnimatingDrawable->setSweep(angle);
         }

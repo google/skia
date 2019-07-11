@@ -14,7 +14,6 @@
 #include "include/private/SkTArray.h"
 #include "include/utils/SkRandom.h"
 
-class AnimTimer;
 class SkParticleEffect;
 class SkParticleEffectParams;
 
@@ -27,7 +26,7 @@ public:
 
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void draw(SkCanvas* canvas) override;
-    bool animate(const AnimTimer& timer) override;
+    bool animate(double) override;
 
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
                  ModifierKey modifiers) override;
@@ -36,7 +35,8 @@ private:
     void loadEffects(const char* dirname);
 
     SkRandom fRandom;
-    const AnimTimer* fTimer;
+    bool fAnimated = false;
+    double fAnimationTime = 0;
     SkPoint fPlayPosition;
 
     struct LoadedEffect {

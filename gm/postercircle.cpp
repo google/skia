@@ -22,7 +22,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 // Mimics https://output.jsbin.com/falefice/1/quiet?CC_POSTER_CIRCLE, which can't be captured as
 // an SKP due to many 3D layers being composited post-SKP capture.
@@ -41,15 +41,8 @@ protected:
         return SkISize::Make(kStageWidth, kStageHeight + 50);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-#if 0
-        if (timer.isRunning()) {
-            // Use a fixed timestep
-            fTime += 5e-4f;
-        }
-#else
-        fTime = timer.scaled(0.5f);
-#endif
+    bool onAnimate(double nanos) override {
+        fTime = TimeUtils::Scaled(1e-9 * nanos, 0.5f);
         return true;
     }
 

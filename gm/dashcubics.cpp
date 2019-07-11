@@ -19,7 +19,7 @@
 #include "include/effects/SkTrimPathEffect.h"
 #include "include/private/SkTArray.h"
 #include "include/utils/SkParsePath.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 #include <math.h>
 #include <utility>
@@ -161,8 +161,8 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& t) override {
-        fOffset = t.msec() / 2000.0f;
+    bool onAnimate(double nanos) override {
+        fOffset = TimeUtils::NanosToMSec(nanos) / 2000.0f;
         fOffset -= floorf(fOffset);
         return true;
     }

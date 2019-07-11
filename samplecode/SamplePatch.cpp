@@ -27,7 +27,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 namespace {
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
@@ -282,8 +282,8 @@ struct PatchView : public Sample {
         drawpatches(canvas, paint, nu, nv, &patch);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fAngle = timer.scaled(60, 360);
+    bool onAnimate(double nanos) override {
+        fAngle = TimeUtils::Scaled(1e-9 * nanos, 60, 360);
         return true;
     }
 
@@ -379,7 +379,7 @@ public:
 protected:
     SkString name() override { return SkString("PseudoInk"); }
 
-    bool onAnimate(const AnimTimer& timer) override { return true; }
+    bool onAnimate(double nanos) override { return true; }
 
     void onDrawContent(SkCanvas* canvas) override {
         if (fDirty) {
@@ -445,7 +445,7 @@ public:
 protected:
     SkString name() override { return SkString("ManyStrokes"); }
 
-    bool onAnimate(const AnimTimer& timer) override { return true; }
+    bool onAnimate(double nanos) override { return true; }
 
     void dodraw(SkCanvas* canvas, sk_sp<SkPathEffect> pe, SkScalar x, SkScalar y,
                 const SkPaint* ptr = nullptr) {

@@ -14,7 +14,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
-#include "tools/timer/AnimTimer.h"
 #include "tools/timer/Timer.h"
 
 #if SK_SUPPORT_GPU
@@ -57,11 +56,11 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fCurrTime = timer.secs() - fResetTime;
+    bool onAnimate(double nanos) override {
+        fCurrTime = 1e-9 * nanos - fResetTime;
         if (fCurrTime > kDuration) {
             this->initChars();
-            fResetTime = timer.secs();
+            fResetTime = 1e-9 * nanos;
             fCurrTime = 0;
         }
 

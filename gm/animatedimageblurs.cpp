@@ -18,7 +18,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkBlurImageFilter.h"
 #include "include/utils/SkRandom.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 static const SkScalar kBlurMax = 7.0f;
 static const int kNumNodes = 30;
@@ -68,14 +68,14 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         if (0.0f != fLastTime) {
             for (int i = 0; i < kNumNodes; ++i) {
-                fNodes[i].update(timer, fLastTime);
+                fNodes[i].update(nanos, fLastTime);
             }
         }
 
-        fLastTime = timer.secs();
+        fLastTime = 1e-9 * nanos;
         return true;
     }
 
@@ -105,8 +105,8 @@ private:
             fSpeed = rand->nextRangeF(20.0f, 60.0f);
         }
 
-        void update(const AnimTimer& timer, SkScalar lastTime) {
-            SkScalar deltaTime = timer.secs() - lastTime;
+        void update(double nanos, SkScalar lastTime) {
+            SkScalar deltaTime = 1e-9 * nanos - lastTime;
 
             fPos.fX += deltaTime * fSpeed * fDir.fX;
             fPos.fY += deltaTime * fSpeed * fDir.fY;
@@ -119,7 +119,7 @@ private:
                 fDir.fY = -fDir.fY;
             }
 
-            fBlur = timer.pingPong(kBlurAnimationDuration, fBlurOffset, 0.0f, kBlurMax);
+            fBlur = TimeUtils::PingPong(1e-9 * nanos, kBlurAnimationDuration, fBlurOffset, 0.0f, kBlurMax);
         }
 
         SkScalar sigma() const { return fBlur; }

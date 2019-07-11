@@ -11,7 +11,7 @@
 #include "include/core/SkPath.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 // This draws an animation where every cubic has a cusp, to test drawing a circle
 // at the cusp point. Create a unit square. A cubic with its control points
@@ -165,8 +165,8 @@ protected:
         SkDebugf("");
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        curTime = timer.msec();
+    bool onAnimate(double nanos) override {
+        curTime = TimeUtils::NanosToMSec(nanos);
         if (!start) {
             start = curTime;
         }

@@ -12,7 +12,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkRandom.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 #include <cmath>
 
@@ -54,9 +54,9 @@ protected:
                                font, paint);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         constexpr SkScalar maxt = 100000;
-        double t = timer.pingPong(20, 0, 0, maxt); // d3 t is in milliseconds
+        double t = TimeUtils::PingPong(1e-9 * nanos, 20, 0, 0, maxt); // d3 t is in milliseconds
 
         fTranslate.set(sin(t / 3000) - t * this->width() * 0.7 / maxt, sin(t / 999) / t);
         fScale = 4.5 - std::sqrt(t) / 99;

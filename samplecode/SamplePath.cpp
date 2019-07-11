@@ -20,7 +20,7 @@
 #include "include/utils/SkParsePath.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 #include "src/core/SkGeometry.h"
 
@@ -177,8 +177,8 @@ protected:
         }
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        SkScalar currSecs = timer.scaled(100);
+    bool onAnimate(double nanos) override {
+        SkScalar currSecs = TimeUtils::Scaled(1e-9 * nanos, 100);
         SkScalar delta = currSecs - fPrevSecs;
         fPrevSecs = currSecs;
 

@@ -17,7 +17,6 @@
 #include "src/core/SkBlurMask.h"
 #include "src/utils/SkUTF.h"
 #include "tools/ToolUtils.h"
-#include "tools/timer/AnimTimer.h"
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -24,7 +24,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkLumaColorFilter.h"
 #include "tools/Resources.h"
-#include "tools/timer/AnimTimer.h"
 
 #include <math.h>
 
@@ -196,8 +195,8 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
-        fPos = (sin(timer.secs()) + 1) * 0.5f;
+    bool onAnimate(double nanos) override {
+        fPos = (sin(1e-9 * nanos) + 1) * 0.5f;
         return true;
     }
 

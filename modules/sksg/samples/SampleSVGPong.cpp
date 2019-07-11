@@ -8,7 +8,7 @@
 #include "include/core/SkRRect.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
-#include "tools/timer/AnimTimer.h"
+#include "tools/timer/TimeUtils.h"
 
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
@@ -185,11 +185,11 @@ protected:
         fScene->render(canvas);
     }
 
-    bool onAnimate(const AnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         // onAnimate may fire before the first draw.
         if (fScene) {
-            SkScalar dt = (timer.msec() - fLastTick) * fTimeScale;
-            fLastTick = timer.msec();
+            SkScalar dt = (TimeUtils::NanosToMSec(nanos) - fLastTick) * fTimeScale;
+            fLastTick = TimeUtils::NanosToMSec(nanos);
 
             fPaddle0.posTick(dt);
             fPaddle1.posTick(dt);
