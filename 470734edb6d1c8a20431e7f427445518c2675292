@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a848193_c0838b04",
+        "filename": "tools/lottie-web-perf/lottie-web-perf.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-11T15:25:16Z",
+      "side": 1,
+      "message": "nit: \"loop\" for consistency with skottie-wasm-perf.html?",
+      "range": {
+        "startLine": 47,
+        "startChar": 10,
+        "endLine": 47,
+        "endChar": 15
+      },
+      "revId": "470734edb6d1c8a20431e7f427445518c2675292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
