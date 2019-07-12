@@ -22,6 +22,30 @@
       "revId": "cf684bd0de4ca1e368ded1a2a28fb175c7878ab5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "038c2186_5f570e62",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-12T12:26:17Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "d10397d2_11488ed5",
+      "range": {
+        "startLine": 88,
+        "startChar": 25,
+        "endLine": 88,
+        "endChar": 39
+      },
+      "revId": "cf684bd0de4ca1e368ded1a2a28fb175c7878ab5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
