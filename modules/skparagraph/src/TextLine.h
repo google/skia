@@ -16,7 +16,7 @@ namespace textlayout {
 class TextLine {
 public:
     TextLine() = default;
-    TextLine(TextLine&&);
+    //TextLine(TextLine&&);
     ~TextLine() = default;
 
     TextLine(ParagraphImpl* master,
@@ -27,6 +27,14 @@ public:
              SkSpan<const char> textWithSpaces,
              SkSpan<const Cluster> clusters,
              LineMetrics sizes);
+
+    void setMaster(ParagraphImpl* master) {
+        fMaster = master;
+        this->fBlockRange.setMaster(master);
+        this->fTextRange.setMaster(master);
+        this->fTextWithWhitespacesRange.setMaster(master);
+        this->fClusterRange.setMaster(master);
+    }
 
     SkSpan<const char> trimmedText() const { return fTextRange.span(); }
     SkSpan<const char> textWithSpaces() const { return fTextWithWhitespacesRange.span(); }
@@ -103,15 +111,12 @@ private:
     StableRange<ParagraphImpl, const char, &accessText> fTextWithWhitespacesRange;
     StableRange<ParagraphImpl, const Cluster, &accessCluster> fClusterRange;
 
-    // TODO: To clip by glyph:
-    //size_t fStartPos;
-    //size_t fEndPos;
     SkTArray<size_t, true> fLogical;
-    SkScalar fShift;                   // Shift to left - right - center
-    SkVector fAdvance;                 // Text size
-    SkVector fOffset;                  // Text position
-    std::unique_ptr<Run> fEllipsis;  // In case the line ends with the ellipsis
-    LineMetrics fSizes;              // Line metrics as a max of all run metrics
+    SkScalar fShift;                    // Shift to left - right - center
+    SkVector fAdvance;                  // Text size
+    SkVector fOffset;                   // Text position
+    std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
+    LineMetrics fSizes;                 // Line metrics as a max of all run metrics
 
     static SkTHashMap<SkFont, Run> fEllipsisCache;  // All found so far shapes of ellipsis
 };

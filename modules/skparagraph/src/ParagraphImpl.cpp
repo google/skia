@@ -96,6 +96,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fTextSpan(fText.c_str(), fText.size())
         , fState(kUnknown)
         , fOldWidth(0)
+        , fOldHeight(0)
         , fPicture(nullptr) {
     fTextStyles.reserve(blocks.size());
     for (auto& block : blocks) {
@@ -113,6 +114,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
         , std::move(fonts))
         , fState(kUnknown)
         , fOldWidth(0)
+        , fOldHeight(0)
         , fPicture(nullptr) {
     icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
     std::string str;
@@ -136,7 +138,7 @@ void ParagraphImpl::layout(SkScalar width) {
         // Layout marked as dirty for performance/testing reasons
         this->fRuns.reset();
         this->fClusters.reset();
-    } else if (fState >= kLineBroken && fOldWidth != width) {
+    } else if (fState >= kLineBroken && (fOldWidth != width || fOldHeight != fHeight)) {
         // We can use the results from SkShaper but have to break lines again
         fState = kShaped;
     }
@@ -154,7 +156,12 @@ void ParagraphImpl::layout(SkScalar width) {
             fHeight = lineMetrics.height();
             fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
             fIdeographicBaseline = lineMetrics.ideographicBaseline();
+        }
+        if (fState < kShaped) {
             fState = kShaped;
+        } else {
+            layout(width);
+            return;
         }
 
         // Could be kShaped or kClusterized if we were lucky and and found it in the cache
@@ -162,7 +169,18 @@ void ParagraphImpl::layout(SkScalar width) {
             this->buildClusterTable();
             fState = kClusterized;
             // Add the paragraph to the cache
-            fParagraphCache.addParagraph(this);
+            fParagraphCache.updateParagraph(this);
+        } else {
+            //SkDebugf("Found clusters: %s\n", this->fText.c_str());
+        }
+    }
+
+    if (fState >= kLineBroken)  {
+        if (fOldWidth != width || fOldHeight != fHeight) {
+            fState = kClusterized;
+            //SkDebugf("Reduced measurement to clusters: %s\n", this->fText.c_str());
+        } else {
+            //SkDebugf("Found measurement: %s\n", this->fText.c_str());
         }
     }
 
@@ -172,9 +190,12 @@ void ParagraphImpl::layout(SkScalar width) {
         this->fLines.reset();
         this->breakShapedTextIntoLines(width);
         fState = kLineBroken;
+        // Add the paragraph to the cache
+        fParagraphCache.updateParagraph(this);
     }
 
     this->fOldWidth = width;
+    this->fOldHeight = this->fHeight;
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
@@ -187,6 +208,11 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
         this->fPicture = nullptr;
         this->paintLinesIntoPicture();
         fState = kRecorded;
+
+        // Add the paragraph to the cache
+        fParagraphCache.updateParagraph(this);
+    } else {
+        //SkDebugf("Found picture: %s\n", this->fText.c_str());
     }
 
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
@@ -200,7 +226,6 @@ void ParagraphImpl::resetContext() {
     fIdeographicBaseline = 0;
     fMaxIntrinsicWidth = 0;
     fMinIntrinsicWidth = 0;
-    fMaxLineWidth = 0;
 }
 
 // Clusters in the order of the input text
@@ -319,7 +344,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     };
 
     if (fTextSpan.empty()) {
-        fState = kShaped;
         return false;
     }
 
@@ -328,7 +352,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     // Check the font-resolved text against the cache
     if (fParagraphCache.findParagraph(this)) {
-        fState = kClusterized;
         return true;
     }
 
@@ -341,7 +364,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
             fTextSpan.begin(), fTextSpan.size(),
             fParagraphStyle.getTextDirection() == TextDirection::kLtr ? (uint8_t)2 : (uint8_t)1);
     if (bidi == nullptr) {
-        fState = kUnknown;
         return false;
     }
     auto script = SkShaper::MakeHbIcuScriptRunIterator(fTextSpan.begin(), fTextSpan.size());
@@ -349,7 +371,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
                   std::numeric_limits<SkScalar>::max(), &handler);
 
-    fState = kShaped;
     return true;
 }
 

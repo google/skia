@@ -25,9 +25,17 @@ TestFontCollection::TestFontCollection(const std::string& resourceDir)
                     //impl->printKeyValue("not found paragraph:", false);
                 }
             }
-        } else if (std::strcmp(method, "addParagraph") == 0) {
+        } else if (std::strcmp(method, "addParagraph1") == 0) {
             if (impl != nullptr) {
-                impl->printKeyValue("added paragraph:", true);
+                impl->printKeyValue("added paragraph1:", true);
+            }
+        } else if (std::strcmp(method, "addParagraph2") == 0) {
+            if (impl != nullptr) {
+                impl->printKeyValue("added paragraph2:", true);
+            }
+        } else if (std::strcmp(method, "updateParagraph") == 0) {
+            if (impl != nullptr) {
+                impl->printKeyValue("update paragraph:", true);
             }
         } else {
             SkASSERT(false);

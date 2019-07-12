@@ -10,15 +10,17 @@ namespace textlayout {
 ParagraphCacheKey::ParagraphCacheKey(ParagraphImpl* paragraph)
         : fText(paragraph->fText)
         , fFontSwitches(paragraph->switches())
-        , fTextStyles(paragraph->fTextStyles) {
-}
+        , fTextStyles(paragraph->fTextStyles)
+        , fParagraphStyle(paragraph->paragraphStyle()) { }
 
 // TODO: copying clusters and runs for now (there are minor things changed on formatting)
 ParagraphCacheValue::ParagraphCacheValue(ParagraphImpl* paragraph)
         : fKey(ParagraphCacheKey(paragraph))
+        , fInternalState(paragraph->state())
         , fRuns(paragraph->fRuns)
-        , fClusters(paragraph->fClusters) {
-}
+        , fClusters(paragraph->fClusters)
+        , fMeasurement(paragraph->measurement())
+        , fPicture(paragraph->fPicture) { }
 
 bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
 
@@ -45,6 +47,21 @@ bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
         cluster.setMaster(paragraph);
     }
 
+    paragraph->fLines.reset();
+
+    paragraph->fLines = found->fLines;
+    for (auto& line : found->fLines) {
+        paragraph->fLines.push_back(line);
+        paragraph->fLines.back().setMaster(paragraph);
+    }
+
+    paragraph->fState = found->fInternalState;
+    paragraph->setMeasurement(found->fMeasurement);
+    paragraph->fPicture = found->fPicture;
+
+    paragraph->fOldWidth = found->fMeasurement.fWidth;
+    paragraph->fOldHeight = found->fMeasurement.fHeight;
+
     fChecker(paragraph, "findParagraph", true);
     return true;
 }
@@ -54,7 +71,25 @@ void ParagraphCache::addParagraph(ParagraphImpl* paragraph) {
     SkAutoMutexExclusive lock(fParagraphMutex);
     auto value = new ParagraphCacheValue(paragraph);
     this->add(value);
-    fChecker(paragraph, "addParagraph", true);
+    fChecker(paragraph, "addParagraph1", true);
+}
+
+void ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
+
+    SkAutoMutexExclusive lock(fParagraphMutex);
+    ParagraphCacheKey key(paragraph);
+    auto found = this->find(key);
+    if (found != nullptr) {
+        found->fInternalState = paragraph->fState;
+        found->fMeasurement = paragraph->measurement();
+        found->fLines = paragraph->fLines;
+        found->fPicture = paragraph->fPicture;
+        fChecker(paragraph, "updateParagraph", true);
+    } else {
+        auto value = new ParagraphCacheValue(paragraph);
+        this->add(value);
+        fChecker(paragraph, "addParagraph2", true);
+    }
 }
 
 const ParagraphCacheKey& LookupTrait::GetKey(const ParagraphCacheValue& paragraph) {
@@ -72,6 +107,11 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
         return false;
     }
     if (a.fTextStyles.size() != b.fTextStyles.size()) {
+        return false;
+    }
+
+    if (a.fParagraphStyle.getMaxLines() != b.fParagraphStyle.getMaxLines()) {
+        // TODO: this is too strong, but at least we will not lose lines
         return false;
     }
 
@@ -147,11 +187,13 @@ void ParagraphCache::printCache(const char* title) {
 }
 
 void ParagraphCache::printKeyValue(const char* title, ParagraphImpl* paragraph, bool found) {
+    /*
     SkDebugf("%s '%s' ", title, paragraph->text().data());
     for (auto& fd : paragraph->switches()) {
         SkDebugf("%d ", fd.fFont.getTypeface() != nullptr ? fd.fFont.getTypeface()->uniqueID(): 0);
     };
     SkDebugf("\n");
+     */
 }
 
 }

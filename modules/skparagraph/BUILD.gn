@@ -11,7 +11,7 @@ declare_args() {
 if (skia_enable_skparagraph) {
 
   config("public_config") {
-    include_dirs = [ "include" ]
+    include_dirs = [ "include", "utils" ]
   }
 
   component("skparagraph") {
