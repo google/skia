@@ -473,6 +473,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         }
     }
 
+    // HANDLE CLEAR OF LEVELS HERE USING NEW CAPS
     if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
         this->clearTexture(tex.get(), colorType);
     }
