@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5dc4d547_5b6f0276",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-12T18:13:03Z",
+      "side": 1,
+      "message": "re. in person convo, could use comment about why this is setup the way it is and also possibly always use RGBA[8] and enable MSAA with EXT extension",
+      "range": {
+        "startLine": 1723,
+        "startChar": 0,
+        "endLine": 1731,
+        "endChar": 9
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ead29a4_c21b1b66",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2032,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-12T18:13:03Z",
+      "side": 1,
+      "message": "RGBA4??",
+      "range": {
+        "startLine": 2029,
+        "startChar": 0,
+        "endLine": 2032,
+        "endChar": 90
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "844bda61_6b5ff328",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-12T18:13:03Z",
+      "side": 1,
+      "message": "Do you even need this check? I\u0027d hope isFormatTexturable would return false for kUnknown.",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 9
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c6d6f99_01690a47",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-12T18:13:03Z",
+      "side": 1,
+      "message": "same q",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 9
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fdb3ec2_f32661df",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-12T18:13:03Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 9
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10a9a8ff_12330292",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-12T18:13:03Z",
+      "side": 1,
+      "message": "I have a slight pref to use the table to determine which ETC format is used, but also barely care.",
+      "range": {
+        "startLine": 517,
+        "startChar": 3,
+        "endLine": 517,
+        "endChar": 31
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
