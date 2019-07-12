@@ -473,12 +473,12 @@ DEF_TEST(SkVM_Assembler, r) {
         a.byte(3);
         a.byte(4);
 
-        a.vbroadcastss(A::ymm0 , l);
-        a.vbroadcastss(A::ymm1 , l);
-        a.vbroadcastss(A::ymm8 , l);
-        a.vbroadcastss(A::ymm15, l);
+        a.vbroadcastss(A::ymm0 , &l);
+        a.vbroadcastss(A::ymm1 , &l);
+        a.vbroadcastss(A::ymm8 , &l);
+        a.vbroadcastss(A::ymm15, &l);
 
-        a.vpshufb(A::ymm4, A::ymm3, l);
+        a.vpshufb(A::ymm4, A::ymm3, &l);
     },{
         0x01, 0x02, 0x03, 0x4,
 
@@ -493,8 +493,8 @@ DEF_TEST(SkVM_Assembler, r) {
 
     test_asm(r, [&](A& a) {
         A::Label l = a.here();
-        a.jne(l);
-        a.jne(l);
+        a.jne(&l);
+        a.jne(&l);
     },{
         0x0f,0x85, 0xfa,0xff,0xff,0xff,   // near jump -6 bytes
         0x0f,0x85, 0xf4,0xff,0xff,0xff,   // near jump -12 bytes
@@ -628,11 +628,11 @@ DEF_TEST(SkVM_Assembler, r) {
         a.cmp(A::x2, 4);
 
         A::Label l = a.here();
-        a.bne(l);
-        a.bne(l);
-        a.blt(l);
-        a.b(l);
-        a.cbnz(A::x2, l);
+        a.bne(&l);
+        a.bne(&l);
+        a.blt(&l);
+        a.b(&l);
+        a.cbnz(A::x2, &l);
         a.cbz(A::x2, &l);
     },{
         0xc0,0x03,0x5f,0xd6,

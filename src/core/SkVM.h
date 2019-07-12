@@ -92,10 +92,10 @@ namespace skvm {
         Label here();
         void label(Label*);
 
-        void jne(Label);
+        void jne(Label*);
 
-        void vbroadcastss(Ymm dst, Label);
-        void vpshufb(Ymm dst, Ymm x, Label);
+        void vbroadcastss(Ymm dst, Label*);
+        void vpshufb(Ymm dst, Ymm x, Label*);
 
         void vmovups  (Ymm dst, GP64 src);
         void vpmovzxbd(Ymm dst, GP64 src);
@@ -139,9 +139,9 @@ namespace skvm {
 
         // There's another encoding for unconditional branches that can jump further,
         // but this one encoded as b.al is simple to implement and should be fine.
-        void b  (Label l) { this->b(Condition::al, l); }
-        void bne(Label l) { this->b(Condition::ne, l); }
-        void blt(Label l) { this->b(Condition::lt, l); }
+        void b  (Label* l) { this->b(Condition::al, l); }
+        void bne(Label* l) { this->b(Condition::ne, l); }
+        void blt(Label* l) { this->b(Condition::lt, l); }
 
         // "cmp ..." is just an assembler mnemonic for "subs xzr, ..."!
         void cmp(X n, int imm12) { this->subs(xzr, n, imm12); }
@@ -151,9 +151,9 @@ namespace skvm {
         //      beq/bne(l)
         // but without setting condition flags.
         void cbz (X t, Label* l);
-        void cbnz(X t, Label l);
+        void cbnz(X t, Label* l);
 
-        void ldrq(V dst, Label);  // 128-bit PC-relative load
+        void ldrq(V dst, Label*);  // 128-bit PC-relative load
 
         void ldrq(V dst, X src);  // 128-bit dst = *src
         void ldrs(V dst, X src);  //  32-bit dst = *src
@@ -179,8 +179,8 @@ namespace skvm {
         void op(int prefix, int map, int opcode, int opcode_ext, Ymm dst, Ymm x, int imm);
 
         // dst = op(x,label) or op(label)
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label l);
-        void op(int prefix, int map, int opcode, Ymm dst,        Label l) {
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label* l);
+        void op(int prefix, int map, int opcode, Ymm dst,        Label* l) {
             this->op(prefix, map, opcode, dst, (Ymm)0, l);
         }
 
@@ -198,10 +198,7 @@ namespace skvm {
 
         // Order matters... value is 4-bit encoding for condition code.
         enum class Condition { eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,al };
-        void b(Condition, Label);
-
-        int disp19(const Label&);
-        int disp32(const Label&);
+        void b(Condition, Label*);
 
         int disp19(Label*);
         int disp32(Label*);
