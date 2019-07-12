@@ -116,7 +116,8 @@ source_file_types = {
   '.cc': 'cxx',
   '.cpp': 'cxx',
   '.cxx': 'cxx',
-  '.mm': 'cxx',
+  '.m': 'objc',
+  '.mm': 'objcc',
   '.c': 'c',
   '.s': 'asm',
   '.S': 'asm',
@@ -447,10 +448,19 @@ def WriteCompilerFlags(out, target, project, sources):
   cflags_asm = target.properties.get('asmflags', [])
   cflags_c = target.properties.get('cflags_c', [])
   cflags_cxx = target.properties.get('cflags_cc', [])
-  if 'c' in sources and not any(k in sources for k in ('asm', 'cxx')):
+  cflags_objc = cflags_c[:]
+  cflags_objc.extend(target.properties.get('cflags_objc', []))
+  cflags_objcc = cflags_cxx[:]
+  cflags_objcc.extend(target.properties.get('cflags_objcc', []))
+
+  if 'c' in sources and not any(k in sources for k in ('asm', 'cxx', 'objc', 'objcc')):
     flags.extend(cflags_c)
-  elif 'cxx' in sources and not any(k in sources for k in ('asm', 'c')):
+  elif 'cxx' in sources and not any(k in sources for k in ('asm', 'c', 'objc', 'objcc')):
     flags.extend(cflags_cxx)
+  elif 'objc' in sources and not any(k in sources for k in ('asm', 'c', 'cxx', 'objcc')):
+    flags.extend(cflags_objc)
+  elif 'objcc' in sources and not any(k in sources for k in ('asm', 'c', 'cxx', 'objc')):
+    flags.extend(cflags_objcc)
   else:
     # TODO: This is broken, one cannot generally set properties on files,
     # as other targets may require different properties on the same files.
@@ -460,6 +470,10 @@ def WriteCompilerFlags(out, target, project, sources):
       SetFilesProperty(out, sources['c'], 'COMPILE_FLAGS', cflags_c, ' ')
     if 'cxx' in sources and cflags_cxx:
       SetFilesProperty(out, sources['cxx'], 'COMPILE_FLAGS', cflags_cxx, ' ')
+    if 'objc' in sources and cflags_objc:
+      SetFilesProperty(out, sources['objc'], 'COMPILE_FLAGS', cflags_objc, ' ')
+    if 'objcc' in sources and cflags_objcc:
+      SetFilesProperty(out, sources['objcc'], 'COMPILE_FLAGS', cflags_objcc, ' ')
   if flags:
     SetCurrentTargetProperty(out, 'COMPILE_FLAGS', flags, ' ')
 
@@ -480,7 +494,7 @@ gn_target_types_that_absorb_objects = (
 def WriteSourceVariables(out, target, project):
   # gn separates the sheep from the goats based on file extensions.
   # A full separation is done here because of flag handing (see Compile flags).
-  source_types = {'cxx':[], 'c':[], 'asm':[],
+  source_types = {'cxx':[], 'c':[], 'asm':[], 'objc':[], 'objcc':[],
                   'obj':[], 'obj_target':[], 'input':[], 'other':[]}
 
   all_sources = target.properties.get('sources', [])
