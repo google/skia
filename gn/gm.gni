@@ -255,7 +255,6 @@ gm_sources = [
   "$_gm/p3.cpp",
   "$_gm/patch.cpp",
   "$_gm/path_stroke_with_zero_length.cpp",
-  "$_gm/patharcto.cpp",
   "$_gm/pathcontourstart.cpp",
   "$_gm/patheffects.cpp",
   "$_gm/pathfill.cpp",
