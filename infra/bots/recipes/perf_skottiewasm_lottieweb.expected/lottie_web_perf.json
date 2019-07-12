@@ -138,6 +138,7 @@
     "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
     "env": {
       "CHROME_HEADLESS": "1",
+      "DISPLAY": ":0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -258,6 +259,7 @@
     "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
     "env": {
       "CHROME_HEADLESS": "1",
+      "DISPLAY": ":0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -378,6 +380,7 @@
     "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
     "env": {
       "CHROME_HEADLESS": "1",
+      "DISPLAY": ":0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
