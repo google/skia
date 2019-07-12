@@ -18,10 +18,9 @@ struct SkDVector {
     double fX;
     double fY;
 
-    SkDVector& set(const SkVector& pt) {
+    void set(const SkVector& pt) {
         fX = pt.fX;
         fY = pt.fY;
-        return *this;
     }
 
     // only used by testing
@@ -85,15 +84,10 @@ struct SkDVector {
         return fX * fX + fY * fY;
     }
 
-    SkDVector& normalize() {
+    void normalize() {
         double inverseLength = 1 / this->length();
         fX *= inverseLength;
         fY *= inverseLength;
-        return *this;
-    }
-
-    bool isFinite() const {
-        return std::isfinite(fX) && std::isfinite(fY);
     }
 };
 
