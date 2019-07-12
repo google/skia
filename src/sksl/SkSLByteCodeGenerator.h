@@ -88,7 +88,7 @@ public:
 
     void write32(uint32_t b);
 
-    void write(ByteCodeInstruction inst);
+    void write(ByteCodeInstruction inst, int count = kUnusedStackCount);
 
     /**
      * Based on 'type', writes the s (signed), u (unsigned), or f (float) instruction.
@@ -99,6 +99,9 @@ public:
     static int SlotCount(const Type& type);
 
 private:
+    static constexpr int kUnusedStackCount = INT32_MAX;
+    static int StackUsage(ByteCodeInstruction, int count);
+
     // reserves 16 bits in the output code, to be filled in later with an address once we determine
     // it
     class DeferredLocation {
@@ -205,10 +208,6 @@ private:
 
     void writeTernaryExpression(const TernaryExpression& t);
 
-    void writeLogicalAnd(const BinaryExpression& b);
-
-    void writeLogicalOr(const BinaryExpression& o);
-
     void writeNullLiteral(const NullLiteral& n);
 
     bool writePrefixExpression(const PrefixExpression& p, bool discard);
@@ -284,6 +283,8 @@ private:
     std::vector<const FunctionDefinition*> fFunctions;
 
     int fParameterCount;
+    int fStackCount;
+    int fMaxStackCount;
 
     int fLoopCount;
     int fMaxLoopCount;
