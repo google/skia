@@ -1079,6 +1079,9 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     }
 
     SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(), paint);
+    if (rec.fSaveLayerFlags & kF16ColorType) {
+        info = info.makeColorType(kRGBA_F16_SkColorType);
+    }
 
     sk_sp<SkBaseDevice> newDevice;
     {

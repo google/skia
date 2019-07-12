@@ -440,3 +440,32 @@ DEF_SIMPLE_GM(save_behind, canvas, 830, 670) {
         canvas->translate(430, 0);
     }
 }
+
+#include "include/effects/SkGradientShader.h"
+
+DEF_SIMPLE_GM(savelayer_f16, canvas, 900, 300) {
+    int n = 15;
+    SkRect r{0, 0, 300, 300};
+    SkPaint paint;
+
+    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
+    paint.setShader(SkGradientShader::MakeSweep(r.centerX(), r.centerY(),
+                                                colors, nullptr, SK_ARRAY_COUNT(colors)));
+
+    canvas->drawOval(r, paint);
+
+    paint.setAlphaf(1.0f/n);
+    paint.setBlendMode(SkBlendMode::kPlus);
+
+    for (auto flags : {0, (int)SkCanvas::kF16ColorType}) {
+        canvas->translate(r.width(), 0);
+
+        SkCanvas::SaveLayerRec rec;
+        rec.fSaveLayerFlags = flags;
+        canvas->saveLayer(rec);
+        for (int i = 0; i < n; ++i) {
+            canvas->drawOval(r, paint);
+        }
+        canvas->restore();
+    }
+}
