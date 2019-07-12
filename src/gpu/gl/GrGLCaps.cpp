@@ -1371,7 +1371,7 @@ bool GrGLCaps::getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memo
     return true;
 }
 
-void GrGLCaps::setStencilFormatIndexForFormat(GrGLSizedInternalFormat format, int index) {
+void GrGLCaps::setStencilFormatIndexForFormat(GrGLFormat format, int index) {
     SkASSERT(!this->hasStencilFormatBeenDeterminedForFormat(format));
     this->getFormatInfo(format).fStencilFormatIndex =
             index < 0 ? FormatInfo::kUnsupported_StencilFormatIndex : index;
@@ -1517,7 +1517,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // RGBA8
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRGBA8);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA8);
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGBA8;
         info.fInternalFormatForTexImage =
@@ -1564,7 +1564,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // R8
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kR8);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kR8);
         info.fBaseInternalFormat = GR_GL_RED;
         info.fSizedInternalFormat = GR_GL_R8;
         info.fInternalFormatForTexImage =
@@ -1600,7 +1600,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         bool alpha8IsValidForGLES = GR_IS_GR_GL_ES(standard) && version < GR_GL_VER(3, 0);
         bool alpha8IsValidForWebGL = GR_IS_GR_WEBGL(standard);
 
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kALPHA8);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kALPHA8);
         info.fBaseInternalFormat = GR_GL_ALPHA;
         info.fSizedInternalFormat = GR_GL_ALPHA8;
         if (GR_IS_GR_GL_ES(standard) || !texImageSupportsSizedInternalFormat) {
@@ -1636,7 +1636,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // LUMINANCE8
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kLUMINANCE8);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kLUMINANCE8);
         info.fBaseInternalFormat = GR_GL_LUMINANCE;
         info.fSizedInternalFormat = GR_GL_LUMINANCE8;
         info.fInternalFormatForTexImage =
@@ -1674,7 +1674,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // BGRA8
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kBGRA8);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kBGRA8);
         info.fBaseInternalFormat = GR_GL_BGRA;
         info.fSizedInternalFormat = GR_GL_BGRA8;
         // If BGRA is supported as an internal format it must always be specified to glTex[Sub]Image
@@ -1740,7 +1740,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // RGB565
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRGB565);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGB565);
         info.fBaseInternalFormat = GR_GL_RGB;
         info.fSizedInternalFormat = GR_GL_RGB565;
         info.fInternalFormatForTexImage =
@@ -1776,7 +1776,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // RGBA16F
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRGBA16F);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA16F);
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGBA16F;
         info.fInternalFormatForTexImage =
@@ -1811,7 +1811,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // R16F
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kR16F);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kR16F);
         info.fBaseInternalFormat = GR_GL_RED;
         info.fSizedInternalFormat = GR_GL_R16F;
         info.fInternalFormatForTexImage =
@@ -1839,7 +1839,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // RGB8
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRGB8);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGB8);
         info.fBaseInternalFormat = GR_GL_RGB;
         info.fSizedInternalFormat = GR_GL_RGB8;
         info.fInternalFormatForTexImage =
@@ -1880,7 +1880,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // RG8
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRG8);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRG8);
         info.fBaseInternalFormat = GR_GL_RG;
         info.fSizedInternalFormat = GR_GL_RG8;
         info.fInternalFormatForTexImage =
@@ -1905,7 +1905,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // RGB10_A2
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRGB10_A2);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGB10_A2);
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGB10_A2;
         info.fInternalFormatForTexImage =
@@ -1933,7 +1933,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // RGBA4
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRGBA4);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA4);
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGBA4;
         info.fInternalFormatForTexImage =
@@ -1962,13 +1962,13 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // RGBA32F
     {
-        // FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRGBA32F);
+        // FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA32F);
         // We don't allow texturing or rendering to this format
     }
 
     // SRGB8_ALPHA8
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kSRGB8_ALPHA8);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kSRGB8_ALPHA8);
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
         info.fInternalFormatForTexImage =
@@ -1997,7 +1997,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // COMPRESSED_RGB8_ETC2
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kCOMPRESSED_RGB8_ETC2);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_RGB8_ETC2);
         info.fBaseInternalFormat = GR_GL_RGB;
         info.fCompressedInternalFormat = GR_GL_COMPRESSED_RGB8_ETC2;
         if (GR_IS_GR_GL(standard)) {
@@ -2016,7 +2016,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // COMPRESSED_ETC1_RGB8
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kCOMPRESSED_ETC1_RGB8);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_ETC1_RGB8);
         info.fBaseInternalFormat = GR_GL_RGB;
         info.fCompressedInternalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
         if (GR_IS_GR_GL_ES(standard)) {
@@ -2030,7 +2030,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // GR_GL_R16
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kR16);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kR16);
         info.fBaseInternalFormat = GR_GL_RED;
         info.fSizedInternalFormat = GR_GL_R16;
         info.fInternalFormatForTexImage =
@@ -2051,7 +2051,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
     // GR_GL_RG16
     {
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRG16);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRG16);
         info.fBaseInternalFormat = GR_GL_RG;
         info.fSizedInternalFormat = GR_GL_RG16;
         info.fInternalFormatForTexImage =
@@ -2091,7 +2091,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             }
         } // No WebGL support
 
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRGBA16);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA16);
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGBA16;
         info.fInternalFormatForTexImage =
@@ -2135,7 +2135,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             }
         }
 
-        FormatInfo& info = this->getFormatInfo(GrGLSizedInternalFormat::kRG16F);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRG16F);
         info.fBaseInternalFormat = GR_GL_RG;
         info.fSizedInternalFormat = GR_GL_RG16F;
         info.fInternalFormatForTexImage =
@@ -3663,10 +3663,10 @@ bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& b
 }
 
 bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
-    return GrGLBackendFormatToSizedInternalFormat(format) == GrGLSizedInternalFormat::kSRGB8_ALPHA8;
+    return GrGLBackendFormatToGLFormat(format) == GrGLFormat::kSRGB8_ALPHA8;
 }
 
-bool GrGLCaps::isFormatTexturable(GrColorType ct, GrGLSizedInternalFormat format) const {
+bool GrGLCaps::isFormatTexturable(GrColorType ct, GrGLFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
     // Currently we conflate texturable to mean the format itself is texturable in a draw and that
     // we are able to upload data of the passed in colortype to it.
@@ -3675,7 +3675,7 @@ bool GrGLCaps::isFormatTexturable(GrColorType ct, GrGLSizedInternalFormat format
 }
 
 bool GrGLCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format) const {
-    return this->isFormatTexturable(ct, GrGLBackendFormatToSizedInternalFormat(format));
+    return this->isFormatTexturable(ct, GrGLBackendFormatToGLFormat(format));
 }
 
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grCT,
@@ -3740,7 +3740,7 @@ int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     return count;
 }
 
-bool GrGLCaps::canFormatBeFBOColorAttachment(GrGLSizedInternalFormat format) const {
+bool GrGLCaps::canFormatBeFBOColorAttachment(GrGLFormat format) const {
     return SkToBool(this->getFormatInfo(format).fFlags & FormatInfo::kFBOColorAttachment_Flag);
 }
 
@@ -3749,10 +3749,10 @@ bool GrGLCaps::isFormatCopyable(GrColorType ct, const GrBackendFormat& format) c
     // requires the src to be an FBO attachment, blit requires both src and dst to be FBO
     // attachments, and draw requires the dst to be an FBO attachment. Thus to copy from and to
     // the same config, we need that config to be bindable to an FBO.
-    return this->canFormatBeFBOColorAttachment(GrGLBackendFormatToSizedInternalFormat(format));
+    return this->canFormatBeFBOColorAttachment(GrGLBackendFormatToGLFormat(format));
 }
 
-bool GrGLCaps::formatSupportsTexStorage(GrGLSizedInternalFormat format) const {
+bool GrGLCaps::formatSupportsTexStorage(GrGLFormat format) const {
     return SkToBool(this->getFormatInfo(format).fFlags & FormatInfo::kCanUseTexStorage_Flag);
 }
 
