@@ -420,7 +420,7 @@ namespace skvm {
             opcode |= 0b0000'0010;  // second bit set for 8-bit immediate, else 32-bit.
         }
 
-        this->byte(rex(1,dst>>3,0,0));
+        this->byte(rex(1,0,0,dst>>3));
         this->byte(opcode);
         this->byte(mod_rm(Mod::Direct, opcode_ext, dst&7));
         this->byte(&imm, imm_bytes);

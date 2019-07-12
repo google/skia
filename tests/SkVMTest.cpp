@@ -415,7 +415,7 @@ DEF_TEST(SkVM_Assembler, r) {
         a.add(A::rdi, 12);      // Last 0x48 REX
         a.sub(A::rdi, 8);
 
-        a.add(A::r8 , 7);       // First 0x4c REX
+        a.add(A::r8 , 7);       // First 0x49 REX
         a.sub(A::r8 , 4);
 
         a.add(A::rsi, 128);     // Requires 4 byte immediate.
@@ -427,11 +427,11 @@ DEF_TEST(SkVM_Assembler, r) {
         0x48, 0x83, 0b11'000'111, 0x0c,
         0x48, 0x83, 0b11'101'111, 0x08,
 
-        0x4c, 0x83, 0b11'000'000, 0x07,
-        0x4c, 0x83, 0b11'101'000, 0x04,
+        0x49, 0x83, 0b11'000'000, 0x07,
+        0x49, 0x83, 0b11'101'000, 0x04,
 
         0x48, 0x81, 0b11'000'110, 0x80, 0x00, 0x00, 0x00,
-        0x4c, 0x81, 0b11'101'000, 0x40, 0x42, 0x0f, 0x00,
+        0x49, 0x81, 0b11'101'000, 0x40, 0x42, 0x0f, 0x00,
     });
 
 
