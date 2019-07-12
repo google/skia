@@ -82,8 +82,9 @@ public:
         auto srcProxy = fSrcProxy.get();
         SkASSERT(srcProxy->isInstantiated());
 
-        GrCCPathProcessor pathProc(srcProxy->peekTexture(), srcProxy->textureSwizzle(),
-                                   srcProxy->origin());
+        GrCCPathProcessor pathProc(
+                GrCCPathProcessor::CoverageMode::kCoverageCount, srcProxy->peekTexture(),
+                srcProxy->textureSwizzle(), srcProxy->origin());
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
                             flushState->drawOpArgs().fOutputSwizzle);

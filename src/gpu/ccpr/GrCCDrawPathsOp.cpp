@@ -357,7 +357,9 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
                               == fCacheEntry->cachedAtlas()->coverageType())
                     ? SkPMColor4f{0,0,.25,.25} : SkPMColor4f{0,.25,0,.25};
 #endif
-            op->recordInstance(fCacheEntry->cachedAtlas()->getOnFlushProxy(),
+            auto coverageMode = GrCCPathProcessor::GetCoverageMode(
+                    fCacheEntry->cachedAtlas()->coverageType());
+            op->recordInstance(coverageMode, fCacheEntry->cachedAtlas()->getOnFlushProxy(),
                                resources->nextPathInstanceIdx());
             resources->appendDrawPathInstance().set(
                     *fCacheEntry, fCachedMaskShift, SkPMColor4f_toFP16(fColor), doEvenOddFill);
@@ -375,7 +377,8 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     if (auto atlas = resources->renderShapeInAtlas(
                 fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
                 &devToAtlasOffset)) {
-        op->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
+        op->recordInstance(GrCCPathProcessor::CoverageMode::kCoverageCount, atlas->textureProxy(),
+                           resources->nextPathInstanceIdx());
         resources->appendDrawPathInstance().set(
                 octoBounds, devToAtlasOffset, SkPMColor4f_toFP16(fColor), doEvenOddFill);
 
@@ -389,16 +392,16 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     }
 }
 
-inline void GrCCDrawPathsOp::recordInstance(GrTextureProxy* atlasProxy, int instanceIdx) {
+inline void GrCCDrawPathsOp::recordInstance(
+        GrCCPathProcessor::CoverageMode coverageMode, GrTextureProxy* atlasProxy, int instanceIdx) {
     if (fInstanceRanges.empty()) {
-        fInstanceRanges.push_back({atlasProxy, instanceIdx});
-        return;
-    }
-    if (fInstanceRanges.back().fAtlasProxy != atlasProxy) {
+        fInstanceRanges.push_back({coverageMode, atlasProxy, instanceIdx});
+    } else if (fInstanceRanges.back().fAtlasProxy != atlasProxy) {
         fInstanceRanges.back().fEndInstanceIdx = instanceIdx;
-        fInstanceRanges.push_back({atlasProxy, instanceIdx});
-        return;
+        fInstanceRanges.push_back({coverageMode, atlasProxy, instanceIdx});
     }
+    SkASSERT(fInstanceRanges.back().fCoverageMode == coverageMode);
+    SkASSERT(fInstanceRanges.back().fAtlasProxy == atlasProxy);
 }
 
 void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -427,7 +430,7 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
         SkASSERT(atlas->isInstantiated());
 
         GrCCPathProcessor pathProc(
-                atlas->peekTexture(), atlas->textureSwizzle(), atlas->origin(),
+                range.fCoverageMode, atlas->peekTexture(), atlas->textureSwizzle(), atlas->origin(),
                 fViewMatrixIfUsingLocalCoords);
         GrTextureProxy* atlasProxy = range.fAtlasProxy;
         fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;
