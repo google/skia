@@ -119,7 +119,9 @@ async function driveBrowser() {
   let page;
   try {
     browser = await puppeteer.launch(
-        {headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+        {headless: false,
+         args: ['--no-sandbox', '--disable-setuid-sandbox',
+                '--ignore-gpu-blacklist', '--enable-gpu-rasterization']});
     page = await browser.newPage();
   } catch (e) {
     console.log('Could not open the browser.', e);
