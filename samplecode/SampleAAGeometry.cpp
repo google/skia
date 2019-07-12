@@ -7,16 +7,14 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkString.h"
 #include "include/private/SkMacros.h"
+#include "include/utils/SkTextUtils.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
-// #include "SkPathOpsSimplifyAA.h"
-// #include "SkPathStroker.h"
-#include "include/core/SkString.h"
-#include "include/utils/SkTextUtils.h"
-#include "src/core/SkPointPriv.h"
 
 #if 0
 void SkStrokeSegment::dump() const {
@@ -781,7 +779,7 @@ struct Stroke {
 
 struct PathUndo {
     SkPath fPath;
-    PathUndo* fNext;
+    std::unique_ptr<PathUndo> fNext;
 };
 
 class AAGeometryView : public Sample {
@@ -813,7 +811,7 @@ class AAGeometryView : public Sample {
     Button fJoinButton;
     Button fInOutButton;
     SkTArray<Stroke> fStrokes;
-    PathUndo* fUndo;
+    std::unique_ptr<PathUndo> fUndo;
     int fActivePt;
     int fActiveVerb;
     bool fHandlePathMove;
@@ -840,7 +838,6 @@ public:
         , fBisectButton('b')
         , fJoinButton('j')
         , fInOutButton('|')
-        , fUndo(nullptr)
         , fActivePt(-1)
         , fActiveVerb(-1)
         , fHandlePathMove(true)
@@ -882,6 +879,14 @@ public:
         init_buttonList();
     }
 
+    ~AAGeometryView() override {
+        // Free linked list without deep recursion.
+        std::unique_ptr<PathUndo> undo = std::move(fUndo);
+        while (undo) {
+            undo = std::move(undo->fNext);
+        }
+    }
+
     bool constructPath() {
         construct_path(fPath);
         return true;
@@ -894,32 +899,23 @@ public:
         if (fUndo && fUndo->fPath == fPath) {
             return;
         }
-        PathUndo* undo = new PathUndo;
+        std::unique_ptr<PathUndo> undo(new PathUndo);
         undo->fPath = fPath;
-        undo->fNext = fUndo;
-        fUndo = undo;
+        undo->fNext = std::move(fUndo);
+        fUndo = std::move(undo);
     }
 
     bool undo() {
         if (!fUndo) {
             return false;
         }
-        fPath = fUndo->fPath;
+        fPath = std::move(fUndo->fPath);
+        fUndo = std::move(fUndo->fNext);
         validatePath();
-        PathUndo* next = fUndo->fNext;
-        delete fUndo;
-        fUndo = next;
         return true;
     }
 
-    void validatePath() {
-        PathUndo* undo = fUndo;
-        int match = 0;
-        while (undo) {
-            match += fPath == undo->fPath;
-            undo = undo->fNext;
-        }
-    }
+    void validatePath() {}
 
     void set_controlList(int index, UniControl* control, MyClick::ControlType type) {
         kControlList[index].fControl = control;
