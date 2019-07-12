@@ -21,6 +21,8 @@
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkTLazy.h"
+// need SkDVector
+#include "src/pathops/SkPathOpsPoint.h"
 
 #include <cmath>
 #include <utility>
@@ -1572,32 +1574,30 @@ SkPath& SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScal
         return this->lineTo(x1, y1);
     }
 
-    SkVector before, after;
-
     // need to know our prev pt so we can construct tangent vectors
-    {
-        SkPoint start;
-        this->getLastPt(&start);
-        // Handle degenerate cases by adding a line to the first point and
-        // bailing out.
-        before.setNormalize(x1 - start.fX, y1 - start.fY);
-        after.setNormalize(x2 - x1, y2 - y1);
-    }
+    SkPoint start;
+    this->getLastPt(&start);
 
-    SkScalar cosh = SkPoint::DotProduct(before, after);
-    SkScalar sinh = SkPoint::CrossProduct(before, after);
+    // need double precision for these calcs.
+    SkDVector befored, afterd;
+    befored.set({x1 - start.fX, y1 - start.fY}).normalize();
+    afterd.set({x2 - x1, y2 - y1}).normalize();
+    double cosh = befored.dot(afterd);
+    double sinh = befored.cross(afterd);
 
-    if (SkScalarNearlyZero(sinh)) {   // angle is too tight
+    if (!befored.isFinite() || !afterd.isFinite() || SkScalarNearlyZero(SkDoubleToScalar(sinh))) {
         return this->lineTo(x1, y1);
     }
 
-    SkScalar dist = SkScalarAbs(radius * (1 - cosh) / sinh);
-
+    // safe to convert back to floats now
+    SkVector before = befored.asSkVector();
+    SkVector after = afterd.asSkVector();
+    SkScalar dist = SkScalarAbs(SkDoubleToScalar(radius * (1 - cosh) / sinh));
     SkScalar xx = x1 - dist * before.fX;
     SkScalar yy = y1 - dist * before.fY;
     after.setLength(dist);
     this->lineTo(xx, yy);
-    SkScalar weight = SkScalarSqrt(SK_ScalarHalf + cosh * SK_ScalarHalf);
+    SkScalar weight = SkScalarSqrt(SkDoubleToScalar(SK_ScalarHalf + cosh * 0.5));
     return this->conicTo(x1, y1, x1 + after.fX, y1 + after.fY, weight);
 }
 
@@ -2336,11 +2336,6 @@ static bool almost_equal(SkScalar compA, SkScalar compB) {
     int bBits = SkFloatAs2sCompliment(compB);
     return aBits < bBits + epsilon && bBits < aBits + epsilon;
 }
-
-static bool approximately_zero_when_compared_to(double x, double y) {
-    return x == 0 || fabs(x) < fabs(y * FLT_EPSILON);
-}
-
 
 // only valid for a single contour
 struct Convexicator {
