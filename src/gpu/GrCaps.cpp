@@ -111,6 +111,9 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fSuppressGeometryShaders) {
         fShaderCaps->fGeometryShaderSupport = false;
     }
+    if (options.fClearAllTextures) {
+        fShouldInitializeTextures = true;
+    }
 #endif
 
     if (fMaxWindowRectangles > GrWindowRectangles::kMaxWindows) {
