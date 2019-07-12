@@ -290,7 +290,7 @@ struct PatchView : public Sample {
     class PtClick : public Click {
     public:
         int fIndex;
-        PtClick(Sample* view, int index) : Click(view), fIndex(index) {}
+        PtClick(int index) : fIndex(index) {}
     };
 
     static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
@@ -302,10 +302,10 @@ struct PatchView : public Sample {
         y -= DY;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
             if (hittest(fPts[i], x, y)) {
-                return new PtClick(this, (int)i);
+                return new PtClick((int)i);
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
     bool onClick(Click* click) override {
@@ -397,7 +397,7 @@ protected:
     }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        Click* click = new Click(this);
+        Click* click = new Click();
         fPath.reset();
         fPath.moveTo(x, y);
         return click;
@@ -405,7 +405,7 @@ protected:
 
     bool onClick(Click* click) override {
         switch (click->fState) {
-            case Click::kMoved_State:
+            case InputState::kMove:
                 fPath.lineTo(click->fCurr);
                 fDirty = true;
                 break;
@@ -485,7 +485,7 @@ protected:
     }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        Click* click = new Click(this);
+        Click* click = new Click();
         fPath.reset();
         fPath.moveTo(x, y);
         return click;
@@ -493,7 +493,7 @@ protected:
 
     bool onClick(Click* click) override {
         switch (click->fState) {
-            case Click::kMoved_State:
+            case InputState::kMove:
                 fPath.lineTo(click->fCurr);
                 break;
             default:

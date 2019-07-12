@@ -683,25 +683,22 @@ public:
     SkPath::Verb fVerb;
     SkScalar fWeight;
 
-    MyClick(Sample* target, ClickType type, ControlType control)
-        : Click(target)
-        , fType(type)
+    MyClick(ClickType type, ControlType control)
+        : fType(type)
         , fControl(control)
         , fVerb((SkPath::Verb) -1)
         , fWeight(1) {
     }
 
-    MyClick(Sample* target, ClickType type, int index)
-        : Click(target)
-        , fType(type)
+    MyClick(ClickType type, int index)
+        : fType(type)
         , fControl((ControlType) index)
         , fVerb((SkPath::Verb) -1)
         , fWeight(1) {
     }
 
-    MyClick(Sample* target, ClickType type, int index, SkPath::Verb verb, SkScalar weight)
-        : Click(target)
-        , fType(type)
+    MyClick(ClickType type, int index, SkPath::Verb verb, SkScalar weight)
+        : fType(type)
         , fControl((ControlType) index)
         , fVerb(verb)
         , fWeight(weight) {
@@ -892,8 +889,8 @@ public:
         return true;
     }
 
-    void savePath(Click::State state) {
-        if (state != Click::kDown_State) {
+    void savePath(InputState state) {
+        if (state != InputState::kDown) {
             return;
         }
         if (fUndo && fUndo->fPath == fPath) {
@@ -1611,25 +1608,25 @@ public:
         SkPoint pt = {x, y};
         int ptHit = hittest_pt(pt);
         if (ptHit >= 0) {
-            return new MyClick(this, MyClick::kPtType, ptHit);
+            return new MyClick(MyClick::kPtType, ptHit);
         }
         SkPath::Verb verb;
         SkScalar weight;
         int verbHit = hittest_verb(pt, &verb, &weight);
         if (verbHit >= 0) {
-            return new MyClick(this, MyClick::kVerbType, verbHit, verb, weight);
+            return new MyClick(MyClick::kVerbType, verbHit, verb, weight);
         }
         if (!fHideAll) {
             const SkRect& rectPt = SkRect::MakeXYWH(x, y, 1, 1);
             for (int index = 0; index < kControlCount; ++index) {
                 if (kControlList[index].fControl->contains(rectPt)) {
-                    return new MyClick(this, MyClick::kControlType,
+                    return new MyClick(MyClick::kControlType,
                             kControlList[index].fControlType);
                 }
             }
             for (int index = 0; index < kButtonCount; ++index) {
                 if (kButtonList[index].fButton->contains(rectPt)) {
-                    return new MyClick(this, MyClick::kControlType, kButtonList[index].fButtonType);
+                    return new MyClick(MyClick::kControlType, kButtonList[index].fButtonType);
                 }
             }
         }
@@ -1639,9 +1636,9 @@ public:
         fActiveVerb = -1;
         fActivePt = -1;
         if (fHandlePathMove) {
-            return new MyClick(this, MyClick::kPathType, MyClick::kPathMove);
+            return new MyClick(MyClick::kPathType, MyClick::kPathMove);
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
     static SkScalar MapScreenYtoValue(int y, const UniControl& control) {
@@ -1657,16 +1654,16 @@ public:
                 savePath(click->fState);
                 fActivePt = myClick->ptHit();
                 SkPoint pt = fPath.getPoint((int) myClick->fControl);
-                pt.offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
-                        SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
+                pt.offset(SkIntToScalar(click->fCurr.fX - click->fPrev.fX),
+                        SkIntToScalar(click->fCurr.fY - click->fPrev.fY));
                 set_path_pt(fActivePt, pt, &fPath);
                 validatePath();
                 return true;
                 }
             case MyClick::kPathType:
                 savePath(click->fState);
-                fPath.offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
-                        SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
+                fPath.offset(SkIntToScalar(click->fCurr.fX - click->fPrev.fX),
+                        SkIntToScalar(click->fCurr.fY - click->fPrev.fY));
                 validatePath();
                 return true;
             case MyClick::kVerbType: {
@@ -1682,12 +1679,12 @@ public:
                 fWeightControl.fVisible = myClick->fVerb == SkPath::kConic_Verb;
                 } break;
             case MyClick::kControlType: {
-                if (click->fState != Click::kDown_State && myClick->isButton()) {
+                if (click->fState != InputState::kDown && myClick->isButton()) {
                     return true;
                 }
                 switch (myClick->fControl) {
                     case MyClick::kFilterControl: {
-                        SkScalar val = MapScreenYtoValue(click->fICurr.fY, fFilterControl);
+                        SkScalar val = MapScreenYtoValue(click->fCurr.fY, fFilterControl);
                         if (val - fFilterControl.fValLo < fFilterControl.fValHi - val) {
                             fFilterControl.fValLo = SkTMax(0.f, val);
                         } else {
@@ -1695,17 +1692,17 @@ public:
                         }
                         } break;
                     case MyClick::kResControl:
-                        fResControl.fValLo = MapScreenYtoValue(click->fICurr.fY, fResControl);
+                        fResControl.fValLo = MapScreenYtoValue(click->fCurr.fY, fResControl);
                         break;
                     case MyClick::kWeightControl: {
                         savePath(click->fState);
-                        SkScalar w = MapScreenYtoValue(click->fICurr.fY, fWeightControl);
+                        SkScalar w = MapScreenYtoValue(click->fCurr.fY, fWeightControl);
                         set_path_weight(fActiveVerb, w, &fPath);
                         validatePath();
                         fWeightControl.fValLo = w;
                         } break;
                     case MyClick::kWidthControl:
-                        fWidthControl.fValLo = MapScreenYtoValue(click->fICurr.fY, fWidthControl);
+                        fWidthControl.fValLo = MapScreenYtoValue(click->fCurr.fY, fWidthControl);
                         break;
                     case MyClick::kLineButton:
                         savePath(click->fState);
@@ -1821,8 +1818,8 @@ bool AAGeometryView::onChar(SkUnichar uni) {
         for (int index = 0; index < kButtonCount; ++index) {
             Button* button = kButtonList[index].fButton;
             if (button->fVisible && uni == button->fLabel) {
-                MyClick click(this, MyClick::kControlType, kButtonList[index].fButtonType);
-                click.fState = Click::kDown_State;
+                MyClick click(MyClick::kControlType, kButtonList[index].fButtonType);
+                click.fState = InputState::kDown;
                 (void) this->onClick(&click);
                 return true;
             }
@@ -1837,8 +1834,8 @@ bool AAGeometryView::onChar(SkUnichar uni) {
             for (int index = 0; index < kButtonCount; ++index) {
                 Button* button = kButtonList[index].fButton;
                 if (button->fVisible && (uni & ~0x20) == (button->fLabel & ~0x20)) {
-                    MyClick click(this, MyClick::kControlType, kButtonList[index].fButtonType);
-                    click.fState = Click::kDown_State;
+                    MyClick click(MyClick::kControlType, kButtonList[index].fButtonType);
+                    click.fState = InputState::kDown;
                     (void) this->onClick(&click);
                     return true;
                 }

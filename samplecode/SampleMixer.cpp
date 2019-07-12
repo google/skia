@@ -73,12 +73,12 @@ protected:
 
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         return fRect.contains(SkScalarRoundToInt(x),
-                              SkScalarRoundToInt(y)) ? new Click(this) : nullptr;
+                              SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }
 
     bool onClick(Click* click) override {
-        fRect.offset(click->fICurr.fX - click->fIPrev.fX,
-                     click->fICurr.fY - click->fIPrev.fY);
+        fRect.offset(click->fCurr.fX - click->fPrev.fX,
+                     click->fCurr.fY - click->fPrev.fY);
         return true;
     }
 
@@ -157,7 +157,7 @@ protected:
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         fMode = (fMode == SkBlendMode::kSrcOver) ? SkBlendMode::kClear : SkBlendMode::kSrcOver;
         return fRect.contains(SkScalarRoundToInt(x),
-                              SkScalarRoundToInt(y)) ? new Click(this) : nullptr;
+                              SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }
 
     bool onClick(Click* click) override {

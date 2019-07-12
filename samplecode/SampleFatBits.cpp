@@ -364,7 +364,7 @@ void FatBits::drawTriangle(SkCanvas* canvas, SkPoint pts[3]) {
 class IndexClick : public Sample::Click {
     int fIndex;
 public:
-    IndexClick(Sample* v, int index) : Sample::Click(v), fIndex(index) {}
+    IndexClick(int index) : fIndex(index) {}
 
     static int GetIndex(Sample::Click* click) {
         return ((IndexClick*)click)->fIndex;
@@ -480,7 +480,7 @@ protected:
                 break;
             }
         }
-        return new IndexClick(this, index);
+        return new IndexClick(index);
     }
 
     bool onClick(Click* click) override {

@@ -13,15 +13,12 @@
 
 using namespace sk_app;
 
-SampleSlide::SampleSlide(const SampleFactory factory)
-    : fSampleFactory(factory)
-    , fClick(nullptr)
-{
-    sk_sp<Sample> sample(factory());
+SampleSlide::SampleSlide(const SampleFactory factory) : fSampleFactory(factory) {
+    std::unique_ptr<Sample> sample(factory());
     fName = sample->name();
 }
 
-SampleSlide::~SampleSlide() { delete fClick; }
+SampleSlide::~SampleSlide() {}
 
 SkISize SampleSlide::getDimensions() const  {
     return SkISize::Make(SkScalarCeilToInt(fSample->width()), SkScalarCeilToInt(fSample->height()));
@@ -49,34 +46,8 @@ bool SampleSlide::onChar(SkUnichar c) {
 
 bool SampleSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state,
                           ModifierKey modifierKeys) {
-    bool handled = false;
-    switch (state) {
-        case Window::kDown_InputState: {
-            delete fClick;
-            fClick = fSample->findClickHandler(SkIntToScalar(x), SkIntToScalar(y), modifierKeys);
-            if (fClick) {
-                Sample::DoClickDown(fClick, x, y, modifierKeys);
-                handled = true;
-            }
-            break;
-        }
-        case Window::kMove_InputState: {
-            if (fClick) {
-                Sample::DoClickMoved(fClick, x, y, modifierKeys);
-                handled = true;
-            }
-            break;
-        }
-        case Window::kUp_InputState: {
-            if (fClick) {
-                Sample::DoClickUp(fClick, x, y, modifierKeys);
-                delete fClick;
-                fClick = nullptr;
-                handled = true;
-            }
-            break;
-        }
-    }
-
-    return handled;
+    static_assert((Sample::InputState)Window::kDown_InputState == Sample::InputState::kDown, "");
+    static_assert((Sample::InputState)Window::kUp_InputState   == Sample::InputState::kUp,   "");
+    static_assert((Sample::InputState)Window::kMove_InputState == Sample::InputState::kMove, "");
+    return fSample && fSample->mouse({x, y}, (Sample::InputState)state, modifierKeys);
 }
