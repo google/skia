@@ -191,7 +191,7 @@ protected:
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         fShowHairline = !fShowHairline;
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
 private:
@@ -294,12 +294,12 @@ protected:
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("index", i);
                 return click;
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
 private:
@@ -422,12 +422,12 @@ protected:
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("index", i);
                 return click;
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
 private:
@@ -539,7 +539,7 @@ protected:
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("index", i);
                 return click;
             }
@@ -735,7 +735,7 @@ protected:
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("index", i);
                 return click;
             }

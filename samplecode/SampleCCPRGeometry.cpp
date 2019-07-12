@@ -401,24 +401,19 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
 
 class CCPRGeometryView::Click : public Sample::Click {
 public:
-    Click(Sample* target, int ptIdx) : Sample::Click(target), fPtIdx(ptIdx) {}
+    Click(int ptIdx) : fPtIdx(ptIdx) {}
 
     void doClick(SkPoint points[]) {
         if (fPtIdx >= 0) {
-            this->dragPoint(points, fPtIdx);
+            points[fPtIdx] += fCurr - fPrev;
         } else {
             for (int i = 0; i < 4; ++i) {
-                this->dragPoint(points, i);
+                points[i] += fCurr - fPrev;
             }
         }
     }
 
 private:
-    void dragPoint(SkPoint points[], int idx) {
-        SkIPoint delta = fICurr - fIPrev;
-        points[idx] += SkPoint::Make(delta.x(), delta.y());
-    }
-
     int fPtIdx;
 };
 
@@ -428,10 +423,10 @@ Sample::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, Modi
             continue;
         }
         if (fabs(x - fPoints[i].x()) < 20 && fabsf(y - fPoints[i].y()) < 20) {
-            return new Click(this, i);
+            return new Click(i);
         }
     }
-    return new Click(this, -1);
+    return new Click(-1);
 }
 
 bool CCPRGeometryView::onClick(Sample::Click* click) {

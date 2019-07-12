@@ -53,7 +53,7 @@ protected:
     }
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
-        return new Click(this);
+        return new Click();
     }
 
     bool onClick(Click* click) override {
@@ -227,21 +227,21 @@ protected:
 
     class MyClick : public Click {
     public:
-        MyClick(Sample* view) : Click(view) {}
+        MyClick() {}
         virtual void handleMove() = 0;
     };
 
     class VertClick : public MyClick {
         SkPoint* fPt;
     public:
-        VertClick(Sample* view, SkPoint* pt) : MyClick(view), fPt(pt) {}
+        VertClick(SkPoint* pt) : fPt(pt) {}
         void handleMove() override { *fPt = snap(fCurr); }
     };
 
     class DragRectClick : public MyClick {
         SkRect* fRect;
     public:
-        DragRectClick(Sample* view, SkRect* rect) : MyClick(view), fRect(rect) {}
+        DragRectClick(SkRect* rect) : fRect(rect) {}
         void handleMove() override { fRect->offset(fCurr.x() - fPrev.x(), fCurr.y() - fPrev.y()); }
     };
 
@@ -250,8 +250,7 @@ protected:
         SkPoint* fPoly;
         int fCount;
     public:
-        DragPolyClick(Sample* view, SkPoint poly[], int count)
-            : MyClick(view), fPoly(poly), fCount(count)
+        DragPolyClick(SkPoint poly[], int count) : fPoly(poly), fCount(count)
         {
             SkASSERT((size_t)count <= SK_ARRAY_COUNT(fSrc));
             memcpy(fSrc, poly, count * sizeof(SkPoint));
@@ -267,7 +266,7 @@ protected:
 
     class DoNothingClick : public MyClick {
     public:
-        DoNothingClick(Sample* view) : MyClick(view) {}
+        DoNothingClick() {}
         void handleMove() override {}
     };
 
@@ -281,20 +280,20 @@ protected:
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         for (int i = 0; i < N; ++i) {
             if (hit_test(fPoly[i], x, y)) {
-                return new VertClick(this, &fPoly[i]);
+                return new VertClick(&fPoly[i]);
             }
         }
 
         SkPath path;
         path.addPoly(fPoly, N, true);
         if (path.contains(x, y)) {
-            return new DragPolyClick(this, fPoly, N);
+            return new DragPolyClick(fPoly, N);
         }
 
         if (fClip.intersects(SkRect::MakeLTRB(x - 1, y - 1, x + 1, y + 1))) {
-            return new DragRectClick(this, &fClip);
+            return new DragRectClick(&fClip);
         }
-        return new DoNothingClick(this);
+        return new DoNothingClick();
     }
 
     bool onClick(Click* click) override {

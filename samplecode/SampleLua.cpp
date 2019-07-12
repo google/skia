@@ -120,7 +120,7 @@ protected:
                 SkDebugf("lua err: %s\n", lua_tostring(L, -1));
             } else {
                 if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-                    return new Click(this);
+                    return new Click();
                 }
             }
         }
@@ -130,10 +130,10 @@ protected:
     bool onClick(Click* click) override {
         const char* state = nullptr;
         switch (click->fState) {
-            case Click::kMoved_State:
+            case InputState::kMove:
                 state = "moved";
                 break;
-            case Click::kUp_State:
+            case InputState::kUp:
                 state = "up";
                 break;
             default:

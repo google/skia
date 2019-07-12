@@ -452,9 +452,8 @@ private:
 
 class DegenerateQuadSample::Click : public Sample::Click {
 public:
-    Click(Sample* target, const SkRect& clamp, int index)
-            : Sample::Click(target)
-            , fOuterRect(clamp)
+    Click(const SkRect& clamp, int index)
+            : fOuterRect(clamp)
             , fIndex(index) {}
 
     void doClick(SkPoint points[4]) {
@@ -472,7 +471,7 @@ private:
     int fIndex;
 
     void drag(SkPoint* point) {
-        SkIPoint delta = fICurr - fIPrev;
+        SkPoint delta = fCurr - fPrev;
         *point += SkPoint::Make(delta.x() / kViewScale, delta.y() / kViewScale);
         point->fX = SkMinScalar(fOuterRect.fRight, SkMaxScalar(point->fX, fOuterRect.fLeft));
         point->fY = SkMinScalar(fOuterRect.fBottom, SkMaxScalar(point->fY, fOuterRect.fTop));
@@ -483,10 +482,10 @@ Sample::Click* DegenerateQuadSample::onFindClickHandler(SkScalar x, SkScalar y, 
     SkPoint inCTM = SkPoint::Make((x - kViewOffset) / kViewScale, (y - kViewOffset) / kViewScale);
     for (int i = 0; i < 4; ++i) {
         if ((fCorners[i] - inCTM).length() < 10.f / kViewScale) {
-            return new Click(this, fOuterRect, i);
+            return new Click(fOuterRect, i);
         }
     }
-    return new Click(this, fOuterRect, -1);
+    return new Click(fOuterRect, -1);
 }
 
 bool DegenerateQuadSample::onClick(Sample::Click* click) {

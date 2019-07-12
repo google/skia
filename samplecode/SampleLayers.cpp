@@ -224,12 +224,12 @@ protected:
     }
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        return new Click(this);
+        return new Click();
     }
 
     bool onClick(Click* click) override {
         fCenter = click->fCurr;
-        return this->INHERITED::onClick(click);
+        return true;
     }
 
 private:

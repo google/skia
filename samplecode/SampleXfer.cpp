@@ -164,7 +164,7 @@ protected:
         // Check mode buttons first
         for (int i = 0; i < N_Modes; ++i) {
             if (fModeButtons[i].hitTest(x, y)) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("mode", i);
                 return click;
             }
@@ -176,13 +176,13 @@ protected:
                 break;
             }
         }
-        return fSelected ? new Click(this) : nullptr;
+        return fSelected ? new Click() : nullptr;
     }
 
     bool onClick(Click* click) override {
         int32_t mode;
         if (click->fMeta.findS32("mode", &mode)) {
-            if (fSelected && Click::kUp_State == click->fState) {
+            if (fSelected && InputState::kUp == click->fState) {
                 fSelected->fMode = gModes[mode];
             }
         } else {
