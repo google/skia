@@ -210,7 +210,7 @@ private:
 
     // Given a GL format return the index into the stencil format array on GrGLCaps to a
     // compatible stencil format, or negative if there is no compatible stencil format.
-    int getCompatibleStencilIndex(GrGLSizedInternalFormat format);
+    int getCompatibleStencilIndex(GrGLFormat format);
 
     void onFBOChanged();
 
