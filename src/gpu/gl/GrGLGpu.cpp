@@ -1619,7 +1619,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLSizedInternalFormat format) {
         GrGLenum internalFormat = this->glCaps().getTexImageInternalFormat(format);
         GrGLenum externalFormat = this->glCaps().getBaseInternalFormat(format);
         GrGLenum externalType   = this->glCaps().getFormatDefaultExternalType(format);
-        if (!externalFormat || !externalType || !externalType) {
+        if (!internalFormat || !externalFormat || !externalType) {
             return -1;
         }
 
