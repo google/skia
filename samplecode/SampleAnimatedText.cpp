@@ -14,7 +14,6 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
-#include "tools/timer/Timer.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
@@ -40,11 +39,7 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
 
 class AnimatedTextView : public Sample {
 public:
-    AnimatedTextView() : fScale(1.0f), fScaleInc(0.1f), fRotation(0.0f), fSizeScale(1) {
-        fCurrentTime = 0;
-        fTimer.start();
-        memset(fTimes, 0, sizeof(fTimes));
-    }
+    AnimatedTextView() : fScale(1.0f), fScaleInc(0.1f), fRotation(0.0f), fSizeScale(1) {}
 
 protected:
     SkString name() override { return SkString("AnimatedText"); }
@@ -67,29 +62,6 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setFilterQuality(kMedium_SkFilterQuality);
-
-        SkString outString("fps: ");
-        fTimer.end();
-
-        // TODO: generalize this timing code in utils
-        fTimes[fCurrentTime] = (float)(fTimer.fWall);
-        fCurrentTime = (fCurrentTime + 1) & 0x1f;
-
-        float meanTime = 0.0f;
-        for (int i = 0; i < 32; ++i) {
-            meanTime += fTimes[i];
-        }
-        meanTime /= 32.f;
-        SkScalar fps = 1000.f / meanTime;
-        outString.appendScalar(fps);
-        outString.append(" ms: ");
-        outString.appendScalar(meanTime);
-
-        SkString modeString("Text scale: ");
-        modeString.appendU32(fSizeScale);
-        modeString.append("x");
-
-        fTimer.start();
 
         canvas->save();
 
@@ -119,8 +91,6 @@ protected:
         canvas->restore();
 
         font.setSize(16);
-//        canvas->drawString(outString, 512.f, 540.f, paint);
-        canvas->drawString(modeString, 768.f, 540.f, font, paint);
     }
 
     bool onAnimate(const AnimTimer& timer) override {
@@ -141,10 +111,6 @@ private:
     float fScaleInc;
     float fRotation;
     int   fSizeScale;
-
-    WallTimer   fTimer;
-    float       fTimes[32];
-    int         fCurrentTime;
 
 
     typedef Sample INHERITED;
