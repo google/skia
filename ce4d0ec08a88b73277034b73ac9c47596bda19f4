@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07cb1fed_988db45e",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1014,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-12T15:44:48Z",
+      "side": 1,
+      "message": "In some ways this seems like vector load vs element load. Hummm... body doesn\u0027t seem quite right.",
+      "range": {
+        "startLine": 1014,
+        "startChar": 63,
+        "endLine": 1014,
+        "endChar": 67
+      },
+      "revId": "ce4d0ec08a88b73277034b73ac9c47596bda19f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
