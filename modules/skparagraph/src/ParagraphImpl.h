@@ -29,15 +29,6 @@ template <typename T> bool operator<=(const SkSpan<T>& a, const SkSpan<T>& b) {
 class ParagraphImpl final : public Paragraph {
 public:
 
-    enum InternalState {
-      kUnknown = 0,
-      kShaped = 1,
-      kClusterized = 2,
-      kLineBroken = 3,
-      kFormatted = 4,
-      kRecorded = 5
-    };
-
     ParagraphImpl(const SkString& text,
                   ParagraphStyle style,
                   std::vector<Block> blocks,
@@ -84,6 +75,25 @@ public:
         return paragraphStyle().getStrutStyle().getForceStrutHeight();
     }
     LineMetrics strutMetrics() const { return fStrutMetrics; }
+    
+    Measurement measurement() {
+        return {
+            fAlphabeticBaseline,
+            fIdeographicBaseline,
+            fHeight,
+            fWidth,
+            fMaxIntrinsicWidth,
+            fMinIntrinsicWidth,
+        };
+    }
+    void setMeasurement(Measurement m) {
+        fAlphabeticBaseline = m.fAlphabeticBaseline;
+        fIdeographicBaseline = m.fIdeographicBaseline;
+        fHeight = m.fHeight;
+        fWidth = m.fWidth;
+        fMaxIntrinsicWidth = m.fMaxIntrinsicWidth;
+        fMinIntrinsicWidth = m.fMinIntrinsicWidth;
+    }
 
     void markDirty() override { fState = kUnknown; }
     static void setChecker(std::function<void(ParagraphImpl* impl, const char*, bool)> checker) {
@@ -127,6 +137,7 @@ private:
     FontResolver fFontResolver;
 
     SkScalar fOldWidth;
+    SkScalar fOldHeight;
 
     // Painting
     sk_sp<SkPicture> fPicture;

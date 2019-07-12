@@ -8,11 +8,30 @@
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/src/FontResolver.h"
+#include "include/core/SkPicture.h"
 
 // TODO: we can cache shaped results or line broken results or formatted results or recorded picture...
 // TODO: let's start from the first: the shaped results
 namespace skia {
 namespace textlayout {
+
+struct Measurement {
+    SkScalar fAlphabeticBaseline;
+    SkScalar fIdeographicBaseline;
+    SkScalar fHeight;
+    SkScalar fWidth;
+    SkScalar fMaxIntrinsicWidth;
+    SkScalar fMinIntrinsicWidth;
+};
+
+enum InternalState {
+  kUnknown = 0,
+  kShaped = 1,
+  kClusterized = 2,
+  kLineBroken = 3,
+  kFormatted = 4,
+  kRecorded = 5
+};
 
 class ParagraphImpl;
 class ParagraphCacheKey {
@@ -23,6 +42,7 @@ public:
     SkTArray<FontDescr> fFontSwitches;
     // TODO: Do not check for more than we have to (which is text styles with letter spacing and word spacing)
     SkTArray<TextBlock, true> fTextStyles;
+    ParagraphStyle fParagraphStyle;
 };
 
 class ParagraphCacheValue {
@@ -33,8 +53,12 @@ public:;
     ParagraphCacheKey fKey;
 
     // Shaped results:
+    InternalState fInternalState;
     SkTArray<Run> fRuns;
     SkTArray<Cluster, true> fClusters;
+    SkTArray<TextLine> fLines;
+    Measurement fMeasurement;
+    sk_sp<SkPicture> fPicture;
 };
 
 bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b);
@@ -52,6 +76,7 @@ public:
     ParagraphCache() : fChecker([](ParagraphImpl* impl, const char*, bool){ }){ }
     bool findParagraph(ParagraphImpl* paragraph);
     void addParagraph(ParagraphImpl* paragraph);
+    void updateParagraph(ParagraphImpl* paragraph);
 
     // For testing
 

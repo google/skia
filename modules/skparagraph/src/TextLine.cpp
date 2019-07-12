@@ -70,7 +70,7 @@ TextLine::TextLine(ParagraphImpl* master,
         fLogical.push_back(firstRunIndex + index);
     }
 }
-
+/*
 TextLine::TextLine(TextLine&& other)
     : fMaster(other.fMaster)
     , fBlockRange(fMaster)
@@ -86,11 +86,11 @@ TextLine::TextLine(TextLine&& other)
     this->fShift = other.fShift;
     this->fAdvance = other.fAdvance;
     this->fOffset = other.fOffset;
-    this->fEllipsis = std::move(other.fEllipsis);
+    this->fEllipsis = other.fEllipsis;
     this->fSizes = other.sizes();
     this->fClusterRange = other.fClusterRange;
 }
-
+*/
 void TextLine::paint(SkCanvas* textCanvas) {
     if (this->empty()) {
         return;
@@ -446,7 +446,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
                 if (cached == nullptr) {
                     cached = shapeEllipsis(ellipsis, cluster->run());
                 }
-                fEllipsis = skstd::make_unique<Run>(*cached);
+                fEllipsis = std::make_shared<Run>(*cached);
 
                 // See if it fits
                 if (width + fEllipsis->advance().fX > maxWidth) {

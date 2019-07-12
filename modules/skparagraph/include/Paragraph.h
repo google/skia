@@ -75,7 +75,6 @@ protected:
     SkScalar fWidth;
     SkScalar fMaxIntrinsicWidth;
     SkScalar fMinIntrinsicWidth;
-    SkScalar fMaxLineWidth;
 };
 }  // namespace textlayout
 }  // namespace skia
