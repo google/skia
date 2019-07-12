@@ -88,11 +88,20 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     fFunction = &f;
     std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(&f.fDeclaration));
     fParameterCount = result->fParameterCount;
+    fLoopCount = fMaxLoopCount = 0;
+    fConditionCount = fMaxConditionCount = 0;
     fCode = &result->fCode;
+
     this->writeStatement(*f.fBody);
+    SkASSERT(fLoopCount == 0);
+    SkASSERT(fConditionCount == 0);
     this->write(ByteCodeInstruction::kReturn);
     this->write8(0);
-    result->fLocalCount = fLocals.size();
+
+    result->fLocalCount     = fLocals.size();
+    result->fConditionCount = fMaxConditionCount;
+    result->fLoopCount      = fMaxLoopCount;
+
     const Type& returnType = f.fDeclaration.fReturnType;
     if (returnType != *fContext.fVoid_Type) {
         result->fReturnCount = SlotCount(returnType);
@@ -319,6 +328,15 @@ void ByteCodeGenerator::write32(uint32_t i) {
 }
 
 void ByteCodeGenerator::write(ByteCodeInstruction i) {
+    switch (i) {
+        case ByteCodeInstruction::kLoopBegin: this->enterLoop();      break;
+        case ByteCodeInstruction::kLoopEnd:   this->exitLoop();       break;
+
+        case ByteCodeInstruction::kMaskPush:  this->enterCondition(); break;
+        case ByteCodeInstruction::kMaskPop:
+        case ByteCodeInstruction::kMaskBlend: this->exitCondition();  break;
+        default: /* Do nothing */ break;
+    }
     this->write16((uint16_t)i);
 }
 
@@ -701,6 +719,10 @@ void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
 
     this->write(ByteCodeInstruction::kCall);
     this->write8(idx);
+
+    const ByteCodeFunction* callee = fOutput->fFunctions[idx].get();
+    fMaxLoopCount      = std::max(fMaxLoopCount,      fLoopCount      + callee->fLoopCount);
+    fMaxConditionCount = std::max(fMaxConditionCount, fConditionCount + callee->fConditionCount);
 
     // After the called function returns, the stack will still contain our arguments. We have to
     // pop them (storing any out parameters back to their lvalues as we go). We glob together slot
@@ -1147,6 +1169,10 @@ void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
 }
 
 void ByteCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
+    if (fLoopCount || fConditionCount) {
+        fErrors.error(r.fOffset, "return not allowed inside conditional or loop");
+        return;
+    }
     this->writeExpression(*r.fExpression);
     this->write(ByteCodeInstruction::kReturn);
     this->write8(SlotCount(r.fExpression->fType));

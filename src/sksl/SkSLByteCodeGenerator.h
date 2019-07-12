@@ -8,8 +8,8 @@
 #ifndef SKSL_BYTECODEGENERATOR
 #define SKSL_BYTECODEGENERATOR
 
+#include <algorithm>
 #include <stack>
-#include <tuple>
 #include <unordered_map>
 
 #include "src/sksl/SkSLByteCode.h"
@@ -247,6 +247,26 @@ private:
     // updates the current set of continues to branch to the current location
     void setContinueTargets();
 
+    void enterLoop() {
+        fLoopCount++;
+        fMaxLoopCount = std::max(fMaxLoopCount, fLoopCount);
+    }
+
+    void exitLoop() {
+        SkASSERT(fLoopCount > 0);
+        fLoopCount--;
+    }
+
+    void enterCondition() {
+        fConditionCount++;
+        fMaxConditionCount = std::max(fMaxConditionCount, fConditionCount);
+    }
+
+    void exitCondition() {
+        SkASSERT(fConditionCount > 0);
+        fConditionCount--;
+    }
+
     const Context& fContext;
 
     ByteCode* fOutput;
@@ -264,6 +284,11 @@ private:
     std::vector<const FunctionDefinition*> fFunctions;
 
     int fParameterCount;
+
+    int fLoopCount;
+    int fMaxLoopCount;
+    int fConditionCount;
+    int fMaxConditionCount;
 
     const std::unordered_map<String, Intrinsic> fIntrinsics;
 

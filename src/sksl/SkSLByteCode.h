@@ -158,6 +158,8 @@ struct ByteCodeFunction {
     // TODO: Compute this value analytically. For now, just pick an arbitrary value that we probably
     // won't overflow.
     int fStackCount = 128;
+    int fConditionCount = 0;
+    int fLoopCount = 0;
     int fReturnCount = 0;
     std::vector<uint8_t> fCode;
 
