@@ -601,7 +601,6 @@ DEF_TEST(SkSLInterpreterCompound, r) {
 }
 
 DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
-    // Helper to validate that a chunk of code can not be converted to byte code
     auto check = [r](const char* src) {
         SkSL::Compiler compiler;
         auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
@@ -618,6 +617,10 @@ DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
 
     // Ensure that calls to undefined functions are not allowed (to prevent mutual recursion)
     check("float foo(); float bar() { return foo(); } float foo() { return bar(); }");
+
+    // returns are not allowed inside conditionals (or loops, which are effectively the same thing)
+    check("float main(float x, float y) { if (x < y) { return x; } return y; }");
+    check("float main(float x) { while (x > 1) { return x; } return 0; }");
 }
 
 DEF_TEST(SkSLInterpreterFunctions, r) {
@@ -781,7 +784,8 @@ public:
         } else if (type() == *fCompiler.context().fFloat_Type) {
             *(float*) target = *fValue.as<skjson::NumberValue>();
         } else if (type() == *fCompiler.context().fBool_Type) {
-            *(bool*) target = *fValue.as<skjson::BoolValue>();
+            // ByteCode "booleans" are actually bit-masks
+            *(int*) target = *fValue.as<skjson::BoolValue>() ? ~0 : 0;
         } else {
             SkASSERT(false);
         }
@@ -841,9 +845,7 @@ DEF_TEST(SkSLInterpreterExternalValues, r) {
     SkSL::Program::Settings settings;
     const char* src = "float main() {"
                       "    outValue = 152;"
-                      "    if (root.child.value2)"
-                      "        return root.value1 * root.child.value3;"
-                      "    return -1;"
+                      "    return root.child.value2 ? root.value1 * root.child.value3 : -1;"
                       "}";
     compiler.registerExternalValue((SkSL::ExternalValue*) compiler.takeOwnership(
              std::unique_ptr<SkSL::Symbol>(new JSONExternalValue("root", &dom.root(), &compiler))));
