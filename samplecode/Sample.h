@@ -29,13 +29,17 @@ using SampleRegistry = sk_tools::Registry<SampleFactory>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Sample : public SkRefCnt {
+enum class ClickState { kDown, kMoved, kUp };
+
+class Sample {
 public:
     Sample()
         : fBGColor(SK_ColorWHITE)
         , fWidth(0), fHeight(0)
         , fHaveCalledOnceBeforeDraw(false)
     {}
+
+    virtual ~Sample() = default;
 
     SkScalar    width() const { return fWidth; }
     SkScalar    height() const { return fHeight; }
@@ -52,29 +56,15 @@ public:
     //  Click handling
     class Click {
     public:
-        Click(Sample* target);
-        virtual ~Click();
-
-        enum State {
-            kDown_State,
-            kMoved_State,
-            kUp_State
-        };
-        SkPoint     fOrig, fPrev, fCurr;
-        SkIPoint    fIOrig, fIPrev, fICurr;
-        State       fState;
-        ModifierKey fModifierKeys = ModifierKey::kNone;
-
+        virtual ~Click() = default;
+        SkPoint     fOrig = {0, 0};
+        SkPoint     fPrev = {0, 0};
+        SkPoint     fCurr = {0, 0};
+        ClickState  fState = ClickState::kDown;
         SkMetaData  fMeta;
-    private:
-        sk_sp<Sample> fTarget;
-
-        friend class Sample;
+        ModifierKey fModifierKeys = ModifierKey::kNone;
     };
-    Click* findClickHandler(SkScalar x, SkScalar y, ModifierKey modifierKeys);
-    static void DoClickDown(Click*, int x, int y, ModifierKey modi);
-    static void DoClickMoved(Click*, int x, int y, ModifierKey modi);
-    static void DoClickUp(Click*, int x, int y, ModifierKey modi);
+    bool mouse(SkPoint point, ClickState clickState, ModifierKey modifierKeys);
 
     void setBGColor(SkColor color) { fBGColor = color; }
     bool animate(double nanos) { return this->onAnimate(nanos); }
@@ -97,9 +87,13 @@ protected:
     virtual void onOnceBeforeDraw() {}
 
 private:
+    std::unique_ptr<Click> fClick;
     SkColor fBGColor;
     SkScalar fWidth, fHeight;
     bool fHaveCalledOnceBeforeDraw;
+
+    Sample(const Sample&) = delete;
+    Sample& operator=(const Sample&) = delete;
 };
 
 #endif

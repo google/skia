@@ -100,7 +100,7 @@ protected:
     }
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
-        return new Click(this);
+        return new Click();
     }
 
     bool onClick(Click* click) override {
