@@ -131,7 +131,7 @@ async function driveBrowser() {
     await page.tracing.start({
       path: options.output,
       screenshots: false,
-      categories: ["blink", "cc"]
+      categories: ["blink", "cc", "gpu"]
     });
 
     await page.goto(targetURL, {
