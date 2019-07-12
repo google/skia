@@ -61,76 +61,45 @@ void Sample::draw(SkCanvas* canvas) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-Sample::Click::Click(Sample* target) {
-    SkASSERT(target);
-    fTarget = sk_ref_sp(target);
-}
-
-Sample::Click::~Click() {}
-
-Sample::Click* Sample::findClickHandler(SkScalar x, SkScalar y, ModifierKey modi) {
-    if (x < 0 || y < 0 || x >= fWidth || y >= fHeight) {
-        return nullptr;
+bool Sample::mouse(SkPoint point, ClickState clickState, ModifierKey modifierKeys) {
+    switch (clickState) {
+        case ClickState::kDown:
+            fClick = nullptr;
+            if (point.x() < 0 || point.y() < 0 || point.x() >= fWidth || point.y() >= fHeight) {
+                return false;
+            }
+            fClick.reset(this->onFindClickHandler(point.x(), point.y(), modifierKeys));
+            if (!fClick) {
+                return false;
+            }
+            fClick->fPrev = fClick->fCurr = fClick->fOrig = point;
+            fClick->fState = ClickState::kDown;
+            fClick->fModifierKeys = modifierKeys;
+            this->onClick(fClick.get());
+            return true;
+        case ClickState::kMoved:
+            if (fClick) {
+                fClick->fPrev = fClick->fCurr;
+                fClick->fCurr = point;
+                fClick->fState = ClickState::kMoved;
+                fClick->fModifierKeys = modifierKeys;
+                return this->onClick(fClick.get());
+            }
+            return false;
+        case ClickState::kUp:
+            if (fClick) {
+                fClick->fPrev = fClick->fCurr;
+                fClick->fCurr = point;
+                fClick->fState = ClickState::kUp;
+                fClick->fModifierKeys = modifierKeys;
+                bool result = this->onClick(fClick.get());
+                fClick = nullptr;
+                return result;
+            }
+            break;
     }
-
-    return this->onFindClickHandler(x, y, modi);
-}
-
-void Sample::DoClickDown(Click* click, int x, int y, ModifierKey modi) {
-    SkASSERT(click);
-
-    Sample* target = click->fTarget.get();
-    if (nullptr == target) {
-        return;
-    }
-
-    click->fIOrig.set(x, y);
-    click->fICurr = click->fIPrev = click->fIOrig;
-
-    click->fOrig.iset(x, y);
-    click->fPrev = click->fCurr = click->fOrig;
-
-    click->fState = Click::kDown_State;
-    click->fModifierKeys = modi;
-    target->onClick(click);
-}
-
-void Sample::DoClickMoved(Click* click, int x, int y, ModifierKey modi) {
-    SkASSERT(click);
-
-    Sample* target = click->fTarget.get();
-    if (nullptr == target) {
-        return;
-    }
-
-    click->fIPrev = click->fICurr;
-    click->fICurr.set(x, y);
-
-    click->fPrev = click->fCurr;
-    click->fCurr.iset(x, y);
-
-    click->fState = Click::kMoved_State;
-    click->fModifierKeys = modi;
-    target->onClick(click);
-}
-
-void Sample::DoClickUp(Click* click, int x, int y, ModifierKey modi) {
-    SkASSERT(click);
-
-    Sample* target = click->fTarget.get();
-    if (nullptr == target) {
-        return;
-    }
-
-    click->fIPrev = click->fICurr;
-    click->fICurr.set(x, y);
-
-    click->fPrev = click->fCurr;
-    click->fCurr.iset(x, y);
-
-    click->fState = Click::kUp_State;
-    click->fModifierKeys = modi;
-    target->onClick(click);
+    SkASSERT(false);
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////

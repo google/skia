@@ -718,88 +718,88 @@ protected:
     class MyClick : public Click {
     public:
         int fIndex;
-        MyClick(Sample* target, int index) : Click(target), fIndex(index) {}
+        MyClick(int index) : fIndex(index) {}
     };
 
     virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                               ModifierKey modi) override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); ++i) {
             if (hittest(fPts[i], x, y)) {
-                return new MyClick(this, (int)i);
+                return new MyClick((int)i);
             }
         }
         const SkRect& rectPt = SkRect::MakeXYWH(x, y, 1, 1);
         if (fWeightControl.contains(rectPt)) {
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 1);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 1);
         }
         if (fRadiusControl.contains(rectPt)) {
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 2);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 2);
         }
 #ifdef SK_DEBUG
         if (fErrorControl.contains(rectPt)) {
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 3);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 3);
         }
 #endif
         if (fWidthControl.contains(rectPt)) {
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 4);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 4);
         }
         if (fCubicButton.fBounds.contains(rectPt)) {
             fCubicButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 5);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 5);
         }
         if (fConicButton.fBounds.contains(rectPt)) {
             fConicButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 6);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 6);
         }
         if (fQuadButton.fBounds.contains(rectPt)) {
             fQuadButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 7);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 7);
         }
         if (fArcButton.fBounds.contains(rectPt)) {
             fArcButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 8);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 8);
         }
         if (fRRectButton.fBounds.contains(rectPt)) {
             fRRectButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 9);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 9);
         }
         if (fCircleButton.fBounds.contains(rectPt)) {
             bool wasEnabled = fCircleButton.fEnabled;
             fCircleButton.fEnabled = !fCircleButton.fFill;
             fCircleButton.fFill = wasEnabled && !fCircleButton.fFill;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 10);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 10);
         }
         if (fTextButton.fBounds.contains(rectPt)) {
             fTextButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 11);
+            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 11);
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
-    static SkScalar MapScreenYtoValue(int y, const SkRect& control, SkScalar min,
+    static SkScalar MapScreenYtoValue(SkScalar y, const SkRect& control, SkScalar min,
             SkScalar max) {
-        return (SkIntToScalar(y) - control.fTop) / control.height() * (max - min) + min;
+        return (y - control.fTop) / control.height() * (max - min) + min;
     }
 
     bool onClick(Click* click) override {
         int index = ((MyClick*)click)->fIndex;
         if (index < (int) SK_ARRAY_COUNT(fPts)) {
-            fPts[index].offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
-                               SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
+            fPts[index].offset(click->fCurr.fX - click->fPrev.fX,
+                               click->fCurr.fY - click->fPrev.fY);
         } else if (index == (int) SK_ARRAY_COUNT(fPts) + 1) {
-            fWeight = MapScreenYtoValue(click->fICurr.fY, fWeightControl, 0, 5);
+            fWeight = MapScreenYtoValue(click->fCurr.fY, fWeightControl, 0, 5);
         } else if (index == (int) SK_ARRAY_COUNT(fPts) + 2) {
-            fRadius = MapScreenYtoValue(click->fICurr.fY, fRadiusControl, 0, 500);
+            fRadius = MapScreenYtoValue(click->fCurr.fY, fRadiusControl, 0, 500);
         }
 #ifdef SK_DEBUG
         else if (index == (int) SK_ARRAY_COUNT(fPts) + 3) {
-            gDebugStrokerError = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fICurr.fY,
+            gDebugStrokerError = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY,
                     fErrorControl, kStrokerErrorMin, kStrokerErrorMax));
             gDebugStrokerErrorSet = true;
         }
 #endif
         else if (index == (int) SK_ARRAY_COUNT(fPts) + 4) {
-            fWidth = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fICurr.fY, fWidthControl,
+            fWidth = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY, fWidthControl,
                     kWidthMin, kWidthMax));
             fAnimate = fWidth <= kWidthMin;
         }

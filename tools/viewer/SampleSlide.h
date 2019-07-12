@@ -32,8 +32,7 @@ public:
 
 private:
     const SampleFactory fSampleFactory;
-    sk_sp<Sample> fSample;
-    Sample::Click* fClick;
+    std::unique_ptr<Sample> fSample;
 };
 
 #endif
