@@ -22,15 +22,19 @@
 using sk_gpu_test::GrContextFactory;
 
 void fill_transfer_data(int left, int top, int width, int height, int bufferWidth,
-                        GrColor* data) {
+        GrColorType dataType, GrColor* data) {
 
     // build red-green gradient
     for (int j = top; j < top + height; ++j) {
         for (int i = left; i < left + width; ++i) {
             unsigned int red = (unsigned int)(256.f*((i - left) / (float)width));
             unsigned int green = (unsigned int)(256.f*((j - top) / (float)height));
-            data[i + j*bufferWidth] = GrColorPackRGBA(red - (red>>8),
-                                                      green - (green>>8), 0xff, 0xff);
+            uint32_t srcPixel = GrColorPackRGBA(red - (red>>8),
+                                           green - (green>>8), 0xff, 0xff);
+            GrPixelInfo srcInfo(GrColorType::kRGBA_8888, kUnknown_SkAlphaType, nullptr, 1, 1);
+            GrPixelInfo dstInfo(dataType,                kUnknown_SkAlphaType, nullptr, 1, 1);
+            GrConvertPixels(dstInfo, dataPixel, bpp, )
+            data[i + j*bufferWidth] = ;
         }
     }
 }
@@ -63,7 +67,8 @@ bool do_buffers_contain_same_values(const GrColor* bufferA,
 
 void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, GrColorType colorType,
                             bool renderTarget) {
-    if (GrCaps::kNone_MapFlags == context->priv().caps()->mapBufferFlags()) {
+    auto caps = context->priv().caps();
+    if (GrCaps::kNone_MapFlags == caps->mapBufferFlags()) {
         return;
     }
 
@@ -73,30 +78,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     // set up the data
     const int kTextureWidth = 16;
     const int kTextureHeight = 16;
-#ifdef SK_BUILD_FOR_IOS
-    // UNPACK_ROW_LENGTH is broken on iOS so rowBytes needs to match data width
-    const int kBufferWidth = GrBackendApi::kOpenGL == context->backend() ? 16 : 20;
-#else
-    const int kBufferWidth = 20;
-#endif
+    int srcBufferWidth = caps()->writePixelsRowBytesSupport() ? 16 : 20;
     const int kBufferHeight = 16;
-    size_t rowBytes = kBufferWidth * sizeof(GrColor);
-    SkAutoTMalloc<GrColor> srcBuffer(kBufferWidth*kBufferHeight);
-    SkAutoTMalloc<GrColor> dstBuffer(kBufferWidth*kBufferHeight);
-
-    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, kBufferWidth, srcBuffer.get());
-
-    // create and fill transfer buffer
-    size_t size = rowBytes*kBufferHeight;
-    sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(size, GrGpuBufferType::kXferCpuToGpu,
-                                                             kDynamic_GrAccessPattern));
-    if (!buffer) {
-        return;
-    }
-
-    void* data = buffer->map();
-    memcpy(data, srcBuffer.get(), size);
-    buffer->unmap();
 
     // create texture
     GrSurfaceDesc desc;
@@ -106,27 +89,53 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
     desc.fSampleCnt = 1;
 
+    sk_sp<GrTexture> tex = resourceProvider->createTexture(
+            desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
+    if (!tex) {
+        return;
+    }
+
+    // The caps tell us what color type we are allowed to upload and read back from this texture.
+    GrColorType allowedSrc = caps->supportedWritePixelsColorType(desc.fConfig, colorType);
+    auto allowedDst = caps->supportedReadPixelsColorType(desc.fConfig, tex->backendFormat(), colorType);
+
+    size_t srcRowBytes = GrColorTypeBytesPerPixel(allowedSrc) * kTextureWidth;
+    std::unique_ptr<char[]> srcData(new char[kTextureWidth * srcRowBytes]);
+
+    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, srcBufferWidth, srcData.get());
+
+    // create and fill transfer buffer
+    size_t size = rowBytes*kBufferHeight;
+    sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(size, GrGpuBufferType::kXferCpuToGpu,
+                                                             kDynamic_GrAccessPattern));
+    if (!buffer) {
+        return;
+    }
+    memcpy(data, srcBuffer.get(), size);
+    buffer->unmap();
+
+
     if (!context->priv().caps()->isConfigTexturable(desc.fConfig) ||
         (renderTarget && !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
         return;
     }
 
-    sk_sp<GrTexture> tex = resourceProvider->createTexture(
-        desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
-    if (!tex) {
-        return;
-    }
 
     //////////////////////////
     // transfer full data
 
+    auto allowedRead = gpu->caps()->supportedReadPixelsColorType(desc.fConfig, tex->backendFormat(), colorType);
+    // We ignore the swizzle in allowedRead since we're just comparing that the transfer and read
+    // produce the same values.
+
     bool result;
-    result = gpu->transferPixelsTo(tex.get(), 0, 0, kTextureWidth, kTextureHeight, colorType,
-                                   buffer.get(), 0, rowBytes);
+    result = gpu->transferPixelsTo(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
+            allowedRead.fColorType, buffer.get(), 0, rowBytes);
     REPORTER_ASSERT(reporter, result);
 
     memset(dstBuffer.get(), 0xCDCD, size);
-    result = gpu->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, colorType,
+
+    result = gpu->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, allowedRead.fColorType,
                              dstBuffer.get(), rowBytes);
     if (result) {
         REPORTER_ASSERT(reporter, do_buffers_contain_same_values(srcBuffer,
