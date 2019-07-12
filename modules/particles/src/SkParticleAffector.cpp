@@ -454,15 +454,18 @@ static const char* kDefaultCode =
 class SkRandomExternalValue : public SkSL::ExternalValue {
 public:
     SkRandomExternalValue(const char* name, SkSL::Compiler& compiler)
-        : INHERITED(name, *compiler.context().fFloat_Type)
-        , fRandom(nullptr) { }
+        : INHERITED(name)
+        , fRandom(nullptr)
+        , fType(compiler.context().fFloat_Type) { }
 
     void setRandom(SkRandom* random) { fRandom = random; }
     bool canRead() const override { return true; }
     void read(int /*unusedIndex*/, float* target) override { *target = fRandom->nextF(); }
+    SkSL::IRNode::ID type() const override { return fType; }
 
 private:
     SkRandom* fRandom;
+    SkSL::IRNode::ID fType;
     typedef SkSL::ExternalValue INHERITED;
 };
 

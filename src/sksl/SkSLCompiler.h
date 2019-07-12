@@ -140,9 +140,11 @@ public:
         return fErrorCount;
     }
 
-    Context& context() {
-        return *fContext;
+    IRGenerator& irGenerator() {
+        return *fIRGenerator;
     }
+
+    const Context& context();
 
     static const char* OperatorName(Token::Kind token);
 
@@ -151,11 +153,10 @@ public:
 private:
     void processIncludeFile(Program::Kind kind, const char* src, size_t length,
                             std::shared_ptr<SymbolTable> base,
-                            std::vector<std::unique_ptr<ProgramElement>>* outElements,
+                            std::vector<IRNode::ID>* outElements,
                             std::shared_ptr<SymbolTable>* outSymbolTable);
 
-    void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
-                       DefinitionMap* definitions);
+    void addDefinition(IRNode::ID lvalue, IRNode::ID expr, DefinitionMap* definitions);
 
     void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
 
@@ -170,7 +171,7 @@ private:
     void simplifyExpression(DefinitionMap& definitions,
                             BasicBlock& b,
                             std::vector<BasicBlock::Node>::iterator* iter,
-                            std::unordered_set<const Variable*>* undefinedVariables,
+                            std::unordered_set<IRNode::ID>* undefinedVariables,
                             bool* outUpdated,
                             bool* outNeedsRescan);
 
@@ -181,24 +182,24 @@ private:
     void simplifyStatement(DefinitionMap& definitions,
                            BasicBlock& b,
                            std::vector<BasicBlock::Node>::iterator* iter,
-                           std::unordered_set<const Variable*>* undefinedVariables,
+                           std::unordered_set<IRNode::ID>* undefinedVariables,
                            bool* outUpdated,
                            bool* outNeedsRescan);
 
-    void scanCFG(FunctionDefinition& f);
+    void scanCFG(IRNode::ID functionDefinition);
 
     Position position(int offset);
 
     std::shared_ptr<SymbolTable> fGpuSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
+    std::vector<IRNode::ID> fVertexInclude;
     std::shared_ptr<SymbolTable> fVertexSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fFragmentInclude;
+    std::vector<IRNode::ID> fFragmentInclude;
     std::shared_ptr<SymbolTable> fFragmentSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fGeometryInclude;
+    std::vector<IRNode::ID> fGeometryInclude;
     std::shared_ptr<SymbolTable> fGeometrySymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fPipelineInclude;
+    std::vector<IRNode::ID> fPipelineInclude;
     std::shared_ptr<SymbolTable> fPipelineSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fInterpreterInclude;
+    std::vector<IRNode::ID> fInterpreterInclude;
     std::shared_ptr<SymbolTable> fInterpreterSymbolTable;
 
     std::shared_ptr<SymbolTable> fTypes;
@@ -206,7 +207,6 @@ private:
     int fFlags;
 
     const String* fSource;
-    std::shared_ptr<Context> fContext;
     int fErrorCount;
     String fErrorText;
 };

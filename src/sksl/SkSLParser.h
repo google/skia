@@ -83,7 +83,7 @@ public:
         FLOAT,
     };
 
-    Parser(const char* text, size_t length, SymbolTable& types, ErrorReporter& errors);
+    Parser(const char* text, size_t length, SymbolTable& types, IRGenerator* irGenerator);
 
     /**
      * Consumes a complete .sksl file and returns the parse tree. Errors are reported via the
@@ -275,7 +275,7 @@ private:
     int fDepth = 0;
     Token fPushback;
     SymbolTable& fTypes;
-    ErrorReporter& fErrors;
+    IRGenerator& fIRGenerator;
 
     std::unique_ptr<ASTFile> fFile;
 
