@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6ade858c_e9064e76",
+        "filename": "bench/SkSLInterpreterBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-12T15:57:42Z",
+      "side": 1,
+      "message": "Yup, either one will work.",
+      "parentUuid": "e3c646bd_7d92e4b4",
+      "revId": "e7f8cdc2f8103c4003fa28569cc3c889dcb9db65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a970db21_2bfb94c4",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2019-07-12T15:41:02Z",
       "side": 1,
       "message": "Maybe add a comment to explain this block?",
+      "revId": "e7f8cdc2f8103c4003fa28569cc3c889dcb9db65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d16a6d8_16991f2c",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 723,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-12T15:57:42Z",
+      "side": 1,
+      "message": "Ah, right. I originally wrote this code in the child CL that also computes fMaxStackCount here (and that has a comment). Missed that when moving back (so it will arrive when I land the follow-up).",
+      "parentUuid": "a970db21_2bfb94c4",
       "revId": "e7f8cdc2f8103c4003fa28569cc3c889dcb9db65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
