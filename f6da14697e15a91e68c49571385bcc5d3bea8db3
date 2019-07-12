@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d248e407_4235e22b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1622,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2019-07-12T12:56:10Z",
+      "side": 1,
+      "message": "This looks like a typo, since we\u0027re checking \u0027externalType\u0027 twice, and not checking \u0027internalFormat\u0027.  I\u0027ve put up a follow-up CL for this: https://skia-review.googlesource.com/c/skia/+/227028",
+      "revId": "f6da14697e15a91e68c49571385bcc5d3bea8db3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
