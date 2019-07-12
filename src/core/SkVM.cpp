@@ -983,12 +983,35 @@ namespace skvm {
 
         *code = a.size();
 
-        A::Label loop_label;
-        for (int i = 0; i < (int)instructions.size(); i++) {
-            if (i == loop) {
-                loop_label = a.here();
-            }
-            const Program::Instruction& inst = instructions[i];
+        // Our program runs a 4-at-a-time body loop, then a 1-at-at-time tail loop to
+        // handle all N values, with an overall layout looking like
+        //
+        // buf:   ...
+        //        data for splats and tbl
+        //        ...
+        //
+        // code:  ...
+        //        hoisted instructions
+        //        ...
+        //
+        // body:  cmp N,4       # if (n < 4)
+        //        b.lt tail     #    goto tail
+        //        ...
+        //        instructions handling 4 at a time
+        //        ...
+        //        sub N,4
+        //        b body
+        //
+        // tail:  cbz N,done    # if (n == 0) goto done
+        //        ...
+        //        instructions handling 1 at a time
+        //        ...
+        //        sub N,1
+        //        b tail
+        //
+        // done:  ret
+
+        auto emit = [&](const Program::Instruction& inst, bool scalar) {
             Op  op = inst.op;
 
             Reg   d = inst.d,
@@ -999,15 +1022,24 @@ namespace skvm {
             switch (op) {
                 case Op::store8: a.xtns2h(r(tmp), r(x));
                                  a.xtnh2b(r(tmp), r(tmp));
-                                 a.strs  (r(tmp), arg[imm]);
+                   if (scalar) { a.strb  (r(tmp), arg[imm]); }
+                   else        { a.strs  (r(tmp), arg[imm]); }
                                  break;
-                case Op::store32: a.strq(r(x), arg[imm]); break;
+                case Op::store32:
+                   if (scalar) { a.strs(r(x), arg[imm]); }
+                   else        { a.strq(r(x), arg[imm]); }
+                                 break;
 
-                case Op::load8: a.ldrs   (r(tmp), arg[imm]);
-                                a.uxtlb2h(r(tmp), r(tmp));
-                                a.uxtlh2s(r(d)  , r(tmp));
-                                break;
-                case Op::load32: a.ldrq(r(d), arg[imm]); break;
+                case Op::load8:
+                   if (scalar) { a.ldrb   (r(tmp), arg[imm]); }
+                   else        { a.ldrs   (r(tmp), arg[imm]); }
+                                 a.uxtlb2h(r(tmp), r(tmp));
+                                 a.uxtlh2s(r(d)  , r(tmp));
+                                 break;
+                case Op::load32:
+                   if (scalar) { a.ldrs(r(d), arg[imm]); }
+                   else        { a.ldrq(r(d), arg[imm]); }
+                                 break;
 
                 case Op::splat: a.ldrq(r(d), splats.find(imm)); break;
 
@@ -1060,16 +1092,47 @@ namespace skvm {
                                 a.tbl (r(d), r(x), r(tmp));
                                 break;
             }
+        };
+
+        A::Label body,
+                 tail,
+                 done;
+
+        // Hoisted instructions.
+        for (int i = 0; i < loop; i++) {
+            emit(instructions[i], /*scalar=*/false);
         }
 
+        // Body 4-at-a-time loop.
+    a.label(&body);
+        a.cmp(N, K);
+        a.blt(&tail);
+        for (int i = loop; i < (int)instructions.size(); i++) {
+            emit(instructions[i], /*scalar=*/false);
+        }
         for (int i = 0; i < nargs; i++) {
             a.add(arg[i], arg[i], K*(int)strides[i]);
         }
-        a.subs(N, N, K);
-        a.bne(&loop_label);
+        a.sub(N, N, K);
+        a.b(&body);
+
+        // Tail 1-at-a-time loop.
+    a.label(&tail);
+        a.cbz(N, &done);
+        for (int i = loop; i < (int)instructions.size(); i++) {
+            emit(instructions[i], /*scalar=*/true);
+        }
+        for (int i = 0; i < nargs; i++) {
+            a.add(arg[i], arg[i], 1*(int)strides[i]);
+        }
+        a.sub(N, N, 1);
+        a.b(&tail);
+
+    a.label(&done);
         a.ret(A::x30);
 
-        return ~(K-1);
+        // We can handle any N.
+        return ~0;
     }
 
     #else  // not x86-64 or aarch64
@@ -1281,6 +1344,9 @@ namespace skvm {
         }
 
         if (n) {
+    #if defined(__aarch64__) && defined(SKVM_JIT)
+            SkUNREACHABLE;
+    #endif
             // We'll operate in SIMT style, knocking off K-size chunks from n while possible.
             constexpr int K = 16;
             using I32 = skvx::Vec<K, int>;
