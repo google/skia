@@ -111,6 +111,7 @@ async function wait(ms) {
 }
 
 const targetURL = "http://localhost:" + options.port + "/";
+const viewPort = {width: 1000, height: 1000};
 
 // Drive chrome to load the web page from the server we have running.
 async function driveBrowser() {
@@ -118,9 +119,16 @@ async function driveBrowser() {
   let browser;
   let page;
   try {
-    browser = await puppeteer.launch(
-        {headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--window-size=' + viewPort.width + ',' + viewPort.height
+      ]
+    });
     page = await browser.newPage();
+    await page.setViewport(viewPort);
   } catch (e) {
     console.log('Could not open the browser.', e);
     process.exit(1);
