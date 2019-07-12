@@ -115,7 +115,7 @@ public:
     bool isConfigTexturable(GrPixelConfig config) const override {
         GrGLenum glFormat = this->configSizedInternalFormat(config);
         GrColorType ct = GrPixelConfigToColorType(config);
-        return this->isFormatTexturable(ct, GrGLSizedInternalFormatFromGLenum(glFormat));
+        return this->isFormatTexturable(ct, GrGLFormatFromGLEnum(glFormat));
     }
 
     int getRenderTargetSampleCount(int requestedCount,
@@ -134,14 +134,14 @@ public:
         return this->canConfigBeFBOColorAttachment(config);
     }
 
-    bool canFormatBeFBOColorAttachment(GrGLSizedInternalFormat) const;
+    bool canFormatBeFBOColorAttachment(GrGLFormat) const;
 
     bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {
         GrGLenum format = this->configSizedInternalFormat(config);
         if (!format) {
             return false;
         }
-        return this->canFormatBeFBOColorAttachment(GrGLSizedInternalFormatFromGLenum(format));
+        return this->canFormatBeFBOColorAttachment(GrGLFormatFromGLEnum(format));
     }
 
     bool configSupportsTexStorage(GrPixelConfig config) const {
@@ -149,7 +149,7 @@ public:
         if (!format) {
             return false;
         }
-        return this->formatSupportsTexStorage(GrGLSizedInternalFormatFromGLenum(format));
+        return this->formatSupportsTexStorage(GrGLFormatFromGLEnum(format));
     }
 
     GrGLenum configSizedInternalFormat(GrPixelConfig config) const {
@@ -182,29 +182,29 @@ public:
      * Gets the internal format to use with glTexImage...() and glTexStorage...(). May be sized or
      * base depending upon the GL. Not applicable to compressed textures.
      */
-    GrGLenum getTexImageInternalFormat(GrGLSizedInternalFormat format) const {
+    GrGLenum getTexImageInternalFormat(GrGLFormat format) const {
         return this->getFormatInfo(format).fInternalFormatForTexImage;
     }
 
-    GrGLenum getSizedInternalFormat(GrGLSizedInternalFormat format) const {
+    GrGLenum getSizedInternalFormat(GrGLFormat format) const {
         return this->getFormatInfo(format).fSizedInternalFormat;
     }
 
-    GrGLenum getBaseInternalFormat(GrGLSizedInternalFormat format) const {
+    GrGLenum getBaseInternalFormat(GrGLFormat format) const {
         return this->getFormatInfo(format).fBaseInternalFormat;
     }
 
     /**
      * Gets the default external type to use with glTex[Sub]Image... when the data pointer is null.
      */
-    GrGLenum getFormatDefaultExternalType(GrGLSizedInternalFormat format) const {
+    GrGLenum getFormatDefaultExternalType(GrGLFormat format) const {
         return this->getFormatInfo(format).fDefaultExternalType;
     }
 
     /**
      * Has a stencil format index been found for the format (or we've found that no format works).
      */
-    bool hasStencilFormatBeenDeterminedForFormat(GrGLSizedInternalFormat format) const {
+    bool hasStencilFormatBeenDeterminedForFormat(GrGLFormat format) const {
         return this->getFormatInfo(format).fStencilFormatIndex != FormatInfo::kUnknown_StencilIndex;
     }
 
@@ -214,7 +214,7 @@ public:
      * no stencil format is supported with the format. Otherwise, returned index refers to the array
      * returned by stencilFormats().
      */
-    int getStencilFormatIndexForFormat(GrGLSizedInternalFormat format) const {
+    int getStencilFormatIndexForFormat(GrGLFormat format) const {
         SkASSERT(this->hasStencilFormatBeenDeterminedForFormat(format));
         return this->getFormatInfo(format).fStencilFormatIndex;
     }
@@ -223,7 +223,7 @@ public:
      * If index is >= 0 this records an index into stencilFormats() as the best stencil format for
      * the format. If < 0 it records that the format has no supported stencil format index.
      */
-    void setStencilFormatIndexForFormat(GrGLSizedInternalFormat, int index);
+    void setStencilFormatIndexForFormat(GrGLFormat, int index);
 
     /**
      * Call to note that a color config has been verified as a valid color
@@ -495,8 +495,8 @@ private:
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
-    bool isFormatTexturable(GrColorType, GrGLSizedInternalFormat) const;
-    bool formatSupportsTexStorage(GrGLSizedInternalFormat) const;
+    bool isFormatTexturable(GrColorType, GrGLFormat) const;
+    bool formatSupportsTexStorage(GrGLFormat) const;
 
     GrGLStandard fStandard;
 
@@ -678,12 +678,10 @@ private:
         SkSTArray<1, ColorTypeInfo> fColorTypeInfos;
     };
 
-    FormatInfo fFormatTable[kGrGLSizedInternalFormatCount];
+    FormatInfo fFormatTable[kGrGLFormatCount];
 
-    FormatInfo& getFormatInfo(GrGLSizedInternalFormat format) {
-        return fFormatTable[static_cast<int>(format)];
-    }
-    const FormatInfo& getFormatInfo(GrGLSizedInternalFormat format) const {
+    FormatInfo& getFormatInfo(GrGLFormat format) { return fFormatTable[static_cast<int>(format)]; }
+    const FormatInfo& getFormatInfo(GrGLFormat format) const {
         return fFormatTable[static_cast<int>(format)];
     }
 

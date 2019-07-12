@@ -11,9 +11,9 @@
 #ifndef GrGLTypesPriv_DEFINED
 #define GrGLTypesPriv_DEFINED
 
-// These are the GL sized internal formats we support as an enum. Naming convention is the GL
-// name with "k" substituted for the initial "GL_".
-enum class GrGLSizedInternalFormat {
+// These are the GL formats we support represented as an enum. The naming convention is to use the
+// GL format enum name with "k" substituted for the initial "GL_".
+enum class GrGLFormat {
     kUnknown,
 
     kRGBA8,
@@ -41,8 +41,7 @@ enum class GrGLSizedInternalFormat {
     kLast = kRG16F
 };
 
-static constexpr int kGrGLSizedInternalFormatCount =
-        static_cast<int>(GrGLSizedInternalFormat::kLast) + 1;
+static constexpr int kGrGLFormatCount = static_cast<int>(GrGLFormat::kLast) + 1;
 
 class GrGLTextureParameters : public SkNVRefCnt<GrGLTextureParameters> {
 public:
