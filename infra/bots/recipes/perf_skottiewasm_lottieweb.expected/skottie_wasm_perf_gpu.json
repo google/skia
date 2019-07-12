@@ -134,6 +134,7 @@
       "[START_DIR]/build/canvaskit.js",
       "--canvaskit_wasm",
       "[START_DIR]/build/canvaskit.wasm",
+      "--use_gpu",
       "--input",
       "[START_DIR]/lottie-samples/lottie1.json",
       "--output",
@@ -265,6 +266,7 @@
       "[START_DIR]/build/canvaskit.js",
       "--canvaskit_wasm",
       "[START_DIR]/build/canvaskit.wasm",
+      "--use_gpu",
       "--input",
       "[START_DIR]/lottie-samples/lottie2.json",
       "--output",
@@ -396,6 +398,7 @@
       "[START_DIR]/build/canvaskit.js",
       "--canvaskit_wasm",
       "[START_DIR]/build/canvaskit.wasm",
+      "--use_gpu",
       "--input",
       "[START_DIR]/lottie-samples/lottie3.json",
       "--output",
@@ -577,7 +580,7 @@
     "cmd": [
       "python",
       "-u",
-      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie2.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie-wasm', 'key': {'extra_config': 'SkottieWASM', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'wasm', 'source_type': 'skottie', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'EMCC'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)\n"
+      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie2.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie-wasm', 'key': {'extra_config': 'SkottieWASM', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'IntelIris640', 'arch': 'wasm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'NUC7i5BNK', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'EMCC'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)\n"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -587,7 +590,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import json@@@",
       "@@@STEP_LOG_LINE@python.inline@with open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie2.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie-wasm', 'key': {'extra_config': 'SkottieWASM', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'wasm', 'source_type': 'skottie', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'EMCC'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie2.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie-wasm', 'key': {'extra_config': 'SkottieWASM', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'IntelIris640', 'arch': 'wasm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'NUC7i5BNK', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'EMCC'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },

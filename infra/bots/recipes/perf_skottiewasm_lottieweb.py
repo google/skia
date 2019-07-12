@@ -76,6 +76,9 @@ def RunSteps(api):
   else:
     raise Exception('Could not recognize the buildername %s' % buildername)
 
+  if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+    perf_app_cmd.append('--use_gpu')
+
   # Install prerequisites.
   env_prefixes = {'PATH': [api.path['start_dir'].join('node', 'node', 'bin')]}
   with api.context(cwd=perf_app_dir, env_prefixes=env_prefixes):
@@ -89,7 +92,7 @@ def RunSteps(api):
       if not lottie_filename.endswith('.json'):
         continue
       output_file = output_dir.join(lottie_filename)
-      with api.context(cwd=perf_app_dir):
+      with api.context(cwd=perf_app_dir, env={'DISPLAY': ':0'}):
         # This is occasionally flaky due to skbug.com/9207, adding retries.
         attempts = 3
         # Add output and input arguments to the cmd.
@@ -174,6 +177,12 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
     trace_json = json.load(f)
   output_json_file = sys.argv[2]
   renderer = sys.argv[3]  # Unused for now but might be useful in the future.
+
+  # Output data about the GPU that was used.
+  print 'GPU data:'
+  print trace_json['metadata'].get('gpu-gl-renderer')
+  print trace_json['metadata'].get('gpu-driver')
+  print trace_json['metadata'].get('gpu-gl-vendor')
 
   erroneous_termination_statuses = [
       'replaced_by_new_reporter_at_same_stage',
@@ -297,6 +306,24 @@ def GenTests(api):
                      patch_issue=1234,
                      gerrit_project='skia',
                      gerrit_url='https://skia-review.googlesource.com/') +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie3.json trace',
+                    api.json.output(parse_trace_json))
+  )
+
+  skottie_gpu_buildername = ('Perf-Debian9-EMCC-NUC7i5BNK-GPU-IntelIris640-'
+                             'wasm-Release-All-SkottieWASM')
+  yield (
+      api.test('skottie_wasm_perf_gpu') +
+      api.properties(buildername=skottie_gpu_buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     trace_test_data=trace_output,
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
       api.step_data('parse lottie1.json trace',
                     api.json.output(parse_trace_json)) +
       api.step_data('parse lottie2.json trace',
