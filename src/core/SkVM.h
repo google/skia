@@ -92,16 +92,28 @@ namespace skvm {
         Label here();
         void label(Label*);
 
+        void jmp(Label*);
+        void je (Label*);
         void jne(Label*);
+        void jl (Label*);
+        void cmp(GP64, int imm);
 
         void vbroadcastss(Ymm dst, Label*);
         void vpshufb(Ymm dst, Ymm x, Label*);
 
-        void vmovups  (Ymm dst, GP64 src);
-        void vpmovzxbd(Ymm dst, GP64 src);
+        void vmovups  (Ymm dst, GP64 ptr);   // dst = *ptr, 256-bit
+        void vpmovzxbd(Ymm dst, GP64 ptr);   // dst = *ptr,  64-bit, each uint8_t expanded to int
+        void vmovd    (Xmm dst, GP64 ptr);   // dst = *ptr,  32-bit
 
-        void vmovups(GP64 dst, Ymm src);
-        void vmovq  (GP64 dst, Xmm src);
+        void vmovups(GP64 ptr, Ymm src);     // *ptr = src, 256-bit
+        void vmovq  (GP64 ptr, Xmm src);     // *ptr = src,  64-bit
+        void vmovd  (GP64 ptr, Xmm src);     // *ptr = src,  32-bit
+
+        void movzbl(GP64 dst, GP64 ptr);     // dst = *ptr, 8-bit, uint8_t expanded to int
+        void movb  (GP64 ptr, GP64 src);     // *ptr = src, 8-bit
+
+        void vmovd_direct(GP64 dst, Xmm src);  // dst = src, 32-bit
+        void vmovd_direct(Xmm dst, GP64 src);  // dst = src, 32-bit
 
         // aarch64
 
@@ -199,6 +211,8 @@ namespace skvm {
         // Order matters... value is 4-bit encoding for condition code.
         enum class Condition { eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,al };
         void b(Condition, Label*);
+
+        void jump(uint8_t condition, Label*);
 
         int disp19(Label*);
         int disp32(Label*);
