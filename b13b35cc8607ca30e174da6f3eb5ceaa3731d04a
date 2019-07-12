@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75626f78_1e0ea2a7",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 1653,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-12T14:55:15Z",
+      "side": 1,
+      "message": "Ick... so we already have a tools/timer/Timer.h with a WallTimer (used in two places, should be removed) and a single utility function.",
+      "range": {
+        "startLine": 1653,
+        "startChar": 19,
+        "endLine": 1653,
+        "endChar": 30
+      },
+      "revId": "b13b35cc8607ca30e174da6f3eb5ceaa3731d04a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
