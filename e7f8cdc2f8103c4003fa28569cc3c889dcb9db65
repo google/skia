@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3c646bd_7d92e4b4",
+        "filename": "bench/SkSLInterpreterBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-12T15:41:02Z",
+      "side": 1,
+      "message": "Just so I\u0027m clear, it\u0027s also possible to write this as something like this right?\n\n  half result;\n  if      (t \u003c 1 / 6.) result \u003d p + (q - p) * 6 * t;\n  else if (t \u003c 1 / 2.) result \u003d q;\n  else if (t \u003c 2 / 3.) result \u003d p + (q - p) * (2 / 3. - t) * 6;\n  else                 result \u003d p;\n  return result;",
+      "revId": "e7f8cdc2f8103c4003fa28569cc3c889dcb9db65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a970db21_2bfb94c4",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 723,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-12T15:41:02Z",
+      "side": 1,
+      "message": "Maybe add a comment to explain this block?",
+      "revId": "e7f8cdc2f8103c4003fa28569cc3c889dcb9db65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
