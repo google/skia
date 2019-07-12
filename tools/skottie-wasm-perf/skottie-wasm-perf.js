@@ -32,6 +32,11 @@ const opts = [
     description: 'The perf file to write. Defaults to perf.json',
   },
   {
+    name: 'use_gpu',
+    description: 'Whether we should run in non-headless mode with GPU.',
+    type: Boolean,
+  },
+  {
     name: 'port',
     description: 'The port number to use, defaults to 8081.',
     type: Number,
@@ -118,15 +123,19 @@ async function driveBrowser() {
   console.log('- Launching chrome for ' + options.input);
   let browser;
   let page;
+  const headless = !options.use_gpu;
+  let browser_args = [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--window-size=' + viewPort.width + ',' + viewPort.height,
+  ];
+  if (options.use_gpu) {
+    browser_args.push('--ignore-gpu-blacklist');
+    browser_args.push('--enable-gpu-rasterization');
+  }
+  console.log("Running with headless: " + headless + " args: " + browser_args);
   try {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--window-size=' + viewPort.width + ',' + viewPort.height
-      ]
-    });
+    browser = await puppeteer.launch({headless: headless, args: browser_args});
     page = await browser.newPage();
     await page.setViewport(viewPort);
   } catch (e) {
