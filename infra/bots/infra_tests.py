@@ -60,6 +60,13 @@ def gen_tasks_test(train):
   return output
 
 
+def gen_compile_isolate_test(train):
+  cmd = ['python', os.path.join(INFRA_BOTS_DIR, 'gen_compile_isolate.py')]
+  if not train:
+    cmd.append('test')
+  return test(cmd, SKIA_DIR)
+
+
 def main():
   train = False
   if '--train' in sys.argv:
@@ -69,6 +76,7 @@ def main():
       python_unit_tests,
       recipe_test,
       gen_tasks_test,
+      gen_compile_isolate_test,
   )
   errs = []
   for t in tests:
