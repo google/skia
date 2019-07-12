@@ -216,7 +216,7 @@ private:
     }
 
     struct Slot {
-        Slot() : hash(0) {}
+        Slot() : val{}, hash(0) {}
         Slot(T&& v, uint32_t h) : val(std::move(v)), hash(h) {}
         Slot(Slot&& o) { *this = std::move(o); }
         Slot& operator=(Slot&& o) {
