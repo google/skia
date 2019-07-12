@@ -428,6 +428,7 @@ namespace skvm {
 
     void Assembler::add(GP64 dst, int imm) { this->op(0,0b000, dst,imm); }
     void Assembler::sub(GP64 dst, int imm) { this->op(0,0b101, dst,imm); }
+    void Assembler::cmp(GP64 reg, int imm) { this->op(0,0b111, reg,imm); }
 
     void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W/*=false*/) {
         VEX v = vex(W, dst>>3, 0, y>>3,
@@ -524,12 +525,21 @@ namespace skvm {
 
     void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
 
-    void Assembler::jne(Label* l) {
-        // jne can be either 2 bytes (short) or 6 bytes (near):
-        //    75     one-byte-disp
-        //    0F 85 four-byte-disp
-        // We always use the near displacement to make updating labels simpler.
-        this->byte(0x0f, 0x85);
+    void Assembler::jump(uint8_t condition, Label* l) {
+        // These conditional jumps can be either 2 bytes (short) or 6 bytes (near):
+        //    7?     one-byte-disp
+        //    0F 8? four-byte-disp
+        // We always use the near displacement to make updating labels simpler (no resizing).
+        this->byte(0x0f, condition);
+        this->word(this->disp32(l));
+    }
+    void Assembler::je (Label* l) { this->jump(0x84, l); }
+    void Assembler::jne(Label* l) { this->jump(0x85, l); }
+    void Assembler::jl (Label* l) { this->jump(0x8c, l); }
+
+    void Assembler::jmp(Label* l) {
+        // We have options of 8, 16, or 32-bit displacements here; like above, we always use 32.
+        this->byte(0xe9, 0xcd);
         this->word(this->disp32(l));
     }
 
@@ -544,6 +554,7 @@ namespace skvm {
     void Assembler::vmovups  (Ymm dst, GP64 src) { this->load_store(0   ,  0x0f,0x10, dst,src); }
     void Assembler::vpmovzxbd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x31, dst,src); }
     void Assembler::vmovups  (GP64 dst, Ymm src) { this->load_store(0   ,  0x0f,0x11, src,dst); }
+
     void Assembler::vmovq    (GP64 dst, Xmm src) {
         int prefix = 0x66,
             map    = 0x0f,
@@ -552,6 +563,45 @@ namespace skvm {
                     map, 0, /*ymm?*/0, prefix);
         this->byte(v.bytes, v.len);
         this->byte(opcode);
+        this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
+    }
+
+    void Assembler::vmovd(GP64 dst, Xmm src) {
+        int prefix = 0x66,
+            map    = 0x0f,
+            opcode = 0x7e;
+        VEX v = vex(0, src>>3, 0, dst>>3,
+                    map, 0, /*ymm?*/0, prefix);
+        this->byte(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Direct, src&7, dst&7));
+    }
+
+    void Assembler::vmovd(Xmm dst, GP64 src) {
+        int prefix = 0x66,
+            map    = 0x0f,
+            opcode = 0x6e;
+        VEX v = vex(0, dst>>3, 0, src>>3,
+                    map, 0, /*ymm?*/0, prefix);
+        this->byte(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Direct, dst&7, src&7));
+    }
+
+    void Assembler::movzbl(GP64 dst, GP64 src) {
+        if ((dst>>3) || (src>>3)) {
+            this->byte(rex(0,dst>>3,0,src>>3));
+        }
+        this->byte(0x0f, 0xb6);
+        this->byte(mod_rm(Mod::Indirect, dst&7, src&7));
+    }
+
+
+    void Assembler::movb(GP64 dst, GP64 src) {
+        if ((dst>>3) || (src>>3)) {
+            this->byte(rex(0,src>>3,0,dst>>3));
+        }
+        this->byte(0x88);
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
 
