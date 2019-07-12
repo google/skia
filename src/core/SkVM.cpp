@@ -428,6 +428,7 @@ namespace skvm {
 
     void Assembler::add(GP64 dst, int imm) { this->op(0,0b000, dst,imm); }
     void Assembler::sub(GP64 dst, int imm) { this->op(0,0b101, dst,imm); }
+    void Assembler::cmp(GP64 reg, int imm) { this->op(0,0b111, reg,imm); }
 
     void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W/*=false*/) {
         VEX v = vex(W, dst>>3, 0, y>>3,
@@ -524,12 +525,21 @@ namespace skvm {
 
     void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
 
-    void Assembler::jne(Label* l) {
-        // jne can be either 2 bytes (short) or 6 bytes (near):
-        //    75     one-byte-disp
-        //    0F 85 four-byte-disp
-        // We always use the near displacement to make updating labels simpler.
-        this->byte(0x0f, 0x85);
+    void Assembler::jump(uint8_t condition, Label* l) {
+        // These conditional jumps can be either 2 bytes (short) or 6 bytes (near):
+        //    7?     one-byte-disp
+        //    0F 8? four-byte-disp
+        // We always use the near displacement to make updating labels simpler (no resizing).
+        this->byte(0x0f, condition);
+        this->word(this->disp32(l));
+    }
+    void Assembler::je (Label* l) { this->jump(0x84, l); }
+    void Assembler::jne(Label* l) { this->jump(0x85, l); }
+    void Assembler::jl (Label* l) { this->jump(0x8c, l); }
+
+    void Assembler::jmp(Label* l) {
+        // We have options of 8, 16, or 32-bit displacements here; like above, we always use 32.
+        this->byte(0xe9, 0xcd);
         this->word(this->disp32(l));
     }
 

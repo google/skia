@@ -92,7 +92,11 @@ namespace skvm {
         Label here();
         void label(Label*);
 
+        void jmp(Label*);
+        void je (Label*);
         void jne(Label*);
+        void jl (Label*);
+        void cmp(GP64, int imm);
 
         void vbroadcastss(Ymm dst, Label*);
         void vpshufb(Ymm dst, Ymm x, Label*);
@@ -199,6 +203,8 @@ namespace skvm {
         // Order matters... value is 4-bit encoding for condition code.
         enum class Condition { eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,al };
         void b(Condition, Label*);
+
+        void jump(uint8_t condition, Label*);
 
         int disp19(Label*);
         int disp32(Label*);
