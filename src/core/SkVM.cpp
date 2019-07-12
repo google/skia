@@ -490,33 +490,25 @@ namespace skvm {
         return { (int)this->size(), Label::None, {} };
     }
 
-    // ARM 19-bit instruction count, from the beginning of this instruction.
-    int Assembler::disp19(const Label& l) {
-        return (l.offset - here().offset) / 4;
-    }
-
-    // x86 32-bit byte count, from the end of this instruction.
-    int Assembler::disp32(const Label& l) {
-        return l.offset - (here().offset + 4);
-    }
-
-    // Each as above, registering this as a location to update if l changes.
     int Assembler::disp19(Label* l) {
         SkASSERT(l->kind == Label::None ||
                  l->kind == Label::ARMDisp19);
         l->kind = Label::ARMDisp19;
         l->references.push_back(here().offset);
-        return this->disp19(*l);
+        // ARM 19-bit instruction count, from the beginning of this instruction.
+        return (l->offset - here().offset) / 4;
     }
+
     int Assembler::disp32(Label* l) {
         SkASSERT(l->kind == Label::None ||
                  l->kind == Label::X86Disp32);
         l->kind = Label::X86Disp32;
         l->references.push_back(here().offset);
-        return this->disp32(*l);
+        // x86 32-bit byte count, from the end of this instruction.
+        return l->offset - (here().offset + 4);
     }
 
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label l) {
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label* l) {
         // IP-relative addressing uses Mod::Indirect with the R/M encoded as-if rbp or r13.
         const int rip = rbp;
 
@@ -528,11 +520,11 @@ namespace skvm {
         this->word(this->disp32(l));
     }
 
-    void Assembler::vbroadcastss(Ymm dst, Label l) { this->op(0x66,0x380f,0x18, dst,l); }
+    void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst,l); }
 
-    void Assembler::vpshufb(Ymm dst, Ymm x, Label l) { this->op(0x66,0x380f,0x00, dst,x,l); }
+    void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
 
-    void Assembler::jne(Label l) {
+    void Assembler::jne(Label* l) {
         // jne can be either 2 bytes (short) or 6 bytes (near):
         //    75     one-byte-disp
         //    0F 85 four-byte-disp
@@ -653,8 +645,7 @@ namespace skvm {
                   | (d     &  5_mask) <<  0);
     }
 
-    void Assembler::b(Condition cond, Label l) {
-        // Jump in insts from before this one.
+    void Assembler::b(Condition cond, Label* l) {
         const int imm19 = this->disp19(l);
         this->word( 0b0101010'0           << 24
                   | (imm19     & 19_mask) <<  5
@@ -666,7 +657,7 @@ namespace skvm {
                   | (imm19 & 19_mask) <<  5
                   | (t     &  5_mask) <<  0);
     }
-    void Assembler::cbnz(X t, Label l) {
+    void Assembler::cbnz(X t, Label* l) {
         const int imm19 = this->disp19(l);
         this->word( 0b1'011010'1      << 24
                   | (imm19 & 19_mask) <<  5
@@ -681,7 +672,7 @@ namespace skvm {
     void Assembler::strs(V src, X dst) { this->op(0b10'111'1'01'00'000000000000, dst, src); }
     void Assembler::strb(V src, X dst) { this->op(0b00'111'1'01'00'000000000000, dst, src); }
 
-    void Assembler::ldrq(V dst, Label l) {
+    void Assembler::ldrq(V dst, Label* l) {
         const int imm19 = this->disp19(l);
         this->word( 0b10'011'1'00     << 24
                   | (imm19 & 19_mask) << 5
@@ -883,7 +874,7 @@ namespace skvm {
                 case Op::load8:  a.vpmovzxbd(r(d), arg[imm]); break;
                 case Op::load32: a.vmovups  (r(d), arg[imm]); break;
 
-                case Op::splat: a.vbroadcastss(r(d), *splats.find(imm)); break;
+                case Op::splat: a.vbroadcastss(r(d), splats.find(imm)); break;
 
                 case Op::add_f32: a.vaddps(r(d), r(x), r(y)); break;
                 case Op::sub_f32: a.vsubps(r(d), r(x), r(y)); break;
@@ -929,7 +920,7 @@ namespace skvm {
                 case Op::to_f32: a.vcvtdq2ps (r(d), r(x)); break;
                 case Op::to_i32: a.vcvttps2dq(r(d), r(x)); break;
 
-                case Op::bytes: a.vpshufb(r(d), r(x), *vpshufb_masks.find(imm)); break;
+                case Op::bytes: a.vpshufb(r(d), r(x), vpshufb_masks.find(imm)); break;
             }
         }
 
@@ -937,7 +928,7 @@ namespace skvm {
             a.add(arg[i], K*(int)strides[i]);
         }
         a.sub(N, K);
-        a.jne(loop_label);
+        a.jne(&loop_label);
 
         a.vzeroupper();
         a.ret();
@@ -1018,7 +1009,7 @@ namespace skvm {
                                 break;
                 case Op::load32: a.ldrq(r(d), arg[imm]); break;
 
-                case Op::splat: a.ldrq(r(d), *splats.find(imm)); break;
+                case Op::splat: a.ldrq(r(d), splats.find(imm)); break;
 
                 case Op::add_f32: a.fadd4s(r(d), r(x), r(y)); break;
                 case Op::sub_f32: a.fsub4s(r(d), r(x), r(y)); break;
@@ -1065,7 +1056,7 @@ namespace skvm {
                 case Op::to_f32: a.scvtf4s (r(d), r(x)); break;
                 case Op::to_i32: a.fcvtzs4s(r(d), r(x)); break;
 
-                case Op::bytes: a.ldrq(r(tmp), *tbl_masks.find(imm));  // TODO: hoist instead of tmp
+                case Op::bytes: a.ldrq(r(tmp), tbl_masks.find(imm));  // TODO: hoist instead of tmp
                                 a.tbl (r(d), r(x), r(tmp));
                                 break;
             }
@@ -1075,7 +1066,7 @@ namespace skvm {
             a.add(arg[i], arg[i], K*(int)strides[i]);
         }
         a.subs(N, N, K);
-        a.bne(loop_label);
+        a.bne(&loop_label);
         a.ret(A::x30);
 
         return ~(K-1);
@@ -1147,7 +1138,7 @@ namespace skvm {
                         if (i % 4 == 0) {
                             SkDebugf("\n");
                             if (i == (int)code) {
-                                SkDebugf("loop:\n");
+                                SkDebugf("code:\n");
                             }
                         }
                         SkDebugf("0x%02x ", *cur++);
