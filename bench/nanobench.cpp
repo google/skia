@@ -28,6 +28,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTime.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBBoxHierarchy.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -845,9 +846,9 @@ public:
 
                 fCurrentAnimSKP++;
                 SkString name = SkOSPath::Basename(path.c_str());
-                sk_sp<SKPAnimationBench::Animation> animation(
-                    SKPAnimationBench::CreateZoomAnimation(fZoomMax, fZoomPeriodMs));
-                return new SKPAnimationBench(name.c_str(), pic.get(), fClip, animation.get(),
+                sk_sp<SKPAnimationBench::Animation> animation =
+                    SKPAnimationBench::MakeZoomAnimation(fZoomMax, fZoomPeriodMs);
+                return new SKPAnimationBench(name.c_str(), pic.get(), fClip, std::move(animation),
                                              FLAGS_loopSKP);
             }
         }
