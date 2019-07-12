@@ -46,6 +46,30 @@
       "revId": "ce4d0ec08a88b73277034b73ac9c47596bda19f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b52862cc_d9b60c0c",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1014,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-12T15:46:17Z",
+      "side": 1,
+      "message": "or swap it around, scalar?",
+      "parentUuid": "3e5f241d_77ef367a",
+      "range": {
+        "startLine": 1014,
+        "startChar": 63,
+        "endLine": 1014,
+        "endChar": 67
+      },
+      "revId": "ce4d0ec08a88b73277034b73ac9c47596bda19f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
