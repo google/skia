@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c39335c2_d1c94be6",
+        "filename": "samplecode/SampleAnimatedText.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-12T17:14:51Z",
+      "side": 1,
+      "message": "I prefer:\n    float fScale \u003d 1;\n    float fScaleInc \u003d 0.1f;\n    float fRotation \u003d 0;\n    int   fSizeScale \u003d 1;",
+      "revId": "974f2c64b54ba872910373c67b428bfdb7b72960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
