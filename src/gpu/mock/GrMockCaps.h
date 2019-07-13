@@ -144,6 +144,8 @@ public:
         return {};
     }
 
+    bool canClearTextureOnCreation() const override { return true; }
+
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override {
         return GrSwizzle();
     }
