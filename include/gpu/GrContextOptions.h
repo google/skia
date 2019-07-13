@@ -235,6 +235,11 @@ struct SK_API GrContextOptions {
     bool fCacheSKSL = false;
 
     /**
+     * Enforces clearing of all textures when they're created.
+     */
+    bool fClearAllTextures = false;
+
+    /**
      * Include or exclude specific GPU path renderers.
      */
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
