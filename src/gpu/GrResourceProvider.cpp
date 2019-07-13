@@ -144,36 +144,30 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    SkColorType colorType;
-    if (GrPixelConfigToColorType(desc.fConfig, &colorType)) {
-        sk_sp<GrTexture> tex = (SkBackingFit::kApprox == fit)
-                ? this->createApproxTexture(desc, flags)
-                : this->createTexture(desc, budgeted, flags);
-        if (!tex) {
-            return nullptr;
-        }
-
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createWrapped(std::move(tex),
-                                                                   kTopLeft_GrSurfaceOrigin);
-        if (!proxy) {
-            return nullptr;
-        }
-        // Here we don't really know the alpha type of the data we want to upload. All we really
-        // care about is that it is not converted. So we use the same alpha type of the data
-        // and the surface context.
-        static constexpr auto kAlphaType = kPremul_SkAlphaType;
-        auto srcInfo = SkImageInfo::Make(desc.fWidth, desc.fHeight, colorType, kAlphaType);
-        sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
-                std::move(proxy), SkColorTypeToGrColorType(colorType), kAlphaType);
-        if (!sContext) {
-            return nullptr;
-        }
-        SkAssertResult(
-                sContext->writePixels(srcInfo, tmpLevel.fPixels, tmpLevel.fRowBytes, {0, 0}));
-        return sk_ref_sp(sContext->asTextureProxy()->peekTexture());
-    } else {
-        return fGpu->createTexture(desc, budgeted, &tmpLevel, 1);
+    GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
+    sk_sp<GrTexture> tex = (SkBackingFit::kApprox == fit)
+                                   ? this->createApproxTexture(desc, flags)
+                                   : this->createTexture(desc, budgeted, flags);
+    if (!tex) {
+        return nullptr;
     }
+
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createWrapped(tex, kTopLeft_GrSurfaceOrigin);
+    if (!proxy) {
+        return nullptr;
+    }
+    // Here we don't really know the alpha type of the data we want to upload. All we really
+    // care about is that it is not converted. So we use the same alpha type for the data
+    // and the surface context.
+    static constexpr auto kAlphaType = kPremul_SkAlphaType;
+    sk_sp<GrSurfaceContext> sContext =
+            context->priv().makeWrappedSurfaceContext(std::move(proxy), colorType, kAlphaType);
+    if (!sContext) {
+        return nullptr;
+    }
+    GrPixelInfo srcInfo(colorType, kAlphaType, nullptr, desc.fWidth, desc.fHeight);
+    SkAssertResult(sContext->writePixels(srcInfo, tmpLevel.fPixels, tmpLevel.fRowBytes, {0, 0}));
+    return tex;
 }
 
 sk_sp<GrTexture> GrResourceProvider::createCompressedTexture(int width, int height,
