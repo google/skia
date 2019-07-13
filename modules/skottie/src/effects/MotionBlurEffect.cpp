@@ -78,7 +78,8 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
 
     SkAutoCanvasRestore acr(canvas, false);
 
-    canvas->saveLayer(this->bounds(), nullptr);
+    // Accumulate in F16 for more precision.
+    canvas->saveLayer(SkCanvas::SaveLayerRec(&this->bounds(), nullptr, SkCanvas::kF16ColorType));
 
     const auto frame_alpha = 1.0f / fSampleCount;
 
