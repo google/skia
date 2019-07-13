@@ -3974,6 +3974,8 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
     return {};
 }
 
+bool GrGLCaps::canClearTextureOnCreation() const { return fClearTextureSupport; }
+
 #ifdef SK_DEBUG
 static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType) {
     switch (colorType) {
