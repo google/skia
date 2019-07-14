@@ -16,6 +16,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkTo.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 
@@ -52,13 +53,9 @@ protected:
         canvas->drawOval(oval, p);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
-        return new Click();
-    }
-
-    bool onClick(Click* click) override {
-        fCenter.set(click->fCurr.fX, click->fCurr.fY);
-        return false;
+    bool onMouse(SkPoint p, ClickState, ModifierKey) override {
+        fCenter = p;
+        return true;
     }
 
 private:
@@ -145,7 +142,7 @@ static void draw_clipped_line(SkCanvas* canvas, const SkRect& bounds,
 
 // Demonstrate edge-clipping that is used in the scan converter
 //
-class EdgeClipView : public Sample {
+class EdgeClipView : public Sample, ClickHandler {
     enum {
         N = 3
     };
@@ -277,7 +274,10 @@ protected:
         return dx*dx + dy*dy <= rad*rad;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
+    ClickHandler::Click* onFindClickHandler(SkPoint point, ModifierKey) override {
+        SkScalar x = point.x(), y = point.y();
         for (int i = 0; i < N; ++i) {
             if (hit_test(fPoly[i], x, y)) {
                 return new VertClick(&fPoly[i]);
@@ -296,7 +296,7 @@ protected:
         return new DoNothingClick();
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         ((MyClick*)click)->handleMove();
         return false;
     }

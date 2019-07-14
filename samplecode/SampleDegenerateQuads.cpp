@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 
 #include "src/gpu/geometry/GrQuad.h"
@@ -232,7 +233,7 @@ static SkScalar get_framed_coverage(const SkPoint outer[4], const SkScalar outer
 static constexpr SkScalar kViewScale = 100.f;
 static constexpr SkScalar kViewOffset = 200.f;
 
-class DegenerateQuadSample : public Sample {
+class DegenerateQuadSample : public Sample, ClickHandler {
 public:
     DegenerateQuadSample(const SkRect& rect)
             : fOuterRect(rect)
@@ -379,9 +380,9 @@ public:
             canvas->drawCircle(fCorners[i], 5.f / kViewScale, circlePaint);
         }
     }
-
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override;
-    bool onClick(Sample::Click*) override;
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+    ClickHandler::Click* onFindClickHandler(SkPoint, ModifierKey) override;
+    bool onClick(ClickHandler::Click*, ClickState s, ModifierKey m) override;
     bool onChar(SkUnichar) override;
     SkString name() override { return SkString("DegenerateQuad"); }
 
@@ -450,7 +451,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class DegenerateQuadSample::Click : public Sample::Click {
+class DegenerateQuadSample::Click : public ClickHandler::Click {
 public:
     Click(const SkRect& clamp, int index)
             : fOuterRect(clamp)
@@ -478,7 +479,8 @@ private:
     }
 };
 
-Sample::Click* DegenerateQuadSample::onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) {
+ClickHandler::Click* DegenerateQuadSample::onFindClickHandler(SkPoint point, ModifierKey) {
+    float x = point.x(), y = point.y();
     SkPoint inCTM = SkPoint::Make((x - kViewOffset) / kViewScale, (y - kViewOffset) / kViewScale);
     for (int i = 0; i < 4; ++i) {
         if ((fCorners[i] - inCTM).length() < 10.f / kViewScale) {
@@ -488,9 +490,8 @@ Sample::Click* DegenerateQuadSample::onFindClickHandler(SkScalar x, SkScalar y, 
     return new Click(fOuterRect, -1);
 }
 
-bool DegenerateQuadSample::onClick(Sample::Click* click) {
-    Click* myClick = (Click*) click;
-    myClick->doClick(fCorners);
+bool DegenerateQuadSample::onClick(ClickHandler::Click* click, ClickState, ModifierKey) {
+    ((DegenerateQuadSample::Click*)click)->doClick(fCorners);
     return true;
 }
 

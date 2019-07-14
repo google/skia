@@ -216,11 +216,13 @@ protected:
         return true;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        fDoAA = !fDoAA;
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+    bool onMouse(SkPoint, ClickState s, ModifierKey) override {
+        if (s == ClickState::kDown) {
+            fDoAA = !fDoAA;
+            return true;
+        }
+        return false;
     }
-
 
 private:
     typedef Sample INHERITED;

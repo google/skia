@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkPatchUtils.h"
 #include "tools/ModifierKey.h"
@@ -59,7 +60,7 @@ static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
 const SkScalar TexWidth = 100.0f;
 const SkScalar TexHeight = 100.0f;
 
-class PerlinPatchView : public Sample {
+class PerlinPatchView : public Sample, public ClickHandler {
     sk_sp<SkShader> fShader0;
     sk_sp<SkShader> fShader1;
     sk_sp<SkShader> fShaderCompose;
@@ -167,14 +168,15 @@ protected:
         return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
+    ClickHandler::Click* onFindClickHandler(SkPoint clickPoint, ModifierKey modi) override {
         if (ModifierKey::kShift == modi) {
             return new PtClick(-1);
         }
         if (ModifierKey::kControl == modi) {
             return new PtClick(-2);
         }
-        SkPoint clickPoint = {x, y};
         fInvMatrix.mapPoints(&clickPoint, 1);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
             if (hittest(fPts[i], clickPoint.fX, clickPoint.fY)) {
@@ -184,7 +186,7 @@ protected:
         return nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         PtClick* ptClick = (PtClick*)click;
         if (ptClick->fIndex >= 0) {
             fPts[ptClick->fIndex].set(click->fCurr.fX , click->fCurr.fY );

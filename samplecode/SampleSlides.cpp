@@ -443,10 +443,13 @@ protected:
         gProc[fIndex](canvas);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
-        this->init();
-        fIndex = (fIndex + 1) % SK_ARRAY_COUNT(gProc);
-        return nullptr;
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override {
+        if (s == ClickState::kDown) {
+            this->init();
+            fIndex = (fIndex + 1) % SK_ARRAY_COUNT(gProc);
+            return true;
+        }
+        return false;
     }
 
 private:

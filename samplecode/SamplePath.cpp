@@ -18,6 +18,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkParsePath.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 #include "tools/timer/TimeUtils.h"
@@ -188,10 +189,12 @@ protected:
         }
         return true;
     }
-
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        fShowHairline = !fShowHairline;
-        return nullptr;
+    bool onMouse(SkPoint, ClickState s, ModifierKey) override {
+        if (s == ClickState::kDown) {
+            fShowHairline = !fShowHairline;
+            return true;
+        }
+        return false;
     }
 
 private:
@@ -204,7 +207,7 @@ DEF_SAMPLE( return new PathView; )
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/utils/SkRandom.h"
 
-class ArcToView : public Sample {
+class ArcToView : public Sample, ClickHandler {
     bool fDoFrame, fDoCorner, fDoConic;
     SkPaint fPtsPaint, fSkeletonPaint, fCornerPaint;
 public:
@@ -279,7 +282,9 @@ protected:
         canvas->drawPath(path, fSkeletonPaint);
     }
 
-    bool onClick(Click* click) override {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
+    bool onClick(Click* click, ClickState s, ModifierKey m) override {
         int32_t index;
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
@@ -289,7 +294,8 @@ protected:
         return false;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    ClickHandler::Click* onFindClickHandler(SkPoint point, ModifierKey modi) override {
+        SkScalar x = point.x(), y = point.y();
         const SkScalar tol = 4;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
@@ -309,7 +315,7 @@ DEF_SAMPLE( return new ArcToView; )
 
 /////////////
 
-class FatStroke : public Sample {
+class FatStroke : public Sample, ClickHandler {
     bool fClosed, fShowStroke, fShowHidden, fShowSkeleton;
     int  fJoinType, fCapType;
     float fWidth = 30;
@@ -407,7 +413,9 @@ protected:
         canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
     }
 
-    bool onClick(Click* click) override {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         int32_t index;
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
@@ -417,7 +425,8 @@ protected:
         return false;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    ClickHandler::Click* onFindClickHandler(SkPoint point, ModifierKey modi) override {
+        SkScalar x = point.x(), y = point.y();
         const SkScalar tol = 4;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
@@ -456,7 +465,7 @@ static int compute_parallel_to_base(const SkPoint pts[4], SkScalar t[2]) {
     return n;
 }
 
-class CubicCurve : public Sample {
+class CubicCurve : public Sample, ClickHandler {
 public:
     enum {
         N = 4
@@ -524,7 +533,9 @@ protected:
         }
     }
 
-    bool onClick(Click* click) override {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         int32_t index;
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
@@ -534,8 +545,9 @@ protected:
         return false;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    ClickHandler::Click* onFindClickHandler(SkPoint point, ModifierKey modi) override {
         const SkScalar tol = 8;
+        SkScalar x = point.x(), y = point.y();
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
@@ -544,7 +556,7 @@ protected:
                 return click;
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
 private:
@@ -571,7 +583,7 @@ static int find_max_deviation_cubic(const SkPoint src[4], SkScalar ts[2]) {
     return SkFindUnitQuadRoots(3 * A.cross(Z), 2 * B.cross(Z), C.cross(Z), ts);
 }
 
-class CubicCurve2 : public Sample {
+class CubicCurve2 : public Sample, ClickHandler {
 public:
     enum {
         N = 7
@@ -720,7 +732,9 @@ protected:
 
     }
 
-    bool onClick(Click* click) override {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         int32_t index;
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
@@ -730,7 +744,8 @@ protected:
         return false;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    ClickHandler::Click* onFindClickHandler(SkPoint point, ModifierKey modi) override {
+        SkScalar x = point.x(), y = point.y();
         const SkScalar tol = 8;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
@@ -740,7 +755,7 @@ protected:
                 return click;
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
 private:

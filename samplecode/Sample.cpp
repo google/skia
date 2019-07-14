@@ -18,22 +18,17 @@ class GrContext;
 //////////////////////////////////////////////////////////////////////////////
 
 void Sample::setSize(SkScalar width, SkScalar height) {
-    width = SkMaxScalar(0, width);
-    height = SkMaxScalar(0, height);
+    SkSize size = {SkMaxScalar(0, width), SkMaxScalar(0, height)};
 
-    if (fWidth != width || fHeight != height)
-    {
-        fWidth = width;
-        fHeight = height;
+    if (fSize != size) {
+        fSize = size;
         this->onSizeChange();
     }
 }
 
 void Sample::draw(SkCanvas* canvas) {
-    if (fWidth && fHeight) {
-        SkRect    r;
-        r.set(0, 0, fWidth, fHeight);
-        if (canvas->quickReject(r)) {
+    if (!fSize.isZero()) {
+        if (canvas->quickReject(SkRect::MakeSize(fSize))) {
             return;
         }
 
@@ -61,58 +56,7 @@ void Sample::draw(SkCanvas* canvas) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool Sample::mouse(SkPoint point, ClickState clickState, ModifierKey modifierKeys) {
-    switch (clickState) {
-        case ClickState::kDown:
-            fClick = nullptr;
-            if (point.x() < 0 || point.y() < 0 || point.x() >= fWidth || point.y() >= fHeight) {
-                return false;
-            }
-            fClick.reset(this->onFindClickHandler(point.x(), point.y(), modifierKeys));
-            if (!fClick) {
-                return false;
-            }
-            fClick->fPrev = fClick->fCurr = fClick->fOrig = point;
-            fClick->fState = ClickState::kDown;
-            fClick->fModifierKeys = modifierKeys;
-            this->onClick(fClick.get());
-            return true;
-        case ClickState::kMoved:
-            if (fClick) {
-                fClick->fPrev = fClick->fCurr;
-                fClick->fCurr = point;
-                fClick->fState = ClickState::kMoved;
-                fClick->fModifierKeys = modifierKeys;
-                return this->onClick(fClick.get());
-            }
-            return false;
-        case ClickState::kUp:
-            if (fClick) {
-                fClick->fPrev = fClick->fCurr;
-                fClick->fCurr = point;
-                fClick->fState = ClickState::kUp;
-                fClick->fModifierKeys = modifierKeys;
-                bool result = this->onClick(fClick.get());
-                fClick = nullptr;
-                return result;
-            }
-            break;
-    }
-    SkASSERT(false);
-    return false;
-}
-
-//////////////////////////////////////////////////////////////////////
-
 void Sample::onSizeChange() {}
-
-Sample::Click* Sample::onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) {
-    return nullptr;
-}
-
-bool Sample::onClick(Click*) {
-    return false;
-}
 
 void Sample::onDrawBackground(SkCanvas* canvas) {
     canvas->drawColor(fBGColor);

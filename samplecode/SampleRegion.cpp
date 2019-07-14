@@ -13,6 +13,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 
@@ -152,7 +153,7 @@ static void paint_rgn(SkCanvas* canvas, const SkRegion& rgn,
     }
 }
 
-class RegionView : public Sample {
+class RegionView : public Sample, ClickHandler {
 public:
     RegionView() {
         fBase.set(100, 100, 150, 150);
@@ -324,14 +325,15 @@ protected:
             canvas->translate(SkIntToScalar(200), 0);
         }
     }
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
 
-    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              ModifierKey modi) override {
+    ClickHandler::Click* onFindClickHandler(SkPoint point, ModifierKey) override {
+        SkScalar x = point.x(), y = point.y();
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         fRect.offset(click->fCurr.fX - click->fPrev.fX,
                      click->fCurr.fY - click->fPrev.fY);
         return true;
