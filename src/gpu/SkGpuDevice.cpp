@@ -1655,14 +1655,18 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     SkBackingFit fit = kNever_TileUsage == cinfo.fTileUsage ? SkBackingFit::kApprox
                                                             : SkBackingFit::kExact;
 
-    // CT is sanitized in SkCanvas::internalSaveLayer
-    SkASSERT(cinfo.fInfo.colorType() != SkColorType::kRGBA_1010102_SkColorType);
+    GrColorType colorType = fRenderTargetContext->colorSpaceInfo().colorType();
+    if (colorType == GrColorType::kRGBA_1010102) {
+        // If the original device is 1010102, fall back to 8888 so that we have a usable alpha
+        // channel in the layer.
+        colorType = GrColorType::kRGBA_8888;
+    }
 
     sk_sp<GrRenderTargetContext> rtc(fContext->priv().makeDeferredRenderTargetContext(
             fit,
             cinfo.fInfo.width(),
             cinfo.fInfo.height(),
-            SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
+            colorType,
             fRenderTargetContext->colorSpaceInfo().refColorSpace(),
             fRenderTargetContext->numSamples(),
             GrMipMapped::kNo,
