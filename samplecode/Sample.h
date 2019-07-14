@@ -14,6 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkMacros.h"
 #include "src/utils/SkMetaData.h"
+#include "tools/ClickState.h"
 #include "tools/ModifierKey.h"
 #include "tools/Registry.h"
 
@@ -29,42 +30,24 @@ using SampleRegistry = sk_tools::Registry<SampleFactory>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum class ClickState { kDown, kMoved, kUp };
-
 class Sample {
 public:
-    Sample()
-        : fBGColor(SK_ColorWHITE)
-        , fWidth(0), fHeight(0)
-        , fHaveCalledOnceBeforeDraw(false)
-    {}
-
     virtual ~Sample() = default;
 
-    SkScalar    width() const { return fWidth; }
-    SkScalar    height() const { return fHeight; }
+    SkScalar    width() const { return fSize.fWidth; }
+    SkScalar    height() const { return fSize.fHeight; }
+    SkSize      size() const { return fSize; }
     void        setSize(SkScalar width, SkScalar height);
     void        setSize(const SkPoint& size) { this->setSize(size.fX, size.fY); }
-    void        setWidth(SkScalar width) { this->setSize(width, fHeight); }
-    void        setHeight(SkScalar height) { this->setSize(fWidth, height); }
+    void        setWidth(SkScalar width) { this->setSize(width, fSize.fHeight); }
+    void        setHeight(SkScalar height) { this->setSize(fSize.fWidth, height); }
 
     /** Call this to have the view draw into the specified canvas. */
     virtual void draw(SkCanvas* canvas);
 
     virtual bool onChar(SkUnichar) { return false; }
 
-    //  Click handling
-    class Click {
-    public:
-        virtual ~Click() = default;
-        SkPoint     fOrig = {0, 0};
-        SkPoint     fPrev = {0, 0};
-        SkPoint     fCurr = {0, 0};
-        ClickState  fState = ClickState::kDown;
-        SkMetaData  fMeta;
-        ModifierKey fModifierKeys = ModifierKey::kNone;
-    };
-    bool mouse(SkPoint point, ClickState clickState, ModifierKey modifierKeys);
+    virtual bool onMouse(SkPoint, ClickState, ModifierKey) { return false; }
 
     void setBGColor(SkColor color) { fBGColor = color; }
     bool animate(double nanos) { return this->onAnimate(nanos); }
@@ -72,14 +55,10 @@ public:
     virtual SkString name() = 0;
 
 protected:
+    Sample() {}
+
     /** Override to be notified of size changes. Overriders must call the super class. */
     virtual void onSizeChange();
-
-    /** Override this if you might handle the click */
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi);
-
-    /** Override to track clicks. Return true as long as you want to track the pen/mouse. */
-    virtual bool onClick(Click*);
 
     virtual void onDrawBackground(SkCanvas*);
     virtual void onDrawContent(SkCanvas*) = 0;
@@ -87,10 +66,9 @@ protected:
     virtual void onOnceBeforeDraw() {}
 
 private:
-    std::unique_ptr<Click> fClick;
-    SkColor fBGColor;
-    SkScalar fWidth, fHeight;
-    bool fHaveCalledOnceBeforeDraw;
+    SkColor fBGColor = SK_ColorWHITE;
+    SkSize fSize = {0, 0};
+    bool fHaveCalledOnceBeforeDraw = false;
 
     Sample(const Sample&) = delete;
     Sample& operator=(const Sample&) = delete;

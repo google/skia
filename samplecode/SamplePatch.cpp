@@ -22,6 +22,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/DecodeFile.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkOSFile.h"
@@ -202,7 +203,7 @@ static constexpr SkScalar DY = 0;
 static constexpr SkScalar kS = 50;
 static constexpr SkScalar kT = 40;
 
-struct PatchView : public Sample {
+struct PatchView : public Sample, ClickHandler {
     sk_sp<SkShader> fShader0;
     sk_sp<SkShader> fShader1;
     SkScalar fAngle = 0;
@@ -287,6 +288,8 @@ struct PatchView : public Sample {
         return true;
     }
 
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
     class PtClick : public Click {
     public:
         int fIndex;
@@ -297,18 +300,18 @@ struct PatchView : public Sample {
         return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        x -= DX;
-        y -= DY;
+    ClickHandler::Click* onFindClickHandler(SkPoint p, ModifierKey modi) override {
+        p.fX -= DX;
+        p.fY -= DY;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
-            if (hittest(fPts[i], x, y)) {
+            if (hittest(fPts[i], p.fX, p.fY)) {
                 return new PtClick((int)i);
             }
         }
         return nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         fPts[((PtClick*)click)->fIndex].set(click->fCurr.fX - DX, click->fCurr.fY - DY);
         return true;
     }
@@ -359,7 +362,7 @@ static sk_sp<SkVertices> make_verts(const SkPath& path, SkScalar width) {
     return builder.detach();
 }
 
-class PseudoInkView : public Sample {
+class PseudoInkView : public Sample, ClickHandler {
     enum { N = 100 };
     SkPath            fPath;
     sk_sp<SkVertices> fVertices[N];
@@ -396,15 +399,17 @@ protected:
  //       canvas->drawPath(fPath, fSkeletonP);
     }
 
-    Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+    
+    Click* onFindClickHandler(SkPoint point, ModifierKey modi) override {
         Click* click = new Click();
         fPath.reset();
-        fPath.moveTo(x, y);
+        fPath.moveTo(point);
         return click;
     }
 
-    bool onClick(Click* click) override {
-        switch (click->fState) {
+    bool onClick(Click* click, ClickState clickState, ModifierKey m) override {
+        switch (clickState) {
             case ClickState::kMoved:
                 fPath.lineTo(click->fCurr);
                 fDirty = true;
@@ -424,7 +429,7 @@ DEF_SAMPLE( return new PseudoInkView(); )
 namespace {
 // Show stroking options using patheffects (and pathops)
 // and why strokeandfill is a hacks
-class ManyStrokesView : public Sample {
+class ManyStrokesView : public Sample, ClickHandler {
     SkPath              fPath;
     sk_sp<SkPathEffect> fPE[6];
 
@@ -483,16 +488,18 @@ protected:
         p.setStrokeWidth(20);
         this->dodraw(canvas, nullptr, 600, 0, &p);
     }
+  
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
 
-    Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    Click* onFindClickHandler(SkPoint p, ModifierKey modi) override {
         Click* click = new Click();
         fPath.reset();
-        fPath.moveTo(x, y);
+        fPath.moveTo(p);
         return click;
     }
 
-    bool onClick(Click* click) override {
-        switch (click->fState) {
+    bool onClick(Click* click, ClickState clickState, ModifierKey) override {
+        switch (clickState) {
             case ClickState::kMoved:
                 fPath.lineTo(click->fCurr);
                 break;

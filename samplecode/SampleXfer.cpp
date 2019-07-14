@@ -14,6 +14,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 
 const SkBlendMode gModes[] = {
@@ -102,7 +103,7 @@ protected:
     }
 };
 
-class XferDemo : public Sample {
+class XferDemo : public Sample, ClickHandler {
     enum {
         N = 4
     };
@@ -160,7 +161,10 @@ protected:
         canvas->restore();
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
+    ClickHandler::Click* onFindClickHandler(SkPoint point, ModifierKey) override {
+        SkScalar x = point.x(), y = point.y();
         // Check mode buttons first
         for (int i = 0; i < N_Modes; ++i) {
             if (fModeButtons[i].hitTest(x, y)) {
@@ -179,10 +183,10 @@ protected:
         return fSelected ? new Click() : nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState clickState, ModifierKey) override {
         int32_t mode;
         if (click->fMeta.findS32("mode", &mode)) {
-            if (fSelected && ClickState::kUp == click->fState) {
+            if (fSelected && ClickState::kUp == clickState) {
                 fSelected->fMode = gModes[mode];
             }
         } else {

@@ -12,6 +12,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkUtils.h"
 #include "tools/Resources.h"
@@ -23,7 +24,7 @@ const float gMat[] = {
       0,   0,   0, 1, 0,
 };
 
-class MixerView : public Sample {
+class MixerView : public Sample, ClickHandler {
     sk_sp<SkImage>          fImg;
     sk_sp<SkColorFilter>    fCF0;
     sk_sp<SkColorFilter>    fCF1;
@@ -70,13 +71,14 @@ protected:
             fDW = -fDW;
         }
     }
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
 
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
-        return fRect.contains(SkScalarRoundToInt(x),
-                              SkScalarRoundToInt(y)) ? new Click() : nullptr;
+    virtual Click* onFindClickHandler(SkPoint p, ModifierKey) override {
+        return fRect.contains(SkScalarRoundToInt(p.x()),
+                              SkScalarRoundToInt(p.y())) ? new Click() : nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         fRect.offset(click->fCurr.fX - click->fPrev.fX,
                      click->fCurr.fY - click->fPrev.fY);
         return true;
@@ -106,7 +108,7 @@ static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
     return img->makeShader(&m);
 }
 
-class ShaderMixerView : public Sample {
+class ShaderMixerView : public Sample, ClickHandler {
     sk_sp<SkShader>     fSH0;
     sk_sp<SkShader>     fSH1;
     sk_sp<SkSurface>    fSurface;
@@ -154,13 +156,15 @@ protected:
         canvas->restore();
     }
 
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
+    virtual Click* onFindClickHandler(SkPoint p, ModifierKey) override {
         fMode = (fMode == SkBlendMode::kSrcOver) ? SkBlendMode::kClear : SkBlendMode::kSrcOver;
-        return fRect.contains(SkScalarRoundToInt(x),
-                              SkScalarRoundToInt(y)) ? new Click() : nullptr;
+        return fRect.contains(SkScalarRoundToInt(p.x()),
+                              SkScalarRoundToInt(p.y())) ? new Click() : nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         SkPaint p;
         p.setAntiAlias(true);
         p.setColor(SK_ColorRED);

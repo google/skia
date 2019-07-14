@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/utils/SkLua.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
 
@@ -34,7 +35,7 @@ static const char gMissingCode[] = ""
     "end"
     ;
 
-class LuaView : public Sample {
+class LuaView : public Sample, ClickHandler {
 public:
     LuaView() : fLua(nullptr) {}
 
@@ -107,14 +108,15 @@ protected:
             }
         }
     }
+   
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
 
-    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              ModifierKey modi) override {
+    ClickHandler::Click* onFindClickHandler(SkPoint point, ModifierKey modi) override {
         lua_State* L = this->ensureLua();
         lua_getglobal(L, gClickName);
         if (lua_isfunction(L, -1)) {
-            fLua->pushScalar(x);
-            fLua->pushScalar(y);
+            fLua->pushScalar(point.x());
+            fLua->pushScalar(point.y());
             fLua->pushString("down");
             if (lua_pcall(L, 3, 1, 0) != LUA_OK) {
                 SkDebugf("lua err: %s\n", lua_tostring(L, -1));
@@ -124,12 +126,12 @@ protected:
                 }
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState clickState, ModifierKey) override {
         const char* state = nullptr;
-        switch (click->fState) {
+        switch (clickState) {
             case ClickState::kMoved:
                 state = "moved";
                 break;

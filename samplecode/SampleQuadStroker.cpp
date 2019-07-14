@@ -26,6 +26,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkTextUtils.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
@@ -112,7 +113,7 @@ struct CircleTypeButton : public StrokeTypeButton {
     bool fFill;
 };
 
-class QuadStrokerView : public Sample {
+class QuadStrokerView : public Sample, ClickHandler {
     enum {
         SKELETON_COLOR = 0xFF0000FF,
         WIREFRAME_COLOR = 0x80FF0000
@@ -715,14 +716,17 @@ protected:
         draw_button(canvas, fTextButton);
     }
 
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
     class MyClick : public Click {
     public:
         int fIndex;
         MyClick(int index) : fIndex(index) {}
     };
 
-    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              ModifierKey modi) override {
+    ClickHandler::Click* onFindClickHandler(SkPoint point,
+                                            ModifierKey modi) override {
+        SkScalar x = point.x(), y = point.y();
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); ++i) {
             if (hittest(fPts[i], x, y)) {
                 return new MyClick((int)i);
@@ -781,7 +785,7 @@ protected:
         return (y - control.fTop) / control.height() * (max - min) + min;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         int index = ((MyClick*)click)->fIndex;
         if (index < (int) SK_ARRAY_COUNT(fPts)) {
             fPts[index].offset(click->fCurr.fX - click->fPrev.fX,
