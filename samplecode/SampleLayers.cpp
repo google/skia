@@ -223,13 +223,12 @@ protected:
         return true;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        return new Click();
-    }
-
-    bool onClick(Click* click) override {
-        fCenter = click->fCurr;
-        return true;
+    bool onMouse(SkPoint p, ClickState s, ModifierKey) override {
+        if (s == ClickState::kDown) {
+            fCenter = p;
+            return true;
+        }
+        return false;
     }
 
 private:

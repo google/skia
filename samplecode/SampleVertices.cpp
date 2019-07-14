@@ -99,16 +99,6 @@ protected:
         }
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
-        return new Click();
-    }
-
-    bool onClick(Click* click) override {
-    //    fCurrX = click->fICurr.fX;
-    //    fCurrY = click->fICurr.fY;
-        return true;
-    }
-
 private:
     struct Rec {
         SkVertices::VertexMode  fMode;

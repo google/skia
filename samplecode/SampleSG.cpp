@@ -9,6 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPath.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 
 #include "modules/sksg/include/SkSGDraw.h"
@@ -26,7 +27,7 @@ struct PerNodeInfo {
     sksg::PaintNode*    fPaint;
 };
 
-class SampleSG : public Sample {
+class SampleSG : public Sample, ClickHandler {
     SkTDArray<PerNodeInfo> fSideCar;
     sk_sp<sksg::Group> fGroup;
     std::unique_ptr<sksg::Scene> fScene;
@@ -72,8 +73,10 @@ protected:
         fScene->render(canvas);
     }
 
-    Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        if (auto node = fScene->nodeAt({x, y})) {
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+
+    ClickHandler::Click* onFindClickHandler(SkPoint point, ModifierKey) override {
+        if (auto node = fScene->nodeAt(point)) {
             Click* click = new Click();
             click->fMeta.setPtr("node", (void*)node);
             return click;
@@ -81,7 +84,7 @@ protected:
         return nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, ClickState, ModifierKey) override {
         sksg::Draw* node = nullptr;
         if (click->fMeta.findPtr("node", (void**)&node)) {
             if (auto info = this->findInfo(node)) {

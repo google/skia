@@ -156,15 +156,17 @@ protected:
         return true;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        // search backwards to find the top-most
-        for (int i = N - 1; i >= 0; --i) {
-            if (fArray[i].fDrawable->hitTest(x, y)) {
-                fArray[i].fDrawable->spawnAnimation(fTime);
-                break;
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { 
+        if (s == ClickState::kDown) {
+            // search backwards to find the top-most
+            for (int i = N - 1; i >= 0; --i) {
+                if (fArray[i].fDrawable->hitTest(p.x(), p.y())) {
+                    fArray[i].fDrawable->spawnAnimation(fTime);
+                    return true;
+                }
             }
         }
-        return nullptr;
+        return false;
     }
 
 private:

@@ -7,6 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
@@ -16,10 +17,8 @@
 // generating an angle from 0 to 1.
 
 class StringArtView : public Sample {
-public:
-    StringArtView() : fAngle(0.305f) {}
+    SkScalar fAngle = 0.305f;
 
-protected:
     SkString name() override { return SkString("StringArt"); }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -50,16 +49,12 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
-        fAngle = x/width();
-        return nullptr;
+    bool onMouse(SkPoint p, ClickState s, ModifierKey) override {
+        if (s == ClickState::kDown) {
+            fAngle = p.x() / width();
+            return true;
+        }
+        return false;
     }
-private:
-
-    SkScalar fAngle;
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
 DEF_SAMPLE( return new StringArtView(); )

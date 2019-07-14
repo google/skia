@@ -56,5 +56,5 @@ static ClickState click_state(sk_app::Window::InputState state) {
 
 bool SampleSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state,
                           ModifierKey modifierKeys) {
-    return fSample && fSample->mouse({x, y}, click_state(state), modifierKeys);
+    return fSample && fSample->onMouse({x, y}, click_state(state), modifierKeys);
 }

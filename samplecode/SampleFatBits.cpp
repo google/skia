@@ -20,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkPointPriv.h"
@@ -361,17 +362,17 @@ void FatBits::drawTriangle(SkCanvas* canvas, SkPoint pts[3]) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IndexClick : public Sample::Click {
+class IndexClick : public ClickHandler::Click {
     int fIndex;
 public:
     IndexClick(int index) : fIndex(index) {}
 
-    static int GetIndex(Sample::Click* click) {
+    static int GetIndex(ClickHandler::Click* click) {
         return ((IndexClick*)click)->fIndex;
     }
 };
 
-class DrawLineView : public Sample {
+class DrawLineView : public Sample, ClickHandler {
     FatBits fFB;
     SkPoint fPts[3];
     bool    fIsRect;
@@ -467,9 +468,10 @@ protected:
             canvas->drawString(str, 10, 16, font, paint);
         }
     }
-
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        SkPoint pt = { x, y };
+    
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+    
+    ClickHandler::Click* onFindClickHandler(SkPoint pt, ModifierKey modi) override {
         int index = -1;
         int count = fFB.getTriangle() ? 3 : 2;
         SkScalar tol = 12;
@@ -483,7 +485,7 @@ protected:
         return new IndexClick(index);
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click,  ClickState, ModifierKey) override {
         int index = IndexClick::GetIndex(click);
         if (index >= 0 && index <= 2) {
             fPts[index] = click->fCurr;

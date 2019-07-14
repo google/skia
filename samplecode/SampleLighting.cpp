@@ -65,10 +65,6 @@ protected:
         canvas->drawRect(fRect, paint);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
-        return this->INHERITED::onFindClickHandler(x, y, modi);
-    }
-
     bool onAnimate(double nanos) override {
         fLightAngle += 0.015f;
         fColorFactor += 0.01f;

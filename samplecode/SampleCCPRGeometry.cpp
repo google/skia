@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "samplecode/ClickHandler.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkRectPriv.h"
@@ -43,13 +44,14 @@ static constexpr float kDebugBloat = 40;
  * coverage=0 -> black, coverage=-1 -> red). Use the keys 1-7 to cycle through the different
  * geometry processors.
  */
-class CCPRGeometryView : public Sample {
+class CCPRGeometryView : public Sample, public ClickHandler {
 public:
     CCPRGeometryView() { this->updateGpuData(); }
     void onDrawContent(SkCanvas*) override;
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override;
-    bool onClick(Sample::Click*) override;
+    bool onMouse(SkPoint p, ClickState s, ModifierKey m) override { return this->click(p, s, m); }
+    ClickHandler::Click* onFindClickHandler(SkPoint, ModifierKey) override;
+    bool onClick(ClickHandler::Click*, ClickState, ModifierKey) override;
     bool onChar(SkUnichar) override;
     SkString name() override { return SkString("CCPRGeometry"); }
 
@@ -399,39 +401,35 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
     }
 }
 
-class CCPRGeometryView::Click : public Sample::Click {
+class CCPRGeometryView::Click : public ClickHandler::Click {
 public:
     Click(int ptIdx) : fPtIdx(ptIdx) {}
-
-    void doClick(SkPoint points[]) {
-        if (fPtIdx >= 0) {
-            points[fPtIdx] += fCurr - fPrev;
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                points[i] += fCurr - fPrev;
-            }
-        }
-    }
-
-private:
     int fPtIdx;
 };
 
-Sample::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) {
+ClickHandler::Click* CCPRGeometryView::onFindClickHandler(SkPoint xy, ModifierKey) {
     for (int i = 0; i < 4; ++i) {
         if (PrimitiveType::kCubics != fPrimitiveType && 2 == i) {
             continue;
         }
-        if (fabs(x - fPoints[i].x()) < 20 && fabsf(y - fPoints[i].y()) < 20) {
+        if (fabs(xy.x() - fPoints[i].x()) < 20 && fabsf(xy.y() - fPoints[i].y()) < 20) {
             return new Click(i);
         }
     }
     return new Click(-1);
 }
 
-bool CCPRGeometryView::onClick(Sample::Click* click) {
-    Click* myClick = (Click*)click;
-    myClick->doClick(fPoints);
+bool CCPRGeometryView::onClick(ClickHandler::Click* click, ClickState, ModifierKey) {
+    int idx = ((CCPRGeometryView::Click*)click)->fPtIdx;
+
+    SkVector delta = click->fCurr - click->fPrev;
+    if (idx >= 0) {
+        fPoints[idx] += delta;
+    } else {
+        for (int i = 0; i < 4; ++i) {
+            fPoints[i] += delta;
+        }
+    }
     this->updateAndInval();
     return true;
 }
