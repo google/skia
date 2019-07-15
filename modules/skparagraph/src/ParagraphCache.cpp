@@ -48,8 +48,6 @@ bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
     }
 
     paragraph->fLines.reset();
-
-    paragraph->fLines = found->fLines;
     for (auto& line : found->fLines) {
         paragraph->fLines.push_back(line);
         paragraph->fLines.back().setMaster(paragraph);
@@ -57,10 +55,11 @@ bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
 
     paragraph->fState = found->fInternalState;
     paragraph->setMeasurement(found->fMeasurement);
-    paragraph->fPicture = found->fPicture;
 
     paragraph->fOldWidth = found->fMeasurement.fWidth;
     paragraph->fOldHeight = found->fMeasurement.fHeight;
+
+    paragraph->fPicture = found->fPicture;
 
     fChecker(paragraph, "findParagraph", true);
     return true;
@@ -83,6 +82,12 @@ void ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
         found->fInternalState = paragraph->fState;
         found->fMeasurement = paragraph->measurement();
         found->fLines = paragraph->fLines;
+        for (size_t i = 0; i < paragraph->fRuns.size(); ++i) {
+            auto& run = paragraph->fRuns[i];
+            if (run.fSpaced) {
+                found->fRuns[i] = run;
+            }
+        }
         found->fPicture = paragraph->fPicture;
         fChecker(paragraph, "updateParagraph", true);
     } else {

@@ -79,7 +79,53 @@ public:
     void scanStyles(StyleType style, const StyleVisitor& visitor);
     void scanRuns(const RunVisitor& visitor);
 
+    void resetCacheRecords() {
+        fTextBlobRecords.reset();
+        fShadowRecords.reset();
+        fDecorationRecords.reset();
+    }
+
 private:
+    struct TextBlobRecord {
+        sk_sp<SkTextBlob> fTextBlob;
+        bool fClipped;
+        SkRect fClip;
+        SkScalar fShift;
+        SkPaint fPaint;
+
+        TextBlobRecord(sk_sp<SkTextBlob> textBlob,
+                       bool clipped,
+                       SkRect clip,
+                       SkScalar shift,
+                       const SkPaint& paint)
+           : fTextBlob(std::move(textBlob))
+           , fClipped(clipped)
+           , fClip(clip)
+           , fShift(shift)
+           , fPaint(paint) { };
+
+        ~TextBlobRecord() = default;
+
+        void drawText (SkCanvas* canvas) {
+            canvas->save();
+            if (this->fClipped) {
+                canvas->clipRect(this->fClip);
+            }
+            canvas->translate(this->fShift, 0);
+            canvas->drawTextBlob(this->fTextBlob, 0, 0, fPaint);
+            canvas->restore();
+        };
+    };
+    
+    // TODO: add the other drawing parts to cache
+    struct ShadowRecord {
+        
+    };
+    
+    struct DecorationRecord {
+        
+    };
+
     Run* shapeEllipsis(const SkString& ellipsis, Run* run);
     void justify(SkScalar maxWidth);
 
@@ -89,8 +135,7 @@ private:
                                    size_t& size,
                                    bool& clippingNeeded) const;
 
-    SkScalar paintText(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
-                       SkScalar offsetX) const;
+    SkScalar buildText(SkSpan<const char> text, const TextStyle& style, SkScalar offsetX) const;
     SkScalar paintBackground(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
                              SkScalar offsetX) const;
     SkScalar paintShadow(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
@@ -117,6 +162,14 @@ private:
     SkVector fOffset;                   // Text position
     std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
     LineMetrics fSizes;                 // Line metrics as a max of all run metrics
+    bool fHasBackground;
+    bool fHasShadows;
+    bool fHasDecorations;
+    
+    // Cached drawing parts
+    mutable SkTArray<TextBlobRecord> fTextBlobRecords;
+    mutable SkTArray<ShadowRecord> fShadowRecords;
+    mutable SkTArray<DecorationRecord> fDecorationRecords;
 
     static SkTHashMap<SkFont, Run> fEllipsisCache;  // All found so far shapes of ellipsis
 };

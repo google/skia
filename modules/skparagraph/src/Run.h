@@ -24,7 +24,7 @@ public:
     TextBlock(SkSpan<const char> text, const TextStyle& style) : fText(text), fTextStyle(style) {}
 
     SkSpan<const char> text() const { return fText; }
-    TextStyle style() const { return fTextStyle; }
+    const TextStyle& style() const { return fTextStyle; }
 
     void add(SkSpan<const char> tail) {
         SkASSERT(fText.end() == tail.begin());
@@ -175,6 +175,7 @@ private:
     friend class ParagraphImpl;
     friend class TextLine;
     friend class LineMetrics;
+    friend class ParagraphCache;
 
     ParagraphImpl* fMaster;
     StableRange<ParagraphImpl, const char, &accessText> fTextRange;

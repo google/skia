@@ -14,8 +14,8 @@ public:
 private:
     std::string fResourceDir;
     size_t fFontsFound;
-    static sk_sp<TypefaceFontProvider> fFontProvider;
-    static std::set<std::string> fDirs;
+    sk_sp<TypefaceFontProvider> fFontProvider;
+    std::string fDirs;
 };
 }  // namespace textlayout
 }  // namespace skia
