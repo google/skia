@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a3c3413_60634370",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 3732,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T14:42:28Z",
+      "side": 1,
+      "message": "this was the bot failure. When using the general case we\u0027d go from GrPixelConfig-\u003eGrColorType-\u003eGrGLFormat. Well the GrColorType for this is kRGB_888x which then goes to GrGLFormat::kRGB_888 which is not the correct round trip for this pixel config.",
+      "range": {
+        "startLine": 3731,
+        "startChar": 7,
+        "endLine": 3732,
+        "endChar": 38
+      },
+      "revId": "93f4b83e2e8b44445f2dab581b24ba4510134aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

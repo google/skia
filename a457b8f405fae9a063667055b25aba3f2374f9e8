@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f668ab52_e20b2090",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T14:42:28Z",
+      "side": 1,
+      "message": "I\u0027m going to land a follow up CL right after this which will change this behavior and add detailed comments. So I\u0027m going to wait to add anything till that CL.",
+      "parentUuid": "5dc4d547_5b6f0276",
+      "range": {
+        "startLine": 1723,
+        "startChar": 0,
+        "endLine": 1731,
+        "endChar": 9
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1ead29a4_c21b1b66",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-07-12T18:13:03Z",
       "side": 1,
       "message": "RGBA4??",
+      "range": {
+        "startLine": 2029,
+        "startChar": 0,
+        "endLine": 2032,
+        "endChar": 90
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a21b7622_0689e41c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2032,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T14:42:28Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "1ead29a4_c21b1b66",
       "range": {
         "startLine": 2029,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4fbe3e17_2b8e8d5f",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T14:42:28Z",
+      "side": 1,
+      "message": "Removed. I think a bunch of these checks were originally there before GrGLFormat so I wanted to make sure I had a valid GL format that we supported before calling all the queries. Removed now.",
+      "parentUuid": "844bda61_6b5ff328",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 9
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c6d6f99_01690a47",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a05547ad_65e1d7b2",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T14:42:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c6d6f99_01690a47",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 9
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "8d7f1ffa_f4731449",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T14:42:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fdb3ec2_f32661df",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 9
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "10a9a8ff_12330292",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 2
@@ -137,6 +257,30 @@
       "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e00073ad_ad69c1a4",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T14:42:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10a9a8ff_12330292",
+      "range": {
+        "startLine": 517,
+        "startChar": 3,
+        "endLine": 517,
+        "endChar": 31
+      },
+      "revId": "a457b8f405fae9a063667055b25aba3f2374f9e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
