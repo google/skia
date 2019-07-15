@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9fab1292_27bb12ce",
+        "filename": "samplecode/Sample.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-15T17:34:57Z",
+      "side": 1,
+      "message": "Done.  Moved back to class scope.\n\nI also renamed it InputState to fit better with sk_app::Window::InputState.  Will finish changes later.",
+      "parentUuid": "8fb8343c_8824c6f3",
+      "range": {
+        "startLine": 32,
+        "startChar": 11,
+        "endLine": 32,
+        "endChar": 21
+      },
+      "revId": "7de8723ad9693e28304fafa54cd2221f47926e81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc8242b6_f12db5a6",
         "filename": "samplecode/Sample.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "7de8723ad9693e28304fafa54cd2221f47926e81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00ad5392_f5c27d28",
+        "filename": "samplecode/Sample.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-15T17:34:57Z",
+      "side": 1,
+      "message": "this is the click that was formerly owned by SampleSlide in viewer.\n\nYes, in the future, subclasses will own this pointer themselves.",
+      "parentUuid": "cc8242b6_f12db5a6",
+      "range": {
+        "startLine": 90,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 34
+      },
+      "revId": "7de8723ad9693e28304fafa54cd2221f47926e81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
