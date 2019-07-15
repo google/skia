@@ -22,6 +22,30 @@
       "revId": "93f4b83e2e8b44445f2dab581b24ba4510134aa6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "487692cb_cb18e30c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 3732,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-15T14:51:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0a3c3413_60634370",
+      "range": {
+        "startLine": 3731,
+        "startChar": 7,
+        "endLine": 3732,
+        "endChar": 38
+      },
+      "revId": "93f4b83e2e8b44445f2dab581b24ba4510134aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
