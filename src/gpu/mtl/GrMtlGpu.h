@@ -146,7 +146,8 @@ private:
                                           GrIOType) override;
 
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&, int sampleCnt,
-                                                    GrWrapOwnership, GrWrapCacheable) override;
+                                                    GrColorType, GrWrapOwnership,
+                                                    GrWrapCacheable) override;
 
     sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) override;
 
