@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ee51efe_522c5369",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-15T15:20:47Z",
+      "side": 1,
+      "message": "Might be easier to follow if these are each defined just before first used, \"inside\" the switch?",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 55
+      },
+      "revId": "5f207b71fbaac3ffaf58652340cb6097de4f9993",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cf75a18_3f279c46",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-15T15:20:47Z",
+      "side": 1,
+      "message": "Maybe go one level deeper on why?",
+      "revId": "5f207b71fbaac3ffaf58652340cb6097de4f9993",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
