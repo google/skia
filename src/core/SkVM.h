@@ -268,6 +268,9 @@ namespace skvm {
         int nregs() const { return fRegs; }
         int loop() const { return fLoop; }
 
+        // If this Program has been JITted, drop it, forcing interpreter fallback.
+        void dropJIT();
+
     private:
         void eval(int n, void* args[]) const;
 
