@@ -52,7 +52,8 @@ declare_args() {
   skia_enable_skpicture = true
   skia_enable_sksl_interpreter = is_skia_dev_build
   skia_enable_skvm_jit =
-      is_skia_dev_build && (target_cpu == "x64" && (is_linux || is_mac))
+      is_skia_dev_build && ((target_cpu == "x64" && (is_linux || is_mac)) ||
+                            (target_cpu == "arm64" && is_android))
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
