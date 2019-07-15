@@ -344,11 +344,14 @@ DEF_TEST(SkVM_LoopCounts, r) {
             buf[i] = i;
         }
 
+
         // buf[i] += 1
         skvm::Builder b;
-        b.store32(b.arg(0),
+        skvm::Arg arg = b.arg<int>();
+
+        b.store32(arg,
                   b.add(b.splat(1),
-                        b.load32(b.arg(0))));
+                        b.load32(arg)));
 
         skvm::Program program = b.done();
         program.eval(N, buf);

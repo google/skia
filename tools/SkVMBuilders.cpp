@@ -13,28 +13,28 @@
 // nesting calls to Builder routines.
 
 SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
-    skvm::Arg src = arg(0),
-              dst = arg(1);
-
     auto byte_to_f32 = [&](skvm::I32 byte) {
         skvm::F32 _1_255 = splat(1/255.0f);
         return mul(_1_255, to_f32(byte));
     };
 
-    auto load = [&](skvm::Arg ptr, Fmt fmt,
-                    skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) {
+    auto load = [&](Fmt fmt, skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) {
+        skvm::Arg ptr;
         switch (fmt) {
             case Fmt::A8: {
+                ptr = arg<uint8_t>();
                 *r = *g = *b = splat(0.0f);
                 *a = byte_to_f32(load8(ptr));
             } break;
 
             case Fmt::G8: {
+                ptr = arg<uint8_t>();
                 *r = *g = *b = byte_to_f32(load8(ptr));
                 *a = splat(1.0f);
             } break;
 
             case Fmt::RGBA_8888: {
+                ptr = arg<int>();
                 skvm::I32 rgba = load32(ptr);
                 *r = byte_to_f32(extract(rgba,  0, splat(0xff)));
                 *g = byte_to_f32(extract(rgba,  8, splat(0xff)));
@@ -42,13 +42,14 @@ SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
                 *a = byte_to_f32(extract(rgba, 24, splat(0xff)));
             } break;
         }
+        return ptr;
     };
 
     skvm::F32 r,g,b,a;
-    load(src, srcFmt, &r,&g,&b,&a);
+    (void)load(srcFmt, &r,&g,&b,&a);
 
     skvm::F32 dr,dg,db,da;
-    load(dst, dstFmt, &dr,&dg,&db,&da);
+    skvm::Arg dst = load(dstFmt, &dr,&dg,&db,&da);
 
     skvm::F32 invA = sub(splat(1.0f), a);
     r = mad(dr, invA, r);
@@ -91,8 +92,8 @@ SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
 }
 
 SrcoverBuilder_I32_Naive::SrcoverBuilder_I32_Naive() {
-    skvm::Arg src = arg(0),
-              dst = arg(1);
+    skvm::Arg src = arg<int>(),
+              dst = arg<int>();
 
     auto load = [&](skvm::Arg ptr,
                     skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) {
@@ -128,8 +129,8 @@ SrcoverBuilder_I32_Naive::SrcoverBuilder_I32_Naive() {
 }
 
 SrcoverBuilder_I32::SrcoverBuilder_I32() {
-    skvm::Arg src = arg(0),
-              dst = arg(1);
+    skvm::Arg src = arg<int>(),
+              dst = arg<int>();
 
     auto load = [&](skvm::Arg ptr,
                     skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) {
@@ -172,8 +173,8 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
 }
 
 SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
-    skvm::Arg src = arg(0),
-              dst = arg(1);
+    skvm::Arg src = arg<int>(),
+              dst = arg<int>();
 
     // The s += d*invA adds won't overflow,
     // so we don't have to unpack s beyond grabbing the alpha channel.
