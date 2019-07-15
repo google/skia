@@ -200,6 +200,12 @@ namespace {
 
 }  // namespace
 
+template <typename Fn>
+static void test_jit_and_interpreter(skvm::Program&& program, Fn&& test) {
+    test((const skvm::Program&) program);
+    program.dropJIT();
+    test((const skvm::Program&) program);
+}
 
 DEF_TEST(SkVM, r) {
     SkDynamicMemoryWStream buf;
@@ -260,30 +266,32 @@ DEF_TEST(SkVM, r) {
         }
     }
 
-    auto test_8888 = [&](const skvm::Program& program) {
+    auto test_8888 = [&](skvm::Program&& program) {
         uint32_t src[9];
         uint32_t dst[SK_ARRAY_COUNT(src)];
 
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(src); i++) {
-            src[i] = 0xbb007733;
-            dst[i] = 0xffaaccee;
-        }
-
-        SkPMColor expected = SkPMSrcOver(src[0], dst[0]);  // 0xff2dad73
-
-        program.eval((int)SK_ARRAY_COUNT(src), src, dst);
-
-        // dst is probably 0xff2dad72.
-        for (auto got : dst) {
-            auto want = expected;
-            for (int i = 0; i < 4; i++) {
-                uint8_t d = got  & 0xff,
-                        w = want & 0xff;
-                REPORTER_ASSERT(r, abs(d-w) < 2);
-                got  >>= 8;
-                want >>= 8;
+        test_jit_and_interpreter(std::move(program), [&](const skvm::Program& program) {
+            for (int i = 0; i < (int)SK_ARRAY_COUNT(src); i++) {
+                src[i] = 0xbb007733;
+                dst[i] = 0xffaaccee;
             }
-        }
+
+            SkPMColor expected = SkPMSrcOver(src[0], dst[0]);  // 0xff2dad73
+
+            program.eval((int)SK_ARRAY_COUNT(src), src, dst);
+
+            // dst is probably 0xff2dad72.
+            for (auto got : dst) {
+                auto want = expected;
+                for (int i = 0; i < 4; i++) {
+                    uint8_t d = got  & 0xff,
+                            w = want & 0xff;
+                    REPORTER_ASSERT(r, abs(d-w) < 2);
+                    got  >>= 8;
+                    want >>= 8;
+                }
+            }
+        });
     };
 
     test_8888(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done());
@@ -291,9 +299,8 @@ DEF_TEST(SkVM, r) {
     test_8888(SrcoverBuilder_I32{}.done());
     test_8888(SrcoverBuilder_I32_SWAR{}.done());
 
-    {
-        skvm::Program program = SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done();
-
+    test_jit_and_interpreter(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done(),
+                             [&](const skvm::Program& program) {
         uint32_t src[9];
         uint8_t  dst[SK_ARRAY_COUNT(src)];
 
@@ -313,11 +320,10 @@ DEF_TEST(SkVM, r) {
         for (auto got : dst) {
             REPORTER_ASSERT(r, abs(got-want) < 3);
         }
-    }
+    });
 
-    {
-        skvm::Program program = SrcoverBuilder_F32{Fmt::A8, Fmt::A8}.done();
-
+    test_jit_and_interpreter(SrcoverBuilder_F32{Fmt::A8, Fmt::A8}.done(),
+                             [&](const skvm::Program& program) {
         uint8_t src[256],
                 dst[256];
         for (int i = 0; i < 256; i++) {
@@ -332,36 +338,34 @@ DEF_TEST(SkVM, r) {
                                                       SkPackARGB32(     i, 0,0,0)));
             REPORTER_ASSERT(r, abs(dst[i]-want) < 2);
         }
-    }
+    });
 }
 
 DEF_TEST(SkVM_LoopCounts, r) {
     // Make sure we cover all the exact N we want.
 
+    // buf[i] += 1
+    skvm::Builder b;
+    skvm::Arg arg = b.arg<int>();
+    b.store32(arg,
+              b.add(b.splat(1),
+                    b.load32(arg)));
+
     int buf[64];
     for (int N = 0; N <= (int)SK_ARRAY_COUNT(buf); N++) {
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
-            buf[i] = i;
-        }
+        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+            for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
+                buf[i] = i;
+            }
+            program.eval(N, buf);
 
-
-        // buf[i] += 1
-        skvm::Builder b;
-        skvm::Arg arg = b.arg<int>();
-
-        b.store32(arg,
-                  b.add(b.splat(1),
-                        b.load32(arg)));
-
-        skvm::Program program = b.done();
-        program.eval(N, buf);
-
-        for (int i = 0; i < N; i++) {
-            REPORTER_ASSERT(r, buf[i] == i+1);
-        }
-        for (int i = N; i < (int)SK_ARRAY_COUNT(buf); i++) {
-            REPORTER_ASSERT(r, buf[i] == i);
-        }
+            for (int i = 0; i < N; i++) {
+                REPORTER_ASSERT(r, buf[i] == i+1);
+            }
+            for (int i = N; i < (int)SK_ARRAY_COUNT(buf); i++) {
+                REPORTER_ASSERT(r, buf[i] == i);
+            }
+        });
     }
 }
 
