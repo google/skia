@@ -16,6 +16,92 @@
       "revId": "a67559794e089f55c6a59bc0012cbf4b9e971249",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27ab21af_bb2a2dd0",
+        "filename": "src/gpu/dawn/GrDawnCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-15T14:48:47Z",
+      "side": 1,
+      "message": "2019? (some files have years back to 2015)",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "a67559794e089f55c6a59bc0012cbf4b9e971249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3065a9ab_d9ffe5aa",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-15T14:48:47Z",
+      "side": 1,
+      "message": "private?",
+      "range": {
+        "startLine": 33,
+        "startChar": 9,
+        "endLine": 33,
+        "endChar": 22
+      },
+      "revId": "a67559794e089f55c6a59bc0012cbf4b9e971249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28e5f954_16fc728d",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-15T14:48:47Z",
+      "side": 1,
+      "message": "private?",
+      "range": {
+        "startLine": 73,
+        "startChar": 3,
+        "endLine": 76,
+        "endChar": 55
+      },
+      "revId": "a67559794e089f55c6a59bc0012cbf4b9e971249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c79cd3a_092ba3cf",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-15T14:48:47Z",
+      "side": 1,
+      "message": "std::unique_ptr?",
+      "revId": "a67559794e089f55c6a59bc0012cbf4b9e971249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
