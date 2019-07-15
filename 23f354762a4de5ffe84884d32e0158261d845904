@@ -22,6 +22,30 @@
       "revId": "23f354762a4de5ffe84884d32e0158261d845904",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "989899d4_f1824b77",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-15T20:11:59Z",
+      "side": 1,
+      "message": "At the low-level FP level, the gpu team says in-color is the pref effect, or paint if it\u0027s first.\n\nFrom public skia shader level, a Shader is passed the paint\u0027s alpha (we can extend to paint\u0027s color). Skia does document that a shader run\u0027s (logically) first. That is sort of our distinction between shader and colorfilter.\n\nVery likely we should have a VC to discuss these. Didn\u0027t mean for my CL to make any tricky decisions.",
+      "parentUuid": "6dc51429_5a162bde",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 62
+      },
+      "revId": "23f354762a4de5ffe84884d32e0158261d845904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
