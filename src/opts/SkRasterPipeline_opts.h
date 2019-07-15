@@ -2555,31 +2555,40 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
+// void main(int x, int h, inout half4 color)
 STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
     // If N is less than the interpreter's VecWidth, then we are doing more work than necessary in
     // the interpreter. This is a known issue, and will be addressed at some point.
-    float rr[N];
-    float gg[N];
-    float bb[N];
-    float aa[N];
-    size_t in_count, out_count;
+    int32_t xx[N],
+            yy[N];
+    float rr[N],
+          gg[N],
+          bb[N],
+          aa[N];
 
-    float* args[] = { rr, gg, bb, aa };
+    float* in_args[]  = { (float*)xx, (float*)yy, rr, gg, bb, aa };
+    float* out_args[] = {                         rr, gg, bb, aa };
 
-    sk_unaligned_store(rr, r);  // x if we're a shader
-    sk_unaligned_store(gg, g);  // y if we're a shader
-    if (c->shader_convention) {
-        in_count = 2;   // x, y
-        out_count = 4;  // r, g, b, a
+    if (c->shaderConvention) {
+        const int32_t inc[] = {
+            0, 1,  2,  3,  4,  5,  6,  7, 8, 9, 10, 11, 12, 13, 14, 15
+        };
+        sk_unaligned_store(xx, I32(dx) + sk_unaligned_load<I32>(inc));
+        sk_unaligned_store(yy, I32(dy));
+        sk_unaligned_store(rr, F(c->paintColor.fR));
+        sk_unaligned_store(gg, F(c->paintColor.fG));
+        sk_unaligned_store(bb, F(c->paintColor.fB));
+        sk_unaligned_store(aa, F(c->paintColor.fA));
     } else {
-        in_count = 4;   // r, g, b, a (in/out)
+        // leave xx,yy uninitialized for colorfilters
+        sk_unaligned_store(rr, r);
+        sk_unaligned_store(gg, g);
         sk_unaligned_store(bb, b);
         sk_unaligned_store(aa, a);
-        out_count = 0;
     }
 
-    c->byteCode->runStriped(c->fn, args, in_count, tail ? tail : N,
-                            (const float*)c->inputs, c->ninputs, args, out_count);
+    c->byteCode->runStriped(c->fn, in_args, 6, tail ? tail : N,
+                            (const float*)c->inputs, c->ninputs, out_args, 0);
 
     r = sk_unaligned_load<F>(rr);
     g = sk_unaligned_load<F>(gg);
