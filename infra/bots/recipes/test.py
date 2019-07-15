@@ -255,6 +255,10 @@ def dm_flags(api, bot):
 
     if 'Metal' in bot:
       configs = ['mtl']
+      if 'iOS' in bot:
+        configs.append('mtlmsaa4')
+      else:
+        configs.append('mtlmsaa8')
 
     # Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
     # on the GL bots.
@@ -727,6 +731,10 @@ def dm_flags(api, bot):
     # skbug.com/8047
     match.append('~FloatingPointTextureTest$')
 
+  if 'Metal' in bot and 'HD8870M' in bot and 'Mac' in bot:
+    # skia:9255
+    match.append('~WritePixelsNonTextureMSAA_Gpu')
+
   if 'MoltenVK' in bot:
     # skbug.com/7959
     blacklist(['_', 'gm', '_', 'vertices_scaled_shader'])
@@ -1026,6 +1034,7 @@ TEST_BUILDERS = [
   'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader',
   'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan',
   'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
+  'Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal',
   ('Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All'
    '-NativeFonts'),
   'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All',
