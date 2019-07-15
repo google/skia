@@ -2203,74 +2203,6 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
     fHWStencilSettings.invalidate();
 }
 
-bool GrGLGpu::readPixelsSupported(GrRenderTarget* target, GrPixelConfig readConfig) {
-#ifdef SK_BUILD_FOR_MAC
-    // Chromium may ask us to read back from locked IOSurfaces. Calling the command buffer's
-    // glGetIntegerv() with GL_IMPLEMENTATION_COLOR_READ_FORMAT/_TYPE causes the command buffer
-    // to make a call to check the framebuffer status which can hang the driver. So in Mac Chromium
-    // we always use a temporary surface to test for read pixels support.
-    // https://www.crbug.com/662802
-    if (this->glContext().driver() == kChromium_GrGLDriver) {
-        return this->readPixelsSupported(target->config(), readConfig);
-    }
-#endif
-    auto bindRenderTarget = [this, target]() -> bool {
-        this->flushRenderTargetNoColorWrites(static_cast<GrGLRenderTarget*>(target));
-        return true;
-    };
-    auto unbindRenderTarget = []{};
-    auto getIntegerv = [this](GrGLenum query, GrGLint* value) {
-        GR_GL_GetIntegerv(this->glInterface(), query, value);
-    };
-    GrPixelConfig rtConfig = target->config();
-    return this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget,
-                                              unbindRenderTarget);
-}
-
-bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConfig) {
-    sk_sp<GrTexture> temp;
-    auto bindRenderTarget = [this, rtConfig, &temp]() -> bool {
-        GrSurfaceDesc desc;
-        desc.fConfig = rtConfig;
-        desc.fWidth = desc.fHeight = 16;
-        if (this->glCaps().isConfigRenderable(rtConfig)) {
-            desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            temp = this->createTexture(desc, SkBudgeted::kNo);
-            if (!temp) {
-                return false;
-            }
-            GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(temp->asRenderTarget());
-            this->flushRenderTargetNoColorWrites(glrt);
-            return true;
-        } else if (this->glCaps().canConfigBeFBOColorAttachment(rtConfig)) {
-            temp = this->createTexture(desc, SkBudgeted::kNo);
-            if (!temp) {
-                return false;
-            }
-            this->bindSurfaceFBOForPixelOps(temp.get(), GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
-            fHWBoundRenderTargetUniqueID.makeInvalid();
-            return true;
-        }
-        return false;
-    };
-    auto unbindRenderTarget = [this, &temp]() {
-        this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, temp.get());
-    };
-    auto getIntegerv = [this](GrGLenum query, GrGLint* value) {
-        GR_GL_GetIntegerv(this->glInterface(), query, value);
-    };
-    return this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget,
-                                              unbindRenderTarget);
-}
-
-bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig) {
-    if (GrRenderTarget* rt = surfaceForConfig->asRenderTarget()) {
-        return this->readPixelsSupported(rt, readConfig);
-    } else {
-        GrPixelConfig config = surfaceForConfig->config();
-        return this->readPixelsSupported(config, readConfig);
-    }
-}
 
 bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                                        GrColorType dstColorType, void* offsetOrPtr,
@@ -2284,10 +2216,6 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
 
     // TODO: Avoid this conversion by making GrGLCaps work with color types.
     auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType);
-
-    if (!this->readPixelsSupported(surface, dstAsConfig)) {
-        return false;
-    }
 
     GrGLenum externalFormat;
     GrGLenum externalType;
