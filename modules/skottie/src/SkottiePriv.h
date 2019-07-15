@@ -95,6 +95,28 @@ public:
 
     bool hasNontrivialBlending() const { return fHasNontrivialBlending; }
 
+    class AutoPropertyTracker {
+    public:
+        AutoPropertyTracker(const AnimationBuilder* builder, const skjson::ObjectValue& obj)
+            : fBuilder(builder)
+            , fPrevContext(builder->fPropertyObserverContext) {
+            if (fBuilder->fPropertyObserver) {
+                this->updateContext(builder->fPropertyObserver.get(), obj);
+            }
+        }
+
+        ~AutoPropertyTracker() {
+            if (fBuilder->fPropertyObserver) {
+                fBuilder->fPropertyObserverContext = fPrevContext;
+            }
+        }
+    private:
+        void updateContext(PropertyObserver*, const skjson::ObjectValue&);
+
+        const AnimationBuilder* fBuilder;
+        const char*             fPrevContext;
+    };
+
 private:
     struct AttachLayerContext;
     struct AttachShapeContext;
@@ -158,28 +180,6 @@ private:
 
     private:
         sk_sp<SkFontMgr> fFontMgr;
-    };
-
-    class AutoPropertyTracker {
-    public:
-        AutoPropertyTracker(const AnimationBuilder* builder, const skjson::ObjectValue& obj)
-            : fBuilder(builder)
-            , fPrevContext(builder->fPropertyObserverContext) {
-            if (fBuilder->fPropertyObserver) {
-                this->updateContext(builder->fPropertyObserver.get(), obj);
-            }
-        }
-
-        ~AutoPropertyTracker() {
-            if (fBuilder->fPropertyObserver) {
-                fBuilder->fPropertyObserverContext = fPrevContext;
-            }
-        }
-    private:
-        void updateContext(PropertyObserver*, const skjson::ObjectValue&);
-
-        const AnimationBuilder* fBuilder;
-        const char*             fPrevContext;
     };
 
     sk_sp<ResourceProvider>    fResourceProvider;

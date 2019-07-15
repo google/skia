@@ -103,6 +103,7 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachEffects(const skjson::ArrayValue& j
             continue;
         }
 
+        AnimationBuilder::AutoPropertyTracker apt(fBuilder, *jeffect);
         layer = (this->*builder)(*jprops, std::move(layer));
 
         if (!layer) {
