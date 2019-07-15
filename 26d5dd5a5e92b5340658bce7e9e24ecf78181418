@@ -22,6 +22,30 @@
       "revId": "26d5dd5a5e92b5340658bce7e9e24ecf78181418",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4d8cb22_ad9f41ca",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-15T01:37:14Z",
+      "side": 1,
+      "message": "I think that\u0027s correct for 32-bit x86 where it\u0027d be short\u003d1, near\u003d2, far\u003d4 byte, but it\u0027s short\u003d1, near\u003d4, far\u003d8 for 64-bit.",
+      "parentUuid": "60185eab_8be109d9",
+      "range": {
+        "startLine": 532,
+        "startChar": 29,
+        "endLine": 532,
+        "endChar": 33
+      },
+      "revId": "26d5dd5a5e92b5340658bce7e9e24ecf78181418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
