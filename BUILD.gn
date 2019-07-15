@@ -1636,6 +1636,8 @@ if (skia_enable_tools) {
       "tools/LsanSuppressions.cpp",
       "tools/ProcStats.cpp",
       "tools/Resources.cpp",
+      "tools/SkMetaData.cpp",
+      "tools/SkMetaData.h",
       "tools/SkSharingProc.cpp",
       "tools/ToolUtils.cpp",
       "tools/UrlDataManager.cpp",
