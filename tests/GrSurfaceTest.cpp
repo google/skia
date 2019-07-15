@@ -58,7 +58,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
     sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
-            backendTex, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
+            backendTex, 1, GrColorType::kRGBA_8888, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
 
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());
@@ -118,6 +118,23 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 
     for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
         GrPixelConfig config = static_cast<GrPixelConfig>(c);
+
+        // We don't round trip correctly going from pixelConfig to colorType to
+        // backendFormat with the RGBX config.
+        if (config == kRGB_888X_GrPixelConfig) {
+            continue;
+        }
+
+        // The specific kAlpha_* and kGray_8* pixel configs cause difficulties.
+        // The mapping from config -> colorType -> format doesn't necessarily
+        // resolve back to the expected pixel config. Just test the generic pixel configs.
+        if (config == kAlpha_8_as_Alpha_GrPixelConfig ||
+            config == kAlpha_8_as_Red_GrPixelConfig ||
+            config == kGray_8_as_Lum_GrPixelConfig ||
+            config == kGray_8_as_Red_GrPixelConfig ||
+            config == kAlpha_half_as_Red_GrPixelConfig) {
+            continue;
+        }
 
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
             if (config == kUnknown_GrPixelConfig) {
@@ -239,6 +256,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     if (desc.fConfig == kRGB_888X_GrPixelConfig) {
                         continue;
                     }
+
+                    // The specific kAlpha_* pixel configs also cause difficulties with OpenGL.
+                    // The mapping from config -> colorType -> format doesn't necessarily
+                    // resolve back to the expected pixel config. In this case we just test
+                    // the generics.
+                    if (GrBackendApi::kOpenGL == context->backend() &&
+                        (desc.fConfig == kAlpha_8_as_Alpha_GrPixelConfig ||
+                         desc.fConfig == kAlpha_8_as_Red_GrPixelConfig ||
+                         desc.fConfig == kAlpha_half_as_Red_GrPixelConfig)) {
+                        continue;
+                    }
+
+                    // The specific kGray_8_* pixel configs also cause difficulties with OpenGL.
+                    // The mapping from config -> colorType -> format doesn't necessarily
+                    // resolve back to the expected pixel config. In this case we just test
+                    // the generic.
+                    if (GrBackendApi::kOpenGL == context->backend() &&
+                        (desc.fConfig == kGray_8_as_Lum_GrPixelConfig ||
+                         desc.fConfig == kGray_8_as_Red_GrPixelConfig)) {
+                        continue;
+                    }
+
                     GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
                     const GrBackendFormat format = caps->getBackendFormatFromColorType(colorType);
 
@@ -386,7 +425,8 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable re
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
         texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(
-                backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
+                backendTexture, 1, GrColorType::kRGBA_8888, kBorrow_GrWrapOwnership,
+                GrWrapCacheable::kNo);
     } else {
         texture = context->priv().resourceProvider()->wrapBackendTexture(
                 backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
