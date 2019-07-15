@@ -1436,7 +1436,7 @@ namespace skvm {
         }
     }
 
-    Program::~Program() {
+    void Program::dropJIT() {
     #if defined(SKVM_JIT)
         if (fJITBuf) {
             munmap(fJITBuf, fJITSize);
@@ -1444,7 +1444,13 @@ namespace skvm {
     #else
         SkASSERT(fJITBuf == nullptr);
     #endif
+
+        fJITBuf   = nullptr;
+        fJITSize  = 0;
+        fJITEntry = nullptr;
     }
+
+    Program::~Program() { this->dropJIT(); }
 
     Program::Program(Program&& other) {
         fInstructions = std::move(other.fInstructions);
