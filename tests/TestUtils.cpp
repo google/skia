@@ -172,6 +172,70 @@ bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst) {
     return true;
 }
 
+bool compare_pixels(const GrPixelInfo& infoA, const char* a, size_t rowBytesA,
+                    const GrPixelInfo& infoB, const char* b, size_t rowBytesB,
+                    const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error) {
+    if (infoA.width() != infoB.width() || infoA.height() != infoB.height()) {
+        static constexpr float kDummyDiffs[4] = {};
+        error(-1, -1, kDummyDiffs);
+        return false;
+    }
+
+    SkAlphaType floatAlphaType = infoA.alphaType();
+    // If one is premul and the other is unpremul we do the comparison in premul space.
+    if ((infoA.alphaType() == kPremul_SkAlphaType ||
+         infoB.alphaType() == kPremul_SkAlphaType) &&
+        (infoA.alphaType() == kUnpremul_SkAlphaType ||
+         infoB.alphaType() == kUnpremul_SkAlphaType)) {
+        floatAlphaType = kPremul_SkAlphaType;
+    }
+    sk_sp<SkColorSpace> floatCS;
+    if (SkColorSpace::Equals(infoA.colorSpace(), infoB.colorSpace())) {
+        floatCS = infoA.refColorSpace();
+    } else {
+        floatCS = SkColorSpace::MakeSRGBLinear();
+    }
+    GrPixelInfo floatInfo(GrColorType::kRGBA_F32, floatAlphaType, std::move(floatCS),
+                          infoA.width(), infoA.height());
+
+    size_t floatBpp = GrColorTypeBytesPerPixel(GrColorType::kRGBA_F32);
+    size_t floatRowBytes = floatBpp * infoA.width();
+    std::unique_ptr<char[]> floatA(new char[floatRowBytes * infoA.height()]);
+    std::unique_ptr<char[]> floatB(new char[floatRowBytes * infoA.height()]);
+    SkAssertResult(GrConvertPixels(floatInfo, floatA.get(), floatRowBytes, infoA, a, rowBytesA));
+    SkAssertResult(GrConvertPixels(floatInfo, floatB.get(), floatRowBytes, infoB, b, rowBytesB));
+
+    auto at = [floatBpp, floatRowBytes](const char* floatBuffer, int x, int y) {
+        return reinterpret_cast<const float*>(floatBuffer + y * floatRowBytes + x * floatBpp);
+    };
+    for (int y = 0; y < infoA.height(); ++y) {
+        for (int x = 0; x < infoA.width(); ++x) {
+            const float* rgbaA = at(floatA.get(), x, y);
+            const float* rgbaB = at(floatB.get(), x, y);
+            float diffs[4];
+            bool bad = false;
+            for (int i = 0; i < 4; ++i) {
+                diffs[i] = rgbaB[i] - rgbaA[i];
+                if (std::abs(diffs[i]) > std::abs(tolRGBA[i])) {
+                    bad = true;
+                }
+            }
+            if (bad) {
+                error(x, y, diffs);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool compare_pixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
+                    std::function<ComparePixmapsErrorReporter>& error) {
+    return compare_pixels(a.info(), static_cast<const char*>(a.addr()), a.rowBytes(),
+                          b.info(), static_cast<const char*>(b.addr()), b.rowBytes(),
+                          tolRGBA, error);
+}
+
 #include "src/utils/SkCharToGlyphCache.h"
 
 static SkGlyphID hash_to_glyph(uint32_t value) {

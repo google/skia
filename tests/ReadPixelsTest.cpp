@@ -19,6 +19,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
+#include "tests/TestUtils.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/ProxyUtils.h"
 
@@ -619,45 +620,6 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
     }
 }
 
-namespace {
-using ComparePixmapsErrorReporter = void(int x, int y, const float diffs[4]);
-}  // anonymous namespace
-
-static void compare_pixmaps(const SkPixmap& a, const SkPixmap& b, const float tol[4],
-                            std::function<ComparePixmapsErrorReporter>& error) {
-    if (a.width() != b.width() || a.height() != b.height()) {
-        static constexpr float kDummyDiffs[4] = {};
-        error(-1, -1, kDummyDiffs);
-        return;
-    }
-    SkAutoPixmapStorage afloat;
-    SkAutoPixmapStorage bfloat;
-    afloat.alloc(a.info().makeColorType(kRGBA_F32_SkColorType));
-    bfloat.alloc(b.info().makeColorType(kRGBA_F32_SkColorType));
-    SkConvertPixels(afloat.info(), afloat.writable_addr(), afloat.rowBytes(), a.info(), a.addr(),
-                    a.rowBytes());
-    SkConvertPixels(bfloat.info(), bfloat.writable_addr(), bfloat.rowBytes(), b.info(), b.addr(),
-                    b.rowBytes());
-    for (int y = 0; y < a.height(); ++y) {
-        for (int x = 0; x < a.width(); ++x) {
-            const float* rgbaA = static_cast<const float*>(afloat.addr(x, y));
-            const float* rgbaB = static_cast<const float*>(bfloat.addr(x, y));
-            float diffs[4];
-            bool bad = false;
-            for (int i = 0; i < 4; ++i) {
-                diffs[i] = rgbaB[i] - rgbaA[i];
-                if (std::abs(diffs[i]) > tol[i]) {
-                    bad = true;
-                }
-            }
-            if (bad) {
-                error(x, y, diffs);
-                return;
-            }
-        }
-    }
-}
-
 static int min_rgb_channel_bits(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:      return 0;
@@ -781,6 +743,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                         const float tols[4] = {tol, tol, tol, 0};
                         auto error = std::function<ComparePixmapsErrorReporter>(
                                 [&](int x, int y, const float diffs[4]) {
+                                    SkASSERT(x >= 0 && y >= 0);
                                     ERRORF(reporter,
                                            "Surf Color Type: %d, Read CT: %d, Rect [%d, %d, %d, %d]"
                                            ", origin: %d, CS conversion: %d\n"
@@ -789,7 +752,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                                            rect.fBottom, origin, (bool)readCS, x, y, diffs[0],
                                            diffs[1], diffs[2], diffs[3]);
                                 });
-                        compare_pixmaps(ref, result, tols, error);
+                        compare_pixels(ref, result, tols, error);
                     }
                 }
             }

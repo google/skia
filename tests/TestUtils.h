@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkBitmap.h"
+#include "src/gpu/GrDataUtils.h"
 #include "tests/Test.h"
 
 class GrSurfaceContext;
@@ -44,3 +45,33 @@ bool does_full_buffer_contain_correct_color(const GrColor* srcBuffer, const GrCo
 // Encodes the bitmap into a data:/image/png;base64,... url suitable to view in a browser after
 // printing to a log. If false is returned, dst holds an error message instead of a URI.
 bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst);
+
+/** Used by compare_pixels. */
+using ComparePixmapsErrorReporter = void(int x, int y, const float diffs[4]);
+
+/**
+ * Compares pixels pointed to by 'a' with 'infoA' and rowBytesA to pixels pointed to by 'b' with
+ * 'infoB' and 'rowBytesB'.
+ *
+ * If the infos have different dimensions error is called with negative coordinate values and
+ * zero diffs and no comparisons are made.
+ *
+ * Before comparison pixels are converted to a common color type, alpha type, and color space.
+ * The color type is always 32 bit float. The alpha type is premul if one of 'infoA' and 'infoB' is
+ * premul and the other is unpremul. The color space is linear sRGB if 'infoA' and 'infoB' have
+ * different colorspaces, otherwise their common color space is used.
+ *
+ * 'tolRGBA' expresses the allowed difference between pixels in the comparison space per channel. If
+ * pixel components differ more than by 'tolRGBA' in absolute value in any channel then 'error' is
+ * called with the coordinate and difference in the comparison space (B - A).
+ *
+ * The function quits after a single error is reported and returns false if 'error' was called and
+ * true otherwise.
+ */
+bool compare_pixels(const GrPixelInfo& infoA, const char* a, size_t rowBytesA,
+                    const GrPixelInfo& infoB, const char* b, size_t rowBytesB,
+                    const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error);
+
+/** Convenience version of above that takes SkPixmap inputs. */
+bool compare_pixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
+                    std::function<ComparePixmapsErrorReporter>& error);
