@@ -50,7 +50,8 @@ TextLine::TextLine(ParagraphImpl* master,
         , fAdvance(advance)
         , fOffset(offset)
         , fEllipsis(nullptr)
-        , fSizes(sizes) {
+        , fSizes(sizes)
+        , fJustified(false) {
     // Reorder visual runs
     auto start = fClusterRange.begin();
     auto end = fClusterRange.end() - 1;
@@ -70,27 +71,7 @@ TextLine::TextLine(ParagraphImpl* master,
         fLogical.push_back(firstRunIndex + index);
     }
 }
-/*
-TextLine::TextLine(TextLine&& other)
-    : fMaster(other.fMaster)
-    , fBlockRange(fMaster)
-    , fTextRange(fMaster)
-    , fTextWithWhitespacesRange(fMaster)
-    , fClusterRange(fMaster)
-    {
-    this->fBlockRange = other.fBlockRange;
-    this->fTextRange = other.fTextRange;
-    this->fTextWithWhitespacesRange = other.fTextWithWhitespacesRange;
-    this->fLogical.reset();
-    this->fLogical = std::move(other.fLogical);
-    this->fShift = other.fShift;
-    this->fAdvance = other.fAdvance;
-    this->fOffset = other.fOffset;
-    this->fEllipsis = other.fEllipsis;
-    this->fSizes = other.sizes();
-    this->fClusterRange = other.fClusterRange;
-}
-*/
+
 void TextLine::paint(SkCanvas* textCanvas) {
     if (this->empty()) {
         return;
@@ -99,29 +80,40 @@ void TextLine::paint(SkCanvas* textCanvas) {
     textCanvas->save();
     textCanvas->translate(this->offset().fX, this->offset().fY);
 
+    // Always draw all the background
     this->iterateThroughStylesInTextOrder(
-            StyleType::kBackground,
-            [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
-                return this->paintBackground(textCanvas, text, style, offsetX);
-            });
+        StyleType::kBackground,
+        [this, textCanvas](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
+            return this->paintBackground(textCanvas, text, style, offsetX);
+        });
 
-    this->iterateThroughStylesInTextOrder(
+    if (!fShadowRecords.empty() || true) {
+        this->iterateThroughStylesInTextOrder(
             StyleType::kShadow,
             [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
                 return this->paintShadow(textCanvas, text, style, offsetX);
             });
+    }
 
-    this->iterateThroughStylesInTextOrder(
+    if (fTextBlobRecords.empty()) {
+        // Build all text pieces
+        this->iterateThroughStylesInTextOrder(
             StyleType::kForeground,
-            [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
-                return this->paintText(textCanvas, text, style, offsetX);
+            [this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
+                return this->buildText(text, style, offsetX);
             });
+    }
+    // Draw all text pieces
+    for (auto& tb : fTextBlobRecords) {
+        tb.drawText(textCanvas);
+    }
 
+    // Always draw all the decorations
     this->iterateThroughStylesInTextOrder(
-            StyleType::kDecorations,
-            [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
-                return this->paintDecorations(textCanvas, text, style, offsetX);
-            });
+        StyleType::kDecorations,
+        [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
+            return this->paintDecorations(textCanvas, text, style, offsetX);
+        });
 
     textCanvas->restore();
 }
@@ -164,8 +156,7 @@ void TextLine::scanRuns(const RunVisitor& visitor) {
             });
 }
 
-SkScalar TextLine::paintText(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
-                             SkScalar offsetX) const {
+SkScalar TextLine::buildText(SkSpan<const char> text, const TextStyle& style, SkScalar offsetX) const {
     SkPaint paint;
     if (style.hasForeground()) {
         paint = style.getForeground();
@@ -173,34 +164,26 @@ SkScalar TextLine::paintText(SkCanvas* canvas, SkSpan<const char> text, const Te
         paint.setColor(style.getColor());
     }
 
-    auto shiftDown = this->baseline();
     return this->iterateThroughRuns(
-            text, offsetX, false,
-            [paint, canvas, shiftDown](Run* run, int32_t pos, size_t size, SkRect clip,
-                                       SkScalar shift, bool clippingNeeded) {
-                SkTextBlobBuilder builder;
-                run->copyTo(builder, SkToU32(pos), size, SkVector::Make(0, shiftDown));
-                canvas->save();
-                if (clippingNeeded) {
-                    canvas->clipRect(clip);
-                }
-                canvas->translate(shift, 0);
-                canvas->drawTextBlob(builder.make(), 0, 0, paint);
-                canvas->restore();
-                return true;
-            });
+        text, offsetX, false,
+        [this, paint](Run* run, int32_t pos, size_t size, SkRect clip, SkScalar shift, bool clippingNeeded) {
+            SkTextBlobBuilder builder;
+            run->copyTo(builder, SkToU32(pos), size, SkVector::Make(0, this->baseline()));
+            this->fTextBlobRecords.emplace_back(builder.make(), clippingNeeded, clip, shift, paint);
+            return true;
+        });
 }
 
 SkScalar TextLine::paintBackground(SkCanvas* canvas, SkSpan<const char> text,
                                    const TextStyle& style, SkScalar offsetX) const {
     return this->iterateThroughRuns(text, offsetX, false,
-                                    [canvas, style](Run* run, int32_t pos, size_t size, SkRect clip,
-                                                    SkScalar shift, bool clippingNeeded) {
-                                        if (style.hasBackground()) {
-                                            canvas->drawRect(clip, style.getBackground());
-                                        }
-                                        return true;
-                                    });
+        [canvas, style](Run* run, int32_t pos, size_t size, SkRect clip,
+                        SkScalar shift, bool clippingNeeded) {
+            if (style.hasBackground()) {
+                canvas->drawRect(clip, style.getBackground());
+            }
+            return true;
+        });
 }
 
 SkScalar TextLine::paintShadow(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
@@ -427,6 +410,7 @@ void TextLine::justify(SkScalar maxWidth) {
     SkASSERT(whitespacePatches == 0);
     this->fShift = 0;
     this->fAdvance.fX = maxWidth;
+    this->fJustified = true;
 }
 
 void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool) {
@@ -533,7 +517,7 @@ SkRect TextLine::measureTextInsideOneRun(
     SkRect clip =
             SkRect::MakeXYWH(run->positionX(start->startPos()) - run->positionX(0),
                              sizes().runTop(run),
-                             run->calculateWidth(start->startPos(), end->endPos(), needsClipping),
+                             run->calculateWidth(start->startPos(), end->endPos(), needsClipping, fJustified),
                              run->calculateHeight());
 
     // Correct the width in case the text edges don't match clusters

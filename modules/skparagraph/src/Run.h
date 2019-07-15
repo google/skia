@@ -148,7 +148,7 @@ public:
     void shift(const Cluster* cluster, SkScalar offset);
 
     SkScalar calculateHeight() const { return fFontMetrics.fDescent - fFontMetrics.fAscent; }
-    SkScalar calculateWidth(size_t start, size_t end, bool clip) const;
+    SkScalar calculateWidth(size_t start, size_t end, bool clip, bool justified) const;
 
     void copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector offset) const;
 
@@ -175,6 +175,7 @@ private:
     friend class ParagraphImpl;
     friend class TextLine;
     friend class LineMetrics;
+    friend class ParagraphCache;
 
     ParagraphImpl* fMaster;
     StableRange<ParagraphImpl, const char, &accessText> fTextRange;
