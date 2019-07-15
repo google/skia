@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f29c398_6c190466",
+        "filename": "tests/TestUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-15T16:48:30Z",
+      "side": 1,
+      "message": "in ?",
+      "range": {
+        "startLine": 65,
+        "startChar": 68,
+        "endLine": 65,
+        "endChar": 71
+      },
+      "revId": "ce3f2a3d5e65a389f65c93be55a093ea8521895f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
