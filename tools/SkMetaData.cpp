@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/utils/SkMetaData.h"
+#include "tools/SkMetaData.h"
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkMalloc.h"
