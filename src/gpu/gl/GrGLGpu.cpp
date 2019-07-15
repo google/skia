@@ -1368,7 +1368,10 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
             !idDesc->fMSColorRenderbufferID) {
             goto FAILED;
         }
-        this->glCaps().getRenderbufferFormat(desc.fConfig, &colorRenderbufferFormat);
+        GrGLFormat glFormat =
+                GrGLFormatFromGLEnum(this->glCaps().configSizedInternalFormat(desc.fConfig));
+        colorRenderbufferFormat =
+                this->glCaps().getRenderbufferInternalFormat(glFormat);
     } else {
         idDesc->fRTFBOID = idDesc->fTexFBOID;
     }
@@ -4007,6 +4010,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     if (!this->glCaps().isConfigRenderable(config)) {
         return {};
     }
+    auto format = this->glCaps().getFormatFromColorType(colorType);
     bool useTexture = false;
     GrGLenum colorBufferFormat;
     GrGLenum externalFormat = 0, externalType = 0;
@@ -4016,10 +4020,8 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
                                           &externalType);
         useTexture = true;
     } else {
-        this->glCaps().getRenderbufferFormat(config, &colorBufferFormat);
+        colorBufferFormat = this->glCaps().getRenderbufferInternalFormat(format);
     }
-    auto format =
-            GrGLBackendFormatToGLFormat(this->caps()->getBackendFormatFromColorType(colorType));
     int sFormatIdx = this->getCompatibleStencilIndex(format);
     if (sFormatIdx < 0) {
         return {};
@@ -4052,7 +4054,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
 
     GrGLFramebufferInfo info;
     info.fFBOID = 0;
-    this->glCaps().getSizedInternalFormat(config, &info.fFormat);
+    info.fFormat = this->glCaps().configSizedInternalFormat(config);
     GL_CALL(GenFramebuffers(1, &info.fFBOID));
     if (!info.fFBOID) {
         deleteIDs();
