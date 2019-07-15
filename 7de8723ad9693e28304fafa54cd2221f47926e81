@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fb8343c_8824c6f3",
+        "filename": "samplecode/Sample.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-15T13:25:29Z",
+      "side": 1,
+      "message": "Is there a good reason to move this type with such a generic name all the way to global scope? What\u0027s the issue with Sample::Click::State? At the very least it doesn\u0027t seem useful to move this out of Click.\n\nIf the idea is to have one enum for samples and skapp (like ModifierKey) it seems best to leave Click::State where is is for right now and then make one change to create the one shared enum and make everything use it.",
+      "range": {
+        "startLine": 32,
+        "startChar": 11,
+        "endLine": 32,
+        "endChar": 21
+      },
+      "revId": "7de8723ad9693e28304fafa54cd2221f47926e81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc8242b6_f12db5a6",
+        "filename": "samplecode/Sample.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-15T13:25:29Z",
+      "side": 1,
+      "message": "As I understand it, this change is one step toward having the subclasses have their own (possibly subclassed) Click?",
+      "range": {
+        "startLine": 90,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 34
+      },
+      "revId": "7de8723ad9693e28304fafa54cd2221f47926e81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
