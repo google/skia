@@ -50,11 +50,26 @@ TextLine::TextLine(ParagraphImpl* master,
         , fAdvance(advance)
         , fOffset(offset)
         , fEllipsis(nullptr)
-        , fSizes(sizes) {
+        , fSizes(sizes)
+        , fHasBackground(false)
+        , fHasShadows(false)
+        , fHasDecorations(false) {
     // Reorder visual runs
     auto start = fClusterRange.begin();
     auto end = fClusterRange.end() - 1;
     size_t numRuns = end->run()->index() - start->run()->index() + 1;
+
+    for (auto& b : blocks) {
+        if (b.style().hasBackground()) {
+            fHasBackground = true;
+        }
+        if (b.style().getDecoration() != TextDecoration::kNoDecoration) {
+            fHasDecorations = true;
+        }
+        if (b.style().getShadowNumber() > 0) {
+            fHasShadows = true;
+        }
+    }
 
     // Get the logical order
     std::vector<UBiDiLevel> runLevels;
@@ -70,27 +85,7 @@ TextLine::TextLine(ParagraphImpl* master,
         fLogical.push_back(firstRunIndex + index);
     }
 }
-/*
-TextLine::TextLine(TextLine&& other)
-    : fMaster(other.fMaster)
-    , fBlockRange(fMaster)
-    , fTextRange(fMaster)
-    , fTextWithWhitespacesRange(fMaster)
-    , fClusterRange(fMaster)
-    {
-    this->fBlockRange = other.fBlockRange;
-    this->fTextRange = other.fTextRange;
-    this->fTextWithWhitespacesRange = other.fTextWithWhitespacesRange;
-    this->fLogical.reset();
-    this->fLogical = std::move(other.fLogical);
-    this->fShift = other.fShift;
-    this->fAdvance = other.fAdvance;
-    this->fOffset = other.fOffset;
-    this->fEllipsis = other.fEllipsis;
-    this->fSizes = other.sizes();
-    this->fClusterRange = other.fClusterRange;
-}
-*/
+
 void TextLine::paint(SkCanvas* textCanvas) {
     if (this->empty()) {
         return;
@@ -99,29 +94,42 @@ void TextLine::paint(SkCanvas* textCanvas) {
     textCanvas->save();
     textCanvas->translate(this->offset().fX, this->offset().fY);
 
-    this->iterateThroughStylesInTextOrder(
+    if (fHasBackground) {
+        this->iterateThroughStylesInTextOrder(
             StyleType::kBackground,
-            [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
+            [this, textCanvas](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
                 return this->paintBackground(textCanvas, text, style, offsetX);
             });
+    }
 
-    this->iterateThroughStylesInTextOrder(
+    if (/*!fShadowRecords.empty()*/fHasShadows) {
+        this->iterateThroughStylesInTextOrder(
             StyleType::kShadow,
             [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
                 return this->paintShadow(textCanvas, text, style, offsetX);
             });
+    }
 
-    this->iterateThroughStylesInTextOrder(
+    if (fTextBlobRecords.empty()) {
+        // Build all text pieces
+        this->iterateThroughStylesInTextOrder(
             StyleType::kForeground,
-            [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
-                return this->paintText(textCanvas, text, style, offsetX);
+            [this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
+                return this->buildText(text, style, offsetX);
             });
+    }
+    // Draw all text pieces
+    for (auto& tb : fTextBlobRecords) {
+        tb.drawText(textCanvas);
+    }
 
-    this->iterateThroughStylesInTextOrder(
-            StyleType::kDecorations,
-            [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
-                return this->paintDecorations(textCanvas, text, style, offsetX);
-            });
+    if (fHasDecorations) {
+        this->iterateThroughStylesInTextOrder(
+        StyleType::kDecorations,
+        [textCanvas, this](SkSpan<const char> text, TextStyle style, SkScalar offsetX) {
+            return this->paintDecorations(textCanvas, text, style, offsetX);
+        });
+    }
 
     textCanvas->restore();
 }
@@ -164,8 +172,7 @@ void TextLine::scanRuns(const RunVisitor& visitor) {
             });
 }
 
-SkScalar TextLine::paintText(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
-                             SkScalar offsetX) const {
+SkScalar TextLine::buildText(SkSpan<const char> text, const TextStyle& style, SkScalar offsetX) const {
     SkPaint paint;
     if (style.hasForeground()) {
         paint = style.getForeground();
@@ -173,34 +180,26 @@ SkScalar TextLine::paintText(SkCanvas* canvas, SkSpan<const char> text, const Te
         paint.setColor(style.getColor());
     }
 
-    auto shiftDown = this->baseline();
     return this->iterateThroughRuns(
-            text, offsetX, false,
-            [paint, canvas, shiftDown](Run* run, int32_t pos, size_t size, SkRect clip,
-                                       SkScalar shift, bool clippingNeeded) {
-                SkTextBlobBuilder builder;
-                run->copyTo(builder, SkToU32(pos), size, SkVector::Make(0, shiftDown));
-                canvas->save();
-                if (clippingNeeded) {
-                    canvas->clipRect(clip);
-                }
-                canvas->translate(shift, 0);
-                canvas->drawTextBlob(builder.make(), 0, 0, paint);
-                canvas->restore();
-                return true;
-            });
+        text, offsetX, false,
+        [this, paint](Run* run, int32_t pos, size_t size, SkRect clip, SkScalar shift, bool clippingNeeded) {
+            SkTextBlobBuilder builder;
+            run->copyTo(builder, SkToU32(pos), size, SkVector::Make(0, this->baseline()));
+            this->fTextBlobRecords.emplace_back(builder.make(), clippingNeeded, clip, shift, paint);
+            return true;
+        });
 }
 
 SkScalar TextLine::paintBackground(SkCanvas* canvas, SkSpan<const char> text,
                                    const TextStyle& style, SkScalar offsetX) const {
     return this->iterateThroughRuns(text, offsetX, false,
-                                    [canvas, style](Run* run, int32_t pos, size_t size, SkRect clip,
-                                                    SkScalar shift, bool clippingNeeded) {
-                                        if (style.hasBackground()) {
-                                            canvas->drawRect(clip, style.getBackground());
-                                        }
-                                        return true;
-                                    });
+        [canvas, style](Run* run, int32_t pos, size_t size, SkRect clip,
+                        SkScalar shift, bool clippingNeeded) {
+            if (style.hasBackground()) {
+                canvas->drawRect(clip, style.getBackground());
+            }
+            return true;
+        });
 }
 
 SkScalar TextLine::paintShadow(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
@@ -633,7 +632,7 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
 
     const char* start = nullptr;
     size_t size = 0;
-    TextStyle prevStyle;
+    const TextStyle* prevStyle;
 
     SkScalar offsetX = 0;
     for (auto& block : fBlockRange) {
@@ -648,8 +647,8 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
             }
         }
 
-        auto style = block.style();
-        if (start != nullptr && style.matchOneAttribute(styleType, prevStyle)) {
+        auto* style = &block.style();
+        if (start != nullptr && style->matchOneAttribute(styleType, *prevStyle)) {
             size += intersect.size();
             continue;
         } else if (size == 0) {
@@ -660,7 +659,7 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
             continue;
         }
 
-        auto width = visitor(SkSpan<const char>(start, size), prevStyle, offsetX);
+        auto width = visitor(SkSpan<const char>(start, size), *prevStyle, offsetX);
         offsetX += width;
 
         // Start all over again
@@ -670,7 +669,7 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
     }
 
     // The very last style
-    auto width = visitor(SkSpan<const char>(start, size), prevStyle, offsetX);
+    auto width = visitor(SkSpan<const char>(start, size), *prevStyle, offsetX);
     offsetX += width;
 
     // This is a very important assert!
