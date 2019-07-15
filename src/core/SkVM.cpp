@@ -1502,9 +1502,7 @@ namespace skvm {
             jit(a, &code, fInstructions, fRegs, fLoop, fStrides.data(), nargs);
 
             mprotect(fJITBuf, fJITSize, PROT_READ|PROT_EXEC);
-        #if defined(__aarch64__)
-            msync(fJITBuf, fJITSize, MS_SYNC|MS_INVALIDATE);
-        #endif
+            __builtin___clear_cache((char*)fJITBuf, (char*)fJITBuf + fJITSize);   // (No-op on x86.)
 
             fJITEntry = (decltype(fJITEntry))( (const uint8_t*)fJITBuf + code );
 
