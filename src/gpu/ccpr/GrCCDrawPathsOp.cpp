@@ -116,6 +116,8 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
     if (!clippedDrawBounds.intersect(conservativeDevBounds, SkRect::Make(maskDevIBounds))) {
         clippedDrawBounds.setEmpty();
     }
+    // We always have AA bloat, even in MSAA atlas mode. This is because by the time this Op comes
+    // along and draws to the main canvas, the atlas has been resolved to analytic coverage.
     this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
 }
 
@@ -359,10 +361,10 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
 #endif
             auto coverageMode = GrCCPathProcessor::GetCoverageMode(
                     fCacheEntry->cachedAtlas()->coverageType());
-            op->recordInstance(coverageMode, fCacheEntry->cachedAtlas()->getOnFlushProxy(),
-                               resources->nextPathInstanceIdx());
-            resources->appendDrawPathInstance().set(
+            int instanceIdx = resources->appendCachedPathInstance(
                     *fCacheEntry, fCachedMaskShift, SkPMColor4f_toFP16(fColor), doEvenOddFill);
+            op->recordInstance(
+                    coverageMode, fCacheEntry->cachedAtlas()->getOnFlushProxy(), instanceIdx);
             return;
         }
     }
@@ -377,10 +379,11 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     if (auto atlas = resources->renderShapeInAtlas(
                 fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
                 &devToAtlasOffset)) {
-        op->recordInstance(GrCCPathProcessor::CoverageMode::kCoverageCount, atlas->textureProxy(),
-                           resources->nextPathInstanceIdx());
-        resources->appendDrawPathInstance().set(
+        auto coverageMode = GrCCPathProcessor::GetCoverageMode(
+                resources->renderedPathCoverageType());
+        int instanceIdx = resources->appendRenderedPathInstance(
                 octoBounds, devToAtlasOffset, SkPMColor4f_toFP16(fColor), doEvenOddFill);
+        op->recordInstance(coverageMode, atlas->textureProxy(), instanceIdx);
 
         if (fDoCachePathMask) {
             SkASSERT(fCacheEntry);
