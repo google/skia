@@ -637,7 +637,7 @@ private:
 
 class ParagraphView5 : public Sample {
 protected:
-    SkString name() override { return SkString("Paragraph4"); }
+    SkString name() override { return SkString("Paragraph5"); }
 
     void bidi(SkCanvas* canvas, SkScalar w, SkScalar h, const std::u16string& text,
               const std::u16string& expected, size_t lineLimit = std::numeric_limits<size_t>::max(),
@@ -758,7 +758,7 @@ private:
 
 class ParagraphView6 : public Sample {
 protected:
-    SkString name() override { return SkString("Paragraph4"); }
+    SkString name() override { return SkString("Paragraph6"); }
 
     void hangingS(SkCanvas* canvas, SkScalar w, SkScalar h, SkScalar fs = 60.0) {
         auto ff = "HangingS";
@@ -1221,7 +1221,7 @@ protected:
         canvas->drawColor(SK_ColorWHITE);
         const char* text = "The same text many times";
 
-        for (size_t i = 0; i < 100; i++) {
+        for (size_t i = 0; i < 10; i++) {
             ParagraphStyle paragraph_style;
             ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
             TextStyle text_style;
@@ -1233,6 +1233,33 @@ protected:
             auto paragraph = builder.Build();
             paragraph->layout(500);
             paragraph->paint(canvas, 0, 100 * (i % 10));
+        }
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView12 : public Sample {
+protected:
+    SkString name() override { return SkString("Paragraph12"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        const char* text = "The same text painted many times";
+
+        ParagraphStyle paragraph_style;
+        ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontSize(20);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(500);
+        for (size_t i = 0; i < 10; i++) {
+            paragraph->paint(canvas, 0, 100 * i);
         }
     }
 
@@ -1252,3 +1279,4 @@ DEF_SAMPLE(return new ParagraphView8();)
 DEF_SAMPLE(return new ParagraphView9();)
 DEF_SAMPLE(return new ParagraphView10();)
 DEF_SAMPLE(return new ParagraphView11();)
+DEF_SAMPLE(return new ParagraphView12();)

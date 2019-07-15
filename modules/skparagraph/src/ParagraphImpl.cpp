@@ -202,18 +202,16 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
     if (fState < kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
+        fParagraphCache.updateParagraph(this);
         fState = kFormatted;
     }
-    if (fState < kRecorded) {
-        this->fPicture = nullptr;
-        this->paintLinesIntoPicture();
-        fState = kRecorded;
 
-        // Add the paragraph to the cache
-        fParagraphCache.updateParagraph(this);
-    } else {
-        //SkDebugf("Found picture: %s\n", this->fText.c_str());
-    }
+    // Record the picture anyway (but if we have some pieces in the cache they will be used)
+    this->paintLinesIntoPicture();
+    fState = kDrawn;
+
+    // Add the paragraph to the cache
+    fParagraphCache.updateParagraph(this);
 
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
     canvas->drawPicture(fPicture, &matrix, nullptr);
@@ -411,6 +409,7 @@ void ParagraphImpl::formatLines(SkScalar maxWidth) {
     auto effectiveAlign = fParagraphStyle.effective_align();
     for (auto& line : fLines) {
         line.format(effectiveAlign, maxWidth, &line != &fLines.back());
+        line.resetCacheRecords();
     }
 }
 

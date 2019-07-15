@@ -30,7 +30,7 @@ enum InternalState {
   kClusterized = 2,
   kLineBroken = 3,
   kFormatted = 4,
-  kRecorded = 5
+  kDrawn = 5
 };
 
 class ParagraphImpl;
@@ -58,7 +58,6 @@ public:;
     SkTArray<Cluster, true> fClusters;
     SkTArray<TextLine> fLines;
     Measurement fMeasurement;
-    sk_sp<SkPicture> fPicture;
 };
 
 bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b);
