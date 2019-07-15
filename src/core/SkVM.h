@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
-#include "include/private/SkSpinlock.h"
 #include <vector>
 
 namespace skvm {
@@ -270,22 +269,16 @@ namespace skvm {
         int loop() const { return fLoop; }
 
     private:
-        struct JIT {
-            ~JIT();
-
-            void*  buf      = nullptr;  // Raw mmap'd buffer.
-            size_t size     = 0;        // Size of buf in bytes.
-            void (*entry)() = nullptr;  // Entry point, offset into buf.
-        };
-
         void eval(int n, void* args[]) const;
 
         std::vector<Instruction> fInstructions;
         int                      fRegs;
         int                      fLoop;
         std::vector<int>         fStrides;
-        mutable SkSpinlock       fJITLock;
-        mutable JIT              fJIT;
+
+        void*  fJITBuf      = nullptr;  // Raw mmap'd buffer.
+        size_t fJITSize     = 0;        // Size of buf in bytes.
+        void (*fJITEntry)() = nullptr;  // Entry point, offset into buf.
     };
 
     using Val = int;

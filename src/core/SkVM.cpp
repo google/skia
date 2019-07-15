@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSpinlock.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
@@ -16,39 +17,6 @@
 #endif
 
 namespace skvm {
-
-    Program::~Program() = default;
-
-    Program::Program(Program&& other) {
-        fInstructions = std::move(other.fInstructions);
-        fRegs = other.fRegs;
-        fLoop = other.fLoop;
-        fStrides = std::move(other.fStrides);
-        // Don't bother trying to move other.fJIT*.  We can just regenerate it.
-    }
-
-    Program& Program::operator=(Program&& other) {
-        fInstructions = std::move(other.fInstructions);
-        fRegs = other.fRegs;
-        fLoop = other.fLoop;
-        fStrides = std::move(other.fStrides);
-        // Don't bother trying to move other.fJIT*.  We can just regenerate it,
-        // but we do need to invalidate anything we have cached ourselves.
-        fJITLock.acquire();
-        fJIT = JIT();
-        fJITLock.release();
-        return *this;
-    }
-
-    Program::Program(std::vector<Instruction> instructions,
-                     int regs,
-                     int loop,
-                     std::vector<int> strides)
-        : fInstructions(std::move(instructions))
-        , fRegs(regs)
-        , fLoop(loop)
-        , fStrides(std::move(strides)) {}
-
 
     Program Builder::done() const {
         // Track per-instruction code hoisting, lifetime, and register assignment.
@@ -1303,338 +1271,361 @@ namespace skvm {
         a.ret(A::x30);
     }
     #endif
-
-    Program::JIT::~JIT() {
-        if (buf) {
-            munmap(buf,size);
-        }
-    }
-#else
-    Program::JIT::~JIT() { SkASSERT(buf == nullptr); }
 #endif // defined(SKVM_JIT)
 
     void Program::eval(int n, void* args[]) const {
-        void (*entry)() = nullptr;
-        int nargs = (int)fStrides.size();
+        const int nargs = (int)fStrides.size();
 
-    #if defined(SKVM_JIT)
-        // If we can't grab this lock, another thread is probably assembling the program.
-        // We can just fall through to the interpreter.
-        if (fJITLock.tryAcquire()) {
-            if (fJIT.entry) {
-                // Use cached program.
-                entry = fJIT.entry;
-            } else if (can_jit(fRegs, nargs)) {
-                // First assemble without any buffer to see how much memory we need to mmap.
-                size_t code;
-                Assembler a{nullptr};
-                jit(a, &code, fInstructions, fRegs, fLoop, fStrides.data(), nargs);
-
-                // mprotect() can only change at a page level granularity, so round a.size() up.
-                size_t page = sysconf(_SC_PAGESIZE),                           // Probably 4096.
-                       size = ((a.size() + page - 1) / page) * page;
-
-                void* buf =
-                    mmap(nullptr, size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
-
-                a = Assembler{buf};
-                jit(a, &code, fInstructions, fRegs, fLoop, fStrides.data(), nargs);
-
-                mprotect(buf,size, PROT_READ|PROT_EXEC);
-            #if defined(__aarch64__)
-                msync(buf, size, MS_SYNC|MS_INVALIDATE);
-            #endif
-
-                entry = (decltype(entry))( (const uint8_t*)buf + code );
-                fJIT.buf   = buf;
-                fJIT.size  = size;
-                fJIT.entry = entry;
-
-
-            #if 0 || defined(SKVM_PERF_DUMPS) // Debug dumps for perf.
-                #if defined(__aarch64__)
-                    // cat | llvm-mc -arch aarch64 -disassemble
-                    auto cur = (const uint8_t*)buf;
-                    for (int i = 0; i < (int)a.size(); i++) {
-                        if (i % 4 == 0) {
-                            SkDebugf("\n");
-                            if (i == (int)code) {
-                                SkDebugf("code:\n");
-                            }
-                        }
-                        SkDebugf("0x%02x ", *cur++);
-                    }
-                    SkDebugf("\n");
-                #endif
-
-                // We're doing some really stateful things below so one thread at a time please...
-                static SkSpinlock dump_lock;
-                SkAutoSpinlock lock(dump_lock);
-
-                auto fnv1a = [](const void* vbuf, size_t n) {
-                    uint32_t hash = 2166136261;
-                    for (auto buf = (const uint8_t*)vbuf; n --> 0; buf++) {
-                        hash ^= *buf;
-                        hash *= 16777619;
-                    }
-                    return hash;
-                };
-
-
-                uint32_t hash = fnv1a(fJIT.buf, fJIT.size);
-                char name[64];
-                sprintf(name, "skvm-jit-%u", hash);
-
-                // Create a jit-<pid>.dump file that we can `perf inject -j` into a
-                // perf.data captured with `perf record -k 1`, letting us see each
-                // JIT'd Program as if a function named skvm-jit-<hash>.   E.g.
-                //
-                //   ninja -C out nanobench
-                //   perf record -k 1 out/nanobench -m SkVM_4096_I32\$
-                //   perf inject -j -i perf.data -o perf.data.jit
-                //   perf report -i perf.data.jit
-                //
-                // Running `perf inject -j` will also dump an .so for each JIT'd
-                // program, named jitted-<pid>-<hash>.so.
-                //
-                //    https://lwn.net/Articles/638566/
-                //    https://v8.dev/docs/linux-perf
-                //    https://cs.chromium.org/chromium/src/v8/src/diagnostics/perf-jit.cc
-                //    https://lore.kernel.org/patchwork/patch/622240/
-
-
-                auto timestamp_ns = []() -> uint64_t {
-                    // It's important to use CLOCK_MONOTONIC here so that perf can
-                    // correlate our timestamps with those captured by `perf record
-                    // -k 1`.  That's also what `-k 1` does, by the way, tell perf
-                    // record to use CLOCK_MONOTONIC.
-                    struct timespec ts;
-                    clock_gettime(CLOCK_MONOTONIC, &ts);
-                    return ts.tv_sec * (uint64_t)1e9 + ts.tv_nsec;
-                };
-
-                // We'll open the jit-<pid>.dump file and write a small header once,
-                // and just leave it open forever because we're lazy.
-                static FILE* jitdump = [&]{
-                    // Must map as w+ for the mmap() call below to work.
-                    char path[64];
-                    sprintf(path, "jit-%d.dump", getpid());
-                    FILE* f = fopen(path, "w+");
-
-                    // Calling mmap() on the file adds a "hey they mmap()'d this" record to
-                    // the perf.data file that will point `perf inject -j` at this log file.
-                    // Kind of a strange way to tell `perf inject` where the file is...
-                    void* marker = mmap(nullptr,
-                                        sysconf(_SC_PAGESIZE),
-                                        PROT_READ|PROT_EXEC,
-                                        MAP_PRIVATE,
-                                        fileno(f),
-                                        /*offset=*/0);
-                    SkASSERT_RELEASE(marker != MAP_FAILED);
-                    // Like never calling fclose(f), we'll also just always leave marker mmap()'d.
-
-                #if defined(__x86_64__)
-                    const uint32_t elf_mach = 62;
-                #elif defined(__aarch64__)
-                    const uint32_t elf_mach = 183;
-                #else
-                    const uint32_t elf_mach = 0;  // TODO
-                #endif
-
-                    struct Header {
-                        uint32_t magic, version, header_size, elf_mach, reserved, pid;
-                        uint64_t timestamp_us, flags;
-                    } header = {
-                        0x4A695444, 1, sizeof(Header), elf_mach, 0, (uint32_t)getpid(),
-                        timestamp_ns() / 1000, 0,
-                    };
-                    fwrite(&header, sizeof(header), 1, f);
-
-                    return f;
-                }();
-
-                struct CodeLoad {
-                    uint32_t event_type, event_size;
-                    uint64_t timestamp_ns;
-
-                    uint32_t pid, tid;
-                    uint64_t vma/*???*/, code_addr, code_size, id;
-                } load = {
-                    0/*code load*/, (uint32_t)(sizeof(CodeLoad) + strlen(name) + 1 + fJIT.size),
-                    timestamp_ns(),
-
-                    (uint32_t)getpid(), (uint32_t)SkGetThreadID(),
-                    (uint64_t)fJIT.buf, (uint64_t)fJIT.buf, fJIT.size, hash,
-                };
-
-                // Write the header, the JIT'd function name, and the JIT'd code itself.
-                fwrite(&load, sizeof(load), 1, jitdump);
-                fwrite(name, 1, strlen(name), jitdump);
-                fwrite("\0", 1, 1, jitdump);
-                fwrite(fJIT.buf, 1, fJIT.size, jitdump);
-            #endif
-            }
-            fJITLock.release();   // pairs with tryAcquire() in the if().
-        }
-    #endif  // defined(SKVM_JIT)
-
-        if (entry) {
+        if (fJITEntry) {
             switch (nargs) {
-                case 0: ((void(*)(int              ))entry)(n                  ); break;
-                case 1: ((void(*)(int, void*       ))entry)(n, args[0]         ); break;
-                case 2: ((void(*)(int, void*, void*))entry)(n, args[0], args[1]); break;
+                case 0: return ((void(*)(int              ))fJITEntry)(n                  );
+                case 1: return ((void(*)(int, void*       ))fJITEntry)(n, args[0]         );
+                case 2: return ((void(*)(int, void*, void*))fJITEntry)(n, args[0], args[1]);
                 default: SkUNREACHABLE;  // TODO
             }
-        } else {
-            // We'll operate in SIMT style, knocking off K-size chunks from n while possible.
-            constexpr int K = 16;
-            using I32 = skvx::Vec<K, int>;
-            using F32 = skvx::Vec<K, float>;
-            using U32 = skvx::Vec<K, uint32_t>;
-            using  U8 = skvx::Vec<K, uint8_t>;
+        }
 
-            using I16x2 = skvx::Vec<2*K,  int16_t>;
-            using U16x2 = skvx::Vec<2*K, uint16_t>;
+        // We'll operate in SIMT style, knocking off K-size chunks from n while possible.
+        constexpr int K = 16;
+        using I32 = skvx::Vec<K, int>;
+        using F32 = skvx::Vec<K, float>;
+        using U32 = skvx::Vec<K, uint32_t>;
+        using  U8 = skvx::Vec<K, uint8_t>;
 
-            union Slot {
-                I32 i32;
-                U32 u32;
-                F32 f32;
-            };
+        using I16x2 = skvx::Vec<2*K,  int16_t>;
+        using U16x2 = skvx::Vec<2*K, uint16_t>;
 
-            Slot                     few_regs[16];
-            std::unique_ptr<char[]> many_regs;
+        union Slot {
+            I32 i32;
+            U32 u32;
+            F32 f32;
+        };
 
-            Slot* regs = few_regs;
+        Slot                     few_regs[16];
+        std::unique_ptr<char[]> many_regs;
 
-            if (fRegs > (int)SK_ARRAY_COUNT(few_regs)) {
-                // Annoyingly we can't trust that malloc() or new will work with Slot because
-                // the skvx::Vec types may have alignment greater than what they provide.
-                // We'll overallocate one extra register so we can align manually.
-                many_regs.reset(new char[ sizeof(Slot) * (fRegs + 1) ]);
+        Slot* regs = few_regs;
 
-                uintptr_t addr = (uintptr_t)many_regs.get();
-                addr += alignof(Slot) -
-                         (addr & (alignof(Slot) - 1));
-                SkASSERT((addr & (alignof(Slot) - 1)) == 0);
-                regs = (Slot*)addr;
+        if (fRegs > (int)SK_ARRAY_COUNT(few_regs)) {
+            // Annoyingly we can't trust that malloc() or new will work with Slot because
+            // the skvx::Vec types may have alignment greater than what they provide.
+            // We'll overallocate one extra register so we can align manually.
+            many_regs.reset(new char[ sizeof(Slot) * (fRegs + 1) ]);
+
+            uintptr_t addr = (uintptr_t)many_regs.get();
+            addr += alignof(Slot) -
+                     (addr & (alignof(Slot) - 1));
+            SkASSERT((addr & (alignof(Slot) - 1)) == 0);
+            regs = (Slot*)addr;
+        }
+
+
+        auto r = [&](Reg id) -> Slot& {
+            SkASSERT(0 <= id && id < fRegs);
+            return regs[id];
+        };
+        auto arg = [&](int ix) {
+            SkASSERT(0 <= ix && ix < nargs);
+            return args[ix];
+        };
+
+        // Step each argument pointer ahead by its stride a number of times.
+        auto step_args = [&](int times) {
+            // Looping by marching pointers until *arg == nullptr helps the
+            // compiler to keep this loop scalar.  Otherwise it'd create a
+            // rather large and useless autovectorized version.
+            void**        arg = args;
+            const int* stride = fStrides.data();
+            for (; *arg; arg++, stride++) {
+                *arg = (void*)( (char*)*arg + times * *stride );
             }
+            SkASSERT(arg == args + nargs);
+        };
 
+        int start = 0,
+            stride;
+        for ( ; n > 0; start = fLoop, n -= stride, step_args(stride)) {
+            stride = n >= K ? K : 1;
 
-            auto r = [&](Reg id) -> Slot& {
-                SkASSERT(0 <= id && id < fRegs);
-                return regs[id];
-            };
-            auto arg = [&](int ix) {
-                SkASSERT(0 <= ix && ix < nargs);
-                return args[ix];
-            };
+            for (int i = start; i < (int)fInstructions.size(); i++) {
+                Instruction inst = fInstructions[i];
 
-            // Step each argument pointer ahead by its stride a number of times.
-            auto step_args = [&](int times) {
-                // Looping by marching pointers until *arg == nullptr helps the
-                // compiler to keep this loop scalar.  Otherwise it'd create a
-                // rather large and useless autovectorized version.
-                void**        arg = args;
-                const int* stride = fStrides.data();
-                for (; *arg; arg++, stride++) {
-                    *arg = (void*)( (char*)*arg + times * *stride );
-                }
-                SkASSERT(arg == args + nargs);
-            };
+                // d = op(x,y,z/imm)
+                Reg   d = inst.d,
+                      x = inst.x,
+                      y = inst.y,
+                      z = inst.z;
+                int imm = inst.imm;
 
-            int start = 0,
-                stride;
-            for ( ; n > 0; start = fLoop, n -= stride, step_args(stride)) {
-                stride = n >= K ? K : 1;
+                // Ops that interact with memory need to know whether we're stride=1 or K,
+                // but all non-memory ops can run the same code no matter the stride.
+                switch (2*(int)inst.op + (stride == K ? 1 : 0)) {
 
-                for (int i = start; i < (int)fInstructions.size(); i++) {
-                    Instruction inst = fInstructions[i];
+                #define STRIDE_1(op) case 2*(int)op
+                #define STRIDE_K(op) case 2*(int)op + 1
+                    STRIDE_1(Op::store8 ): memcpy(arg(imm), &r(x).i32, 1); break;
+                    STRIDE_1(Op::store32): memcpy(arg(imm), &r(x).i32, 4); break;
 
-                    // d = op(x,y,z/imm)
-                    Reg   d = inst.d,
-                          x = inst.x,
-                          y = inst.y,
-                          z = inst.z;
-                    int imm = inst.imm;
+                    STRIDE_K(Op::store8 ): skvx::cast<uint8_t>(r(x).i32).store(arg(imm)); break;
+                    STRIDE_K(Op::store32):                    (r(x).i32).store(arg(imm)); break;
 
-                    // Ops that interact with memory need to know whether we're stride=1 or K,
-                    // but all non-memory ops can run the same code no matter the stride.
-                    switch (2*(int)inst.op + (stride == K ? 1 : 0)) {
+                    STRIDE_1(Op::load8 ): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 1); break;
+                    STRIDE_1(Op::load32): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 4); break;
 
-                    #define STRIDE_1(op) case 2*(int)op
-                    #define STRIDE_K(op) case 2*(int)op + 1
-                        STRIDE_1(Op::store8 ): memcpy(arg(imm), &r(x).i32, 1); break;
-                        STRIDE_1(Op::store32): memcpy(arg(imm), &r(x).i32, 4); break;
+                    STRIDE_K(Op::load8 ): r(d).i32= skvx::cast<int>(U8 ::Load(arg(imm))); break;
+                    STRIDE_K(Op::load32): r(d).i32=                 I32::Load(arg(imm)) ; break;
+                #undef STRIDE_1
+                #undef STRIDE_K
 
-                        STRIDE_K(Op::store8 ): skvx::cast<uint8_t>(r(x).i32).store(arg(imm)); break;
-                        STRIDE_K(Op::store32):                    (r(x).i32).store(arg(imm)); break;
+                    // Ops that don't interact with memory should never care about the stride.
+                #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
+                    CASE(Op::splat): r(d).i32 = imm; break;
 
-                        STRIDE_1(Op::load8 ): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 1); break;
-                        STRIDE_1(Op::load32): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 4); break;
+                    CASE(Op::add_f32): r(d).f32 = r(x).f32 + r(y).f32; break;
+                    CASE(Op::sub_f32): r(d).f32 = r(x).f32 - r(y).f32; break;
+                    CASE(Op::mul_f32): r(d).f32 = r(x).f32 * r(y).f32; break;
+                    CASE(Op::div_f32): r(d).f32 = r(x).f32 / r(y).f32; break;
 
-                        STRIDE_K(Op::load8 ): r(d).i32= skvx::cast<int>(U8 ::Load(arg(imm))); break;
-                        STRIDE_K(Op::load32): r(d).i32=                 I32::Load(arg(imm)) ; break;
-                    #undef STRIDE_1
-                    #undef STRIDE_K
+                    CASE(Op::mad_f32): r(d).f32 = r(x).f32 * r(y).f32 + r(z).f32; break;
 
-                        // Ops that don't interact with memory should never care about the stride.
-                    #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
-                        CASE(Op::splat): r(d).i32 = imm; break;
+                    CASE(Op::add_i32): r(d).i32 = r(x).i32 + r(y).i32; break;
+                    CASE(Op::sub_i32): r(d).i32 = r(x).i32 - r(y).i32; break;
+                    CASE(Op::mul_i32): r(d).i32 = r(x).i32 * r(y).i32; break;
 
-                        CASE(Op::add_f32): r(d).f32 = r(x).f32 + r(y).f32; break;
-                        CASE(Op::sub_f32): r(d).f32 = r(x).f32 - r(y).f32; break;
-                        CASE(Op::mul_f32): r(d).f32 = r(x).f32 * r(y).f32; break;
-                        CASE(Op::div_f32): r(d).f32 = r(x).f32 / r(y).f32; break;
+                    CASE(Op::sub_i16x2):
+                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x).i32) -
+                                                      skvx::bit_pun<I16x2>(r(y).i32) ); break;
+                    CASE(Op::mul_i16x2):
+                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x).i32) *
+                                                      skvx::bit_pun<I16x2>(r(y).i32) ); break;
+                    CASE(Op::shr_i16x2):
+                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<U16x2>(r(x).i32) >> imm);
+                        break;
 
-                        CASE(Op::mad_f32): r(d).f32 = r(x).f32 * r(y).f32 + r(z).f32; break;
+                    CASE(Op::bit_and):   r(d).i32 = r(x).i32 &  r(y).i32; break;
+                    CASE(Op::bit_or ):   r(d).i32 = r(x).i32 |  r(y).i32; break;
+                    CASE(Op::bit_xor):   r(d).i32 = r(x).i32 ^  r(y).i32; break;
+                    CASE(Op::bit_clear): r(d).i32 = r(x).i32 & ~r(y).i32; break;
 
-                        CASE(Op::add_i32): r(d).i32 = r(x).i32 + r(y).i32; break;
-                        CASE(Op::sub_i32): r(d).i32 = r(x).i32 - r(y).i32; break;
-                        CASE(Op::mul_i32): r(d).i32 = r(x).i32 * r(y).i32; break;
+                    CASE(Op::shl): r(d).i32 = r(x).i32 << imm; break;
+                    CASE(Op::sra): r(d).i32 = r(x).i32 >> imm; break;
+                    CASE(Op::shr): r(d).u32 = r(x).u32 >> imm; break;
 
-                        CASE(Op::sub_i16x2):
-                            r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x).i32) -
-                                                          skvx::bit_pun<I16x2>(r(y).i32) ); break;
-                        CASE(Op::mul_i16x2):
-                            r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x).i32) *
-                                                          skvx::bit_pun<I16x2>(r(y).i32) ); break;
-                        CASE(Op::shr_i16x2):
-                            r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<U16x2>(r(x).i32) >> imm);
-                            break;
+                    CASE(Op::extract): r(d).u32 = (r(x).u32 >> imm) & r(y).u32; break;
+                    CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y).u32 << imm); break;
 
-                        CASE(Op::bit_and):   r(d).i32 = r(x).i32 &  r(y).i32; break;
-                        CASE(Op::bit_or ):   r(d).i32 = r(x).i32 |  r(y).i32; break;
-                        CASE(Op::bit_xor):   r(d).i32 = r(x).i32 ^  r(y).i32; break;
-                        CASE(Op::bit_clear): r(d).i32 = r(x).i32 & ~r(y).i32; break;
+                    CASE(Op::bytes): {
+                        const U32 table[] = {
+                            0,
+                            (r(x).u32      ) & 0xff,
+                            (r(x).u32 >>  8) & 0xff,
+                            (r(x).u32 >> 16) & 0xff,
+                            (r(x).u32 >> 24) & 0xff,
+                        };
+                        r(d).u32 = table[(imm >>  0) & 0xf] <<  0
+                                 | table[(imm >>  4) & 0xf] <<  8
+                                 | table[(imm >>  8) & 0xf] << 16
+                                 | table[(imm >> 12) & 0xf] << 24;
+                    } break;
 
-                        CASE(Op::shl): r(d).i32 = r(x).i32 << imm; break;
-                        CASE(Op::sra): r(d).i32 = r(x).i32 >> imm; break;
-                        CASE(Op::shr): r(d).u32 = r(x).u32 >> imm; break;
-
-                        CASE(Op::extract): r(d).u32 = (r(x).u32 >> imm) & r(y).u32; break;
-                        CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y).u32 << imm); break;
-
-                        CASE(Op::bytes): {
-                            const U32 table[] = {
-                                0,
-                                (r(x).u32      ) & 0xff,
-                                (r(x).u32 >>  8) & 0xff,
-                                (r(x).u32 >> 16) & 0xff,
-                                (r(x).u32 >> 24) & 0xff,
-                            };
-                            r(d).u32 = table[(imm >>  0) & 0xf] <<  0
-                                     | table[(imm >>  4) & 0xf] <<  8
-                                     | table[(imm >>  8) & 0xf] << 16
-                                     | table[(imm >> 12) & 0xf] << 24;
-                        } break;
-
-                        CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
-                        CASE(Op::to_i32): r(d).i32 = skvx::cast<int>  (r(x).f32); break;
-                    #undef CASE
-                    }
+                    CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
+                    CASE(Op::to_i32): r(d).i32 = skvx::cast<int>  (r(x).f32); break;
+                #undef CASE
                 }
             }
         }
     }
+
+    Program::~Program() {
+    #if defined(SKVM_JIT)
+        if (fJITBuf) {
+            munmap(fJITBuf, fJITSize);
+        }
+    #else
+        SkASSERT(fJITBuf == nullptr);
+    #endif
+    }
+
+    Program::Program(Program&& other) {
+        fInstructions = std::move(other.fInstructions);
+        fRegs         = other.fRegs;
+        fLoop         = other.fLoop;
+        fStrides      = std::move(other.fStrides);
+
+        std::swap(fJITBuf  , other.fJITBuf);
+        std::swap(fJITSize , other.fJITSize);
+        std::swap(fJITEntry, other.fJITEntry);
+    }
+
+    Program& Program::operator=(Program&& other) {
+        fInstructions = std::move(other.fInstructions);
+        fRegs         = other.fRegs;
+        fLoop         = other.fLoop;
+        fStrides      = std::move(other.fStrides);
+
+        std::swap(fJITBuf  , other.fJITBuf);
+        std::swap(fJITSize , other.fJITSize);
+        std::swap(fJITEntry, other.fJITEntry);
+
+        return *this;
+    }
+
+    Program::Program(std::vector<Instruction> instructions,
+                     int regs,
+                     int loop,
+                     std::vector<int> strides)
+        : fInstructions(std::move(instructions))
+        , fRegs(regs)
+        , fLoop(loop)
+        , fStrides(std::move(strides)) {
+    #if defined(SKVM_JIT)
+        const int nargs = (int)fStrides.size();
+        if (can_jit(fRegs, nargs)) {
+            // First assemble without any buffer to see how much memory we need to mmap.
+            size_t code;
+            Assembler a{nullptr};
+            jit(a, &code, fInstructions, fRegs, fLoop, fStrides.data(), nargs);
+
+            // mprotect() can only change at a page level granularity, so round a.size() up.
+            size_t page = sysconf(_SC_PAGESIZE);                           // Probably 4096.
+            fJITSize    = ((a.size() + page - 1) / page) * page;
+
+            fJITBuf = mmap(nullptr,fJITSize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+
+            a = Assembler{fJITBuf};
+            jit(a, &code, fInstructions, fRegs, fLoop, fStrides.data(), nargs);
+
+            mprotect(fJITBuf, fJITSize, PROT_READ|PROT_EXEC);
+        #if defined(__aarch64__)
+            msync(fJITBuf, fJITSize, MS_SYNC|MS_INVALIDATE);
+        #endif
+
+            fJITEntry = (decltype(fJITEntry))( (const uint8_t*)fJITBuf + code );
+
+        #if 0 || defined(SKVM_PERF_DUMPS) // Debug dumps for perf.
+            #if defined(__aarch64__)
+                // cat | llvm-mc -arch aarch64 -disassemble
+                auto cur = (const uint8_t*)fJITBuf;
+                for (int i = 0; i < (int)a.size(); i++) {
+                    if (i % 4 == 0) {
+                        SkDebugf("\n");
+                        if (i == (int)code) {
+                            SkDebugf("code:\n");
+                        }
+                    }
+                    SkDebugf("0x%02x ", *cur++);
+                }
+                SkDebugf("\n");
+            #endif
+
+            // We're doing some really stateful things below so one thread at a time please...
+            static SkSpinlock dump_lock;
+            SkAutoSpinlock lock(dump_lock);
+
+            auto fnv1a = [](const void* vbuf, size_t n) {
+                uint32_t hash = 2166136261;
+                for (auto buf = (const uint8_t*)vbuf; n --> 0; buf++) {
+                    hash ^= *buf;
+                    hash *= 16777619;
+                }
+                return hash;
+            };
+
+
+            uint32_t hash = fnv1a(fJITBuf, fJITSize);
+            char name[64];
+            sprintf(name, "skvm-jit-%u", hash);
+
+            // Create a jit-<pid>.dump file that we can `perf inject -j` into a
+            // perf.data captured with `perf record -k 1`, letting us see each
+            // JIT'd Program as if a function named skvm-jit-<hash>.   E.g.
+            //
+            //   ninja -C out nanobench
+            //   perf record -k 1 out/nanobench -m SkVM_4096_I32\$
+            //   perf inject -j -i perf.data -o perf.data.jit
+            //   perf report -i perf.data.jit
+            //
+            // Running `perf inject -j` will also dump an .so for each JIT'd
+            // program, named jitted-<pid>-<hash>.so.
+            //
+            //    https://lwn.net/Articles/638566/
+            //    https://v8.dev/docs/linux-perf
+            //    https://cs.chromium.org/chromium/src/v8/src/diagnostics/perf-jit.cc
+            //    https://lore.kernel.org/patchwork/patch/622240/
+
+
+            auto timestamp_ns = []() -> uint64_t {
+                // It's important to use CLOCK_MONOTONIC here so that perf can
+                // correlate our timestamps with those captured by `perf record
+                // -k 1`.  That's also what `-k 1` does, by the way, tell perf
+                // record to use CLOCK_MONOTONIC.
+                struct timespec ts;
+                clock_gettime(CLOCK_MONOTONIC, &ts);
+                return ts.tv_sec * (uint64_t)1e9 + ts.tv_nsec;
+            };
+
+            // We'll open the jit-<pid>.dump file and write a small header once,
+            // and just leave it open forever because we're lazy.
+            static FILE* jitdump = [&]{
+                // Must map as w+ for the mmap() call below to work.
+                char path[64];
+                sprintf(path, "jit-%d.dump", getpid());
+                FILE* f = fopen(path, "w+");
+
+                // Calling mmap() on the file adds a "hey they mmap()'d this" record to
+                // the perf.data file that will point `perf inject -j` at this log file.
+                // Kind of a strange way to tell `perf inject` where the file is...
+                void* marker = mmap(nullptr,
+                                    sysconf(_SC_PAGESIZE),
+                                    PROT_READ|PROT_EXEC,
+                                    MAP_PRIVATE,
+                                    fileno(f),
+                                    /*offset=*/0);
+                SkASSERT_RELEASE(marker != MAP_FAILED);
+                // Like never calling fclose(f), we'll also just always leave marker mmap()'d.
+
+            #if defined(__x86_64__)
+                const uint32_t elf_mach = 62;
+            #elif defined(__aarch64__)
+                const uint32_t elf_mach = 183;
+            #else
+                const uint32_t elf_mach = 0;  // TODO
+            #endif
+
+                struct Header {
+                    uint32_t magic, version, header_size, elf_mach, reserved, pid;
+                    uint64_t timestamp_us, flags;
+                } header = {
+                    0x4A695444, 1, sizeof(Header), elf_mach, 0, (uint32_t)getpid(),
+                    timestamp_ns() / 1000, 0,
+                };
+                fwrite(&header, sizeof(header), 1, f);
+
+                return f;
+            }();
+
+            struct CodeLoad {
+                uint32_t event_type, event_size;
+                uint64_t timestamp_ns;
+
+                uint32_t pid, tid;
+                uint64_t vma/*???*/, code_addr, code_size, id;
+            } load = {
+                0/*code load*/, (uint32_t)(sizeof(CodeLoad) + strlen(name) + 1 + fJITSize),
+                timestamp_ns(),
+
+                (uint32_t)getpid(), (uint32_t)SkGetThreadID(),
+                (uint64_t)fJITBuf, (uint64_t)fJITBuf, fJITSize, hash,
+            };
+
+            // Write the header, the JIT'd function name, and the JIT'd code itself.
+            fwrite(&load, sizeof(load), 1, jitdump);
+            fwrite(name, 1, strlen(name), jitdump);
+            fwrite("\0", 1, 1, jitdump);
+            fwrite(fJITBuf, 1, fJITSize, jitdump);
+        #endif
+        }
+    #endif  // defined(SKVM_JIT)
+    }
+
 }
