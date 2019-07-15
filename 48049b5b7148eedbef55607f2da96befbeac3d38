@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "363d4301_f2aab30a",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T17:32:39Z",
+      "side": 1,
+      "message": "we usually tab in the case after the switch",
+      "range": {
+        "startLine": 381,
+        "startChar": 4,
+        "endLine": 381,
+        "endChar": 8
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c22552bb_b602ae9e",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T17:32:39Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 382,
+        "startChar": 68,
+        "endLine": 382,
+        "endChar": 106
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79cc7903_8f841571",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T17:32:39Z",
+      "side": 1,
+      "message": "This assert is also in the base class. Do we really need the extra belt and suspenders here?",
+      "range": {
+        "startLine": 741,
+        "startChar": 5,
+        "endLine": 744,
+        "endChar": 82
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd6ba732_a5b5f480",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 23
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T17:32:39Z",
+      "side": 1,
+      "message": "ditto do we need this?",
+      "range": {
+        "startLine": 538,
+        "startChar": 4,
+        "endLine": 538,
+        "endChar": 53
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfeb4984_f7f9bc93",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-15T17:32:39Z",
+      "side": 1,
+      "message": "again.",
+      "range": {
+        "startLine": 1213,
+        "startChar": 4,
+        "endLine": 1213,
+        "endChar": 16
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
