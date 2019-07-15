@@ -46,6 +46,30 @@
       "revId": "23f354762a4de5ffe84884d32e0158261d845904",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd296693_1c0b1873",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-15T20:20:19Z",
+      "side": 1,
+      "message": "Oh, ok.  I think I\u0027m just getting ahead of myself into a world where no effect can really assume it\u0027s first.  It\u0027s not really that important.",
+      "parentUuid": "989899d4_f1824b77",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 62
+      },
+      "revId": "23f354762a4de5ffe84884d32e0158261d845904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
