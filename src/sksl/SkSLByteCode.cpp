@@ -380,6 +380,12 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
     I32* contPtr = contStack;
     I32* loopPtr = loopStack;
 
+    if (f->fConditionCount + 1 > (int)SK_ARRAY_COUNT(condStack) ||
+        f->fLoopCount + 1 > (int)SK_ARRAY_COUNT(loopStack)) {
+        SkDEBUGFAIL("Function with too much nested control flow to evaluate");
+        return;
+    }
+
     auto mask = [&]() { return *maskPtr & *loopPtr; };
 
     for (;;) {
@@ -1008,6 +1014,11 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
     f->disassemble();
 #endif
     Interpreter::VValue stack[128];
+    int stackNeeded = f->fParameterCount + f->fLocalCount + f->fStackCount;
+    if (stackNeeded > (int)SK_ARRAY_COUNT(stack)) {
+        SkDEBUGFAIL("Function requires too much stack space to evaluate");
+        return;
+    }
 
     SkASSERT(uniformCount == (int)fInputSlots.size());
     Interpreter::VValue globals[32];
@@ -1076,6 +1087,11 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
     f->disassemble();
 #endif
     Interpreter::VValue stack[128];
+    int stackNeeded = f->fParameterCount + f->fLocalCount + f->fStackCount;
+    if (stackNeeded > (int)SK_ARRAY_COUNT(stack)) {
+        SkDEBUGFAIL("Function requires too much stack space to evaluate");
+        return;
+    }
 
     // innerRun just takes outArgs, so clear it if the count is zero
     if (outCount == 0) {
