@@ -250,8 +250,8 @@ namespace skvm {
             union { Reg z; int imm; };
         };
 
-        Program(std::vector<Instruction>, int regs, int loop);
-        Program() : Program({}, 0, 0) {}
+        Program(std::vector<Instruction>, int regs, int loop, std::vector<int> strides);
+        Program() : Program({}, 0, 0, {}) {}
 
         ~Program();
         Program(Program&&);
@@ -262,8 +262,7 @@ namespace skvm {
         template <typename... T>
         void eval(int n, T*... arg) const {
             void* args[] = { (void*)arg..., nullptr };
-            size_t strides[] = { sizeof(*arg)... };
-            this->eval(n, args, strides, (int)sizeof...(arg));
+            this->eval(n, args);
         }
 
         std::vector<Instruction> instructions() const { return fInstructions; }
@@ -279,11 +278,12 @@ namespace skvm {
             void (*entry)() = nullptr;  // Entry point, offset into buf.
         };
 
-        void eval(int n, void* args[], size_t strides[], int nargs) const;
+        void eval(int n, void* args[]) const;
 
         std::vector<Instruction> fInstructions;
         int                      fRegs;
         int                      fLoop;
+        std::vector<int>         fStrides;
         mutable SkSpinlock       fJITLock;
         mutable JIT              fJIT;
     };
@@ -304,7 +304,12 @@ namespace skvm {
 
         Program done() const;
 
-        Arg arg(int);
+        // Declare a varying argument with given stride.
+        Arg arg(int stride);
+
+        // Convenience arg() wrapper for most common stride, sizeof(T).
+        template <typename T>
+        Arg arg() { return this->arg(sizeof(T)); }
 
         void store8 (Arg ptr, I32 val);
         void store32(Arg ptr, I32 val);
@@ -392,6 +397,7 @@ namespace skvm {
 
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
+        std::vector<int>                              fStrides;
     };
 
     // TODO: comparison operations, if_then_else

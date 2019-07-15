@@ -23,6 +23,7 @@ namespace skvm {
         fInstructions = std::move(other.fInstructions);
         fRegs = other.fRegs;
         fLoop = other.fLoop;
+        fStrides = std::move(other.fStrides);
         // Don't bother trying to move other.fJIT*.  We can just regenerate it.
     }
 
@@ -30,6 +31,7 @@ namespace skvm {
         fInstructions = std::move(other.fInstructions);
         fRegs = other.fRegs;
         fLoop = other.fLoop;
+        fStrides = std::move(other.fStrides);
         // Don't bother trying to move other.fJIT*.  We can just regenerate it,
         // but we do need to invalidate anything we have cached ourselves.
         fJITLock.acquire();
@@ -38,10 +40,14 @@ namespace skvm {
         return *this;
     }
 
-    Program::Program(std::vector<Instruction> instructions, int regs, int loop)
+    Program::Program(std::vector<Instruction> instructions,
+                     int regs,
+                     int loop,
+                     std::vector<int> strides)
         : fInstructions(std::move(instructions))
         , fRegs(regs)
-        , fLoop(loop) {}
+        , fLoop(loop)
+        , fStrides(std::move(strides)) {}
 
 
     Program Builder::done() const {
@@ -182,7 +188,7 @@ namespace skvm {
             push_instruction(id, inst);
         }
 
-        return { std::move(program), /*register count = */next_reg, loop };
+        return { std::move(program), /*register count = */next_reg, loop, fStrides };
     }
 
     static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
@@ -215,7 +221,11 @@ namespace skvm {
             && fProgram[id].imm == 0;
     }
 
-    Arg Builder::arg(int ix) { return {ix}; }
+    Arg Builder::arg(int stride) {
+        int ix = (int)fStrides.size();
+        fStrides.push_back(stride);
+        return {ix};
+    }
 
     void Builder::store8 (Arg ptr, I32 val) { (void)this->push(Op::store8 , val.id,NA,NA, ptr.ix); }
     void Builder::store32(Arg ptr, I32 val) { (void)this->push(Op::store32, val.id,NA,NA, ptr.ix); }
@@ -869,7 +879,7 @@ namespace skvm {
     #if defined(__x86_64__)
     static void jit(Assembler& a, size_t* code,
                    const std::vector<Program::Instruction>& instructions,
-                   int regs, int loop, size_t strides[], int nargs) {
+                   int regs, int loop, const int strides[], int nargs) {
         using A = Assembler;
 
         SkASSERT(can_jit(regs,nargs));
@@ -1074,7 +1084,7 @@ namespace skvm {
             emit(instructions[i], /*scalar=*/false);
         }
         for (int i = 0; i < nargs; i++) {
-            a.add(arg[i], K*(int)strides[i]);
+            a.add(arg[i], K*strides[i]);
         }
         a.sub(N, K);
         a.jmp(&body);
@@ -1087,7 +1097,7 @@ namespace skvm {
             emit(instructions[i], /*scalar=*/true);
         }
         for (int i = 0; i < nargs; i++) {
-            a.add(arg[i], 1*(int)strides[i]);
+            a.add(arg[i], 1*strides[i]);
         }
         a.sub(N, 1);
         a.jmp(&tail);
@@ -1100,7 +1110,7 @@ namespace skvm {
     #elif defined(__aarch64__)
     static void jit(Assembler& a, size_t* code,
                     const std::vector<Program::Instruction>& instructions,
-                    int regs, int loop, size_t strides[], int nargs) {
+                    int regs, int loop, const int strides[], int nargs) {
         using A = Assembler;
         SkASSERT(can_jit(regs,nargs));
 
@@ -1272,7 +1282,7 @@ namespace skvm {
             emit(instructions[i], /*scalar=*/false);
         }
         for (int i = 0; i < nargs; i++) {
-            a.add(arg[i], arg[i], K*(int)strides[i]);
+            a.add(arg[i], arg[i], K*strides[i]);
         }
         a.sub(N, N, K);
         a.b(&body);
@@ -1284,7 +1294,7 @@ namespace skvm {
             emit(instructions[i], /*scalar=*/true);
         }
         for (int i = 0; i < nargs; i++) {
-            a.add(arg[i], arg[i], 1*(int)strides[i]);
+            a.add(arg[i], arg[i], 1*strides[i]);
         }
         a.sub(N, N, 1);
         a.b(&tail);
@@ -1303,8 +1313,9 @@ namespace skvm {
     Program::JIT::~JIT() { SkASSERT(buf == nullptr); }
 #endif // defined(SKVM_JIT)
 
-    void Program::eval(int n, void* args[], size_t strides[], int nargs) const {
+    void Program::eval(int n, void* args[]) const {
         void (*entry)() = nullptr;
+        int nargs = (int)fStrides.size();
 
     #if defined(SKVM_JIT)
         // If we can't grab this lock, another thread is probably assembling the program.
@@ -1317,7 +1328,7 @@ namespace skvm {
                 // First assemble without any buffer to see how much memory we need to mmap.
                 size_t code;
                 Assembler a{nullptr};
-                jit(a, &code, fInstructions, fRegs, fLoop, strides, nargs);
+                jit(a, &code, fInstructions, fRegs, fLoop, fStrides.data(), nargs);
 
                 // mprotect() can only change at a page level granularity, so round a.size() up.
                 size_t page = sysconf(_SC_PAGESIZE),                           // Probably 4096.
@@ -1327,7 +1338,7 @@ namespace skvm {
                     mmap(nullptr, size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
 
                 a = Assembler{buf};
-                jit(a,&code, fInstructions, fRegs, fLoop, strides, nargs);
+                jit(a, &code, fInstructions, fRegs, fLoop, fStrides.data(), nargs);
 
                 mprotect(buf,size, PROT_READ|PROT_EXEC);
             #if defined(__aarch64__)
@@ -1524,8 +1535,8 @@ namespace skvm {
                 // Looping by marching pointers until *arg == nullptr helps the
                 // compiler to keep this loop scalar.  Otherwise it'd create a
                 // rather large and useless autovectorized version.
-                void**        arg    = args;
-                const size_t* stride = strides;
+                void**        arg = args;
+                const int* stride = fStrides.data();
                 for (; *arg; arg++, stride++) {
                     *arg = (void*)( (char*)*arg + times * *stride );
                 }
@@ -1627,5 +1638,3 @@ namespace skvm {
         }
     }
 }
-
-// TODO: argument strides (more generally types) should come earlier, the pointers themselves later.
