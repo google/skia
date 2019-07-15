@@ -31,7 +31,10 @@
 
 class SkPictureRecord : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
-    SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
+    // If fopLevelRecord is supplied, we will record images and other resources into that record's
+    // arrays instead of our own.
+    SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags,
+        SkPictureRecord* topLevelRecord = nullptr);
 
     const SkTArray<sk_sp<const SkPicture>>& getPictures() const {
         return fPictures;
@@ -253,13 +256,21 @@ private:
     SkWriter32 fWriter;
 
     SkTArray<sk_sp<const SkImage>>    fImages;
-    SkTArray<sk_sp<const SkPicture>>  fPictures;
     SkTArray<sk_sp<SkDrawable>>       fDrawables;
     SkTArray<sk_sp<const SkTextBlob>> fTextBlobs;
     SkTArray<sk_sp<const SkVertices>> fVertices;
 
+    // Save subpictures as recorded
+    struct RecordedSubPicture {
+        const SkPictInfo info;
+        const SkPictureRecord record;
+    };
+    SkTArray<sk_sp<const SkRecordedSubPicture>>  fPictures;
+
     uint32_t fRecordFlags;
     int      fInitialSaveCount;
+
+    SkPictureRecord* fTopLevelRecord;
 
     friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor
 

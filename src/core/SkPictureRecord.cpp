@@ -29,10 +29,12 @@ enum {
 // A lot of basic types get stored as a uint32_t: bools, ints, paint indices, etc.
 static int const kUInt32Size = 4;
 
-SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
+SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags,
+    SkPictureRecord* topLevelRecord)
     : INHERITED(dimensions.width(), dimensions.height())
     , fRecordFlags(flags)
-    , fInitialSaveCount(kNoInitialSave) {
+    , fInitialSaveCount(kNoInitialSave)
+    , fTopLevelRecord(topLevelRecord) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -824,8 +826,12 @@ sk_sp<SkSurface> SkPictureRecord::onNewSurface(const SkImageInfo& info, const Sk
 }
 
 void SkPictureRecord::addImage(const SkImage* image) {
-    // convention for images is 0-based index
-    this->addInt(find_or_append(fImages, image));
+    if (fTopLevelRecord) {
+        this->addInt(find_or_append(fTopLevelRecord->fImages, image));
+    } else {
+        // convention for images is 0-based index
+        this->addInt(find_or_append(fImages, image));
+    }
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
@@ -861,11 +867,33 @@ void SkPictureRecord::addPatch(const SkPoint cubics[12]) {
 void SkPictureRecord::addPicture(const SkPicture* picture) {
     // follow the convention of recording a 1-based index
     this->addInt(find_or_append(fPictures, picture) + 1);
+    // When adding a picture here, record it into an SkPictureRecord that shares
+    // resource arrays with this one.
+    // When constructing our custom format (analagous to SkPictureData) from this record,
+    // we'll also recurse through subpictures and convert them to that format as well.
+    // When we serialize it, we'll already have subpictures in the custom format, with resources
+    // that ref the top level (and have thus already been written by the time subpictures are being
+    // serialized), Write all resources in subpictures as IDs.
+
+    // Record the subpicture immediately into an SkPictureRecord that uses this record's arrays
+    SkPictureRecord* top = fTopLevelRecord ? : &this;
+    SkPictInfo info = picture->createHeader();
+    SkPictureRecord rec(SkISize::Make(info.fCullRect.width(), info.fCullRect.height()),
+        0/*flags*/, top);
+    rec.beginRecording();
+    picture->playback(&rec);
+    rec.endRecording();
+
+    // Now keep this somewhere so we don't do it again on serialization.
 }
 
 void SkPictureRecord::addDrawable(SkDrawable* drawable) {
-    // follow the convention of recording a 1-based index
-    this->addInt(find_or_append(fDrawables, drawable) + 1);
+    if (fTopLevelRecord) {
+        this->addInt(find_or_append(fTopLevelRecord->fDrawables, drawable));
+    } else {
+        // follow the convention of recording a 1-based index
+        this->addInt(find_or_append(fDrawables, drawable) + 1);
+    }
 }
 
 void SkPictureRecord::addPoint(const SkPoint& point) {
@@ -915,13 +943,21 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
 }
 
 void SkPictureRecord::addTextBlob(const SkTextBlob* blob) {
-    // follow the convention of recording a 1-based index
-    this->addInt(find_or_append(fTextBlobs, blob) + 1);
+    if (fTopLevelRecord) {
+        this->addInt(find_or_append(fTopLevelRecord->fTextBlobs, blob));
+    } else {
+        // follow the convention of recording a 1-based index
+        this->addInt(find_or_append(fTextBlobs, blob) + 1);
+    }
 }
 
 void SkPictureRecord::addVertices(const SkVertices* vertices) {
-    // follow the convention of recording a 1-based index
-    this->addInt(find_or_append(fVertices, vertices) + 1);
+    if (fTopLevelRecord) {
+        this->addInt(find_or_append(fTopLevelRecord->fVertices, vertices));
+    } else {
+        // follow the convention of recording a 1-based index
+        this->addInt(find_or_append(fVertices, vertices) + 1);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
