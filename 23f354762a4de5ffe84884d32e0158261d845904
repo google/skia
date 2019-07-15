@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dc51429_5a162bde",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-15T20:02:02Z",
+      "side": 1,
+      "message": "These are kind of, different, particularly when you\u0027re composing these things.  I think it makes more sense to say the previous effect\u0027s color, initialized to the paint color if there was none?\n\nI\u0027m not even really sure that last part helps more than it confuses... shader effects need access to the paint color at arbitrary times, not just fed through from the previous effect, so there\u0027s always got to be a way for them to get that paint color themselves when they need it.  So maybe drop any promise about what color is if there is no previous effect?  Shaders never get to assume they\u0027re first in line.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 62
+      },
+      "revId": "23f354762a4de5ffe84884d32e0158261d845904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
