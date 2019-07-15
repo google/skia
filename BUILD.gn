@@ -1632,6 +1632,7 @@ if (skia_enable_tools) {
       "tools/DDLPromiseImageHelper.cpp",
       "tools/DDLTileHelper.cpp",
       "tools/LsanSuppressions.cpp",
+      "tools/SkMetaData.cpp",
       "tools/ProcStats.cpp",
       "tools/Resources.cpp",
       "tools/SkSharingProc.cpp",

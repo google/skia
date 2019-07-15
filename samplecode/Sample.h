@@ -13,9 +13,9 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/private/SkMacros.h"
-#include "src/utils/SkMetaData.h"
 #include "tools/ModifierKey.h"
 #include "tools/Registry.h"
+#include "tools/SkMetaData.h"
 
 class SkCanvas;
 class Sample;
