@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3e13ec80_8d8f5dc3",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-15T17:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "363d4301_f2aab30a",
+      "range": {
+        "startLine": 381,
+        "startChar": 4,
+        "endLine": 381,
+        "endChar": 8
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c22552bb_b602ae9e",
         "filename": "src/gpu/GrCaps.cpp",
         "patchSetId": 23
@@ -45,6 +69,30 @@
       "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ced46f29_9259111f",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-15T17:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c22552bb_b602ae9e",
+      "range": {
+        "startLine": 382,
+        "startChar": 68,
+        "endLine": 382,
+        "endChar": 106
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "6c404295_2bff12b3",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-15T17:47:35Z",
+      "side": 1,
+      "message": "Done\n\nThe next CL is going to readd the computation of the config though - to feed into the GrSurfaceDesc instead of backendTex.config()",
+      "parentUuid": "79cc7903_8f841571",
+      "range": {
+        "startLine": 741,
+        "startChar": 5,
+        "endLine": 744,
+        "endChar": 82
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bd6ba732_a5b5f480",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 23
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "36bcedae_3602f6d7",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 23
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-15T17:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd6ba732_a5b5f480",
+      "range": {
+        "startLine": 538,
+        "startChar": 4,
+        "endLine": 538,
+        "endChar": 53
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bfeb4984_f7f9bc93",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 23
@@ -114,6 +210,30 @@
       "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efdcb379_4e5c487d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-15T17:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfeb4984_f7f9bc93",
+      "range": {
+        "startLine": 1213,
+        "startChar": 4,
+        "endLine": 1213,
+        "endChar": 16
+      },
+      "revId": "48049b5b7148eedbef55607f2da96befbeac3d38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
