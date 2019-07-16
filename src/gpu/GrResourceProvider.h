@@ -117,7 +117,6 @@ public:
      */
     sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                   int sampleCnt,
-                                                  GrColorType,
                                                   GrWrapOwnership,
                                                   GrWrapCacheable);
 

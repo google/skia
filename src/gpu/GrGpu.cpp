@@ -230,32 +230,23 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
 }
 
 sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,
-                                                     int sampleCnt, GrColorType colorType,
-                                                     GrWrapOwnership ownership,
+                                                     int sampleCnt, GrWrapOwnership ownership,
                                                      GrWrapCacheable cacheable) {
     this->handleDirtyContext();
     if (sampleCnt < 1) {
         return nullptr;
     }
-
-    const GrCaps* caps = this->caps();
-
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendTex.getBackendFormat(),
-                                                                     colorType)));
-
-    if (!caps->isFormatTexturable(colorType, backendTex.getBackendFormat()) ||
-        !caps->getRenderTargetSampleCount(sampleCnt, colorType, backendTex.getBackendFormat())) {
+    if (!this->caps()->isConfigTexturable(backendTex.config()) ||
+        !this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config())) {
         return nullptr;
     }
 
-    if (backendTex.width() > caps->maxRenderTargetSize() ||
-        backendTex.height() > caps->maxRenderTargetSize()) {
+    if (backendTex.width() > this->caps()->maxRenderTargetSize() ||
+        backendTex.height() > this->caps()->maxRenderTargetSize()) {
         return nullptr;
     }
-    sk_sp<GrTexture> tex = this->onWrapRenderableBackendTexture(backendTex, sampleCnt, colorType,
-                                                                ownership, cacheable);
+    sk_sp<GrTexture> tex =
+            this->onWrapRenderableBackendTexture(backendTex, sampleCnt, ownership, cacheable);
     SkASSERT(!tex || tex->asRenderTarget());
     return tex;
 }
