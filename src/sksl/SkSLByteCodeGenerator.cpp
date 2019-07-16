@@ -368,7 +368,7 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kLoopContinue:     return 0;
 
         default:
-            SkDEBUGFAILF("unsupported instruction %d\n", (int)inst);
+            ABORT("unsupported instruction %d\n", (int)inst);
             return 0;
     }
 }
