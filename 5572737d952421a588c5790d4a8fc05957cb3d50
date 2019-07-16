@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2dd92f31_5885ae44",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 3828,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-16T00:46:46Z",
+      "side": 1,
+      "message": "I already reverted this change, but looking closer it looks like you just need to make this kAlpha_half_as_Red_GrPixelConfig. But I that note do we reaeeaaaalllly need the _as_Red or at least delete the generic version.",
+      "range": {
+        "startLine": 3828,
+        "startChar": 22,
+        "endLine": 3828,
+        "endChar": 48
+      },
+      "revId": "5572737d952421a588c5790d4a8fc05957cb3d50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
