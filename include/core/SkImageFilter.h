@@ -453,6 +453,8 @@ protected:
 private:
     friend class SkGraphics;
     friend bool SkIsSameFilter(const SkImageFilter* a, const SkImageFilter* b);
+    friend SkIRect SkFilterNodeBounds(const SkImageFilter*, const SkIRect&, const SkMatrix&,
+                                      MapDirection, const SkIRect*);
 
     static void PurgeCache();
 
