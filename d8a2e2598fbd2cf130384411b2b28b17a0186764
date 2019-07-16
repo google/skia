@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98e82c8e_f253903a",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-16T17:28:40Z",
+      "side": 1,
+      "message": "It seems a little confusing that we\u0027re using fX[3] and fY[3] where sometimes they\u0027re actually  [x0, y0, x1], [y1, x2, x3]. Would it make more sense if the struct just had an array of 6 floats rather than two arrays of three floats? Or a union?",
+      "range": {
+        "startLine": 263,
+        "startChar": 0,
+        "endLine": 268,
+        "endChar": 39
+      },
+      "revId": "d8a2e2598fbd2cf130384411b2b28b17a0186764",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c473d59_97d3d302",
+        "filename": "src/gpu/ccpr/GrStencilAtlasOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-16T17:28:40Z",
+      "side": 1,
+      "message": "Just a note that maybe it\u0027s time to take advantage of relaxed constexpr and get rid of the template abominations in GrUserStencilSettings.",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 71
+      },
+      "revId": "d8a2e2598fbd2cf130384411b2b28b17a0186764",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
