@@ -96,7 +96,7 @@ bool Sample::mouse(SkPoint point, InputState clickState, ModifierKey modifierKey
                 fClick = nullptr;
                 return result;
             }
-            break;
+            return false;
     }
     SkASSERT(false);
     return false;
