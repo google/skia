@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c14d4bb8_c6f83346",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-16T14:13:37Z",
+      "side": 1,
+      "message": "Can we just define isFormatRenderable in GrCaps to just return true so this check doesn\u0027t get lost?",
+      "range": {
+        "startLine": 84,
+        "startChar": 4,
+        "endLine": 86,
+        "endChar": 11
+      },
+      "revId": "89d97fff963db150611c6348e32c6ca78b6a3dc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99e7401a_70bc5e1f",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-16T14:13:37Z",
+      "side": 1,
+      "message": "if we do the above suggestions can this be if (RT \u0026\u0026 formatRenderable() \u0026\u0026 configRenderable()). We will then simply delete the configRenderable when we are deleting that function.",
+      "range": {
+        "startLine": 103,
+        "startChar": 11,
+        "endLine": 103,
+        "endChar": 60
+      },
+      "revId": "89d97fff963db150611c6348e32c6ca78b6a3dc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "133775f5_76dad353",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-16T14:13:37Z",
+      "side": 1,
+      "message": "This isn\u0027t really important to change for this CL but it really bothers me this is written like a local static function. I always forget it is actually in a different file.",
+      "range": {
+        "startLine": 164,
+        "startChar": 4,
+        "endLine": 164,
+        "endChar": 18
+      },
+      "revId": "89d97fff963db150611c6348e32c6ca78b6a3dc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
