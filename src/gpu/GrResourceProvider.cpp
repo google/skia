@@ -315,13 +315,14 @@ sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& 
 
 sk_sp<GrTexture> GrResourceProvider::wrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                                   int sampleCnt,
+                                                                  GrColorType colorType,
                                                                   GrWrapOwnership ownership,
                                                                   GrWrapCacheable cacheable) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return fGpu->wrapRenderableBackendTexture(tex, sampleCnt, ownership, cacheable);
+    return fGpu->wrapRenderableBackendTexture(tex, sampleCnt, colorType, ownership, cacheable);
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget(

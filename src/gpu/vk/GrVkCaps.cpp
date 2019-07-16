@@ -1010,7 +1010,7 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
             break;
         case GrColorType::kAlpha_F16:
             if (VK_FORMAT_R16_SFLOAT == format) {
-                return kAlpha_half_GrPixelConfig;
+                return kAlpha_half_as_Red_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_F16:
