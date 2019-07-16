@@ -41,6 +41,10 @@ bool GrVkFormatIsSupported(VkFormat);
  * Returns true if the passed in VkFormat and GrPixelConfig are compatible with each other.
  */
 bool GrVkFormatPixelConfigPairIsValid(VkFormat, GrPixelConfig);
+/**
+ * Returns true if the passed in VkFormat and GrColorType are compatible with each other.
+ */
+bool GrVkFormatColorTypePairIsValid(VkFormat, GrColorType);
 #endif
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);

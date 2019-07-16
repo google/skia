@@ -58,7 +58,8 @@ public:
 #endif
 
     static bool ValidateBackendTexture(GrContext* ctx, const GrBackendTexture& tex,
-                                       GrPixelConfig* config, SkColorType ct, SkAlphaType at,
+                                       GrPixelConfig* config, GrColorType grCT,
+                                       SkColorType ct, SkAlphaType at,
                                        sk_sp<SkColorSpace> cs);
     static bool MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
                                        int numTextures, const SkYUVAIndex [4],
@@ -84,7 +85,7 @@ protected:
     // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
     // be null.
     static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
-            GrContext*, int width, int height, GrSurfaceOrigin, GrPixelConfig, GrBackendFormat,
+            GrContext*, int width, int height, GrSurfaceOrigin, GrColorType, GrBackendFormat,
             GrMipMapped, PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
             PromiseImageTextureDoneProc, PromiseImageTextureContext, PromiseImageApiVersion);
 
