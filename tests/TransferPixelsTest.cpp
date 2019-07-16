@@ -81,9 +81,9 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
         return;
     }
 
-    // if ((renderTarget && !caps->isFormatRenderable(colorType, backendFormat))) {
-    //        return;
-    //    }
+    if ((renderTarget && !caps->isFormatRenderable(colorType, backendFormat))) {
+            return;
+    }
 
     auto resourceProvider = context->priv().resourceProvider();
     GrGpu* gpu = context->priv().getGpu();
@@ -99,11 +99,6 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     desc.fHeight = kTextureHeight;
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
     desc.fSampleCnt = 1;
-
-    // TODO: Replace with isFormatRenderable when available.
-    if ((renderTarget && !caps->isConfigRenderable(desc.fConfig))) {
-        return;
-    }
 
     sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo,
                                                            GrResourceProvider::Flags::kNoPendingIO);
