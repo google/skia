@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b25856bb_c4c46466",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T14:49:20Z",
+      "side": 1,
+      "message": "implements ?",
+      "range": {
+        "startLine": 394,
+        "startChar": 85,
+        "endLine": 394,
+        "endChar": 95
+      },
+      "revId": "4c8e8d5737fa8f80ad4e2f33adccc9f30af9f300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c725f0db_205a1fea",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T14:49:20Z",
+      "side": 1,
+      "message": "must provide ?",
+      "range": {
+        "startLine": 395,
+        "startChar": 67,
+        "endLine": 395,
+        "endChar": 75
+      },
+      "revId": "4c8e8d5737fa8f80ad4e2f33adccc9f30af9f300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a2104df_73c997ed",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T14:49:20Z",
+      "side": 1,
+      "message": "wdyt about making this a method on caps ?",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 99
+      },
+      "revId": "4c8e8d5737fa8f80ad4e2f33adccc9f30af9f300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d765f19_c5fae307",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1515,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T14:49:20Z",
+      "side": 1,
+      "message": "Maybe \u0027maxLevelCnt\u0027 ?",
+      "range": {
+        "startLine": 1515,
+        "startChar": 12,
+        "endLine": 1515,
+        "endChar": 20
+      },
+      "revId": "4c8e8d5737fa8f80ad4e2f33adccc9f30af9f300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7361c246_87ceb932",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T14:49:20Z",
+      "side": 1,
+      "message": "When does this ever get set to true ?",
+      "range": {
+        "startLine": 1023,
+        "startChar": 8,
+        "endLine": 1023,
+        "endChar": 29
+      },
+      "revId": "4c8e8d5737fa8f80ad4e2f33adccc9f30af9f300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
