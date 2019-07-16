@@ -1656,7 +1656,11 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
                                                             : SkBackingFit::kExact;
 
     GrColorType colorType = fRenderTargetContext->colorSpaceInfo().colorType();
-    if (colorType == GrColorType::kRGBA_1010102) {
+    if (cinfo.fInfo.colorType() == SkColorType::kRGBA_F16_SkColorType) {
+        // The previous device was kRGBA_F16_SkColorType,
+        // or kF16ColorType was passed to saveLayer.
+        colorType = GrColorType::kRGBA_F16;
+    } else if (colorType == GrColorType::kRGBA_1010102) {
         // If the original device is 1010102, fall back to 8888 so that we have a usable alpha
         // channel in the layer.
         colorType = GrColorType::kRGBA_8888;
