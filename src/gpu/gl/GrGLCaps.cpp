@@ -1647,19 +1647,16 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             info.fInternalFormatForTexImage = GR_GL_BGRA;
         }
 
-        // We currently only use the renderbuffer format when allocating msaa renderbuffers, so we
-        // are making decisions here based on that use case. The GL_EXT_texture_format_BGRA8888
-        // extension adds BGRA color renderbuffer support for ES 2.0, but this does not guarantee
-        // support for MSAA renderbuffers. Additionally, the renderable support was added in a later
-        // revision of the extension. So it is possible for older drivers to support the extension
-        // but only an early revision of it without renderable support. We have no way of
-        // distinguishing between the two. The GL_APPLE_texture_format_BGRA8888 does not add support
-        // for BGRA color renderbuffers at all. So instead for both cases will use RGBA[8] for our
-        // format for the MSAA buffer. In the GL_EXT_texture_format_BGRA8888 case we can still
-        // make the resolve BGRA and which will work for glBlitFramebuffer for resolving which just
-        // requires the src and dst be bindable to FBOs.
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RGBA8 : GR_GL_RGBA;
+        if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
+            if (renderbufferStorageSupportsSizedInternalFormat) {
+                info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
+            } else {
+                info.fInternalFormatForRenderbuffer = GR_GL_RGBA;
+            }
+        } else {
+            info.fInternalFormatForRenderbuffer =
+                    renderbufferStorageSupportsSizedInternalFormat ? GR_GL_BGRA8 : GR_GL_BGRA;
+        }
 
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         // TexStorage requires using a sized internal format and BGRA8 is only supported if we have
@@ -1669,10 +1666,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
         if (GR_IS_GR_GL_ES(standard)) {
             if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
-                // As described in the comment for fInternalFormatForRenderbuffer, this extension
-                // adds renderable support for BGRA but not MSAA bgra. However, we've decided to
-                // always use RGBA instead.
-                info.fFlags = FormatInfo::kTextureable_Flag | msaaRenderFlags;
+                info.fFlags = FormatInfo::kTextureable_Flag | nonMSAARenderFlags;
                 // GL_EXT_texture storage has defined interactions with
                 // GL_EXT_texture_format_BGRA8888.
                 if (ctxInfo.hasExtension("GL_EXT_texture_storage") &&
