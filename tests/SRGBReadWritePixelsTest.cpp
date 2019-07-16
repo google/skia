@@ -10,6 +10,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
@@ -187,23 +188,14 @@ static std::unique_ptr<uint32_t[]> make_data() {
 
 static sk_sp<GrSurfaceContext> make_surface_context(Encoding contextEncoding, GrContext* context,
                                                     skiatest::Reporter* reporter) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = kW;
-    desc.fHeight = kH;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-
-    GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
-    const GrBackendFormat format = context->priv().caps()->getBackendFormatFromColorType(colorType);
-
-    auto surfaceContext = context->priv().makeDeferredSurfaceContext(
-            format, desc, kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kNo, colorType, kPremul_SkAlphaType,
-            encoding_as_color_space(contextEncoding));
+    auto surfaceContext = context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kExact, kW, kH, GrColorType::kRGBA_8888,
+            encoding_as_color_space(contextEncoding), 1, GrMipMapped::kNo,
+            kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kNo, GrProtected::kNo);
     if (!surfaceContext) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }
-    return surfaceContext;
+    return std::move(surfaceContext);
 }
 
 static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, Encoding readEncoding,
