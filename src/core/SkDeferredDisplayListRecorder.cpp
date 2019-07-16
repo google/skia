@@ -180,6 +180,10 @@ bool SkDeferredDisplayListRecorder::init() {
             SkBudgeted::kYes,
             fCharacterization.vulkanSecondaryCBCompatible());
 
+    if (!proxy) {
+        return false;
+    }
+
     sk_sp<GrSurfaceContext> c = fContext->priv().makeWrappedSurfaceContext(
             std::move(proxy),
             grColorType,

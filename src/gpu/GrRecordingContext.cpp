@@ -151,6 +151,8 @@ sk_sp<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
         const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
+    SkASSERT(proxy);
+
     if (proxy->asRenderTargetProxy()) {
         SkASSERT(kPremul_SkAlphaType == alphaType || kOpaque_SkAlphaType == alphaType);
         return this->drawingManager()->makeRenderTargetContext(std::move(proxy), colorType,
