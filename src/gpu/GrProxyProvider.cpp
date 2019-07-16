@@ -214,11 +214,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     GrColorType grCT = SkColorTypeToGrColorType(ct);
 
     GrBackendFormat format = this->caps()->getBackendFormatFromColorType(grCT);
-    if (!format.isValid()) {
-        return nullptr;
-    }
 
-    if (!this->caps()->isFormatTexturable(grCT, format)) {
+    if (!format.isValid() || !this->caps()->isFormatTexturable(grCT, format)) {
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(info.makeColorType(kRGBA_8888_SkColorType)) ||
             !srcImage->readPixels(copy8888.pixmap(), 0, 0)) {
