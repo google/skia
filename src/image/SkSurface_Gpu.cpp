@@ -438,9 +438,9 @@ static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex
     return true;
 }
 
-static GrColorType get_grcolortype_from_skcolortype_and_format(const GrCaps* caps,
-                                                               SkColorType skCT,
-                                                               const GrBackendFormat& format) {
+GrColorType get_grcolortype_from_skcolortype_and_format(const GrCaps* caps,
+                                                        SkColorType skCT,
+                                                        const GrBackendFormat& format) {
     GrColorType grCT = SkColorTypeToGrColorType(skCT);
     // Until we support SRGB in the SkColorType we have to do this manual check here to make sure
     // we use the correct GrColorType.
@@ -478,7 +478,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     }
 
     GrBackendTexture texCopy = backendTexture;
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig1,
                                   c.sampleCount(), grCT, true)) {
         return nullptr;
     }
@@ -570,7 +570,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     }
 
     GrBackendTexture texCopy = tex;
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig, sampleCnt, grColorType,
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig1, sampleCnt, grColorType,
                                   true)) {
         return nullptr;
     }
@@ -634,7 +634,7 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     GrBackendTexture texCopy = backendTexture;
     GrColorType grColorType = SkColorTypeToGrColorType(this->getCanvas()->imageInfo().colorType());
     auto colorSpace = sk_ref_sp(oldRTC->colorSpaceInfo().colorSpace());
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig, sampleCnt, grColorType,
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig1, sampleCnt, grColorType,
                                   true)) {
         return false;
     }
@@ -691,7 +691,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     }
 
     GrBackendRenderTarget rtCopy = rt;
-    if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig, grColorType)) {
+    if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig1, grColorType)) {
         return nullptr;
     }
     if (!SkSurface_Gpu::Valid(context->priv().caps(), rtCopy.getBackendFormat())) {
@@ -736,7 +736,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
     GrBackendTexture texCopy = tex;
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig1,
                                   sampleCnt, grColorType, false)) {
         return nullptr;
     }
