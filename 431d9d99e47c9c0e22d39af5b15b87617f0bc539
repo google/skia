@@ -39,6 +39,24 @@
       "revId": "431d9d99e47c9c0e22d39af5b15b87617f0bc539",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe654853_5c0a4ff0",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-16T13:19:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "382c2715_31341d44",
+      "revId": "431d9d99e47c9c0e22d39af5b15b87617f0bc539",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
