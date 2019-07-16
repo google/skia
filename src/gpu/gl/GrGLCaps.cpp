@@ -3775,7 +3775,7 @@ GrGLFormat GrGLCaps::pixelConfigToFormat(GrPixelConfig config) const {
 }
 
 // A near clone of format_color_type_valid_pair
-GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandard standard) {
+static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandard standard) {
     switch (ct) {
         case GrColorType::kUnknown:
             return kUnknown_GrPixelConfig;
@@ -3843,7 +3843,7 @@ GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandar
             break;
         case GrColorType::kAlpha_F16:
             if (GR_GL_R16F == format) {
-                return kAlpha_half_GrPixelConfig;
+                return kAlpha_half_as_Red_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_F16:
