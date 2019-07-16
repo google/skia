@@ -407,8 +407,8 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
     return stencil;
 }
 
-sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                           const GrMipLevel texels[], int mipLevelCount) {
+sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
+        SkBudgeted budgeted, const GrMipLevel texels[], int mipLevelCount) {
     int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
 
     if (!fMtlCaps->isConfigTexturable(desc.fConfig)) {
@@ -423,7 +423,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         return nullptr; // TODO: add compressed texture support
     }
 
-    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    bool renderTarget = renderable == GrRenderable::kYes;
 
     sk_sp<GrMtlTexture> tex;
     // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
