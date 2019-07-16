@@ -13,7 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/private/SkMacros.h"
-#include "tools/SkMetaData.h"
+#include "src/utils/SkMetaData.h"
 #include "tools/ModifierKey.h"
 #include "tools/Registry.h"
 

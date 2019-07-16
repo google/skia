@@ -25,7 +25,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkFontPriv.h"
-#include "tools/SkMetaData.h"
+#include "src/utils/SkMetaData.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
