@@ -238,7 +238,23 @@ size_t Cluster::roundPos(SkScalar s) const {
 
 SkScalar Cluster::trimmedWidth(size_t pos) const {
     // Find the width until the pos and return the min between trimmedWidth and the width(pos)
-    return SkTMin(this->run()->positionX(pos) - this->run()->positionX(fStart), fWidth - fSpacing);
+    auto& run = fMaster->getRun(fRunIndex);
+    return SkTMin(run.positionX(pos) - run.positionX(fStart), fWidth - fSpacing);
+}
+
+void Cluster::shift(SkScalar offset) const {
+    fMaster->getRun(fRunIndex).shift(this, offset);
+}
+
+Run* Cluster::run() const {
+    if (fRunIndex >= fMaster->runs().size()) {
+        return nullptr;
+    }
+    return &fMaster->getRun(fRunIndex);
+}
+
+SkFont Cluster::font() const {
+    return fMaster->getRun(fRunIndex).font();
 }
 
 }  // namespace textlayout

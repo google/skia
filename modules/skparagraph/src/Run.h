@@ -18,6 +18,9 @@ class ParagraphImpl;
 class Cluster;
 class Run;
 
+typedef size_t RunIndex;
+const size_t EMPTY_RUN = std::numeric_limits<size_t>::max();
+
 class TextBlock {
 public:
     TextBlock() : fText(), fTextStyle() {}
@@ -211,7 +214,7 @@ public:
     Cluster()
             : fMaster(nullptr)
             , fTextRange(nullptr)
-            , fRunReference()
+            , fRunIndex(EMPTY_RUN)
             , fStart(0)
             , fEnd()
             , fWidth()
@@ -221,7 +224,7 @@ public:
             , fBreakType(None) {}
 
     Cluster(ParagraphImpl* master,
-            Run* run,
+            RunIndex runIndex,
             size_t start,
             size_t end,
             SkSpan<const char> text,
@@ -229,7 +232,7 @@ public:
             SkScalar height)
             : fMaster(master)
             , fTextRange(master, text)
-            , fRunReference(master, run)
+            , fRunIndex(runIndex)
             , fStart(start)
             , fEnd(end)
             , fWidth(width)
@@ -261,7 +264,6 @@ public:
     }
     bool isHardBreak() const { return fBreakType == HardLineBreak; }
     bool isSoftBreak() const { return fBreakType == SoftLineBreak; }
-    Run* run() const { return fRunReference.reference(fMaster); }
     size_t startPos() const { return fStart; }
     size_t endPos() const { return fEnd; }
     SkScalar width() const { return fWidth; }
@@ -271,9 +273,13 @@ public:
     SkSpan<const char> text() const { return fTextRange.span(); }
     size_t size() const { return fEnd - fStart; }
 
+    RunIndex runIndex() const { return fRunIndex; }
+    Run* run() const;
+    SkFont font() const;
+
     SkScalar trimmedWidth(size_t pos) const;
 
-    void shift(SkScalar offset) const { this->run()->shift(this, offset); }
+    void shift(SkScalar offset) const;
 
     void setIsWhiteSpaces();
 
@@ -291,7 +297,7 @@ private:
 
     ParagraphImpl* fMaster;
     StableRange<ParagraphImpl, const char, &accessText> fTextRange;
-    StableReference<ParagraphImpl, Run, &accessRunRef> fRunReference;
+    RunIndex fRunIndex;
 
     size_t fStart;
     size_t fEnd;
