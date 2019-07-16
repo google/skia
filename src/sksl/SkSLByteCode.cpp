@@ -16,6 +16,10 @@
 
 #include <vector>
 
+int gInstructionsExecuted = 0;
+int gBreakpoint = -1;
+SkSL::Snapshot gSnapshot;
+
 namespace SkSL {
 
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
@@ -33,30 +37,30 @@ using U32 = skvx::Vec<VecWidth, uint32_t>;
 #define READ32() (ip += 4, sk_unaligned_load<uint32_t>(ip - 4))
 
 #define VECTOR_DISASSEMBLE(op, text)                          \
-    case ByteCodeInstruction::op: printf(text); break;        \
-    case ByteCodeInstruction::op##2: printf(text "2"); break; \
-    case ByteCodeInstruction::op##3: printf(text "3"); break; \
-    case ByteCodeInstruction::op##4: printf(text "4"); break;
+    case ByteCodeInstruction::op: s.printf(text); break;        \
+    case ByteCodeInstruction::op##2: s.printf(text "2"); break; \
+    case ByteCodeInstruction::op##3: s.printf(text "3"); break; \
+    case ByteCodeInstruction::op##4: s.printf(text "4"); break;
 
 #define VECTOR_MATRIX_DISASSEMBLE(op, text)                   \
-    case ByteCodeInstruction::op: printf(text); break;        \
-    case ByteCodeInstruction::op##2: printf(text "2"); break; \
-    case ByteCodeInstruction::op##3: printf(text "3"); break; \
-    case ByteCodeInstruction::op##4: printf(text "4"); break; \
-    case ByteCodeInstruction::op##N: printf(text "N %d", READ8()); break;
+    case ByteCodeInstruction::op: s.printf(text); break;        \
+    case ByteCodeInstruction::op##2: s.printf(text "2"); break; \
+    case ByteCodeInstruction::op##3: s.printf(text "3"); break; \
+    case ByteCodeInstruction::op##4: s.printf(text "4"); break; \
+    case ByteCodeInstruction::op##N: s.printf(text "N %d", READ8()); break;
 
-static const uint8_t* disassemble_instruction(const uint8_t* ip) {
+static const uint8_t* disassemble_instruction(const uint8_t* ip, SkString& s) {
     switch ((ByteCodeInstruction) READ16()) {
         VECTOR_MATRIX_DISASSEMBLE(kAddF, "addf")
         VECTOR_DISASSEMBLE(kAddI, "addi")
-        case ByteCodeInstruction::kAndB: printf("andb"); break;
-        case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
-        case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
+        case ByteCodeInstruction::kAndB: s.printf("andb"); break;
+        case ByteCodeInstruction::kBranch: s.printf("branch %d", READ16()); break;
+        case ByteCodeInstruction::kCall: s.printf("call %d", READ8()); break;
         case ByteCodeInstruction::kCallExternal: {
             int argumentCount = READ8();
             int returnCount = READ8();
             int externalValue = READ8();
-            printf("callexternal %d, %d, %d", argumentCount, returnCount, externalValue);
+            s.printf("callexternal %d, %d, %d", argumentCount, returnCount, externalValue);
             break;
         }
         VECTOR_DISASSEMBLE(kCompareIEQ, "compareieq")
@@ -79,53 +83,53 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kConvertStoF, "convertstof")
         VECTOR_DISASSEMBLE(kConvertUtoF, "convertutof")
         VECTOR_DISASSEMBLE(kCos, "cos")
-        case ByteCodeInstruction::kCross: printf("cross"); break;
+        case ByteCodeInstruction::kCross: s.printf("cross"); break;
         VECTOR_MATRIX_DISASSEMBLE(kDivideF, "dividef")
         VECTOR_DISASSEMBLE(kDivideS, "divideS")
         VECTOR_DISASSEMBLE(kDivideU, "divideu")
         VECTOR_MATRIX_DISASSEMBLE(kDup, "dup")
-        case ByteCodeInstruction::kLoad: printf("load %d", READ8()); break;
-        case ByteCodeInstruction::kLoad2: printf("load2 %d", READ8()); break;
-        case ByteCodeInstruction::kLoad3: printf("load3 %d", READ8()); break;
-        case ByteCodeInstruction::kLoad4: printf("load4 %d", READ8()); break;
-        case ByteCodeInstruction::kLoadGlobal: printf("loadglobal %d", READ8()); break;
-        case ByteCodeInstruction::kLoadGlobal2: printf("loadglobal2 %d", READ8()); break;
-        case ByteCodeInstruction::kLoadGlobal3: printf("loadglobal3 %d", READ8()); break;
-        case ByteCodeInstruction::kLoadGlobal4: printf("loadglobal4 %d", READ8()); break;
+        case ByteCodeInstruction::kLoad: s.printf("load %d", READ8()); break;
+        case ByteCodeInstruction::kLoad2: s.printf("load2 %d", READ8()); break;
+        case ByteCodeInstruction::kLoad3: s.printf("load3 %d", READ8()); break;
+        case ByteCodeInstruction::kLoad4: s.printf("load4 %d", READ8()); break;
+        case ByteCodeInstruction::kLoadGlobal: s.printf("loadglobal %d", READ8()); break;
+        case ByteCodeInstruction::kLoadGlobal2: s.printf("loadglobal2 %d", READ8()); break;
+        case ByteCodeInstruction::kLoadGlobal3: s.printf("loadglobal3 %d", READ8()); break;
+        case ByteCodeInstruction::kLoadGlobal4: s.printf("loadglobal4 %d", READ8()); break;
         case ByteCodeInstruction::kLoadSwizzle: {
             int target = READ8();
             int count = READ8();
-            printf("loadswizzle %d %d", target, count);
+            s.printf("loadswizzle %d %d", target, count);
             for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
+                s.appendf(", %d", READ8());
             }
             break;
         }
         case ByteCodeInstruction::kLoadSwizzleGlobal: {
             int target = READ8();
             int count = READ8();
-            printf("loadswizzleglobal %d %d", target, count);
+            s.printf("loadswizzleglobal %d %d", target, count);
             for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
+                s.appendf(", %d", READ8());
             }
             break;
         }
-        case ByteCodeInstruction::kLoadExtended: printf("loadextended %d", READ8()); break;
-        case ByteCodeInstruction::kLoadExtendedGlobal: printf("loadextendedglobal %d", READ8());
+        case ByteCodeInstruction::kLoadExtended: s.printf("loadextended %d", READ8()); break;
+        case ByteCodeInstruction::kLoadExtendedGlobal: s.printf("loadextendedglobal %d", READ8());
             break;
         case ByteCodeInstruction::kMatrixToMatrix: {
             int srcCols = READ8();
             int srcRows = READ8();
             int dstCols = READ8();
             int dstRows = READ8();
-            printf("matrixtomatrix %dx%d %dx%d", srcCols, srcRows, dstCols, dstRows);
+            s.printf("matrixtomatrix %dx%d %dx%d", srcCols, srcRows, dstCols, dstRows);
             break;
         }
         case ByteCodeInstruction::kMatrixMultiply: {
             int lCols = READ8();
             int lRows = READ8();
             int rCols = READ8();
-            printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
+            s.printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
             break;
         }
         VECTOR_DISASSEMBLE(kMix, "mix")
@@ -133,108 +137,108 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
         VECTOR_MATRIX_DISASSEMBLE(kNegateF, "negatef")
         VECTOR_DISASSEMBLE(kNegateI, "negatei")
-        case ByteCodeInstruction::kNotB: printf("notb"); break;
-        case ByteCodeInstruction::kOrB: printf("orb"); break;
+        case ByteCodeInstruction::kNotB: s.printf("notb"); break;
+        case ByteCodeInstruction::kOrB: s.printf("orb"); break;
         VECTOR_MATRIX_DISASSEMBLE(kPop, "pop")
         case ByteCodeInstruction::kPushImmediate: {
             uint32_t v = READ32();
             union { uint32_t u; float f; } pun = { v };
-            printf("pushimmediate %s", (to_string(v) + "(" + to_string(pun.f) + ")").c_str());
+            s.printf("pushimmediate %s", (to_string(v) + "(" + to_string(pun.f) + ")").c_str());
             break;
         }
-        case ByteCodeInstruction::kReadExternal: printf("readexternal %d", READ8()); break;
-        case ByteCodeInstruction::kReadExternal2: printf("readexternal2 %d", READ8()); break;
-        case ByteCodeInstruction::kReadExternal3: printf("readexternal3 %d", READ8()); break;
-        case ByteCodeInstruction::kReadExternal4: printf("readexternal4 %d", READ8()); break;
+        case ByteCodeInstruction::kReadExternal: s.printf("readexternal %d", READ8()); break;
+        case ByteCodeInstruction::kReadExternal2: s.printf("readexternal2 %d", READ8()); break;
+        case ByteCodeInstruction::kReadExternal3: s.printf("readexternal3 %d", READ8()); break;
+        case ByteCodeInstruction::kReadExternal4: s.printf("readexternal4 %d", READ8()); break;
         VECTOR_DISASSEMBLE(kRemainderF, "remainderf")
         VECTOR_DISASSEMBLE(kRemainderS, "remainders")
         VECTOR_DISASSEMBLE(kRemainderU, "remainderu")
-        case ByteCodeInstruction::kReserve: printf("reserve %d", READ8()); break;
-        case ByteCodeInstruction::kReturn: printf("return %d", READ8()); break;
+        case ByteCodeInstruction::kReserve: s.printf("reserve %d", READ8()); break;
+        case ByteCodeInstruction::kReturn: s.printf("return %d", READ8()); break;
         case ByteCodeInstruction::kScalarToMatrix: {
             int cols = READ8();
             int rows = READ8();
-            printf("scalartomatrix %dx%d", cols, rows);
+            s.printf("scalartomatrix %dx%d", cols, rows);
             break;
         }
         VECTOR_DISASSEMBLE(kSin, "sin")
         VECTOR_DISASSEMBLE(kSqrt, "sqrt")
-        case ByteCodeInstruction::kStore: printf("store %d", READ8()); break;
-        case ByteCodeInstruction::kStore2: printf("store2 %d", READ8()); break;
-        case ByteCodeInstruction::kStore3: printf("store3 %d", READ8()); break;
-        case ByteCodeInstruction::kStore4: printf("store4 %d", READ8()); break;
-        case ByteCodeInstruction::kStoreGlobal: printf("storeglobal %d", READ8()); break;
-        case ByteCodeInstruction::kStoreGlobal2: printf("storeglobal2 %d", READ8()); break;
-        case ByteCodeInstruction::kStoreGlobal3: printf("storeglobal3 %d", READ8()); break;
-        case ByteCodeInstruction::kStoreGlobal4: printf("storeglobal4 %d", READ8()); break;
+        case ByteCodeInstruction::kStore: s.printf("store %d", READ8()); break;
+        case ByteCodeInstruction::kStore2: s.printf("store2 %d", READ8()); break;
+        case ByteCodeInstruction::kStore3: s.printf("store3 %d", READ8()); break;
+        case ByteCodeInstruction::kStore4: s.printf("store4 %d", READ8()); break;
+        case ByteCodeInstruction::kStoreGlobal: s.printf("storeglobal %d", READ8()); break;
+        case ByteCodeInstruction::kStoreGlobal2: s.printf("storeglobal2 %d", READ8()); break;
+        case ByteCodeInstruction::kStoreGlobal3: s.printf("storeglobal3 %d", READ8()); break;
+        case ByteCodeInstruction::kStoreGlobal4: s.printf("storeglobal4 %d", READ8()); break;
         case ByteCodeInstruction::kStoreSwizzle: {
             int target = READ8();
             int count = READ8();
-            printf("storeswizzle %d %d", target, count);
+            s.printf("storeswizzle %d %d", target, count);
             for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
+                s.appendf(", %d", READ8());
             }
             break;
         }
         case ByteCodeInstruction::kStoreSwizzleGlobal: {
             int target = READ8();
             int count = READ8();
-            printf("storeswizzleglobal %d %d", target, count);
+            s.printf("storeswizzleglobal %d %d", target, count);
             for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
+                s.appendf(", %d", READ8());
             }
             break;
         }
         case ByteCodeInstruction::kStoreSwizzleIndirect: {
             int count = READ8();
-            printf("storeswizzleindirect %d", count);
+            s.printf("storeswizzleindirect %d", count);
             for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
+                s.appendf(", %d", READ8());
             }
             break;
         }
         case ByteCodeInstruction::kStoreSwizzleIndirectGlobal: {
             int count = READ8();
-            printf("storeswizzleindirectglobal %d", count);
+            s.printf("storeswizzleindirectglobal %d", count);
             for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
+                s.appendf(", %d", READ8());
             }
             break;
         }
-        case ByteCodeInstruction::kStoreExtended: printf("storeextended %d", READ8()); break;
-        case ByteCodeInstruction::kStoreExtendedGlobal: printf("storeextendedglobal %d", READ8());
+        case ByteCodeInstruction::kStoreExtended: s.printf("storeextended %d", READ8()); break;
+        case ByteCodeInstruction::kStoreExtendedGlobal: s.printf("storeextendedglobal %d", READ8());
             break;
         VECTOR_MATRIX_DISASSEMBLE(kSubtractF, "subtractf")
         VECTOR_DISASSEMBLE(kSubtractI, "subtracti")
         case ByteCodeInstruction::kSwizzle: {
-            printf("swizzle %d, ", READ8());
+            s.printf("swizzle %d, ", READ8());
             int count = READ8();
-            printf("%d", count);
+            s.appendf("%d", count);
             for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
+                s.appendf(", %d", READ8());
             }
             break;
         }
         VECTOR_DISASSEMBLE(kTan, "tan")
-        case ByteCodeInstruction::kWriteExternal: printf("writeexternal %d", READ8()); break;
-        case ByteCodeInstruction::kWriteExternal2: printf("writeexternal2 %d", READ8()); break;
-        case ByteCodeInstruction::kWriteExternal3: printf("writeexternal3 %d", READ8()); break;
-        case ByteCodeInstruction::kWriteExternal4: printf("writeexternal4 %d", READ8()); break;
-        case ByteCodeInstruction::kXorB: printf("xorb"); break;
-        case ByteCodeInstruction::kMaskPush: printf("maskpush"); break;
-        case ByteCodeInstruction::kMaskPop: printf("maskpop"); break;
-        case ByteCodeInstruction::kMaskNegate: printf("masknegate"); break;
-        case ByteCodeInstruction::kMaskBlend: printf("maskblend %d", READ8()); break;
+        case ByteCodeInstruction::kWriteExternal: s.printf("writeexternal %d", READ8()); break;
+        case ByteCodeInstruction::kWriteExternal2: s.printf("writeexternal2 %d", READ8()); break;
+        case ByteCodeInstruction::kWriteExternal3: s.printf("writeexternal3 %d", READ8()); break;
+        case ByteCodeInstruction::kWriteExternal4: s.printf("writeexternal4 %d", READ8()); break;
+        case ByteCodeInstruction::kXorB: s.printf("xorb"); break;
+        case ByteCodeInstruction::kMaskPush: s.printf("maskpush"); break;
+        case ByteCodeInstruction::kMaskPop: s.printf("maskpop"); break;
+        case ByteCodeInstruction::kMaskNegate: s.printf("masknegate"); break;
+        case ByteCodeInstruction::kMaskBlend: s.printf("maskblend %d", READ8()); break;
         case ByteCodeInstruction::kBranchIfAllFalse:
-            printf("branchifallfalse %d", READ16());
+            s.printf("branchifallfalse %d", READ16());
             break;
-        case ByteCodeInstruction::kLoopBegin: printf("loopbegin"); break;
-        case ByteCodeInstruction::kLoopNext: printf("loopnext"); break;
-        case ByteCodeInstruction::kLoopMask: printf("loopmask"); break;
-        case ByteCodeInstruction::kLoopEnd: printf("loopend"); break;
-        case ByteCodeInstruction::kLoopContinue: printf("loopcontinue"); break;
-        case ByteCodeInstruction::kLoopBreak: printf("loopbreak"); break;
-        default: printf("unknown(%d)\n", *(ip - 1)); SkASSERT(false);
+        case ByteCodeInstruction::kLoopBegin: s.printf("loopbegin"); break;
+        case ByteCodeInstruction::kLoopNext: s.printf("loopnext"); break;
+        case ByteCodeInstruction::kLoopMask: s.printf("loopmask"); break;
+        case ByteCodeInstruction::kLoopEnd: s.printf("loopend"); break;
+        case ByteCodeInstruction::kLoopContinue: s.printf("loopcontinue"); break;
+        case ByteCodeInstruction::kLoopBreak: s.printf("loopbreak"); break;
+        default: s.printf("unknown(%d)\n", *(ip - 1)); SkASSERT(false);
     }
     return ip;
 }
@@ -388,12 +392,46 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 
     auto mask = [&]() { return *maskPtr & *loopPtr; };
 
+    gInstructionsExecuted = 0;
+
     for (;;) {
 #ifdef TRACE
         printf("at %3d  ", (int) (ip - code));
         disassemble_instruction(ip);
         printf("\n");
 #endif
+
+        if (gInstructionsExecuted == gBreakpoint) {
+            for (int i = 0; i < VecWidth; ++i) {
+                gSnapshot.stack[i].clear();
+                gSnapshot.cond[i].clear();
+                gSnapshot.mask[i].clear();
+                gSnapshot.cont[i].clear();
+                gSnapshot.loop[i].clear();
+                for (VValue* p = stack; p <= sp; ++p) {
+                    gSnapshot.stack[i].push_back(p->fFloat[i]);
+                }
+                for (I32* p = condStack; p <= condPtr; ++p) {
+                    gSnapshot.cond[i].push_back((*p)[i] != 0);
+                }
+                for (I32* p = maskStack; p <= maskPtr; ++p) {
+                    gSnapshot.mask[i].push_back((*p)[i] != 0);
+                }
+                for (I32* p = contStack; p <= contPtr; ++p) {
+                    gSnapshot.cont[i].push_back((*p)[i] != 0);
+                }
+                for (I32* p = loopStack; p <= loopPtr; ++p) {
+                    gSnapshot.loop[i].push_back((*p)[i] != 0);
+                }
+            }
+            gSnapshot.ip = (int)(ip - code);
+            return;
+        }
+
+        if (++gInstructionsExecuted > 4096) {
+            return;
+        }
+
         ByteCodeInstruction inst = (ByteCodeInstruction) READ16();
         switch (inst) {
             VECTOR_BINARY_OP(kAddI, fSigned, +)
@@ -1001,10 +1039,24 @@ void ByteCodeFunction::disassemble() const {
     const uint8_t* ip = fCode.data();
     while (ip < fCode.data() + fCode.size()) {
         printf("%d: ", (int)(ip - fCode.data()));
-        ip = Interpreter::disassemble_instruction(ip);
-        printf("\n");
+        SkString s;
+        ip = Interpreter::disassemble_instruction(ip, s);
+        printf("%s\n", s.c_str());
     }
 #endif
+}
+
+void ByteCodeFunction::disassemble(std::vector<SkString>& lines, std::map<int, int>& lookup) const {
+    lines.clear();
+    const uint8_t* ip = fCode.data();
+    while (ip < fCode.data() + fCode.size()) {
+        SkString s;
+        int ofs = (int)(ip - fCode.data());
+        ip = Interpreter::disassemble_instruction(ip, s);
+        s.prependf("%d: ", ofs);
+        lookup[ofs] = lines.size();
+        lines.push_back(s);
+    }
 }
 
 void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int N,
