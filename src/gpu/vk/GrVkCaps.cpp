@@ -1147,6 +1147,8 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
     return {};
 }
 
+bool GrVkCaps::canClearTextureOnCreation() const { return true; }
+
 #ifdef SK_DEBUG
 static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorType) {
     switch (colorType) {

@@ -153,11 +153,6 @@ enum GrSurfaceFlags {
      * GrTexture::asRenderTarget() to access.
      */
     kRenderTarget_GrSurfaceFlag = 0x1,
-    /**
-     * Clears to zero on creation. It will cause creation failure if initial data is supplied to the
-     * texture. This only affects the base level if the texture is created with MIP levels.
-     */
-    kPerformInitialClear_GrSurfaceFlag = 0x2
 };
 GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
 

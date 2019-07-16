@@ -69,7 +69,6 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
         , fBudgeted(budgeted)
         , fLazyInstantiateCallback(std::move(callback))
         , fLazyInstantiationType(lazyType)
-        , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
         , fIsProtected(desc.fIsProtected)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
@@ -103,7 +102,6 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
                             ? SkBudgeted::kYes
                             : SkBudgeted::kNo)
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
-        , fNeedsClear(false)
         , fIsProtected(fTarget->isProtected() ? GrProtected::kYes : GrProtected::kNo)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
@@ -141,9 +139,6 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     SkASSERT(!fTarget);
     GrSurfaceDesc desc;
     desc.fFlags = descFlags;
-    if (fNeedsClear) {
-        desc.fFlags |= kPerformInitialClear_GrSurfaceFlag;
-    }
     desc.fWidth = fWidth;
     desc.fHeight = fHeight;
     desc.fIsProtected = fIsProtected;

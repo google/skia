@@ -107,10 +107,6 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrRecordingContext* context
         return nullptr;
     }
 
-    auto clearFlag = kNone_GrSurfaceFlags;
-    if (context->priv().caps()->shouldInitializeTextures() && fit == SkBackingFit::kApprox) {
-        clearFlag = kPerformInitialClear_GrSurfaceFlag;
-    }
-    return context->priv().proxyProvider()->createTextureProxy(
-            std::move(img), clearFlag, 1, SkBudgeted::kYes, fit);
+    return context->priv().proxyProvider()->createTextureProxy(std::move(img), kNone_GrSurfaceFlags,
+                                                               1, SkBudgeted::kYes, fit);
 }

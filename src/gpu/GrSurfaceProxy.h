@@ -423,7 +423,6 @@ private:
 
     virtual size_t onUninstantiatedGpuMemorySize() const = 0;
 
-    bool                   fNeedsClear;
     bool                   fIgnoredByResourceAllocator = false;
     GrProtected            fIsProtected;
 

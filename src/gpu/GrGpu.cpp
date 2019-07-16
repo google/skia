@@ -100,7 +100,7 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
 }
 
 static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLevelCount, int bpp,
-                            const GrCaps* caps) {
+                            const GrCaps* caps, bool mustHaveDataForAllLevels = false) {
     SkASSERT(mipLevelCount > 0);
     bool hasBasePixels = texels[0].fPixels;
     int levelsWithPixelsCnt = 0;
@@ -138,7 +138,10 @@ static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLeve
     if (!hasBasePixels) {
         return levelsWithPixelsCnt == 0;
     }
-    return levelsWithPixelsCnt == 1 || levelsWithPixelsCnt == mipLevelCount;
+    if (levelsWithPixelsCnt == 1 && !mustHaveDataForAllLevels) {
+        return true;
+    }
+    return levelsWithPixelsCnt == mipLevelCount;
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
@@ -162,14 +165,15 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(desc.fSampleCnt > 0 && desc.fSampleCnt <= 64);
 
+    bool mustHaveDataForAllLevels = this->caps()->createTextureMustSpecifyAllLevels();
     if (mipLevelCount) {
-        if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
-            return nullptr;
-        }
         int bpp = GrBytesPerPixel(desc.fConfig);
-        if (!validate_levels(desc.fWidth, desc.fHeight, texels, mipLevelCount, bpp, this->caps())) {
+        if (!validate_levels(desc.fWidth, desc.fHeight, texels, mipLevelCount, bpp, this->caps(),
+                             mustHaveDataForAllLevels)) {
             return nullptr;
         }
+    } else if (mustHaveDataForAllLevels) {
+        return nullptr;
     }
 
     this->handleDirtyContext();
@@ -201,6 +205,8 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
         height < 1 || height > this->caps()->maxTextureSize()) {
         return nullptr;
     }
+    // Note if we relax the requirement that data must be provided then we must check
+    // caps()->shouldInitializeTextures() here.
     if (!data) {
         return nullptr;
     }

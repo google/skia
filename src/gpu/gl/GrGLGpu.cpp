@@ -1469,29 +1469,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                           int mipLevelCount) {
     // We fail if the MSAA was requested and is not available.
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt > 1) {
-        //SkDebugf("MSAA RT requested but not supported on this platform.");
         return return_null_texture();
-    }
-
-    GrGLFormat glFormat =
-            GrGLFormatFromGLEnum(this->glCaps().configSizedInternalFormat(desc.fConfig));
-
-    bool performClear = (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
-                        !GrGLFormatIsCompressed(glFormat);
-
-    GrMipLevel zeroLevel;
-    std::unique_ptr<uint8_t[]> zeros;
-    if (performClear && !this->glCaps().clearTextureSupport() &&
-        !this->glCaps().canConfigBeFBOColorAttachment(desc.fConfig)) {
-        size_t rowBytes = GrGLBytesPerFormat(glFormat) * desc.fWidth;
-        size_t size = rowBytes * desc.fHeight;
-        zeros.reset(new uint8_t[size]);
-        memset(zeros.get(), 0, size);
-        zeroLevel.fPixels = zeros.get();
-        zeroLevel.fRowBytes = rowBytes;
-        texels = &zeroLevel;
-        mipLevelCount = 1;
-        performClear = false;
     }
 
     bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
@@ -1529,19 +1507,17 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     SkDebugf("--- new texture [%d] size=(%d %d) config=%d\n",
              idDesc.fInfo.fID, desc.fWidth, desc.fHeight, desc.fConfig);
 #endif
-    if (tex && performClear) {
-        if (this->glCaps().clearTextureSupport()) {
-            static constexpr uint32_t kZero = 0;
-            GL_CALL(ClearTexImage(tex->textureID(), 0, GR_GL_RGBA, GR_GL_UNSIGNED_BYTE, &kZero));
-        } else {
-            this->bindSurfaceFBOForPixelOps(tex.get(), GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
-            this->disableScissor();
-            this->disableWindowRectangles();
-            this->flushColorWrite(true);
-            this->flushClearColor(0, 0, 0, 0);
-            GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
-            this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, tex.get());
-            fHWBoundRenderTargetUniqueID.makeInvalid();
+    bool clearLevelsWithoutData =
+            this->caps()->shouldInitializeTextures() && this->glCaps().clearTextureSupport();
+
+    if (clearLevelsWithoutData) {
+        static constexpr uint32_t kZero = 0;
+        int levelCnt = SkTMax(1, tex->texturePriv().maxMipMapLevel());
+        for (int i = 0; i < levelCnt; ++i) {
+            if (i >= mipLevelCount || !texels[i].fPixels) {
+                GL_CALL(ClearTexImage(tex->textureID(), i, GR_GL_RGBA, GR_GL_UNSIGNED_BYTE,
+                                      &kZero));
+            }
         }
     }
     return std::move(tex);
