@@ -302,8 +302,12 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     return true;
 }
 
-bool GrMtlGpu::clearTexture(GrMtlTexture* tex, GrColorType dataColorType) {
+bool GrMtlGpu::clearTexture(GrMtlTexture* tex, GrColorType dataColorType, uint32_t levelMask) {
     SkASSERT(this->caps()->isConfigTexturable(tex->config()));
+
+    if (!levelMask) {
+        return true;
+    }
 
     id<MTLTexture> mtlTexture = tex->mtlTexture();
     SkASSERT(mtlTexture);
@@ -314,34 +318,30 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, GrColorType dataColorType) {
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
-    individualMipOffsets.push_back(0);
-    int width = tex->width();
-    int height = tex->height();
-    size_t combinedBufferSize = width * bpp * height;
-    int currentWidth = width;
-    int currentHeight = height;
+    size_t combinedBufferSize = 0;
+    int currentWidth = tex->width();
+    int currentHeight = tex->height();
 
     // The alignment must be at least 4 bytes and a multiple of the bytes per pixel of the image
     // config. This works with the assumption that the bytes in pixel config is always a power of 2.
-    // TODO: can we just copy from a single buffer the size of the top level w/o a perf penalty?
+    // TODO: can we just copy from a single buffer the size of the largest cleared level w/o a perf
+    // penalty?
     SkASSERT((bpp & (bpp - 1)) == 0);
     const size_t alignmentMask = 0x3 | (bpp - 1);
-    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; currentMipLevel++) {
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        if (levelMask & (1 << currentMipLevel)) {
+            const size_t trimmedSize = currentWidth * bpp * currentHeight;
+            const size_t alignmentDiff = combinedBufferSize & alignmentMask;
+            if (alignmentDiff != 0) {
+                combinedBufferSize += alignmentMask - alignmentDiff + 1;
+            }
+            individualMipOffsets.push_back(combinedBufferSize);
+            combinedBufferSize += trimmedSize;
+        }
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
-
-        const size_t trimmedSize = currentWidth * bpp * currentHeight;
-        const size_t alignmentDiff = combinedBufferSize & alignmentMask;
-        if (alignmentDiff != 0) {
-            combinedBufferSize += alignmentMask - alignmentDiff + 1;
-        }
-        individualMipOffsets.push_back(combinedBufferSize);
-        combinedBufferSize += trimmedSize;
     }
-    if (0 == combinedBufferSize) {
-        // We don't actually have any data to upload so just return success
-        return true;
-    }
+    SkASSERT(combinedBufferSize > 0 && !individualMipOffsets.empty());
 
     // TODO: Create GrMtlTransferBuffer
     id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: combinedBufferSize
@@ -360,21 +360,23 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, GrColorType dataColorType) {
                          value: 0];
 
     // now copy buffer to texture
-    currentWidth = width;
-    currentHeight = height;
+    currentWidth = tex->width();
+    currentHeight = tex->height();
     MTLOrigin origin = MTLOriginMake(0, 0, 0);
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        const size_t rowBytes = currentWidth * bpp;
+        if (levelMask & (1 << currentMipLevel)) {
+            const size_t rowBytes = currentWidth * bpp;
 
-        [blitCmdEncoder copyFromBuffer: transferBuffer
-                          sourceOffset: individualMipOffsets[currentMipLevel]
-                     sourceBytesPerRow: rowBytes
-                   sourceBytesPerImage: rowBytes*currentHeight
-                            sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
-                             toTexture: mtlTexture
-                      destinationSlice: 0
-                      destinationLevel: currentMipLevel
-                     destinationOrigin: origin];
+            [blitCmdEncoder copyFromBuffer: transferBuffer
+                              sourceOffset: individualMipOffsets[currentMipLevel]
+                         sourceBytesPerRow: rowBytes
+                       sourceBytesPerImage: rowBytes * currentHeight
+                                sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
+                                 toTexture: mtlTexture
+                          destinationSlice: 0
+                          destinationLevel: currentMipLevel
+                         destinationOrigin: origin];
+        }
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
     }
@@ -473,8 +475,15 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         }
     }
 
-    if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
-        this->clearTexture(tex.get(), colorType);
+    if (this->caps()->shouldInitializeTextures()) {
+        uint32_t levelMask = ~0;
+        SkASSERT(mipLevelCount < 32);
+        for (int i = 0; i < mipLevelCount; ++i) {
+            if (!texels[i].fPixels) {
+                levelMask &= ~(1 << i);
+            }
+        }
+        this->clearTexture(tex.get(), colorType, levelMask);
     }
 
     return std::move(tex);

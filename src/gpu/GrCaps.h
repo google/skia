@@ -291,7 +291,6 @@ public:
      */
     bool shouldInitializeTextures() const { return fShouldInitializeTextures; }
 
-
     /** Returns true if the given backend supports importing AHardwareBuffers via the
      * GrAHardwarebufferImageGenerator. This will only ever be supported on Android devices with API
      * level >= 26.
@@ -390,6 +389,17 @@ public:
     virtual GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const = 0;
 
     virtual GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const = 0;
+
+    /**
+     * Used by implementation of shouldInitializeTextures(). Indicates whether GrGpu implement the
+     * clear in GrGpu::createTexture() or if false then the caller provide cleared MIP level data or
+     * GrGpu::createTexture() will fail.
+     *
+     * TODO: Make this take a GrBackendFormat so that GL can make this faster for cases
+     * when the format is renderable and glTexClearImage is not available. Doing this
+     * is overly complicated until the GrPixelConfig/format mess is straightened out..
+     */
+    virtual bool canClearTextureOnCreation() const = 0;
 
     /**
      * The CLAMP_TO_BORDER wrap mode for texture coordinates was added to desktop GL in 1.3, and
