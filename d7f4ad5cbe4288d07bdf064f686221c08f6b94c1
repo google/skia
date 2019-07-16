@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7770bd8_47dac488",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T19:20:53Z",
+      "side": 1,
+      "message": "Just return the result of this call ?",
+      "range": {
+        "startLine": 204,
+        "startChar": 4,
+        "endLine": 204,
+        "endChar": 43
+      },
+      "revId": "d7f4ad5cbe4288d07bdf064f686221c08f6b94c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65c67359_8e11e9fe",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T19:20:53Z",
+      "side": 1,
+      "message": "Can we replace this with:\n\nif (grColorType \u003d\u003d GrColortype::kUnknown) {\n  return nullptr;\n}\n\nand skip the config entirely ?",
+      "range": {
+        "startLine": 366,
+        "startChar": 0,
+        "endLine": 369,
+        "endChar": 5
+      },
+      "revId": "d7f4ad5cbe4288d07bdf064f686221c08f6b94c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "934d0f9e_03874062",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T19:20:53Z",
+      "side": 1,
+      "message": "It seems like we would still need to feed the config into the desc - since it is still used elsewhere",
+      "revId": "d7f4ad5cbe4288d07bdf064f686221c08f6b94c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "049ffccd_142ca10e",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T19:20:53Z",
+      "side": 1,
+      "message": "here, for example",
+      "revId": "d7f4ad5cbe4288d07bdf064f686221c08f6b94c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
