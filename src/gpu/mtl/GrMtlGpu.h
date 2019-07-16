@@ -208,8 +208,8 @@ private:
     // Function that uploads data onto textures with private storage mode (GPU access only).
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
-    // Function that fills texture with transparent black
-    bool clearTexture(GrMtlTexture*, GrColorType);
+    // Function that fills texture levels with transparent black based on levelMask.
+    bool clearTexture(GrMtlTexture*, GrColorType, uint32_t levelMask);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;

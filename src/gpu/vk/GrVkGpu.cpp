@@ -1018,18 +1018,35 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
         }
     }
 
-    if (SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
-        VkClearColorValue zeroClearColor;
-        memset(&zeroClearColor, 0, sizeof(zeroClearColor));
-        VkImageSubresourceRange range;
-        range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        range.baseArrayLayer = 0;
-        range.baseMipLevel = 0;
-        range.layerCount = 1;
-        range.levelCount = 1;
-        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                            VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
-        this->currentCommandBuffer()->clearColorImage(this, tex.get(), &zeroClearColor, 1, &range);
+    if (this->caps()->shouldInitializeTextures()) {
+        SkSTArray<1, VkImageSubresourceRange> ranges;
+        bool inRange = false;
+        for (uint32_t i = 0; i < tex->mipLevels(); ++i) {
+            if (i >= static_cast<uint32_t>(mipLevelCount) || !texels[i].fPixels) {
+                if (inRange) {
+                    ranges.back().levelCount++;
+                } else {
+                    auto& range = ranges.push_back();
+                    range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                    range.baseArrayLayer = 0;
+                    range.baseMipLevel = i;
+                    range.layerCount = 1;
+                    range.levelCount = 1;
+                    inRange = true;
+                }
+            } else if (inRange) {
+                inRange = false;
+            }
+        }
+
+        if (!ranges.empty()) {
+            static constexpr VkClearColorValue kZeroClearColor = {};
+            tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                false);
+            this->currentCommandBuffer()->clearColorImage(this, tex.get(), &kZeroClearColor,
+                                                          ranges.count(), ranges.begin());
+        }
     }
     return std::move(tex);
 }

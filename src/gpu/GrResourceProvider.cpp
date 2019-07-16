@@ -45,13 +45,20 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
 // Ensures the row bytes are populated (not 0) and makes a copy to a temporary
 // to make the row bytes tight if necessary. Returns false if the input row bytes are invalid.
 static bool prepare_level(const GrMipLevel& inLevel, size_t bpp, int w, int h, bool rowBytesSupport,
-                          GrMipLevel* outLevel, std::unique_ptr<char[]>* data) {
+                          bool mustInitializeAllLevels, GrMipLevel* outLevel,
+                          std::unique_ptr<char[]>* data) {
+    size_t minRB = w * bpp;
     if (!inLevel.fPixels) {
-        outLevel->fPixels = nullptr;
-        outLevel->fRowBytes = 0;
+        if (mustInitializeAllLevels) {
+            data->reset(new char[minRB * h]());
+            outLevel->fPixels = data->get();
+            outLevel->fRowBytes = minRB;
+        } else {
+            outLevel->fPixels = nullptr;
+            outLevel->fRowBytes = 0;
+        }
         return true;
     }
-    size_t minRB = w * bpp;
     size_t actualRB = inLevel.fRowBytes ? inLevel.fRowBytes : minRB;
     if (actualRB < minRB) {
         return false;
@@ -83,7 +90,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
     if (!fCaps->validateSurfaceDesc(desc, mipMapped)) {
         return nullptr;
     }
-
+    bool mustInitializeAllLevels = this->caps()->createTextureMustSpecifyAllLevels();
+    bool rowBytesSupport = this->caps()->writePixelsRowBytesSupport();
     SkAutoSTMalloc<14, GrMipLevel> tmpTexels;
     SkAutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
     if (mipLevelCount > 0 && texels) {
@@ -93,7 +101,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         int h = desc.fHeight;
         size_t bpp = GrBytesPerPixel(desc.fConfig);
         for (int i = 0; i < mipLevelCount; ++i) {
-            if (!prepare_level(texels[i], bpp, w, h, this->caps()->writePixelsRowBytesSupport(),
+            if (!prepare_level(texels[i], bpp, w, h, rowBytesSupport, mustInitializeAllLevels,
                                &tmpTexels[i], &tmpDatas[i])) {
                 return nullptr;
             }
@@ -136,11 +144,14 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     GrContext* context = fGpu->getContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
+    bool mustInitialize = this->caps()->createTextureMustSpecifyAllLevels();
+    bool rowBytesSupport = this->caps()->writePixelsRowBytesSupport();
+
     size_t bpp = GrBytesPerPixel(desc.fConfig);
     std::unique_ptr<char[]> tmpData;
     GrMipLevel tmpLevel;
-    if (!prepare_level(mipLevel, bpp, desc.fWidth, desc.fHeight,
-                       this->caps()->writePixelsRowBytesSupport(), &tmpLevel, &tmpData)) {
+    if (!prepare_level(mipLevel, bpp, desc.fWidth, desc.fHeight, rowBytesSupport, mustInitialize,
+                       &tmpLevel, &tmpData)) {
         return nullptr;
     }
 
@@ -200,6 +211,16 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         }
     }
 
+    if (fCaps->createTextureMustSpecifyAllLevels()) {
+        size_t rowBytes = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
+        size_t size = rowBytes * desc.fHeight;
+        std::unique_ptr<char[]> zeros(new char[size]());
+        GrMipLevel level;
+        level.fRowBytes = rowBytes;
+        level.fPixels = zeros.get();
+        return fGpu->createTexture(desc, budgeted, &level, 1);
+    }
+
     return fGpu->createTexture(desc, budgeted);
 }
 
@@ -254,8 +275,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
     SkTCopyOnFirstWrite<GrSurfaceDesc> copyDesc(desc);
 
     // bin by some multiple or power of 2 with a reasonable min
-    if (!SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
-        (fGpu->caps()->reuseScratchTextures() || (desc.fFlags & kRenderTarget_GrSurfaceFlag))) {
+    if (fGpu->caps()->reuseScratchTextures() || (desc.fFlags & kRenderTarget_GrSurfaceFlag)) {
         GrSurfaceDesc* wdesc = copyDesc.writable();
         wdesc->fWidth = MakeApprox(wdesc->fWidth);
         wdesc->fHeight = MakeApprox(wdesc->fHeight);
@@ -265,6 +285,15 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return tex;
     }
 
+    if (this->caps()->createTextureMustSpecifyAllLevels()) {
+        size_t rowBytes = GrBytesPerPixel(copyDesc->fConfig) * copyDesc->fWidth;
+        size_t size = rowBytes * copyDesc->fHeight;
+        std::unique_ptr<char[]> zeros(new char[size]());
+        GrMipLevel level;
+        level.fRowBytes = rowBytes;
+        level.fPixels = zeros.get();
+        return fGpu->createTexture(*copyDesc, SkBudgeted::kYes, &level, 1);
+    }
     return fGpu->createTexture(*copyDesc, SkBudgeted::kYes);
 }
 
@@ -276,9 +305,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
 
     // We could make initial clears work with scratch textures but it is a rare case so we just opt
     // to fall back to making a new texture.
-    if (!SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
-        (fGpu->caps()->reuseScratchTextures() || (desc.fFlags & kRenderTarget_GrSurfaceFlag))) {
-
+    if (fGpu->caps()->reuseScratchTextures() || (desc.fFlags & kRenderTarget_GrSurfaceFlag)) {
         GrScratchKey key;
         GrTexturePriv::ComputeScratchKey(desc, &key);
         auto scratchFlags = GrResourceCache::ScratchFlags::kNone;
