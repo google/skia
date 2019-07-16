@@ -12,33 +12,44 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
+#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLCompiler.h"
+
 #if SK_SUPPORT_GPU
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/SkGr.h"
+
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrMixerEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
-#endif
 
-#include "src/sksl/SkSLByteCode.h"
-#include "src/sksl/SkSLCompiler.h"
+static inline uint32_t new_sksl_unique_id() {
+    return GrSkSLFP::NewIndex();
+}
+#else
+static inline uint32_t new_sksl_unique_id() {
+    return 0;   // not used w/o GPU
+}
+#endif
 
 SkRTShader::SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
                        bool isOpaque)
     : SkShaderBase(localMatrix)
     , fSkSL(std::move(sksl))
     , fInputs(std::move(inputs))
+    , fUniqueID(new_sksl_unique_id())
     , fIsOpaque(isOpaque)
 {}
 
 bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
-    SkMatrix inverse;
-    if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &inverse)) {
-        return false;
-    }
-
     auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
+    ctx->paintColor = rec.fPaint.getColor4f();
     ctx->inputs = fInputs->data();
     ctx->ninputs = fInputs->size() / 4;
-    ctx->shader_convention = true;
+    ctx->shaderConvention = true;
 
     SkAutoMutexExclusive ama(fByteCodeMutex);
     if (!fByteCode) {
@@ -61,7 +72,6 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     ctx->fn = ctx->byteCode->fFunctions[0].get();
 
     rec.fPipeline->append(SkRasterPipeline::seed_shader);
-    rec.fPipeline->append_matrix(rec.fAlloc, inverse);
     rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
     return true;
 }
@@ -114,3 +124,11 @@ sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
     return sk_sp<SkShader>(new SkRTShader(std::move(sksl), std::move(inputs),
                                           localMatrix, isOpaque));
 }
+
+#if SK_SUPPORT_GPU
+std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPArgs& args) const {
+    return GrSkSLFP::Make(args.fContext, fUniqueID, "runtime-shader", fSkSL,
+                          fInputs->data(), fInputs->size());
+}
+#endif
+
