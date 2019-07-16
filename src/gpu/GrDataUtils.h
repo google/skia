@@ -53,6 +53,10 @@ public:
         return {this->colorType(), at, this->refColorSpace(), this->width(), this->height()};
     }
 
+    GrPixelInfo makeWH(int width, int height) {
+        return {this->colorType(), this->alphaType(), this->refColorSpace(), width, height};
+    }
+
     GrColorType colorType() const { return fColorInfo.colorType(); }
 
     SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
