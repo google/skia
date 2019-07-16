@@ -128,8 +128,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
     SkASSERT(sampleCnt > 0);
 
     sk_sp<GrTextureProxy> proxy(this->proxyProvider()->wrapRenderableBackendTexture(
-            tex, origin, sampleCnt, colorType, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
-            releaseProc, releaseCtx));
+            tex, origin, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, releaseProc,
+            releaseCtx));
     if (!proxy) {
         return nullptr;
     }

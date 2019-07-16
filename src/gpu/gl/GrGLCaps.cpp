@@ -3775,7 +3775,7 @@ GrGLFormat GrGLCaps::pixelConfigToFormat(GrPixelConfig config) const {
 }
 
 // A near clone of format_color_type_valid_pair
-static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandard standard) {
+GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandard standard) {
     switch (ct) {
         case GrColorType::kUnknown:
             return kUnknown_GrPixelConfig;

@@ -74,7 +74,6 @@ private:
 
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
                                                     int sampleCnt,
-                                                    GrColorType,
                                                     GrWrapOwnership,
                                                     GrWrapCacheable) override;
 

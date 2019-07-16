@@ -714,7 +714,6 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
 
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
                                                          int sampleCnt,
-                                                         GrColorType colorType,
                                                          GrWrapOwnership ownership,
                                                          GrWrapCacheable cacheable) {
     GrGLTexture::IDDesc idDesc;
@@ -736,15 +735,12 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     }
 
-    const GrCaps* caps = this->caps();
-
     GrSurfaceDesc surfDesc;
     surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = caps->getRenderTargetSampleCount(sampleCnt, colorType,
-                                                           backendTex.getBackendFormat());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
     if (surfDesc.fSampleCnt < 1) {
         return nullptr;
     }

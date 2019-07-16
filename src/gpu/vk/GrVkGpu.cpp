@@ -1187,7 +1187,6 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
 
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
                                                          int sampleCnt,
-                                                         GrColorType colorType,
                                                          GrWrapOwnership ownership,
                                                          GrWrapCacheable cacheable) {
     GrVkImageInfo imageInfo;
@@ -1210,19 +1209,13 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          this->caps()->getConfigFromBackendFormat(
-                                                        backendTex.getBackendFormat(),
-                                                        colorType)));
-
     GrSurfaceDesc surfDesc;
     surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fIsProtected = backendTex.isProtected() ? GrProtected::kYes : GrProtected::kNo;
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, colorType,
-                                                                   backendTex.getBackendFormat());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
 
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
     SkASSERT(layout);
@@ -1878,7 +1871,7 @@ static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
             *config = kRGB_ETC1_GrPixelConfig;
             return true;
         case VK_FORMAT_R16_SFLOAT:
-            *config = kAlpha_half_as_Red_GrPixelConfig;
+            *config = kAlpha_half_GrPixelConfig;
             return true;
         case VK_FORMAT_R16_UNORM:
             *config = kR_16_GrPixelConfig;

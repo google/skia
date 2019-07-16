@@ -524,7 +524,6 @@ sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendT
 
 sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
                                                           int sampleCnt,
-                                                          GrColorType colorType,
                                                           GrWrapOwnership,
                                                           GrWrapCacheable cacheable) {
     id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
@@ -534,9 +533,7 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
 
     GrSurfaceDesc surfDesc;
     init_surface_desc(&surfDesc, mtlTexture, true, backendTex.config());
-
-    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, colorType,
-                                                                   backendTex.getBackendFormat());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, surfDesc.fConfig);
     if (!surfDesc.fSampleCnt) {
         return nullptr;
     }
