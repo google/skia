@@ -379,8 +379,47 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fMaxFragmentSamplers = 16;
 }
 
-void GrMtlCaps::initConfigTable() {
-    ConfigInfo* info;
+// These are all the valid MTLPixelFormats that we support in Skia.  They are roughly ordered from
+// most frequently used to least to improve look up times in arrays.
+static constexpr MTLPixelFormat kMtlFormats[] = {
+    MTLPixelFormatRGBA8Unorm,
+    MTLPixelFormatR8Unorm,
+    MTLPixelFormatBGRA8Unorm,
+#ifdef SK_BUILD_FOR_IOS
+    MTLPixelFormatB5G6R5Unorm,
+#endif
+    MTLPixelFormatRGBA16Float,
+    MTLPixelFormatR16Float,
+    MTLPixelFormatRG8Unorm,
+    MTLPixelFormatRGB10A2Unorm,
+#ifdef SK_BUILD_FOR_IOS
+    MTLPixelFormatABGR4Unorm,
+#endif
+    MTLPixelFormatRGBA32Float,
+    MTLPixelFormatRG32Float,
+    MTLPixelFormatRGBA8Unorm_sRGB,
+    MTLPixelFormatR16Unorm,
+    MTLPixelFormatRG16Unorm,
+#ifdef SK_BUILD_FOR_IOS
+    MTLPixelFormatETC2_RGB8,
+#endif
+    // Experimental (for Y416 and mutant P016/P010)
+    MTLPixelFormatRGBA16Unorm,
+    MTLPixelFormatRG16Float,
+};
+static_assert(SK_ARRAY_COUNT(kMtlFormats) == GrMtlCaps::kNumMtlFormats,
+              "Size of kMtlFormats array must match static value in header");
+
+size_t GrMtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
+    for (size_t i = 0; i < GrMtlCaps::kNumMtlFormats; ++i) {
+        if (kMtlFormats[i] == pixelFormat) {
+            return i;
+        }
+    }
+}
+
+void GrMtlCaps::initFormatTable() {
+    FormatInfo* info;
     // Alpha_8 uses R8Unorm
     info = &fConfigTable[kAlpha_8_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
