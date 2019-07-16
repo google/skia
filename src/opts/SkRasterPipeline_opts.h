@@ -2555,31 +2555,33 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
+// void main(int x, int h, inout half4 color)
 STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
     // If N is less than the interpreter's VecWidth, then we are doing more work than necessary in
     // the interpreter. This is a known issue, and will be addressed at some point.
-    float rr[N];
-    float gg[N];
-    float bb[N];
-    float aa[N];
-    size_t in_count, out_count;
+    float xx[N], yy[N],
+          rr[N], gg[N], bb[N], aa[N];
 
-    float* args[] = { rr, gg, bb, aa };
+    float* args[]  = { xx, yy, rr, gg, bb, aa };
 
-    sk_unaligned_store(rr, r);  // x if we're a shader
-    sk_unaligned_store(gg, g);  // y if we're a shader
-    if (c->shader_convention) {
-        in_count = 2;   // x, y
-        out_count = 4;  // r, g, b, a
+    if (c->shaderConvention) {
+        // our caller must have called seed_shader to set these
+        sk_unaligned_store(xx, r);
+        sk_unaligned_store(yy, g);
+        sk_unaligned_store(rr, F(c->paintColor.fR));
+        sk_unaligned_store(gg, F(c->paintColor.fG));
+        sk_unaligned_store(bb, F(c->paintColor.fB));
+        sk_unaligned_store(aa, F(c->paintColor.fA));
     } else {
-        in_count = 4;   // r, g, b, a (in/out)
+        // leave xx,yy uninitialized for colorfilters
+        sk_unaligned_store(rr, r);
+        sk_unaligned_store(gg, g);
         sk_unaligned_store(bb, b);
         sk_unaligned_store(aa, a);
-        out_count = 0;
     }
 
-    c->byteCode->runStriped(c->fn, args, in_count, tail ? tail : N,
-                            (const float*)c->inputs, c->ninputs, args, out_count);
+    c->byteCode->runStriped(c->fn, args, 6, tail ? tail : N,
+                            (const float*)c->inputs, c->ninputs, nullptr, 0);
 
     r = sk_unaligned_load<F>(rr);
     g = sk_unaligned_load<F>(gg);
