@@ -16,28 +16,25 @@ namespace textlayout {
 class TextLine {
 public:
     TextLine() = default;
-    //TextLine(TextLine&&);
     ~TextLine() = default;
 
     TextLine(ParagraphImpl* master,
              SkVector offset,
              SkVector advance,
-             SkSpan<const TextBlock> blocks,
-             SkSpan<const char> text,
-             SkSpan<const char> textWithSpaces,
+             SkSpan<const Block> blocks,
+             TextRange text,
+             TextRange textWithSpaces,
              SkSpan<const Cluster> clusters,
              LineMetrics sizes);
 
     void setMaster(ParagraphImpl* master) {
         fMaster = master;
         this->fBlockRange.setMaster(master);
-        this->fTextRange.setMaster(master);
-        this->fTextWithWhitespacesRange.setMaster(master);
         this->fClusterRange.setMaster(master);
     }
 
-    SkSpan<const char> trimmedText() const { return fTextRange.span(); }
-    SkSpan<const char> textWithSpaces() const { return fTextWithWhitespacesRange.span(); }
+    TextRange trimmedText() const { return fTextRange; }
+    TextRange textWithSpaces() const { return fTextWithWhitespacesRange; }
     SkSpan<const Cluster> clusters() const { return fClusterRange.span(); }
     SkVector offset() const { return fOffset + SkVector::Make(fShift, 0); }
     Run* ellipsis() const { return fEllipsis.get(); }
@@ -56,13 +53,13 @@ public:
     SkScalar baseline() const { return fSizes.baseline(); }
     SkScalar roundingDelta() const { return fSizes.delta(); }
 
-    using StyleVisitor = std::function<SkScalar(SkSpan<const char> text, const TextStyle& style,
+    using StyleVisitor = std::function<SkScalar(TextRange textRange, const TextStyle& style,
                                                 SkScalar offsetX)>;
     void iterateThroughStylesInTextOrder(StyleType styleType, const StyleVisitor& visitor) const;
 
     using RunVisitor = std::function<bool(Run* run, size_t pos, size_t size, SkRect clip,
                                           SkScalar shift, bool clippingNeeded)>;
-    SkScalar iterateThroughRuns(SkSpan<const char> text,
+    SkScalar iterateThroughRuns(TextRange textRange,
                                 SkScalar offsetX,
                                 bool includeEmptyText,
                                 const RunVisitor& visitor) const;
@@ -129,31 +126,31 @@ private:
     Run* shapeEllipsis(const SkString& ellipsis, Run* run);
     void justify(SkScalar maxWidth);
 
-    SkRect measureTextInsideOneRun(SkSpan<const char> text,
+    SkRect measureTextInsideOneRun(TextRange textRange,
                                    Run* run,
                                    size_t& pos,
                                    size_t& size,
                                    bool& clippingNeeded) const;
 
-    SkScalar buildText(SkSpan<const char> text, const TextStyle& style, SkScalar offsetX) const;
-    SkScalar paintBackground(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
+    SkScalar buildText(TextRange textRange, const TextStyle& style, SkScalar offsetX) const;
+    SkScalar paintBackground(SkCanvas* canvas,TextRange textRange, const TextStyle& style,
                              SkScalar offsetX) const;
-    SkScalar paintShadow(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
+    SkScalar paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style,
                          SkScalar offsetX) const;
-    SkScalar paintDecorations(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
+    SkScalar paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style,
                               SkScalar offsetX) const;
 
     void computeDecorationPaint(SkPaint& paint, SkRect clip, const TextStyle& style,
                                 SkPath& path) const;
 
     bool contains(const Cluster* cluster) const {
-        return cluster->text().begin() >= fTextRange.begin() && cluster->text().end() <= fTextRange.end();
+        return fTextRange.contains(cluster->textRange());
     }
 
     ParagraphImpl* fMaster;
-    StableRange<ParagraphImpl, const TextBlock, &accessTextBlock> fBlockRange;
-    StableRange<ParagraphImpl, const char, &accessText> fTextRange;
-    StableRange<ParagraphImpl, const char, &accessText> fTextWithWhitespacesRange;
+    StableRange<ParagraphImpl, const Block, &accessTextBlock> fBlockRange;
+    TextRange fTextRange;
+    TextRange fTextWithWhitespacesRange;
     StableRange<ParagraphImpl, const Cluster, &accessCluster> fClusterRange;
 
     SkTArray<size_t, true> fLogical;

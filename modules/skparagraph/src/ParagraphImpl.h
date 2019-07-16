@@ -54,16 +54,16 @@ public:
 
     size_t lineNumber() override { return fLines.size(); }
 
-    TextLine& addLine(SkVector offset, SkVector advance, SkSpan<const char> text,
-                      SkSpan<const char> textWithSpaces, SkSpan<const Cluster> clusters,
+    TextLine& addLine(SkVector offset, SkVector advance, TextRange text,
+                      TextRange textWithSpaces, SkSpan<const Cluster> clusters,
                       LineMetrics sizes);
 
     SkSpan<const char> text() const { return fTextSpan; }
     InternalState state() const { return fState; }
     SkSpan<Run> runs() { return SkSpan<Run>(fRuns.data(), fRuns.size()); }
     SkTArray<FontDescr>& switches() { return fFontResolver.switches(); }
-    SkSpan<TextBlock> styles() {
-        return SkSpan<TextBlock>(fTextStyles.data(), fTextStyles.size());
+    SkSpan<Block> styles() {
+        return SkSpan<Block>(fTextStyles.data(), fTextStyles.size());
     }
     SkSpan<TextLine> lines() { return SkSpan<TextLine>(fLines.data(), fLines.size()); }
     ParagraphStyle paragraphStyle() const { return fParagraphStyle; }
@@ -126,10 +126,10 @@ private:
     void breakShapedTextIntoLines(SkScalar maxWidth);
     void paintLinesIntoPicture();
 
-    SkSpan<const TextBlock> findAllBlocks(SkSpan<const char> text);
+    SkSpan<const Block> findAllBlocks(TextRange textRange);
 
     // Input
-    SkTArray<TextBlock, true> fTextStyles;
+    SkTArray<Block, true> fTextStyles;
     SkString fText;
     SkSpan<const char> fTextSpan;
 

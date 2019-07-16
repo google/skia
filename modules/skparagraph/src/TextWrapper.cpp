@@ -164,10 +164,8 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         }
         fMaxIntrinsicWidth = SkMaxScalar(fMaxIntrinsicWidth, fEndLine.width());
         // TODO: keep start/end/break info for text and runs but in a better way that below
-        SkSpan<const char> text(fEndLine.startCluster()->text().begin(),
-                                fEndLine.endCluster()->text().end() - fEndLine.startCluster()->text().begin());
-        SkSpan<const char> textWithSpaces(fEndLine.startCluster()->text().begin(),
-                                fEndLine.breakCluster()->text().end() - fEndLine.startCluster()->text().begin());
+        TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end);
+        TextRange textWithSpaces(fEndLine.startCluster()->textRange().start, fEndLine.breakCluster()->textRange().end);
         addLine(text, textWithSpaces,
                 fEndLine.startCluster(),
                 fEndLine.endCluster(),
@@ -196,7 +194,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             parent->strutMetrics().updateLineMetrics(fEndLine.metrics(),
                                                      parent->strutForceHeight());
         }
-        SkSpan<const char> empty(fEndLine.breakCluster()->text().begin(), 0);
+        TextRange empty(fEndLine.breakCluster()->textRange().start, fEndLine.breakCluster()->textRange().start);
         addLine(empty, empty,
                 fEndLine.breakCluster(),
                 fEndLine.breakCluster(),

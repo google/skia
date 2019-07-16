@@ -34,14 +34,14 @@ public:
     ~FontResolver() = default;
 
     void findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
-                                        SkSpan<TextBlock> styles,
+                                        SkSpan<Block> styles,
                                         sk_sp<FontCollection> fontCollection);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
 
     SkTArray<FontDescr>& switches() { return fFontSwitches; }
 
 private:
-    void findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text);
+    void findAllFontsForStyledBlock(const TextStyle& style, TextRange textRange);
     FontDescr makeFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar height);
     size_t resolveAllCharactersByFont(const FontDescr& fontDescr);
     void addResolvedWhitespacesToMapping();
@@ -58,7 +58,7 @@ private:
 
     sk_sp<FontCollection> fFontCollection;
     SkSpan<const char> fText;
-    SkSpan<TextBlock> fStyles;
+    SkSpan<Block> fStyles;
 
     SkTArray<FontDescr> fFontSwitches;
     FontDescr* fFontIterator;

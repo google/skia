@@ -133,8 +133,8 @@ class TextWrapper {
 public:
     TextWrapper() { fLineNumber = 1; }
 
-    using AddLineToParagraph = std::function<void(SkSpan<const char> text,
-                                                  SkSpan<const char> textWithSpaces,
+    using AddLineToParagraph = std::function<void(TextRange text,
+                                                  TextRange textWithSpaces,
                                                   Cluster* start,
                                                   Cluster* end,
                                                   size_t startClip,

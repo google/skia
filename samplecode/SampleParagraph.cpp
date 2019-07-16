@@ -1206,8 +1206,8 @@ protected:
         paragraph->paint(canvas, 0, 0);
         SkDEBUGCODE(auto impl = reinterpret_cast<ParagraphImpl*>(paragraph.get()));
         SkASSERT(impl->runs().size() == 3);
-        SkASSERT(impl->runs()[0].textSpan().end() == impl->runs()[1].textSpan().begin());
-        SkASSERT(impl->runs()[1].textSpan().end() == impl->runs()[2].textSpan().begin());
+        SkASSERT(impl->runs()[0].textRange().end == impl->runs()[1].textRange().start);
+        SkASSERT(impl->runs()[1].textRange().end == impl->runs()[2].textRange().start);
     }
 
 private:
