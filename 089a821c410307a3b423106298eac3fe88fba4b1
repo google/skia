@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af8ca56a_44b3027b",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-16T14:44:04Z",
+      "side": 1,
+      "message": "changing this to kAlpha_half_as_Red should fix the failed bot.",
+      "range": {
+        "startLine": 639,
+        "startChar": 23,
+        "endLine": 639,
+        "endChar": 34
+      },
+      "revId": "089a821c410307a3b423106298eac3fe88fba4b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
