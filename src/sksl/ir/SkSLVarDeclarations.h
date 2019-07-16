@@ -8,6 +8,7 @@
 #ifndef SKSL_VARDECLARATIONS
 #define SKSL_VARDECLARATIONS
 
+#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
@@ -21,45 +22,35 @@ namespace SkSL {
  * instances.
  */
 struct VarDeclaration : public Statement {
-    VarDeclaration(const Variable* var,
-                   std::vector<std::unique_ptr<Expression>> sizes,
-                   std::unique_ptr<Expression> value)
-    : INHERITED(var->fOffset, Statement::kVarDeclaration_Kind)
+    VarDeclaration(IRGenerator* irGenerator, IRNode::ID var, std::vector<IRNode::ID> sizes,
+                   IRNode::ID value)
+    : INHERITED(irGenerator, var.node().fOffset, Statement::kVarDeclaration_Kind)
     , fVar(var)
     , fSizes(std::move(sizes))
-    , fValue(std::move(value)) {}
+    , fValue(value) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        std::vector<std::unique_ptr<Expression>> sizesClone;
-        for (const auto& s : fSizes) {
-            if (s) {
-                sizesClone.push_back(s->clone());
-            } else {
-                sizesClone.push_back(nullptr);
-            }
-        }
-        return std::unique_ptr<Statement>(new VarDeclaration(fVar, std::move(sizesClone),
-                                                             fValue ? fValue->clone() : nullptr));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new VarDeclaration(fIRGenerator, fVar, fSizes, fValue));
     }
 
     String description() const override {
-        String result = fVar->fName;
+        String result = ((const Variable&) fVar.node()).fName;
         for (const auto& size : fSizes) {
             if (size) {
-                result += "[" + size->description() + "]";
+                result += "[" + size.node().description() + "]";
             } else {
                 result += "[]";
             }
         }
         if (fValue) {
-            result += " = " + fValue->description();
+            result += " = " + fValue.node().description();
         }
         return result;
     }
 
-    const Variable* fVar;
-    std::vector<std::unique_ptr<Expression>> fSizes;
-    std::unique_ptr<Expression> fValue;
+    IRNode::ID fVar;
+    std::vector<IRNode::ID> fSizes;
+    IRNode::ID fValue;
 
     typedef Statement INHERITED;
 };
@@ -68,44 +59,38 @@ struct VarDeclaration : public Statement {
  * A variable declaration statement, which may consist of one or more individual variables.
  */
 struct VarDeclarations : public ProgramElement {
-    VarDeclarations(int offset, const Type* baseType,
-                    std::vector<std::unique_ptr<VarDeclaration>> vars)
-    : INHERITED(offset, kVar_Kind)
-    , fBaseType(*baseType) {
-        for (auto& var : vars) {
-            fVars.push_back(std::unique_ptr<Statement>(var.release()));
-        }
-    }
+    VarDeclarations(IRGenerator* irGenerator, int offset, IRNode::ID baseType,
+                    std::vector<IRNode::ID> vars)
+    : INHERITED(irGenerator, offset, kVar_Kind)
+    , fBaseType(baseType)
+    , fVars(std::move(vars)) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        std::vector<std::unique_ptr<VarDeclaration>> cloned;
-        for (const auto& v : fVars) {
-            cloned.push_back(std::unique_ptr<VarDeclaration>(
-                                                           (VarDeclaration*) v->clone().release()));
-        }
-        return std::unique_ptr<ProgramElement>(new VarDeclarations(fOffset, &fBaseType,
-                                                                     std::move(cloned)));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new VarDeclarations(fIRGenerator, fOffset, fBaseType,
+                                                            fVars));
     }
 
     String description() const override {
         if (!fVars.size()) {
             return String();
         }
-        String result = ((VarDeclaration&) *fVars[0]).fVar->fModifiers.description() +
-                fBaseType.description() + " ";
+        String result;
+        if (fVars[0].statement().fKind != Statement::kNop_Kind) {
+            VarDeclaration& decl = (VarDeclaration&) fVars[0].node();
+            result += ((Variable&) decl.fVar.node()).fModifiers.description();
+        }
+        result += fBaseType.node().description() + " ";
         String separator;
-        for (const auto& var : fVars) {
+        for (IRNode::ID var : fVars) {
             result += separator;
             separator = ", ";
-            result += var->description();
+            result += var.node().description();
         }
         return result;
     }
 
-    const Type& fBaseType;
-    // this *should* be a vector of unique_ptr<VarDeclaration>, but it significantly simplifies the
-    // CFG to only have to worry about unique_ptr<Statement>
-    std::vector<std::unique_ptr<Statement>> fVars;
+    IRNode::ID fBaseType;
+    std::vector<IRNode::ID> fVars;
 
     typedef ProgramElement INHERITED;
 };

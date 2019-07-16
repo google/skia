@@ -741,39 +741,43 @@ DEF_TEST(SkSLInterpreterDot, r) {
     test(r, "float main(float4 x, float4 y) { return dot(x, y); }", args, 1, &expected);
 }
 
-static const SkSL::Type& type_of(const skjson::Value* value, SkSL::Compiler* compiler) {
-    switch (value->getType()) {
+static const SkSL::IRNode::ID& type_of(const skjson::Value& value, SkSL::Compiler& compiler) {
+    switch (value.getType()) {
         case skjson::Value::Type::kNumber: {
-            float f = *value->as<skjson::NumberValue>();
+            float f = *value.as<skjson::NumberValue>();
             if (f == (float) (int) f) {
-                return *compiler->context().fInt_Type;
+                return compiler.context().fInt_Type;
             }
-            return *compiler->context().fFloat_Type;
+            return compiler.context().fFloat_Type;
         }
         case skjson::Value::Type::kBool:
-            return *compiler->context().fBool_Type;
+            return compiler.context().fBool_Type;
         default:
-            return *compiler->context().fVoid_Type;
+            return compiler.context().fVoid_Type;
     }
 }
 
 class JSONExternalValue : public SkSL::ExternalValue {
 public:
     JSONExternalValue(const char* name, const skjson::Value* value, SkSL::Compiler* compiler)
-        : INHERITED(name, type_of(value, compiler))
+        : INHERITED(name)
         , fValue(*value)
         , fCompiler(*compiler) {}
 
+    SkSL::IRNode::ID type() const override {
+        return type_of(fValue, fCompiler);
+    }
+
     bool canRead() const override {
-        return type() != *fCompiler.context().fVoid_Type;
+        return type() != fCompiler.context().fVoid_Type;
     }
 
     void read(int /*unusedIndex*/, float* target) override {
-        if (type() == *fCompiler.context().fInt_Type) {
+        if (type() == fCompiler.context().fInt_Type) {
             *(int*) target = *fValue.as<skjson::NumberValue>();
-        } else if (type() == *fCompiler.context().fFloat_Type) {
+        } else if (type() == fCompiler.context().fFloat_Type) {
             *(float*) target = *fValue.as<skjson::NumberValue>();
-        } else if (type() == *fCompiler.context().fBool_Type) {
+        } else if (type() == fCompiler.context().fBool_Type) {
             *(bool*) target = *fValue.as<skjson::BoolValue>();
         } else {
             SkASSERT(false);
@@ -783,8 +787,8 @@ public:
     SkSL::ExternalValue* getChild(const char* name) const override {
         if (fValue.getType() == skjson::Value::Type::kObject) {
             const skjson::Value& v = fValue.as<skjson::ObjectValue>()[name];
-            return (SkSL::ExternalValue*) fCompiler.takeOwnership(std::unique_ptr<Symbol>(
-                                                      new JSONExternalValue(name, &v, &fCompiler)));
+            // FIXME memory leak
+            return new JSONExternalValue(name, &v, &fCompiler);
         }
         return nullptr;
     }
@@ -798,10 +802,15 @@ private:
 
 class PointerExternalValue : public SkSL::ExternalValue {
 public:
-    PointerExternalValue(const char* name, const SkSL::Type& type, void* data, size_t size)
-        : INHERITED(name, type)
-        , fData(data)
+    PointerExternalValue(const char* name, SkSL::IRNode::ID type, void* bytes, size_t size)
+        : INHERITED(name)
+        , fType(type)
+        , fBytes(bytes)
         , fSize(size) {}
+
+    SkSL::IRNode::ID type() const override {
+        return fType;
+    }
 
     bool canRead() const override {
         return true;
@@ -812,16 +821,17 @@ public:
     }
 
     void read(int /*unusedIndex*/, float* target) override {
-        memcpy(target, fData, fSize);
+        memcpy(target, fBytes, fSize);
     }
 
     void write(int /*unusedIndex*/, float* src) override {
-        memcpy(fData, src, fSize);
+        memcpy(fBytes, src, fSize);
     }
 
 
 private:
-    void* fData;
+    SkSL::IRNode::ID fType;
+    void* fBytes;
     size_t fSize;
 
     typedef SkSL::ExternalValue INHERITED;
@@ -838,14 +848,12 @@ DEF_TEST(SkSLInterpreterExternalValues, r) {
                       "        return root.value1 * root.child.value3;"
                       "    return -1;"
                       "}";
-    compiler.registerExternalValue((SkSL::ExternalValue*) compiler.takeOwnership(
-             std::unique_ptr<SkSL::Symbol>(new JSONExternalValue("root", &dom.root(), &compiler))));
+    compiler.registerExternalValue(new JSONExternalValue("root", &dom.root(), &compiler));
     int32_t outValue = -1;
-    compiler.registerExternalValue((SkSL::ExternalValue*) compiler.takeOwnership(
-               std::unique_ptr<SkSL::Symbol>(new PointerExternalValue("outValue",
-                                                                      *compiler.context().fInt_Type,
-                                                                      &outValue,
-                                                                      sizeof(outValue)))));
+    compiler.registerExternalValue(new PointerExternalValue("outValue",
+                                                            compiler.context().fInt_Type,
+                                                            &outValue,
+                                                            sizeof(outValue)));
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                              SkSL::Program::kGeneric_Kind,
                                                              SkSL::String(src), settings);
@@ -874,11 +882,10 @@ DEF_TEST(SkSLInterpreterExternalValuesVector, r) {
                       "    value *= 2;"
                       "}";
     int32_t value[4] = { 1, 2, 3, 4 };
-    compiler.registerExternalValue((SkSL::ExternalValue*) compiler.takeOwnership(
-              std::unique_ptr<SkSL::Symbol>(new PointerExternalValue("value",
-                                                                     *compiler.context().fInt4_Type,
-                                                                     value,
-                                                                     sizeof(value)))));
+    compiler.registerExternalValue((new PointerExternalValue("value",
+                                                             compiler.context().fInt4_Type,
+                                                             value,
+                                                             sizeof(value))));
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                                                      SkSL::String(src),
                                                                      settings);
@@ -904,9 +911,13 @@ DEF_TEST(SkSLInterpreterExternalValuesVector, r) {
 class FunctionExternalValue : public SkSL::ExternalValue {
 public:
     FunctionExternalValue(const char* name, float(*function)(float), SkSL::Compiler& compiler)
-        : INHERITED(name, *compiler.context().fFloat_Type)
+        : INHERITED(name)
         , fCompiler(compiler)
         , fFunction(function) {}
+
+    SkSL::IRNode::ID type() const override {
+        return fCompiler.context().fFloat_Type;
+    }
 
     bool canCall() const override {
         return true;
@@ -916,8 +927,8 @@ public:
         return 1;
     }
 
-    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fFloat_Type.get();
+    void getCallParameterTypes(SkSL::IRNode::ID* outTypes) const override {
+        outTypes[0] = fCompiler.context().fFloat_Type;
     }
 
     void call(int /*unusedIndex*/, float* arguments, float* outReturn) override {
@@ -938,12 +949,11 @@ DEF_TEST(SkSLInterpreterExternalValuesCall, r) {
     const char* src = "float main() {"
                       "    return external(25);"
                       "}";
-    compiler.registerExternalValue((SkSL::ExternalValue*) compiler.takeOwnership(
-            std::unique_ptr<SkSL::Symbol>(new FunctionExternalValue("external",
-                                                                    [] (float x) {
-                                                                        return (float) sqrt(x);
-                                                                    },
-                                                                    compiler))));
+    compiler.registerExternalValue(new FunctionExternalValue("external",
+                                                             [] (float x) {
+                                                                 return (float) sqrt(x);
+                                                             },
+                                                             compiler));
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                                                      SkSL::String(src),
                                                                      settings);
@@ -968,9 +978,13 @@ class VectorFunctionExternalValue : public SkSL::ExternalValue {
 public:
     VectorFunctionExternalValue(const char* name, void(*function)(float[4], float[4]),
                                 SkSL::Compiler& compiler)
-        : INHERITED(name, *compiler.context().fFloat4_Type)
+        : INHERITED(name)
         , fCompiler(compiler)
         , fFunction(function) {}
+
+    SkSL::IRNode::ID type() const override {
+        return fCompiler.context().fFloat4_Type;
+    }
 
     bool canCall() const override {
         return true;
@@ -980,8 +994,8 @@ public:
         return 1;
     }
 
-    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fFloat4_Type.get();
+    void getCallParameterTypes(SkSL::IRNode::ID* outTypes) const override {
+        outTypes[0] = fCompiler.context().fFloat4_Type;
     }
 
     void call(int /*unusedIndex*/, float* arguments, float* outReturn) override {
@@ -1003,15 +1017,14 @@ DEF_TEST(SkSLInterpreterExternalValuesVectorCall, r) {
     const char* src = "float4 main() {"
                       "    return external(float4(1, 4, 9, 16));"
                       "}";
-    compiler.registerExternalValue((SkSL::ExternalValue*) compiler.takeOwnership(
-            std::unique_ptr<SkSL::Symbol>(new VectorFunctionExternalValue("external",
-                                                                    [] (float in[4], float out[4]) {
-                                                                        out[0] = sqrt(in[0]);
-                                                                        out[1] = sqrt(in[1]);
-                                                                        out[2] = sqrt(in[2]);
-                                                                        out[3] = sqrt(in[3]);
-                                                                    },
-                                                                    compiler))));
+    compiler.registerExternalValue(new VectorFunctionExternalValue("external",
+                                                                   [] (float in[4], float out[4]) {
+                                                                       out[0] = sqrt(in[0]);
+                                                                       out[1] = sqrt(in[1]);
+                                                                       out[2] = sqrt(in[2]);
+                                                                       out[3] = sqrt(in[3]);
+                                                                   },
+                                                                   compiler));
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                                                      SkSL::String(src),
                                                                      settings);

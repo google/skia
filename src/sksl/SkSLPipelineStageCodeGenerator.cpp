@@ -13,15 +13,14 @@
 namespace SkSL {
 
 PipelineStageCodeGenerator::PipelineStageCodeGenerator(
-                                                    const Context* context,
+                                                    IRGenerator* irGenerator,
                                                     const Program* program,
-                                                    ErrorReporter* errors,
                                                     OutputStream* out,
                                                     std::vector<Compiler::FormatArg>* outFormatArgs)
-: INHERITED(context, program, errors, out)
+: INHERITED(irGenerator, program, out)
 , fName("Temp")
 , fFullName(String::printf("Gr%s", fName.c_str()))
-, fSectionAndParameterHelper(*program, *errors)
+, fSectionAndParameterHelper(*program, irGenerator->fErrors)
 , fFormatArgs(outFormatArgs) {}
 
 void PipelineStageCodeGenerator::writef(const char* s, va_list va) {
@@ -66,9 +65,9 @@ void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b
         if (precedence >= parentPrecedence) {
             this->write("(");
         }
-        this->writeExpression(*b.fLeft, precedence);
+        this->writeExpression(b.fLeft.expression(), precedence);
         this->write(" %% ");
-        this->writeExpression(*b.fRight, precedence);
+        this->writeExpression(b.fRight.expression(), precedence);
         if (precedence >= parentPrecedence) {
             this->write(")");
         }
@@ -78,19 +77,21 @@ void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b
 }
 
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    if (c.fFunction.fBuiltin && c.fFunction.fName == "process") {
+    const FunctionDeclaration& f = (FunctionDeclaration&) c.fFunction.node();
+    if (f.fBuiltin && f.fName == "process") {
         SkASSERT(c.fArguments.size() == 1);
-        SkASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
+        SkASSERT(Expression::kVariableReference_Kind == c.fArguments[0].expression().fKind);
         int index = 0;
         bool found = false;
-        for (const auto& p : fProgram) {
+        for (IRNode::ID pID : fProgram) {
+            ProgramElement& p = (ProgramElement&) pID.node();
             if (ProgramElement::kVar_Kind == p.fKind) {
                 const VarDeclarations& decls = (const VarDeclarations&) p;
-                for (const auto& raw : decls.fVars) {
-                    VarDeclaration& decl = (VarDeclaration&) *raw;
-                    if (decl.fVar == &((VariableReference&) *c.fArguments[0]).fVariable) {
+                for (IRNode::ID id : decls.fVars) {
+                    VarDeclaration& decl = (VarDeclaration&) id.node();
+                    if (decl.fVar == ((VariableReference&) c.fArguments[0].node()).fVariable) {
                         found = true;
-                    } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
+                    } else if (decl.fVar.expression().fType == fContext.fFragmentProcessor_Type) {
                         ++index;
                     }
                 }
@@ -115,7 +116,7 @@ void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
+    switch (((Variable&) ref.fVariable.node()).fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
             this->write("%s");
             fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
@@ -131,23 +132,25 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
             this->write("sk_FragCoord.y");
             break;
         default:
-            if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
+            if (((Variable&) ref.fVariable.node()).fModifiers.fFlags & Modifiers::kUniform_Flag) {
                 this->write("%s");
                 int index = 0;
                 bool found = false;
-                for (const auto& e : fProgram) {
+                for (IRNode::ID eID : fProgram) {
                     if (found) {
                         break;
                     }
+                    ProgramElement& e = (ProgramElement&) eID.node();
                     if (e.fKind == ProgramElement::Kind::kVar_Kind) {
                         const VarDeclarations& decls = (const VarDeclarations&) e;
-                        for (const auto& decl : decls.fVars) {
-                            const Variable& var = *((VarDeclaration&) *decl).fVar;
-                            if (&var == &ref.fVariable) {
+                        for (IRNode::ID decl : decls.fVars) {
+                            IRNode::ID var = ((VarDeclaration&) decl.node()).fVar;
+                            if (var == ref.fVariable) {
                                 found = true;
                                 break;
                             }
-                            if (var.fModifiers.fFlags & Modifiers::kUniform_Flag) {
+                            if (((Variable&) var.node()).fModifiers.fFlags &
+                                Modifiers::kUniform_Flag) {
                                 ++index;
                             }
                         }
@@ -157,7 +160,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                 fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
                                                            index));
             } else {
-                this->write(ref.fVariable.fName);
+                this->write(((Variable&) ref.fVariable.node()).fName);
             }
     }
 }
@@ -177,8 +180,8 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
 }
 
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
-    fCurrentFunction = &f.fDeclaration;
-    if (f.fDeclaration.fName == "main") {
+    fCurrentFunction = &(FunctionDeclaration&) f.fDeclaration.node();
+    if (fCurrentFunction->fName == "main") {
         fFunctionHeader = "";
         OutputStream* oldOut = fOut;
         StringStream buffer;
@@ -186,8 +189,8 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->write("%s = %s;\n");
         fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
         fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
-        for (const auto& s : ((Block&) *f.fBody).fStatements) {
-            this->writeStatement(*s);
+        for (IRNode::ID s : ((Block&) f.fBody.node()).fStatements) {
+            this->writeStatement(s.statement());
             this->writeLine();
         }
 
@@ -200,9 +203,9 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
 }
 
 bool PipelineStageCodeGenerator::writeSection(const char* name, const char* prefix) {
-    const Section* s = fSectionAndParameterHelper.getSection(name);
+    IRNode::ID s = fSectionAndParameterHelper.getSection(name);
     if (s) {
-        this->writef("%s%s", prefix, s->fText.c_str());
+        this->writef("%s%s", prefix, ((Section&) s.node()).fText.c_str());
         return true;
     }
     return false;
@@ -217,7 +220,7 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
         if (!decls.fVars.size()) {
             return;
         }
-        const Variable& var = *((VarDeclaration&) *decls.fVars[0]).fVar;
+        const Variable& var = (Variable&) ((VarDeclaration&) decls.fVars[0].node()).fVar.node();
         if (var.fModifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kUniform_Flag) ||
             -1 != var.fModifiers.fLayout.fBuiltin) {
             return;

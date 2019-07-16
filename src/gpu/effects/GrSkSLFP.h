@@ -170,9 +170,9 @@ public:
 
     std::shared_ptr<SkSL::Program> fBaseProgram;
 
-    std::vector<const SkSL::Variable*> fInputVars;
+    std::vector<SkSL::IRNode::ID> fInputVars;
 
-    std::vector<const SkSL::Variable*> fKeyVars;
+    std::vector<SkSL::IRNode::ID> fKeyVars;
 
     std::unordered_map<SkSL::String, std::unique_ptr<const SkSL::Program>> fSpecializations;
 

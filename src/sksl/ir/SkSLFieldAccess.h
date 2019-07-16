@@ -24,27 +24,29 @@ struct FieldAccess : public Expression {
         kAnonymousInterfaceBlock_OwnerKind
     };
 
-    FieldAccess(std::unique_ptr<Expression> base, int fieldIndex,
+    FieldAccess(IRGenerator* irGenerator, IRNode::ID base, int fieldIndex,
                 OwnerKind ownerKind = kDefault_OwnerKind)
-    : INHERITED(base->fOffset, kFieldAccess_Kind, *base->fType.fields()[fieldIndex].fType)
-    , fBase(std::move(base))
+    : INHERITED(irGenerator, base.node().fOffset, kFieldAccess_Kind,
+                base.expression().fType.typeNode().fields()[fieldIndex].fType)
+    , fBase(base)
     , fFieldIndex(fieldIndex)
     , fOwnerKind(ownerKind) {}
 
     bool hasSideEffects() const override {
-        return fBase->hasSideEffects();
+        return fBase.expression().hasSideEffects();
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FieldAccess(fBase->clone(), fFieldIndex,
-                                                           fOwnerKind));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new FieldAccess(fIRGenerator, fBase, fFieldIndex,
+                                                        fOwnerKind));
     }
 
     String description() const override {
-        return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
+        return fBase.node().description() + "." +
+               fBase.expression().fType.typeNode().fields()[fFieldIndex].fName;
     }
 
-    std::unique_ptr<Expression> fBase;
+    IRNode::ID fBase;
     const int fFieldIndex;
     const OwnerKind fOwnerKind;
 

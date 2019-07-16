@@ -13,23 +13,24 @@
 
 namespace SkSL {
 
+class IRGenerator;
+
 /**
  * Represents a compile-time constant setting, such as sk_Caps.fbFetchSupport. These are generally
  * collapsed down to their constant representations during the compilation process.
  */
 struct Setting : public Expression {
-    Setting(int offset, String name, std::unique_ptr<Expression> value)
-    : INHERITED(offset, kSetting_Kind, value->fType)
+    Setting(IRGenerator* irGenerator, int offset, String name, IRNode::ID value)
+    : INHERITED(irGenerator, offset, kSetting_Kind, value.expression().fType)
     , fName(std::move(name))
-    , fValue(std::move(value)) {
-        SkASSERT(fValue->isConstant());
+    , fValue(value) {
+        SkASSERT(fValue.expression().isConstant());
     }
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override;
+    IRNode::ID constantPropagate(const DefinitionMap& definitions) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new Setting(fOffset, fName, fValue->clone()));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new Setting(fIRGenerator, fOffset, fName, fValue));
     }
 
     String description() const override {
@@ -45,7 +46,7 @@ struct Setting : public Expression {
     }
 
     const String fName;
-    std::unique_ptr<Expression> fValue;
+    IRNode::ID fValue;
 
     typedef Expression INHERITED;
 };

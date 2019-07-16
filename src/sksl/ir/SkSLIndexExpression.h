@@ -17,28 +17,29 @@ namespace SkSL {
 /**
  * Given a type, returns the type that will result from extracting an array value from it.
  */
-static const Type& index_type(const Context& context, const Type& type) {
+static IRNode::ID index_type(const Context& context, IRNode::ID typeID) {
+    const Type& type = typeID.typeNode();
     if (type.kind() == Type::kMatrix_Kind) {
-        if (type.componentType() == *context.fFloat_Type) {
+        if (type.componentType() == context.fFloat_Type) {
             switch (type.rows()) {
-                case 2: return *context.fFloat2_Type;
-                case 3: return *context.fFloat3_Type;
-                case 4: return *context.fFloat4_Type;
+                case 2: return context.fFloat2_Type;
+                case 3: return context.fFloat3_Type;
+                case 4: return context.fFloat4_Type;
                 default: SkASSERT(false);
             }
-        } else if (type.componentType() == *context.fHalf_Type) {
+        } else if (type.componentType() == context.fHalf_Type) {
             switch (type.rows()) {
-                case 2: return *context.fHalf2_Type;
-                case 3: return *context.fHalf3_Type;
-                case 4: return *context.fHalf4_Type;
+                case 2: return context.fHalf2_Type;
+                case 3: return context.fHalf3_Type;
+                case 4: return context.fHalf4_Type;
                 default: SkASSERT(false);
             }
         } else {
-           SkASSERT(type.componentType() == *context.fDouble_Type);
+           SkASSERT(type.componentType() == context.fDouble_Type);
             switch (type.rows()) {
-                case 2: return *context.fDouble2_Type;
-                case 3: return *context.fDouble3_Type;
-                case 4: return *context.fDouble4_Type;
+                case 2: return context.fDouble2_Type;
+                case 3: return context.fDouble3_Type;
+                case 4: return context.fDouble4_Type;
                 default: SkASSERT(false);
             }
         }
@@ -50,38 +51,37 @@ static const Type& index_type(const Context& context, const Type& type) {
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.
  */
 struct IndexExpression : public Expression {
-    IndexExpression(const Context& context, std::unique_ptr<Expression> base,
-                    std::unique_ptr<Expression> index)
-    : INHERITED(base->fOffset, kIndex_Kind, index_type(context, base->fType))
-    , fBase(std::move(base))
-    , fIndex(std::move(index)) {
-        SkASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
+    IndexExpression(IRGenerator* irGenerator, IRNode::ID base, IRNode::ID index)
+    : INHERITED(irGenerator, base.node().fOffset, kIndex_Kind,
+                index_type(irGenerator->fContext, base.expression().fType))
+    , fBase(base)
+    , fIndex(index) {
+        SkASSERT(fIndex.expression().fType == irGenerator->fContext.fInt_Type ||
+                 fIndex.expression().fType == irGenerator->fContext.fUInt_Type);
     }
 
     bool hasSideEffects() const override {
-        return fBase->hasSideEffects() || fIndex->hasSideEffects();
+        return fBase.expression().hasSideEffects() || fIndex.expression().hasSideEffects();
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new IndexExpression(fBase->clone(), fIndex->clone(),
-                                                               &fType));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new IndexExpression(fIRGenerator, fBase, fIndex, fType));
     }
 
     String description() const override {
-        return fBase->description() + "[" + fIndex->description() + "]";
+        return fBase.node().description() + "[" + fIndex.node().description() + "]";
     }
 
-    std::unique_ptr<Expression> fBase;
-    std::unique_ptr<Expression> fIndex;
+    IRNode::ID fBase;
+    IRNode::ID fIndex;
 
     typedef Expression INHERITED;
 
 private:
-    IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,
-                    const Type* type)
-    : INHERITED(base->fOffset, kIndex_Kind, *type)
-    , fBase(std::move(base))
-    , fIndex(std::move(index)) {}
+    IndexExpression(IRGenerator* irGenerator, IRNode::ID base, IRNode::ID index, IRNode::ID type)
+    : INHERITED(irGenerator, base.node().fOffset, kIndex_Kind, type)
+    , fBase(base)
+    , fIndex(index) {}
 };
 
 } // namespace

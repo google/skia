@@ -23,20 +23,23 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
     SkSL::String output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkSL::String(src),
                                                                      settings);
-    if (!program) {
+    REPORTER_ASSERT(r, compiler.errorCount() == 0);
+    if (compiler.errorCount()) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
-    REPORTER_ASSERT(r, program);
     if (program) {
         *inputs = program->fInputs;
         REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
-        if (program) {
+        REPORTER_ASSERT(r, compiler.errorCount() == 0);
+        if (!compiler.errorCount()) {
             SkSL::String skExpected(expected);
             if (output != skExpected) {
                 SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src,
                          expected, output.c_str());
             }
             REPORTER_ASSERT(r, output == skExpected);
+        } else {
+            SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
         }
     }
 }
@@ -168,6 +171,27 @@ DEF_TEST(SkSLOperators, r) {
          "    z %= 5;\n"
          "    x = float((vec2(sqrt(1.0)) , 6));\n"
          "    z = (vec2(sqrt(1.0)) , 6);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSL_TEMP, r) {
+    test(r,
+         "void main() {"
+         "float x = 1;"
+         "float y = 2;"
+         "x = y;"
+         "bool b = 2 >= sqrt(2) && x <= y;"
+         "sk_FragColor = b ? half4(1) : half4(0);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "void main() {\n"
+         "    float x = 1.0, y = 2.0;\n"
+         "    int z = 3;\n"
+         "    x = -6.0;\n"
+         "    y = -1.0;\n"
+         "    z = 8;\n"
+         "    bool b = false == true || 2.0 >= sqrt(2.0);\n"
          "}\n");
 }
 

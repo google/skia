@@ -17,8 +17,8 @@ namespace SkSL {
 
 class CPPCodeGenerator : public GLSLCodeGenerator {
 public:
-    CPPCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                     String name, OutputStream* out);
+    CPPCodeGenerator(IRGenerator* irGenerator, const Program* program, String name,
+                     OutputStream* out);
 
     bool generateCode() override;
 
@@ -66,7 +66,7 @@ private:
     void addUniform(const Variable& var);
 
     // writes a printf escape that will be filled in at runtime by the given C++ expression string
-    void writeRuntimeValue(const Type& type, const Layout& layout, const String& cppCode);
+    void writeRuntimeValue(IRNode::ID type, const Layout& layout, const String& cppCode);
 
     void writeVarInitializer(const Variable& var, const Expression& value) override;
 
@@ -115,7 +115,7 @@ private:
     // Append CPP code to the current extra emit code block.
     void addExtraEmitCodeLine(const String& toAppend);
 
-    int getChildFPIndex(const Variable& var) const;
+    int getChildFPIndex(IRNode::ID var) const;
 
     String fName;
     String fFullName;

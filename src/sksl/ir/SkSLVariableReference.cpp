@@ -8,107 +8,78 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLSetting.h"
 
 namespace SkSL {
 
-VariableReference::VariableReference(int offset, const Variable& variable, RefKind refKind)
-: INHERITED(offset, kVariableReference_Kind, variable.fType)
+VariableReference::VariableReference(IRGenerator* irGenerator, int offset, IRNode::ID variable,
+                                     RefKind refKind)
+: INHERITED(irGenerator, offset, kVariableReference_Kind, ((Variable&) variable.node()).fType)
 , fVariable(variable)
-, fRefKind(refKind) {
-    if (refKind != kRead_RefKind) {
-        fVariable.fWriteCount++;
-    }
-    if (refKind != kWrite_RefKind) {
-        fVariable.fReadCount++;
-    }
-}
-
-VariableReference::~VariableReference() {
-    if (fRefKind != kRead_RefKind) {
-        fVariable.fWriteCount--;
-    }
-    if (fRefKind != kWrite_RefKind) {
-        fVariable.fReadCount--;
-    }
-}
+, fRefKind(refKind) {}
 
 void VariableReference::setRefKind(RefKind refKind) {
-    if (fRefKind != kRead_RefKind) {
-        fVariable.fWriteCount--;
-    }
-    if (fRefKind != kWrite_RefKind) {
-        fVariable.fReadCount--;
-    }
-    if (refKind != kRead_RefKind) {
-        fVariable.fWriteCount++;
-    }
-    if (refKind != kWrite_RefKind) {
-        fVariable.fReadCount++;
-    }
     fRefKind = refKind;
 }
 
-std::unique_ptr<Expression> VariableReference::copy_constant(const IRGenerator& irGenerator,
-                                                             const Expression* expr) {
-    SkASSERT(expr->isConstant());
-    switch (expr->fKind) {
+IRNode::ID VariableReference::CopyConstant(IRGenerator* irGenerator,
+                                           const Expression& expr) {
+    SkASSERT(expr.isConstant());
+    switch (expr.fKind) {
         case Expression::kIntLiteral_Kind:
-            return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
-                                                              -1,
-                                                              ((IntLiteral*) expr)->fValue));
+            return irGenerator->createNode(new IntLiteral(irGenerator, -1,
+                                                          ((IntLiteral&) expr).fValue));
         case Expression::kFloatLiteral_Kind:
-            return std::unique_ptr<Expression>(new FloatLiteral(
-                                                               irGenerator.fContext,
-                                                               -1,
-                                                               ((FloatLiteral*) expr)->fValue));
+            return irGenerator->createNode(new FloatLiteral(irGenerator, -1,
+                                                            ((FloatLiteral&) expr).fValue));
         case Expression::kBoolLiteral_Kind:
-            return std::unique_ptr<Expression>(new BoolLiteral(irGenerator.fContext,
-                                                               -1,
-                                                               ((BoolLiteral*) expr)->fValue));
+            return irGenerator->createNode(new BoolLiteral(irGenerator, -1,
+                                                           ((BoolLiteral&) expr).fValue));
         case Expression::kConstructor_Kind: {
-            const Constructor* c = (const Constructor*) expr;
-            std::vector<std::unique_ptr<Expression>> args;
-            for (const auto& arg : c->fArguments) {
-                args.push_back(copy_constant(irGenerator, arg.get()));
+            const Constructor& c = (const Constructor&) expr;
+            std::vector<IRNode::ID> args;
+            for (const auto& arg : c.fArguments) {
+                args.push_back(CopyConstant(irGenerator, arg.expression()));
             }
-            return std::unique_ptr<Expression>(new Constructor(-1, c->fType,
-                                                               std::move(args)));
+            return irGenerator->createNode(new Constructor(irGenerator, -1, c.fType,
+                                                           std::move(args)));
         }
         case Expression::kSetting_Kind: {
-            const Setting* s = (const Setting*) expr;
-            return std::unique_ptr<Expression>(new Setting(-1, s->fName,
-                                                           copy_constant(irGenerator,
-                                                                         s->fValue.get())));
+            const Setting& s = (const Setting&) expr;
+            return irGenerator->createNode(new Setting(irGenerator, -1, s.fName,
+                          CopyConstant(irGenerator, s.fValue.expression())));
         }
         default:
             ABORT("unsupported constant\n");
     }
 }
 
-std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerator& irGenerator,
-                                                                 const DefinitionMap& definitions) {
+IRNode::ID VariableReference::constantPropagate(const DefinitionMap& definitions) {
     if (fRefKind != kRead_RefKind) {
-        return nullptr;
+        return IRNode::ID();
     }
-    if (irGenerator.fKind == Program::kPipelineStage_Kind &&
-        fVariable.fStorage == Variable::kGlobal_Storage &&
-        (fVariable.fModifiers.fFlags & Modifiers::kIn_Flag) &&
-        !(fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag)) {
-        return irGenerator.getArg(fOffset, fVariable.fName);
+    Variable& var = (Variable&) fVariable.node();
+    if (fIRGenerator->fKind == Program::kPipelineStage_Kind &&
+        var.fStorage == Variable::kGlobal_Storage &&
+        (var.fModifiers.fFlags & Modifiers::kIn_Flag) &&
+        !(var.fModifiers.fFlags & Modifiers::kUniform_Flag)) {
+        return fIRGenerator->getArg(fOffset, ((Variable&) fVariable.node()).fName);
     }
-    if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
-        fVariable.fInitialValue->isConstant()) {
-        return copy_constant(irGenerator, fVariable.fInitialValue);
+    if ((var.fModifiers.fFlags & Modifiers::kConst_Flag) && var.fInitialValue &&
+        var.fInitialValue.expression().isConstant()) {
+        return CopyConstant(fIRGenerator, var.fInitialValue.expression());
     }
-    auto exprIter = definitions.find(&fVariable);
-    if (exprIter != definitions.end() && exprIter->second &&
-        (*exprIter->second)->isConstant()) {
-        return copy_constant(irGenerator, exprIter->second->get());
+    auto exprIter = definitions.find(fVariable);
+    if (exprIter != definitions.end() && exprIter->second.id()) {
+        Expression& expr = exprIter->second.expression();
+        if (expr.isConstant()) {
+            return CopyConstant(fIRGenerator, expr);
+        }
     }
-    return nullptr;
+    return IRNode::ID();
 }
 
 } // namespace

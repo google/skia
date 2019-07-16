@@ -17,44 +17,41 @@ namespace SkSL {
  * A function invocation.
  */
 struct FunctionCall : public Expression {
-    FunctionCall(int offset, const Type& type, const FunctionDeclaration& function,
-                 std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(offset, kFunctionCall_Kind, type)
+    FunctionCall(IRGenerator* irGenerator, int offset, IRNode::ID type,
+                 IRNode::ID function, std::vector<IRNode::ID> arguments)
+    : INHERITED(irGenerator, offset, kFunctionCall_Kind, type)
     , fFunction(std::move(function))
     , fArguments(std::move(arguments)) {}
 
     bool hasSideEffects() const override {
         for (const auto& arg : fArguments) {
-            if (arg->hasSideEffects()) {
+            if (arg.expression().hasSideEffects()) {
                 return true;
             }
         }
-        return fFunction.fModifiers.fFlags & Modifiers::kHasSideEffects_Flag;
+        return ((FunctionDeclaration&) fFunction.node()).fModifiers.fFlags &
+               Modifiers::kHasSideEffects_Flag;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        std::vector<std::unique_ptr<Expression>> cloned;
-        for (const auto& arg : fArguments) {
-            cloned.push_back(arg->clone());
-        }
-        return std::unique_ptr<Expression>(new FunctionCall(fOffset, fType, fFunction,
-                                                            std::move(cloned)));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new FunctionCall(fIRGenerator, fOffset, fType, fFunction,
+                                                         fArguments));
     }
 
     String description() const override {
-        String result = String(fFunction.fName) + "(";
+        String result = String(((FunctionDeclaration&) fFunction.node()).fName) + "(";
         String separator;
-        for (size_t i = 0; i < fArguments.size(); i++) {
+        for (auto arg : fArguments) {
             result += separator;
-            result += fArguments[i]->description();
+            result += arg.node().description();
             separator = ", ";
         }
         result += ")";
         return result;
     }
 
-    const FunctionDeclaration& fFunction;
-    std::vector<std::unique_ptr<Expression>> fArguments;
+    IRNode::ID fFunction;
+    std::vector<IRNode::ID> fArguments;
 
     typedef Expression INHERITED;
 };

@@ -17,29 +17,28 @@ namespace SkSL {
  * One or more variable declarations appearing as a statement within a function.
  */
 struct VarDeclarationsStatement : public Statement {
-    VarDeclarationsStatement(std::unique_ptr<VarDeclarations> decl)
-    : INHERITED(decl->fOffset, kVarDeclarations_Kind)
-    , fDeclaration(std::move(decl)) {}
+    VarDeclarationsStatement(IRGenerator* irGenerator, IRNode::ID decl)
+    : INHERITED(irGenerator, decl.node().fOffset, kVarDeclarations_Kind)
+    , fDeclaration(decl) {}
 
     bool isEmpty() const override {
-        for (const auto& s : fDeclaration->fVars) {
-            if (!s->isEmpty()) {
+        for (const auto& s : ((VarDeclarations&) fDeclaration.node()).fVars) {
+            if (!s.expression().isEmpty()) {
                 return false;
             }
         }
         return true;
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        std::unique_ptr<VarDeclarations> cloned((VarDeclarations*) fDeclaration->clone().release());
-        return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(cloned)));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new VarDeclarationsStatement(fIRGenerator, fDeclaration));
     }
 
     String description() const override {
-        return fDeclaration->description() + ";";
+        return fDeclaration.node().description() + ";";
     }
 
-    std::unique_ptr<VarDeclarations> fDeclaration;
+    IRNode::ID fDeclaration;
 
     typedef Statement INHERITED;
 };

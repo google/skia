@@ -1,0 +1,373 @@
+/*
+ * Copyright 2019 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SKSL_IRNODE
+#define SKSL_IRNODE
+
+#include "src/sksl/SkSLString.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+
+#include <unordered_map>
+#include <vector>
+
+namespace SkSL {
+
+struct Expression;
+class  IRGenerator;
+struct Statement;
+class  Type;
+
+/**
+ * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
+ * version of the program (all types determined, everything validated), ready for code generation.
+ */
+struct IRNode {
+    class ID {
+    public:
+        ID()
+            : fIRGenerator(nullptr)
+            , fValue(-1)
+            , fNode(nullptr) {}
+
+        ID(IRGenerator* irGenerator, int value)
+            : fIRGenerator(irGenerator)
+            , fValue(value)
+            , fNode(nullptr) {
+                SkASSERT(irGenerator);
+            }
+
+        explicit ID(IRNode* node)
+            : fIRGenerator(node ? node->fIRGenerator : nullptr)
+            , fValue(-1)
+            , fNode(node) {
+                SkASSERT(!node || fIRGenerator);
+            }
+
+        static ID Invalid() {
+            return ID();
+        }
+
+        bool operator==(const ID& other) const {
+            return fIRGenerator == other.fIRGenerator && fNode == other.fNode &&
+                   fValue == other.fValue;
+        }
+
+        bool operator!=(const ID& other) const {
+            return fIRGenerator != other.fIRGenerator || fNode != other.fNode ||
+                   fValue != other.fValue;
+        }
+
+        IRNode::ID& operator=(const IRNode::ID& other) {
+            fIRGenerator = other.fIRGenerator;
+            fNode = other.fNode;
+            fValue = other.fValue;
+            return *this;
+        }
+
+        operator bool() const { return fNode || fValue >= 0; }
+
+        IRNode& node() const;
+
+        // FIXME remove this temporary function
+        Type& typeNode() const {
+            return (Type&) this->node();
+        }
+
+        // FIXME remove this temporary function
+        Expression& expression() const {
+            return (Expression&) this->node();
+        }
+
+        // FIXME remove this temporary function
+        Statement& statement() const {
+            return (Statement&) this->node();
+        }
+
+// FIXME uncomment this
+//    private:
+        IRGenerator* fIRGenerator;
+        int fValue;
+        // FIXME: temporary, remove when we finish the rearchitecture
+        IRNode* fNode;
+
+        friend class IRGenerator;
+        friend struct IRNode;
+        friend struct Program;
+    };
+
+    enum class Kind {
+        kBool,
+        kFloat,
+        // data: isStatic(bool), children: test, ifTrue, ifFalse?
+        kIf,
+        kInt,
+        kLegacy,
+        kNull,
+    };
+
+    class iterator {
+    public:
+        iterator operator++() {
+            SkASSERT(fID);
+            fID = (**this).fNext;
+            return *this;
+        }
+
+        iterator operator++(int) {
+            SkASSERT(fID);
+            iterator old = *this;
+            fID = (**this).fNext;
+            return old;
+        }
+
+        iterator operator+=(int count) {
+            SkASSERT(count >= 0);
+            for (; count > 0; --count) {
+                ++(*this);
+            }
+            return *this;
+        }
+
+        iterator operator+(int count) {
+            iterator result(*this);
+            return result += count;
+        }
+
+        bool operator==(const iterator& other) const {
+            return fID == other.fID;
+        }
+
+        bool operator!=(const iterator& other) const {
+            return fID != other.fID;
+        }
+
+        IRNode& operator*() {
+            SkASSERT(fID);
+            return fID.fNode ? *fID.fNode : *(*fNodes)[fID.fValue];
+        }
+
+        IRNode* operator->() {
+            SkASSERT(fID);
+            return fID.fNode ? fID.fNode : (*fNodes)[fID.fValue].get();
+        }
+
+    private:
+        iterator(std::vector<std::unique_ptr<IRNode>>* nodes, ID id)
+            : fNodes(nodes)
+            , fID(id) {}
+
+        std::vector<std::unique_ptr<IRNode>>* fNodes;
+
+        ID fID;
+
+        friend struct IRNode;
+    };
+
+    struct NodeData {
+        char fBytes[max(sizeof(bool),
+                    max(sizeof(SKSL_INT),
+                        sizeof(SKSL_FLOAT)))];
+
+        enum class Kind {
+            kBool,
+            kInt,
+            kFloat,
+        } fKind;
+
+        NodeData() = default;
+
+        NodeData(bool data)
+            : fKind(Kind::kBool) {
+            memcpy(fBytes, &data, sizeof(data));
+        }
+
+        NodeData(SKSL_INT data)
+            : fKind(Kind::kInt) {
+            memcpy(fBytes, &data, sizeof(data));
+        }
+
+        NodeData(SKSL_FLOAT data)
+            : fKind(Kind::kFloat) {
+            memcpy(fBytes, &data, sizeof(data));
+        }
+    };
+
+    IRNode() {}
+
+    IRNode(IRGenerator* irGenerator)
+        : fIRGenerator(irGenerator)
+        , fOffset(-1)
+        , fNodeKind(Kind::kNull) {
+        SkASSERT(irGenerator);
+    }
+
+    IRNode(IRGenerator* irGenerator, int offset)
+        : fIRGenerator(irGenerator)
+        , fOffset(offset)
+        , fNodeKind(Kind::kLegacy) {
+        SkASSERT(irGenerator);
+    }
+
+    IRNode(IRGenerator* irGenerator, int offset, Kind kind, bool b)
+        : fIRGenerator(irGenerator)
+        , fData(b)
+        , fOffset(offset)
+        , fNodeKind(kind) {
+        SkASSERT(irGenerator);
+    }
+
+    IRNode(IRGenerator* irGenerator, int offset, Kind kind, SKSL_INT i)
+        : fIRGenerator(irGenerator)
+        , fData(i)
+        , fOffset(offset)
+        , fNodeKind(kind) {
+        SkASSERT(irGenerator);
+    }
+
+    IRNode(IRGenerator* irGenerator, int offset, Kind kind, SKSL_FLOAT f)
+        : fIRGenerator(irGenerator)
+        , fData(f)
+        , fOffset(offset)
+        , fNodeKind(kind) {
+        SkASSERT(irGenerator);
+    }
+
+    operator bool() const {
+        return fNodeKind != Kind::kNull;
+    }
+
+    bool getBool() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kBool);
+        bool result;
+        memcpy(&result, fData.fBytes, sizeof(result));
+        return result;
+    }
+
+    SKSL_INT getInt() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kInt);
+        SKSL_INT result;
+        memcpy(&result, fData.fBytes, sizeof(result));
+        return result;
+    }
+
+    SKSL_FLOAT getFloat() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kFloat);
+        SKSL_FLOAT result;
+        memcpy(&result, fData.fBytes, sizeof(result));
+        return result;
+    }
+
+    void addChild(ID id) {
+        /*SkASSERT(!(*fIRGenerator.fNodes)[id.fValue]->fNext);
+        if (fLastChild) {
+            SkASSERT(!(*fIRGenerator.fNodes)[fLastChild.fValue]->fNext);
+            (*fNodes)[fLastChild.fValue]->fNext = id;
+        } else {
+            fFirstChild = id;
+        }
+        fLastChild = id;
+        SkASSERT(!(*fIRGenerator.fNodes)[fLastChild.fValue]->fNext);*/
+        abort();
+    }
+
+    iterator begin() const {
+        //return iterator(fIRGenerator.fNodes, fFirstChild);
+        abort();
+    }
+
+    iterator end() const {
+        //return iterator(fIRGenerator.fNodes, ID(-1));
+        abort();
+    }
+
+    virtual String description() const {
+        return "<irnode>";
+    }
+
+    virtual ~IRNode() {
+    }
+
+    virtual bool isEmpty() const {
+        return false;
+    }
+
+    virtual bool isConstant() const {
+        return false;
+    }
+
+    virtual bool hasSideEffects() const {
+        return false;
+    }
+
+    IRGenerator* fIRGenerator;
+
+    NodeData fData;
+
+    int fOffset;
+
+    Kind fNodeKind;
+
+    ID fFirstChild;
+
+    ID fLastChild;
+
+    ID fNext;
+};
+
+// We can't safely store pointers to IRNode::ID while the program is still being modified, because
+// they are stored in a std::vector whose storage might be reallocated. So we instead store the ID
+// of the parent node and an offset to the ID within the node struct. If fIndex is negative,
+// the base + fOffset is the address of an IRNode::ID. If fIndex is nonnegative, then the pointer
+// instead points to a vector of IRNode::IDs, within which we grab the fIndex'th element.
+struct IRNodeIDPtr {
+    IRNode::ID fParent;
+    size_t fOffset;
+    int fIndex;
+
+    IRNode::ID* ptr() const {
+        char* base = ((char*) &fParent.node()) + fOffset;
+        if (fIndex >= 0) {
+            return &(*(std::vector<IRNode::ID>*) base)[fIndex];
+        } else {
+            return (IRNode::ID*) base;
+        }
+    }
+
+    IRNode::ID id() const {
+        return *this->ptr();
+    }
+
+    IRNode& node() const {
+        return this->id().node();
+    }
+
+    Expression& expression() const {
+        return this->id().expression();
+    }
+
+    Statement& statement() const {
+        return this->id().statement();
+    }
+};
+
+// maps variable IDs to their current definitions
+typedef std::unordered_map<IRNode::ID, IRNodeIDPtr> DefinitionMap;
+
+} // namespace SkSL
+
+namespace std {
+
+template <>
+struct hash<SkSL::IRNode::ID> {
+    size_t operator()(const SkSL::IRNode::ID& key) const {
+        return key.fValue ^ (intptr_t) key.fNode ^ (intptr_t) key.fIRGenerator;
+    }
+};
+
+} // namespace std
+
+#endif
