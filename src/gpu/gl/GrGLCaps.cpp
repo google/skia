@@ -707,7 +707,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.
-    this->initFormatTable(contextOptions, ctxInfo, gli, formatWorkarounds);
+    this->initFormatTable(ctxInfo, gli, formatWorkarounds);
     this->initConfigTable(contextOptions, ctxInfo, gli);
 
     this->applyOptionsOverrides(contextOptions);
@@ -1302,8 +1302,7 @@ void GrGLCaps::setColorTypeFormat(GrColorType colorType, GrGLFormat format) {
     fColorTypeToFormatTable[idx] = format;
 }
 
-void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
-                               const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
+void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
                                const FormatWorkarounds& formatWorkarounds) {
     GrGLStandard standard = ctxInfo.standard();
     // standard can be unused (optimized away) if SK_ASSUME_GL_ES is set
@@ -1477,7 +1476,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
         // kRGBA_8888
         {
-            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_8888, flags);
             this->setColorTypeFormat(GrColorType::kRGBA_8888, GrGLFormat::kRGBA8);
         }
@@ -1486,7 +1485,8 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         {
             if (GR_IS_GR_GL(standard)) {
                 if (version >= GR_GL_VER(1, 2) || ctxInfo.hasExtension("GL_EXT_bgra")) {
-                    uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                    uint32_t flags = ColorTypeInfo::kUploadData_Flag |
+                                     ColorTypeInfo::kRenderable_Flag;
                     info.fColorTypeInfos.emplace_back(GrColorType::kBGRA_8888, flags);
                     this->setColorTypeFormat(GrColorType::kBGRA_8888, GrGLFormat::kRGBA8);
                 }
@@ -1520,15 +1520,16 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         }
 
         if (textureRedSupport) {
-            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
             // kAlpha_8
             {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags);
                 this->setColorTypeFormat(GrColorType::kAlpha_8, GrGLFormat::kR8);
             }
 
             // kGray_8
             {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kGray_8, flags);
                 this->setColorTypeFormat(GrColorType::kGray_8, GrGLFormat::kR8);
             }
@@ -1570,7 +1571,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
             // kAlpha_8
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
                     info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags);
                     int idx = static_cast<int>(GrColorType::kAlpha_8);
@@ -1712,7 +1713,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (SkToBool(info.fFlags &FormatInfo::kTextureable_Flag)) {
             // kBGRA_8888
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kBGRA_8888, flags);
                 this->setColorTypeFormat(GrColorType::kBGRA_8888, GrGLFormat::kBGRA8);
             }
@@ -1752,7 +1753,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (SkToBool(info.fFlags &FormatInfo::kTextureable_Flag)) {
             // kBGR_565
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kBGR_565, flags);
                 this->setColorTypeFormat(GrColorType::kBGR_565, GrGLFormat::kRGB565);
             }
@@ -1782,16 +1783,15 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         }
 
         if (hasFP16Textures) {
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             // kRGBA_F16
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_F16, flags);
                 this->setColorTypeFormat(GrColorType::kRGBA_F16, GrGLFormat::kRGBA16F);
             }
 
             // kRGBA_F16_Clamped
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_F16_Clamped, flags);
                 this->setColorTypeFormat(GrColorType::kRGBA_F16_Clamped, GrGLFormat::kRGBA16F);
             }
@@ -1822,7 +1822,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (textureRedSupport && hasFP16Textures) {
             // kAlpha_F16
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_F16, flags);
                 this->setColorTypeFormat(GrColorType::kAlpha_F16, GrGLFormat::kR16F);
             }
@@ -1867,7 +1867,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
         // kRGB_888x
         {
-            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             info.fColorTypeInfos.emplace_back(GrColorType::kRGB_888x, flags);
             this->setColorTypeFormat(GrColorType::kRGB_888x, GrGLFormat::kRGB8);
         }
@@ -1894,7 +1894,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (textureRedSupport) {
             // kRG_88
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kRG_88, flags);
                 this->setColorTypeFormat(GrColorType::kRG_88, GrGLFormat::kRG8);
             }
@@ -1925,7 +1925,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (SkToBool(info.fFlags &FormatInfo::kTextureable_Flag)) {
             // kRGBA_1010102
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_1010102, flags);
                 this->setColorTypeFormat(GrColorType::kRGBA_1010102, GrGLFormat::kRGB10_A2);
             }
@@ -1958,7 +1958,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
 
         // kABGR_4444
         {
-            uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+            uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             info.fColorTypeInfos.emplace_back(GrColorType::kABGR_4444, flags);
             this->setColorTypeFormat(GrColorType::kABGR_4444, GrGLFormat::kRGBA4);
         }
@@ -2002,7 +2002,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (fSRGBSupport) {
             // kRGBA_8888_SRGB
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_8888_SRGB, flags);
                 this->setColorTypeFormat(GrColorType::kRGBA_8888_SRGB, GrGLFormat::kSRGB8_ALPHA8);
             }
@@ -2059,7 +2059,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (r16AndRG1616Supported) {
             // kR_16
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kR_16, flags);
                 this->setColorTypeFormat(GrColorType::kR_16, GrGLFormat::kR16);
             }
@@ -2083,7 +2083,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (r16AndRG1616Supported) {
             // kRG_1616
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kRG_1616, flags);
                 this->setColorTypeFormat(GrColorType::kRG_1616, GrGLFormat::kRG16);
             }
@@ -2126,7 +2126,7 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (rgba16161616Supported) {
             // kRGBA_16161616
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kRGBA_16161616, flags);
                 this->setColorTypeFormat(GrColorType::kRGBA_16161616, GrGLFormat::kRGBA16);
             }
@@ -2177,10 +2177,78 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
         if (rg16fTexturesSupported) {
             // kRG_F16
             {
-                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kRG_F16, flags);
                 this->setColorTypeFormat(GrColorType::kRG_F16, GrGLFormat::kRG16F);
             }
+        }
+    }
+
+    this->setupSampleCounts(ctxInfo, gli);
+}
+
+void GrGLCaps::setupSampleCounts(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
+    GrGLStandard standard = ctxInfo.standard();
+    // standard can be unused (optimized away) if SK_ASSUME_GL_ES is set
+    sk_ignore_unused_variable(standard);
+    GrGLVersion version = ctxInfo.version();
+
+    for (int i = 0; i < kGrGLFormatCount; ++i) {
+        if (FormatInfo::kFBOColorAttachmentWithMSAA_Flag & fFormatTable[i].fFlags) {
+            // We assume that MSAA rendering is supported only if we support non-MSAA rendering.
+            SkASSERT(FormatInfo::kFBOColorAttachment_Flag & fFormatTable[i].fFlags);
+            if ((GR_IS_GR_GL(standard) &&
+                  (version >= GR_GL_VER(4,2) ||
+                   ctxInfo.hasExtension("GL_ARB_internalformat_query"))) ||
+                (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3,0))) {
+                int count;
+                GrGLFormat grGLFormat = static_cast<GrGLFormat>(i);
+                GrGLenum glFormat = this->getRenderbufferInternalFormat(grGLFormat);
+                GR_GL_GetInternalformativ(gli, GR_GL_RENDERBUFFER, glFormat,
+                                          GR_GL_NUM_SAMPLE_COUNTS, 1, &count);
+                if (count) {
+                    std::unique_ptr<int[]> temp(new int[count]);
+                    GR_GL_GetInternalformativ(gli, GR_GL_RENDERBUFFER, glFormat, GR_GL_SAMPLES,
+                                              count, temp.get());
+                    // GL has a concept of MSAA rasterization with a single sample but we do not.
+                    if (count && temp[count - 1] == 1) {
+                        --count;
+                        SkASSERT(!count || temp[count -1] > 1);
+                    }
+                    fFormatTable[i].fColorSampleCounts.setCount(count+1);
+                    // We initialize our supported values with 1 (no msaa) and reverse the order
+                    // returned by GL so that the array is ascending.
+                    fFormatTable[i].fColorSampleCounts[0] = 1;
+                    for (int j = 0; j < count; ++j) {
+                        fFormatTable[i].fColorSampleCounts[j+1] = temp[count - j - 1];
+                    }
+                }
+            } else {
+                // Fake out the table using some semi-standard counts up to the max allowed sample
+                // count.
+                int maxSampleCnt = 1;
+                if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
+                    GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &maxSampleCnt);
+                } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
+                    GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &maxSampleCnt);
+                }
+                // Chrome has a mock GL implementation that returns 0.
+                maxSampleCnt = SkTMax(1, maxSampleCnt);
+
+                static constexpr int kDefaultSamples[] = {1, 2, 4, 8};
+                int count = SK_ARRAY_COUNT(kDefaultSamples);
+                for (; count > 0; --count) {
+                    if (kDefaultSamples[count - 1] <= maxSampleCnt) {
+                        break;
+                    }
+                }
+                if (count > 0) {
+                    fFormatTable[i].fColorSampleCounts.append(count, kDefaultSamples);
+                }
+            }
+        } else if (FormatInfo::kFBOColorAttachment_Flag & fFormatTable[i].fFlags) {
+            fFormatTable[i].fColorSampleCounts.setCount(1);
+            fFormatTable[i].fColorSampleCounts[0] = 1;
         }
     }
 }
@@ -2740,66 +2808,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // slot.
     fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage] =
         GR_GL_RGB;
-
-    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
-        if (ConfigInfo::kRenderableWithMSAA_Flag & fConfigTable[i].fFlags) {
-            // We assume that MSAA rendering is supported only if we support non-MSAA rendering.
-            SkASSERT(ConfigInfo::kRenderable_Flag & fConfigTable[i].fFlags);
-            if ((GR_IS_GR_GL(standard) &&
-                  (version >= GR_GL_VER(4,2) ||
-                   ctxInfo.hasExtension("GL_ARB_internalformat_query"))) ||
-                (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3,0))) {
-                int count;
-                GrGLFormat grGLFormat = this->pixelConfigToFormat((GrPixelConfig)i);
-                GrGLenum format = this->getRenderbufferInternalFormat(grGLFormat);
-                GR_GL_GetInternalformativ(gli, GR_GL_RENDERBUFFER, format, GR_GL_NUM_SAMPLE_COUNTS,
-                                          1, &count);
-                if (count) {
-                    int* temp = new int[count];
-                    GR_GL_GetInternalformativ(gli, GR_GL_RENDERBUFFER, format, GR_GL_SAMPLES, count,
-                                              temp);
-                    // GL has a concept of MSAA rasterization with a single sample but we do not.
-                    if (count && temp[count - 1] == 1) {
-                        --count;
-                        SkASSERT(!count || temp[count -1] > 1);
-                    }
-                    fConfigTable[i].fColorSampleCounts.setCount(count+1);
-                    // We initialize our supported values with 1 (no msaa) and reverse the order
-                    // returned by GL so that the array is ascending.
-                    fConfigTable[i].fColorSampleCounts[0] = 1;
-                    for (int j = 0; j < count; ++j) {
-                        fConfigTable[i].fColorSampleCounts[j+1] = temp[count - j - 1];
-                    }
-                    delete[] temp;
-                }
-            } else {
-                // Fake out the table using some semi-standard counts up to the max allowed sample
-                // count.
-                int maxSampleCnt = 1;
-                if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
-                    GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &maxSampleCnt);
-                } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
-                    GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &maxSampleCnt);
-                }
-                // Chrome has a mock GL implementation that returns 0.
-                maxSampleCnt = SkTMax(1, maxSampleCnt);
-
-                static constexpr int kDefaultSamples[] = {1, 2, 4, 8};
-                int count = SK_ARRAY_COUNT(kDefaultSamples);
-                for (; count > 0; --count) {
-                    if (kDefaultSamples[count - 1] <= maxSampleCnt) {
-                        break;
-                    }
-                }
-                if (count > 0) {
-                    fConfigTable[i].fColorSampleCounts.append(count, kDefaultSamples);
-                }
-            }
-        } else if (ConfigInfo::kRenderable_Flag & fConfigTable[i].fFlags) {
-            fConfigTable[i].fColorSampleCounts.setCount(1);
-            fConfigTable[i].fColorSampleCounts[0] = 1;
-        }
-    }
 
 #ifdef SK_DEBUG
     // Make sure we initialized everything by comparing all configs to the
@@ -3593,33 +3601,25 @@ bool GrGLCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format)
 }
 
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grCT,
-                                         const GrBackendFormat& format) const {
-    if (GrColorType::kUnknown == grCT) {
+                                         GrGLFormat format) const {
+    const FormatInfo& info = this->getFormatInfo(format);
+    if (!SkToBool(info.colorTypeFlags(grCT) & ColorTypeInfo::kRenderable_Flag)) {
         return 0;
     }
 
-    GrPixelConfig config = this->getConfigFromBackendFormat(format, grCT);
-    if (kUnknown_GrPixelConfig == config) {
-        return 0;
-    }
-
-    return this->getRenderTargetSampleCount(requestedCount, config);
-}
-
-int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
-    requestedCount = SkTMax(1, requestedCount);
-    int count = fConfigTable[config].fColorSampleCounts.count();
+    int count = info.fColorSampleCounts.count();
     if (!count) {
         return 0;
     }
 
+    requestedCount = SkTMax(1, requestedCount);
     if (1 == requestedCount) {
-        return fConfigTable[config].fColorSampleCounts[0] == 1 ? 1 : 0;
+        return info.fColorSampleCounts[0] == 1 ? 1 : 0;
     }
 
     for (int i = 0; i < count; ++i) {
-        if (fConfigTable[config].fColorSampleCounts[i] >= requestedCount) {
-            int count = fConfigTable[config].fColorSampleCounts[i];
+        if (info.fColorSampleCounts[i] >= requestedCount) {
+            int count = info.fColorSampleCounts[i];
             if (fDriverBugWorkarounds.max_msaa_sample_count_4) {
                 count = SkTMin(count, 4);
             }
@@ -3627,23 +3627,15 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig confi
         }
     }
     return 0;
+
 }
 
-int GrGLCaps::maxRenderTargetSampleCount(GrColorType grCT, const GrBackendFormat& format) const {
-    if (GrColorType::kUnknown == grCT) {
+int GrGLCaps::maxRenderTargetSampleCount(GrColorType grCT, GrGLFormat format) const {
+    const FormatInfo& info = this->getFormatInfo(format);
+    if (!SkToBool(info.colorTypeFlags(grCT) & ColorTypeInfo::kRenderable_Flag)) {
         return 0;
     }
-
-    GrPixelConfig config = this->getConfigFromBackendFormat(format, grCT);
-    if (kUnknown_GrPixelConfig == config) {
-        return 0;
-    }
-
-    return this->maxRenderTargetSampleCount(config);
-}
-
-int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
-    const auto& table = fConfigTable[config].fColorSampleCounts;
+    const auto& table = info.fColorSampleCounts;
     if (!table.count()) {
         return 0;
     }
