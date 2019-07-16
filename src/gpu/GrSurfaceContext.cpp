@@ -403,13 +403,17 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContextPriv::copy");
 
+    const GrCaps* caps = fContext->priv().caps();
+
     SkASSERT(src->backendFormat().textureType() != GrTextureType::kExternal);
     SkASSERT(src->origin() == this->asSurfaceProxy()->origin());
-    SkASSERT(src->config() == this->asSurfaceProxy()->config());
+    SkASSERT(caps->makeConfigSpecific(src->config(), src->backendFormat()) ==
+             caps->makeConfigSpecific(this->asSurfaceProxy()->config(),
+                                      this->asSurfaceProxy()->backendFormat()));
 
     GrSurfaceProxy* dst = this->asSurfaceProxy();
 
-    if (!fContext->priv().caps()->canCopySurface(dst, src, srcRect, dstPoint)) {
+    if (!caps->canCopySurface(dst, src, srcRect, dstPoint)) {
         return false;
     }
 
