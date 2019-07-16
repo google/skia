@@ -21,21 +21,16 @@ public:
     TextLine(ParagraphImpl* master,
              SkVector offset,
              SkVector advance,
-             SkSpan<const Block> blocks,
+             BlockRange blocks,
              TextRange text,
              TextRange textWithSpaces,
-             SkSpan<const Cluster> clusters,
+             ClusterRange clusters,
              LineMetrics sizes);
 
-    void setMaster(ParagraphImpl* master) {
-        fMaster = master;
-        this->fBlockRange.setMaster(master);
-        this->fClusterRange.setMaster(master);
-    }
+    void setMaster(ParagraphImpl* master) { fMaster = master; }
 
     TextRange trimmedText() const { return fTextRange; }
     TextRange textWithSpaces() const { return fTextWithWhitespacesRange; }
-    SkSpan<const Cluster> clusters() const { return fClusterRange.span(); }
     SkVector offset() const { return fOffset + SkVector::Make(fShift, 0); }
     Run* ellipsis() const { return fEllipsis.get(); }
     LineMetrics sizes() const { return fSizes; }
@@ -148,10 +143,10 @@ private:
     }
 
     ParagraphImpl* fMaster;
-    StableRange<ParagraphImpl, const Block, &accessTextBlock> fBlockRange;
+    BlockRange fBlockRange;
     TextRange fTextRange;
     TextRange fTextWithWhitespacesRange;
-    StableRange<ParagraphImpl, const Cluster, &accessCluster> fClusterRange;
+    ClusterRange fClusterRange;
 
     SkTArray<size_t, true> fLogical;
     SkScalar fShift;                    // Shift to left - right - center

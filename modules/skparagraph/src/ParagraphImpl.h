@@ -54,9 +54,8 @@ public:
 
     size_t lineNumber() override { return fLines.size(); }
 
-    TextLine& addLine(SkVector offset, SkVector advance, TextRange text,
-                      TextRange textWithSpaces, SkSpan<const Cluster> clusters,
-                      LineMetrics sizes);
+    TextLine& addLine(SkVector offset, SkVector advance, TextRange text, TextRange textWithSpaces,
+                      ClusterRange clusters, LineMetrics sizes);
 
     SkSpan<const char> text() const { return fTextSpan; }
     InternalState state() const { return fState; }
@@ -95,10 +94,12 @@ public:
         fMinIntrinsicWidth = m.fMinIntrinsicWidth;
     }
 
-    Run& getRun(RunIndex index) {
-        SkASSERT(index < fRuns.size());
-        return fRuns[index];
-    }
+    SkSpan<const char> text(TextRange textRange);
+    SkSpan<Cluster> clusters(ClusterRange clusterRange);
+    Cluster& cluster(ClusterIndex clusterIndex);
+    Run& run(RunIndex runIndex);
+    SkSpan<Block> blocks(BlockRange blockRange);
+    Block& block(BlockIndex blockIndex);
 
     void markDirty() override { fState = kUnknown; }
     static void setChecker(std::function<void(ParagraphImpl* impl, const char*, bool)> checker) {
@@ -126,7 +127,7 @@ private:
     void breakShapedTextIntoLines(SkScalar maxWidth);
     void paintLinesIntoPicture();
 
-    SkSpan<const Block> findAllBlocks(TextRange textRange);
+    BlockRange findAllBlocks(TextRange textRange);
 
     // Input
     SkTArray<Block, true> fTextStyles;
