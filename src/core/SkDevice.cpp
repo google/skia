@@ -64,10 +64,7 @@ bool SkBaseDevice::clipIsWideOpen() const {
     }
 }
 
-SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
-                                                         TileUsage tileUsage,
-                                                         SkPixelGeometry geo,
-                                                         bool preserveLCDText) {
+SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(TileUsage tileUsage, SkPixelGeometry geo) {
     switch (tileUsage) {
         case kPossible_TileUsage:
             // (we think) for compatibility with old clients, we assume this layer can support LCD
@@ -75,9 +72,7 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
             // our callers (reed/robertphilips).
             break;
         case kNever_TileUsage:
-            if (!preserveLCDText) {
-                geo = kUnknown_SkPixelGeometry;
-            }
+            geo = kUnknown_SkPixelGeometry;
             break;
     }
     return geo;
