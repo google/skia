@@ -48,8 +48,9 @@ public:
     }
 
     sk_sp<skottie::ImageAsset> loadImageAsset(const char[] /* path */,
-                                              const char name[]) const override {
-        // For CK/Skottie we ignore paths and identify images based solely on name.
+                                              const char name[],
+                                              const char[] /* id */) const override {
+        // For CK/Skottie we ignore paths & IDs, and identify images based solely on name.
         if (auto data = this->findAsset(name)) {
             return skottie_utils::MultiFrameImageAsset::Make(std::move(data), true /* predecode */);
         }

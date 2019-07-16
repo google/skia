@@ -55,7 +55,8 @@ public:
 
     sk_sp<SkData> load(const char resource_path[], const char resource_name[]) const override;
 
-    sk_sp<skottie::ImageAsset> loadImageAsset(const char[], const char []) const override;
+    sk_sp<skottie::ImageAsset> loadImageAsset(const char[], const char[],
+                                              const char[]) const override;
 
 private:
     explicit FileResourceProvider(SkString);

@@ -210,7 +210,7 @@ protected:
 private:
     class MultiFrameResourceProvider final : public skottie::ResourceProvider {
     public:
-        sk_sp<ImageAsset> loadImageAsset(const char[], const char[]) const override {
+        sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override {
             return skottie_utils::MultiFrameImageAsset::Make(
                         GetResourceAsData("images/flightAnim.gif"));
         }
