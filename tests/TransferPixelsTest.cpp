@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
+#include "TestUtils.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrContextPriv.h"
@@ -22,43 +23,49 @@
 using sk_gpu_test::GrContextFactory;
 
 void fill_transfer_data(int left, int top, int width, int height, int bufferWidth,
-                        GrColor* data) {
-
+                        GrColorType dstType, char* dst) {
+    size_t dstBpp = GrColorTypeBytesPerPixel(dstType);
+    auto dstLocation = [dst, dstBpp, bufferWidth](int x, int y) {
+        return dst + y * dstBpp * bufferWidth + x * dstBpp;
+    };
     // build red-green gradient
     for (int j = top; j < top + height; ++j) {
         for (int i = left; i < left + width; ++i) {
             unsigned int red = (unsigned int)(256.f*((i - left) / (float)width));
             unsigned int green = (unsigned int)(256.f*((j - top) / (float)height));
-            data[i + j*bufferWidth] = GrColorPackRGBA(red - (red>>8),
-                                                      green - (green>>8), 0xff, 0xff);
+            uint32_t srcPixel = GrColorPackRGBA(red - (red>>8),
+                                                green - (green>>8), 0xff, 0xff);
+            GrPixelInfo srcInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr, 1, 1);
+            GrPixelInfo dstInfo(dstType, kPremul_SkAlphaType, nullptr, 1, 1);
+            GrConvertPixels(dstInfo, dstLocation(i, j), dstBpp, srcInfo, &srcPixel, 4);
         }
     }
 }
 
-bool do_buffers_contain_same_values(const GrColor* bufferA,
-                                    const GrColor* bufferB,
-                                    int width,
-                                    int height,
-                                    size_t rowBytesA,
-                                    size_t rowBytesB,
-                                    bool swiz) {
-    for (int j = 0; j < height; ++j) {
-        for (int i = 0; i < width; ++i) {
-            auto colorA = bufferA[i];
-            if (swiz) {
-                colorA = GrColorPackRGBA(GrColorUnpackB(colorA), GrColorUnpackG(colorA),
-                                         GrColorUnpackR(colorA), GrColorUnpackA(colorA));
-            }
-            if (colorA != bufferB[i]) {
-                return false;
-            }
+bool read_pixels_from_texture(GrTexture* texture, GrColorType colorType, char* dst) {
+    auto* context = texture->getContext();
+    auto* gpu = context->priv().getGpu();
+    auto* caps = context->priv().caps();
+
+    int w = texture->width();
+    int h = texture->height();
+    size_t rowBytes = GrColorTypeBytesPerPixel(colorType) * w;
+
+    GrCaps::SupportedRead supportedRead = caps->supportedReadPixelsColorType(
+            texture->config(), texture->backendFormat(), colorType);
+    if (supportedRead.fColorType != colorType || supportedRead.fSwizzle != GrSwizzle("rgba")) {
+        size_t tmpRowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * w;
+        std::unique_ptr<char[]> tmpPixels(new char[tmpRowBytes * h]);
+        if (!gpu->readPixels(texture, 0, 0, w, h,
+                             supportedRead.fColorType, tmpPixels.get(), tmpRowBytes)) {
+            return false;
         }
-        bufferA = reinterpret_cast<const GrColor*>(reinterpret_cast<const char*>(bufferA) +
-                                                   rowBytesA);
-        bufferB = reinterpret_cast<const GrColor*>(reinterpret_cast<const char*>(bufferB) +
-                                                   rowBytesB);
+        GrPixelInfo tmpInfo(supportedRead.fColorType, kPremul_SkAlphaType, nullptr, w, h);
+        GrPixelInfo dstInfo(colorType,                kPremul_SkAlphaType, nullptr, w, h);
+        return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, tmpPixels.get(), tmpRowBytes, false,
+                               supportedRead.fSwizzle);
     }
-    return true;
+    return gpu->readPixels(texture, 0, 0, w, h, supportedRead.fColorType, dst, rowBytes);
 }
 
 void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, GrColorType colorType,
@@ -67,38 +74,25 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
         return;
     }
 
-    auto resourceProvider = context->priv().resourceProvider();
-    GrGpu* gpu = context->priv().getGpu();
+    auto* caps = context->priv().caps();
 
-    // set up the data
-    const int kTextureWidth = 16;
-    const int kTextureHeight = 16;
-#ifdef SK_BUILD_FOR_IOS
-    // UNPACK_ROW_LENGTH is broken on iOS so rowBytes needs to match data width
-    const int kBufferWidth = GrBackendApi::kOpenGL == context->backend() ? 16 : 20;
-#else
-    const int kBufferWidth = 20;
-#endif
-    const int kBufferHeight = 16;
-    size_t rowBytes = kBufferWidth * sizeof(GrColor);
-    SkAutoTMalloc<GrColor> srcBuffer(kBufferWidth*kBufferHeight);
-    SkAutoTMalloc<GrColor> dstBuffer(kBufferWidth*kBufferHeight);
-
-    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, kBufferWidth, srcBuffer.get());
-
-    // create and fill transfer buffer
-    size_t size = rowBytes*kBufferHeight;
-    sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(size, GrGpuBufferType::kXferCpuToGpu,
-                                                             kDynamic_GrAccessPattern));
-    if (!buffer) {
+    auto backendFormat = caps->getBackendFormatFromColorType(colorType);
+    if (!caps->isFormatTexturable(colorType, backendFormat)) {
         return;
     }
 
-    void* data = buffer->map();
-    memcpy(data, srcBuffer.get(), size);
-    buffer->unmap();
+    // if ((renderTarget && !caps->isFormatRenderable(colorType, backendFormat))) {
+    //        return;
+    //    }
 
-    // create texture
+    auto resourceProvider = context->priv().resourceProvider();
+    GrGpu* gpu = context->priv().getGpu();
+
+    const int kTextureWidth = 16;
+    const int kTextureHeight = 16;
+    int srcBufferWidth = caps->writePixelsRowBytesSupport() ? 16 : 20;
+    const int kBufferHeight = 16;
+
     GrSurfaceDesc desc;
     desc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fWidth = kTextureWidth;
@@ -106,90 +100,108 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
     desc.fSampleCnt = 1;
 
-    if (!context->priv().caps()->isConfigTexturable(desc.fConfig) ||
-        (renderTarget && !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
+    // TODO: Replace with isFormatRenderable when available.
+    if ((renderTarget && !caps->isConfigRenderable(desc.fConfig))) {
         return;
     }
 
-    sk_sp<GrTexture> tex = resourceProvider->createTexture(
-        desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
+    sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+                                                           GrResourceProvider::Flags::kNoPendingIO);
     if (!tex) {
+        ERRORF(reporter, "Could not create texture");
         return;
     }
+
+    // The caps tell us what color type we are allowed to upload and read back from this texture,
+    // either of which may differ from 'colorType'.
+    GrColorType allowedSrc = caps->supportedWritePixelsColorType(desc.fConfig, colorType);
+    size_t srcRowBytes = GrColorTypeBytesPerPixel(allowedSrc) * kTextureWidth;
+    std::unique_ptr<char[]> srcData(new char[kTextureWidth * srcRowBytes]);
+
+    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, srcBufferWidth, allowedSrc,
+                       srcData.get());
+
+    // create and fill transfer buffer
+    size_t size = srcRowBytes * kBufferHeight;
+    sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(size, GrGpuBufferType::kXferCpuToGpu,
+                                                             kDynamic_GrAccessPattern));
+    if (!buffer) {
+        return;
+    }
+    void* data = buffer->map();
+    if (!buffer) {
+        ERRORF(reporter, "Could not map buffer");
+        return;
+    }
+    memcpy(data, srcData.get(), size);
+    buffer->unmap();
 
     //////////////////////////
     // transfer full data
 
     bool result;
-    result = gpu->transferPixelsTo(tex.get(), 0, 0, kTextureWidth, kTextureHeight, colorType,
-                                   buffer.get(), 0, rowBytes);
+    result = gpu->transferPixelsTo(tex.get(), 0, 0, kTextureWidth, kTextureHeight, allowedSrc,
+                                   buffer.get(), 0, srcRowBytes);
     REPORTER_ASSERT(reporter, result);
 
-    memset(dstBuffer.get(), 0xCDCD, size);
-    result = gpu->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, colorType,
-                             dstBuffer.get(), rowBytes);
-    if (result) {
-        REPORTER_ASSERT(reporter, do_buffers_contain_same_values(srcBuffer,
-                                                                 dstBuffer,
-                                                                 kTextureWidth,
-                                                                 kTextureHeight,
-                                                                 rowBytes,
-                                                                 rowBytes,
-                                                                 false));
+    size_t dstRowBytes = GrColorTypeBytesPerPixel(colorType) * kTextureWidth;
+    std::unique_ptr<char[]> dstBuffer(new char[dstRowBytes * kTextureHeight]());
+
+    result = read_pixels_from_texture(tex.get(), colorType, dstBuffer.get());
+    if (!result) {
+        ERRORF(reporter, "Could not read pixels from texture");
+        return;
     }
+
+    static constexpr float kTol[4] = {};
+    auto error = std::function<ComparePixmapsErrorReporter>(
+            [reporter, colorType](int x, int y, const float diffs[4]) {
+                ERRORF(reporter, "Error at (%d %d) in transfer, color type: %d", x, y, colorType);
+            });
+    GrPixelInfo srcInfo(allowedSrc, kPremul_SkAlphaType, nullptr, tex->width(), tex->height());
+    GrPixelInfo dstInfo(colorType, kPremul_SkAlphaType, nullptr, tex->width(), tex->height());
+
+    compare_pixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes, kTol,
+                   error);
 
     //////////////////////////
     // transfer partial data
-#ifdef SK_BUILD_FOR_IOS
-    // UNPACK_ROW_LENGTH is broken on iOS so we can't do partial transfers
-    if (GrBackendApi::kOpenGL == context->backend()) {
+
+    // We're relying on this cap to write partial texture data
+    if (!caps->writePixelsRowBytesSupport()) {
         return;
     }
-#endif
     const int kLeft = 2;
     const int kTop = 10;
     const int kWidth = 10;
     const int kHeight = 2;
 
     // change color of subrectangle
-    fill_transfer_data(kLeft, kTop, kWidth, kHeight, kBufferWidth, srcBuffer.get());
+    fill_transfer_data(kLeft, kTop, kWidth, kHeight, srcBufferWidth, allowedSrc, srcData.get());
     data = buffer->map();
-    memcpy(data, srcBuffer.get(), size);
+    memcpy(data, srcData.get(), size);
     buffer->unmap();
 
-    size_t offset = sizeof(GrColor) * (kTop * kBufferWidth + kLeft);
-    result = gpu->transferPixelsTo(tex.get(), kLeft, kTop, kWidth, kHeight, colorType,
-                                   buffer.get(), offset, rowBytes);
+    size_t offset = kTop * srcRowBytes + kLeft * GrColorTypeBytesPerPixel(allowedSrc);
+    result = gpu->transferPixelsTo(tex.get(), kLeft, kTop, kWidth, kHeight, allowedSrc,
+                                   buffer.get(), offset, srcRowBytes);
     REPORTER_ASSERT(reporter, result);
 
-    memset(dstBuffer.get(), 0xCDCD, size);
-    result = gpu->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, colorType,
-                             dstBuffer.get(), rowBytes);
-    if (result) {
-        REPORTER_ASSERT(reporter, do_buffers_contain_same_values(srcBuffer,
-                                                                 dstBuffer,
-                                                                 kTextureWidth,
-                                                                 kTextureHeight,
-                                                                 rowBytes,
-                                                                 rowBytes,
-                                                                 false));
+    result = read_pixels_from_texture(tex.get(), colorType, dstBuffer.get());
+    if (!result) {
+        ERRORF(reporter, "Could not read pixels from texture");
+        return;
     }
+    compare_pixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes, kTol,
+                   error);
 }
 
 void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo,
                               GrColorType colorType, bool renderTarget) {
     auto context = ctxInfo.grContext();
-    if (GrCaps::kNone_MapFlags == context->priv().caps()->mapBufferFlags()) {
+    auto caps = context->priv().caps();
+    if (GrCaps::kNone_MapFlags == caps->mapBufferFlags()) {
         return;
-    }
-
-    // On OpenGL ES it may not be possible to read back in to BGRA becagse GL_RGBA/GL_UNSIGNED_BYTE
-    // may be the only allowed format/type params to glReadPixels. So read back into GL_RGBA.
-    // TODO(bsalomon): Make this work in GrGLGpu.
-    auto readColorType = colorType;
-    if (GrColorType::kBGRA_8888 == colorType &&
-        ctxInfo.type() == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
-        readColorType = GrColorType::kRGBA_8888;
     }
 
     auto resourceProvider = context->priv().resourceProvider();
@@ -205,10 +217,42 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     const int kPartialWidth = 10;
     const int kPartialHeight = 2;
 
-    size_t bpp = GrColorTypeBytesPerPixel(readColorType);
+    // create texture
+    GrSurfaceDesc desc;
+    desc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+    desc.fWidth = kTextureWidth;
+    desc.fHeight = kTextureHeight;
+    desc.fConfig = GrColorTypeToPixelConfig(colorType);
+    desc.fSampleCnt = 1;
+
+    if (!context->priv().caps()->isConfigTexturable(desc.fConfig) ||
+        (renderTarget && !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
+        return;
+    }
+
+    size_t textureDataBpp = GrColorTypeBytesPerPixel(colorType);
+    size_t textureDataRowBytes = kTextureWidth * textureDataBpp;
+    std::unique_ptr<char[]> textureData(new char[kTextureHeight * textureDataRowBytes]);
+    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, kTextureWidth, colorType,
+                       textureData.get());
+    GrMipLevel data;
+    data.fPixels = textureData.get();
+    data.fRowBytes = textureDataRowBytes;
+    sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo, &data, 1);
+    if (!tex) {
+        return;
+    }
+
+    // Create the transfer buffer.
+    auto allowedRead =
+            caps->supportedReadPixelsColorType(desc.fConfig, tex->backendFormat(), colorType);
+    GrPixelInfo readInfo(allowedRead.fColorType, kPremul_SkAlphaType, nullptr, kTextureWidth,
+                         kTextureHeight);
+
+    size_t bpp = GrColorTypeBytesPerPixel(allowedRead.fColorType);
     size_t fullBufferRowBytes = kTextureWidth * bpp;
     size_t partialBufferRowBytes = kPartialWidth * bpp;
-    size_t offsetAlignment = context->priv().caps()->transferFromOffsetAlignment(readColorType);
+    size_t offsetAlignment = caps->transferFromOffsetAlignment(allowedRead.fColorType);
     SkASSERT(offsetAlignment);
 
     size_t bufferSize = fullBufferRowBytes * kTextureHeight;
@@ -225,34 +269,11 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     int expectedTransferCnt = 0;
     gpu->stats()->reset();
-    // create texture
-    GrSurfaceDesc desc;
-    desc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-    desc.fWidth = kTextureWidth;
-    desc.fHeight = kTextureHeight;
-    desc.fConfig = GrColorTypeToPixelConfig(colorType);
-    desc.fSampleCnt = 1;
-
-    if (!context->priv().caps()->isConfigTexturable(desc.fConfig) ||
-        (renderTarget && !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
-        return;
-    }
-
-    SkAutoTMalloc<GrColor> textureData(kTextureWidth * kTextureHeight);
-    size_t textureDataRowBytes = kTextureWidth * sizeof(GrColor);
-    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, kTextureWidth, textureData.get());
-    GrMipLevel data;
-    data.fPixels = textureData.get();
-    data.fRowBytes = kTextureWidth * sizeof(GrColor);
-    sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo, &data, 1);
-    if (!tex) {
-        return;
-    }
 
     //////////////////////////
     // transfer full data
     bool result = gpu->transferPixelsFrom(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
-                                          readColorType, buffer.get(), 0);
+                                          allowedRead.fColorType, buffer.get(), 0);
     if (!result) {
         ERRORF(reporter, "transferPixelsFrom failed.");
         return;
@@ -266,24 +287,39 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
                          GrPrepareForExternalIORequests());
     }
 
-    const auto* map = reinterpret_cast<const GrColor*>(buffer->map());
+    // Copy the transfer buffer contents to a temporary so we can manipulate it.
+    const auto* map = reinterpret_cast<const char*>(buffer->map());
     REPORTER_ASSERT(reporter, map);
     if (!map) {
+        ERRORF(reporter, "Failed to map transfer buffer.");
         return;
     }
-    REPORTER_ASSERT(reporter, do_buffers_contain_same_values(textureData.get(),
-                                                             map,
-                                                             kTextureWidth,
-                                                             kTextureHeight,
-                                                             textureDataRowBytes,
-                                                             fullBufferRowBytes,
-                                                             readColorType != colorType));
+    std::unique_ptr<char[]> transferData(new char[kTextureHeight * fullBufferRowBytes]);
+    memcpy(transferData.get(), map, fullBufferRowBytes * kTextureHeight);
     buffer->unmap();
+
+    GrPixelInfo transferInfo(allowedRead.fColorType, kPremul_SkAlphaType, nullptr, kTextureWidth,
+                             kTextureHeight);
+    // Caps may indicate that we should swizzle this data before we compare it.
+    if (allowedRead.fSwizzle != GrSwizzle("rgba")) {
+        GrConvertPixels(transferInfo, transferData.get(), fullBufferRowBytes, transferInfo,
+                        transferData.get(), fullBufferRowBytes, false, allowedRead.fSwizzle);
+    }
+
+    static constexpr float kTol[4] = {};
+    auto error = std::function<ComparePixmapsErrorReporter>(
+            [reporter, colorType](int x, int y, const float diffs[4]) {
+                ERRORF(reporter, "Error at (%d %d) in transfer, color type: %d", x, y, colorType);
+            });
+    GrPixelInfo textureDataInfo(colorType, kPremul_SkAlphaType, nullptr, kTextureWidth,
+                                kTextureHeight);
+    compare_pixels(textureDataInfo, textureData.get(), textureDataRowBytes, transferInfo,
+                   transferData.get(), fullBufferRowBytes, kTol, error);
 
     ///////////////////////
     // Now test a partial read at an offset into the buffer.
     result = gpu->transferPixelsFrom(tex.get(), kPartialLeft, kPartialTop, kPartialWidth,
-                                     kPartialHeight, readColorType, buffer.get(),
+                                     kPartialHeight, allowedRead.fColorType, buffer.get(),
                                      partialReadOffset);
     if (!result) {
         ERRORF(reporter, "transferPixelsFrom failed.");
@@ -296,24 +332,27 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
                          GrPrepareForExternalIORequests());
     }
 
-    map = reinterpret_cast<const GrColor*>(buffer->map());
+    map = reinterpret_cast<const char*>(buffer->map());
     REPORTER_ASSERT(reporter, map);
     if (!map) {
+        ERRORF(reporter, "Failed to map transfer buffer.");
         return;
     }
-    const GrColor* textureDataStart = reinterpret_cast<const GrColor*>(
-            reinterpret_cast<const char*>(textureData.get()) +
-            textureDataRowBytes * kPartialTop + sizeof(GrColor) * kPartialLeft);
-    const GrColor* bufferStart = reinterpret_cast<const GrColor*>(
-            reinterpret_cast<const char*>(map) + partialReadOffset);
-    REPORTER_ASSERT(reporter, do_buffers_contain_same_values(textureDataStart,
-                                                             bufferStart,
-                                                             kPartialWidth,
-                                                             kPartialHeight,
-                                                             textureDataRowBytes,
-                                                             partialBufferRowBytes,
-                                                             readColorType != colorType));
+    const char* bufferStart = reinterpret_cast<const char*>(map) + partialReadOffset;
+    memcpy(transferData.get(), bufferStart, partialBufferRowBytes * kTextureHeight);
     buffer->unmap();
+
+    transferInfo = transferInfo.makeWH(kPartialWidth, kPartialHeight);
+    if (allowedRead.fSwizzle != GrSwizzle("rgba")) {
+        GrConvertPixels(transferInfo, transferData.get(), fullBufferRowBytes, transferInfo,
+                        transferData.get(), fullBufferRowBytes, false, allowedRead.fSwizzle);
+    }
+
+    const char* textureDataStart =
+            textureData.get() + textureDataRowBytes * kPartialTop + textureDataBpp * kPartialLeft;
+    textureDataInfo = textureDataInfo.makeWH(kPartialWidth, kPartialHeight);
+    compare_pixels(textureDataInfo, textureDataStart, textureDataRowBytes, transferInfo,
+                   transferData.get(), partialBufferRowBytes, kTol, error);
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->transfersFromSurface() == expectedTransferCnt);
 #else
