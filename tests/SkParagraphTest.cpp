@@ -2033,7 +2033,7 @@ DEF_TEST(SkParagraph_NewlineParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[5].width(), 586.64f, epsilon));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[6].width(), 137.16f, epsilon));
 
-    REPORTER_ASSERT(reporter, impl->lines()[0].shift() == 0);
+    REPORTER_ASSERT(reporter, impl->lineShift(&impl->lines()[0]) == 0);
 }
 
 DEF_TEST(SkParagraph_EmojiParagraph, reporter) {

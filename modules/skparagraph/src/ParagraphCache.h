@@ -56,7 +56,7 @@ public:;
     InternalState fInternalState;
     SkTArray<Run> fRuns;
     SkTArray<Cluster, true> fClusters;
-    SkTArray<TextLine> fLines;
+    SkTArray<TextLine, true> fLines;
     Measurement fMeasurement;
     sk_sp<SkPicture> fPicture;
 };

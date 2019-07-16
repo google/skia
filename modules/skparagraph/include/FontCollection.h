@@ -23,6 +23,7 @@ public:
     void setAssetFontManager(sk_sp<SkFontMgr> fontManager);
     void setDynamicFontManager(sk_sp<SkFontMgr> fontManager);
     void setTestFontManager(sk_sp<SkFontMgr> fontManager);
+    void setDefaultFontManager(sk_sp<SkFontMgr> fontManager);
     void setDefaultFontManager(sk_sp<SkFontMgr> fontManager, const char defaultFamilyName[]);
 
     sk_sp<SkFontMgr> geFallbackManager() const { return fDefaultFontManager; }

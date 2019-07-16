@@ -32,18 +32,17 @@ SkTHashMap<SkFont, Run> TextLine::fEllipsisCache;
 TextLine::TextLine(ParagraphImpl* master,
                    SkVector offset,
                    SkVector advance,
-                   SkSpan<const Block> blocks,
+                   BlockRange blocks,
                    TextRange text,
                    TextRange textWithSpaces,
-                   SkSpan<const Cluster> clusters,
+                   ClusterRange clusters,
                    LineMetrics sizes)
         : fMaster(master)
-        , fBlockRange(StableRange<ParagraphImpl, const Block, &accessTextBlock>(master, blocks))
+        , fBlockRange(blocks)
         , fTextRange(text)
         , fTextWithWhitespacesRange(textWithSpaces)
-        , fClusterRange(StableRange<ParagraphImpl, const Cluster, &accessCluster>(master, clusters))
+        , fClusterRange(clusters)
         , fLogical()
-        , fShift(0)
         , fAdvance(advance)
         , fOffset(offset)
         , fEllipsis(nullptr)
@@ -52,18 +51,19 @@ TextLine::TextLine(ParagraphImpl* master,
         , fHasShadows(false)
         , fHasDecorations(false) {
     // Reorder visual runs
-    auto start = fClusterRange.begin();
-    auto end = fClusterRange.end() - 1;
+    auto start = master->clusters().begin() + fClusterRange.start;
+    auto end = master->clusters().begin() + fClusterRange.end - 1;
     size_t numRuns = end->runIndex() - start->runIndex() + 1;
 
-    for (auto& b : blocks) {
-        if (b.fStyle.hasBackground()) {
+    for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
+        auto b = fMaster->styles().begin() + index;
+        if (b->fStyle.hasBackground()) {
             fHasBackground = true;
         }
-        if (b.fStyle.getDecoration() != TextDecoration::kNoDecoration) {
+        if (b->fStyle.getDecoration() != TextDecoration::kNoDecoration) {
             fHasDecorations = true;
         }
-        if (b.fStyle.getShadowNumber() > 0) {
+        if (b->fStyle.getShadowNumber() > 0) {
             fHasShadows = true;
         }
     }
@@ -71,7 +71,7 @@ TextLine::TextLine(ParagraphImpl* master,
     // Get the logical order
     std::vector<UBiDiLevel> runLevels;
     for (auto runIndex = start->runIndex(); runIndex <= end->runIndex(); ++runIndex) {
-        auto& run = fMaster->getRun(runIndex);
+        auto& run = fMaster->run(runIndex);
         runLevels.emplace_back(run.fBidiLevel);
     }
 
@@ -141,9 +141,9 @@ void TextLine::format(TextAlign effectiveAlign, SkScalar maxWidth, bool notLastL
     if (effectiveAlign == TextAlign::kJustify && notLastLine) {
         this->justify(maxWidth);
     } else if (effectiveAlign == TextAlign::kRight) {
-        this->shiftTo(delta);
+        fMaster->shiftLine(this, delta);
     } else if (effectiveAlign == TextAlign::kCenter) {
-        this->shiftTo(delta / 2);
+        fMaster->shiftLine(this, delta / 2);
     }
 }
 
@@ -397,7 +397,6 @@ void TextLine::justify(SkScalar maxWidth) {
             });
 
     if (whitespacePatches == 0) {
-        this->fShift = 0;
         return;
     }
 
@@ -422,7 +421,6 @@ void TextLine::justify(SkScalar maxWidth) {
 
     SkAssertResult(SkScalarNearlyEqual(shift, maxWidth - textLen));
     SkASSERT(whitespacePatches == 0);
-    this->fShift = 0;
     this->fAdvance.fX = maxWidth;
 }
 
@@ -475,8 +473,7 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
 
         Buffer runBuffer(const RunInfo& info) override {
             fRun = fEllipsisCache.set(info.fFont,
-                                      Run(nullptr, SkMakeSpan(fEllipsis.c_str(), fEllipsis.size()),
-                                          info, fLineHeight, 0, 0));
+                                      Run(nullptr, info, fLineHeight, 0, 0));
             return fRun->newRunBuffer();
         }
 
@@ -508,15 +505,16 @@ SkRect TextLine::measureTextInsideOneRun(
 
     // Find [start:end] clusters for the text
     bool found;
-    const Cluster* start;
-    const Cluster* end;
-    std::tie(found, start, end) = run->findLimitingClusters(textRange);
+    ClusterIndex startIndex;
+    ClusterIndex endIndex;
+    std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange);
     if (!found) {
-        std::tie(found, start, end) = run->findLimitingClusters(textRange);
         SkASSERT(textRange.empty());
         return SkRect::MakeEmpty();
     }
 
+    auto start = fMaster->clusters().begin() + startIndex;
+    auto end = fMaster->clusters().begin() + endIndex;
     pos = start->startPos();
     size = end->endPos() - start->startPos();
 
@@ -525,7 +523,7 @@ SkRect TextLine::measureTextInsideOneRun(
     // EOL (when we expect the last cluster clipped without any spaces)
     // Anything else (when we want the cluster width contain all the spaces -
     // coming from letter spacing or word spacing or justification)
-    bool needsClipping = (run->leftToRight() ? end : start) == clusters().end() - 1;
+    bool needsClipping = (run->leftToRight() ? endIndex : startIndex) == fClusterRange.end  - 1;
     SkRect clip =
             SkRect::MakeXYWH(run->positionX(start->startPos()) - run->positionX(0),
                              sizes().runTop(run),
@@ -554,9 +552,10 @@ void TextLine::iterateThroughClustersInGlyphsOrder(bool reverse,
         // Walk through the clusters in the logical order (or reverse)
         auto run = this->fMaster->runs().begin() + runIndex;
         auto normalOrder = run->leftToRight() != reverse;
-        auto start = normalOrder ? run->clusterSpan().begin() : run->clusterSpan().end() - 1;
-        auto end = normalOrder ? run->clusterSpan().end() : run->clusterSpan().begin() - 1;
-        for (auto cluster = start; cluster != end; normalOrder ? ++cluster : --cluster) {
+        auto start = normalOrder ? run->clusterRange().start : run->clusterRange().end - 1;
+        auto end = normalOrder ? run->clusterRange().end : run->clusterRange().start - 1;
+        for (auto index = start; index != end; normalOrder ? ++index : --index) {
+            const auto& cluster = fMaster->clusters().begin() + index;
             if (!this->contains(cluster)) {
                 continue;
             }
@@ -632,8 +631,9 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
     const TextStyle* prevStyle = nullptr;
 
     SkScalar offsetX = 0;
-    for (auto& block : fBlockRange) {
-        auto intersect = intersected(block.fRange, this->trimmedText());
+    for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
+        auto block = fMaster->styles().begin() + index;
+        auto intersect = intersected(block->fRange, this->trimmedText());
         if (intersect.empty()) {
             if (start == EMPTY_INDEX) {
                 // This style is not applicable to the line
@@ -644,7 +644,7 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
             }
         }
 
-        auto* style = &block.fStyle;
+        auto* style = &block->fStyle;
         if (start != EMPTY_INDEX && style->matchOneAttribute(styleType, *prevStyle)) {
             size += intersect.width();
             continue;
@@ -677,6 +677,10 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
         SkDebugf("ASSERT: %f != %f\n", offsetX, this->width());
     }
     SkASSERT(SkScalarNearlyEqual(offsetX, this->width()));
+}
+
+SkVector TextLine::offset() const {
+    return fOffset + SkVector::Make(fMaster->lineShift(this), 0);
 }
 }  // namespace textlayout
 }  // namespace skia

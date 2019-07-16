@@ -18,78 +18,30 @@ class ParagraphImpl;
 class Cluster;
 class Run;
 
-template<class M, class T, T* access(M*)>
-class StableReference {
+typedef size_t RunIndex;
+const size_t EMPTY_RUN = EMPTY_INDEX;
 
-public:
-    StableReference() : fInitialized(false) { }
-    StableReference(uint32_t index) : fInitialized(true), fIndex(index) { }
-    StableReference(M* master, T* ref)
-    : fInitialized(ref != nullptr), fIndex(ref == nullptr ? 0 : ref - access(master)) { }
-    T* reference(M* master) const { return fInitialized ? access(master) + fIndex : nullptr; }
-private:
-    bool fInitialized;
-    uint32_t fIndex;
-};
+typedef size_t ClusterIndex;
+typedef SkRange<size_t> ClusterRange;
+const size_t EMPTY_CLUSTER = EMPTY_INDEX;
+const SkRange<size_t> EMPTY_CLUSTERS = EMPTY_RANGE;
 
-template<class M, class T, T* access(M*)>
-class StableRange {
-public:
-    StableRange() : fMaster(nullptr), fRange() { }
-    StableRange(M* master) : fMaster(master), fRange() { }
-    StableRange(M* master, SkRange<uint32_t> range) : fMaster(master), fRange(range) { }
-    StableRange(M* master, uint32_t from, uint32_t to) : fMaster(master), fRange(from, to) { }
-    StableRange(M* master, SkSpan<T> span) : fMaster(master) {
-        auto base = fMaster == nullptr ? nullptr : access(fMaster);
-        fRange = SkRange<uint32_t>(span.begin() - base, span.end() - base);
-    }
-
-    constexpr T& front() const { return access(fMaster) + fRange.start; }
-    constexpr T& back()  const { return access(fMaster) + fRange.end - 1; }
-    constexpr T* begin() const { return access(fMaster) + fRange.start; }
-    constexpr T* end() const { return access(fMaster) + fRange.end; }
-    constexpr const T* cbegin() const { return access(fMaster) + fRange.start; }
-    constexpr const T* cend() const { return access(fMaster) + fRange.end; }
-    constexpr T* data() const { return access(fMaster) + fRange.start; }
-    constexpr size_t size() const { return fRange.width(); }
-    constexpr bool empty() const { return fRange.width() == 0; }
-    constexpr size_t size_bytes() const { return fRange.width() * sizeof(T); }
-
-    void setMaster(M* master) { fMaster = master; }
-    SkSpan<T> span() const {
-        auto base = access(fMaster);
-        return base == nullptr
-                       ? SkSpan<T>(nullptr, 0)
-                       : SkSpan<T>(base + fRange.start, fRange.width());
-    }
-    SkRange<uint32_t> range() const { return fRange; }
-
-private:
-    M* fMaster;
-    SkRange<uint32_t> fRange;
-};
-
-const char* accessText(ParagraphImpl* master);
-const Cluster* accessCluster(ParagraphImpl* master);
-const Run* accessRun(ParagraphImpl* master);
-Run* accessRunRef(ParagraphImpl* master);
-const Block* accessTextBlock(ParagraphImpl* master);
+typedef size_t BlockIndex;
+typedef SkRange<size_t> BlockRange;
+const size_t EMPTY_BLOCK = EMPTY_INDEX;
+const SkRange<size_t> EMPTY_BLOCKS = EMPTY_RANGE;
 
 class Run {
 public:
     Run() = default;
     Run(ParagraphImpl* master,
-        SkSpan<const char> text,
         const SkShaper::RunHandler::RunInfo& info,
         SkScalar lineHeight,
         size_t index,
         SkScalar shiftX);
     ~Run() {}
 
-    void setMaster(ParagraphImpl* master) {
-        fMaster = master;
-        this->fClusterRange.setMaster(master);
-    }
+    void setMaster(ParagraphImpl* master) { fMaster = master; }
 
     SkShaper::RunHandler::Buffer newRunBuffer();
 
@@ -116,10 +68,9 @@ public:
     SkScalar offset(size_t index) const { return fOffsets[index]; }
 
     TextRange textRange() { return fTextRange; }
-    SkSpan<const Cluster> clusterSpan() { return fClusterRange.span(); }
-    void setClusterRange(size_t from, size_t to) {
-        fClusterRange = StableRange<ParagraphImpl, const Cluster, &accessCluster>(fMaster, from, to);
-    }
+    ClusterRange clusterRange() { return fClusterRange; }
+
+    void setClusterRange(size_t from, size_t to) { fClusterRange = ClusterRange(from, to); }
     SkRect clip() const {
         return SkRect::MakeXYWH(fOffset.fX, fOffset.fY, fAdvance.fX, fAdvance.fY);
     }
@@ -141,7 +92,7 @@ public:
                                               SkScalar height)>;
     void iterateThroughClustersInTextOrder(const ClusterVisitor& visitor);
 
-    std::tuple<bool, const Cluster*, const Cluster*> findLimitingClusters(TextRange);
+    std::tuple<bool, ClusterIndex, ClusterIndex> findLimitingClusters(TextRange);
     SkSpan<const SkGlyphID> glyphs() {
         return SkSpan<const SkGlyphID>(fGlyphs.begin(), fGlyphs.size());
     }
@@ -160,7 +111,7 @@ private:
 
     ParagraphImpl* fMaster;
     TextRange fTextRange;
-    StableRange<ParagraphImpl, const Cluster, &accessCluster> fClusterRange;
+    ClusterRange fClusterRange;
 
     SkFont fFont;
     SkFontMetrics fFontMetrics;

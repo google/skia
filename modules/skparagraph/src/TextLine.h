@@ -13,6 +13,11 @@
 namespace skia {
 namespace textlayout {
 
+struct LineShift {
+    SkScalar fLineShift;
+    SkTArray<SkScalar, true> fWordShifts;
+};
+
 class TextLine {
 public:
     TextLine() = default;
@@ -21,32 +26,25 @@ public:
     TextLine(ParagraphImpl* master,
              SkVector offset,
              SkVector advance,
-             SkSpan<const Block> blocks,
+             BlockRange blocks,
              TextRange text,
              TextRange textWithSpaces,
-             SkSpan<const Cluster> clusters,
+             ClusterRange clusters,
              LineMetrics sizes);
 
-    void setMaster(ParagraphImpl* master) {
-        fMaster = master;
-        this->fBlockRange.setMaster(master);
-        this->fClusterRange.setMaster(master);
-    }
+    void setMaster(ParagraphImpl* master) { fMaster = master; }
 
     TextRange trimmedText() const { return fTextRange; }
     TextRange textWithSpaces() const { return fTextWithWhitespacesRange; }
-    SkSpan<const Cluster> clusters() const { return fClusterRange.span(); }
-    SkVector offset() const { return fOffset + SkVector::Make(fShift, 0); }
     Run* ellipsis() const { return fEllipsis.get(); }
     LineMetrics sizes() const { return fSizes; }
     bool empty() const { return fTextRange.empty(); }
 
-    SkScalar shift() const { return fShift; }
     SkScalar height() const { return fAdvance.fY; }
     SkScalar width() const {
         return fAdvance.fX + (fEllipsis != nullptr ? fEllipsis->fAdvance.fX : 0);
     }
-    void shiftTo(SkScalar shift) { fShift = shift; }
+    SkVector offset() const;
 
     SkScalar alphabeticBaseline() const { return fSizes.alphabeticBaseline(); }
     SkScalar ideographicBaseline() const { return fSizes.ideographicBaseline(); }
@@ -148,13 +146,12 @@ private:
     }
 
     ParagraphImpl* fMaster;
-    StableRange<ParagraphImpl, const Block, &accessTextBlock> fBlockRange;
+    BlockRange fBlockRange;
     TextRange fTextRange;
     TextRange fTextWithWhitespacesRange;
-    StableRange<ParagraphImpl, const Cluster, &accessCluster> fClusterRange;
+    ClusterRange fClusterRange;
 
     SkTArray<size_t, true> fLogical;
-    SkScalar fShift;                    // Shift to left - right - center
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
     std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
