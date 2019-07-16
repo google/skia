@@ -281,27 +281,17 @@ protected:
     virtual bool onAccessPixels(SkPixmap*) { return false; }
 
     struct CreateInfo {
-        static SkPixelGeometry AdjustGeometry(const SkImageInfo&, TileUsage, SkPixelGeometry,
-                                              bool preserveLCDText);
+        static SkPixelGeometry AdjustGeometry(TileUsage, SkPixelGeometry);
 
         // The constructor may change the pixel geometry based on other parameters.
         CreateInfo(const SkImageInfo& info,
                    TileUsage tileUsage,
-                   SkPixelGeometry geo)
-            : fInfo(info)
-            , fTileUsage(tileUsage)
-            , fPixelGeometry(AdjustGeometry(info, tileUsage, geo, false))
-        {}
-
-        CreateInfo(const SkImageInfo& info,
-                   TileUsage tileUsage,
                    SkPixelGeometry geo,
-                   bool preserveLCDText,
                    bool trackCoverage,
                    SkRasterHandleAllocator* allocator)
             : fInfo(info)
             , fTileUsage(tileUsage)
-            , fPixelGeometry(AdjustGeometry(info, tileUsage, geo, preserveLCDText))
+            , fPixelGeometry(AdjustGeometry(tileUsage, geo))
             , fTrackCoverage(trackCoverage)
             , fAllocator(allocator)
         {}
