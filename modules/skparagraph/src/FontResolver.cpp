@@ -36,17 +36,18 @@ bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* heigh
     return false;
 }
 
-void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text) {
+void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange textRange) {
     fCodepoints.reset();
     fCharacters.reset();
     fUnresolvedIndexes.reset();
     fUnresolvedCodepoints.reset();
 
     // Extract all unicode codepoints
-    const char* current = text.begin();
-    while (current != text.end()) {
+    const char* end = fText.begin() + textRange.end;
+    const char* current = fText.begin() + textRange.start;
+    while (current != end) {
         fCharacters.emplace_back(current);
-        fCodepoints.emplace_back(utf8_next(&current, text.end()));
+        fCodepoints.emplace_back(utf8_next(&current, end));
         fUnresolvedIndexes.emplace_back(fUnresolvedIndexes.size());
     }
     fUnresolved = fCodepoints.size();
@@ -226,29 +227,29 @@ SkUnichar FontResolver::firstUnresolved() {
 }
 
 void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
-                                                  SkSpan<TextBlock> styles,
+                                                  SkSpan<Block> styles,
                                                   sk_sp<FontCollection> fontCollection) {
     fFontCollection = fontCollection;
     fStyles = styles;
     fText = utf8;
-    TextBlock combined;
+    Block combined;
     for (auto& block : fStyles) {
-        SkASSERT(combined.text().begin() == nullptr ||
-                combined.text().end() == block.text().begin());
+        SkASSERT(combined.fRange.empty() ||
+                 combined.fRange.end == block.fRange.start);
 
-        if (combined.text().begin() != nullptr &&
-                block.style().matchOneAttribute(StyleType::kFont, combined.style())) {
-            combined.add(block.text());
+        if (!combined.fRange.empty() &&
+                block.fStyle.matchOneAttribute(StyleType::kFont, combined.fStyle)) {
+            combined.add(block.fRange);
             continue;
         }
 
-        if (!combined.text().empty()) {
-            this->findAllFontsForStyledBlock(combined.style(), combined.text());
+        if (!combined.fRange.empty()) {
+            this->findAllFontsForStyledBlock(combined.fStyle, combined.fRange);
         }
 
         combined = block;
     }
-    this->findAllFontsForStyledBlock(combined.style(), combined.text());
+    this->findAllFontsForStyledBlock(combined.fStyle, combined.fRange);
 
 
     fFontSwitches.reset();

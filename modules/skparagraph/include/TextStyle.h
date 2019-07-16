@@ -162,6 +162,30 @@ private:
 
     sk_sp<SkTypeface> fTypeface;
 };
+
+typedef size_t RunIndex;
+const size_t EMPTY_RUN = EMPTY_INDEX;
+
+typedef size_t TextIndex;
+typedef SkRange<size_t> TextRange;
+const SkRange<size_t> EMPTY_TEXT = EMPTY_RANGE;
+
+
+struct Block {
+    Block() : fRange(), fStyle() { }
+    Block(size_t start, size_t end, const TextStyle& style)
+        : fRange(start, end), fStyle(style) {}
+    Block(TextRange textRange, const TextStyle& style)
+        : fRange(textRange), fStyle(style) {}
+
+    void add(TextRange tail) {
+        SkASSERT(fRange.end == tail.start);
+        fRange = TextRange(fRange.start, fRange.start + fRange.width() + tail.width());
+    }
+    TextRange fRange;
+    TextStyle fStyle;
+};
+
 }  // namespace textlayout
 }  // namespace skia
 

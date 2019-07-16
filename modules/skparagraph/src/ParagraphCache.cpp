@@ -134,16 +134,16 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     for (size_t i = 0; i < a.fTextStyles.size(); ++i) {
         auto& tsa = a.fTextStyles[i];
         auto& tsb = b.fTextStyles[i];
-        if (tsa.style().getLetterSpacing() != tsb.style().getLetterSpacing()) {
+        if (tsa.fStyle.getLetterSpacing() != tsb.fStyle.getLetterSpacing()) {
             return false;
         }
-        if (tsa.style().getWordSpacing() != tsb.style().getWordSpacing()) {
+        if (tsa.fStyle.getWordSpacing() != tsb.fStyle.getWordSpacing()) {
             return false;
         }
-        if (tsa.text().size() != tsb.text().size()) {
+        if (tsa.fRange.width() != tsb.fRange.width()) {
             return false;
         }
-        if (tsa.text().begin() - a.fText.c_str() != tsb.text().begin() - b.fText.c_str()) {
+        if (tsa.fRange.start != tsb.fRange.start) {
             return false;
         }
     }
@@ -172,8 +172,8 @@ uint32_t LookupTrait::Hash(const ParagraphCacheKey& key) {
         }
     }
     for (auto& ts : key.fTextStyles) {
-        hash = mix(hash, SkGoodHash()(ts.style().getLetterSpacing()));
-        hash = mix(hash, SkGoodHash()(ts.style().getWordSpacing()));
+        hash = mix(hash, SkGoodHash()(ts.fStyle.getLetterSpacing()));
+        hash = mix(hash, SkGoodHash()(ts.fStyle.getWordSpacing()));
     }
     hash = mix(hash, SkGoodHash()(key.fText));
     return hash;

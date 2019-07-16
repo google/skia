@@ -11,7 +11,7 @@ const char* accessText(ParagraphImpl* master) { return master->text().begin(); }
 const Cluster* accessCluster(ParagraphImpl* master) { return master->clusters().begin(); }
 const Run* accessRun(ParagraphImpl* master) { return master->runs().begin(); }
 Run* accessRunRef(ParagraphImpl* master) { return master->runs().begin(); }
-const TextBlock* accessTextBlock(ParagraphImpl* master) { return master->styles().begin(); }
+const Block* accessTextBlock(ParagraphImpl* master) { return master->styles().begin(); }
 
 Run::Run(ParagraphImpl* master,
          SkSpan<const char> text,
@@ -20,9 +20,7 @@ Run::Run(ParagraphImpl* master,
          size_t index,
          SkScalar offsetX)
         : fMaster(master)
-        , fTextRange(StableRange<ParagraphImpl, const char, &accessText>(
-                  master,
-                  SkSpan<const char>(text.begin() + info.utf8Range.begin(), info.utf8Range.size())))
+        , fTextRange(info.utf8Range.begin(), info.utf8Range.end())
         , fClusterRange(StableRange<ParagraphImpl, const Cluster, &accessCluster>(master)) {
     fFont = info.fFont;
     fHeightMultiplier = lineHeight;
@@ -76,11 +74,11 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector o
 }
 
 // TODO: Make the search more effective
-std::tuple<bool, const Cluster*, const Cluster*> Run::findLimitingClusters(SkSpan<const char> text) {
-    if (text.empty()) {
+std::tuple<bool, const Cluster*, const Cluster*> Run::findLimitingClusters(TextRange text) {
+    if (text == EMPTY_TEXT) {
         const Cluster* found = nullptr;
         for (auto& cluster : fClusterRange) {
-            if (cluster.contains(text.begin())) {
+            if (cluster.contains(text.start)) {
                 found = &cluster;
                 break;
             }
@@ -88,8 +86,8 @@ std::tuple<bool, const Cluster*, const Cluster*> Run::findLimitingClusters(SkSpa
         return std::make_tuple(found != nullptr, found, found);
     }
 
-    auto first = text.begin();
-    auto last = text.end() - 1;
+    auto first = text.start;
+    auto last = text.end - 1;
 
     const Cluster* start = nullptr;
     const Cluster* end = nullptr;
@@ -200,9 +198,10 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
 }
 
 void Cluster::setIsWhiteSpaces() {
-    auto pos = fTextRange.end();
-    while (--pos >= fTextRange.begin()) {
-        auto ch = *pos;
+    auto text = fMaster->text();
+    auto pos = fTextRange.end;
+    while (--pos >= fTextRange.start) {
+        auto ch = text[pos];
         if (!u_isspace(ch) && u_charType(ch) != U_CONTROL_CHAR &&
             u_charType(ch) != U_NON_SPACING_MARK) {
             return;
@@ -211,22 +210,22 @@ void Cluster::setIsWhiteSpaces() {
     fWhiteSpaces = true;
 }
 
-SkScalar Cluster::sizeToChar(const char* ch) const {
-    if (ch < fTextRange.begin() || ch >= fTextRange.end()) {
+SkScalar Cluster::sizeToChar(TextIndex ch) const {
+    if (ch < fTextRange.start || ch >= fTextRange.end) {
         return 0;
     }
-    auto shift = ch - fTextRange.begin();
-    auto ratio = shift * 1.0 / fTextRange.size();
+    auto shift = ch - fTextRange.start;
+    auto ratio = shift * 1.0 / fTextRange.width();
 
     return SkDoubleToScalar(fWidth * ratio);
 }
 
-SkScalar Cluster::sizeFromChar(const char* ch) const {
-    if (ch < fTextRange.begin() || ch >= fTextRange.end()) {
+SkScalar Cluster::sizeFromChar(TextIndex ch) const {
+    if (ch < fTextRange.start || ch >= fTextRange.end) {
         return 0;
     }
-    auto shift = fTextRange.end() - ch - 1;
-    auto ratio = shift * 1.0 / fTextRange.size();
+    auto shift = fTextRange.end - ch - 1;
+    auto ratio = shift * 1.0 / fTextRange.width();
 
     return SkDoubleToScalar(fWidth * ratio);
 }
@@ -255,6 +254,25 @@ Run* Cluster::run() const {
 
 SkFont Cluster::font() const {
     return fMaster->getRun(fRunIndex).font();
+}
+
+Cluster::Cluster(ParagraphImpl* master,
+        RunIndex runIndex,
+        size_t start,
+        size_t end,
+        SkSpan<const char> text,
+        SkScalar width,
+        SkScalar height)
+        : fMaster(master)
+        , fRunIndex(runIndex)
+        , fTextRange(text.begin() - fMaster->text().begin(), text.end() - fMaster->text().begin())
+        , fStart(start)
+        , fEnd(end)
+        , fWidth(width)
+        , fSpacing(0)
+        , fHeight(height)
+        , fWhiteSpaces(false)
+        , fBreakType(None) {
 }
 
 }  // namespace textlayout

@@ -15,12 +15,6 @@
 
 namespace {
 
-SkSpan<const char> operator*(const SkSpan<const char>& a, const SkSpan<const char>& b) {
-    auto begin = SkTMax(a.begin(), b.begin());
-    auto end = SkTMin(a.end(), b.end());
-    return SkSpan<const char>(begin, end > begin ? end - begin : 0);
-}
-
 SkUnichar utf8_next(const char** ptr, const char* end) {
     SkUnichar val = SkUTF::NextUTF8(ptr, end);
     return val < 0 ? 0xFFFD : val;
@@ -85,6 +79,12 @@ private:
 namespace skia {
 namespace textlayout {
 
+TextRange operator*(const TextRange& a, const TextRange& b) {
+    auto begin = SkTMax(a.start, b.start);
+    auto end = SkTMin(a.end, b.end);
+    return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
+}
+
 ParagraphCache ParagraphImpl::fParagraphCache;
 
 ParagraphImpl::ParagraphImpl(const SkString& text,
@@ -100,9 +100,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fPicture(nullptr) {
     fTextStyles.reserve(blocks.size());
     for (auto& block : blocks) {
-        fTextStyles.emplace_back(
-                SkSpan<const char>(fTextSpan.begin() + block.fStart, block.fEnd - block.fStart),
-                block.fStyle);
+        fTextStyles.emplace_back(block.fRange,  block.fStyle);
     }
 }
 
@@ -124,9 +122,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
 
     fTextStyles.reserve(blocks.size());
     for (auto& block : blocks) {
-        fTextStyles.emplace_back(
-                SkSpan<const char>(fTextSpan.begin() + block.fStart, block.fEnd - block.fStart),
-                block.fStyle);
+        fTextStyles.emplace_back(block.fRange, block.fStyle);
     }
 }
 
@@ -234,14 +230,13 @@ void ParagraphImpl::buildClusterTable() {
     if (!breaker.initialize(fTextSpan, UBRK_LINE)) {
         return;
     }
-    SkTHashMap<const char*, bool> softLineBreaks;
+    SkTHashMap<TextIndex, bool> softLineBreaks;
     while (!breaker.eof()) {
         size_t currentPos = breaker.next();
-        const char* ch = currentPos + fTextSpan.begin();
-        softLineBreaks.set(ch, breaker.status() == UBRK_LINE_HARD);
+        softLineBreaks.set(currentPos, breaker.status() == UBRK_LINE_HARD);
     }
 
-    TextBlock* currentStyle = this->fTextStyles.begin();
+    Block* currentStyle = this->fTextStyles.begin();
     SkScalar shift = 0;
 
     // Walk through all the run in the direction of input text
@@ -262,7 +257,7 @@ void ParagraphImpl::buildClusterTable() {
             auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text, width, height);
 
             // Mark the line breaks
-            auto found = softLineBreaks.find(cluster.text().end());
+            auto found = softLineBreaks.find(cluster.textRange().end);
             if (found) {
                 cluster.setBreakType(*found ? Cluster::BreakType::HardLineBreak
                                             : Cluster::BreakType::SoftLineBreak);
@@ -273,20 +268,20 @@ void ParagraphImpl::buildClusterTable() {
             run.shift(&cluster, shift);
 
             // Synchronize styles (one cluster can be covered by few styles)
-            while (!cluster.startsIn(currentStyle->text())) {
+            while (!cluster.startsIn(currentStyle->fRange)) {
                 currentStyle++;
                 SkASSERT(currentStyle != this->fTextStyles.end());
             }
 
             // Take spacing styles in account
-            if (currentStyle->style().getWordSpacing() != 0 &&
+            if (currentStyle->fStyle.getWordSpacing() != 0 &&
                 fParagraphStyle.getTextAlign() != TextAlign::kJustify) {
                 if (cluster.isWhitespaces() && cluster.isSoftBreak()) {
-                    shift += run.addSpacesAtTheEnd(currentStyle->style().getWordSpacing(), &cluster);
+                    shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), &cluster);
                 }
             }
-            if (currentStyle->style().getLetterSpacing() != 0) {
-                shift += run.addSpacesEvenly(currentStyle->style().getLetterSpacing(), &cluster);
+            if (currentStyle->fStyle.getLetterSpacing() != 0) {
+                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), &cluster);
             }
         });
 
@@ -379,8 +374,8 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
     textWrapper.breakTextIntoLines(
             this,
             maxWidth,
-            [&](SkSpan<const char> text,
-                SkSpan<const char> textWithSpaces,
+            [&](TextRange text,
+                TextRange textWithSpaces,
                 Cluster* start,
                 Cluster* end,
                 size_t startPos,
@@ -453,14 +448,14 @@ void ParagraphImpl::resolveStrut() {
                                         : strutStyle.getLeading() * strutStyle.getFontSize());
 }
 
-SkSpan<const TextBlock> ParagraphImpl::findAllBlocks(SkSpan<const char> text) {
-    const TextBlock* begin = nullptr;
-    const TextBlock* end = nullptr;
+SkSpan<const Block> ParagraphImpl::findAllBlocks(TextRange textRange) {
+    const Block* begin = nullptr;
+    const Block* end = nullptr;
     for (auto& block : fTextStyles) {
-        if (block.text().end() <= text.begin()) {
+        if (block.fRange.end <= textRange.start) {
             continue;
         }
-        if (block.text().begin() >= text.end()) {
+        if (block.fRange.start >= textRange.end) {
             break;
         }
         if (begin == nullptr) {
@@ -469,16 +464,19 @@ SkSpan<const TextBlock> ParagraphImpl::findAllBlocks(SkSpan<const char> text) {
         end = &block;
     }
 
-    return SkSpan<const TextBlock>(begin, end - begin + 1);
+    return SkSpan<const Block>(begin, end - begin + 1);
 }
 
 TextLine& ParagraphImpl::addLine(SkVector offset,
                                  SkVector advance,
-                                 SkSpan<const char> text,
-                                 SkSpan<const char> textWithSpaces,
+                                 TextRange text,
+                                 TextRange textWithSpaces,
                                  SkSpan<const Cluster> clusters,
                                  LineMetrics sizes) {
     // Define a list of styles that covers the line
+    if (text.end == 0) {
+        SkDebugf("!!!\n");
+    }
     auto blocks = findAllBlocks(text);
 
     return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, sizes);
@@ -504,18 +502,18 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     for (unsigned i = start; i < end; ++i) {
         utf8_next(&last, fTextSpan.end());
     }
-    SkSpan<const char> text(first, last - first);
+    TextRange text(first - fTextSpan.begin(), last  - fTextSpan.begin());
 
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
         auto intersect = lineText * text;
-        if (intersect.empty() && (!lineText.empty() || lineText.begin() != text.begin())) {
+        if (intersect.empty() && (!lineText.empty() || lineText.start != text.start)) {
             continue;
         }
 
         SkScalar runOffset = 0;
-        if (lineText.begin() != intersect.begin()) {
-            SkSpan<const char> before(lineText.begin(), intersect.begin() - lineText.begin());
+        if (lineText.start != intersect.start) {
+            TextRange before(lineText.start, intersect.start);
             runOffset = line.iterateThroughRuns(
                     before, 0, true,
                     [](Run*, size_t, size_t, SkRect, SkScalar, bool) { return true; });

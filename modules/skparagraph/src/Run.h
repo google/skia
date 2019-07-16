@@ -18,27 +18,6 @@ class ParagraphImpl;
 class Cluster;
 class Run;
 
-typedef size_t RunIndex;
-const size_t EMPTY_RUN = std::numeric_limits<size_t>::max();
-
-class TextBlock {
-public:
-    TextBlock() : fText(), fTextStyle() {}
-    TextBlock(SkSpan<const char> text, const TextStyle& style) : fText(text), fTextStyle(style) {}
-
-    SkSpan<const char> text() const { return fText; }
-    const TextStyle& style() const { return fTextStyle; }
-
-    void add(SkSpan<const char> tail) {
-        SkASSERT(fText.end() == tail.begin());
-        fText = SkSpan<const char>(fText.begin(), fText.size() + tail.size());
-    }
-
-protected:
-    SkSpan<const char> fText;
-    TextStyle fTextStyle;
-};
-
 template<class M, class T, T* access(M*)>
 class StableReference {
 
@@ -94,7 +73,7 @@ const char* accessText(ParagraphImpl* master);
 const Cluster* accessCluster(ParagraphImpl* master);
 const Run* accessRun(ParagraphImpl* master);
 Run* accessRunRef(ParagraphImpl* master);
-const TextBlock* accessTextBlock(ParagraphImpl* master);
+const Block* accessTextBlock(ParagraphImpl* master);
 
 class Run {
 public:
@@ -109,7 +88,6 @@ public:
 
     void setMaster(ParagraphImpl* master) {
         fMaster = master;
-        this->fTextRange.setMaster(master);
         this->fClusterRange.setMaster(master);
     }
 
@@ -137,7 +115,7 @@ public:
     SkScalar positionX(size_t pos) const { return fPositions[pos].fX + fOffsets[pos]; }
     SkScalar offset(size_t index) const { return fOffsets[index]; }
 
-    SkSpan<const char> textSpan() { return fTextRange.span(); }
+    TextRange textRange() { return fTextRange; }
     SkSpan<const Cluster> clusterSpan() { return fClusterRange.span(); }
     void setClusterRange(size_t from, size_t to) {
         fClusterRange = StableRange<ParagraphImpl, const Cluster, &accessCluster>(fMaster, from, to);
@@ -163,7 +141,7 @@ public:
                                               SkScalar height)>;
     void iterateThroughClustersInTextOrder(const ClusterVisitor& visitor);
 
-    std::tuple<bool, const Cluster*, const Cluster*> findLimitingClusters(SkSpan<const char> text);
+    std::tuple<bool, const Cluster*, const Cluster*> findLimitingClusters(TextRange);
     SkSpan<const SkGlyphID> glyphs() {
         return SkSpan<const SkGlyphID>(fGlyphs.begin(), fGlyphs.size());
     }
@@ -181,7 +159,7 @@ private:
     friend class ParagraphCache;
 
     ParagraphImpl* fMaster;
-    StableRange<ParagraphImpl, const char, &accessText> fTextRange;
+    TextRange fTextRange;
     StableRange<ParagraphImpl, const Cluster, &accessCluster> fClusterRange;
 
     SkFont fFont;
@@ -213,8 +191,8 @@ public:
 
     Cluster()
             : fMaster(nullptr)
-            , fTextRange(nullptr)
             , fRunIndex(EMPTY_RUN)
+            , fTextRange(EMPTY_TEXT)
             , fStart(0)
             , fEnd()
             , fWidth()
@@ -229,26 +207,13 @@ public:
             size_t end,
             SkSpan<const char> text,
             SkScalar width,
-            SkScalar height)
-            : fMaster(master)
-            , fTextRange(master, text)
-            , fRunIndex(runIndex)
-            , fStart(start)
-            , fEnd(end)
-            , fWidth(width)
-            , fSpacing(0)
-            , fHeight(height)
-            , fWhiteSpaces(false)
-            , fBreakType(None) {}
+            SkScalar height);
 
     ~Cluster() = default;
 
-    void setMaster(ParagraphImpl* master) {
-        fMaster = master;
-        this->fTextRange.setMaster(master);
-    }
-    SkScalar sizeToChar(const char* ch) const;
-    SkScalar sizeFromChar(const char* ch) const;
+    void setMaster(ParagraphImpl* master) { fMaster = master; }
+    SkScalar sizeToChar(TextIndex ch) const;
+    SkScalar sizeFromChar(TextIndex ch) const;
 
     size_t roundPos(SkScalar s) const;
 
@@ -270,8 +235,9 @@ public:
     SkScalar trimmedWidth() const { return fWidth - fSpacing; }
     SkScalar lastSpacing() const { return fSpacing; }
     SkScalar height() const { return fHeight; }
-    SkSpan<const char> text() const { return fTextRange.span(); }
     size_t size() const { return fEnd - fStart; }
+
+    TextRange textRange() const { return fTextRange; }
 
     RunIndex runIndex() const { return fRunIndex; }
     Run* run() const;
@@ -283,21 +249,21 @@ public:
 
     void setIsWhiteSpaces();
 
-    bool contains(const char* ch) const { return ch >= fTextRange.begin() && ch < fTextRange.end(); }
+    bool contains(TextIndex ch) const { return ch >= fTextRange.start && ch < fTextRange.end; }
 
-    bool belongs(SkSpan<const char> text) const {
-        return fTextRange.begin() >= text.begin() && fTextRange.end() <= text.end();
+    bool belongs(TextRange text) const {
+        return fTextRange.start >= text.start && fTextRange.end <= text.end;
     }
 
-    bool startsIn(SkSpan<const char> text) const {
-        return fTextRange.begin() >= text.begin() && fTextRange.begin() < text.end();
+    bool startsIn(TextRange text) const {
+        return fTextRange.start >= text.start && fTextRange.start < text.end;
     }
 
 private:
 
     ParagraphImpl* fMaster;
-    StableRange<ParagraphImpl, const char, &accessText> fTextRange;
     RunIndex fRunIndex;
+    TextRange fTextRange;
 
     size_t fStart;
     size_t fEnd;

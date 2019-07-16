@@ -41,7 +41,7 @@ public:
     SkString fText;
     SkTArray<FontDescr> fFontSwitches;
     // TODO: Do not check for more than we have to (which is text styles with letter spacing and word spacing)
-    SkTArray<TextBlock, true> fTextStyles;
+    SkTArray<Block, true> fTextStyles;
     ParagraphStyle fParagraphStyle;
 };
 
