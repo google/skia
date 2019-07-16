@@ -70,13 +70,13 @@ void ImGuiLayer::onAttach(Window* window) {
     fWindow = window;
 }
 
-bool ImGuiLayer::onMouse(int x, int y, Window::InputState state, ModifierKey modifiers) {
+bool ImGuiLayer::onMouse(int x, int y, InputState state, ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos.x = static_cast<float>(x);
     io.MousePos.y = static_cast<float>(y);
-    if (Window::kDown_InputState == state) {
+    if (InputState::kDown == state) {
         io.MouseDown[0] = true;
-    } else if (Window::kUp_InputState == state) {
+    } else if (InputState::kUp == state) {
         io.MouseDown[0] = false;
     }
     return io.WantCaptureMouse;
@@ -184,9 +184,9 @@ void ImGuiLayer::onPaint(SkSurface* surface) {
     fSkiaWidgetFuncs.reset();
 }
 
-bool ImGuiLayer::onKey(sk_app::Window::Key key, sk_app::Window::InputState state, ModifierKey modifiers) {
+bool ImGuiLayer::onKey(sk_app::Window::Key key, InputState state, ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
-    io.KeysDown[static_cast<int>(key)] = (Window::kDown_InputState == state);
+    io.KeysDown[static_cast<int>(key)] = (InputState::kDown == state);
     return io.WantCaptureKeyboard;
 }
 

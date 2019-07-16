@@ -28,7 +28,7 @@ public:
     void draw(SkCanvas* canvas) override;
     bool animate(double) override;
 
-    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
+    bool onMouse(SkScalar x, SkScalar y, InputState state,
                  ModifierKey modifiers) override;
 
 private:

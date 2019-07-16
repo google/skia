@@ -44,10 +44,6 @@ bool SampleSlide::onChar(SkUnichar c) {
     return fSample && fSample->onChar(c);
 }
 
-bool SampleSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state,
-                          ModifierKey modifierKeys) {
-    static_assert((Sample::InputState)Window::kDown_InputState == Sample::InputState::kDown, "");
-    static_assert((Sample::InputState)Window::kUp_InputState   == Sample::InputState::kUp,   "");
-    static_assert((Sample::InputState)Window::kMove_InputState == Sample::InputState::kMove, "");
-    return fSample && fSample->mouse({x, y}, (Sample::InputState)state, modifierKeys);
+bool SampleSlide::onMouse(SkScalar x, SkScalar y, InputState state, ModifierKey modifierKeys) {
+    return fSample && fSample->mouse({x, y}, state, modifierKeys);
 }

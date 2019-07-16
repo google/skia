@@ -196,19 +196,19 @@ bool Window_ios::handleEvent(const SDL_Event& event) {
             break;
 
         case SDL_FINGERDOWN:
-            this->onTouch(event.tfinger.fingerId, Window::kDown_InputState,
+            this->onTouch(event.tfinger.fingerId, InputState::kDown,
                           (int)(this->width()*event.tfinger.x),
                           (int)(this->height()*event.tfinger.y));
             break;
 
         case SDL_FINGERUP:
-            this->onTouch(event.tfinger.fingerId, Window::kUp_InputState,
+            this->onTouch(event.tfinger.fingerId, InputState::kUp,
                           (int)(this->width()*event.tfinger.x),
                           (int)(this->height()*event.tfinger.y));
             break;
 
         case SDL_FINGERMOTION:
-            this->onTouch(event.tfinger.fingerId, Window::kMove_InputState,
+            this->onTouch(event.tfinger.fingerId, InputState::kMove,
                           (int)(this->width()*event.tfinger.x),
                           (int)(this->height()*event.tfinger.y));
             break;
@@ -216,7 +216,7 @@ bool Window_ios::handleEvent(const SDL_Event& event) {
         case SDL_KEYDOWN: {
             Window::Key key = get_key(event.key.keysym);
             if (key != Window::Key::kNONE) {
-                if (!this->onKey(key, Window::kDown_InputState, get_modifiers(event))) {
+                if (!this->onKey(key, InputState::kDown, get_modifiers(event))) {
                     if (event.key.keysym.sym == SDLK_ESCAPE) {
                         return true;
                     }
@@ -227,7 +227,7 @@ bool Window_ios::handleEvent(const SDL_Event& event) {
         case SDL_KEYUP: {
             Window::Key key = get_key(event.key.keysym);
             if (key != Window::Key::kNONE) {
-                (void) this->onKey(key, Window::kUp_InputState,
+                (void) this->onKey(key, InputState::kUp,
                                    get_modifiers(event));
             }
         } break;

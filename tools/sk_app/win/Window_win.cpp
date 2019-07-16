@@ -251,13 +251,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            eventHandled = window->onKey(get_key(wParam), Window::kDown_InputState,
+            eventHandled = window->onKey(get_key(wParam), InputState::kDown,
                                          get_modifiers(message, wParam, lParam));
             break;
 
         case WM_KEYUP:
         case WM_SYSKEYUP:
-            eventHandled = window->onKey(get_key(wParam), Window::kUp_InputState,
+            eventHandled = window->onKey(get_key(wParam), InputState::kUp,
                                          get_modifiers(message, wParam, lParam));
             break;
 
@@ -274,8 +274,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //    yPos -= rc.top;
             //}
 
-            Window::InputState istate = ((wParam & MK_LBUTTON) != 0) ? Window::kDown_InputState
-                                                                     : Window::kUp_InputState;
+            InputState istate = ((wParam & MK_LBUTTON) != 0) ? InputState::kDown
+                                                                     : InputState::kUp;
 
             eventHandled = window->onMouse(xPos, yPos, istate,
                                             get_modifiers(message, wParam, lParam));
@@ -293,7 +293,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //    yPos -= rc.top;
             //}
 
-            eventHandled = window->onMouse(xPos, yPos, Window::kMove_InputState,
+            eventHandled = window->onMouse(xPos, yPos, InputState::kMove,
                                            get_modifiers(message, wParam, lParam));
         } break;
 
@@ -311,13 +311,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 ClientToScreen(hWnd, &topLeft);
                 for (uint16_t i = 0; i < numInputs; ++i) {
                     TOUCHINPUT ti = inputs[i];
-                    Window::InputState state;
+                    InputState state;
                     if (ti.dwFlags & TOUCHEVENTF_DOWN) {
-                        state = Window::kDown_InputState;
+                        state = InputState::kDown;
                     } else if (ti.dwFlags & TOUCHEVENTF_MOVE) {
-                        state = Window::kMove_InputState;
+                        state = InputState::kMove;
                     } else if (ti.dwFlags & TOUCHEVENTF_UP) {
-                        state = Window::kUp_InputState;
+                        state = InputState::kUp;
                     } else {
                         continue;
                     }
