@@ -329,7 +329,8 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
     // has the expected values stored in the right places taking the swizzle into account. For now
     // we can be more restrictive and just make sure the configs are the same and if we generalize
     // copies and swizzles more in the future this can be updated.
-    if (dst->config() != src->config()) {
+    if (this->makeConfigSpecific(dst->config(), dst->backendFormat()) !=
+        this->makeConfigSpecific(src->config(), src->backendFormat())) {
         return false;
     }
     return this->onCanCopySurface(dst, src, srcRect, dstPoint);

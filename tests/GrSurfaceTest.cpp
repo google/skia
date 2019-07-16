@@ -280,14 +280,19 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         }
 
                         GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
-                        const GrBackendFormat format =
-                                caps->getBackendFormatFromColorType(colorType);
 
                         // Try creating the texture as a deferred proxy.
                         for (int i = 0; i < 2; ++i) {
-                            auto surfCtx = context->priv().makeDeferredSurfaceContext(
-                                    format, desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes,
-                                    colorType, kPremul_SkAlphaType);
+                            sk_sp<GrSurfaceContext> surfCtx;
+                            if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
+                                surfCtx = context->priv().makeDeferredRenderTargetContext(
+                                        fit, desc.fWidth, desc.fHeight, colorType, nullptr,
+                                        desc.fSampleCnt, GrMipMapped::kNo, origin, nullptr);
+                            } else {
+                                surfCtx = context->priv().makeDeferredTextureContext(
+                                        fit, desc.fWidth, desc.fHeight, colorType,
+                                        kUnknown_SkAlphaType, nullptr, GrMipMapped::kNo, origin);
+                            }
                             if (!surfCtx) {
                                 continue;
                             }

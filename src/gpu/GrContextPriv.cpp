@@ -57,19 +57,19 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
                                                std::move(colorSpace), props);
 }
 
-sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrBackendFormat& format,
-                                                                  const GrSurfaceDesc& dstDesc,
-                                                                  GrSurfaceOrigin origin,
-                                                                  GrMipMapped mipMapped,
-                                                                  SkBackingFit fit,
-                                                                  SkBudgeted isDstBudgeted,
+sk_sp<GrTextureContext> GrContextPriv::makeDeferredTextureContext(SkBackingFit fit,
+                                                                  int width,
+                                                                  int height,
                                                                   GrColorType colorType,
                                                                   SkAlphaType alphaType,
                                                                   sk_sp<SkColorSpace> colorSpace,
-                                                                  const SkSurfaceProps* props) {
-    return fContext->makeDeferredSurfaceContext(format, dstDesc, origin, mipMapped, fit,
-                                                isDstBudgeted, colorType, alphaType,
-                                                std::move(colorSpace), props);
+                                                                  GrMipMapped mipMapped,
+                                                                  GrSurfaceOrigin origin,
+                                                                  SkBudgeted budgeted,
+                                                                  GrProtected isProtected) {
+    return fContext->makeDeferredTextureContext(fit, width, height, colorType, alphaType,
+                                                std::move(colorSpace), mipMapped, origin, budgeted,
+                                                isProtected);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(

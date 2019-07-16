@@ -432,6 +432,17 @@ public:
 
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
+    /**
+     * Given a possibly generic GrPixelConfig and a backend format return a specific
+     * GrPixelConfig.
+     */
+    GrPixelConfig makeConfigSpecific(GrPixelConfig config, const GrBackendFormat& format) const {
+        auto ct = GrPixelConfigToColorType(config);
+        auto result = this->getConfigFromBackendFormat(format, ct);
+        SkASSERT(config == result || AreConfigsCompatible(config, result));
+        return result;
+    }
+
 #ifdef SK_DEBUG
     // This is just a debugging entry point until we're weaned off of GrPixelConfig. It
     // should be used to verify that the pixel config from user-level code (the genericConfig)
