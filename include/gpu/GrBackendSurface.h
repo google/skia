@@ -219,8 +219,8 @@ public:
     // We can remove the pixelConfig getter and setter once we remove the GrPixelConfig from the
     // GrBackendTexture and plumb the GrPixelconfig manually throughout our code (or remove all use
     // of GrPixelConfig in general).
-    GrPixelConfig pixelConfig() const { return fConfig; }
-    void setPixelConfig(GrPixelConfig config) { fConfig = config; }
+    GrPixelConfig pixelConfig1() const { return fConfig1; }
+    void setPixelConfig1(GrPixelConfig config) { fConfig1 = config; }
 
     static bool TestingOnly_Equals(const GrBackendTexture& , const GrBackendTexture&);
 #endif
@@ -243,7 +243,7 @@ private:
     friend class GrMtlGpu;
     friend class PromiseImageHelper;
 
-    GrPixelConfig config() const { return fConfig; }
+    GrPixelConfig config1() const { return fConfig1; }
 
 #ifdef SK_GL
     friend class GrGLTexture;
@@ -272,7 +272,7 @@ private:
     GrProtected fIsProtected = GrProtected::kNo;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
-    GrPixelConfig fConfig;
+    GrPixelConfig fConfig1;
     GrMipMapped fMipMapped;
     GrBackendApi fBackend;
 
@@ -374,8 +374,8 @@ public:
     // We can remove the pixelConfig getter and setter once we remove the pixel config from the
     // GrBackendRenderTarget and plumb the pixel config manually throughout our code (or remove all
     // use of GrPixelConfig in general).
-    GrPixelConfig pixelConfig() const { return fConfig; }
-    void setPixelConfig(GrPixelConfig config) { fConfig = config; }
+    GrPixelConfig pixelConfig1() const { return fConfig1; }
+    void setPixelConfig1(GrPixelConfig config) { fConfig1 = config; }
 
     static bool TestingOnly_Equals(const GrBackendRenderTarget&, const GrBackendRenderTarget&);
 #endif
@@ -390,7 +390,7 @@ private:
     friend class GrProxyProvider;
     friend class GrVkGpu;
     friend class GrMtlGpu;
-    GrPixelConfig config() const { return fConfig; }
+    GrPixelConfig config1() const { return fConfig1; }
 
    // Requires friending of GrVkGpu (done above already)
    sk_sp<GrVkImageLayout> getGrVkImageLayout() const;
@@ -409,7 +409,7 @@ private:
 
     int fSampleCnt;
     int fStencilBits;
-    GrPixelConfig fConfig;
+    GrPixelConfig fConfig1;
 
     GrBackendApi fBackend;
 

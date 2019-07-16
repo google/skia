@@ -39,7 +39,8 @@ void SkImage_GpuBase::resetContext(sk_sp<GrContext> newContext) {
 #endif
 
 bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendTexture& tex,
-                                             GrPixelConfig* config, SkColorType ct, SkAlphaType at,
+                                             GrPixelConfig* config, GrColorType grCT,
+                                             SkColorType ct, SkAlphaType at,
                                              sk_sp<SkColorSpace> cs) {
     if (!tex.isValid()) {
         return false;
@@ -55,6 +56,7 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
         return false;
     }
 
+#if 0
     GrColorType grCT = SkColorTypeToGrColorType(ct);
     // Until we support SRGB in the SkColorType we have to do this manual check here to make sure
     // we use the correct GrColorType.
@@ -64,6 +66,7 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
         }
         grCT = GrColorType::kRGBA_8888_SRGB;
     }
+#endif
 
     *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, grCT);
     return *config != kUnknown_GrPixelConfig;
@@ -247,6 +250,7 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
                                              GrSurfaceOrigin imageOrigin,
                                              sk_sp<GrTextureProxy> tempTextureProxies[4]) {
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
+    const GrCaps* caps = ctx->priv().caps();
 
     // We need to make a copy of the input backend textures because we need to preserve the result
     // of validate_backend_texture.
@@ -257,40 +261,47 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
         if (!backendFormat.isValid()) {
             return false;
         }
-        yuvaTexturesCopy[textureIndex].fConfig =
-                ctx->priv().caps()->getYUVAConfigFromBackendFormat(backendFormat);
-        if (yuvaTexturesCopy[textureIndex].fConfig == kUnknown_GrPixelConfig) {
+        yuvaTexturesCopy[textureIndex].fConfig1 =
+                caps->getYUVAConfigFromBackendFormat(backendFormat);
+        if (yuvaTexturesCopy[textureIndex].fConfig1 == kUnknown_GrPixelConfig) {
             return false;
         }
+        GrColorType grColorType = caps->getYUVAColorTypeFromBackendFormat(backendFormat);
+        if (GrColorType::kUnknown == grColorType) {
+            return false;
+        }
+
         SkASSERT(yuvaTexturesCopy[textureIndex].isValid());
 
         tempTextureProxies[textureIndex] = proxyProvider->wrapBackendTexture(
-                yuvaTexturesCopy[textureIndex], imageOrigin, kBorrow_GrWrapOwnership,
+                yuvaTexturesCopy[textureIndex], grColorType, imageOrigin, kBorrow_GrWrapOwnership,
                 GrWrapCacheable::kNo, kRead_GrIOType);
         if (!tempTextureProxies[textureIndex]) {
             return false;
         }
 
         // Check that each texture contains the channel data for the corresponding YUVA index
-        GrPixelConfig config = yuvaTexturesCopy[textureIndex].fConfig;
+        auto componentFlags = GrColorTypeComponentFlags(grColorType);
         for (int yuvaIndex = 0; yuvaIndex < SkYUVAIndex::kIndexCount; ++yuvaIndex) {
             if (yuvaIndices[yuvaIndex].fIndex == textureIndex) {
                 switch (yuvaIndices[yuvaIndex].fChannel) {
                     case SkColorChannel::kR:
-                        if (kAlpha_8_as_Alpha_GrPixelConfig == config) {
+                        if (!(kRed_SkColorTypeComponentFlag & componentFlags)) {
                             return false;
                         }
                         break;
                     case SkColorChannel::kG:
+                        if (!(kGreen_SkColorTypeComponentFlag & componentFlags)) {
+                            return false;
+                        }
+                        break;
                     case SkColorChannel::kB:
-                        if (kAlpha_8_as_Alpha_GrPixelConfig == config ||
-                            kAlpha_8_as_Red_GrPixelConfig == config) {
+                        if (!(kBlue_SkColorTypeComponentFlag & componentFlags)) {
                             return false;
                         }
                         break;
                     case SkColorChannel::kA:
-                    default:
-                        if (kRGB_888_GrPixelConfig == config) {
+                        if (!(kAlpha_SkColorTypeComponentFlag & componentFlags)) {
                             return false;
                         }
                         break;
@@ -373,7 +384,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                                        PromiseImageTextureDoneProc doneProc,
                                        PromiseImageTextureContext context,
                                        GrPixelConfig config,
-                                       PromiseImageApiVersion version)
+                                       PromiseImageApiVersion version,
+                                       bool foo)
                 : fFulfillProc(fulfillProc)
                 , fReleaseProc(releaseProc)
                 , fConfig(config)
