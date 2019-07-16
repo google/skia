@@ -21,6 +21,7 @@ class GrStrikeCache;
 class GrSurfaceContext;
 class GrSurfaceProxy;
 class GrTextBlobCache;
+class GrTextureContext;
 
 class SK_API GrRecordingContext : public GrImageContext {
 public:
@@ -62,16 +63,17 @@ protected:
                                                       sk_sp<SkColorSpace> = nullptr,
                                                       const SkSurfaceProps* = nullptr);
 
-    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
-                                                       const GrSurfaceDesc&,
-                                                       GrSurfaceOrigin,
-                                                       GrMipMapped,
-                                                       SkBackingFit,
-                                                       SkBudgeted,
-                                                       GrColorType,
-                                                       SkAlphaType,
-                                                       sk_sp<SkColorSpace> colorSpace = nullptr,
-                                                       const SkSurfaceProps* = nullptr);
+    sk_sp<GrTextureContext> makeDeferredTextureContext(
+            SkBackingFit fit,
+            int width,
+            int height,
+            GrColorType colorType,
+            SkAlphaType alphaType,
+            sk_sp<SkColorSpace> colorSpace,
+            GrMipMapped = GrMipMapped::kNo,
+            GrSurfaceOrigin origin = kTopLeft_GrSurfaceOrigin,
+            SkBudgeted = SkBudgeted::kYes,
+            GrProtected isProtected = GrProtected::kNo);
 
     /*
      * Create a new render target context backed by a deferred-style
