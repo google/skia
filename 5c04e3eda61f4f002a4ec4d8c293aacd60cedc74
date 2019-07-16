@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8166855d_8f73576f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1726,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-16T15:57:39Z",
+      "side": 1,
+      "message": "Might be worth mentioning that the it was a later revision to the extension and we also have to worry about earlier drivers.",
+      "range": {
+        "startLine": 1724,
+        "startChar": 59,
+        "endLine": 1726,
+        "endChar": 41
+      },
+      "revId": "5c04e3eda61f4f002a4ec4d8c293aacd60cedc74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
