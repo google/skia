@@ -363,37 +363,25 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
     }
 
     GrColorType grColorType = SkColorTypeToGrColorType(c.colorType());
-    GrPixelConfig config = caps->getConfigFromBackendFormat(c.backendFormat(), grColorType);
-    if (config == kUnknown_GrPixelConfig) {
-        return nullptr;
-    }
 
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = c.width();
-    desc.fHeight = c.height();
-    desc.fIsProtected = c.isProtected();
-    desc.fConfig = config;
-    desc.fSampleCnt = c.sampleCount();
-
-    sk_sp<GrSurfaceContext> sc(
-            context->priv().makeDeferredSurfaceContext(c.backendFormat(),
-                                                       desc,
-                                                       c.origin(),
-                                                       GrMipMapped(c.isMipMapped()),
-                                                       SkBackingFit::kExact,
-                                                       budgeted,
-                                                       grColorType,
-                                                       kPremul_SkAlphaType,
-                                                       c.refColorSpace(),
-                                                       &c.surfaceProps()));
-    if (!sc || !sc->asRenderTargetContext()) {
+    sk_sp<GrRenderTargetContext> rtc(context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kExact,
+            c.width(),
+            c.height(),
+            grColorType,
+            c.refColorSpace(),
+            c.sampleCount(),
+            GrMipMapped(c.isMipMapped()),
+            c.origin(),
+            &c.surfaceProps(),
+            budgeted,
+            c.isProtected()));
+    if (!rtc) {
         return nullptr;
     }
 
     // CONTEXT TODO: remove this use of 'backdoor' to create an SkGpuDevice
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context->priv().backdoor(),
-                                                sk_ref_sp(sc->asRenderTargetContext()),
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context->priv().backdoor(), std::move(rtc),
                                                 c.width(), c.height(),
                                                 SkGpuDevice::kClear_InitContents));
     if (!device) {
