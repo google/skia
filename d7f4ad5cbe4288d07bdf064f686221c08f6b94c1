@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "166d593e_fcf2b290",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-16T19:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7770bd8_47dac488",
+      "range": {
+        "startLine": 204,
+        "startChar": 4,
+        "endLine": 204,
+        "endChar": 43
+      },
+      "revId": "d7f4ad5cbe4288d07bdf064f686221c08f6b94c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65c67359_8e11e9fe",
         "filename": "src/image/SkSurface_Gpu.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-07-16T19:20:53Z",
       "side": 1,
       "message": "Can we replace this with:\n\nif (grColorType \u003d\u003d GrColortype::kUnknown) {\n  return nullptr;\n}\n\nand skip the config entirely ?",
+      "range": {
+        "startLine": 366,
+        "startChar": 0,
+        "endLine": 369,
+        "endChar": 5
+      },
+      "revId": "d7f4ad5cbe4288d07bdf064f686221c08f6b94c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78ad62f2_8fbeeb00",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-16T19:36:19Z",
+      "side": 1,
+      "message": "Actually can just delete all of it. makeDeferredRenderTargetContext will fail since it resolves the color type to a backend format.",
+      "parentUuid": "65c67359_8e11e9fe",
       "range": {
         "startLine": 366,
         "startChar": 0,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "690da046_8db89fd8",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-16T19:36:19Z",
+      "side": 1,
+      "message": "Ugh, yeah, meant to revert this. Started down direction of removing GrSurfaceDesc but backed off that. Done.",
+      "parentUuid": "934d0f9e_03874062",
+      "revId": "d7f4ad5cbe4288d07bdf064f686221c08f6b94c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "049ffccd_142ca10e",
         "filename": "tests/GrSurfaceTest.cpp",
         "patchSetId": 4
@@ -79,6 +145,24 @@
       "revId": "d7f4ad5cbe4288d07bdf064f686221c08f6b94c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4127fe7_26e14572",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-16T19:36:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "049ffccd_142ca10e",
+      "revId": "d7f4ad5cbe4288d07bdf064f686221c08f6b94c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
