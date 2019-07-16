@@ -18,13 +18,13 @@ namespace textlayout {
 struct FontDescr {
     FontDescr() {}
     FontDescr(SkFont font, SkScalar height)
-            : fFont(font), fHeight(height), fStart(nullptr) {}
+            : fFont(font), fHeight(height), fStart(EMPTY_INDEX) {}
     bool operator==(const FontDescr& a) const {
         return this->fFont == a.fFont && this->fHeight == a.fHeight;
     }
     SkFont fFont;
     SkScalar fHeight;
-    const char* fStart;
+    TextIndex fStart;
 };
 
 class FontResolver {
@@ -58,6 +58,7 @@ private:
 
     sk_sp<FontCollection> fFontCollection;
     SkSpan<const char> fText;
+    TextRange fTextRange;
     SkSpan<Block> fStyles;
 
     SkTArray<FontDescr> fFontSwitches;
@@ -65,7 +66,7 @@ private:
     SkTHashSet<FontDescr, Hash> fResolvedFonts;
     FontDescr fFirstResolvedFont;
 
-    SkTHashMap<const char*, FontDescr> fFontMapping;
+    SkTHashMap<TextIndex, FontDescr> fFontMapping;
     SkTArray<SkUnichar> fCodepoints;
     SkTArray<const char*> fCharacters;
     SkTArray<size_t> fUnresolvedIndexes;
