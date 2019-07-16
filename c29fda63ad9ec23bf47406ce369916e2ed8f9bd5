@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "57985c6f_04d93db9",
+        "filename": "tools/gpu/dawn/DawnMTLUtils.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-16T15:22:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9159e3d_e6634f16",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 1
+      },
+      "revId": "c29fda63ad9ec23bf47406ce369916e2ed8f9bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1005a4fb_c205b83e",
         "filename": "tools/sk_app/mac/DawnGLWindowContext_mac.mm",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8840a3c5_26577c38",
+        "filename": "tools/sk_app/mac/DawnGLWindowContext_mac.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-16T15:22:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1005a4fb_c205b83e",
+      "range": {
+        "startLine": 96,
+        "startChar": 2,
+        "endLine": 122,
+        "endChar": 0
+      },
+      "revId": "c29fda63ad9ec23bf47406ce369916e2ed8f9bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f133b452_e8bde585",
         "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
         "patchSetId": 7
@@ -59,6 +107,30 @@
       "writtenOn": "2019-07-16T14:29:36Z",
       "side": 1,
       "message": "Similarly, this might be useful in the base MetalWindowContext -- more motivation for sharing.",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 58
+      },
+      "revId": "c29fda63ad9ec23bf47406ce369916e2ed8f9bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb2c78bc_3af1cb2a",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-16T15:22:12Z",
+      "side": 1,
+      "message": "Noted. I think it might be better in a helper class, though, since these classes already inherit from DawnWindowContext, and I\u0027m not fond of multiple inheritance of implementation.",
+      "parentUuid": "f133b452_e8bde585",
       "range": {
         "startLine": 118,
         "startChar": 0,
