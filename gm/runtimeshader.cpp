@@ -25,10 +25,10 @@ extern sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
                                             const SkMatrix* localMatrix, bool isOpaque);
 
 const char* gProg = R"(
-    layout(ctype=float) in uniform half4 gColor;
+    in uniform half4 gColor;
 
-    half4 main(in float x, in float y) {
-        return half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
+    void main(float x, float y, inout half4 color) {
+        color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
     }
 )";
 

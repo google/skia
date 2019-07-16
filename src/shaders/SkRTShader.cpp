@@ -12,12 +12,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if SK_SUPPORT_GPU
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrMixerEffect.h"
-#include "src/gpu/effects/GrSkSLFP.h"
-#endif
-
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 
@@ -36,9 +30,10 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     }
 
     auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
+    ctx->paintColor = rec.fPaint.getColor4f();
     ctx->inputs = fInputs->data();
     ctx->ninputs = fInputs->size() / 4;
-    ctx->shader_convention = true;
+    ctx->shaderConvention = true;
 
     SkAutoMutexExclusive ama(fByteCodeMutex);
     if (!fByteCode) {
@@ -61,7 +56,7 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     ctx->fn = ctx->byteCode->fFunctions[0].get();
 
     rec.fPipeline->append(SkRasterPipeline::seed_shader);
-    rec.fPipeline->append_matrix(rec.fAlloc, inverse);
+if(0)    rec.fPipeline->append_matrix(rec.fAlloc, inverse);
     rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
     return true;
 }
@@ -114,3 +109,32 @@ sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
     return sk_sp<SkShader>(new SkRTShader(std::move(sksl), std::move(inputs),
                                           localMatrix, isOpaque));
 }
+
+#if SK_SUPPORT_GPU
+
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/SkGr.h"
+
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrMixerEffect.h"
+#include "src/gpu/effects/GrSkSLFP.h"
+
+std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPArgs& args) const {
+    // what the heck is this guy for?
+    static int rtIndex = GrSkSLFP::NewIndex();
+    return GrSkSLFP::Make(args.fContext, rtIndex, "runtime-shader", fSkSL, nullptr, 0);
+
+#if 0
+    const auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
+    SkMatrix lmInverse;
+    if (!lm->invert(&lmInverse)) {
+        return nullptr;
+    }
+#endif
+}
+
+#endif
+

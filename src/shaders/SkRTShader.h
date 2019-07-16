@@ -24,14 +24,11 @@ class SkRTShader : public SkShaderBase {
 public:
     SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix, bool isOpaque);
 
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override {
-        // TODO
-        return nullptr;
-    }
-#endif
-
     bool isOpaque() const override { return fIsOpaque; }
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+#endif
 
 protected:
     void flatten(SkWriteBuffer&) const override;
