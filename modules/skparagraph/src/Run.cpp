@@ -7,21 +7,14 @@
 namespace skia {
 namespace textlayout {
 
-const char* accessText(ParagraphImpl* master) { return master->text().begin(); }
-const Cluster* accessCluster(ParagraphImpl* master) { return master->clusters().begin(); }
-const Run* accessRun(ParagraphImpl* master) { return master->runs().begin(); }
-Run* accessRunRef(ParagraphImpl* master) { return master->runs().begin(); }
-const Block* accessTextBlock(ParagraphImpl* master) { return master->styles().begin(); }
-
 Run::Run(ParagraphImpl* master,
-         SkSpan<const char> text,
          const SkShaper::RunHandler::RunInfo& info,
          SkScalar lineHeight,
          size_t index,
          SkScalar offsetX)
         : fMaster(master)
         , fTextRange(info.utf8Range.begin(), info.utf8Range.end())
-        , fClusterRange(StableRange<ParagraphImpl, const Cluster, &accessCluster>(master)) {
+        , fClusterRange(EMPTY_CLUSTERS) {
     fFont = info.fFont;
     fHeightMultiplier = lineHeight;
     fBidiLevel = info.fBidiLevel;
@@ -74,32 +67,31 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector o
 }
 
 // TODO: Make the search more effective
-std::tuple<bool, const Cluster*, const Cluster*> Run::findLimitingClusters(TextRange text) {
+std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text) {
     if (text == EMPTY_TEXT) {
-        const Cluster* found = nullptr;
-        for (auto& cluster : fClusterRange) {
-            if (cluster.contains(text.start)) {
-                found = &cluster;
+        ClusterIndex found = EMPTY_CLUSTER;
+        for (auto index = fClusterRange.start; index < fClusterRange.end; ++index) {
+            const auto& cluster = fMaster->clusters().begin() + index;
+            if (cluster->contains(text.start)) {
+                found = index;
                 break;
             }
         }
-        return std::make_tuple(found != nullptr, found, found);
+        return std::make_tuple(found != EMPTY_CLUSTER, found, found);
     }
 
-    auto first = text.start;
-    auto last = text.end - 1;
-
-    const Cluster* start = nullptr;
-    const Cluster* end = nullptr;
-    for (auto& cluster : fClusterRange) {
-        if (cluster.contains(first)) start = &cluster;
-        if (cluster.contains(last)) end = &cluster;
+    ClusterIndex start = EMPTY_CLUSTER;
+    ClusterIndex end = EMPTY_CLUSTER;
+    for (auto index = fClusterRange.start; index < fClusterRange.end; ++index) {
+        const auto& cluster = fMaster->clusters().begin() + index;
+        if (cluster->contains(text.start)) start = index;
+        if (cluster->contains(text.end - 1)) end = index;
     }
     if (!leftToRight()) {
         std::swap(start, end);
     }
 
-    return std::make_tuple(start != nullptr && end != nullptr, start, end);
+    return std::make_tuple(start != EMPTY_CLUSTER && end != EMPTY_CLUSTER, start, end);
 }
 
 void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {

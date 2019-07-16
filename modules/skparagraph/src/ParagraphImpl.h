@@ -54,9 +54,8 @@ public:
 
     size_t lineNumber() override { return fLines.size(); }
 
-    TextLine& addLine(SkVector offset, SkVector advance, TextRange text,
-                      TextRange textWithSpaces, SkSpan<const Cluster> clusters,
-                      LineMetrics sizes);
+    TextLine& addLine(SkVector offset, SkVector advance, TextRange text, TextRange textWithSpaces,
+                      ClusterRange clusters, LineMetrics sizes);
 
     SkSpan<const char> text() const { return fTextSpan; }
     InternalState state() const { return fState; }
@@ -126,7 +125,7 @@ private:
     void breakShapedTextIntoLines(SkScalar maxWidth);
     void paintLinesIntoPicture();
 
-    SkSpan<const Block> findAllBlocks(TextRange textRange);
+    BlockRange findAllBlocks(TextRange textRange);
 
     // Input
     SkTArray<Block, true> fTextStyles;
