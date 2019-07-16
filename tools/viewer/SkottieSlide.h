@@ -29,7 +29,7 @@ public:
     bool animate(double) override;
 
     bool onChar(SkUnichar) override;
-    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, ModifierKey modifiers) override;
+    bool onMouse(SkScalar x, SkScalar y, InputState, ModifierKey modifiers) override;
 
 private:
     SkString                           fPath;

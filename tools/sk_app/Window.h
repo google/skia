@@ -11,6 +11,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
+#include "tools/InputState.h"
 #include "tools/ModifierKey.h"
 #include "tools/sk_app/DisplayParams.h"
 
@@ -120,12 +121,6 @@ public:
         kLast = kCamera
     };
     static const int kKeyCount = static_cast<int>(Key::kLast) + 1;
-
-    enum InputState {
-        kDown_InputState,
-        kUp_InputState,
-        kMove_InputState   // only valid for mouse
-    };
 
     class Layer {
     public:

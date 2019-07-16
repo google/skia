@@ -35,8 +35,8 @@ void CommandSet::attach(Window* window) {
     fWindow = window;
 }
 
-bool CommandSet::onKey(Window::Key key, Window::InputState state, ModifierKey modifiers) {
-    if (Window::kDown_InputState == state) {
+bool CommandSet::onKey(Window::Key key, InputState state, ModifierKey modifiers) {
+    if (InputState::kDown == state) {
         for (Command& cmd : fCommands) {
             if (Command::kKey_CommandType == cmd.fType && key == cmd.fKey) {
                 cmd.fFunction();
