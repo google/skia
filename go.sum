@@ -457,6 +457,8 @@ go.chromium.org/luci v0.0.0-20190712013152-7ebfc161f7c3 h1:ByPNv6FUhxOCtS3VNLLqi
 go.chromium.org/luci v0.0.0-20190712013152-7ebfc161f7c3/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.chromium.org/luci v0.0.0-20190713030422-e15aab246858 h1:JnpZqGyd4Vu8QEssK9TqxYpMAj0arG0zUUYrnAJmMS4=
 go.chromium.org/luci v0.0.0-20190713030422-e15aab246858/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
+go.chromium.org/luci v0.0.0-20190715175626-2f4a56a4ec67 h1:gQ8lJNnQrJCJvXSyZkeXODB4xNLOlmgeF+IRQ3AQVCk=
+go.chromium.org/luci v0.0.0-20190715175626-2f4a56a4ec67/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
@@ -505,6 +507,8 @@ go.skia.org/infra v0.0.0-20190713001304-86ff3aff12da h1:sPRO607aNxSuMd5nQ1RGQGrT
 go.skia.org/infra v0.0.0-20190713001304-86ff3aff12da/go.mod h1:sEz1d+4u5bmvzAcwIx+/OJky8VsZ8NFQV8CFfroa0Q4=
 go.skia.org/infra v0.0.0-20190713135441-3bcb89199843 h1:l81RS9GFc/28bTNMIZ7xdJBMz8zfu3Zh1THPLmQjS0Q=
 go.skia.org/infra v0.0.0-20190713135441-3bcb89199843/go.mod h1:mbgqDDjeYnAq5qRlgHm8Dy9bH2fOmDzBmdAOmJbqi3E=
+go.skia.org/infra v0.0.0-20190716010209-ef3258c09d18 h1:tnrlJ5hGYq+xBgvs1q9HYKH5hckeOvRhgS9TdIBoYgk=
+go.skia.org/infra v0.0.0-20190716010209-ef3258c09d18/go.mod h1:mbgqDDjeYnAq5qRlgHm8Dy9bH2fOmDzBmdAOmJbqi3E=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a h1:+9xKwnzXTkTu+2ZVhffRu0A60Jx/gOETiNlKkzqbnRY=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a/go.mod h1:oVrxmr1FXbVQ7PeGtZ28Kg5wPvB+bNsnw1n2j5rtfTY=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
@@ -693,6 +697,8 @@ golang.org/x/tools v0.0.0-20190712213246-8b927904ee0d h1:JZPFnINSinLUdC0BJDoKhrk
 golang.org/x/tools v0.0.0-20190712213246-8b927904ee0d/go.mod h1:jcCCGcm9btYwXyDqrUWc6MKQKKGJCWEQ3AfLSRIbEuI=
 golang.org/x/tools v0.0.0-20190715044752-607ca053a137 h1:66qBt03VVO7qHSq0eBAYy9iD1y2EbXU09A+F5dZ0j8s=
 golang.org/x/tools v0.0.0-20190715044752-607ca053a137/go.mod h1:jcCCGcm9btYwXyDqrUWc6MKQKKGJCWEQ3AfLSRIbEuI=
+golang.org/x/tools v0.0.0-20190716021316-fefcef05abb1 h1:zgTTk+1hZ1lfGM8FQX/Y4Fcv3HZXEfnrOJ8wZPQClOQ=
+golang.org/x/tools v0.0.0-20190716021316-fefcef05abb1/go.mod h1:jcCCGcm9btYwXyDqrUWc6MKQKKGJCWEQ3AfLSRIbEuI=
 golang.org/x/tools/gopls v0.1.0/go.mod h1:p8Q0IUu6EEeGxqmoN/g6Et3gReLCGA7PtNRdyOxcWJE=
 golang.org/x/tools/gopls v0.1.1/go.mod h1:RYlHDmWjvTa1HuWNyEKa6/zzI2ums47cfsozmM0466w=
 golang.org/x/tools/gopls v0.1.3/go.mod h1:vrCQzOKxvuiZLjCKSmbbov04oeBQQOb4VQqwYK2PWIY=
@@ -793,6 +799,7 @@ k8s.io/apimachinery v0.0.0-20190629125103-05b5762916b3/go.mod h1:T1Vra67tZppnhHB
 k8s.io/apimachinery v0.0.0-20190703205208-4cfb76a8bf76/go.mod h1:M2fZgZL9DbLfeJaPBCDqSqNsdsmLN+V29knYJnIXlMA=
 k8s.io/apimachinery v0.0.0-20190711222657-391ed67afa7b/go.mod h1:M2fZgZL9DbLfeJaPBCDqSqNsdsmLN+V29knYJnIXlMA=
 k8s.io/apimachinery v0.0.0-20190712095106-75ce4d1e60f1/go.mod h1:M2fZgZL9DbLfeJaPBCDqSqNsdsmLN+V29knYJnIXlMA=
+k8s.io/apimachinery v0.0.0-20190715170309-6171873045ff/go.mod h1:M2fZgZL9DbLfeJaPBCDqSqNsdsmLN+V29knYJnIXlMA=
 k8s.io/client-go v0.0.0-20190425172711-65184652c889/go.mod h1:PeVFCnjeDy6EwLN+wdDIZd1DwDY6jnkpQt9psMo5YRU=
 k8s.io/gengo v0.0.0-20190128074634-0689ccc1d7d6/go.mod h1:ezvh/TsK7cY6rbqRK0oQQ8IAqLxYwwyPxAX1Pzy0ii0=
 k8s.io/gengo v0.0.0-20190327210449-e17681d19d3a/go.mod h1:ezvh/TsK7cY6rbqRK0oQQ8IAqLxYwwyPxAX1Pzy0ii0=
