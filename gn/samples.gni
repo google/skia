@@ -50,6 +50,7 @@ samples_sources = [
   "$_samplecode/SampleHairModes.cpp",
   "$_samplecode/SampleHT.cpp",
   "$_samplecode/SampleIdentityScale.cpp",
+  "$_samplecode/SampleImageFilterDAG.cpp",
   "$_samplecode/SampleLayerMask.cpp",
   "$_samplecode/SampleLayers.cpp",
   "$_samplecode/SampleLCD.cpp",
