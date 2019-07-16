@@ -279,7 +279,7 @@ protected:
         canvas->drawPath(path, fSkeletonPaint);
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         int32_t index;
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
@@ -407,7 +407,7 @@ protected:
         canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         int32_t index;
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
@@ -524,7 +524,7 @@ protected:
         }
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         int32_t index;
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
@@ -720,7 +720,7 @@ protected:
 
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         int32_t index;
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);

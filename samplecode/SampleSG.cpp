@@ -81,7 +81,7 @@ protected:
         return nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         sksg::Draw* node = nullptr;
         if (click->fMeta.findPtr("node", (void**)&node)) {
             if (auto info = this->findInfo(node)) {

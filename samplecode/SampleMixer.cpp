@@ -76,7 +76,7 @@ protected:
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         fRect.offset(click->fCurr.fX - click->fPrev.fX,
                      click->fCurr.fY - click->fPrev.fY);
         return true;
@@ -160,7 +160,7 @@ protected:
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         SkPaint p;
         p.setAntiAlias(true);
         p.setColor(SK_ColorRED);

@@ -179,10 +179,10 @@ protected:
         return fSelected ? new Click() : nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState clickState, ModifierKey) override {
         int32_t mode;
         if (click->fMeta.findS32("mode", &mode)) {
-            if (fSelected && InputState::kUp == click->fState) {
+            if (fSelected && InputState::kUp == clickState) {
                 fSelected->fMode = gModes[mode];
             }
         } else {

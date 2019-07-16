@@ -1647,11 +1647,11 @@ public:
                 * (control.fMax - control.fMin) + control.fMin;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState clickState, ModifierKey) override {
         MyClick* myClick = (MyClick*) click;
         switch (myClick->fType) {
             case MyClick::kPtType: {
-                savePath(click->fState);
+                savePath(clickState);
                 fActivePt = myClick->ptHit();
                 SkPoint pt = fPath.getPoint((int) myClick->fControl);
                 pt.offset(SkIntToScalar(click->fCurr.fX - click->fPrev.fX),
@@ -1661,7 +1661,7 @@ public:
                 return true;
                 }
             case MyClick::kPathType:
-                savePath(click->fState);
+                savePath(clickState);
                 fPath.offset(SkIntToScalar(click->fCurr.fX - click->fPrev.fX),
                         SkIntToScalar(click->fCurr.fY - click->fPrev.fY));
                 validatePath();
@@ -1679,7 +1679,7 @@ public:
                 fWeightControl.fVisible = myClick->fVerb == SkPath::kConic_Verb;
                 } break;
             case MyClick::kControlType: {
-                if (click->fState != InputState::kDown && myClick->isButton()) {
+                if (clickState != InputState::kDown && myClick->isButton()) {
                     return true;
                 }
                 switch (myClick->fControl) {
@@ -1695,7 +1695,7 @@ public:
                         fResControl.fValLo = MapScreenYtoValue(click->fCurr.fY, fResControl);
                         break;
                     case MyClick::kWeightControl: {
-                        savePath(click->fState);
+                        savePath(clickState);
                         SkScalar w = MapScreenYtoValue(click->fCurr.fY, fWeightControl);
                         set_path_weight(fActiveVerb, w, &fPath);
                         validatePath();
@@ -1705,21 +1705,21 @@ public:
                         fWidthControl.fValLo = MapScreenYtoValue(click->fCurr.fY, fWidthControl);
                         break;
                     case MyClick::kLineButton:
-                        savePath(click->fState);
+                        savePath(clickState);
                         enable_verb_button(myClick->fControl);
                         fWeightControl.fVisible = false;
                         set_path_verb(fActiveVerb, SkPath::kLine_Verb, &fPath, 1);
                         validatePath();
                         break;
                     case MyClick::kQuadButton:
-                        savePath(click->fState);
+                        savePath(clickState);
                         enable_verb_button(myClick->fControl);
                         fWeightControl.fVisible = false;
                         set_path_verb(fActiveVerb, SkPath::kQuad_Verb, &fPath, 1);
                         validatePath();
                         break;
                     case MyClick::kConicButton: {
-                        savePath(click->fState);
+                        savePath(clickState);
                         enable_verb_button(myClick->fControl);
                         fWeightControl.fVisible = true;
                         const SkScalar defaultConicWeight = 1.f / SkScalarSqrt(2);
@@ -1728,14 +1728,14 @@ public:
                         fWeightControl.fValLo = get_path_weight(fActiveVerb, fPath);
                         } break;
                     case MyClick::kCubicButton:
-                        savePath(click->fState);
+                        savePath(clickState);
                         enable_verb_button(myClick->fControl);
                         fWeightControl.fVisible = false;
                         set_path_verb(fActiveVerb, SkPath::kCubic_Verb, &fPath, 1);
                         validatePath();
                         break;
                     case MyClick::kAddButton:
-                        savePath(click->fState);
+                        savePath(clickState);
                         add_path_segment(fActiveVerb, &fPath);
                         validatePath();
                         if (fWeightControl.fVisible) {
@@ -1743,7 +1743,7 @@ public:
                         }
                         break;
                     case MyClick::kDeleteButton:
-                        savePath(click->fState);
+                        savePath(clickState);
                         delete_path_segment(fActiveVerb, &fPath);
                         validatePath();
                         break;
@@ -1819,8 +1819,7 @@ bool AAGeometryView::onChar(SkUnichar uni) {
             Button* button = kButtonList[index].fButton;
             if (button->fVisible && uni == button->fLabel) {
                 MyClick click(MyClick::kControlType, kButtonList[index].fButtonType);
-                click.fState = InputState::kDown;
-                (void) this->onClick(&click);
+                (void) this->onClick(&click, InputState::kDown, ModifierKey::kNone);
                 return true;
             }
         }
@@ -1835,8 +1834,7 @@ bool AAGeometryView::onChar(SkUnichar uni) {
                 Button* button = kButtonList[index].fButton;
                 if (button->fVisible && (uni & ~0x20) == (button->fLabel & ~0x20)) {
                     MyClick click(MyClick::kControlType, kButtonList[index].fButtonType);
-                    click.fState = InputState::kDown;
-                    (void) this->onClick(&click);
+                    (void) this->onClick(&click, InputState::kDown, ModifierKey::kNone);
                     return true;
                 }
             }

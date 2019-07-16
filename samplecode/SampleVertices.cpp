@@ -103,7 +103,7 @@ protected:
         return new Click();
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
     //    fCurrX = click->fICurr.fX;
     //    fCurrY = click->fICurr.fY;
         return true;

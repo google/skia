@@ -227,7 +227,7 @@ protected:
         return new Click();
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         fCenter = click->fCurr;
         return true;
     }

@@ -56,7 +56,7 @@ protected:
         return new Click();
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         fCenter.set(click->fCurr.fX, click->fCurr.fY);
         return false;
     }
@@ -296,7 +296,7 @@ protected:
         return new DoNothingClick();
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         ((MyClick*)click)->handleMove();
         return false;
     }

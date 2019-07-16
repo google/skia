@@ -308,7 +308,7 @@ struct PatchView : public Sample {
         return nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         fPts[((PtClick*)click)->fIndex].set(click->fCurr.fX - DX, click->fCurr.fY - DY);
         return true;
     }
@@ -403,8 +403,8 @@ protected:
         return click;
     }
 
-    bool onClick(Click* click) override {
-        switch (click->fState) {
+    bool onClick(Click* click, InputState clickState, ModifierKey) override {
+        switch (clickState) {
             case InputState::kMove:
                 fPath.lineTo(click->fCurr);
                 fDirty = true;
@@ -491,8 +491,8 @@ protected:
         return click;
     }
 
-    bool onClick(Click* click) override {
-        switch (click->fState) {
+    bool onClick(Click* click, InputState clickState, ModifierKey) override {
+        switch (clickState) {
             case InputState::kMove:
                 fPath.lineTo(click->fCurr);
                 break;

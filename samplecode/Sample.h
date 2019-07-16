@@ -60,8 +60,6 @@ public:
         SkPoint     fOrig = {0, 0};
         SkPoint     fPrev = {0, 0};
         SkPoint     fCurr = {0, 0};
-        InputState  fState = InputState::kDown;
-        ModifierKey fModifierKeys = ModifierKey::kNone;
         SkMetaData  fMeta;
     };
     bool mouse(SkPoint point, InputState clickState, ModifierKey modifierKeys);
@@ -79,7 +77,7 @@ protected:
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi);
 
     /** Override to track clicks. Return true as long as you want to track the pen/mouse. */
-    virtual bool onClick(Click*);
+    virtual bool onClick(Click*, InputState, ModifierKey);
 
     virtual void onDrawBackground(SkCanvas*);
     virtual void onDrawContent(SkCanvas*) = 0;

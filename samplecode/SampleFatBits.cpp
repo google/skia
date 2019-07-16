@@ -483,7 +483,7 @@ protected:
         return new IndexClick(index);
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         int index = IndexClick::GetIndex(click);
         if (index >= 0 && index <= 2) {
             fPts[index] = click->fCurr;

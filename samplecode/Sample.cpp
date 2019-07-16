@@ -73,26 +73,20 @@ bool Sample::mouse(SkPoint point, InputState clickState, ModifierKey modifierKey
                 return false;
             }
             fClick->fPrev = fClick->fCurr = fClick->fOrig = point;
-            fClick->fState = InputState::kDown;
-            fClick->fModifierKeys = modifierKeys;
-            this->onClick(fClick.get());
+            this->onClick(fClick.get(), clickState, modifierKeys);
             return true;
         case InputState::kMove:
             if (fClick) {
                 fClick->fPrev = fClick->fCurr;
                 fClick->fCurr = point;
-                fClick->fState = InputState::kMove;
-                fClick->fModifierKeys = modifierKeys;
-                return this->onClick(fClick.get());
+                return this->onClick(fClick.get(), clickState, modifierKeys);
             }
             return false;
         case InputState::kUp:
             if (fClick) {
                 fClick->fPrev = fClick->fCurr;
                 fClick->fCurr = point;
-                fClick->fState = InputState::kUp;
-                fClick->fModifierKeys = modifierKeys;
-                bool result = this->onClick(fClick.get());
+                bool result = this->onClick(fClick.get(), clickState, modifierKeys);
                 fClick = nullptr;
                 return result;
             }
@@ -110,7 +104,7 @@ Sample::Click* Sample::onFindClickHandler(SkScalar x, SkScalar y, ModifierKey mo
     return nullptr;
 }
 
-bool Sample::onClick(Click*) {
+bool Sample::onClick(Click*, InputState, ModifierKey) {
     return false;
 }
 

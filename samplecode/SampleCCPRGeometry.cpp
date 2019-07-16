@@ -49,7 +49,7 @@ public:
     void onDrawContent(SkCanvas*) override;
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override;
-    bool onClick(Sample::Click*) override;
+    bool onClick(Sample::Click*, InputState, ModifierKey) override;
     bool onChar(SkUnichar) override;
     SkString name() override { return SkString("CCPRGeometry"); }
 
@@ -429,7 +429,7 @@ Sample::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, Modi
     return new Click(-1);
 }
 
-bool CCPRGeometryView::onClick(Sample::Click* click) {
+bool CCPRGeometryView::onClick(Sample::Click* click, InputState, ModifierKey) {
     Click* myClick = (Click*)click;
     myClick->doClick(fPoints);
     this->updateAndInval();

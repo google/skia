@@ -781,7 +781,7 @@ protected:
         return (y - control.fTop) / control.height() * (max - min) + min;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         int index = ((MyClick*)click)->fIndex;
         if (index < (int) SK_ARRAY_COUNT(fPts)) {
             fPts[index].offset(click->fCurr.fX - click->fPrev.fX,

@@ -331,7 +331,7 @@ protected:
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         fRect.offset(click->fCurr.fX - click->fPrev.fX,
                      click->fCurr.fY - click->fPrev.fY);
         return true;

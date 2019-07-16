@@ -127,9 +127,9 @@ protected:
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState clickState, ModifierKey) override {
         const char* state = nullptr;
-        switch (click->fState) {
+        switch (clickState) {
             case InputState::kMove:
                 state = "moved";
                 break;

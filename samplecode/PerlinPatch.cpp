@@ -184,7 +184,7 @@ protected:
         return nullptr;
     }
 
-    bool onClick(Click* click) override {
+    bool onClick(Click* click, InputState, ModifierKey) override {
         PtClick* ptClick = (PtClick*)click;
         if (ptClick->fIndex >= 0) {
             fPts[ptClick->fIndex].set(click->fCurr.fX , click->fCurr.fY );

@@ -381,7 +381,7 @@ public:
     }
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override;
-    bool onClick(Sample::Click*) override;
+    bool onClick(Sample::Click*, InputState, ModifierKey) override;
     bool onChar(SkUnichar) override;
     SkString name() override { return SkString("DegenerateQuad"); }
 
@@ -488,7 +488,7 @@ Sample::Click* DegenerateQuadSample::onFindClickHandler(SkScalar x, SkScalar y, 
     return new Click(fOuterRect, -1);
 }
 
-bool DegenerateQuadSample::onClick(Sample::Click* click) {
+bool DegenerateQuadSample::onClick(Sample::Click* click, InputState, ModifierKey) {
     Click* myClick = (Click*) click;
     myClick->doClick(fCorners);
     return true;
