@@ -54,6 +54,7 @@ skia_utils_sources = [
   "$_src/utils/SkJSONWriter.h",
   "$_src/utils/SkMatrix22.cpp",
   "$_src/utils/SkMatrix22.h",
+  "$_src/utils/SkMetaData.cpp",
   "$_src/utils/SkMultiPictureDocument.cpp",
   "$_src/utils/SkNWayCanvas.cpp",
   "$_src/utils/SkNullCanvas.cpp",
