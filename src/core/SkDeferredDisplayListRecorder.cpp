@@ -139,7 +139,6 @@ bool SkDeferredDisplayListRecorder::init() {
     }
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = fCharacterization.width();
     desc.fHeight = fCharacterization.height();
     desc.fIsProtected = fCharacterization.isProtected();

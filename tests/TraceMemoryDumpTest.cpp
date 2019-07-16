@@ -141,7 +141,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, rep
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     GrSurfaceDesc sd;
-    sd.fFlags = kRenderTarget_GrSurfaceFlag;
     sd.fWidth = 64;
     sd.fHeight = 64;
     sd.fConfig = kRGBA_8888_GrPixelConfig;
@@ -162,7 +161,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, r
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     GrSurfaceDesc sd;
-    sd.fFlags = kRenderTarget_GrSurfaceFlag;
     sd.fWidth = 64;
     sd.fHeight = 64;
     sd.fConfig = kRGBA_8888_GrPixelConfig;

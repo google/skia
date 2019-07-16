@@ -62,7 +62,7 @@ public:
      * actually upload the data to the gpu.
      */
     sk_sp<GrTextureProxy> createTextureProxy(
-            sk_sp<SkImage> srcImage, GrSurfaceDescFlags, int sampleCnt, SkBudgeted, SkBackingFit,
+            sk_sp<SkImage> srcImage, GrRenderable, int sampleCnt, SkBudgeted, SkBackingFit,
             GrInternalSurfaceFlags = GrInternalSurfaceFlags::kNone);
 
     /*
@@ -72,7 +72,7 @@ public:
      * simply has space allocated for the mips. We will allocated the full amount of mip levels
      * based on the width and height in the GrSurfaceDesc.
      */
-    sk_sp<GrTextureProxy> createMipMapProxy(const GrBackendFormat&, const GrSurfaceDesc&,
+    sk_sp<GrTextureProxy> createMipMapProxy(const GrBackendFormat&, const GrSurfaceDesc&, GrRenderable,
                                             GrSurfaceOrigin, SkBudgeted);
 
     /*
@@ -83,15 +83,15 @@ public:
     /*
      * Create a GrSurfaceProxy without any data.
      */
-    sk_sp<GrTextureProxy> createProxy(const GrBackendFormat&, const GrSurfaceDesc&, GrSurfaceOrigin,
-                                      GrMipMapped, SkBackingFit, SkBudgeted,
+    sk_sp<GrTextureProxy> createProxy(const GrBackendFormat&, const GrSurfaceDesc&, GrRenderable,
+                                      GrSurfaceOrigin, GrMipMapped, SkBackingFit, SkBudgeted,
                                       GrInternalSurfaceFlags);
 
     sk_sp<GrTextureProxy> createProxy(
-                            const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                            GrSurfaceOrigin origin, SkBackingFit fit, SkBudgeted budgeted,
-                            GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone) {
-        return this->createProxy(format, desc, origin, GrMipMapped::kNo, fit, budgeted,
+            const GrBackendFormat& format, const GrSurfaceDesc& desc, GrRenderable renderable,
+            GrSurfaceOrigin origin, SkBackingFit fit, SkBudgeted budgeted,
+            GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone) {
+        return this->createProxy(format, desc, renderable, origin, GrMipMapped::kNo, fit, budgeted,
                                  surfaceFlags);
     }
 
@@ -165,16 +165,16 @@ public:
      * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
      */
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrBackendFormat&,
-                                          const GrSurfaceDesc&, GrSurfaceOrigin, GrMipMapped,
+                                          const GrSurfaceDesc&, GrRenderable, GrSurfaceOrigin, GrMipMapped,
                                           GrInternalSurfaceFlags, SkBackingFit, SkBudgeted,
                                           LazyInstantiationType);
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrBackendFormat&,
-                                          const GrSurfaceDesc&, GrSurfaceOrigin, GrMipMapped,
+                                          const GrSurfaceDesc&, GrRenderable, GrSurfaceOrigin, GrMipMapped,
                                           GrInternalSurfaceFlags, SkBackingFit, SkBudgeted);
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrBackendFormat&,
-                                          const GrSurfaceDesc&, GrSurfaceOrigin, GrMipMapped,
+                                          const GrSurfaceDesc&, GrRenderable, GrSurfaceOrigin, GrMipMapped,
                                           SkBackingFit, SkBudgeted);
 
     /** A null TextureInfo indicates a non-textureable render target. */
@@ -241,7 +241,7 @@ public:
     /*
      * Create a texture proxy that is backed by an instantiated GrSurface.
      */
-    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const GrSurfaceDesc&, GrSurfaceOrigin,
+    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const GrSurfaceDesc&, GrRenderable, GrSurfaceOrigin,
                                                               SkBackingFit, SkBudgeted);
     sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 #endif

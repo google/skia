@@ -148,11 +148,6 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
  */
 enum GrSurfaceFlags {
     kNone_GrSurfaceFlags = 0x0,
-    /**
-     * Creates a texture that can be rendered to as a GrRenderTarget. Use
-     * GrTexture::asRenderTarget() to access.
-     */
-    kRenderTarget_GrSurfaceFlag = 0x1,
 };
 GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
 
