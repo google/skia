@@ -1647,6 +1647,21 @@ void GrGLCaps::initFormatTable(const GrContextOptions& contextOptions,
             info.fInternalFormatForTexImage = GR_GL_BGRA;
         }
 
+        // We currently only use the renderbuffer format when allocating msaa renderbuffers, so we
+        // are making decisions here based on that use case. The GL_EXT_texture_format_BGRA8888
+        // extension adds BGRA color renderbuffer support for ES 2.0, but this does not guarantee
+        // support for MSAA renderbuffers. Additionally, the renderable support was added in a later
+        // revision of the extension. So it is possible for older drivers to support the extension
+        // but only an early revision of it without renderable support. We have no way of
+        // distinguishing between the two. The GL_APPLE_texture_format_BGRA8888 does not add support
+        // for BGRA color renderbuffers at all. Ideally, for both cases we would use RGBA[8] for our
+        // format for the MSAA buffer. In the GL_EXT_texture_format_BGRA8888 case we can still
+        // make the resolve BGRA and which will work for glBlitFramebuffer for resolving which just
+        // requires the src and dst be bindable to FBOs. However, we can't do this in the current
+        // world since some devices (e.g. chromium & angle) require the formats in glBlitFramebuffer
+        // to match. We don't have a way to really check this during resolve since we only actually
+        // have one GrPixelConfig and one GrBackendFormat that is shared by the GrGLRenderTarget.
+        // Once we break those up into different surface we can revisit doing this change.
         if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
             if (renderbufferStorageSupportsSizedInternalFormat) {
                 info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
