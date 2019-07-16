@@ -46,6 +46,30 @@
       "revId": "fbde3dc7ada44db067119ff91307fa9f2733558d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c88e0f5_2964ac96",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 2585,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-16T20:50:38Z",
+      "side": 1,
+      "message": "Doh, that is returns. Yes, I\u0027ll make it null (until we change the signature :)",
+      "parentUuid": "c2837faa_7b0e0e28",
+      "range": {
+        "startLine": 2585,
+        "startChar": 65,
+        "endLine": 2585,
+        "endChar": 73
+      },
+      "revId": "fbde3dc7ada44db067119ff91307fa9f2733558d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
