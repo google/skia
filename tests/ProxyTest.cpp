@@ -121,7 +121,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             SkASSERT(kUnknown_GrPixelConfig != config);
 
                             GrSurfaceDesc desc;
-                            desc.fFlags = kRenderTarget_GrSurfaceFlag;
                             desc.fWidth = widthHeight;
                             desc.fHeight = widthHeight;
                             desc.fConfig = config;
@@ -136,14 +135,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = resourceProvider->createApproxTexture(
-                                            desc, GrResourceProvider::Flags::kNoPendingIO);
+                                            desc, GrRenderable::kYes, GrResourceProvider::Flags::kNoPendingIO);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                        desc, budgeted, GrResourceProvider::Flags::kNoPendingIO);
+                                        desc, GrRenderable::kYes, budgeted, GrResourceProvider::Flags::kNoPendingIO);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy =
-                                        proxyProvider->createProxy(format, desc, origin, fit,
+                                        proxyProvider->createProxy(format, desc, GrRenderable::kYes, origin, fit,
                                                                    budgeted);
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
@@ -166,20 +165,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
                             }
 
-                            desc.fFlags = kNone_GrSurfaceFlags;
-
                             {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = resourceProvider->createApproxTexture(
-                                            desc, GrResourceProvider::Flags::kNoPendingIO);
+                                            desc, GrRenderable::kYes, GrResourceProvider::Flags::kNoPendingIO);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                        desc, budgeted, GrResourceProvider::Flags::kNoPendingIO);
+                                        desc, GrRenderable::kYes, budgeted, GrResourceProvider::Flags::kNoPendingIO);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(
-                                        proxyProvider->createProxy(format, desc, origin, fit,
+                                        proxyProvider->createProxy(format, desc, GrRenderable::kYes, origin, fit,
                                                                    budgeted));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
@@ -362,7 +359,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
     GrProxyProvider* provider = ctxInfo.grContext()->priv().proxyProvider();
 
-    for (auto flags : { kRenderTarget_GrSurfaceFlag, kNone_GrSurfaceFlags }) {
+    for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
         for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
             for (int width : { 0, 100 }) {
                 for (int height : { 0, 100}) {
@@ -371,7 +368,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                     }
 
                     GrSurfaceDesc desc;
-                    desc.fFlags = flags;
                     desc.fWidth = width;
                     desc.fHeight = height;
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -382,7 +378,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                                 GrColorType::kRGBA_8888);
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(
-                            format, desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kNo);
+                            format, desc, renderable, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
                 }
             }
