@@ -123,7 +123,7 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     for (size_t i = 0; i < a.fFontSwitches.size(); ++i) {
         auto& fda = a.fFontSwitches[i];
         auto& fdb = b.fFontSwitches[i];
-        if (fda.fStart - a.fText.c_str() != fdb.fStart - b.fText.c_str()) {
+        if (fda.fStart != fdb.fStart) {
             return false;
         }
         if (fda.fFont != fdb.fFont) {
@@ -161,7 +161,7 @@ uint32_t LookupTrait::mix(uint32_t hash, uint32_t data) {
 uint32_t LookupTrait::Hash(const ParagraphCacheKey& key) {
     uint32_t hash = 0;
     for (auto& fd : key.fFontSwitches) {
-        hash = mix(hash, SkGoodHash()(fd.fStart - key.fText.c_str()));
+        hash = mix(hash, SkGoodHash()(fd.fStart));
         hash = mix(hash, SkGoodHash()(fd.fFont.getSize()));
 
         if (fd.fFont.getTypeface() != nullptr) {

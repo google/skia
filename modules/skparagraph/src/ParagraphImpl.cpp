@@ -311,7 +311,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
         Buffer runBuffer(const RunInfo& info) override {
             auto& run = fParagraph->fRuns.emplace_back(fParagraph,
-                                                       fParagraph->text(),
                                                        info,
                                                        fFontIterator->currentLineHeight(),
                                                        fParagraph->fRuns.count(),
@@ -376,8 +375,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
             maxWidth,
             [&](TextRange text,
                 TextRange textWithSpaces,
-                Cluster* start,
-                Cluster* end,
+                ClusterRange clusters,
                 size_t startPos,
                 size_t endPos,
                 SkVector offset,
@@ -386,7 +384,6 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 bool addEllipsis) {
                 // Add the line
                 // TODO: Take in account clipped edges
-                SkSpan<const Cluster> clusters(start, end - start + 1);
                 auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters, metrics);
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
@@ -448,35 +445,33 @@ void ParagraphImpl::resolveStrut() {
                                         : strutStyle.getLeading() * strutStyle.getFontSize());
 }
 
-SkSpan<const Block> ParagraphImpl::findAllBlocks(TextRange textRange) {
-    const Block* begin = nullptr;
-    const Block* end = nullptr;
-    for (auto& block : fTextStyles) {
+BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
+    BlockIndex begin = EMPTY_BLOCK;
+    BlockIndex end = EMPTY_BLOCK;
+    for (size_t index = 0; index < fTextStyles.size(); ++index) {
+        auto& block = fTextStyles[index];
         if (block.fRange.end <= textRange.start) {
             continue;
         }
         if (block.fRange.start >= textRange.end) {
             break;
         }
-        if (begin == nullptr) {
-            begin = &block;
+        if (begin == EMPTY_BLOCK) {
+            begin = index;
         }
-        end = &block;
+        end = index;
     }
 
-    return SkSpan<const Block>(begin, end - begin + 1);
+    return BlockRange(begin, end + 1);
 }
 
 TextLine& ParagraphImpl::addLine(SkVector offset,
                                  SkVector advance,
                                  TextRange text,
                                  TextRange textWithSpaces,
-                                 SkSpan<const Cluster> clusters,
+                                 ClusterRange clusters,
                                  LineMetrics sizes) {
     // Define a list of styles that covers the line
-    if (text.end == 0) {
-        SkDebugf("!!!\n");
-    }
     auto blocks = findAllBlocks(text);
 
     return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, sizes);

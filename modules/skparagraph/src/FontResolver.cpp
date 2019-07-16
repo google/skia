@@ -25,8 +25,9 @@ namespace textlayout {
 bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* height) {
 
     SkASSERT(fFontIterator != nullptr);
-    while (fFontIterator != fFontSwitches.end() && fFontIterator->fStart <= codepoint) {
-        if (fFontIterator->fStart == codepoint) {
+    TextIndex index = codepoint - fText.begin();
+    while (fFontIterator != fFontSwitches.end() && fFontIterator->fStart <= index) {
+        if (fFontIterator->fStart == index) {
             *font = fFontIterator->fFont;
             *height = fFontIterator->fHeight;
             return true;
@@ -141,7 +142,7 @@ size_t FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
             }
         } else {
             //SkDebugf("Resolved %d @%d\n", font.fFont.getTypeface()->uniqueID(), resolved.start);
-            fFontMapping.set(fCharacters[resolved.start], font);
+            fFontMapping.set(fCharacters[resolved.start] - fText.begin(), font);
         }
     };
 
@@ -192,7 +193,7 @@ void FontResolver::addResolvedWhitespacesToMapping() {
         auto index = fUnresolvedIndexes[i];
         auto found = fWhitespaces.find(index);
         if (found != nullptr) {
-            fFontMapping.set(fCharacters[index], *found);
+            fFontMapping.set(fCharacters[index] - fText.begin(), *found);
             ++resolvedWhitespaces;
         }
     }
@@ -232,6 +233,8 @@ void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
     fFontCollection = fontCollection;
     fStyles = styles;
     fText = utf8;
+    fTextRange = TextRange(0, utf8.size());
+
     Block combined;
     for (auto& block : fStyles) {
         SkASSERT(combined.fRange.empty() ||
@@ -259,14 +262,14 @@ void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
             // Checked all
             break;
         }
-        auto found = fFontMapping.find(&ch);
+        auto found = fFontMapping.find(&ch - fText.begin());
         if (found == nullptr) {
             // Insignificant character
             continue;
         }
         if (prev == nullptr) {
             prev = found;
-            prev->fStart = utf8.begin();
+            prev->fStart = 0;
         }
 
         if (*prev == *found) {
@@ -276,11 +279,11 @@ void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
         fFontSwitches.emplace_back(*prev);
 
         prev = found;
-        prev->fStart = &ch;
+        prev->fStart = &ch - fText.begin();
     }
 
     if (prev == nullptr) {
-        fFirstResolvedFont.fStart = utf8.begin();
+        fFirstResolvedFont.fStart = 0;
         prev = &fFirstResolvedFont;
     }
     fFontSwitches.emplace_back(*prev);
