@@ -73,7 +73,9 @@ protected:
         for (auto i = 1; i < 5; ++i) {
             defaultStyle.setFontSize(24 * i);
             paraStyle.setTextStyle(defaultStyle);
-            ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollection>());
+            auto fontCollection = sk_make_sp<FontCollection>();
+            fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+            ParagraphBuilderImpl builder(paraStyle, fontCollection);
             std::string name = "Paragraph: " + std::to_string(24 * i);
             builder.addText(name.c_str());
             for (auto para : gParagraph) {
@@ -170,7 +172,9 @@ protected:
         ParagraphStyle paraStyle;
         paraStyle.setTextStyle(defaultStyle);
 
-        ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollection>());
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        ParagraphBuilderImpl builder(paraStyle, fontCollection);
 
         builder.pushStyle(style(name));
         builder.addText("RaisedButton");
@@ -291,7 +295,9 @@ protected:
         paraStyle.setTextStyle(style);
         paraStyle.setTextAlign(align);
 
-        ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollection>());
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        ParagraphBuilderImpl builder(paraStyle, fontCollection);
         builder.addText(text.c_str());
 
         auto paragraph = builder.Build();
@@ -413,7 +419,9 @@ protected:
         paraStyle.setEllipsis(ellipsis);
         // paraStyle.setTextDirection(RTL ? SkTextDirection::rtl : SkTextDirection::ltr);
 
-        ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollection>());
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        ParagraphBuilderImpl builder(paraStyle, fontCollection);
         if (RTL) {
             builder.addText(mirror(text));
         } else {
@@ -1224,8 +1232,9 @@ protected:
 
         for (size_t i = 0; i < 10; i++) {
             ParagraphStyle paragraph_style;
-            ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
+            ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str()));
             TextStyle text_style;
+            text_style.setFontFamilies({SkString("Roboto")});
             text_style.setColor(SK_ColorBLACK);
             text_style.setFontSize(10 + 2 * (i % 10));
             builder.pushStyle(text_style);
@@ -1250,8 +1259,9 @@ protected:
         const char* text = "The same text painted many times";
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
+        ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str()));
         TextStyle text_style;
+        text_style.setFontFamilies({SkString("Roboto")});
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontSize(20);
         builder.pushStyle(text_style);
