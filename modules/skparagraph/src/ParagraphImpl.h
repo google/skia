@@ -95,6 +95,11 @@ public:
         fMinIntrinsicWidth = m.fMinIntrinsicWidth;
     }
 
+    Run& getRun(RunIndex index) {
+        SkASSERT(index < fRuns.size());
+        return fRuns[index];
+    }
+
     void markDirty() override { fState = kUnknown; }
     static void setChecker(std::function<void(ParagraphImpl* impl, const char*, bool)> checker) {
         fParagraphCache.setChecker(checker);

@@ -245,10 +245,11 @@ void ParagraphImpl::buildClusterTable() {
     SkScalar shift = 0;
 
     // Walk through all the run in the direction of input text
-    for (auto& run : fRuns) {
+    for (RunIndex runIndex = 0; runIndex < fRuns.size(); ++runIndex) {
+        auto& run = fRuns[runIndex];
         auto runStart = fClusters.size();
         // Walk through the glyph in the direction of input text
-        run.iterateThroughClustersInTextOrder([&run, this, &softLineBreaks, &currentStyle, &shift](
+        run.iterateThroughClustersInTextOrder([runIndex, &run, this, &softLineBreaks, &currentStyle, &shift](
                                                       size_t glyphStart,
                                                       size_t glyphEnd,
                                                       size_t charStart,
@@ -258,7 +259,7 @@ void ParagraphImpl::buildClusterTable() {
             SkASSERT(charEnd >= charStart);
             SkSpan<const char> text(fTextSpan.begin() + charStart, charEnd - charStart);
 
-            auto& cluster = fClusters.emplace_back(this, &run, glyphStart, glyphEnd, text, width, height);
+            auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text, width, height);
 
             // Mark the line breaks
             auto found = softLineBreaks.find(cluster.text().end());
@@ -292,7 +293,7 @@ void ParagraphImpl::buildClusterTable() {
         run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
     }
-    fClusters.emplace_back(this, nullptr, 0, 0, SkSpan<const char>(), 0, 0);
+    fClusters.emplace_back(this, EMPTY_RUN, 0, 0, SkSpan<const char>(), 0, 0);
 }
 
 bool ParagraphImpl::shapeTextIntoEndlessLine() {

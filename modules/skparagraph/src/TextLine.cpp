@@ -57,7 +57,7 @@ TextLine::TextLine(ParagraphImpl* master,
     // Reorder visual runs
     auto start = fClusterRange.begin();
     auto end = fClusterRange.end() - 1;
-    size_t numRuns = end->run()->index() - start->run()->index() + 1;
+    size_t numRuns = end->runIndex() - start->runIndex() + 1;
 
     for (auto& b : blocks) {
         if (b.style().hasBackground()) {
@@ -73,14 +73,15 @@ TextLine::TextLine(ParagraphImpl* master,
 
     // Get the logical order
     std::vector<UBiDiLevel> runLevels;
-    for (auto run = start->run(); run <= end->run(); ++run) {
-        runLevels.emplace_back(run->fBidiLevel);
+    for (auto runIndex = start->runIndex(); runIndex <= end->runIndex(); ++runIndex) {
+        auto& run = fMaster->getRun(runIndex);
+        runLevels.emplace_back(run.fBidiLevel);
     }
 
     std::vector<int32_t> logicalOrder(numRuns);
     ubidi_reorderVisual(runLevels.data(), SkToU32(numRuns), logicalOrder.data());
 
-    auto firstRunIndex = start->run()->index();
+    auto firstRunIndex = start->runIndex();
     for (auto index : logicalOrder) {
         fLogical.push_back(firstRunIndex + index);
     }
@@ -441,7 +442,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
                 }
 
                 // Shape the ellipsis
-                Run* cached = fEllipsisCache.find(cluster->run()->font());
+                Run* cached = fEllipsisCache.find(cluster->font());
                 if (cached == nullptr) {
                     cached = shapeEllipsis(ellipsis, cluster->run());
                 }
