@@ -179,9 +179,8 @@ public:
         return this->maxRenderTargetSampleCount(config) > 0;
     }
 
-    // TODO: Remove this after Flutter updated to no longer use it.
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
-        return this->maxRenderTargetSampleCount(config) > (withMSAA ? 1 : 0);
+    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format) const {
+        return this->maxRenderTargetSampleCount(ct, format) > 0;
     }
 
     // Find a sample count greater than or equal to the requested count which is supported for a

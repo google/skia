@@ -118,12 +118,26 @@ public:
         return this->isFormatTexturable(ct, format);
     }
 
-    int getRenderTargetSampleCount(int requestedCount,
-                                   GrColorType, const GrBackendFormat&) const override;
-    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
+    int getRenderTargetSampleCount(int requestedCount, GrColorType ct,
+                                   const GrBackendFormat& format) const override {
+        return this->getRenderTargetSampleCount(requestedCount, ct,
+                                                GrGLBackendFormatToGLFormat(format));
+    }
+    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override {
+        GrColorType ct = GrPixelConfigToColorType(config);
+        auto format = this->pixelConfigToFormat(config);
+        return this->getRenderTargetSampleCount(requestedCount, ct, format);
 
-    int maxRenderTargetSampleCount(GrColorType, const GrBackendFormat&) const override;
-    int maxRenderTargetSampleCount(GrPixelConfig config) const override;
+    }
+
+    int maxRenderTargetSampleCount(GrColorType ct, const GrBackendFormat& format) const override {
+        return this->maxRenderTargetSampleCount(ct, GrGLBackendFormatToGLFormat(format));
+    }
+    int maxRenderTargetSampleCount(GrPixelConfig config) const override {
+        GrColorType ct = GrPixelConfigToColorType(config);
+        auto format = this->pixelConfigToFormat(config);
+        return this->maxRenderTargetSampleCount(ct, format);
+    }
 
     bool isFormatCopyable(GrColorType, const GrBackendFormat&) const override;
     bool isConfigCopyable(GrPixelConfig config) const override {
@@ -485,8 +499,8 @@ private:
     void initStencilSupport(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
     void initConfigTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
-    void initFormatTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*,
-                         const FormatWorkarounds&);
+    void initFormatTable(const GrGLContextInfo&, const GrGLInterface*, const FormatWorkarounds&);
+    void setupSampleCounts(const GrGLContextInfo&, const GrGLInterface*);
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
@@ -496,6 +510,9 @@ private:
 
     bool isFormatTexturable(GrColorType, GrGLFormat) const;
     bool formatSupportsTexStorage(GrGLFormat) const;
+
+    int getRenderTargetSampleCount(int requestedCount, GrColorType, GrGLFormat) const;
+    int maxRenderTargetSampleCount(GrColorType, GrGLFormat) const;
 
     // TODO: Once pixel config is no longer used in the caps remove this helper function.
     GrGLFormat pixelConfigToFormat(GrPixelConfig) const;
@@ -596,14 +613,6 @@ private:
         // 0s and 1s.
         GrSwizzle fRGBAReadSwizzle = GrSwizzle("rgba");
 
-        SkTDArray<int> fColorSampleCounts;
-
-        enum {
-            kRenderable_Flag              = 0x1,
-            kRenderableWithMSAA_Flag      = 0x2,
-        };
-        uint32_t fFlags = 0;
-
         // verification of color attachment validity is done while flushing. Although only ever
         // used in the (sole) rendering thread it can cause races if it is glommed into fFlags.
         bool fVerifiedColorAttachment = false;
@@ -611,6 +620,7 @@ private:
 
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
 
+    // ColorTypeInfo for a specific format
     struct ColorTypeInfo {
         ColorTypeInfo(GrColorType colorType, uint32_t flags)
                 : fColorType(colorType)
@@ -619,6 +629,9 @@ private:
         GrColorType fColorType;
         enum {
             kUploadData_Flag = 0x1,
+            // Does Ganesh itself support rendering to this colorType & format pair. Renderability
+            // still additionally depends on if the format can be an FBO color attachment.
+            kRenderable_Flag = 0x2,
         };
         uint32_t fFlags;
     };
@@ -675,6 +688,8 @@ private:
 
         // Index fStencilFormats.
         int fStencilFormatIndex = kUnknown_StencilIndex;
+
+        SkTDArray<int> fColorSampleCounts;
 
         SkSTArray<1, ColorTypeInfo> fColorTypeInfos;
     };
