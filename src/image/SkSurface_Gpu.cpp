@@ -438,9 +438,9 @@ static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex
     return true;
 }
 
-static GrColorType get_grcolortype_from_skcolortype_and_format(const GrCaps* caps,
-                                                               SkColorType skCT,
-                                                               const GrBackendFormat& format) {
+GrColorType get_grcolortype_from_skcolortype_and_format(const GrCaps* caps,
+                                                        SkColorType skCT,
+                                                        const GrBackendFormat& format) {
     GrColorType grCT = SkColorTypeToGrColorType(skCT);
     // Until we support SRGB in the SkColorType we have to do this manual check here to make sure
     // we use the correct GrColorType.
