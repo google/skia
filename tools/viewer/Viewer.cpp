@@ -1369,7 +1369,7 @@ SkPoint Viewer::mapEvent(float x, float y) {
     return inv.mapXY(x, y);
 }
 
-bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
+bool Viewer::onTouch(intptr_t owner, InputState state, float x, float y) {
     if (GestureDevice::kMouse == fGestureDevice) {
         return false;
     }
@@ -1382,7 +1382,7 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
 
     void* castedOwner = reinterpret_cast<void*>(owner);
     switch (state) {
-        case Window::kUp_InputState: {
+        case InputState::kUp: {
             fGesture.touchEnd(castedOwner);
 #if defined(SK_BUILD_FOR_IOS)
             // TODO: move IOS swipe detection higher up into the platform code
@@ -1403,11 +1403,11 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
 #endif
             break;
         }
-        case Window::kDown_InputState: {
+        case InputState::kDown: {
             fGesture.touchBegin(castedOwner, x, y);
             break;
         }
-        case Window::kMove_InputState: {
+        case InputState::kMove: {
             fGesture.touchMoved(castedOwner, x, y);
             break;
         }
@@ -1417,7 +1417,7 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
     return true;
 }
 
-bool Viewer::onMouse(int x, int y, Window::InputState state, ModifierKey modifiers) {
+bool Viewer::onMouse(int x, int y, InputState state, ModifierKey modifiers) {
     if (GestureDevice::kTouch == fGestureDevice) {
         return false;
     }
@@ -1429,22 +1429,22 @@ bool Viewer::onMouse(int x, int y, Window::InputState state, ModifierKey modifie
     }
 
     switch (state) {
-        case Window::kUp_InputState: {
+        case InputState::kUp: {
             fGesture.touchEnd(nullptr);
             break;
         }
-        case Window::kDown_InputState: {
+        case InputState::kDown: {
             fGesture.touchBegin(nullptr, x, y);
             break;
         }
-        case Window::kMove_InputState: {
+        case InputState::kMove: {
             fGesture.touchMoved(nullptr, x, y);
             break;
         }
     }
     fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kMouse : GestureDevice::kNone;
 
-    if (state != Window::kMove_InputState || fGesture.isBeingTouched()) {
+    if (state != InputState::kMove || fGesture.isBeingTouched()) {
         fWindow->inval();
     }
     return true;
@@ -2341,7 +2341,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
     }
 }
 
-bool Viewer::onKey(sk_app::Window::Key key, sk_app::Window::InputState state, ModifierKey modifiers) {
+bool Viewer::onKey(sk_app::Window::Key key, InputState state, ModifierKey modifiers) {
     return fCommands.onKey(key, state, modifiers);
 }
 

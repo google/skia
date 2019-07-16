@@ -307,7 +307,7 @@ static ModifierKey get_modifiers(const NSEvent* event) {
 - (void)keyDown:(NSEvent *)event {
     Window::Key key = get_key([event keyCode]);
     if (key != Window::Key::kNONE) {
-        if (!fWindow->onKey(key, Window::kDown_InputState, get_modifiers(event))) {
+        if (!fWindow->onKey(key, InputState::kDown, get_modifiers(event))) {
             if (Window::Key::kEscape == key) {
                 [NSApp terminate:fWindow->window()];
             }
@@ -329,21 +329,21 @@ static ModifierKey get_modifiers(const NSEvent* event) {
 - (void)keyUp:(NSEvent *)event {
     Window::Key key = get_key([event keyCode]);
     if (key != Window::Key::kNONE) {
-        (void) fWindow->onKey(key, Window::kUp_InputState, get_modifiers(event));
+        (void) fWindow->onKey(key, InputState::kUp, get_modifiers(event));
     }
 }
 
 - (void)mouseDown:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, Window::kDown_InputState,
+    fWindow->onMouse(pos.x, rect.size.height - pos.y, InputState::kDown,
                     get_modifiers(event));
 }
 
 - (void)mouseUp:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, Window::kUp_InputState,
+    fWindow->onMouse(pos.x, rect.size.height - pos.y, InputState::kUp,
                      get_modifiers(event));
 }
 
@@ -354,7 +354,7 @@ static ModifierKey get_modifiers(const NSEvent* event) {
 - (void)mouseMoved:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, Window::kMove_InputState,
+    fWindow->onMouse(pos.x, rect.size.height - pos.y, InputState::kMove,
                      get_modifiers(event));
 }
 

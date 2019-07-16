@@ -48,7 +48,7 @@ static void debug_on_char(SkUnichar c, ModifierKey modifiers) {
     }
 }
 
-static void debug_on_key(sk_app::Window::Key key, sk_app::Window::InputState, ModifierKey modi) {
+static void debug_on_key(sk_app::Window::Key key, InputState, ModifierKey modi) {
     SkDebugf("key: %s%s\n", key_name(key), modifiers_desc(modi).c_str());
 }
 #endif  // SK_EDITOR_DEBUG_OUT
@@ -152,8 +152,8 @@ struct EditorLayer : public sk_app::Window::Layer {
         return true;
     }
 
-    bool onMouse(int x, int y, sk_app::Window::InputState state, ModifierKey modifiers) override {
-        if (sk_app::Window::kDown_InputState == state) {
+    bool onMouse(int x, int y, InputState state, ModifierKey modifiers) override {
+        if (InputState::kDown == state) {
             y += fPos;
             editor::Editor::TextPosition pos = fEditor.getPosition(SkIPoint{x, y});
             #ifdef SK_EDITOR_DEBUG_OUT
@@ -232,9 +232,9 @@ struct EditorLayer : public sk_app::Window::Layer {
         return true;
     }
     bool onKey(sk_app::Window::Key key,
-               sk_app::Window::InputState state,
+               InputState state,
                ModifierKey modifiers) override {
-        if (state == sk_app::Window::kDown_InputState) {
+        if (state == InputState::kDown) {
             switch (key) {
                 case sk_app::Window::Key::kPageDown:
                     return this->scroll(fHeight * 4 / 5);

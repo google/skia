@@ -29,7 +29,7 @@ public:
     virtual void unload() {}
 
     virtual bool onChar(SkUnichar c) { return false; }
-    virtual bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
+    virtual bool onMouse(SkScalar x, SkScalar y, InputState state,
                          ModifierKey modifiers) { return false; }
 
     virtual bool onGetControls(SkMetaData*) { return false; }

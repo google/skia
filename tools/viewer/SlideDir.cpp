@@ -158,7 +158,7 @@ public:
         fState = State::kUnfocusing;
     }
 
-    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state, ModifierKey modifiers) {
+    bool onMouse(SkScalar x, SkScalar y, InputState state, ModifierKey modifiers) {
         SkASSERT(fTarget);
 
         if (!fRect.contains(x, y)) {
@@ -379,9 +379,9 @@ bool SlideDir::onChar(SkUnichar c) {
     return false;
 }
 
-bool SlideDir::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
+bool SlideDir::onMouse(SkScalar x, SkScalar y, InputState state,
                        ModifierKey modifiers) {
-    if (state == sk_app::Window::kMove_InputState || ModifierKeyIsSet(modifiers))
+    if (state == InputState::kMove || ModifierKeyIsSet(modifiers))
         return false;
 
     if (fFocusController->hasFocus()) {
@@ -395,11 +395,11 @@ bool SlideDir::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
     static constexpr SkScalar kClickMoveTolerance = 4;
 
     switch (state) {
-    case sk_app::Window::kDown_InputState:
+    case InputState::kDown:
         fTrackingCell = cell;
         fTrackingPos = SkPoint::Make(x, y);
         break;
-    case sk_app::Window::kUp_InputState:
+    case InputState::kUp:
         if (cell == fTrackingCell &&
             SkPoint::Distance(fTrackingPos, SkPoint::Make(x, y)) < kClickMoveTolerance) {
             fFocusController->startFocus(cell);

@@ -37,10 +37,10 @@ public:
     void onBackendCreated() override;
     void onPaint(SkSurface*) override;
     void onResize(int width, int height) override;
-    bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y) override;
-    bool onMouse(int x, int y, sk_app::Window::InputState state, ModifierKey modifiers) override;
+    bool onTouch(intptr_t owner, InputState state, float x, float y) override;
+    bool onMouse(int x, int y, InputState state, ModifierKey modifiers) override;
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue) override;
-    bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, ModifierKey modifiers) override;
+    bool onKey(sk_app::Window::Key key, InputState state, ModifierKey modifiers) override;
     bool onChar(SkUnichar c, ModifierKey modifiers) override;
 
     struct SkFontFields {

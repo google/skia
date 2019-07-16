@@ -268,7 +268,7 @@ bool Window_unix::handleEvent(const XEvent& event) {
             switch (event.xbutton.button) {
                 case Button1:
                     this->onMouse(event.xbutton.x, event.xbutton.y,
-                                  Window::kDown_InputState, get_modifiers(event));
+                                  InputState::kDown, get_modifiers(event));
                     break;
                 case Button4:
                     this->onMouseWheel(1.0f, get_modifiers(event));
@@ -282,13 +282,13 @@ bool Window_unix::handleEvent(const XEvent& event) {
         case ButtonRelease:
             if (event.xbutton.button == Button1) {
                 this->onMouse(event.xbutton.x, event.xbutton.y,
-                              Window::kUp_InputState, get_modifiers(event));
+                              InputState::kUp, get_modifiers(event));
             }
             break;
 
         case MotionNotify:
             this->onMouse(event.xmotion.x, event.xmotion.y,
-                          Window::kMove_InputState, get_modifiers(event));
+                          InputState::kMove, get_modifiers(event));
             break;
 
         case KeyPress: {
@@ -296,7 +296,7 @@ bool Window_unix::handleEvent(const XEvent& event) {
             KeySym keysym = XkbKeycodeToKeysym(fDisplay, event.xkey.keycode, 0, shiftLevel);
             Window::Key key = get_key(keysym);
             if (key != Window::Key::kNONE) {
-                if (!this->onKey(key, Window::kDown_InputState, get_modifiers(event))) {
+                if (!this->onKey(key, InputState::kDown, get_modifiers(event))) {
                     if (keysym == XK_Escape) {
                         return true;
                     }
@@ -314,7 +314,7 @@ bool Window_unix::handleEvent(const XEvent& event) {
             KeySym keysym = XkbKeycodeToKeysym(fDisplay, event.xkey.keycode,
                                                0, shiftLevel);
             Window::Key key = get_key(keysym);
-            (void) this->onKey(key, Window::kUp_InputState,
+            (void) this->onKey(key, InputState::kUp,
                                get_modifiers(event));
         } break;
 
