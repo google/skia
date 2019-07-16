@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 
-bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
+bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageType*) {
     return false;
 }
 
