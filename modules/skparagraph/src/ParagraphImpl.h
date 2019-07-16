@@ -54,9 +54,8 @@ public:
 
     size_t lineNumber() override { return fLines.size(); }
 
-    TextLine& addLine(SkVector offset, SkVector advance, TextRange text,
-                      TextRange textWithSpaces, SkSpan<const Cluster> clusters,
-                      LineMetrics sizes);
+    TextLine& addLine(SkVector offset, SkVector advance, TextRange text, TextRange textWithSpaces,
+                      ClusterRange clusters, LineMetrics sizes);
 
     SkSpan<const char> text() const { return fTextSpan; }
     InternalState state() const { return fState; }
@@ -69,6 +68,21 @@ public:
     ParagraphStyle paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     void formatLines(SkScalar maxWidth);
+
+    void shiftCluster(ClusterIndex index, SkScalar shift) {
+        auto& cluster = fClusters[index];
+        auto& run = fRunShifts[cluster.runIndex()];
+        for (size_t pos = cluster.startPos(); pos < cluster.endPos(); ++pos) {
+            run.fShifts[pos] = shift;
+        }
+    }
+
+    SkScalar posShift(RunIndex index, size_t pos) const {
+        if (fRunShifts.count() == 0) return 0.0;
+        return fRunShifts[index].fShifts[pos];
+    }
+
+    SkScalar lineShift(size_t index) { return fLines[index].shift(); }
 
     bool strutEnabled() const { return paragraphStyle().getStrutStyle().getStrutEnabled(); }
     bool strutForceHeight() const {
@@ -95,10 +109,12 @@ public:
         fMinIntrinsicWidth = m.fMinIntrinsicWidth;
     }
 
-    Run& getRun(RunIndex index) {
-        SkASSERT(index < fRuns.size());
-        return fRuns[index];
-    }
+    SkSpan<const char> text(TextRange textRange);
+    SkSpan<Cluster> clusters(ClusterRange clusterRange);
+    Cluster& cluster(ClusterIndex clusterIndex);
+    Run& run(RunIndex runIndex);
+    SkSpan<Block> blocks(BlockRange blockRange);
+    Block& block(BlockIndex blockIndex);
 
     void markDirty() override { fState = kUnknown; }
     static void setChecker(std::function<void(ParagraphImpl* impl, const char*, bool)> checker) {
@@ -126,7 +142,7 @@ private:
     void breakShapedTextIntoLines(SkScalar maxWidth);
     void paintLinesIntoPicture();
 
-    SkSpan<const Block> findAllBlocks(TextRange textRange);
+    BlockRange findAllBlocks(TextRange textRange);
 
     // Input
     SkTArray<Block, true> fTextStyles;
@@ -135,17 +151,18 @@ private:
 
     // Internal structures
     InternalState fState;
-    SkTArray<Run> fRuns;
-    SkTArray<Cluster, true> fClusters;
-    SkTArray<TextLine> fLines;
+    SkTArray<Run> fRuns;                // kShaped
+    SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
+
+    SkTArray<RunShifts, true> fRunShifts;
+    SkTArray<TextLine, true> fLines;    // kFormatted   (cached: width, max lines, ellipsis, text align)
+    sk_sp<SkPicture> fPicture;          // kRecorded    (cached: text styles)
+
     LineMetrics fStrutMetrics;
     FontResolver fFontResolver;
 
     SkScalar fOldWidth;
     SkScalar fOldHeight;
-
-    // Painting
-    sk_sp<SkPicture> fPicture;
 
     // Cache
     static ParagraphCache fParagraphCache;

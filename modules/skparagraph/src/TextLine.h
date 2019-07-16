@@ -21,37 +21,31 @@ public:
     TextLine(ParagraphImpl* master,
              SkVector offset,
              SkVector advance,
-             SkSpan<const Block> blocks,
+             BlockRange blocks,
              TextRange text,
              TextRange textWithSpaces,
-             SkSpan<const Cluster> clusters,
+             ClusterRange clusters,
              LineMetrics sizes);
 
-    void setMaster(ParagraphImpl* master) {
-        fMaster = master;
-        this->fBlockRange.setMaster(master);
-        this->fClusterRange.setMaster(master);
-    }
+    inline void setMaster(ParagraphImpl* master) { fMaster = master; }
 
-    TextRange trimmedText() const { return fTextRange; }
-    TextRange textWithSpaces() const { return fTextWithWhitespacesRange; }
-    SkSpan<const Cluster> clusters() const { return fClusterRange.span(); }
-    SkVector offset() const { return fOffset + SkVector::Make(fShift, 0); }
-    Run* ellipsis() const { return fEllipsis.get(); }
-    LineMetrics sizes() const { return fSizes; }
-    bool empty() const { return fTextRange.empty(); }
+    inline TextRange trimmedText() const { return fTextRange; }
+    inline TextRange textWithSpaces() const { return fTextWithWhitespacesRange; }
+    inline Run* ellipsis() const { return fEllipsis.get(); }
+    inline LineMetrics sizes() const { return fSizes; }
+    inline bool empty() const { return fTextRange.empty(); }
 
-    SkScalar shift() const { return fShift; }
-    SkScalar height() const { return fAdvance.fY; }
+    inline SkScalar height() const { return fAdvance.fY; }
     SkScalar width() const {
         return fAdvance.fX + (fEllipsis != nullptr ? fEllipsis->fAdvance.fX : 0);
     }
-    void shiftTo(SkScalar shift) { fShift = shift; }
+    inline SkScalar shift() const { return fShift; }
+    SkVector offset() const;
 
-    SkScalar alphabeticBaseline() const { return fSizes.alphabeticBaseline(); }
-    SkScalar ideographicBaseline() const { return fSizes.ideographicBaseline(); }
-    SkScalar baseline() const { return fSizes.baseline(); }
-    SkScalar roundingDelta() const { return fSizes.delta(); }
+    inline SkScalar alphabeticBaseline() const { return fSizes.alphabeticBaseline(); }
+    inline SkScalar ideographicBaseline() const { return fSizes.ideographicBaseline(); }
+    inline SkScalar baseline() const { return fSizes.baseline(); }
+    inline SkScalar roundingDelta() const { return fSizes.delta(); }
 
     using StyleVisitor = std::function<SkScalar(TextRange textRange, const TextStyle& style,
                                                 SkScalar offsetX)>;
@@ -64,7 +58,7 @@ public:
                                 bool includeEmptyText,
                                 const RunVisitor& visitor) const;
 
-    using ClustersVisitor = std::function<bool(const Cluster* cluster)>;
+    using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index)>;
     void iterateThroughClustersInGlyphsOrder(bool reverse, const ClustersVisitor& visitor) const;
 
     void format(TextAlign effectiveAlign, SkScalar maxWidth, bool last);
@@ -148,26 +142,27 @@ private:
     }
 
     ParagraphImpl* fMaster;
-    StableRange<ParagraphImpl, const Block, &accessTextBlock> fBlockRange;
+    BlockRange fBlockRange;
     TextRange fTextRange;
     TextRange fTextWithWhitespacesRange;
-    StableRange<ParagraphImpl, const Cluster, &accessCluster> fClusterRange;
+    ClusterRange fClusterRange;
 
     SkTArray<size_t, true> fLogical;
-    SkScalar fShift;                    // Shift to left - right - center
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
+    SkScalar fShift;                    // Left right
     std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
     LineMetrics fSizes;                 // Line metrics as a max of all run metrics
     bool fHasBackground;
     bool fHasShadows;
     bool fHasDecorations;
-    
+
     // Cached drawing parts
     mutable SkTArray<TextBlobRecord> fTextBlobRecords;
     mutable SkTArray<ShadowRecord> fShadowRecords;
     mutable SkTArray<DecorationRecord> fDecorationRecords;
 
+    // TODO: use for ellipsis the common cache
     static SkTHashMap<SkFont, Run> fEllipsisCache;  // All found so far shapes of ellipsis
 };
 }  // namespace textlayout

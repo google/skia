@@ -4,6 +4,7 @@
 
 #include <src/core/SkSpan.h>
 #include <src/core/SkTDynamicHash.h>
+#include "src/core/SkLRUCache.h"
 #include "include/core/SkFont.h"
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
@@ -56,7 +57,7 @@ public:;
     InternalState fInternalState;
     SkTArray<Run> fRuns;
     SkTArray<Cluster, true> fClusters;
-    SkTArray<TextLine> fLines;
+    SkTArray<TextLine, true> fLines;
     Measurement fMeasurement;
     sk_sp<SkPicture> fPicture;
 };
