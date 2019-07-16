@@ -405,9 +405,10 @@ public:
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         } else {
             auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
+            // don't need to set ctx->paintColor
             ctx->inputs = fInputs->data();
             ctx->ninputs = fInputs->size() / 4;
-            ctx->shader_convention = false;
+            ctx->shaderConvention = false;
 
             SkAutoMutexExclusive ama(fByteCodeMutex);
             if (!fByteCode) {
