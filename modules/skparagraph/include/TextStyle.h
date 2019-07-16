@@ -163,9 +163,6 @@ private:
     sk_sp<SkTypeface> fTypeface;
 };
 
-typedef size_t RunIndex;
-const size_t EMPTY_RUN = EMPTY_INDEX;
-
 typedef size_t TextIndex;
 typedef SkRange<size_t> TextRange;
 const SkRange<size_t> EMPTY_TEXT = EMPTY_RANGE;

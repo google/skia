@@ -135,8 +135,7 @@ public:
 
     using AddLineToParagraph = std::function<void(TextRange text,
                                                   TextRange textWithSpaces,
-                                                  Cluster* start,
-                                                  Cluster* end,
+                                                  ClusterRange clusters,
                                                   size_t startClip,
                                                   size_t endClip,
                                                   SkVector offset,
