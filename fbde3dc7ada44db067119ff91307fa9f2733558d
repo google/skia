@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "902ba8d9_9abd799b",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 2585,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-16T20:43:45Z",
+      "side": 1,
+      "message": "This can be nullptr now, right?",
+      "range": {
+        "startLine": 2585,
+        "startChar": 65,
+        "endLine": 2585,
+        "endChar": 73
+      },
+      "revId": "fbde3dc7ada44db067119ff91307fa9f2733558d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

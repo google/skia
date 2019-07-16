@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45a07292_3bb68209",
+        "filename": "src/shaders/SkRTShader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-16T20:43:45Z",
+      "side": 0,
+      "message": "If you put this (and the code to compute inverse) back, doesn\u0027t the CTM start working again (now that you\u0027re using float xy, as computed by seed_shader)?",
+      "revId": "9d844d8ce5a29130686d1e2f3d612b180cef5f0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
