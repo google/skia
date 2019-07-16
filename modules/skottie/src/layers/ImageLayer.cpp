@@ -21,21 +21,20 @@ const AnimationBuilder::ImageAssetInfo*
 AnimationBuilder::loadImageAsset(const skjson::ObjectValue& jimage) const {
     const skjson::StringValue* name = jimage["p"];
     const skjson::StringValue* path = jimage["u"];
-    if (!name) {
+    const skjson::StringValue* id   = jimage["id"];
+    if (!name || !path || !id) {
         return nullptr;
     }
 
-    const auto name_cstr = name->begin(),
-               path_cstr = path ? path->begin() : "";
-    const auto res_id = SkStringPrintf("%s|%s", path_cstr, name_cstr);
+    const SkString res_id(id->begin());
     if (auto* cached_info = fImageAssetCache.find(res_id)) {
         return cached_info;
     }
 
-    auto asset = fResourceProvider->loadImageAsset(path_cstr, name_cstr);
+    auto asset = fResourceProvider->loadImageAsset(path->begin(), name->begin(), id->begin());
     if (!asset) {
-        this->log(Logger::Level::kError, nullptr,
-                  "Could not load image asset: %s/%s.", path_cstr, name_cstr);
+        this->log(Logger::Level::kError, nullptr, "Could not load image asset: %s/%s (id: '%s').",
+                  path->begin(), name->begin(), id->begin());
         return nullptr;
     }
 
