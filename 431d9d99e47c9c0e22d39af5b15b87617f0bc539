@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f40947e6_7e5e137e",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-16T11:10:05Z",
+      "side": 1,
+      "message": "I moved gen_tasks.go into this new package and made some modifications.  Git shows me the correct diff locally.  Not sure why Gerrit does not.  Most free funcs are now methods of the new builder struct.  I moved constants which were specific to skia.git into the Config struct.  Exposed convenience functions for reading the config file and finding the repo root without needing to import specs.",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 23
+      },
+      "revId": "431d9d99e47c9c0e22d39af5b15b87617f0bc539",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
