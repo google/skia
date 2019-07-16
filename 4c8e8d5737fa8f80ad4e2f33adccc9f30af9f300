@@ -114,6 +114,29 @@
       "revId": "4c8e8d5737fa8f80ad4e2f33adccc9f30af9f300",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7315ff26_be08ac75",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-16T14:53:38Z",
+      "side": 1,
+      "message": "allocate this once ?",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 70
+      },
+      "revId": "4c8e8d5737fa8f80ad4e2f33adccc9f30af9f300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
