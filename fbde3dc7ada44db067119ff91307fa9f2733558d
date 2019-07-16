@@ -22,6 +22,30 @@
       "revId": "fbde3dc7ada44db067119ff91307fa9f2733558d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2837faa_7b0e0e28",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 2585,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-16T20:47:52Z",
+      "side": 1,
+      "message": "I think that is my out-param parameter.",
+      "parentUuid": "902ba8d9_9abd799b",
+      "range": {
+        "startLine": 2585,
+        "startChar": 65,
+        "endLine": 2585,
+        "endChar": 73
+      },
+      "revId": "fbde3dc7ada44db067119ff91307fa9f2733558d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

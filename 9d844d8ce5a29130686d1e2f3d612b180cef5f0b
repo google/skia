@@ -16,6 +16,24 @@
       "revId": "9d844d8ce5a29130686d1e2f3d612b180cef5f0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0045c72_a87f5bb1",
+        "filename": "src/shaders/SkRTShader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-16T20:47:52Z",
+      "side": 0,
+      "message": "It does, but that doesn\u0027t map (yet) to how we are documenting the x,y, does it? Does the GPU do the same assist? I was assuming we\u0027d have to resolve the setup() issue first.",
+      "parentUuid": "45a07292_3bb68209",
+      "revId": "9d844d8ce5a29130686d1e2f3d612b180cef5f0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
