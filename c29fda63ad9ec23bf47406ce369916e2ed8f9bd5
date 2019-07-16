@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9159e3d_e6634f16",
+        "filename": "tools/gpu/dawn/DawnMTLUtils.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-07-16T14:29:36Z",
+      "side": 1,
+      "message": "Could you use the class in tools/AutoreleasePool.{mm,h} instead?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 1
+      },
+      "revId": "c29fda63ad9ec23bf47406ce369916e2ed8f9bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1005a4fb_c205b83e",
+        "filename": "tools/sk_app/mac/DawnGLWindowContext_mac.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-07-16T14:29:36Z",
+      "side": 1,
+      "message": "As a motivation for shared code, this is no longer used in our current GLWindowContext_mac setup.",
+      "range": {
+        "startLine": 96,
+        "startChar": 2,
+        "endLine": 122,
+        "endChar": 0
+      },
+      "revId": "c29fda63ad9ec23bf47406ce369916e2ed8f9bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f133b452_e8bde585",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-07-16T14:29:36Z",
+      "side": 1,
+      "message": "Similarly, this might be useful in the base MetalWindowContext -- more motivation for sharing.",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 58
+      },
+      "revId": "c29fda63ad9ec23bf47406ce369916e2ed8f9bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
