@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9cc82bef_dcc5eb36",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-16T14:17:29Z",
+      "side": 1,
+      "message": "That seems pretty dangerous to me. If that existed I\u0027m sure I would have already added calls to it assuming it worked as advertised. I don\u0027t see how we can miss updating this since isConfigRenderable() will get deleted and the code below will not compiles.",
+      "parentUuid": "c14d4bb8_c6f83346",
+      "range": {
+        "startLine": 84,
+        "startChar": 4,
+        "endLine": 86,
+        "endChar": 11
+      },
+      "revId": "89d97fff963db150611c6348e32c6ca78b6a3dc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "99e7401a_70bc5e1f",
         "filename": "tests/TransferPixelsTest.cpp",
         "patchSetId": 5
@@ -59,6 +83,30 @@
       "writtenOn": "2019-07-16T14:13:37Z",
       "side": 1,
       "message": "This isn\u0027t really important to change for this CL but it really bothers me this is written like a local static function. I always forget it is actually in a different file.",
+      "range": {
+        "startLine": 164,
+        "startChar": 4,
+        "endLine": 164,
+        "endChar": 18
+      },
+      "revId": "89d97fff963db150611c6348e32c6ca78b6a3dc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "917e6b32_211f4f02",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-16T14:17:29Z",
+      "side": 1,
+      "message": "I agree. For some reason all of TestUtils.h is written like this. I\u0027ll make another change to rename all those functions.",
+      "parentUuid": "133775f5_76dad353",
       "range": {
         "startLine": 164,
         "startChar": 4,
