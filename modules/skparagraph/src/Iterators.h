@@ -58,7 +58,7 @@ private:
 
 class LangIterator final : public SkShaper::LanguageRunIterator {
 public:
-    LangIterator(SkSpan<const char> utf8, SkSpan<Block> styles, TextStyle defaultStyle)
+    LangIterator(SkSpan<const char> utf8, SkSpan<Block> styles, const TextStyle& defaultStyle)
             : fText(utf8)
             , fTextStyles(styles)
             , fCurrentChar(utf8.begin())
