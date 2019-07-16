@@ -166,9 +166,8 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         // TODO: keep start/end/break info for text and runs but in a better way that below
         TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end);
         TextRange textWithSpaces(fEndLine.startCluster()->textRange().start, fEndLine.breakCluster()->textRange().end);
-        addLine(text, textWithSpaces,
-                fEndLine.startCluster(),
-                fEndLine.endCluster(),
+        ClusterRange clusters(fEndLine.startCluster() - parent->clusters().begin(), fEndLine.endCluster() - parent->clusters().begin() + 1);
+        addLine(text, textWithSpaces, clusters,
                 fEndLine.startPos(),
                 fEndLine.endPos(),
                 SkVector::Make(0, fHeight),
@@ -195,9 +194,8 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                                                      parent->strutForceHeight());
         }
         TextRange empty(fEndLine.breakCluster()->textRange().start, fEndLine.breakCluster()->textRange().start);
-        addLine(empty, empty,
-                fEndLine.breakCluster(),
-                fEndLine.breakCluster(),
+        ClusterRange clusters(fEndLine.breakCluster() - parent->clusters().begin(), fEndLine.breakCluster() - parent->clusters().begin());
+        addLine(empty, empty, clusters,
                 0,
                 0,
                 SkVector::Make(0, fHeight),

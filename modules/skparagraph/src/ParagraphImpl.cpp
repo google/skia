@@ -89,41 +89,35 @@ ParagraphCache ParagraphImpl::fParagraphCache;
 
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
-                             std::vector<Block> blocks,
+                             SkTArray<Block, true> blocks,
                              sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style), std::move(fonts))
+        , fTextStyles(std::move(blocks))
         , fText(text)
         , fTextSpan(fText.c_str(), fText.size())
         , fState(kUnknown)
+        , fPicture(nullptr)
         , fOldWidth(0)
-        , fOldHeight(0)
-        , fPicture(nullptr) {
-    fTextStyles.reserve(blocks.size());
-    for (auto& block : blocks) {
-        fTextStyles.emplace_back(block.fRange,  block.fStyle);
-    }
+        , fOldHeight(0) {
+    // TODO: extractStyles();
 }
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
-                             std::vector<Block> blocks,
+                             SkTArray<Block, true> blocks,
                              sk_sp<FontCollection> fonts)
-        : Paragraph(std::move(style)
-        , std::move(fonts))
+        : Paragraph(std::move(style), std::move(fonts))
+        , fTextStyles(std::move(blocks))
         , fState(kUnknown)
+        , fPicture(nullptr)
         , fOldWidth(0)
-        , fOldHeight(0)
-        , fPicture(nullptr) {
+        , fOldHeight(0) {
     icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
     std::string str;
     unicode.toUTF8String(str);
     fText = SkString(str.data(), str.size());
     fTextSpan = SkSpan<const char>(fText.c_str(), fText.size());
-
-    fTextStyles.reserve(blocks.size());
-    for (auto& block : blocks) {
-        fTextStyles.emplace_back(block.fRange, block.fStyle);
-    }
+    // TODO: extractStyles();
 }
 
 ParagraphImpl::~ParagraphImpl() = default;
@@ -166,17 +160,12 @@ void ParagraphImpl::layout(SkScalar width) {
             fState = kClusterized;
             // Add the paragraph to the cache
             fParagraphCache.updateParagraph(this);
-        } else {
-            //SkDebugf("Found clusters: %s\n", this->fText.c_str());
         }
     }
 
     if (fState >= kLineBroken)  {
         if (fOldWidth != width || fOldHeight != fHeight) {
             fState = kClusterized;
-            //SkDebugf("Reduced measurement to clusters: %s\n", this->fText.c_str());
-        } else {
-            //SkDebugf("Found measurement: %s\n", this->fText.c_str());
         }
     }
 
@@ -186,6 +175,13 @@ void ParagraphImpl::layout(SkScalar width) {
         this->fLines.reset();
         this->breakShapedTextIntoLines(width);
         fState = kLineBroken;
+
+    }
+
+    if (fState < kFormatted) {
+        // Build the picture lazily not until we actually have to paint (or never)
+        this->formatLines(fWidth);
+        fState = kFormatted;
         // Add the paragraph to the cache
         fParagraphCache.updateParagraph(this);
     }
@@ -195,12 +191,6 @@ void ParagraphImpl::layout(SkScalar width) {
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
-    if (fState < kFormatted) {
-        // Build the picture lazily not until we actually have to paint (or never)
-        this->formatLines(fWidth);
-        fState = kFormatted;
-        fParagraphCache.updateParagraph(this);
-    }
 
     if (fState < kDrawn) {
         // Record the picture anyway (but if we have some pieces in the cache they will be used)
@@ -288,6 +278,7 @@ void ParagraphImpl::buildClusterTable() {
         run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
     }
+
     fClusters.emplace_back(this, EMPTY_RUN, 0, 0, SkSpan<const char>(), 0, 0);
 }
 
@@ -311,7 +302,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
         Buffer runBuffer(const RunInfo& info) override {
             auto& run = fParagraph->fRuns.emplace_back(fParagraph,
-                                                       fParagraph->text(),
                                                        info,
                                                        fFontIterator->currentLineHeight(),
                                                        fParagraph->fRuns.count(),
@@ -365,6 +355,13 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
                   std::numeric_limits<SkScalar>::max(), &handler);
 
+    if (fParagraphStyle.getTextAlign() == TextAlign::kJustify) {
+        fRunShifts.push_back_n(fRuns.size(), RunShifts());
+        for (size_t i = 0; i < fRuns.size(); ++i) {
+            fRunShifts[i].fShifts.push_back_n(fRuns[i].size() + 1, 0.0);
+        }
+    }
+
     return true;
 }
 
@@ -376,8 +373,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
             maxWidth,
             [&](TextRange text,
                 TextRange textWithSpaces,
-                Cluster* start,
-                Cluster* end,
+                ClusterRange clusters,
                 size_t startPos,
                 size_t endPos,
                 SkVector offset,
@@ -386,13 +382,11 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 bool addEllipsis) {
                 // Add the line
                 // TODO: Take in account clipped edges
-                SkSpan<const Cluster> clusters(start, end - start + 1);
                 auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters, metrics);
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
                 }
             });
-
     fHeight = textWrapper.height();
     fWidth = maxWidth;  // fTextWrapper.width();
     fMinIntrinsicWidth = textWrapper.minIntrinsicWidth();
@@ -405,7 +399,6 @@ void ParagraphImpl::formatLines(SkScalar maxWidth) {
     auto effectiveAlign = fParagraphStyle.effective_align();
     for (auto& line : fLines) {
         line.format(effectiveAlign, maxWidth, &line != &fLines.back());
-        line.resetCacheRecords();
     }
 }
 
@@ -448,35 +441,33 @@ void ParagraphImpl::resolveStrut() {
                                         : strutStyle.getLeading() * strutStyle.getFontSize());
 }
 
-SkSpan<const Block> ParagraphImpl::findAllBlocks(TextRange textRange) {
-    const Block* begin = nullptr;
-    const Block* end = nullptr;
-    for (auto& block : fTextStyles) {
+BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
+    BlockIndex begin = EMPTY_BLOCK;
+    BlockIndex end = EMPTY_BLOCK;
+    for (size_t index = 0; index < fTextStyles.size(); ++index) {
+        auto& block = fTextStyles[index];
         if (block.fRange.end <= textRange.start) {
             continue;
         }
         if (block.fRange.start >= textRange.end) {
             break;
         }
-        if (begin == nullptr) {
-            begin = &block;
+        if (begin == EMPTY_BLOCK) {
+            begin = index;
         }
-        end = &block;
+        end = index;
     }
 
-    return SkSpan<const Block>(begin, end - begin + 1);
+    return { begin, end + 1 };
 }
 
 TextLine& ParagraphImpl::addLine(SkVector offset,
                                  SkVector advance,
                                  TextRange text,
                                  TextRange textWithSpaces,
-                                 SkSpan<const Cluster> clusters,
+                                 ClusterRange clusters,
                                  LineMetrics sizes) {
     // Define a list of styles that covers the line
-    if (text.end == 0) {
-        SkDebugf("!!!\n");
-    }
     auto blocks = findAllBlocks(text);
 
     return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, sizes);
@@ -668,6 +659,96 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
         }
     }
     return {0, 0};
+}
+
+SkSpan<const char> ParagraphImpl::text(TextRange textRange) {
+    SkASSERT(textRange.start < fText.size() && textRange.end <= fText.size());
+    return SkSpan<const char>(&fText[textRange.start], textRange.width());
+}
+
+SkSpan<Cluster> ParagraphImpl::clusters(ClusterRange clusterRange) {
+    SkASSERT(clusterRange.start < fClusters.size() && clusterRange.end <= fClusters.size());
+    return SkSpan<Cluster>(&fClusters[clusterRange.start], clusterRange.width());
+}
+
+Cluster& ParagraphImpl::cluster(ClusterIndex clusterIndex) {
+    SkASSERT(clusterIndex < fClusters.size());
+    return fClusters[clusterIndex];
+}
+
+Run& ParagraphImpl::run(RunIndex runIndex) { 
+    SkASSERT(runIndex < fRuns.size());
+    return fRuns[runIndex];
+}
+
+SkSpan<Block> ParagraphImpl::blocks(BlockRange blockRange) {
+    SkASSERT(blockRange.start < fTextStyles.size() && blockRange.end <= fTextStyles.size());
+    return SkSpan<Block>(&fTextStyles[blockRange.start], blockRange.width());
+}
+
+Block& ParagraphImpl::block(BlockIndex blockIndex) {
+    SkASSERT(blockIndex < fTextStyles.size());
+    return fTextStyles[blockIndex];
+}
+
+template<typename TAttr>
+bool process(const TextRange& block, TextRange& range, TAttr& prev, const TAttr& current) {
+    if (range.start != EMPTY_INDEX &&  current == prev) {
+        range.end += block.width();
+        return false;
+    } 
+    prev = current;
+    if (range.start == EMPTY_INDEX){
+        range = block;
+        return false;
+    } 
+    return true;
+}
+
+void ParagraphImpl::extractStyles() {
+
+    TextRange letterSpaceRange = EMPTY_TEXT;
+    TextRange wordSpaceRange = EMPTY_TEXT;
+    TextRange backgroundRange = EMPTY_TEXT;
+    TextRange foregroundRange = EMPTY_TEXT;
+    TextRange shadowsRange = EMPTY_TEXT;
+    TextRange decorationsRange = EMPTY_TEXT;
+
+    SkScalar prevLetterSpace = 1.0;
+    SkScalar prevWordSpace = 1.0;
+    SkPaint  prevBackground;
+    SkPaint  prevForeground;
+    std::vector<TextShadow> prevShadows;
+    Decoration prevDecorations;
+    for (auto& block : fTextStyles) {
+        
+        if (process(block.fRange, letterSpaceRange, prevLetterSpace, block.fStyle.getLetterSpacing())) {
+            fLetterSpaceStyles.emplace_back(letterSpaceRange, prevLetterSpace);
+        }
+        if (process(block.fRange, wordSpaceRange, prevWordSpace, block.fStyle.getWordSpacing())) {
+            fWordSpaceStyles.emplace_back(wordSpaceRange, prevWordSpace);
+        }
+        if (!block.fStyle.hasBackground()) {
+            fBackgroundStyles.emplace_back(backgroundRange, prevBackground);
+            backgroundRange = EMPTY_TEXT;
+        } else if (process(block.fRange, backgroundRange, prevBackground, block.fStyle.getBackground())) {
+            fBackgroundStyles.emplace_back(backgroundRange, prevBackground);
+        }
+        auto foreground = block.fStyle.getForeground();
+        if (!block.fStyle.hasForeground()) {
+            foreground = SkPaint();
+            foreground.setColor(block.fStyle.getColor());
+        }
+        if (process(block.fRange, foregroundRange, prevForeground, foreground)) {
+            fForegroundStyles.emplace_back(foregroundRange, prevForeground);
+        }
+        if (process(block.fRange, shadowsRange, prevShadows, block.fStyle.getShadows())) {
+            fShadowStyles.emplace_back(shadowsRange, prevShadows);
+        }
+        if (process(block.fRange, decorationsRange, prevDecorations, block.fStyle.getDecoration())) {
+            fDecorationStyles.emplace_back(decorationsRange, prevDecorations);
+        }
+    }
 }
 
 }  // namespace textlayout
