@@ -222,6 +222,7 @@ public:
                     }
                     break;
                 }
+                case SkSL::Layout::CType::kSkPMColor4f:
                 case SkSL::Layout::CType::kSkRect: {
                     offset = SkAlign4(offset);
                     float f1 = *(float*) (inputs + offset);
@@ -398,7 +399,8 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                 offset += sizeof(float);
                 break;
             }
-            case SkSL::Layout::CType::kSkPMColor: // fall through
+            case SkSL::Layout::CType::kSkPMColor:
+            case SkSL::Layout::CType::kSkPMColor4f:
             case SkSL::Layout::CType::kSkRect:
                 if (v->fModifiers.fLayout.fKey) {
                     for (size_t i = 0; i < sizeof(float) * 4; ++i) {
