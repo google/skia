@@ -27,7 +27,7 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     this->initFeatureSet(featureSet);
     this->initGrCaps(device);
     this->initShaderCaps();
-    this->initConfigTable();
+    this->initFormatTable();
     this->initStencilFormat(device);
 
     this->applyOptionsOverrides(contextOptions);
@@ -274,65 +274,113 @@ bool GrMtlCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(static_cast<MTLPixelFormat>(*format.getMtlFormat()));
 }
 
-bool GrMtlCaps::isFormatTexturable(GrColorType grCT, const GrBackendFormat& format) const {
-    if (GrColorType::kUnknown == grCT) {
+bool GrMtlCaps::isFormatTexturable(GrColorType, const GrBackendFormat& format) const {
+    if (!format.getMtlFormat()) {
         return false;
     }
 
-    GrPixelConfig config = this->getConfigFromBackendFormat(format, grCT);
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-
-    return this->isConfigTexturable(config);
+    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    return this->isFormatTexturable(mtlFormat);
 }
 
-int GrMtlCaps::maxRenderTargetSampleCount(GrColorType grCT, const GrBackendFormat& format) const {
-    if (GrColorType::kUnknown == grCT) {
+bool GrMtlCaps::isConfigTexturable(GrPixelConfig config) const {
+    MTLPixelFormat format;
+    if (!GrPixelConfigToMTLFormat(config, &format)) {
+        return false;
+    }
+    return this->isFormatTexturable(format);
+}
+
+bool GrMtlCaps::isFormatTexturable(MTLPixelFormat format) const {
+    const FormatInfo& formatInfo = this->getFormatInfo(format);
+    return SkToBool(FormatInfo::kTextureable_Flag && formatInfo.fFlags);
+}
+
+int GrMtlCaps::maxRenderTargetSampleCount(GrColorType grColorType,
+                                          const GrBackendFormat& format) const {
+    if (!format.getMtlFormat()) {
         return 0;
     }
 
-    GrPixelConfig config = this->getConfigFromBackendFormat(format, grCT);
-    if (kUnknown_GrPixelConfig == config) {
+    // Currently we don't allow RGB_888X to be renderable because we don't have a way to
+    // handle blends that reference dst alpha when the values in the dst alpha channel are
+    // uninitialized.
+    if (GrColorType::kRGB_888x == grColorType) {
         return 0;
     }
 
-    return this->maxRenderTargetSampleCount(config);
+    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    return this->maxRenderTargetSampleCount(mtlFormat);
 }
 
 int GrMtlCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
-    if (fConfigTable[config].fFlags & ConfigInfo::kMSAA_Flag) {
+    // Currently we don't allow RGB_888X or RGB_888 to be renderable because we don't have a way to
+    // handle blends that reference dst alpha when the values in the dst alpha channel are
+    // uninitialized.
+    if (config == kRGB_888X_GrPixelConfig || config == kRGB_888_GrPixelConfig) {
+        return 0;
+    }
+
+    MTLPixelFormat format;
+    if (!GrPixelConfigToMTLFormat(config, &format)) {
+        return 0;
+    }
+    return this->maxRenderTargetSampleCount(format);
+}
+
+int GrMtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
+    const FormatInfo& formatInfo = this->getFormatInfo(format);
+    if (formatInfo.fFlags & FormatInfo::kMSAA_Flag) {
         return fSampleCounts[fSampleCounts.count() - 1];
-    } else if (fConfigTable[config].fFlags & ConfigInfo::kRenderable_Flag) {
+    } else if (formatInfo.fFlags & FormatInfo::kRenderable_Flag) {
         return 1;
     }
     return 0;
 }
 
-int GrMtlCaps::getRenderTargetSampleCount(int requestedCount,
-                                          GrColorType grCT, const GrBackendFormat& format) const {
-    if (GrColorType::kUnknown == grCT) {
+int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grColorType,
+                                          const GrBackendFormat& format) const {
+    if (!format.getMtlFormat()) {
         return 0;
     }
 
-    GrPixelConfig config = this->getConfigFromBackendFormat(format, grCT);
-    if (kUnknown_GrPixelConfig == config) {
+    // Currently we don't allow RGB_888X to be renderable because we don't have a way to
+    // handle blends that reference dst alpha when the values in the dst alpha channel are
+    // uninitialized.
+    if (GrColorType::kRGB_888x == grColorType) {
         return 0;
     }
 
-    return this->getRenderTargetSampleCount(requestedCount, config);
+    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    return this->getRenderTargetSampleCount(requestedCount, mtlFormat);
 }
 
 int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
+    // Currently we don't allow RGB_888X or RGB_888 to be renderable because we don't have a way to
+    // handle blends that reference dst alpha when the values in the dst alpha channel are
+    // uninitialized.
+    if (config == kRGB_888X_GrPixelConfig || config == kRGB_888_GrPixelConfig) {
+        return 0;
+    }
+
+    MTLPixelFormat format;
+    if (!GrPixelConfigToMTLFormat(config, &format)) {
+        return 0;
+    }
+    return this->getRenderTargetSampleCount(requestedCount, format);
+}
+
+int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, MTLPixelFormat format) const {
     requestedCount = SkTMax(requestedCount, 1);
-    if (fConfigTable[config].fFlags & ConfigInfo::kMSAA_Flag) {
+    const FormatInfo& formatInfo = this->getFormatInfo(format);
+    if (formatInfo.fFlags & FormatInfo::kMSAA_Flag) {
         int count = fSampleCounts.count();
         for (int i = 0; i < count; ++i) {
             if (fSampleCounts[i] >= requestedCount) {
                 return fSampleCounts[i];
             }
         }
-    } else if (fConfigTable[config].fFlags & ConfigInfo::kRenderable_Flag) {
+    } else if (formatInfo.fFlags & FormatInfo::kRenderable_Flag) {
         return 1 == requestedCount ? 1 : 0;
     }
     return 0;
@@ -379,120 +427,141 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fMaxFragmentSamplers = 16;
 }
 
-void GrMtlCaps::initConfigTable() {
-    ConfigInfo* info;
-    // Alpha_8 uses R8Unorm
-    info = &fConfigTable[kAlpha_8_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
+// These are all the valid MTLPixelFormats that we support in Skia.  They are roughly ordered from
+// most frequently used to least to improve look up times in arrays.
+static constexpr MTLPixelFormat kMtlFormats[] = {
+    MTLPixelFormatInvalid,
 
-    // Alpha_8_as_Red uses R8Unorm
-    info = &fConfigTable[kAlpha_8_as_Red_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
+    MTLPixelFormatRGBA8Unorm,
+    MTLPixelFormatR8Unorm,
+    MTLPixelFormatBGRA8Unorm,
+#ifdef SK_BUILD_FOR_IOS
+    MTLPixelFormatB5G6R5Unorm,
+#endif
+    MTLPixelFormatRGBA16Float,
+    MTLPixelFormatR16Float,
+    MTLPixelFormatRG8Unorm,
+    MTLPixelFormatRGB10A2Unorm,
+#ifdef SK_BUILD_FOR_IOS
+    MTLPixelFormatABGR4Unorm,
+#endif
+    MTLPixelFormatRGBA32Float,
+    MTLPixelFormatRGBA8Unorm_sRGB,
+    MTLPixelFormatR16Unorm,
+    MTLPixelFormatRG16Unorm,
+#ifdef SK_BUILD_FOR_IOS
+    MTLPixelFormatETC2_RGB8,
+#endif
+    // Experimental (for Y416 and mutant P016/P010)
+    MTLPixelFormatRGBA16Unorm,
+    MTLPixelFormatRG16Float,
+};
 
-    // Gray_8 uses R8Unorm
-    info = &fConfigTable[kGray_8_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
-
-    // Gray_8_as_Red uses R8Unorm
-    info = &fConfigTable[kGray_8_as_Red_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
-
-    // RGB_565 uses B5G6R5Unorm, even though written opposite this format packs how we want
-    info = &fConfigTable[kRGB_565_GrPixelConfig];
-    if (this->isMac()) {
-        info->fFlags = 0;
-    } else {
-        info->fFlags = ConfigInfo::kAllFlags;
+size_t GrMtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
+    static_assert(SK_ARRAY_COUNT(kMtlFormats) == GrMtlCaps::kNumMtlFormats,
+                  "Size of kMtlFormats array must match static value in header");
+    // Start at 1, 0 is sentinel value (MTLPixelFormatInvalid)
+    for (size_t i = 1; i < GrMtlCaps::kNumMtlFormats; ++i) {
+        if (kMtlFormats[i] == pixelFormat) {
+            return i;
+        }
     }
+    SK_ABORT("Invalid MTLPixelFormat");
+    return 0;
+}
 
-    // RGBA_4444 uses ABGR4Unorm
-    info = &fConfigTable[kRGBA_4444_GrPixelConfig];
-    if (this->isMac()) {
-        info->fFlags = 0;
-    } else {
-        info->fFlags = ConfigInfo::kAllFlags;
-    }
+void GrMtlCaps::initFormatTable() {
+    FormatInfo* info;
 
-    // RGBA_8888 uses RGBA8Unorm
-    info = &fConfigTable[kRGBA_8888_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
+    // R8Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatR8Unorm)];
+    info->fFlags = FormatInfo::kAllFlags;
 
-    // RGB_888X uses RGBA8Unorm and we will swizzle the 1
-    info = &fConfigTable[kRGB_888X_GrPixelConfig];
-    info->fFlags = ConfigInfo::kTextureable_Flag;
+#ifdef SK_BUILD_FOR_IOS
+    // B5G6R5Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
+    info->fFlags = FormatInfo::kAllFlags;
 
-    // RGB_888 uses RGBA8Unorm and we will swizzle the 1
-    info = &fConfigTable[kRGB_888_GrPixelConfig];
-    info->fFlags = ConfigInfo::kTextureable_Flag;
+    // ABGR4Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatABGR4Unorm)];
+    info->fFlags = FormatInfo::kAllFlags;
+#endif
 
-    // RG_88 uses RG8Unorm
-    info = &fConfigTable[kRG_88_GrPixelConfig];
-    info->fFlags = ConfigInfo::kTextureable_Flag;
+    // RGBA8Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm)];
+    info->fFlags = FormatInfo::kAllFlags;
+
+    // RG8Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG8Unorm)];
+    info->fFlags = FormatInfo::kTextureable_Flag;
 
     // BGRA_8888 uses BGRA8Unorm
-    info = &fConfigTable[kBGRA_8888_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatBGRA8Unorm)];
+    info->fFlags = FormatInfo::kAllFlags;
 
-    // SRGBA_8888 uses RGBA8Unorm_sRGB
-    info = &fConfigTable[kSRGBA_8888_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
+    // RGBA8Unorm_sRGB
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm_sRGB)];
+    info->fFlags = FormatInfo::kAllFlags;
 
-    // kRGBA_1010102 uses RGB10A2Unorm
-    info = &fConfigTable[kRGBA_1010102_GrPixelConfig];
+    // RGB10A2Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGB10A2Unorm)];
     if (this->isMac() || fFamilyGroup >= 3) {
-        info->fFlags = ConfigInfo::kAllFlags;
+        info->fFlags = FormatInfo::kAllFlags;
     } else {
-        info->fFlags = ConfigInfo::kTextureable_Flag;
+        info->fFlags = FormatInfo::kTextureable_Flag;
     }
 
-    // RGBA_float uses RGBA32Float
-    info = &fConfigTable[kRGBA_float_GrPixelConfig];
+    // RGBA32Float
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA32Float)];
     if (this->isMac()) {
-        info->fFlags = ConfigInfo::kAllFlags;
+        info->fFlags = FormatInfo::kAllFlags;
     } else {
         info->fFlags = 0;
     }
 
-    // Alpha_half uses R16Float
-    info = &fConfigTable[kAlpha_half_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
+    // R16Float
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Float)];
+    info->fFlags = FormatInfo::kAllFlags;
 
-    // RGBA_half uses RGBA16Float
-    info = &fConfigTable[kRGBA_half_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
+    // RGBA16Float
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Float)];
+    info->fFlags = FormatInfo::kAllFlags;
 
-    info = &fConfigTable[kRGBA_half_Clamped_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
-
-    // R_16 uses R16Unorm
-    info = &fConfigTable[kR_16_GrPixelConfig];
+    // R16Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Unorm)];
     if (this->isMac()) {
-        info->fFlags = ConfigInfo::kAllFlags;
+        info->fFlags = FormatInfo::kAllFlags;
     } else {
-        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag;
+        info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
     }
 
-    // RG_1616 uses RG16Unorm
-    info = &fConfigTable[kRG_1616_GrPixelConfig];
+    // RG16Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG16Unorm)];
     if (this->isMac()) {
-        info->fFlags = ConfigInfo::kAllFlags;
+        info->fFlags = FormatInfo::kAllFlags;
     } else {
-        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag;
+        info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
     }
+
+#ifdef SK_BUILD_FOR_IOS
+    // ETC2_RGB8
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
+    info->fFlags = 0; // TBD
+#endif
 
     // Experimental (for Y416 and mutant P016/P010)
 
-    // RGBA_16161616 uses RGBA16Unorm
-    info = &fConfigTable[kRGBA_16161616_GrPixelConfig];
+    // RGBA16Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Unorm)];
     if (this->isMac()) {
-        info->fFlags = ConfigInfo::kAllFlags;
+        info->fFlags = FormatInfo::kAllFlags;
     } else {
-        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag;
+        info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
     }
 
-    // RG_half uses RG16Float
-    info = &fConfigTable[kRG_half_GrPixelConfig];
-    info->fFlags = ConfigInfo::kAllFlags;
+    // RG16Float
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG16Float)];
+    info->fFlags = FormatInfo::kAllFlags;
 }
 
 void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
@@ -573,7 +642,7 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, GrColorType ct) {
             break;
         case GrColorType::kAlpha_F16:
             if (MTLPixelFormatR16Float == format) {
-                return kAlpha_half_GrPixelConfig;
+                return kAlpha_half_as_Red_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_F16:
