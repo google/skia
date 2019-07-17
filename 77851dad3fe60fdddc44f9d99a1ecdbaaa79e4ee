@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33b2dd06_26b90a9b",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-17T21:15:05Z",
+      "side": 1,
+      "message": "what is the limit a byte?\ncan length be -1 (i.e. colums() is 0)",
+      "range": {
+        "startLine": 459,
+        "startChar": 31,
+        "endLine": 459,
+        "endChar": 34
+      },
+      "revId": "77851dad3fe60fdddc44f9d99a1ecdbaaa79e4ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
