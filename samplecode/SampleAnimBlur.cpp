@@ -22,10 +22,9 @@ SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkS
 }
 
 class AnimBlurView : public Sample {
-public:
-    AnimBlurView() : fBlurSigma(0), fCircleRadius(100) {}
+    SkScalar fBlurSigma = 0;
+    SkScalar fCircleRadius = 100;
 
-protected:
     SkString name() override { return SkString("AnimBlur"); }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -53,13 +52,5 @@ protected:
         fCircleRadius = 3 + get_anim_sin(1e-9 * nanos, 150, 25, 3);
         return true;
     }
-
-private:
-    SkScalar fBlurSigma, fCircleRadius;
-
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
 DEF_SAMPLE( return new AnimBlurView(); )

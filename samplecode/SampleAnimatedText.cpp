@@ -38,10 +38,11 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
 //               SDF-text special case (which falls back to bitmap fonts for small points)
 
 class AnimatedTextView : public Sample {
-public:
-    AnimatedTextView() : fScale(1.0f), fScaleInc(0.1f), fRotation(0.0f), fSizeScale(1) {}
+    float fScale = 1;
+    float fScaleInc = 0.1f;
+    float fRotation = 0;
+    int   fSizeScale = 1;
 
-protected:
     SkString name() override { return SkString("AnimatedText"); }
 
     bool onChar(SkUnichar uni) override {
@@ -106,17 +107,6 @@ protected:
         }
         return true;
     }
-
-private:
-    float fScale;
-    float fScaleInc;
-    float fRotation;
-    int   fSizeScale;
-
-
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new AnimatedTextView(); )

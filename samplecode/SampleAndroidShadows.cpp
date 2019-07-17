@@ -35,32 +35,18 @@ class ShadowsView : public Sample {
     SkPath    fTabPath;
 
     SkPoint3  fLightPos;
-    SkScalar  fZDelta;
-    SkScalar  fAnimTranslate;
-    SkScalar  fAnimAngle;
-    SkScalar  fAnimAlpha;
+    SkScalar  fZDelta = 0;
+    SkScalar  fAnimTranslate = 0;
+    SkScalar  fAnimAngle = 0;
+    SkScalar  fAnimAlpha = 1;
 
-    bool      fShowAmbient;
-    bool      fShowSpot;
-    bool      fUseAlt;
-    bool      fShowObject;
-    bool      fIgnoreShadowAlpha;
-    bool      fDoAlphaAnimation;
+    bool      fShowAmbient = true;
+    bool      fShowSpot = true;
+    bool      fUseAlt = false;
+    bool      fShowObject = true;
+    bool      fIgnoreShadowAlpha = false;
+    bool      fDoAlphaAnimation = false;
 
-public:
-    ShadowsView()
-        : fZDelta(0)
-        , fAnimTranslate(0)
-        , fAnimAngle(0)
-        , fAnimAlpha(1)
-        , fShowAmbient(true)
-        , fShowSpot(true)
-        , fUseAlt(false)
-        , fShowObject(true)
-        , fIgnoreShadowAlpha(false)
-        , fDoAlphaAnimation(false) {}
-
-protected:
     void onOnceBeforeDraw() override {
         fCirclePath.addCircle(0, 0, 50);
         fRectPath.addRect(SkRect::MakeXYWH(-100, -50, 200, 100));
@@ -155,10 +141,6 @@ protected:
             return false;
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-
     void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
                           const SkPoint3& zPlaneParams,
                           const SkPaint& paint, SkScalar ambientAlpha,
@@ -196,7 +178,8 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        this->drawBG(canvas);
+        canvas->drawColor(0xFFDDDDDD);
+
         const SkScalar kLightWidth = 800;
         const SkScalar kAmbientAlpha = 0.039f;
         const SkScalar kSpotAlpha = 0.19f;

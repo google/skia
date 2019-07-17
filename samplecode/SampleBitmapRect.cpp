@@ -95,12 +95,7 @@ class BitmapRectView : public Sample {
         bounce_pt(&fSrcPt, &fSrcVec, fSrcLimit);
         return true;
     }
-
-private:
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
 
 static constexpr int BIG_H = 120;
 
@@ -160,8 +155,6 @@ class BitmapRectView2 : public Sample {
         return true;
     }
 };
-
-//////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new BitmapRectView(); )
 DEF_SAMPLE( return new BitmapRectView2(); )

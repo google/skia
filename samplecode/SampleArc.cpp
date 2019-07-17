@@ -78,14 +78,10 @@ class ArcsView : public Sample {
         }
     };
 
-public:
-    SkRect fRect;
+    SkRect fRect = {20, 20, 220, 220};
     sk_sp<MyDrawable> fAnimatingDrawable;
     sk_sp<SkDrawable> fRootDrawable;
 
-    ArcsView() { }
-
-protected:
     SkString name() override { return SkString("Arcs"); }
 
     static void DrawRectWithLines(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
@@ -164,11 +160,8 @@ protected:
 
     void onOnceBeforeDraw() override {
         testparse();
-        fSweep = SkIntToScalar(100);
         this->setBGColor(0xFFDDDDDD);
 
-        fRect.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
-        fRect.offset(SkIntToScalar(20), SkIntToScalar(20));
         fAnimatingDrawable = sk_make_sp<MyDrawable>(fRect);
 
         SkPictureRecorder recorder;
@@ -187,13 +180,6 @@ protected:
         }
         return true;
     }
-
-private:
-    SkScalar fSweep;
-
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new ArcsView(); )

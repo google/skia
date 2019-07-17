@@ -23,13 +23,14 @@ static constexpr char kPauseKey = 'p';
 static constexpr char kResetKey = 'r';
 
 class SampleAnimatedImage : public Sample {
-public:
-    SampleAnimatedImage()
-        : INHERITED()
-        , fYOffset(0)
-    {}
+    sk_sp<SkAnimatedImage>  fImage;
+    sk_sp<SkDrawable>       fDrawable;
+    SkScalar                fYOffset = 0;
+    bool                    fRunning = false;
+    double                  fCurrentTime = 0.0;
+    double                  fLastWallTime = 0.0;
+    double                  fTimeToShowNextFrame = 0.0;
 
-protected:
     void onDrawBackground(SkCanvas* canvas) override {
         SkFont font;
         font.setSize(20);
@@ -119,18 +120,6 @@ protected:
         }
         return false;
     }
-
-private:
-    sk_sp<SkAnimatedImage>  fImage;
-    sk_sp<SkDrawable>       fDrawable;
-    SkScalar                fYOffset;
-    bool                    fRunning = false;
-    double                  fCurrentTime = 0.0;
-    double                  fLastWallTime = 0.0;
-    double                  fTimeToShowNextFrame = 0.0;
-    typedef Sample INHERITED;
 };
-
-///////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new SampleAnimatedImage(); )
