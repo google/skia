@@ -3643,6 +3643,29 @@ GrPixelConfig GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& fo
     return get_yuva_config(*glFormat);
 }
 
+GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const {
+    GrGLFormat grGLFormat = GrGLBackendFormatToGLFormat(format);
+
+    switch (grGLFormat) {
+        case GrGLFormat::kALPHA8:   // fall through
+        case GrGLFormat::kR8:       return GrColorType::kAlpha_8;
+        case GrGLFormat::kRG8:      return GrColorType::kRG_88;
+        case GrGLFormat::kRGBA8:    return GrColorType::kRGBA_8888;
+        case GrGLFormat::kRGB8:     return GrColorType::kRGB_888x;
+        case GrGLFormat::kBGRA8:    return GrColorType::kBGRA_8888;
+        case GrGLFormat::kRGB10_A2: return GrColorType::kRGBA_1010102;
+        case GrGLFormat::kR16F:     return GrColorType::kAlpha_F16;
+        case GrGLFormat::kR16:      return GrColorType::kR_16;
+        case GrGLFormat::kRG16:     return GrColorType::kRG_1616;
+        // Experimental (for Y416 and mutant P016/P010)
+        case GrGLFormat::kRGBA16:   return GrColorType::kRGBA_16161616;
+        case GrGLFormat::kRG16F:    return GrColorType::kRG_F16;
+        default: return GrColorType::kUnknown;
+    }
+
+    SkUNREACHABLE;
+}
+
 GrBackendFormat GrGLCaps::getBackendFormatFromColorType(GrColorType ct) const {
     auto format = this->getFormatFromColorType(ct);
     if (format == GrGLFormat::kUnknown) {

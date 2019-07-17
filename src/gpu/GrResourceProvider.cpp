@@ -334,6 +334,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
 }
 
 sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& tex,
+                                                        GrColorType colorType,
                                                         GrWrapOwnership ownership,
                                                         GrWrapCacheable cacheable,
                                                         GrIOType ioType) {
@@ -341,7 +342,7 @@ sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& 
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return fGpu->wrapBackendTexture(tex, ownership, cacheable, ioType);
+    return fGpu->wrapBackendTexture(tex, colorType, ownership, cacheable, ioType);
 }
 
 sk_sp<GrTexture> GrResourceProvider::wrapRenderableBackendTexture(const GrBackendTexture& tex,
@@ -357,10 +358,10 @@ sk_sp<GrTexture> GrResourceProvider::wrapRenderableBackendTexture(const GrBacken
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget(
-        const GrBackendRenderTarget& backendRT)
+        const GrBackendRenderTarget& backendRT, GrColorType colorType)
 {
     ASSERT_SINGLE_OWNER
-    return this->isAbandoned() ? nullptr : fGpu->wrapBackendRenderTarget(backendRT);
+    return this->isAbandoned() ? nullptr : fGpu->wrapBackendRenderTarget(backendRT, colorType);
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapVulkanSecondaryCBAsRenderTarget(
@@ -533,12 +534,12 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int minSten
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
-        const GrBackendTexture& tex, int sampleCnt)
+        const GrBackendTexture& tex, int sampleCnt, GrColorType colorType)
 {
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return fGpu->wrapBackendTextureAsRenderTarget(tex, sampleCnt);
+    return fGpu->wrapBackendTextureAsRenderTarget(tex, sampleCnt, colorType);
 }
 
 sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(bool isOwned) {

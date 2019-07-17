@@ -462,8 +462,9 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
                 [instantiatePtr, releasePtr,
                  backendTex](GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationResult {
                     sk_sp<GrTexture> texture =
-                            rp->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership,
-                                                   GrWrapCacheable::kNo, kRead_GrIOType);
+                            rp->wrapBackendTexture(backendTex, GrColorType::kRGBA_8888,
+                                                   kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                                                   kRead_GrIOType);
                     if (!texture) {
                         return {};
                     }
