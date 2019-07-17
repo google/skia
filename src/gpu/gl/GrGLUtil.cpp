@@ -613,7 +613,6 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
         case GrGLFormat::kRGB10_A2:
         case GrGLFormat::kRGBA4:
         case GrGLFormat::kRGBA32F:
-        case GrGLFormat::kRG32F:
         case GrGLFormat::kSRGB8_ALPHA8:
         case GrGLFormat::kR16:
         case GrGLFormat::kRG16:
@@ -645,7 +644,6 @@ bool GrGLFormatToCompressionType(GrGLFormat format, SkImage::CompressionType* co
         case GrGLFormat::kRGB10_A2:
         case GrGLFormat::kRGBA4:
         case GrGLFormat::kRGBA32F:
-        case GrGLFormat::kRG32F:
         case GrGLFormat::kSRGB8_ALPHA8:
         case GrGLFormat::kR16:
         case GrGLFormat::kRG16:
@@ -683,7 +681,6 @@ size_t GrGLBytesPerFormat(GrGLFormat glFormat) {
             return 4;
 
         case GrGLFormat::kRGBA16F:
-        case GrGLFormat::kRG32F:
         case GrGLFormat::kRGBA16:
             return 8;
 

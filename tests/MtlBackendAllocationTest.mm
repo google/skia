@@ -77,8 +77,6 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
           kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
 
         // These backend formats don't have SkColorType equivalents
-        { kUnknown_SkColorType,             MTLPixelFormatRG32Float,
-          kRG_float_GrPixelConfig,          { 0.7f, 0.7f, 0, 0 }},
         { kUnknown_SkColorType,             MTLPixelFormatRG8Unorm,
           kRG_88_GrPixelConfig,             { 0.5f, 0.5f, 0, 0 }},
         { kUnknown_SkColorType,             MTLPixelFormatR16Float,
