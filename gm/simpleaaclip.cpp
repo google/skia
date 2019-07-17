@@ -25,7 +25,7 @@
 #include "src/core/SkMask.h"
 #include "tools/ToolUtils.h"
 
-namespace skiagm {
+namespace {
 
 static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
                       const SkPaint& paint) {
@@ -54,7 +54,7 @@ static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
  * This GM tests anti aliased single operation booleans with SkAAClips,
  * SkRect and SkPaths.
  */
-class SimpleClipGM : public GM {
+class SimpleClipGM : public skiagm::GM {
 public:
     enum SkGeomTypes {
         kRect_GeomType,
@@ -62,11 +62,9 @@ public:
         kAAClip_GeomType
     };
 
-    SimpleClipGM(SkGeomTypes geomType)
-    : fGeomType(geomType) {
-    }
+    SimpleClipGM(SkGeomTypes geomType, const char* n) : fName(n), fGeomType(geomType) {}
 
-protected:
+private:
     void onOnceBeforeDraw() override {
         // offset the rects a bit so we get anti-aliasing in the rect case
         fBase.set(100.65f,
@@ -79,7 +77,7 @@ protected:
 
         fBasePath.addRoundRect(fBase, SkIntToScalar(5), SkIntToScalar(5));
         fRectPath.addRoundRect(fRect, SkIntToScalar(5), SkIntToScalar(5));
-        INHERITED::setBGColor(0xFFDDDDDD);
+        this->setBGColor(0xFFDDDDDD);
     }
 
     void buildRgn(SkAAClip* clip, SkClipOp op) {
@@ -141,14 +139,7 @@ protected:
         canvas->restore();
     }
 
-    SkString onShortName() override {
-        SkString str;
-        str.printf("simpleaaclip_%s",
-                    kRect_GeomType == fGeomType ? "rect" :
-                    (kPath_GeomType == fGeomType ? "path" :
-                    "aaclip"));
-        return str;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);
@@ -191,8 +182,8 @@ protected:
             }
         }
     }
-private:
 
+    const char* fName = nullptr;
     SkGeomTypes fGeomType;
 
     SkRect fBase;
@@ -200,15 +191,10 @@ private:
 
     SkPath fBasePath;       // fBase as a round rect
     SkPath fRectPath;       // fRect as a round rect
-
-    typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
+} // namespace
 
 // rects
-DEF_GM( return new SimpleClipGM(SimpleClipGM::kRect_GeomType); )
-DEF_GM( return new SimpleClipGM(SimpleClipGM::kPath_GeomType); )
-DEF_GM( return new SimpleClipGM(SimpleClipGM::kAAClip_GeomType); )
-
-}
+DEF_GM( return new SimpleClipGM(SimpleClipGM::kRect_GeomType,   "simpleaaclip_rect"  ); )
+DEF_GM( return new SimpleClipGM(SimpleClipGM::kPath_GeomType,   "simpleaaclip_path"  ); )
+DEF_GM( return new SimpleClipGM(SimpleClipGM::kAAClip_GeomType, "simpleaaclip_aaclip"); )

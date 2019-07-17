@@ -34,16 +34,12 @@
 #include <memory>
 #include <utility>
 
-namespace skiagm {
-
-///////////////////////////////////////////////////////////////////////////////
-
-class BigRRectAAEffectGM : public GpuGM {
+namespace {
+class BigRRectAAEffectGM : public skiagm::GpuGM {
 public:
     BigRRectAAEffectGM(const SkRRect& rrect, const char* name)
         : fRRect(rrect)
         , fName(name) {
-        this->setBGColor(ToolUtils::color_to_565(SK_ColorBLUE));
         // Each test case draws the rrect with gaps around it.
         fTestWidth = SkScalarCeilToInt(rrect.width()) + 2 * kGap;
         fTestHeight = SkScalarCeilToInt(rrect.height()) + 2 * kGap;
@@ -58,14 +54,14 @@ public:
         fHeight = fTestOffsetY + kPad;
     }
 
-protected:
-    SkString onShortName() override {
-        SkString name;
-        name.printf("big_rrect_%s_aa_effect", fName);
-        return name;
-    }
+private:
+    SkString onShortName() override { return SkString(fName); }
 
-    SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
+    SkISize onISize() override { return {fWidth, fHeight}; }
+
+    void onOnceBeforeDraw() override {
+        this->setBGColor(ToolUtils::color_to_565(SK_ColorBLUE));
+    }
 
     void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
@@ -111,7 +107,6 @@ protected:
         }
     }
 
-private:
     // pad between test cases
     static constexpr int kPad = 7;
     // gap between rect for each case that is rendered and exterior of rrect
@@ -125,19 +120,23 @@ private:
     int fTestOffsetX;
     int fTestOffsetY;
     const char* fName;
-    typedef GM INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // This value is motivated by bug chromium:477684. It has to be large to cause overflow in
 // the shader
-constexpr int kSize = 700;
+constexpr float kSize = 700;
 
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeRect(SkRect::MakeIWH(kSize, kSize)), "rect"); )
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeOval(SkRect::MakeIWH(kSize, kSize)), "circle"); )
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeOval(SkRect::MakeIWH(kSize - 1, kSize - 10)), "ellipse"); )
+#define M(RRECT, N) DEF_GM( return new BigRRectAAEffectGM(RRECT, "big_rrect_" N "_aa_effect"); )
+
+M(SkRRect::MakeRect({0, 0, kSize, kSize}), "rect")
+M(SkRRect::MakeOval({0, 0, kSize, kSize}), "circle")
+M(SkRRect::MakeOval({0, 0, kSize - 1, kSize - 10}), "ellipse")
 // The next two have small linear segments between the corners
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeRectXY(SkRect::MakeIWH(kSize - 1, kSize - 10), kSize/2.f - 10.f, kSize/2.f - 10.f), "circular_corner"); )
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeRectXY(SkRect::MakeIWH(kSize - 1, kSize - 10), kSize/2.f - 10.f, kSize/2.f - 15.f), "elliptical_corner"); )
+M(SkRRect::MakeRectXY({0, 0, kSize - 1, kSize - 10}, 0.5f * kSize - 10, 0.5f * kSize - 10),
+  "circular_corner")
+M(SkRRect::MakeRectXY({0, 0, kSize - 1, kSize - 10}, 0.5f * kSize - 10, 0.5f * kSize - 15),
+  "elliptical_corner")
 
-}
+#undef M
+}  // namespace

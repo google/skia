@@ -28,6 +28,8 @@
 #include "include/effects/SkGradientShader.h"
 #include "tools/ToolUtils.h"
 
+namespace {
+
 static sk_sp<SkImage> make_image(SkCanvas* origCanvas, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     auto        surface(ToolUtils::makeSurface(origCanvas, info));
@@ -37,18 +39,13 @@ static sk_sp<SkImage> make_image(SkCanvas* origCanvas, int w, int h) {
     return surface->makeImageSnapshot();
 }
 
-namespace skiagm {
-
-class PerspShadersGM : public GM {
+class PerspShadersGM : public skiagm::GM {
 public:
     PerspShadersGM(bool doAA) : fDoAA(doAA) { }
 
 protected:
     SkString onShortName() override {
-        SkString name;
-        name.printf("persp_shaders_%s",
-                     fDoAA ? "aa" : "bw");
-        return name;
+        return SkString(fDoAA ? "persp_shaders_aa" : "persp_shaders_bw");
     }
 
     SkISize onISize() override {
@@ -175,12 +172,8 @@ private:
     SkMatrix        fPerspMatrix;
     sk_sp<SkImage>  fImage;
     SkBitmap        fBitmap;
-
-    typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
+}  // namespace
 
 DEF_GM(return new PerspShadersGM(true);)
 DEF_GM(return new PerspShadersGM(false);)
-}

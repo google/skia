@@ -31,6 +31,8 @@
 
 #include <functional>
 
+namespace {
+
 static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     bm->allocPixels(SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
     bm->eraseColor(SK_ColorTRANSPARENT);
@@ -60,26 +62,17 @@ constexpr SkColorType gColorTypes[] = {
 
 class TilingGM : public skiagm::GM {
 public:
-    TilingGM(bool powerOfTwoSize)
-            : fPowerOfTwoSize(powerOfTwoSize) {
-    }
+    TilingGM(bool powerOfTwoSize, const char* n) : fName(n), fPowerOfTwoSize(powerOfTwoSize) {}
 
+private:
     SkBitmap    fTexture[SK_ARRAY_COUNT(gColorTypes)];
-
-protected:
 
     enum {
         kPOTSize = 32,
         kNPOTSize = 21,
     };
 
-    SkString onShortName() override {
-        SkString name("tilemodes");
-        if (!fPowerOfTwoSize) {
-            name.append("_npot");
-        }
-        return name;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override { return SkISize::Make(880, 560); }
 
@@ -158,12 +151,11 @@ protected:
         }
     }
 
-private:
+    const char* fName = nullptr;
     bool fPowerOfTwoSize;
-    typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new TilingGM(true); )
-DEF_GM( return new TilingGM(false); )
+DEF_GM( return new TilingGM(true,  "tilemodes"); )
+DEF_GM( return new TilingGM(false, "tilemodes_npot"); )
 
 constexpr int gWidth = 32;
 constexpr int gHeight = 32;
@@ -265,6 +257,8 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
+}  // namespace
+
 DEF_GM( return new Tiling2GM(make_bm, "bitmap"); )
 DEF_GM( return new Tiling2GM(make_grad, "gradient"); )
 

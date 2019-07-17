@@ -18,29 +18,19 @@
 #include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
 
-namespace skiagm {
+namespace {
 
 // Test out various combinations of nested rects, ovals and rrects.
-class NestedGM : public GM {
+class NestedGM : public skiagm::GM {
 public:
-    NestedGM(bool doAA, bool flipped) : fDoAA(doAA), fFlipped(flipped) {
+    NestedGM(bool doAA, bool flipped, const char* n) : fName(n), fDoAA(doAA), fFlipped(flipped) {}
+
+protected:
+    void onOnceBeforeDraw() override {
         this->setBGColor(0xFFDDDDDD);
     }
 
-protected:
-
-    SkString onShortName() override {
-        SkString name("nested");
-        if (fFlipped) {
-            name.append("_flipY");
-        }
-        if (fDoAA) {
-            name.append("_aa");
-        } else {
-            name.append("_bw");
-        }
-        return name;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override {
         return SkISize::Make(kImageWidth, kImageHeight);
@@ -134,17 +124,14 @@ private:
     static constexpr int kImageWidth = 269;
     static constexpr int kImageHeight = 134;
 
+    const char* fName = nullptr;
     bool fDoAA;
     bool fFlipped;
-
-    typedef GM INHERITED;
 };
-
+}  // namespace
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new NestedGM(/* doAA = */ true,  /* flipped = */ false); )
-DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ false); )
-DEF_GM( return new NestedGM(/* doAA = */ true,  /* flipped = */ true); )
-DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ true); )
-
-}
+DEF_GM( return new NestedGM(/* doAA = */ true,  /* flipped = */ false, "nested_aa"      ); )
+DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ false, "nested_bw"      ); )
+DEF_GM( return new NestedGM(/* doAA = */ true,  /* flipped = */ true,  "nested_flipY_aa"); )
+DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ true,  "nested_flipY_bw"); )

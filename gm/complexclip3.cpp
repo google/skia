@@ -23,28 +23,24 @@
 
 #include <utility>
 
-namespace skiagm {
+namespace {
 
 constexpr SkColor gPathColor = SK_ColorYELLOW;
 
-class ComplexClip3GM : public GM {
+class ComplexClip3GM : public skiagm::GM {
 public:
-    ComplexClip3GM(bool doSimpleClipFirst)
-        : fDoSimpleClipFirst(doSimpleClipFirst) {
-        this->setBGColor(0xFFDDDDDD);
+    ComplexClip3GM(bool doSimpleClipFirst) : fDoSimpleClipFirst(doSimpleClipFirst) {}
+
+private:
+    void onOnceBeforeDraw() override { this->setBGColor(0xFFDDDDDD); }
+
+    SkString onShortName() override {
+        return SkString(fDoSimpleClipFirst ? "complexclip3_simple" : "complexclip3_complex");
     }
 
-protected:
+    SkISize onISize() override { return {1000, 950}; }
 
-    SkString onShortName() {
-        SkString str;
-        str.printf("complexclip3_%s", fDoSimpleClipFirst ? "simple" : "complex");
-        return str;
-    }
-
-    SkISize onISize() { return SkISize::Make(1000, 950); }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         SkPath clipSimple;
         clipSimple.addCircle(SkIntToScalar(70), SkIntToScalar(50), SkIntToScalar(20));
 
@@ -132,16 +128,11 @@ protected:
         }
     }
 
-private:
     bool fDoSimpleClipFirst;
-
-    typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
+}  // namespace
 
 // Simple clip first
 DEF_GM( return new ComplexClip3GM(true); )
 // Complex clip first
 DEF_GM( return new ComplexClip3GM(false); )
-}

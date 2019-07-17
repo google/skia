@@ -35,6 +35,8 @@
 
 class SkReadBuffer;
 
+namespace {
+
 class FailImageFilter : public SkImageFilter {
 public:
     static sk_sp<SkImageFilter> Make() {
@@ -232,18 +234,7 @@ DEF_GM( return new ImageFiltersBaseGM; )
  *  a filter.
  */
 class ImageFiltersTextBaseGM : public skiagm::GM {
-    SkString fSuffix;
-public:
-    ImageFiltersTextBaseGM(const char suffix[]) : fSuffix(suffix) {}
-
-protected:
-    SkString onShortName() override {
-        SkString name;
-        name.printf("%s_%s", "textfilter", fSuffix.c_str());
-        return name;
-    }
-
-    SkISize onISize() override { return SkISize::Make(512, 342); }
+    SkISize onISize() override { return {512, 342}; }
 
     void drawWaterfall(SkCanvas* canvas, const SkPaint& paint) {
         static const SkFont::Edging kEdgings[3] = {
@@ -290,27 +281,22 @@ protected:
             canvas->translate(0, 200);
         }
     }
-
-private:
-    typedef GM INHERITED;
 };
 
 class ImageFiltersText_IF : public ImageFiltersTextBaseGM {
-public:
-    ImageFiltersText_IF() : ImageFiltersTextBaseGM("image") {}
-
+    SkString onShortName() override { return SkString("textfilter_image"); }
     void installFilter(SkPaint* paint) override {
         paint->setImageFilter(SkBlurImageFilter::Make(1.5f, 1.5f, nullptr));
     }
 };
-DEF_GM( return new ImageFiltersText_IF; )
 
 class ImageFiltersText_CF : public ImageFiltersTextBaseGM {
-public:
-    ImageFiltersText_CF() : ImageFiltersTextBaseGM("color") {}
-
+    SkString onShortName() override { return SkString("textfilter_color"); }
     void installFilter(SkPaint* paint) override {
         paint->setColorFilter(SkColorFilters::Blend(SK_ColorBLUE, SkBlendMode::kSrcIn));
     }
 };
+}  // namespace
+
+DEF_GM( return new ImageFiltersText_IF; )
 DEF_GM( return new ImageFiltersText_CF; )

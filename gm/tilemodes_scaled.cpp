@@ -27,6 +27,8 @@
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
 
+namespace {
+
 static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     bm->allocPixels(SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
     bm->eraseColor(SK_ColorTRANSPARENT);
@@ -193,18 +195,14 @@ static sk_sp<SkShader> make_grad(SkTileMode tx, SkTileMode ty) {
 typedef sk_sp<SkShader> (*ShaderProc)(SkTileMode, SkTileMode);
 
 class ScaledTiling2GM : public skiagm::GM {
+    const char* fName;
     ShaderProc fProc;
-    SkString   fName;
+
 public:
-    ScaledTiling2GM(ShaderProc proc, const char name[]) : fProc(proc) {
-        fName.printf("scaled_tilemode_%s", name);
-    }
+    ScaledTiling2GM(ShaderProc proc, const char name[]) : fName(name), fProc(proc) {}
 
-protected:
-
-    SkString onShortName() override {
-        return fName;
-    }
+private:
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override { return SkISize::Make(650, 610); }
 
@@ -257,14 +255,10 @@ protected:
             y += r.height() * 4 / 3;
         }
     }
-
-private:
-    typedef skiagm::GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
+}  // namespace
 
 DEF_GM( return new ScaledTilingGM(true); )
 DEF_GM( return new ScaledTilingGM(false); )
-DEF_GM( return new ScaledTiling2GM(make_bm, "bitmap"); )
-DEF_GM( return new ScaledTiling2GM(make_grad, "gradient"); )
+DEF_GM( return new ScaledTiling2GM(make_bm,   "scaled_tilemode_bitmap"); )
+DEF_GM( return new ScaledTiling2GM(make_grad, "scaled_tilemode_gradient"); )

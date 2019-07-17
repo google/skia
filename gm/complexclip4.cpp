@@ -17,29 +17,23 @@
 #include "include/core/SkString.h"
 #include "src/core/SkClipOpPriv.h"
 
-namespace skiagm {
+namespace {
 
 //this test exercise SkCanvas::setDeviceClipRestriction behavior
-class ComplexClip4GM : public GM {
+class ComplexClip4GM : public skiagm::GM {
 public:
-  ComplexClip4GM(bool aaclip)
-    : fDoAAClip(aaclip) {
-        this->setBGColor(0xFFDEDFDE);
+    ComplexClip4GM(bool aaclip) : fDoAAClip(aaclip) {}
+
+private:
+    void onOnceBeforeDraw() override { this->setBGColor(0xFFDEDFDE); }
+
+    SkString onShortName() override {
+        return SkString(fDoAAClip ? "complexclip4_aa" : "complexclip4_bw");
     }
 
-protected:
+    SkISize onISize() override { return {970, 780}; }
 
-
-    SkString onShortName() {
-        SkString str;
-        str.printf("complexclip4_%s",
-                   fDoAAClip ? "aa" : "bw");
-        return str;
-    }
-
-    SkISize onISize() { return SkISize::Make(970, 780); }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setAntiAlias(fDoAAClip);
         p.setColor(SK_ColorYELLOW);
@@ -91,15 +85,10 @@ protected:
 
         canvas->restore();
     }
-private:
 
     bool fDoAAClip;
-
-    typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
+}  // namespace
 
 DEF_GM(return new ComplexClip4GM(false);)
 DEF_GM(return new ComplexClip4GM(true);)
-}
