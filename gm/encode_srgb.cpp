@@ -27,10 +27,10 @@
 
 #include <memory>
 
-namespace skiagm {
+namespace {
 
-static const int imageWidth = 128;
-static const int imageHeight = 128;
+static constexpr int kImageWidth = 128;
+static constexpr int kImageHeight = 128;
 
 static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
                  sk_sp<SkColorSpace> colorSpace) {
@@ -85,34 +85,14 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
     return buf.detachAsData();
 }
 
-class EncodeSRGBGM : public GM {
+class EncodeSRGBGM : public skiagm::GM {
 public:
-    EncodeSRGBGM(SkEncodedImageFormat format)
-        : fEncodedFormat(format)
-    {}
+    EncodeSRGBGM(SkEncodedImageFormat f, const char* n) : fName(n), fEncodedFormat(f) {}
 
-protected:
-    SkString onShortName() override {
-        const char* format = nullptr;
-        switch (fEncodedFormat) {
-            case SkEncodedImageFormat::kPNG:
-                format = "png";
-                break;
-            case SkEncodedImageFormat::kWEBP:
-                format = "webp";
-                break;
-            case SkEncodedImageFormat::kJPEG:
-                format = "jpg";
-                break;
-            default:
-                break;
-        }
-        return SkStringPrintf("encode-srgb-%s", format);
-    }
+private:
+    SkString onShortName() override { return SkString(fName); }
 
-    SkISize onISize() override {
-        return SkISize::Make(imageWidth * 2, imageHeight * 15);
-    }
+    SkISize onISize() override { return {kImageWidth * 2, kImageHeight * 15}; }
 
     void onDraw(SkCanvas* canvas) override {
         const SkColorType colorTypes[] = {
@@ -133,21 +113,19 @@ protected:
                     make(&bitmap, colorType, alphaType, colorSpace);
                     auto image = SkImage::MakeFromEncoded(encode_data(bitmap, fEncodedFormat));
                     canvas->drawImage(image.get(), 0.0f, 0.0f);
-                    canvas->translate((float) imageWidth, 0.0f);
+                    canvas->translate((float) kImageWidth, 0.0f);
                 }
                 canvas->restore();
-                canvas->translate(0.0f, (float) imageHeight);
+                canvas->translate(0.0f, (float) kImageHeight);
             }
         }
     }
 
-private:
+    const char* fName = nullptr;
     SkEncodedImageFormat fEncodedFormat;
-
-    typedef GM INHERITED;
 };
+}  // namespace
 
-DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kPNG); )
-DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kWEBP); )
-DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kJPEG); )
-}
+DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kPNG,  "encode-srgb-png" ); )
+DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kWEBP, "encode-srgb-webp"); )
+DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kJPEG, "encode-srgb-jpg" ); )

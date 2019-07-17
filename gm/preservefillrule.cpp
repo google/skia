@@ -17,7 +17,7 @@
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "tools/ToolUtils.h"
 
-namespace skiagm {
+namespace {
 
 #define ERR_MSG_ASSERT(COND) \
     do { \
@@ -34,7 +34,7 @@ namespace skiagm {
  * we copy paths into a8 literal coverage atlases, as well as in the case where we just reuse a
  * stashed fp16 coverage count atlas.
  */
-class PreserveFillRuleGM : public GpuGM {
+class PreserveFillRuleGM : public skiagm::GpuGM {
 public:
     // fStarSize affects whether ccpr copies the paths to an a8 literal coverage atlas, or just
     // leaves them stashed in an fp16 coverage count atlas. The threshold for copying to a8 is
@@ -47,9 +47,7 @@ public:
 
 private:
     SkString onShortName() override {
-        SkString name("preservefillrule");
-        name += (fLiteralCoverageAtlas) ? "_big" : "_little";
-        return name;
+        return SkString(fLiteralCoverageAtlas ? "preservefillrule_big" : "preservefillrule_little");
     }
     SkISize onISize() override { return SkISize::Make(fStarSize * 2, fStarSize * 2); }
 
@@ -141,8 +139,7 @@ private:
     const bool fLiteralCoverageAtlas;
     const int fStarSize;
 };
+}  // namespace
 
 DEF_GM( return new PreserveFillRuleGM(true); )
 DEF_GM( return new PreserveFillRuleGM(false); )
-
-}

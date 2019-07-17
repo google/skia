@@ -45,6 +45,8 @@
 #include <memory>
 #include <utility>
 
+namespace {
+
 // This GM mimics the draw calls used by complex compositors that focus on drawing rectangles
 // and quadrilaterals with per-edge AA, with complex images, effects, and seamless tiling.
 // It will be updated to reflect the patterns seen in Chromium's SkiaRenderer. It is currently
@@ -437,11 +439,7 @@ protected:
                              SkScalarRoundToInt(kCellHeight * fRenderers.count() + 75.f));
     }
 
-    SkString onShortName() override {
-        SkString fullName;
-        fullName.appendf("compositor_quads_%s", fName.c_str());
-        return fullName;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     void onOnceBeforeDraw() override {
         this->configureMatrices();
@@ -498,7 +496,7 @@ private:
     SkTArray<SkMatrix> fMatrices;
     SkTArray<SkString> fMatrixNames;
 
-    SkString fName;
+    const char* fName;
 
     void configureMatrices() {
         fMatrices.reset();
@@ -1053,9 +1051,11 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_filtered_renderers() {
     // sense, since each quad is blurred independently
     return renderers;
 }
+}  //namespace
 
-DEF_GM(return new CompositorGM("debug", make_debug_renderers());)
-DEF_GM(return new CompositorGM("color", SolidColorRenderer::Make({.2f, .8f, .3f, 1.f}));)
-DEF_GM(return new CompositorGM("shader", make_shader_renderers());)
-DEF_GM(return new CompositorGM("image", make_image_renderers());)
-DEF_GM(return new CompositorGM("filter", make_filtered_renderers());)
+DEF_GM(return new CompositorGM("compositor_quads_debug", make_debug_renderers());)
+DEF_GM(return new CompositorGM("compositor_quads_color",
+                               SolidColorRenderer::Make({.2f, .8f, .3f, 1.f}));)
+DEF_GM(return new CompositorGM("compositor_quads_shader", make_shader_renderers());)
+DEF_GM(return new CompositorGM("compositor_quads_image", make_image_renderers());)
+DEF_GM(return new CompositorGM("compositor_quads_filter", make_filtered_renderers());)

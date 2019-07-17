@@ -23,6 +23,7 @@
 #include "src/core/SkBlurMask.h"
 #include "tools/ToolUtils.h"
 
+namespace {
 // This GM tests out the SkBlurMaskFilter's kIgnoreTransform flag. That flag causes the blur mask
 // filter to not apply the CTM to the blur's radius.
 class BlurIgnoreXformGM : public skiagm::GM {
@@ -38,17 +39,18 @@ public:
 protected:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override {
-        SkString name;
-        name.printf("blur_ignore_xform_%s",
-                    DrawType::kCircle == fDrawType ? "circle"
-                        : DrawType::kRect == fDrawType ? "rect" : "rrect");
-        return name;
+    static const char* Name(DrawType t) {
+        switch (t) {
+            case DrawType::kCircle: return "blur_ignore_xform_circle";
+            case DrawType::kRect:   return "blur_ignore_xform_rect";
+            case DrawType::kRRect:  return "blur_ignore_xform_rrect";
+            default: return "";
+        }
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(375, 475);
-    }
+    SkString onShortName() override { return SkString(Name(fDrawType)); }
+
+    SkISize onISize() override { return {375, 475}; }
 
     void onOnceBeforeDraw() override {
         for (int i = 0; i < kNumBlurs; ++i) {
@@ -147,10 +149,8 @@ const BlurIgnoreXformGM::MatrixScale BlurIgnoreXformGM::kMatrixScales[] = {
     {0.5f, "Scale = 0.5"},
     {2.0f, "Scale = 2.0"}
 };
+}  // namespace
 
 DEF_GM(return new BlurIgnoreXformGM(BlurIgnoreXformGM::DrawType::kCircle);)
 DEF_GM(return new BlurIgnoreXformGM(BlurIgnoreXformGM::DrawType::kRect);)
 DEF_GM(return new BlurIgnoreXformGM(BlurIgnoreXformGM::DrawType::kRRect);)
-
-
-

@@ -43,27 +43,16 @@
 #include <memory>
 #include <utility>
 
-namespace skiagm {
+namespace {
 /**
  * This GM directly exercises GrTextureDomainEffect.
  */
-class TextureDomainEffect : public GpuGM {
+class TextureDomainEffect : public skiagm::GpuGM {
 public:
-    TextureDomainEffect(GrSamplerState::Filter filter)
-            : fFilter(filter) {
-        this->setBGColor(0xFFFFFFFF);
-    }
+    TextureDomainEffect(GrSamplerState::Filter f, const char* n) : fName(n), fFilter(f) {}
 
-protected:
-    SkString onShortName() override {
-        SkString name("texture_domain_effect");
-        if (fFilter == GrSamplerState::Filter::kBilerp) {
-            name.append("_bilerp");
-        } else if (fFilter == GrSamplerState::Filter::kMipMap) {
-            name.append("_mipmap");
-        }
-        return name;
-    }
+private:
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override {
         const SkScalar canvasWidth = kDrawPad +
@@ -73,6 +62,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
+        this->setBGColor(0xFFFFFFFF);
         fBitmap.allocN32Pixels(kTargetWidth, kTargetHeight);
         SkCanvas canvas(fBitmap);
         canvas.clear(0x00000000);
@@ -162,19 +152,19 @@ protected:
         return DrawResult::kOk;
     }
 
-private:
     static constexpr SkScalar kDrawPad = 10.f;
     static constexpr SkScalar kTestPad = 10.f;
     static constexpr int      kTargetWidth = 100;
     static constexpr int      kTargetHeight = 100;
     SkBitmap fBitmap;
+    const char* fName = nullptr;
     GrSamplerState::Filter fFilter;
-
-    typedef GM INHERITED;
 };
+}  // namespace
 
-DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kNearest);)
-DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kBilerp);)
-DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kMipMap);)
-
-}
+DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kNearest,
+                                      "texture_domain_effect");)
+DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kBilerp,
+                                      "texture_domain_effect_bilerp");)
+DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kMipMap,
+                                      "texture_domain_effect_mipmap");)

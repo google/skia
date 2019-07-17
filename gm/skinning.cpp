@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-using namespace skiagm;
+namespace {
 
 static const int kCellSize = 60;
 static const int kColumnSize = 36;
@@ -73,31 +73,20 @@ static void swap(const SkVertices::Bone** x, const SkVertices::Bone** y) {
     *y = temp;
 }
 
-class SkinningGM : public GM {
-
+class SkinningGM : public skiagm::GM {
 public:
-    SkinningGM(bool deformUsingCPU, bool cache)
-            : fPaint()
-            , fVertices(nullptr)
+    SkinningGM(bool deformUsingCPU, bool cache, const char* n)
+            : fName(n)
             , fDeformUsingCPU(deformUsingCPU)
             , fCache(cache)
     {}
 
-protected:
+private:
     bool runAsBench() const override {
         return true;
     }
 
-    SkString onShortName() override {
-        SkString name("skinning");
-        if (fDeformUsingCPU) {
-            name.append("_cpu");
-        }
-        if (fCache) {
-            name.append("_cached");
-        }
-        return name;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override {
         return SkISize::Make(2400, 2400);
@@ -131,7 +120,6 @@ protected:
         drawPermutations(canvas, xpos, ypos, bones, 1);
     }
 
-private:
     void drawPermutations(SkCanvas* canvas,
                           int& xpos,
                           int& ypos,
@@ -197,15 +185,16 @@ private:
 private:
     SkPaint fPaint;
     sk_sp<SkVertices> fVertices;
+    const char* fName = nullptr;
     bool fDeformUsingCPU;
     bool fCache;
 
     typedef GM INHERITED;
 };
+}  //namespace
 
-/////////////////////////////////////////////////////////////////////////////////////
+DEF_GM(return new SkinningGM(true,  true,  "skinning_cpu_cached");)
+DEF_GM(return new SkinningGM(false, true,  "skinning_cached");)
+DEF_GM(return new SkinningGM(true,  false, "skinning_cpu");)
+DEF_GM(return new SkinningGM(false, false, "skinning");)
 
-DEF_GM(return new SkinningGM(true, true);)
-DEF_GM(return new SkinningGM(false, true);)
-DEF_GM(return new SkinningGM(true, false);)
-DEF_GM(return new SkinningGM(false, false);)

@@ -34,6 +34,7 @@ static void make_bitmap(SkBitmap* bitmap) {
     canvas.drawCircle(32, 32, 32, paint);
 }
 
+namespace {
 class DrawBitmapRect2 : public skiagm::GM {
     bool fUseIRect;
 public:
@@ -42,9 +43,7 @@ public:
 
 protected:
     SkString onShortName() override {
-        SkString str;
-        str.printf("bitmaprect_%s", fUseIRect ? "i" : "s");
-        return str;
+        return SkString(fUseIRect ? "bitmaprect_i" : "bitmaprect_s");
     }
 
     SkISize onISize() override {
@@ -131,11 +130,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        SkString str;
-        str.printf("3x3bitmaprect");
-        return str;
-    }
+    SkString onShortName() override { return SkString("3x3bitmaprect"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);
@@ -156,9 +151,10 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+#ifndef SK_BUILD_FOR_ANDROID
 //////////////////////////////////////////////////////////////////////////////
-static void make_big_bitmap(SkBitmap* bitmap) {
 
+static void make_big_bitmap(SkBitmap* bitmap) {
     constexpr int gXSize = 4096;
     constexpr int gYSize = 4096;
     constexpr int gBorderWidth = 10;
@@ -191,9 +187,7 @@ public:
 
 protected:
     SkString onShortName() override {
-        SkString str;
-        str.printf("bigbitmaprect_%s", fUseIRect ? "i" : "s");
-        return str;
+        return SkString(fUseIRect ? "bigbitmaprect_i" : "bigbitmaprect_s");
     }
 
     SkISize onISize() override {
@@ -229,6 +223,7 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
+#endif  // SK_BUILD_FOR_ANDROID
 
 class BitmapRectRounding : public skiagm::GM {
     SkBitmap fBM;
@@ -237,11 +232,7 @@ public:
     BitmapRectRounding() {}
 
 protected:
-    SkString onShortName() override {
-        SkString str;
-        str.printf("bitmaprect_rounding");
-        return str;
-    }
+    SkString onShortName() override { return SkString("bitmaprect_rounding"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);
@@ -272,6 +263,8 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
+}  // namespace
+
 DEF_GM( return new BitmapRectRounding; )
 
 //////////////////////////////////////////////////////////////////////////////

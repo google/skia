@@ -26,6 +26,8 @@
 
 #define SHOW_MIP_COLOR  0xFF000000
 
+namespace {
+
 static SkBitmap make_bitmap(int w, int h) {
     SkBitmap bm;
     bm.allocN32Pixels(w, h);
@@ -79,6 +81,7 @@ static SkBitmap make_bitmap3(int w, int h) {
 }
 
 class ShowMipLevels : public skiagm::GM {
+    const char* fName = nullptr;
     const int fN;
     SkBitmap  fBM[4];
 
@@ -110,15 +113,11 @@ public:
         }
     }
 
-    ShowMipLevels(int N) : fN(N) { }
+    ShowMipLevels(int N, const char* name) : fName(name), fN(N) { }
 
 protected:
 
-    SkString onShortName() override {
-        SkString str;
-        str.printf("showmiplevels_%d", fN);
-        return str;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override { return { 150, 862 }; }
 
@@ -195,8 +194,6 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ShowMipLevels(255); )
-DEF_GM( return new ShowMipLevels(256); )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -219,19 +216,16 @@ void copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
  *  Show mip levels that were built, for all supported colortypes
  */
 class ShowMipLevels2 : public skiagm::GM {
+    const char* fName = nullptr;
     const int fW, fH;
     SkBitmap  fBM[4];
 
 public:
-    ShowMipLevels2(int w, int h) : fW(w), fH(h) { }
+    ShowMipLevels2(int w, int h, const char* n) : fName(n), fW(w), fH(h) { }
 
 protected:
 
-    SkString onShortName() override {
-        SkString str;
-        str.printf("showmiplevels2_%dx%d", fW, fH);
-        return str;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override {
         return { 824, 862 };
@@ -308,7 +302,12 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ShowMipLevels2(255, 255); )
-DEF_GM( return new ShowMipLevels2(256, 255); )
-DEF_GM( return new ShowMipLevels2(255, 256); )
-DEF_GM( return new ShowMipLevels2(256, 256); )
+}  // namespace
+
+DEF_GM( return new ShowMipLevels(255, "showmiplevels_255"); )
+DEF_GM( return new ShowMipLevels(256, "showmiplevels_256"); )
+
+DEF_GM( return new ShowMipLevels2(255, 255, "showmiplevels2_255x255"); )
+DEF_GM( return new ShowMipLevels2(256, 255, "showmiplevels2_256x255"); )
+DEF_GM( return new ShowMipLevels2(255, 256, "showmiplevels2_255x256"); )
+DEF_GM( return new ShowMipLevels2(256, 256, "showmiplevels2_256x256"); )
