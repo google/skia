@@ -215,17 +215,15 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         }
     }
 
+    GrMipLevel level;
+    std::unique_ptr<char[]> zeros;
     if (fCaps->createTextureMustSpecifyAllLevels()) {
-        size_t rowBytes = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
-        size_t size = rowBytes * desc.fHeight;
-        std::unique_ptr<char[]> zeros(new char[size]());
-        GrMipLevel level;
-        level.fRowBytes = rowBytes;
+        level.fRowBytes = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
+        zeros.reset(new char[level.fRowBytes * desc.fHeight]());
         level.fPixels = zeros.get();
-        return fGpu->createTexture(desc, renderable, budgeted, &level, 1);
     }
 
-    return fGpu->createTexture(desc, renderable, budgeted);
+    return fGpu->createTexture(desc, renderable, budgeted, &level, 1);
 }
 
 // Map 'value' to a larger multiple of 2. Values <= 'kMagicTol' will pop up to
@@ -289,16 +287,14 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return tex;
     }
 
+    GrMipLevel level;
+    std::unique_ptr<char[]> zeros;
     if (this->caps()->createTextureMustSpecifyAllLevels()) {
-        size_t rowBytes = GrBytesPerPixel(copyDesc->fConfig) * copyDesc->fWidth;
-        size_t size = rowBytes * copyDesc->fHeight;
-        std::unique_ptr<char[]> zeros(new char[size]());
-        GrMipLevel level;
-        level.fRowBytes = rowBytes;
+        level.fRowBytes = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
+        zeros.reset(new char[level.fRowBytes * desc.fHeight]());
         level.fPixels = zeros.get();
-        return fGpu->createTexture(*copyDesc, renderable, SkBudgeted::kYes, &level, 1);
     }
-    return fGpu->createTexture(*copyDesc, renderable, SkBudgeted::kYes);
+    return fGpu->createTexture(*copyDesc, renderable, SkBudgeted::kYes, &level, 1);
 }
 
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc,
