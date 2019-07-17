@@ -72,8 +72,8 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
                 GrWrapCacheable::kNo);
     } else {
         wrappedProxy = context->priv().proxyProvider()->wrapBackendTexture(
-                backendTex, kTopLeft_GrSurfaceOrigin, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo,
-                GrIOType::kRW_GrIOType);
+                backendTex, grCT, kTopLeft_GrSurfaceOrigin, kAdopt_GrWrapOwnership,
+                GrWrapCacheable::kNo, GrIOType::kRW_GrIOType);
     }
     REPORTER_ASSERT(reporter, wrappedProxy);
 
