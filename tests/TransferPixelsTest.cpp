@@ -69,7 +69,7 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType colorType, char* d
 }
 
 void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, GrColorType colorType,
-                            bool renderTarget) {
+                            GrRenderable renderable) {
     if (GrCaps::kNone_MapFlags == context->priv().caps()->mapBufferFlags()) {
         return;
     }
@@ -81,7 +81,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
         return;
     }
 
-    // if ((renderTarget && !caps->isFormatRenderable(colorType, backendFormat))) {
+    // if ((renderable == GrRenderable::kYes && !caps->isFormatRenderable(colorType, backendFormat))) {
     //        return;
     //    }
 
@@ -94,18 +94,17 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     const int kBufferHeight = 16;
 
     GrSurfaceDesc desc;
-    desc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fWidth = kTextureWidth;
     desc.fHeight = kTextureHeight;
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
     desc.fSampleCnt = 1;
 
     // TODO: Replace with isFormatRenderable when available.
-    if ((renderTarget && !caps->isConfigRenderable(desc.fConfig))) {
+    if ((renderable == GrRenderable::kYes && !caps->isConfigRenderable(desc.fConfig))) {
         return;
     }
 
-    sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+    sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, renderable, SkBudgeted::kNo,
                                                            GrResourceProvider::Flags::kNoPendingIO);
     if (!tex) {
         ERRORF(reporter, "Could not create texture");
@@ -197,7 +196,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
 }
 
 void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo,
-                              GrColorType colorType, bool renderTarget) {
+                              GrColorType colorType, GrRenderable renderable) {
     auto context = ctxInfo.grContext();
     auto caps = context->priv().caps();
     if (GrCaps::kNone_MapFlags == caps->mapBufferFlags()) {
@@ -219,14 +218,14 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     // create texture
     GrSurfaceDesc desc;
-    desc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fWidth = kTextureWidth;
     desc.fHeight = kTextureHeight;
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
     desc.fSampleCnt = 1;
 
     if (!context->priv().caps()->isConfigTexturable(desc.fConfig) ||
-        (renderTarget && !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
+        (renderable == GrRenderable::kYes &&
+         !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
         return;
     }
 
@@ -238,7 +237,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     GrMipLevel data;
     data.fPixels = textureData.get();
     data.fRowBytes = textureDataRowBytes;
-    sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo, &data, 1);
+    sk_sp<GrTexture> tex =
+            resourceProvider->createTexture(desc, renderable, SkBudgeted::kNo, &data, 1);
     if (!tex) {
         return;
     }
@@ -364,15 +364,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
     if (!ctxInfo.grContext()->priv().caps()->transferBufferSupport()) {
         return;
     }
-    // RGBA
-    basic_transfer_to_test(reporter, ctxInfo.grContext(), GrColorType::kRGBA_8888, false);
-    basic_transfer_to_test(reporter, ctxInfo.grContext(), GrColorType::kRGBA_8888, true);
-    basic_transfer_to_test(reporter, ctxInfo.grContext(), GrColorType::kRGBA_8888_SRGB, false);
-    basic_transfer_to_test(reporter, ctxInfo.grContext(), GrColorType::kRGBA_8888_SRGB, true);
-
-    // BGRA
-    basic_transfer_to_test(reporter, ctxInfo.grContext(), GrColorType::kBGRA_8888, false);
-    basic_transfer_to_test(reporter, ctxInfo.grContext(), GrColorType::kBGRA_8888, true);
+    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
+        for (auto colorType :
+             {GrColorType::kRGBA_8888, GrColorType::kRGBA_8888_SRGB, GrColorType::kBGRA_8888}) {
+            basic_transfer_to_test(reporter, ctxInfo.grContext(), colorType, renderable);
+        }
+    }
 }
 
 // TODO(bsalomon): Metal
@@ -380,13 +377,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
     if (!ctxInfo.grContext()->priv().caps()->transferBufferSupport()) {
         return;
     }
-    // RGBA
-    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kRGBA_8888, false);
-    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kRGBA_8888, true);
-    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kRGBA_8888_SRGB, false);
-    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kRGBA_8888_SRGB, true);
-
-    // BGRA
-    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kBGRA_8888, false);
-    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kBGRA_8888, true);
+    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
+        for (auto colorType :
+             {GrColorType::kRGBA_8888, GrColorType::kRGBA_8888_SRGB, GrColorType::kBGRA_8888}) {
+            basic_transfer_from_test(reporter, ctxInfo, colorType, renderable);
+        }
+    }
 }
