@@ -435,7 +435,8 @@ public:
     bool canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const;
 
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                            bool* rectsMustMatch, bool* disallowSubrect) const override;
+                            GrRenderable* renderable, bool* rectsMustMatch,
+                            bool* disallowSubrect) const override;
 
     bool programBinarySupport() const { return fProgramBinarySupport; }
     bool programParameterSupport() const { return fProgramParameterSupport; }

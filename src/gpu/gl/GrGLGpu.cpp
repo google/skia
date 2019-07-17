@@ -696,7 +696,6 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     }
 
     GrSurfaceDesc surfDesc;
-    surfDesc.fFlags = kNone_GrSurfaceFlags;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
@@ -739,7 +738,6 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     const GrCaps* caps = this->caps();
 
     GrSurfaceDesc surfDesc;
-    surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
@@ -779,7 +777,6 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
     desc.fConfig = backendRT.config();
@@ -805,7 +802,6 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     }
 
     GrSurfaceDesc surfDesc;
-    surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     surfDesc.fWidth = tex.width();
     surfDesc.fHeight = tex.height();
     surfDesc.fConfig = tex.config();
@@ -1464,6 +1460,7 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
 }
 
 sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                          GrRenderable renderable,
                                           SkBudgeted budgeted,
                                           const GrMipLevel texels[],
                                           int mipLevelCount) {
@@ -1472,20 +1469,17 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         return return_null_texture();
     }
 
-    bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-
     GrGLTexture::IDDesc idDesc;
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     GrMipMapsStatus mipMapsStatus;
     GrGLTextureParameters::SamplerOverriddenState initialState;
-    if (!this->createTextureImpl(desc, &idDesc.fInfo,
-                                 isRenderTarget ? GrRenderable::kYes : GrRenderable::kNo,
-                                 &initialState, texels, mipLevelCount, &mipMapsStatus)) {
+    if (!this->createTextureImpl(desc, &idDesc.fInfo, renderable, &initialState, texels,
+                                 mipLevelCount, &mipMapsStatus)) {
         return return_null_texture();
     }
 
     sk_sp<GrGLTexture> tex;
-    if (isRenderTarget) {
+    if (renderable == GrRenderable::kYes) {
         // unbind the texture from the texture unit before binding it to the frame buffer
         GL_CALL(BindTexture(idDesc.fInfo.fTarget, 0));
         GrGLRenderTarget::IDDesc rtIDDesc;
@@ -1503,10 +1497,6 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                            fResetTimestampForTextureParameters);
-#ifdef TRACE_TEXTURE_CREATION
-    SkDebugf("--- new texture [%d] size=(%d %d) config=%d\n",
-             idDesc.fInfo.fID, desc.fWidth, desc.fHeight, desc.fConfig);
-#endif
     bool clearLevelsWithoutData =
             this->caps()->shouldInitializeTextures() && this->glCaps().clearTextureSupport();
 

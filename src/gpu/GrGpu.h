@@ -80,30 +80,37 @@ public:
     void markContextDirty(uint32_t state = kAll_GrBackendState) { fResetBits |= state; }
 
     /**
-     * Creates a texture object. If kRenderTarget_GrSurfaceFlag the texture can
+     * Creates a texture object. If renderable is kYes then the returned texture can
      * be used as a render target by calling GrTexture::asRenderTarget(). Not all
      * pixel configs can be used as render targets. Support for configs as textures
      * or render targets can be checked using GrCaps.
      *
      * @param desc           describes the texture to be created.
+     * @param renderable     should the resulting texture be renderable
      * @param budgeted       does this texture count against the resource cache budget?
      * @param texels         array of mipmap levels containing texel data to load.
-     *                       Each level begins with full-size palette data for paletted textures.
-     *                       It contains width*height texels. If there is only one
-     *                       element and it contains nullptr fPixels, texture data is
-     *                       uninitialized. Levels' row bytes Must be a multiple of
-     *                       config's bytes-per-pixel. Must be tight to width if
-     *                       !caps->writePixelsRowBytesSupport().
-     * @param mipLevelCount  the number of levels in 'texels'
+     *                       If level i has pixels then it is assumed that its dimensions are
+     *                       max(1, floor(desc.fWidth / 2)) by max(1, floor(desc.fHeight / 2)).
+     *                       If texels[i].fPixels == nullptr for all i <= mipLevelCount or
+     *                       mipLevelCount is 0 then the texture's contents are uninitialized.
+     *                       If a level has non-null pixels, its row bytes must be a multiple of the
+     *                       config's bytes-per-pixel. The row bytes must be tight to the
+     *                       level width if !caps->writePixelsRowBytesSupport().
+     *                       If mipLevelCount > 1 and texels[i].fPixels != nullptr for any i > 0
+     *                       then all levels must have non-null pixels. All levels must have
+     *                       non-null pixels if GrCaps::createTextureMustSpecifyAllLevels() is true.
+     * @param mipLevelCount  the number of levels in 'texels'. May be 0, 1, or
+     *                       floor(max((log2(desc.fWidth), log2(desc.fHeight)))). It must be the
+     *                       latter if GrCaps::createTextureMustSpecifyAllLevels() is true.
      * @return  The texture object if successful, otherwise nullptr.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel texels[],
-                                   int mipLevelCount);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, GrRenderable renderable, SkBudgeted,
+                                   const GrMipLevel texels[], int mipLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted);
 
     sk_sp<GrTexture> createCompressedTexture(int width, int height, SkImage::CompressionType,
                                              SkBudgeted, const void* data, size_t dataSize);
@@ -519,8 +526,9 @@ private:
     // overridden by backend-specific derived class to create objects.
     // Texture size and sample size will have already been validated in base class before
     // onCreateTexture is called.
-    virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted,
-                                             const GrMipLevel texels[], int mipLevelCount) = 0;
+    virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, GrRenderable renderable,
+                                             SkBudgeted, const GrMipLevel texels[],
+                                             int mipLevelCount) = 0;
     virtual sk_sp<GrTexture> onCreateCompressedTexture(int width, int height,
                                                        SkImage::CompressionType, SkBudgeted,
                                                        const void* data) = 0;

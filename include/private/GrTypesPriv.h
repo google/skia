@@ -144,33 +144,16 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
 }
 
 /**
- * Optional bitfield flags that can be set on GrSurfaceDesc (below).
- */
-enum GrSurfaceFlags {
-    kNone_GrSurfaceFlags = 0x0,
-    /**
-     * Creates a texture that can be rendered to as a GrRenderTarget. Use
-     * GrTexture::asRenderTarget() to access.
-     */
-    kRenderTarget_GrSurfaceFlag = 0x1,
-};
-GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
-
-typedef GrSurfaceFlags GrSurfaceDescFlags;
-
-/**
  * Describes a surface to be created.
  */
 struct GrSurfaceDesc {
     GrSurfaceDesc()
-            : fFlags(kNone_GrSurfaceFlags)
-            , fWidth(0)
+            : fWidth(0)
             , fHeight(0)
             , fIsProtected(GrProtected::kNo)
             , fConfig(kUnknown_GrPixelConfig)
             , fSampleCnt(1) {}
 
-    GrSurfaceDescFlags     fFlags;  //!< bitfield of TextureFlags
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
     GrProtected            fIsProtected;       //!< Surface is protected
