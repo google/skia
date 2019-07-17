@@ -159,7 +159,8 @@ public:
                           GrPixelConfig srcConfig, int srcSamplecnt, bool srcHasYcbcr) const;
 
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                            bool* rectsMustMatch, bool* disallowSubrect) const override;
+                            GrRenderable* renderable, bool* rectsMustMatch,
+                            bool* disallowSubrect) const override;
 
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                               GrColorType) const override;

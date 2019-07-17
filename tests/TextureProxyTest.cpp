@@ -24,9 +24,8 @@ int GrProxyProvider::numUniqueKeyProxies_TestOnly() const {
     return fUniquelyKeyedProxies.count();
 }
 
-static GrSurfaceDesc make_desc(GrSurfaceDescFlags descFlags) {
+static GrSurfaceDesc make_desc() {
     GrSurfaceDesc desc;
-    desc.fFlags = descFlags;
     desc.fWidth = 64;
     desc.fHeight = 64;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -40,13 +39,12 @@ static GrSurfaceDesc make_desc(GrSurfaceDescFlags descFlags) {
 
 static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter, GrContext* ctx,
                                           GrProxyProvider* proxyProvider, SkBackingFit fit) {
-    const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
+    const GrSurfaceDesc desc = make_desc();
     GrBackendFormat format =
             ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
-    sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin, fit,
-                                       SkBudgeted::kYes);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
+            format, desc, GrRenderable::kNo, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -54,13 +52,12 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter, GrContex
 
 static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter, GrContext* ctx,
                                             GrProxyProvider* proxyProvider, SkBackingFit fit) {
-    const GrSurfaceDesc desc = make_desc(kRenderTarget_GrSurfaceFlag);
+    const GrSurfaceDesc desc = make_desc();
     GrBackendFormat format =
             ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
-    sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin, fit,
-                                       SkBudgeted::kYes);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
+            format, desc, GrRenderable::kYes, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -68,10 +65,10 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter, GrCont
 
 static sk_sp<GrTextureProxy> wrapped(skiatest::Reporter* reporter, GrContext* ctx,
                                      GrProxyProvider* proxyProvider, SkBackingFit fit) {
-    const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
+    const GrSurfaceDesc desc = make_desc();
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->testingOnly_createInstantiatedProxy(
-            desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
+            desc, GrRenderable::kNo, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -88,11 +85,11 @@ static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter, GrCo
     builder[0] = kUniqueKeyData++;
     builder.finish();
 
-    const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
+    const GrSurfaceDesc desc = make_desc();
 
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     sk_sp<GrTextureProxy> proxy = proxyProvider->testingOnly_createInstantiatedProxy(
-            desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
+            desc, GrRenderable::kNo, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
     SkAssertResult(proxyProvider->assignUniqueKeyToProxy(key, proxy.get()));
     REPORTER_ASSERT(reporter, proxy->getUniqueKey().isValid());
     return proxy;
@@ -103,9 +100,9 @@ static sk_sp<GrTextureProxy> create_wrapped_backend(GrContext* context, SkBackin
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 
-    const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
+    const GrSurfaceDesc desc = make_desc();
 
-    *backingSurface = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+    *backingSurface = resourceProvider->createTexture(desc, GrRenderable::kNo, SkBudgeted::kNo,
                                                       GrResourceProvider::Flags::kNoPendingIO);
     if (!(*backingSurface)) {
         return nullptr;
