@@ -426,21 +426,6 @@ static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex
     return true;
 }
 
-static GrColorType get_grcolortype_from_skcolortype_and_format(const GrCaps* caps,
-                                                               SkColorType skCT,
-                                                               const GrBackendFormat& format) {
-    GrColorType grCT = SkColorTypeToGrColorType(skCT);
-    // Until we support SRGB in the SkColorType we have to do this manual check here to make sure
-    // we use the correct GrColorType.
-    if (caps->isFormatSRGB(format)) {
-        if (grCT != GrColorType::kRGBA_8888) {
-            return GrColorType::kUnknown;
-        }
-        grCT = GrColorType::kRGBA_8888_SRGB;
-    }
-    return grCT;
-}
-
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
                                                    const SkSurfaceCharacterization& c,
                                                    const GrBackendTexture& backendTexture,
@@ -459,8 +444,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
         return nullptr;
     }
 
-    GrColorType grCT = get_grcolortype_from_skcolortype_and_format(
-            context->priv().caps(), c.colorType(), backendTexture.getBackendFormat());
+    GrColorType grCT = SkColorTypeAndFormatToGrColorType(context->priv().caps(), c.colorType(),
+                                                         backendTexture.getBackendFormat());
     if (grCT == GrColorType::kUnknown) {
         return nullptr;
     }
@@ -551,8 +536,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     }
     sampleCnt = SkTMax(1, sampleCnt);
 
-    GrColorType grColorType = get_grcolortype_from_skcolortype_and_format(
-            context->priv().caps(), colorType, tex.getBackendFormat());
+    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(context->priv().caps(), colorType,
+                                                                tex.getBackendFormat());
     if (grColorType == GrColorType::kUnknown) {
         return nullptr;
     }
@@ -672,8 +657,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    GrColorType grColorType = get_grcolortype_from_skcolortype_and_format(
-            context->priv().caps(), colorType, rt.getBackendFormat());
+    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(context->priv().caps(), colorType,
+                                                                rt.getBackendFormat());
     if (grColorType == GrColorType::kUnknown) {
         return nullptr;
     }
@@ -718,8 +703,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     }
 
     sampleCnt = SkTMax(1, sampleCnt);
-    GrColorType grColorType = get_grcolortype_from_skcolortype_and_format(
-            context->priv().caps(), colorType, tex.getBackendFormat());
+    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(context->priv().caps(), colorType,
+                                                                tex.getBackendFormat());
     if (grColorType == GrColorType::kUnknown) {
         return nullptr;
     }

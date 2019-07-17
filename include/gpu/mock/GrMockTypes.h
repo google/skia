@@ -61,6 +61,8 @@ struct GrMockRenderTargetInfo {
 
     GrBackendFormat getBackendFormat() const;
 
+    GrColorType colorType() const { return fColorType; }
+
 private:
     GrColorType   fColorType;
     int           fID;
