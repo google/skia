@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d96929a_c3104cd5",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-07-17T20:56:18Z",
+      "side": 1,
+      "message": "Seems like it might be better to abort the program with an error of some kind, rather than just hide the out-of-bounds access?",
+      "range": {
+        "startLine": 469,
+        "startChar": 24,
+        "endLine": 469,
+        "endChar": 71
+      },
+      "revId": "1d5adf27b548fc104bb274f1dc743ddfd79b8e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
