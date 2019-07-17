@@ -133,14 +133,14 @@ protected:
             // default is linear lerp
             static constexpr SkPoint kDefaultC0 = { 0, 0 },
                                      kDefaultC1 = { 1, 1 };
-            const auto c0 = ParseDefault<SkPoint>((*jframe)["i"], kDefaultC0),
-                       c1 = ParseDefault<SkPoint>((*jframe)["o"], kDefaultC1);
+            const auto c0 = ParseDefault<SkPoint>((*jframe)["o"], kDefaultC0),
+                       c1 = ParseDefault<SkPoint>((*jframe)["i"], kDefaultC1);
 
             int cm_idx = -1;
             if (c0 != kDefaultC0 || c1 != kDefaultC1) {
                 // TODO: is it worth de-duping these?
                 cm_idx = SkToInt(fCubicMaps.size());
-                fCubicMaps.emplace_back(c1, c0);
+                fCubicMaps.emplace_back(c0, c1);
             }
 
             fRecs.push_back({t0, t0, v0_idx, v1_idx, cm_idx });
