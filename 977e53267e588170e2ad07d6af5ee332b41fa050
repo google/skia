@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24eac78a_1673d6c8",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T12:51:23Z",
+      "side": 0,
+      "message": "Is losing this flag not a problem ?",
+      "revId": "977e53267e588170e2ad07d6af5ee332b41fa050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

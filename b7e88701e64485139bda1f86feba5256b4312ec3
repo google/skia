@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f3f2f82_93ec940c",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T12:51:23Z",
+      "side": 1,
+      "message": "Maybe something like:\n\ntl;dr - if any data is provided it must all be provided.\n\nto summarize all the details\n\n?",
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "403b4526_5e73e702",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T12:51:23Z",
+      "side": 1,
+      "message": "If a level has non-null pixels, its row bytes must be a multiple of the config\u0027s bytes-per-pixel.\n\n?",
+      "range": {
+        "startLine": 96,
+        "startChar": 29,
+        "endLine": 97,
+        "endChar": 61
+      },
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaa38a3c_0ca7b7d9",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T12:51:23Z",
+      "side": 1,
+      "message": "If renderable is kYes then the returned object will be a GrTextureRenderTarget.\n\n?",
+      "range": {
+        "startLine": 74,
+        "startChar": 37,
+        "endLine": 75,
+        "endChar": 50
+      },
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "367a1203_f41a4f0c",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T12:51:23Z",
+      "side": 1,
+      "message": "OCD nit: put these in renderable/sampleCount order ?",
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08f85e42_2862429d",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 8
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T12:51:23Z",
+      "side": 1,
+      "message": "GrRenderable ?",
+      "range": {
+        "startLine": 508,
+        "startChar": 37,
+        "endLine": 508,
+        "endChar": 56
+      },
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44e42690_5153e450",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T12:51:23Z",
+      "side": 1,
+      "message": "Shouldn\u0027t these next three be kNo ?",
+      "range": {
+        "startLine": 173,
+        "startChar": 50,
+        "endLine": 173,
+        "endChar": 68
+      },
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb67ed48_e52e40fd",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T12:51:23Z",
+      "side": 1,
+      "message": "The old code was odd. Can we just move the creation of rtParams down to here ?",
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daaf3076_cae59c22",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T12:51:23Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
