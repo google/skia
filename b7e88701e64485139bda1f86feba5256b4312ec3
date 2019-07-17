@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cc5e2bb9_fdbc686c",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T14:00:21Z",
+      "side": 1,
+      "message": "That\u0027s not really quite right... you may be able to specify just the base level, but maybe not depending on caps.",
+      "parentUuid": "9f3f2f82_93ec940c",
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "403b4526_5e73e702",
         "filename": "src/gpu/GrGpu.h",
         "patchSetId": 8
@@ -39,6 +57,30 @@
       "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f47d26e0_a57df9fb",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T14:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "403b4526_5e73e702",
+      "range": {
+        "startLine": 96,
+        "startChar": 29,
+        "endLine": 97,
+        "endChar": 61
+      },
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "42df5794_567ad5c3",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T14:00:21Z",
+      "side": 1,
+      "message": "Modified but don\u0027t really want to use GrTextureRenderTarget because no code ever refers to that class (outside of it and its subclasses), everything uses GrTexture or GrRenderTarget.",
+      "parentUuid": "aaa38a3c_0ca7b7d9",
+      "range": {
+        "startLine": 74,
+        "startChar": 37,
+        "endLine": 75,
+        "endChar": 50
+      },
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "367a1203_f41a4f0c",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 8
@@ -79,6 +145,24 @@
       "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0117fd6_e6613566",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T14:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "367a1203_f41a4f0c",
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "3c7e2839_2f02071f",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 8
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T14:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08f85e42_2862429d",
+      "range": {
+        "startLine": 508,
+        "startChar": 37,
+        "endLine": 508,
+        "endChar": 56
+      },
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "44e42690_5153e450",
         "filename": "tests/ProxyTest.cpp",
         "patchSetId": 8
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "a9886924_e46467bd",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T14:00:21Z",
+      "side": 1,
+      "message": "Done (Added comments above each section)",
+      "parentUuid": "44e42690_5153e450",
+      "range": {
+        "startLine": 173,
+        "startChar": 50,
+        "endLine": 173,
+        "endChar": 68
+      },
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb67ed48_e52e40fd",
         "filename": "tests/ResourceAllocatorTest.cpp",
         "patchSetId": 8
@@ -145,6 +277,24 @@
     },
     {
       "key": {
+        "uuid": "7d969a74_0622c1ea",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T14:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb67ed48_e52e40fd",
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "daaf3076_cae59c22",
         "filename": "tests/TransferPixelsTest.cpp",
         "patchSetId": 8
@@ -159,6 +309,24 @@
       "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f01aa53_692ba4c7",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T14:00:21Z",
+      "side": 1,
+      "message": "At ToT it fits on one line b/c uncommented.",
+      "parentUuid": "daaf3076_cae59c22",
+      "revId": "b7e88701e64485139bda1f86feba5256b4312ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
