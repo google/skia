@@ -1,0 +1,210 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6933f113_1ff09037",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "srcRect ?",
+      "range": {
+        "startLine": 456,
+        "startChar": 74,
+        "endLine": 456,
+        "endChar": 75
+      },
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e29df01_4a1be328",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "// Helper method to invoke onFilterNodeBounds on the provided image filter\n// Note that ...\n\n?",
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58b85f15_0490b083",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "inputRect ?",
+      "range": {
+        "startLine": 457,
+        "startChar": 66,
+        "endLine": 457,
+        "endChar": 67
+      },
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8d58904_4102f74b",
+        "filename": "samplecode/SampleImageFilterDAG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "may be ?",
+      "range": {
+        "startLine": 36,
+        "startChar": 7,
+        "endLine": 36,
+        "endChar": 13
+      },
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5bbff01_fc91f183",
+        "filename": "samplecode/SampleImageFilterDAG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "computes ?",
+      "range": {
+        "startLine": 68,
+        "startChar": 43,
+        "endLine": 68,
+        "endChar": 51
+      },
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57fb9424_0dc9e022",
+        "filename": "samplecode/SampleImageFilterDAG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "Given all the \"node-\u003e\"s - would this make more sense as a member function?",
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57aa7330_749ce80b",
+        "filename": "samplecode/SampleImageFilterDAG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "Do we need this get() ?",
+      "range": {
+        "startLine": 88,
+        "startChar": 29,
+        "endLine": 88,
+        "endChar": 35
+      },
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6be530c_dd9699b4",
+        "filename": "samplecode/SampleImageFilterDAG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa0776f8_a36abb47",
+        "filename": "samplecode/SampleImageFilterDAG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "CTM",
+      "range": {
+        "startLine": 253,
+        "startChar": 66,
+        "endLine": 253,
+        "endChar": 69
+      },
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0cbc39d_75f75314",
+        "filename": "samplecode/SampleImageFilterDAG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T14:25:15Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "85ad5e285c4986c8dc8c66c98bbad6409b8aba1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
