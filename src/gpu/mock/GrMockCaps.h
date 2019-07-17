@@ -118,12 +118,6 @@ public:
         return SurfaceReadPixelsSupport::kSupported;
     }
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                            GrRenderable* renderable, bool* rectsMustMatch,
-                            bool* disallowSubrect) const override {
-        return false;
-    }
-
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                               GrColorType) const override {
         return kUnknown_GrPixelConfig;

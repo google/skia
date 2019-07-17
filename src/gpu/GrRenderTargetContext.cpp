@@ -2619,44 +2619,24 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
 
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
-    // TODO: We don't really use renderability or GrSurfaceDesc. Remove them from caps function?
-    GrSurfaceDesc desc;
-    bool rectsMustMatch = false;
-    bool disallowSubrect = false;
-    GrRenderable renderable = GrRenderable::kNo;
-    if (!this->caps()->initDescForDstCopy(rtProxy, &desc, &renderable, &rectsMustMatch,
-                                          &disallowSubrect)) {
-        renderable = GrRenderable::kYes;
-        desc.fConfig = rtProxy->config();
-    }
+    GrCaps::DstCopyRestrictions restrictions = this->caps()->getDstCopyRestrictions(rtProxy);
 
-    desc.fIsProtected = rtProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo;
-
-    if (!disallowSubrect) {
+    if (!restrictions.fMustCopyWholeSrc) {
         copyRect = clippedRect;
     }
 
-    SkIPoint dstPoint, dstOffset;
+    SkIPoint dstOffset;
     SkBackingFit fit;
-    GrSurfaceProxy::RectsMustMatch matchRects;
-    if (rectsMustMatch) {
-        desc.fWidth = rtProxy->width();
-        desc.fHeight = rtProxy->height();
-        dstPoint = {copyRect.fLeft, copyRect.fTop};
+    if (restrictions.fRectsMustMatch == GrSurfaceProxy::RectsMustMatch::kYes) {
         dstOffset = {0, 0};
         fit = SkBackingFit::kExact;
-        matchRects = GrSurfaceProxy::RectsMustMatch::kYes;
     } else {
-        desc.fWidth = copyRect.width();
-        desc.fHeight = copyRect.height();
-        dstPoint = {0, 0};
         dstOffset = {copyRect.fLeft, copyRect.fTop};
         fit = SkBackingFit::kApprox;
-        matchRects = GrSurfaceProxy::RectsMustMatch::kNo;
     }
-    sk_sp<GrTextureProxy> newProxy = GrSurfaceProxy::Copy(fContext, rtProxy, GrMipMapped::kNo,
-                                                          copyRect, fit, SkBudgeted::kYes,
-                                                          matchRects);
+    sk_sp<GrTextureProxy> newProxy =
+            GrSurfaceProxy::Copy(fContext, rtProxy, GrMipMapped::kNo, copyRect, fit,
+                                 SkBudgeted::kYes, restrictions.fRectsMustMatch);
     SkASSERT(newProxy);
 
     dstProxy->setProxy(std::move(newProxy));

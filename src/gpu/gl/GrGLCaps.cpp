@@ -2724,33 +2724,20 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
            this->canCopyAsDraw(dstConfig, SkToBool(srcTex));
 }
 
-bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                                  GrRenderable* renderable, bool* rectsMustMatch,
-                                  bool* disallowSubrect) const {
-    *renderable = GrRenderable::kNo;
-
-    // By default, we don't require rects to match.
-    *rectsMustMatch = false;
-
-    // By default, we allow subrects.
-    *disallowSubrect = false;
-
+GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTargetProxy* src) const {
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
     if (src->asTextureProxy() && !this->isConfigRenderable(src->config())) {
-        *renderable = GrRenderable::kYes;
-        desc->fConfig = src->config();
-        return true;
+        return {};
     }
 
     {
-        // The only way we could see a non-GR_GL_TEXTURE_2D texture would be if it were
-        // wrapped. In that case the proxy would already be instantiated.
-        const GrTexture* srcTexture = src->peekTexture();
-        const GrGLTexture* glSrcTexture = static_cast<const GrGLTexture*>(srcTexture);
-        if (glSrcTexture && glSrcTexture->target() != GR_GL_TEXTURE_2D) {
-            // Not supported for FBO blit or CopyTexSubImage
-            return false;
+        const GrGLenum* srcTextureTarget = src->backendFormat().getGLTarget();
+        SkASSERT(srcTextureTarget);
+        if (*srcTextureTarget == GR_GL_TEXTURE_EXTERNAL) {
+            // Not supported for FBO blit or CopyTexSubImage. Caller will have to fall back to a
+            // draw (if the source is also a texture).
+            return {};
         }
     }
 
@@ -2758,16 +2745,15 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // possible and we return false to fallback to creating a render target dst for render-to-
     // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
-    bool rectsMustMatchForBlitFramebuffer = false;
-    bool disallowSubrectForBlitFramebuffer = false;
+    DstCopyRestrictions blitFramebufferRestrictions = {};
     if (src->numSamples() > 1 &&
         (this->blitFramebufferSupportFlags() & kResolveMustBeFull_BlitFrambufferFlag)) {
-        rectsMustMatchForBlitFramebuffer = true;
-        disallowSubrectForBlitFramebuffer = true;
+        blitFramebufferRestrictions.fRectsMustMatch = GrSurfaceProxy::RectsMustMatch::kYes;
+        blitFramebufferRestrictions.fMustCopyWholeSrc = true;
         // Mirroring causes rects to mismatch later, don't allow it.
     } else if (src->numSamples() > 1 && (this->blitFramebufferSupportFlags() &
                                          kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
-        rectsMustMatchForBlitFramebuffer = true;
+        blitFramebufferRestrictions.fRectsMustMatch = GrSurfaceProxy::RectsMustMatch::kYes;
     }
 
     // Check for format issues with glCopyTexSubImage2D
@@ -2775,12 +2761,10 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
         // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
         // then we set up for that, otherwise fail.
         if (this->canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
-            desc->fConfig = kBGRA_8888_GrPixelConfig;
-            *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
-            *disallowSubrect = disallowSubrectForBlitFramebuffer;
-            return true;
+            return blitFramebufferRestrictions;
         }
-        return false;
+        // Caller will have to use a draw.
+        return {};
     }
 
     {
@@ -2790,18 +2774,15 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
             // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO
             // blit or fail.
             if (this->canConfigBeFBOColorAttachment(src->config())) {
-                desc->fConfig = src->config();
-                *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
-                *disallowSubrect = disallowSubrectForBlitFramebuffer;
-                return true;
+                return blitFramebufferRestrictions;
             }
-            return false;
+            // Caller will have to use a draw.
+            return {};
         }
     }
 
-    // We'll do a CopyTexSubImage.
-    desc->fConfig = src->config();
-    return true;
+    // We'll do a CopyTexSubImage, no restrictions.
+    return {};
 }
 
 void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
