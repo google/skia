@@ -235,14 +235,6 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             }
             break;
         }
-        case kRG_float_GrPixelConfig: {
-            float* destFloat = (float*) dest;
-            for (int i = 0; i < width * height; ++i, destFloat += 2) {
-                destFloat[0] = colorf.fR;
-                destFloat[1] = colorf.fG;
-            }
-            break;
-        }
         case kAlpha_half_as_Red_GrPixelConfig:                  // fall through
         case kAlpha_half_GrPixelConfig: {
             SkHalf alphaHalf = SkFloatToHalf(colorf.fA);
@@ -394,9 +386,6 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
         case GrColorType::kRGBA_F16:         *load = SkRasterPipeline::load_f16;
                                              *isNormalized = false;
                                              break;
-        case GrColorType::kRG_F32:           *load = SkRasterPipeline::load_rgf32;
-                                             *isNormalized = false;
-                                             break;
         case GrColorType::kRGBA_F32:         *load = SkRasterPipeline::load_f32;
                                              *isNormalized = false;
                                              break;
@@ -445,9 +434,6 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
                                              *isNormalized = false;
                                              break;
         case GrColorType::kRGBA_F16:         *store = SkRasterPipeline::store_f16;
-                                             *isNormalized = false;
-                                             break;
-        case GrColorType::kRG_F32:           *store = SkRasterPipeline::store_rgf32;
                                              *isNormalized = false;
                                              break;
         case GrColorType::kRGBA_F32:         *store = SkRasterPipeline::store_f32;

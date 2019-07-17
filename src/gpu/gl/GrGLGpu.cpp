@@ -878,7 +878,6 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kSRGBA_8888_GrPixelConfig:
         case kRGBA_1010102_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
-        case kRG_float_GrPixelConfig:
         case kRG_1616_GrPixelConfig:
             return 4;
         case kRGB_ETC1_GrPixelConfig:
@@ -3736,7 +3735,6 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
         case GrGLFormat::kRGB565:               return kRGB_565_GrPixelConfig;
         case GrGLFormat::kRGBA4:                return kRGBA_4444_GrPixelConfig;
         case GrGLFormat::kRGBA32F:              return kRGBA_float_GrPixelConfig;
-        case GrGLFormat::kRG32F:                return kRG_float_GrPixelConfig;
         case GrGLFormat::kRGBA16F:              return kRGBA_half_GrPixelConfig;
         case GrGLFormat::kR16F:                 return kAlpha_half_GrPixelConfig;
         case GrGLFormat::kR16:                  return kR_16_GrPixelConfig;

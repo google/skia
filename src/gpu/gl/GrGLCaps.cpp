@@ -2444,13 +2444,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kGray_8_GrPixelConfig] = grayLumInfo;
     }
 
-    // We disable all texturing and rendering to F32 formats.
-    for (auto fpconfig : {kRGBA_float_GrPixelConfig, kRG_float_GrPixelConfig}) {
-        const GrGLenum format = kRGBA_float_GrPixelConfig == fpconfig ? GR_GL_RGBA : GR_GL_RG;
-        fConfigTable[fpconfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = format;
-        fConfigTable[fpconfig].fFormats.fExternalType = GR_GL_FLOAT;
-        fConfigTable[fpconfig].fFormatType = kFloat_FormatType;
-    }
+    ConfigInfo& rgbaF32Info = fConfigTable[kRGBA_float_GrPixelConfig];
+    rgbaF32Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RGBA;
+    rgbaF32Info.fFormats.fExternalType = GR_GL_FLOAT;
+    rgbaF32Info.fFormatType = kFloat_FormatType;
 
     GrGLenum redHalfExternalType;
     if (GR_IS_GR_GL(standard) ||
@@ -3438,7 +3435,6 @@ GrGLFormat GrGLCaps::pixelConfigToFormat(GrPixelConfig config) const {
         case kSRGBA_8888_GrPixelConfig:
         case kRGBA_1010102_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
-        case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
@@ -3532,11 +3528,6 @@ static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGL
         case GrColorType::kRGBA_F16_Clamped:
             if (GR_GL_RGBA16F == format) {
                 return kRGBA_half_Clamped_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRG_F32:
-            if (GR_GL_RG32F == format) {
-                return kRG_float_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_F32:
@@ -3706,8 +3697,6 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
             return GR_GL_RGBA16F == format;
         case GrColorType::kRGBA_F16_Clamped:
             return GR_GL_RGBA16F == format;
-        case GrColorType::kRG_F32:
-            return GR_GL_RG32F == format;
         case GrColorType::kRGBA_F32:
             return GR_GL_RGBA32F == format;
         case GrColorType::kR_16:

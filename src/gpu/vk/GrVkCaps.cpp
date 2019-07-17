@@ -104,7 +104,6 @@ static int get_compatible_format_class(GrPixelConfig config) {
             return 4;
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
-        case kRG_float_GrPixelConfig:
             return 5;
         case kRGBA_float_GrPixelConfig:
             return 6;
@@ -672,7 +671,6 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_B4G4R4A4_UNORM_PACK16,
     VK_FORMAT_R4G4B4A4_UNORM_PACK16,
     VK_FORMAT_R32G32B32A32_SFLOAT,
-    VK_FORMAT_R32G32_SFLOAT,
     VK_FORMAT_R8G8B8A8_SRGB,
     VK_FORMAT_B8G8R8A8_SRGB,
     VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
@@ -1023,11 +1021,6 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
                 return kRGBA_half_Clamped_GrPixelConfig;
             }
             break;
-        case GrColorType::kRG_F32:
-            if (VK_FORMAT_R32G32_SFLOAT == format) {
-                return kRG_float_GrPixelConfig;
-            }
-            break;
         case GrColorType::kRGBA_F32:
             if (VK_FORMAT_R32G32B32A32_SFLOAT == format) {
                 return kRGBA_float_GrPixelConfig;
@@ -1184,8 +1177,6 @@ static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorTyp
             return VK_FORMAT_R16G16B16A16_SFLOAT == vkFormat;
         case GrColorType::kRGBA_F16_Clamped:
             return VK_FORMAT_R16G16B16A16_SFLOAT == vkFormat;
-        case GrColorType::kRG_F32:
-            return VK_FORMAT_R32G32_SFLOAT == vkFormat;
         case GrColorType::kRGBA_F32:
             return VK_FORMAT_R32G32B32A32_SFLOAT == vkFormat;
         case GrColorType::kR_16:

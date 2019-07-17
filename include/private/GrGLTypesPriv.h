@@ -29,7 +29,6 @@ enum class GrGLFormat {
     kRGB10_A2,
     kRGBA4,
     kRGBA32F,
-    kRG32F,
     kSRGB8_ALPHA8,
     kCOMPRESSED_RGB8_ETC2,
     kCOMPRESSED_ETC1_RGB8,

@@ -554,8 +554,6 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
 
         // These backend formats don't have SkColorType equivalents
-        { kUnknown_SkColorType,             GR_GL_RG32F,
-          kRG_float_GrPixelConfig,          { 0.7f, 0.7f, 0, 0 }},
         { kUnknown_SkColorType,             GR_GL_RG8,
           kRG_88_GrPixelConfig,             { 0.5f, 0.5f, 0, 0 }},
         { kUnknown_SkColorType,             GR_GL_R16F,
@@ -721,7 +719,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { kRGBA_F16_SkColorType,     VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kYellow    },
 
         // These backend formats don't have SkColorType equivalents
-        { kUnknown_SkColorType,      VK_FORMAT_R32G32_SFLOAT,            { 0.7f, 0.7f, 0, 0 } },
         { kUnknown_SkColorType,      VK_FORMAT_R8G8_UNORM,               { 0.5f, 0.5f, 0, 0 } },
         { kUnknown_SkColorType,      VK_FORMAT_R16_SFLOAT,               { 1.0f, 0, 0, 0.5f } },
         { kUnknown_SkColorType,      VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,  SkColors::kRed       },

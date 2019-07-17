@@ -736,9 +736,6 @@ static bool mtl_format_to_pixel_config(MTLPixelFormat format, GrPixelConfig* con
         case MTLPixelFormatRGBA32Float:
             *config = kRGBA_float_GrPixelConfig;
             return true;
-        case MTLPixelFormatRG32Float:
-            *config = kRG_float_GrPixelConfig;
-            return true;
         case MTLPixelFormatRGBA16Float:
             *config = kRGBA_half_GrPixelConfig;
             return true;

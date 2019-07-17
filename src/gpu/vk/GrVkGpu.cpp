@@ -1877,9 +1877,6 @@ static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
         case VK_FORMAT_R32G32B32A32_SFLOAT:
             *config = kRGBA_float_GrPixelConfig;
             return true;
-        case VK_FORMAT_R32G32_SFLOAT:
-            *config = kRG_float_GrPixelConfig;
-            return true;
         case VK_FORMAT_R16G16B16A16_SFLOAT:
             *config = kRGBA_half_GrPixelConfig;
             return true;
