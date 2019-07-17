@@ -15,6 +15,7 @@
 #include "include/gpu/GrDriverBugWorkarounds.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrSurfaceProxy.h"
 
 class GrBackendFormat;
 class GrBackendRenderTarget;
@@ -22,7 +23,6 @@ class GrBackendTexture;
 struct GrContextOptions;
 class GrRenderTargetProxy;
 class GrSurface;
-class GrSurfaceProxy;
 class SkJSONWriter;
 
 /**
@@ -349,17 +349,23 @@ public:
     bool driverBlacklistCCPR() const { return fDriverBlacklistCCPR; }
 
     /**
-     * This is can be called before allocating a texture to be a dst for copySurface. This is only
-     * used for doing dst copies needed in blends, thus the src is always a GrRenderTargetProxy. It
-     * will populate config and flags fields of the desc such that copySurface can efficiently
-     * succeed as well as the proxy origin. renderable will be set to kYes if the destination
-     * texture should be renderable in order to implement the copy as a draw. rectsMustMatch will be
-     * set to true if the copy operation must ensure that the src and dest rects are identical.
-     * disallowSubrect will be set to true if copy rect must equal src's bounds.
+     * This is used to try to ensure a successful copy a dst in order to perform shader-based
+     * blending.
+     *
+     * fRectsMustMatch will be set to true if the copy operation must ensure that the src and dest
+     * rects are identical.
+     *
+     * fMustCopyWholeSrc will be set to true if copy rect must equal src's bounds.
+     *
+     * Caller will detect cases when copy cannot succeed and try copy-as-draw as a fallback.
      */
-    virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                                    GrRenderable* renderable, bool* rectsMustMatch,
-                                    bool* disallowSubrect) const = 0;
+    struct DstCopyRestrictions {
+        GrSurfaceProxy::RectsMustMatch fRectsMustMatch = GrSurfaceProxy::RectsMustMatch::kNo;
+        bool fMustCopyWholeSrc = false;
+    };
+    virtual DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src) const {
+        return {};
+    }
 
     bool validateSurfaceDesc(const GrSurfaceDesc&, GrRenderable renderable, GrMipMapped) const;
 

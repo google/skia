@@ -59,26 +59,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
                isProtected);
 }
 
-bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                                  GrRenderable* renderable, bool* rectsMustMatch,
-                                  bool* disallowSubrect) const {
-    // Vk doesn't use rectsMustMatch or disallowSubrect. Always return false.
-    *rectsMustMatch = false;
-    *disallowSubrect = false;
-
-    *renderable = GrRenderable::kNo;
-
-    // We can always succeed here with either a CopyImage (none msaa src) or ResolveImage (msaa).
-    // For CopyImage we can make a simple texture, for ResolveImage we require the dst to be a
-    // render target as well.
-    desc->fConfig = src->config();
-    if (src->numSamples() > 1 || src->asTextureProxy()) {
-        *renderable = GrRenderable::kYes;
-    }
-
-    return true;
-}
-
 static int get_compatible_format_class(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
