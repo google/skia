@@ -70,11 +70,6 @@ public:
     static sk_sp<GrContext> MakeMetal(void* device, void* queue);
 #endif
 
-#ifdef SK_DAWN
-    static sk_sp<GrContext> MakeDawn(const dawn::Device& device, const GrContextOptions& options);
-    static sk_sp<GrContext> MakeDawn(const dawn::Device& device);
-#endif
-
     static sk_sp<GrContext> MakeMock(const GrMockOptions*, const GrContextOptions&);
     static sk_sp<GrContext> MakeMock(const GrMockOptions*);
 

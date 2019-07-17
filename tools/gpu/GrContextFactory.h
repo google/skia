@@ -41,7 +41,6 @@ public:
         kCommandBuffer_ContextType,  //! Chromium command buffer OpenGL ES context.
         kVulkan_ContextType,         //! Vulkan
         kMetal_ContextType,          //! Metal
-        kDawn_ContextType,           //! Dawn
         kMock_ContextType,           //! Mock context that does not draw.
         kLastContextType = kMock_ContextType
     };
@@ -72,8 +71,6 @@ public:
                 return GrBackendApi::kVulkan;
             case kMetal_ContextType:
                 return GrBackendApi::kMetal;
-            case kDawn_ContextType:
-                return GrBackendApi::kDawn;
             case kMock_ContextType:
                 return GrBackendApi::kMock;
             default:
@@ -103,8 +100,6 @@ public:
                 return "Vulkan";
             case kMetal_ContextType:
                 return "Metal";
-            case kDawn_ContextType:
-                return "Dawn";
             case kMock_ContextType:
                 return "Mock";
         }
