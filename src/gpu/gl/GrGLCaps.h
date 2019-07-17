@@ -432,9 +432,7 @@ public:
                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
     bool canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const;
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                            GrRenderable* renderable, bool* rectsMustMatch,
-                            bool* disallowSubrect) const override;
+    DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src) const override;
 
     bool programBinarySupport() const { return fProgramBinarySupport; }
     bool programParameterSupport() const { return fProgramParameterSupport; }
