@@ -42,128 +42,7 @@ namespace skvm {
     }
 
     Program Builder::done() const {
-        // Track per-instruction code hoisting, lifetime, and register assignment.
-        struct Analysis {
-            bool hoist = true;  // Can this instruction be hoisted outside the implicit loop?
-            Reg  reg   = 0;     // Register this instruction's output is assigned to.
-        };
-        std::vector<Analysis> analysis(fProgram.size());
-        std::vector<Val> deaths = this->deaths();
-
-
-        // Look to see if there are any instructions that can be hoisted outside the program's loop.
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            const Instruction& inst = fProgram[id];
-
-            // Loads and stores cannot be hoisted out of the loop.
-            if (inst.op <= Op::load32) {
-                analysis[id].hoist = false;
-            }
-
-            // If any of an instruction's arguments can't be hoisted, it can't be hoisted itself.
-            if (analysis[id].hoist) {
-                if (inst.x != NA) { analysis[id].hoist &= analysis[inst.x].hoist; }
-                if (inst.y != NA) { analysis[id].hoist &= analysis[inst.y].hoist; }
-                if (inst.z != NA) { analysis[id].hoist &= analysis[inst.z].hoist; }
-            }
-
-            // Extend the lifetime of live hoisted instructions to the full program,
-            // mostly to avoid recycling their registers (and also helps debugging).
-            if (analysis[id].hoist && deaths[id] != 0) {
-                deaths[id] = (Val)fProgram.size();
-            }
-        }
-
-        // We'll need to map each live value to a register.
-        Reg next_reg = 0;
-
-        // Our first pass of register assignment assigns hoisted values to eternal registers.
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            if (deaths[id] == 0 || !analysis[id].hoist) {
-                continue;
-            }
-            // Hoisted values are needed forever, so they each get their own register.
-            analysis[id].reg = next_reg++;
-        }
-
-        // Now assign non-hoisted values to registers.
-        // When these values are no longer needed we can recycle their registers.
-        std::vector<Reg> avail;
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            const Instruction& inst = fProgram[id];
-            if (deaths[id] == 0 || analysis[id].hoist) {
-                continue;
-            }
-
-            // If an Instruction's input is no longer live, we can recycle the register it occupies.
-            auto maybe_recycle_register = [&](Val input) {
-                // If this is a real input and it's lifetime ends with this
-                // instruction, we can recycle the register it's occupying.
-                if (input != NA && deaths[input] == id) {
-                    avail.push_back(analysis[input].reg);
-                }
-            };
-
-            // Take care not to mark any register available twice, e.g. add(foo,foo).
-            if (true                                ) { maybe_recycle_register(inst.x); }
-            if (inst.y != inst.x                    ) { maybe_recycle_register(inst.y); }
-            if (inst.z != inst.x && inst.z != inst.y) { maybe_recycle_register(inst.z); }
-
-            // Allocate a register if we have to, but prefer to reuse one that's available.
-            if (avail.empty()) {
-                analysis[id].reg = next_reg++;
-            } else {
-                analysis[id].reg = avail.back();
-                avail.pop_back();
-            }
-        }
-
-        // Add a dummy mapping for the N/A sentinel value to any arbitrary register
-        // so that the lookups don't have to know which arguments are used by which Ops.
-        auto lookup_register = [&](Val id) {
-            return id == NA ? (Reg)0
-                            : analysis[id].reg;
-        };
-
-        // Finally translate Builder::Instructions to Program::Instructions by mapping values to
-        // registers.  This will be two passes again, first outside the loop, then inside.
-
-        // The loop begins at the loop'th Instruction.
-        int loop = 0;
-        std::vector<Program::Instruction> program;
-        program.reserve(fProgram.size());
-
-        auto push_instruction = [&](Val id, const Builder::Instruction& inst) {
-            Program::Instruction pinst{
-                inst.op,
-                lookup_register(id),
-                lookup_register(inst.x),
-                lookup_register(inst.y),
-               {lookup_register(inst.z)},
-            };
-            if (inst.z == NA) { pinst.imm = inst.imm; }
-            program.push_back(pinst);
-        };
-
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            const Instruction& inst = fProgram[id];
-            if (deaths[id] == 0 || !analysis[id].hoist) {
-                continue;
-            }
-
-            push_instruction(id, inst);
-            loop++;
-        }
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            const Instruction& inst = fProgram[id];
-            if (deaths[id] == 0 || analysis[id].hoist) {
-                continue;
-            }
-
-            push_instruction(id, inst);
-        }
-
-        return { std::move(program), /*register count = */next_reg, loop, fStrides };
+        return {fProgram, this->deaths(), fStrides};
     }
 
     static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
@@ -1637,6 +1516,128 @@ namespace skvm {
         #endif
         }
     #endif  // defined(SKVM_JIT)
+    }
+
+    Program::Program(std::vector<Builder::Instruction> instructions,
+                     std::vector<Val>                  deaths,
+                     std::vector<int>                  strides) : fStrides(strides) {
+        SkASSERT(instructions.size() == deaths.size());
+
+        // We're going to do a bit of work first to translate Builder::Instructions
+        // into Program::Instructions used by the interpreter (and only the interpreter).
+
+        struct Analysis {
+            bool hoist = true;  // Can this instruction be hoisted outside the implicit loop?
+            Reg  reg   = 0;     // Register this instruction's output is assigned to.
+        };
+        std::vector<Analysis> analysis(instructions.size());
+
+        // Hoisting out non-loop-dependent values is pretty valuable to the interpreter.
+        for (Val id = 0; id < (Val)instructions.size(); id++) {
+            const Builder::Instruction& inst = instructions[id];
+
+            // Loads and stores cannot be hoisted out of the loop.
+            if (inst.op <= Op::load32) {
+                analysis[id].hoist = false;
+            }
+
+            // If any of an instruction's inputs can't be hoisted, it can't be hoisted itself.
+            if (analysis[id].hoist) {
+                if (inst.x != NA) { analysis[id].hoist &= analysis[inst.x].hoist; }
+                if (inst.y != NA) { analysis[id].hoist &= analysis[inst.y].hoist; }
+                if (inst.z != NA) { analysis[id].hoist &= analysis[inst.z].hoist; }
+            }
+
+            // Extend the lifetime of any live hoisted instruction to the full program.
+            if (analysis[id].hoist && deaths[id] != 0) {
+                deaths[id] = (Val)instructions.size();
+            }
+        }
+
+        // This next bit is a bit more complicated than strictly necessary;
+        // we could just assign every live instruction to its own register.
+        //
+        // But recycling registers in the loop is fairly cheap, and good
+        // practice for the JITs where minimizing register pressure really is
+        // important.  (Also helps minimize unit test diffs.)
+
+        // Assign a register to each live hoisted instruction.
+        fRegs = 0;
+        int live_instructions = 0;
+        for (Val id = 0; id < (Val)instructions.size(); id++) {
+            if (deaths[id] != 0 && analysis[id].hoist) {
+                live_instructions++;
+                analysis[id].reg = fRegs++;
+            }
+        }
+
+        std::vector<Reg> avail;
+        for (Val id = 0; id < (Val)instructions.size(); id++) {
+            if (deaths[id] != 0 && !analysis[id].hoist) {
+                live_instructions++;
+                const Builder::Instruction& inst = instructions[id];
+
+                /// If an instruction's input is no longer live, we can recycle its register.
+                auto maybe_recycle_register = [&](Val input) {
+                    // If this is a real input and it's lifetime ends at this instruction,
+                    // we can recycle the register it's occupying.
+                    if (input != NA && deaths[input] == id) {
+                        avail.push_back(analysis[input].reg);
+                    }
+                };
+
+                // Take care to not recycle the same register twice.
+                if (true                                ) { maybe_recycle_register(inst.x); }
+                if (inst.y != inst.x                    ) { maybe_recycle_register(inst.y); }
+                if (inst.z != inst.x && inst.z != inst.y) { maybe_recycle_register(inst.z); }
+
+                // Allocate a register if we have to, preferring to reuse anything available.
+                if (avail.empty()) {
+                    analysis[id].reg = fRegs++;
+                } else {
+                    analysis[id].reg = avail.back();
+                    avail.pop_back();
+                }
+            }
+        }
+
+        // Translate Builder::Instructions to Program::Instructions by mapping values to
+        // registers.  This will be two passes, first hoisted instructions, then inside the loop.
+
+        // The loop begins at the fLoop'th Instruction.
+        fLoop = 0;
+        fInstructions.reserve(live_instructions);
+
+        // Add a dummy mapping for the N/A sentinel Val to any arbitrary register
+        // so lookups don't have to know which arguments are used by which Ops.
+        auto lookup_register = [&](Val id) {
+            return id == NA ? (Reg)0
+                            : analysis[id].reg;
+        };
+
+        auto push_instruction = [&](Val id, const Builder::Instruction& inst) {
+            Program::Instruction pinst{
+                inst.op,
+                lookup_register(id),
+                lookup_register(inst.x),
+                lookup_register(inst.y),
+               {lookup_register(inst.z)},
+            };
+            if (inst.z == NA) { pinst.imm = inst.imm; }
+            fInstructions.push_back(pinst);
+        };
+
+        for (Val id = 0; id < (Val)instructions.size(); id++) {
+            if (deaths[id] != 0 && analysis[id].hoist) {
+                push_instruction(id, instructions[id]);
+                fLoop++;
+            }
+        }
+        for (Val id = 0; id < (Val)instructions.size(); id++) {
+            if (deaths[id] != 0 && !analysis[id].hoist) {
+                push_instruction(id, instructions[id]);
+            }
+        }
     }
 
 }
