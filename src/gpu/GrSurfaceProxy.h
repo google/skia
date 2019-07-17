@@ -325,17 +325,18 @@ public:
 
 protected:
     // Deferred version
-    GrSurfaceProxy(const GrBackendFormat& format, const GrSurfaceDesc& desc,
+    GrSurfaceProxy(const GrBackendFormat& format, const GrSurfaceDesc& desc, GrRenderable renderable,
                    GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle, SkBackingFit fit,
                    SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
-            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, format, desc, origin,
+            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, format, desc, renderable, origin,
                              textureSwizzle, fit, budgeted, surfaceFlags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&&, LazyInstantiationType,
-                   const GrBackendFormat& format, const GrSurfaceDesc&, GrSurfaceOrigin,
+                   const GrBackendFormat& format, const GrSurfaceDesc&, GrRenderable,
+                   GrSurfaceOrigin,
                    const GrSwizzle& textureSwizzle, SkBackingFit, SkBudgeted,
                    GrInternalSurfaceFlags);
 
@@ -359,7 +360,7 @@ protected:
     void assign(sk_sp<GrSurface> surface);
 
     sk_sp<GrSurface> createSurfaceImpl(
-            GrResourceProvider*, int sampleCnt, int minStencilSampleCount, GrSurfaceDescFlags,
+            GrResourceProvider*, int sampleCnt, int minStencilSampleCount, GrRenderable,
             GrMipMapped) const;
 
     // Once the size of a fully-lazy proxy is decided, and before it gets instantiated, the client
@@ -375,7 +376,7 @@ protected:
 
     bool instantiateImpl(
             GrResourceProvider* resourceProvider, int sampleCnt, int minStencilSampleCount,
-            GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*);
+            GrRenderable, GrMipMapped, const GrUniqueKey*);
 
     // For deferred proxies this will be null until the proxy is instantiated.
     // For wrapped proxies it will point to the wrapped resource.
