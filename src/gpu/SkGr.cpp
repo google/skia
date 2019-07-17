@@ -86,7 +86,6 @@ void main(int x, int y, inout half4 color) {
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
     GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
@@ -194,7 +193,7 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
         proxy = proxyProvider->findOrCreateProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
-        proxy = proxyProvider->createTextureProxy(srcImage, kNone_GrSurfaceFlags, 1,
+        proxy = proxyProvider->createTextureProxy(srcImage, GrRenderable::kNo, 1,
                                                   SkBudgeted::kYes, fit);
         if (proxy && originalKey.isValid()) {
             proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());

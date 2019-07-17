@@ -118,7 +118,7 @@ public:
         return SurfaceReadPixelsSupport::kSupported;
     }
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrRenderable* renderable,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
         return false;
     }

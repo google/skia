@@ -158,7 +158,7 @@ public:
     bool canCopyAsResolve(GrPixelConfig dstConfig, int dstSampleCnt, bool dstHasYcbcr,
                           GrPixelConfig srcConfig, int srcSamplecnt, bool srcHasYcbcr) const;
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrRenderable* renderable,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
