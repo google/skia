@@ -680,6 +680,9 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
 
     // TODO: Create GrMtlTransferBuffer
     id<MTLBuffer> transferBuffer;
+    if (0 == bufferSize) {
+        return false;
+    }
     if (srcData) {
         transferBuffer = [fDevice newBufferWithBytes: srcData
                                               length: bufferSize
