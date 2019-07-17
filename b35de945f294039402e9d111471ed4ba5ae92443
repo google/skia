@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f862016_6fda9e02",
+        "filename": "modules/skottie/src/SkottieAnimator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-17T16:39:17Z",
+      "side": 1,
+      "message": "does this mean you special-cast index\u003d-1? Why not just push a linear cubicmap into your list, at index 0?",
+      "range": {
+        "startLine": 144,
+        "startChar": 25,
+        "endLine": 144,
+        "endChar": 26
+      },
+      "revId": "b35de945f294039402e9d111471ed4ba5ae92443",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
