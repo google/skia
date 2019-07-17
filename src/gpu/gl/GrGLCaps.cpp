@@ -1451,6 +1451,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // RGBA8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGBA8;
         info.fInternalFormatForTexImage =
@@ -1503,6 +1504,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // R8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kR8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RED;
         info.fSizedInternalFormat = GR_GL_R8;
         info.fInternalFormatForTexImage =
@@ -1544,6 +1546,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         bool alpha8IsValidForWebGL = GR_IS_GR_WEBGL(standard);
 
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kALPHA8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_ALPHA;
         info.fSizedInternalFormat = GR_GL_ALPHA8;
         if (GR_IS_GR_GL_ES(standard) || !texImageSupportsSizedInternalFormat) {
@@ -1586,6 +1589,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // LUMINANCE8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kLUMINANCE8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_LUMINANCE;
         info.fSizedInternalFormat = GR_GL_LUMINANCE8;
         info.fInternalFormatForTexImage =
@@ -1630,6 +1634,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // BGRA8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kBGRA8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_BGRA;
         info.fSizedInternalFormat = GR_GL_BGRA8;
         // If BGRA is supported as an internal format it must always be specified to glTex[Sub]Image
@@ -1723,6 +1728,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // RGB565
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGB565);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RGB;
         info.fSizedInternalFormat = GR_GL_RGB565;
         info.fInternalFormatForTexImage =
@@ -1763,6 +1769,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // RGBA16F
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA16F);
+        info.fFormatType = FormatType::kFloat;
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGBA16F;
         info.fInternalFormatForTexImage =
@@ -1801,6 +1808,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // R16F
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kR16F);
+        info.fFormatType = FormatType::kFloat;
         info.fBaseInternalFormat = GR_GL_RED;
         info.fSizedInternalFormat = GR_GL_R16F;
         info.fInternalFormatForTexImage =
@@ -1832,6 +1840,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // RGB8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGB8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RGB;
         info.fSizedInternalFormat = GR_GL_RGB8;
         info.fInternalFormatForTexImage =
@@ -1876,6 +1885,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // RG8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRG8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RG;
         info.fSizedInternalFormat = GR_GL_RG8;
         info.fInternalFormatForTexImage =
@@ -1904,6 +1914,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // RGB10_A2
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGB10_A2);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGB10_A2;
         info.fInternalFormatForTexImage =
@@ -1935,6 +1946,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // RGBA4
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA4);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGBA4;
         info.fInternalFormatForTexImage =
@@ -1967,6 +1979,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // RGBA32F
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA32F);
+        info.fFormatType = FormatType::kFloat;
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGBA32F;
         info.fInternalFormatForTexImage =
@@ -1979,6 +1992,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // SRGB8_ALPHA8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kSRGB8_ALPHA8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
         info.fInternalFormatForTexImage =
@@ -2012,6 +2026,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // COMPRESSED_RGB8_ETC2
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_RGB8_ETC2);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RGB;
         info.fCompressedInternalFormat = GR_GL_COMPRESSED_RGB8_ETC2;
         if (GR_IS_GR_GL(standard)) {
@@ -2031,6 +2046,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // COMPRESSED_ETC1_RGB8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_ETC1_RGB8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RGB;
         info.fCompressedInternalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
         if (GR_IS_GR_GL_ES(standard)) {
@@ -2045,6 +2061,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // GR_GL_R16
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kR16);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RED;
         info.fSizedInternalFormat = GR_GL_R16;
         info.fInternalFormatForTexImage =
@@ -2069,6 +2086,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // GR_GL_RG16
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRG16);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RG;
         info.fSizedInternalFormat = GR_GL_RG16;
         info.fInternalFormatForTexImage =
@@ -2112,6 +2130,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         } // No WebGL support
 
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA16);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_RGBA;
         info.fSizedInternalFormat = GR_GL_RGBA16;
         info.fInternalFormatForTexImage =
@@ -2159,6 +2178,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
 
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRG16F);
+        info.fFormatType = FormatType::kFloat;
         info.fBaseInternalFormat = GR_GL_RG;
         info.fSizedInternalFormat = GR_GL_RG16F;
         info.fInternalFormatForTexImage =
@@ -2188,9 +2208,15 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
 #ifdef SK_DEBUG
     for (int i = 0; i < kGrGLFormatCount; ++i) {
+        if (GrGLFormat::kUnknown == static_cast<GrGLFormat>(i)) {
+            continue;
+        }
         // Make sure we didn't set fbo attachable with msaa and not fbo attachable.
         SkASSERT(!((fFormatTable[i].fFlags & FormatInfo::kFBOColorAttachmentWithMSAA_Flag) &&
                   !(fFormatTable[i].fFlags & FormatInfo::kFBOColorAttachment_Flag)));
+
+        // Make sure we set all the formats' FormatType
+        SkASSERT(fFormatTable[i].fFormatType != FormatType::kUnknown);
     }
 #endif
 }
@@ -2361,65 +2387,54 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     fConfigTable[kUnknown_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = 0;
     fConfigTable[kUnknown_GrPixelConfig].fFormats.fExternalType = 0;
-    fConfigTable[kUnknown_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_RGBA;
     fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kRGBA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     // Our external RGB data always has a byte where alpha would be. When calling read pixels we
     // want to read to kRGB_888x color type and ensure that gets 0xFF written. Using GL_RGB would
     // read back unaligned 24bit RGB color values.
     fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RGBA;
     fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kRGB_888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     fConfigTable[kRGB_888X_GrPixelConfig] = fConfigTable[kRGBA_8888_GrPixelConfig];
 
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_RG;
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kRG_88_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_BGRA;
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalType  = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     // GL does not do srgb<->rgb conversions when transferring between cpu and gpu. Thus, the
     // external format is GL_RGBA. See below for note about ES2.0 and glTex[Sub]Image.
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_RGBA;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kSRGBA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_RGB;
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_SHORT_5_6_5;
-    fConfigTable[kRGB_565_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_RGBA;
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
-    fConfigTable[kRGBA_4444_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_RGBA;
     fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fExternalType =
         GR_GL_UNSIGNED_INT_2_10_10_10_REV;
-    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     ConfigInfo& alphaInfo = fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig];
     alphaInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    alphaInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     alphaInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_ALPHA;
     alphaInfo.fRGBAReadSwizzle = GrSwizzle("000a");
 
     ConfigInfo& redInfo = fConfigTable[kAlpha_8_as_Red_GrPixelConfig];
     redInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     redInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    redInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     redInfo.fRGBAReadSwizzle = GrSwizzle("000r");
 
     if (textureRedSupport) {
@@ -2431,12 +2446,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     ConfigInfo& grayLumInfo = fConfigTable[kGray_8_as_Lum_GrPixelConfig];
     grayLumInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_LUMINANCE;
     grayLumInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    grayLumInfo.fFormatType = kNormalizedFixedPoint_FormatType;
 
     ConfigInfo& grayRedInfo = fConfigTable[kGray_8_as_Red_GrPixelConfig];
     grayRedInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     grayRedInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    grayRedInfo.fFormatType = kNormalizedFixedPoint_FormatType;
 
     if (textureRedSupport) {
         fConfigTable[kGray_8_GrPixelConfig] = grayRedInfo;
@@ -2447,7 +2460,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     ConfigInfo& rgbaF32Info = fConfigTable[kRGBA_float_GrPixelConfig];
     rgbaF32Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RGBA;
     rgbaF32Info.fFormats.fExternalType = GR_GL_FLOAT;
-    rgbaF32Info.fFormatType = kFloat_FormatType;
 
     GrGLenum redHalfExternalType;
     if (GR_IS_GR_GL(standard) ||
@@ -2458,7 +2470,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     ConfigInfo& redHalf = fConfigTable[kAlpha_half_as_Red_GrPixelConfig];
     redHalf.fFormats.fExternalType = redHalfExternalType;
-    redHalf.fFormatType = kFloat_FormatType;
     redHalf.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     redHalf.fRGBAReadSwizzle = GrSwizzle("000r");
     fConfigTable[kAlpha_half_GrPixelConfig] = redHalf;
@@ -2471,7 +2482,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     } else {
         fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT_OES;
     }
-    fConfigTable[kRGBA_half_GrPixelConfig].fFormatType = kFloat_FormatType;
 
     // kRGBA_half_Clamped is just distinguished by clamps added to the shader. At the API level,
     // it's identical to kRGBA_half.
@@ -2487,7 +2497,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kRGB_ETC1_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage]
         = 0;
     fConfigTable[kRGB_ETC1_GrPixelConfig].fFormats.fExternalType = 0;
-    fConfigTable[kRGB_ETC1_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
     // 16 bit formats
     {
@@ -2496,7 +2505,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
             r16Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
             r16Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
-            r16Info.fFormatType = kNormalizedFixedPoint_FormatType;
         }
 
         {
@@ -2504,7 +2512,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
             rg1616Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RG;
             rg1616Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
-            rg1616Info.fFormatType = kNormalizedFixedPoint_FormatType;
         }
 
         // Experimental (for Y416)
@@ -2513,7 +2520,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
             rgba16161616Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RGBA;
             rgba16161616Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
-            rgba16161616Info.fFormatType = kNormalizedFixedPoint_FormatType;
         }
     }
 
@@ -2527,7 +2533,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         } else {
             rgHalf.fFormats.fExternalType = GR_GL_HALF_FLOAT_OES;
         }
-        rgHalf.fFormatType = kFloat_FormatType;
     }
 
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
@@ -3291,30 +3296,35 @@ GrCaps::SurfaceReadPixelsSupport GrGLCaps::surfaceSupportsReadPixels(
     return SurfaceReadPixelsSupport::kSupported;
 }
 
-GrCaps::SupportedRead GrGLCaps::supportedReadPixelsColorType(GrPixelConfig srcPixelConfig,
-                                                             const GrBackendFormat& srcFormat,
-                                                             GrColorType dstColorType) const {
+GrCaps::SupportedRead GrGLCaps::supportedReadPixelsColorType(
+        GrColorType srcColorType, GrPixelConfig srcPixelConfig,
+        const GrBackendFormat& srcBackendFormat, GrColorType dstColorType) const {
     // For now, we mostly report the read back format that is required by the ES spec without
     // checking for implementation allowed formats or consider laxer rules in non-ES GL. TODO: Relax
     // this as makes sense to increase performance and correctness.
-    const GrGLenum* glFormat = srcFormat.getGLFormat();
+    const GrGLenum* glFormat = srcBackendFormat.getGLFormat();
     if (!glFormat) {
         return {GrSwizzle{}, GrColorType::kUnknown};
     }
+    GrGLFormat srcFormat = GrGLBackendFormatToGLFormat(srcBackendFormat);
+
     auto swizzle = fConfigTable[srcPixelConfig].fRGBAReadSwizzle;
-    switch (fConfigTable[srcPixelConfig].fFormatType) {
-        case kNormalizedFixedPoint_FormatType:
-            if (kRGB_888X_GrPixelConfig == srcPixelConfig && *glFormat == GR_GL_RGBA8 &&
+    switch (this->getFormatInfo(srcFormat).fFormatType) {
+        case FormatType::kUnknown:
+            return {GrSwizzle{}, GrColorType::kUnknown};
+        case FormatType::kNormalizedFixedPoint:
+            if (srcColorType == GrColorType::kRGB_888x && srcFormat == GrGLFormat::kRGBA8 &&
                 GrColorTypeHasAlpha(dstColorType)) {
                 // This can skip an unnecessary conversion.
                 return {swizzle, GrColorType::kRGB_888x};
-            } else if (kSRGBA_8888_GrPixelConfig == srcPixelConfig) {
+            } else if (srcFormat == GrGLFormat::kSRGB8_ALPHA8) {
                 return {swizzle, GrColorType::kRGBA_8888_SRGB};
             }
             return {swizzle, GrColorType::kRGBA_8888};
-        case kFloat_FormatType:
+        case FormatType::kFloat:
             return {swizzle, GrColorType::kRGBA_F32};
     }
+    SkUNREACHABLE;
     return {GrSwizzle{}, GrColorType::kUnknown};
 }
 

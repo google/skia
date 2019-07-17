@@ -346,7 +346,7 @@ public:
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
-    SupportedRead supportedReadPixelsColorType(GrPixelConfig, const GrBackendFormat&,
+    SupportedRead supportedReadPixelsColorType(GrColorType, GrPixelConfig, const GrBackendFormat&,
                                                GrColorType) const override;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
@@ -568,12 +568,6 @@ private:
 
     uint32_t fBlitFramebufferFlags;
 
-    /** Number type of the components (with out considering number of bits.) */
-    enum FormatType {
-        kNormalizedFixedPoint_FormatType,
-        kFloat_FormatType,
-    };
-
     struct ReadPixelsFormat {
         ReadPixelsFormat() : fFormat(0), fType(0) {}
         GrGLenum fFormat;
@@ -599,8 +593,6 @@ private:
     struct ConfigInfo {
         ConfigFormats fFormats;
 
-        FormatType fFormatType;
-
         // On ES contexts there are restrictions on type type/format that may be used for
         // ReadPixels. One is implicitly specified by the current FBO's format. The other is
         // queryable. This stores the queried option (lazily).
@@ -614,6 +606,13 @@ private:
     };
 
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
+
+    /** Number type of the components (with out considering number of bits.) */
+    enum class FormatType {
+        kUnknown,
+        kNormalizedFixedPoint,
+        kFloat,
+    };
 
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {
@@ -650,6 +649,8 @@ private:
             kCanUseTexStorage_Flag           = 0x8,
         };
         uint32_t fFlags = 0;
+
+        FormatType fFormatType = FormatType::kUnknown;
 
         // Both compressed and uncompressed formats have base internal formats.
         GrGLenum fBaseInternalFormat = 0;
