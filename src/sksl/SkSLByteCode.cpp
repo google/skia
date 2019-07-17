@@ -59,6 +59,7 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
             printf("callexternal %d, %d, %d", argumentCount, returnCount, externalValue);
             break;
         }
+        case ByteCodeInstruction::kClampIndex: printf("clampindex %d", READ8()); break;
         VECTOR_DISASSEMBLE(kCompareIEQ, "compareieq")
         VECTOR_DISASSEMBLE(kCompareINEQ, "compareineq")
         VECTOR_MATRIX_DISASSEMBLE(kCompareFEQ, "comparefeq")
@@ -460,6 +461,12 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                     }
                 }
                 sp += returnCount - 1;
+                break;
+            }
+
+            case ByteCodeInstruction::kClampIndex: {
+                int length = READ8();
+                sp[0] = skvx::min(skvx::max(0, sp[0].fSigned), length);
                 break;
             }
 

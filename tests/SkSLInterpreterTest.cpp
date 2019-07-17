@@ -600,27 +600,44 @@ DEF_TEST(SkSLInterpreterCompound, r) {
     }
 }
 
+static void expect_failure(skiatest::Reporter* r, const char* src) {
+    SkSL::Compiler compiler;
+    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
+                                           SkSL::Program::Settings());
+    REPORTER_ASSERT(r, program);
+
+    auto byteCode = compiler.toByteCode(*program);
+    REPORTER_ASSERT(r, compiler.errorCount() > 0);
+    REPORTER_ASSERT(r, !byteCode);
+}
+
 DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
-    auto check = [r](const char* src) {
-        SkSL::Compiler compiler;
-        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
-                                               SkSL::Program::Settings());
-        REPORTER_ASSERT(r, program);
-
-        auto byteCode = compiler.toByteCode(*program);
-        REPORTER_ASSERT(r, compiler.errorCount() > 0);
-        REPORTER_ASSERT(r, !byteCode);
-    };
-
     // Ensure that simple recursion is not allowed
-    check("float main() { return main() + 1; }");
+    expect_failure(r, "float main() { return main() + 1; }");
 
     // Ensure that calls to undefined functions are not allowed (to prevent mutual recursion)
-    check("float foo(); float bar() { return foo(); } float foo() { return bar(); }");
+    expect_failure(r, "float foo(); float bar() { return foo(); } float foo() { return bar(); }");
 
     // returns are not allowed inside conditionals (or loops, which are effectively the same thing)
-    check("float main(float x, float y) { if (x < y) { return x; } return y; }");
-    check("float main(float x) { while (x > 1) { return x; } return 0; }");
+    expect_failure(r, "float main(float x, float y) { if (x < y) { return x; } return y; }");
+    expect_failure(r, "float main(float x) { while (x > 1) { return x; } return 0; }");
+}
+
+DEF_TEST(SkSLInterpreterArrayBounds, r) {
+    // Out of bounds array access at compile time
+    expect_failure(r, "float main(float x[4]) { return x[-1]; }");
+    expect_failure(r, "float2 main(float2 x[2]) { return x[2]; }");
+
+    // Out of bounds array access at runtime is pinned
+    test(r,
+         "void main(inout half4 color) {"
+         "  half arr[2]; arr[0] = arr[1] = 0;"
+         "  arr[int(color.r)] = color.g;"
+         "  arr[int(color.b)] = color.a;"
+         "  color.r = arr[0];"
+         "  color.b = arr[1];"
+         "}",
+         -1, 0.5, 3, 0.25, 0.5, 0.5, 0.25, 0.25);
 }
 
 DEF_TEST(SkSLInterpreterFunctions, r) {

@@ -32,6 +32,8 @@ enum class ByteCodeInstruction : uint16_t {
     // Followed by three bytes indicating: the number of argument slots, the number of return slots,
     // and the index of the external value to call
     kCallExternal,
+    // For dynamic array access: Followed by byte indicating length of array
+    kClampIndex,
     VECTOR(kCompareIEQ),
     VECTOR(kCompareINEQ),
     VECTOR_MATRIX(kCompareFEQ),
