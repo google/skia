@@ -22,6 +22,30 @@
       "revId": "1d5adf27b548fc104bb274f1dc743ddfd79b8e33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d1cc442_dcfe3c0c",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-17T21:06:42Z",
+      "side": 1,
+      "message": "Yeah, I went back and forth on that. Points/counterpoints:\n\n1) There are other failure conditions where I just sort of fail without an error today. I really want to make those bail (probably switch to having run return bool), and that would fit well here too...\n\nbut...\n\n2) This mimics what happens on a GPU. I don\u0027t know that access is actually pinned like this, but it\u0027s at least defined to keep running and produce *something*. We don\u0027t have to be constrained by that, though.\n\nI think to ignore dead lanes, it ends up being something like:\n\nif (skvx::any(mask() \u0026 (sp[0].fSigned \u003e 0) \u0026 (sp[0].fSigned \u003c length))) { abort(); }",
+      "parentUuid": "3d96929a_c3104cd5",
+      "range": {
+        "startLine": 469,
+        "startChar": 24,
+        "endLine": 469,
+        "endChar": 71
+      },
+      "revId": "1d5adf27b548fc104bb274f1dc743ddfd79b8e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
