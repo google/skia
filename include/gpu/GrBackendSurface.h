@@ -15,8 +15,16 @@
 #include "include/private/GrGLTypesPriv.h"
 #include "include/private/GrVkTypesPriv.h"
 
+#ifdef SK_DAWN
+#include "include/gpu/dawn/GrDawnTypes.h"
+#endif
+
 class GrVkImageLayout;
 class GrGLTextureParameters;
+
+#ifdef SK_DAWN
+#include "dawn/dawncpp.h"
+#endif
 
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlTypes.h"
@@ -60,6 +68,12 @@ public:
     // external format.
     static GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo);
 
+#ifdef SK_DAWN
+    static GrBackendFormat MakeDawn(dawn::TextureFormat format) {
+        return GrBackendFormat(format);
+    }
+#endif
+
 #ifdef SK_METAL
     static GrBackendFormat MakeMtl(GrMTLPixelFormat format) {
         return GrBackendFormat(format);
@@ -87,6 +101,10 @@ public:
 
     const GrVkYcbcrConversionInfo* getVkYcbcrConversionInfo() const;
 
+#ifdef SK_DAWN
+    const dawn::TextureFormat* getDawnFormat() const;
+#endif
+
 #ifdef SK_METAL
     // If the backend API is Metal, this returns a pointer to a GrMTLPixelFormat. Otherwise
     // it returns nullptr
@@ -110,6 +128,10 @@ private:
 
     GrBackendFormat(const VkFormat vkFormat, const GrVkYcbcrConversionInfo&);
 
+#ifdef SK_DAWN
+    GrBackendFormat(dawn::TextureFormat format);
+#endif
+
 #ifdef SK_METAL
     GrBackendFormat(const GrMTLPixelFormat mtlFormat);
 #endif
@@ -125,6 +147,10 @@ private:
             VkFormat                 fFormat;
             GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
         }                fVk;
+#ifdef SK_DAWN
+        dawn::TextureFormat fDawnFormat;
+#endif
+
 #ifdef SK_METAL
         GrMTLPixelFormat fMtlFormat;
 #endif
@@ -136,7 +162,11 @@ private:
 class SK_API GrBackendTexture {
 public:
     // Creates an invalid backend texture.
-    GrBackendTexture() : fIsValid(false) {}
+    GrBackendTexture() : fIsValid(false)
+#ifdef SK_DAWN
+      , fDawnInfo()  // Smart pointers in a union, so they must be explicitly nulled.
+#endif
+    {}
 
     // The GrGLTextureInfo must have a valid fFormat.
     GrBackendTexture(int width,
@@ -158,6 +188,12 @@ public:
                      int height,
                      GrMipMapped,
                      const GrMtlTextureInfo& mtlInfo);
+#endif
+
+#ifdef SK_DAWN
+    GrBackendTexture(int width,
+                     int height,
+                     const GrDawnImageInfo& dawnInfo);
 #endif
 
     GrBackendTexture(int width,
@@ -183,6 +219,12 @@ public:
     // Call this to indicate that the texture parameters have been modified in the GL context
     // externally to GrContext.
     void glTextureParametersModified();
+
+#ifdef SK_DAWN
+    // If the backend API is Dawn, copies a snapshot of the GrDawnImageInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Dawn.
+    bool getDawnImageInfo(GrDawnImageInfo*) const;
+#endif
 
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
     // in pointer and returns true. This snapshot will set the fImageLayout to the current layout
@@ -239,6 +281,7 @@ private:
     friend class GrProxyProvider;
     friend class GrGpu;
     friend class GrGLGpu;
+    friend class GrDawnGpu;
     friend class GrVkGpu;
     friend class GrMtlGpu;
     friend class PromiseImageHelper;
@@ -282,6 +325,9 @@ private:
 #endif
         GrVkBackendSurfaceInfo fVkInfo;
         GrMockTextureInfo fMockInfo;
+#ifdef SK_DAWN
+        GrDawnImageInfo  fDawnInfo;
+#endif
     };
 #ifdef SK_METAL
     GrMtlTextureInfo fMtlInfo;
@@ -291,7 +337,11 @@ private:
 class SK_API GrBackendRenderTarget {
 public:
     // Creates an invalid backend texture.
-    GrBackendRenderTarget() : fIsValid(false) {}
+    GrBackendRenderTarget() : fIsValid(false)
+#ifdef SK_DAWN
+      , fDawnInfo()  // Smart pointers in a union, so they must be explicitly nulled.
+#endif
+    {}
 
     // The GrGLTextureInfo must have a valid fFormat.
     GrBackendRenderTarget(int width,
@@ -299,6 +349,14 @@ public:
                           int sampleCnt,
                           int stencilBits,
                           const GrGLFramebufferInfo& glInfo);
+
+#ifdef SK_DAWN
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          int stencilBits,
+                          const GrDawnImageInfo& dawnInfo);
+#endif
 
     /** Deprecated, use version that does not take stencil bits. */
     GrBackendRenderTarget(int width,
@@ -340,6 +398,12 @@ public:
     // If the backend API is GL, copies a snapshot of the GrGLFramebufferInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not GL.
     bool getGLFramebufferInfo(GrGLFramebufferInfo*) const;
+
+#ifdef SK_DAWN
+    // If the backend API is Dawn, copies a snapshot of the GrDawnImageInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Dawn.
+    bool getDawnImageInfo(GrDawnImageInfo*) const;
+#endif
 
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
     // in pointer and returns true. This snapshot will set the fImageLayout to the current layout
@@ -387,6 +451,7 @@ private:
     friend class SkImage_Gpu;
     friend class GrGpu;
     friend class GrGLGpu;
+    friend class GrDawnGpu;
     friend class GrProxyProvider;
     friend class GrVkGpu;
     friend class GrMtlGpu;
@@ -416,6 +481,9 @@ private:
     union {
 #ifdef SK_GL
         GrGLFramebufferInfo fGLInfo;
+#endif
+#ifdef SK_DAWN
+        GrDawnImageInfo        fDawnInfo;
 #endif
         GrVkBackendSurfaceInfo fVkInfo;
         GrMockRenderTargetInfo fMockInfo;
