@@ -156,8 +156,8 @@ struct ByteCodeFunction;
 }
 
 struct SkRasterPipeline_InterpreterCtx {
-    SkSL::ByteCode*         byteCode;
-    SkSL::ByteCodeFunction* fn;
+    const SkSL::ByteCode*         byteCode;
+    const SkSL::ByteCodeFunction* fn;
 
     SkColor4f   paintColor;
     const void* inputs;
