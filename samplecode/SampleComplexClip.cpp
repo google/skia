@@ -12,12 +12,10 @@
 #include "src/core/SkClipOpPriv.h"
 
 class ComplexClipView : public Sample {
-public:
-    ComplexClipView() {
+    void onOnceBeforeDraw() override {
         this->setBGColor(0xFFA0DDA0);
     }
 
-protected:
     virtual SkString name() { return SkString("ComplexClip"); }
 
     virtual void onDrawContent(SkCanvas* canvas) {
@@ -137,11 +135,6 @@ protected:
         }
         canvas->restore();
     }
-
-private:
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new ComplexClipView(); )

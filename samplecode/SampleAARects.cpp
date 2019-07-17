@@ -32,17 +32,13 @@ static SkBitmap createBitmap(int n) {
     return bitmap;
 }
 
+static constexpr int N = 64;
+
 class AARectView : public Sample {
     SkBitmap fBitmap;
-    enum {
-        N = 64
-    };
 
-protected:
     void onOnceBeforeDraw() override {
         fBitmap = createBitmap(N);
-
-        fWidth = N;
     }
 
     SkString name() override { return SkString("AA Rects"); }
@@ -173,7 +169,6 @@ protected:
     }
 
 private:
-    int fWidth;
 
     typedef Sample INHERITED;
 };

@@ -12,7 +12,6 @@
 #include "include/core/SkPath.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
-#include "src/core/SkAAClip.h"
 #include "src/core/SkClipOpPriv.h"
 
 constexpr int W = 150;
@@ -102,17 +101,6 @@ static void show_thick(SkCanvas* canvas, bool doAA) {
 typedef void (*CanvasProc)(SkCanvas*, bool);
 
 class ClipView : public Sample {
-public:
-    ClipView() {
-        SkAAClip clip;
-        SkIRect r = { -2, -3, 842, 18 };
-        clip.setRect(r);
-    }
-
-    virtual ~ClipView() {
-    }
-
-protected:
     virtual SkString name() { return SkString("Clip"); }
 
     virtual void onDrawContent(SkCanvas* canvas) {
@@ -144,11 +132,6 @@ protected:
             canvas->translate(0, H * SK_Scalar1 * 8 / 7);
         }
     }
-
-private:
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new ClipView(); )
