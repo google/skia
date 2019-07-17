@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84d4bab5_b7bfbe96",
+        "filename": "src/gpu/dawn/GrDawnCaps.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T15:38:04Z",
+      "side": 1,
+      "message": "nit over 100 chars",
+      "range": {
+        "startLine": 40,
+        "startChar": 95,
+        "endLine": 40,
+        "endChar": 105
+      },
+      "revId": "e8ab95b8e386071d8f8d1d0be7fd112d2a7f7d34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70ec082c_de722193",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T15:38:04Z",
+      "side": 1,
+      "message": "Nothing to change for this CL, but more curiosity. Are all dawn shaders written win SPIR-V? If so would there every be an advantage to have us directly write the shaders in the language that I assume dawn then translates them to? Or would this be too hard since Skia may not know what bindings and what not dawn will use for different shader variables?\n\nAlso if dawn does just use spir-v does it extend it or change it in any way that is different from what is used with vulkan. In other words does our SkSL compiler need to be updated to handle different style of spirv?",
+      "range": {
+        "startLine": 138,
+        "startChar": 4,
+        "endLine": 140,
+        "endChar": 46
+      },
+      "revId": "e8ab95b8e386071d8f8d1d0be7fd112d2a7f7d34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
