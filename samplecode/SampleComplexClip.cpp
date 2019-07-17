@@ -12,15 +12,13 @@
 #include "src/core/SkClipOpPriv.h"
 
 class ComplexClipView : public Sample {
-public:
-    ComplexClipView() {
+    void onOnceBeforeDraw() override {
         this->setBGColor(0xFFA0DDA0);
     }
 
-protected:
-    virtual SkString name() { return SkString("ComplexClip"); }
+    SkString name() override { return SkString("ComplexClip"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPath path;
         path.moveTo(SkIntToScalar(0),   SkIntToScalar(50));
         path.quadTo(SkIntToScalar(0),   SkIntToScalar(0),   SkIntToScalar(50),  SkIntToScalar(0));
@@ -137,11 +135,6 @@ protected:
         }
         canvas->restore();
     }
-
-private:
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new ComplexClipView(); )
