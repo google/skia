@@ -240,7 +240,7 @@ GrBackendTexture::GrBackendTexture(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fConfig(kUnknown_GrPixelConfig)
+        , fConfig1(kUnknown_GrPixelConfig)
         , fMipMapped(mipMapped)
         , fBackend(GrBackendApi::kOpenGL)
         , fGLInfo(glInfo, params.release()) {}
@@ -263,7 +263,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fIsProtected(isProtected)
         , fWidth(width)
         , fHeight(height)
-        , fConfig(kUnknown_GrPixelConfig)
+        , fConfig1(kUnknown_GrPixelConfig)
         , fMipMapped(GrMipMapped(vkInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kVulkan)
         , fVkInfo(vkInfo, layout.release()) {}
@@ -299,7 +299,7 @@ GrBackendTexture::GrBackendTexture(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fConfig(mockInfo.pixelConfig())
+        , fConfig1(mockInfo.pixelConfig())
         , fMipMapped(mipMapped)
         , fBackend(GrBackendApi::kMock)
         , fMockInfo(mockInfo) {}
@@ -337,7 +337,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     fWidth = that.fWidth;
     fIsProtected = that.fIsProtected;
     fHeight = that.fHeight;
-    fConfig = that.fConfig;
+    fConfig1 = that.fConfig1;
     fMipMapped = that.fMipMapped;
     fBackend = that.fBackend;
 
@@ -506,7 +506,7 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
 
     if (t0.fWidth != t1.fWidth ||
         t0.fHeight != t1.fHeight ||
-        t0.fConfig != t1.fConfig ||
+        t0.fConfig1 != t1.fConfig1 ||
         t0.fMipMapped != t1.fMipMapped ||
         t0.fBackend != t1.fBackend) {
         return false;
@@ -580,7 +580,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(0)  // We always create stencil buffers internally for vulkan
-        , fConfig(kUnknown_GrPixelConfig)
+        , fConfig1(kUnknown_GrPixelConfig)
         , fBackend(GrBackendApi::kVulkan)
         , fVkInfo(vkInfo, layout.release()) {}
 #endif
@@ -609,7 +609,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
-        , fConfig(kUnknown_GrPixelConfig)
+        , fConfig1(kUnknown_GrPixelConfig)
         , fBackend(GrBackendApi::kOpenGL)
         , fGLInfo(glInfo) {
     fIsValid = SkToBool(glInfo.fFormat); // the glInfo must have a valid format
@@ -625,7 +625,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
-        , fConfig(mockInfo.pixelConfig())
+        , fConfig1(mockInfo.pixelConfig())
         , fMockInfo(mockInfo) {}
 
 GrBackendRenderTarget::~GrBackendRenderTarget() {
@@ -658,7 +658,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     fIsProtected = that.fIsProtected;
     fSampleCnt = that.fSampleCnt;
     fStencilBits = that.fStencilBits;
-    fConfig = that.fConfig;
+    fConfig1 = that.fConfig1;
     fBackend = that.fBackend;
 
     switch (that.fBackend) {
@@ -782,7 +782,7 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
         r0.fHeight != r1.fHeight ||
         r0.fSampleCnt != r1.fSampleCnt ||
         r0.fStencilBits != r1.fStencilBits ||
-        r0.fConfig != r1.fConfig ||
+        r0.fConfig1 != r1.fConfig1 ||
         r0.fBackend != r1.fBackend) {
         return false;
     }

@@ -238,7 +238,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
         return nullptr;
     }
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
+    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config1(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      colorType)));
@@ -257,7 +257,7 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
+    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config1(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      colorType)));
@@ -283,7 +283,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendRT.config(),
+    SkASSERT(GrCaps::AreConfigsCompatible(backendRT.config1(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendRT.getBackendFormat(),
                                                                      colorType)));
@@ -308,7 +308,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTex
         return nullptr;
     }
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
+    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config1(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      colorType)));

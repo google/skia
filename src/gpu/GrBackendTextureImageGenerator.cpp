@@ -59,10 +59,10 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
             return nullptr;
         }
 
-        backendTexture.fConfig = context->priv().caps()->getConfigFromBackendFormat(
+        backendTexture.fConfig1 = context->priv().caps()->getConfigFromBackendFormat(
                                                             backendFormat,
                                                             SkColorTypeToGrColorType(colorType));
-        if (backendTexture.fConfig == kUnknown_GrPixelConfig) {
+        if (backendTexture.fConfig1 == kUnknown_GrPixelConfig) {
             return nullptr;
         }
     }
@@ -157,7 +157,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         return nullptr;
     }
 
-    SkASSERT(GrCaps::AreConfigsCompatible(fBackendTexture.config(),
+    SkASSERT(GrCaps::AreConfigsCompatible(fBackendTexture.config1(),
                                           caps->getConfigFromBackendFormat(backendFormat,
                                                                            grColorType)));
 

@@ -56,6 +56,10 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
         return false;
     }
 
+    if (!ctx->priv().caps()->areColorTypeAndFormatCompatible(grCT, backendFormat)) {
+        return false;
+    }
+
     *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, grCT);
     return *config != kUnknown_GrPixelConfig;
 }
@@ -249,9 +253,9 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
         if (!backendFormat.isValid()) {
             return false;
         }
-        yuvaTexturesCopy[textureIndex].fConfig =
+        yuvaTexturesCopy[textureIndex].fConfig1 =
                 caps->getYUVAConfigFromBackendFormat(backendFormat);
-        if (yuvaTexturesCopy[textureIndex].fConfig == kUnknown_GrPixelConfig) {
+        if (yuvaTexturesCopy[textureIndex].fConfig1 == kUnknown_GrPixelConfig) {
             return false;
         }
         GrColorType grColorType = caps->getYUVAColorTypeFromBackendFormat(backendFormat);
@@ -436,7 +440,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                                                                 backendTexture.getBackendFormat(),
                                                                 fColorType);
                 SkASSERT(kUnknown_GrPixelConfig != config);
-                backendTexture.fConfig = config;
+                backendTexture.fConfig1 = config;
             }
 
             sk_sp<GrTexture> tex;

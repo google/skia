@@ -152,7 +152,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
     }
 
     GrBackendTexture texCopy = tex;
-    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, grColorType,
+    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig1, grColorType,
                                                  ct, at, cs)) {
         return nullptr;
     }
@@ -177,7 +177,7 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
     }
 
     GrBackendTexture texCopy = tex;
-    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, grColorType,
+    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig1, grColorType,
                                                  ct, at, cs)) {
         return nullptr;
     }
@@ -272,7 +272,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
 
     GrBackendTexture backendTextureCopy = backendTexture;
     SkAlphaType at = SkImage_GpuBase::GetAlphaTypeFromYUVAIndices(yuvaIndices);
-    if (!SkImage_Gpu::ValidateBackendTexture(ctx, backendTextureCopy, &backendTextureCopy.fConfig,
+    if (!SkImage_Gpu::ValidateBackendTexture(ctx, backendTextureCopy, &backendTextureCopy.fConfig1,
                                              grColorType, kRGBA_8888_SkColorType, at, nullptr)) {
         return nullptr;
     }

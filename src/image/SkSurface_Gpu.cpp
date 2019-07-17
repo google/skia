@@ -409,6 +409,11 @@ static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex
     if (!backendFormat.isValid()) {
         return false;
     }
+
+    if (!ctx->priv().caps()->areColorTypeAndFormatCompatible(grCT, backendFormat)) {
+        return false;
+    }
+
     *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, grCT);
     if (*config == kUnknown_GrPixelConfig) {
         return false;
@@ -451,7 +456,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     }
 
     GrBackendTexture texCopy = backendTexture;
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig1,
                                   c.sampleCount(), grCT, true)) {
         return nullptr;
     }
@@ -543,7 +548,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     }
 
     GrBackendTexture texCopy = tex;
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig, sampleCnt, grColorType,
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig1, sampleCnt, grColorType,
                                   true)) {
         return nullptr;
     }
@@ -607,7 +612,7 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     GrBackendTexture texCopy = backendTexture;
     GrColorType grColorType = SkColorTypeToGrColorType(this->getCanvas()->imageInfo().colorType());
     auto colorSpace = sk_ref_sp(oldRTC->colorSpaceInfo().colorSpace());
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig, sampleCnt, grColorType,
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig1, sampleCnt, grColorType,
                                   true)) {
         return false;
     }
@@ -627,18 +632,22 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     return true;
 }
 
-bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget& rt,
+bool validate_backend_render_target(const GrCaps* caps, const GrBackendRenderTarget& rt,
                                     GrPixelConfig* config, GrColorType grCT) {
-    *config = ctx->priv().caps()->validateBackendRenderTarget(rt, grCT);
+    if (!caps->areColorTypeAndFormatCompatible(grCT, rt.getBackendFormat())) {
+        return false;
+    }
+
+    *config = caps->validateBackendRenderTarget(rt, grCT);
     if (*config == kUnknown_GrPixelConfig) {
         return false;
     }
 
     if (rt.sampleCnt() > 1) {
-        if (ctx->priv().caps()->maxRenderTargetSampleCount(*config) <= 1) {
+        if (caps->maxRenderTargetSampleCount(grCT, rt.getBackendFormat()) <= 1) {
             return false;
         }
-    } else if (!ctx->priv().caps()->isConfigRenderable(*config)) {
+    } else if (!caps->isFormatRenderable(grCT, rt.getBackendFormat())) {
         return false;
     }
 
@@ -664,7 +673,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     }
 
     GrBackendRenderTarget rtCopy = rt;
-    if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig, grColorType)) {
+    if (!validate_backend_render_target(context->priv().caps(), rtCopy,
+                                        &rtCopy.fConfig1, grColorType)) {
         return nullptr;
     }
     if (!SkSurface_Gpu::Valid(context->priv().caps(), rtCopy.getBackendFormat())) {
@@ -709,7 +719,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
     GrBackendTexture texCopy = tex;
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig1,
                                   sampleCnt, grColorType, false)) {
         return nullptr;
     }
