@@ -72,6 +72,7 @@ namespace {
 
     static void dump(const Builder& builder, SkWStream* o) {
         const std::vector<Builder::Instruction> program = builder.program();
+        const std::vector<Val> deaths = builder.deaths();
 
         o->writeDecAsText(program.size());
         o->writeText(" values:\n");
@@ -82,6 +83,7 @@ namespace {
                  y = inst.y,
                  z = inst.z;
             int imm = inst.imm;
+            write(o, deaths[id] == 0 ? "☠️ " : "  ");
             switch (op) {
                 case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
