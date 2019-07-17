@@ -239,56 +239,15 @@ namespace skvm {
         to_f32, to_i32,
     };
 
-    using Reg = int;
-
-    class Program {
-    public:
-        struct Instruction {   // d = op(x, y, z/imm)
-            Op  op;
-            Reg d,x,y;
-            union { Reg z; int imm; };
-        };
-
-        Program(std::vector<Instruction>, int regs, int loop, std::vector<int> strides);
-        Program() : Program({}, 0, 0, {}) {}
-
-        ~Program();
-        Program(Program&&);
-        Program& operator=(Program&&);
-        Program(const Program&) = delete;
-        Program& operator=(const Program&) = delete;
-
-        template <typename... T>
-        void eval(int n, T*... arg) const {
-            void* args[] = { (void*)arg..., nullptr };
-            this->eval(n, args);
-        }
-
-        std::vector<Instruction> instructions() const { return fInstructions; }
-        int nregs() const { return fRegs; }
-        int loop() const { return fLoop; }
-
-        // If this Program has been JITted, drop it, forcing interpreter fallback.
-        void dropJIT();
-
-    private:
-        void eval(int n, void* args[]) const;
-
-        std::vector<Instruction> fInstructions;
-        int                      fRegs;
-        int                      fLoop;
-        std::vector<int>         fStrides;
-
-        void*  fJITBuf      = nullptr;  // Raw mmap'd buffer.
-        size_t fJITSize     = 0;        // Size of buf in bytes.
-        void (*fJITEntry)() = nullptr;  // Entry point, offset into buf.
-    };
-
     using Val = int;
+    // We reserve the last Val ID as a sentinel meaning none, n/a, null, nil, etc.
+    static const Val NA = ~0;
 
     struct Arg { int ix; };
     struct I32 { Val id; };
     struct F32 { Val id; };
+
+    class Program;
 
     class Builder {
     public:
@@ -372,9 +331,6 @@ namespace skvm {
         std::vector<Val>         deaths() const;
 
     private:
-        // We reserve the last Val ID as a sentinel meaning none, n/a, null, nil, etc.
-        static const Val NA = ~0;
-
         struct InstructionHash {
             template <typename T>
             static size_t Hash(T val) {
@@ -396,6 +352,56 @@ namespace skvm {
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
     };
+
+    using Reg = int;
+
+    class Program {
+    public:
+        struct Instruction {   // d = op(x, y, z/imm)
+            Op  op;
+            Reg d,x,y;
+            union { Reg z; int imm; };
+        };
+
+        Program(std::vector<Instruction>, int regs, int loop, std::vector<int> strides);
+        Program() : Program({}, 0, 0, {}) {}
+
+        Program(std::vector<Builder::Instruction> instructions,
+                std::vector<Val>                  deaths,
+                std::vector<int>                  strides);
+
+        ~Program();
+        Program(Program&&);
+        Program& operator=(Program&&);
+        Program(const Program&) = delete;
+        Program& operator=(const Program&) = delete;
+
+        template <typename... T>
+        void eval(int n, T*... arg) const {
+            void* args[] = { (void*)arg..., nullptr };
+            this->eval(n, args);
+        }
+
+        std::vector<Instruction> instructions() const { return fInstructions; }
+        int nregs() const { return fRegs; }
+        int loop() const { return fLoop; }
+
+        // If this Program has been JITted, drop it, forcing interpreter fallback.
+        void dropJIT();
+
+    private:
+        void eval(int n, void* args[]) const;
+
+        std::vector<Instruction> fInstructions;
+        int                      fRegs;
+        int                      fLoop;
+        std::vector<int>         fStrides;
+
+        void*  fJITBuf      = nullptr;  // Raw mmap'd buffer.
+        size_t fJITSize     = 0;        // Size of buf in bytes.
+        void (*fJITEntry)() = nullptr;  // Entry point, offset into buf.
+    };
+
 
     // TODO: comparison operations, if_then_else
     // TODO: learn how to do control flow
