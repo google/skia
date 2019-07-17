@@ -244,7 +244,8 @@ public:
      * to dstColorType the swizzle in the returned struct should be applied. The caller must check
      * the returned color type for kUnknown.
      */
-    virtual SupportedRead supportedReadPixelsColorType(GrPixelConfig srcConfig,
+    virtual SupportedRead supportedReadPixelsColorType(GrColorType srcColorType,
+                                                       GrPixelConfig srcConfig,
                                                        const GrBackendFormat& srcFormat,
                                                        GrColorType dstColorType) const;
 

@@ -60,7 +60,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     }
     // skbug.com/9165
     auto supportedRead =
-            caps->supportedReadPixelsColorType(config, backendTex.getBackendFormat(), grCT);
+            caps->supportedReadPixelsColorType(grCT, config, backendTex.getBackendFormat(), grCT);
     if (supportedRead.fColorType != grCT || supportedRead.fSwizzle != GrSwizzle("rgba")) {
         return;
     }
