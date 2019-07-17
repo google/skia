@@ -67,9 +67,12 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
             return false;
         }
         SkASSERT(fByteCode);
+        if (!fByteCode->getFunction("main")) {
+            return false;
+        }
     }
     ctx->byteCode = fByteCode.get();
-    ctx->fn = ctx->byteCode->fFunctions[0].get();
+    ctx->fn = ctx->byteCode->getFunction("main");
 
     rec.fPipeline->append(SkRasterPipeline::seed_shader);
     rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
