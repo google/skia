@@ -128,10 +128,13 @@ public:
     bool onKey(sk_app::Window::Key key, InputState state, ModifierKey modifiers) override;
     bool onChar(SkUnichar c, ModifierKey modifiers) override;
 
+    void setDisplayScale(float scale) { fDisplayScale = scale; }
+
 private:
     sk_app::Window* fWindow;
     SkPaint fFontPaint;
     SkTArray<SkiaWidgetFunc> fSkiaWidgetFuncs;
+    float fDisplayScale = 1.0f;
 };
 
 #endif
