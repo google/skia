@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54082e1d_29adeb12",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2029,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:23:29Z",
+      "side": 1,
+      "message": "What would happen if we left this unknown ?",
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "614a4bf4_7e59d0f9",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2049,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:23:29Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0208c6fd_6ae7af43",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2218,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:23:29Z",
+      "side": 1,
+      "message": "formats\u0027 ?",
+      "range": {
+        "startLine": 2218,
+        "startChar": 36,
+        "endLine": 2218,
+        "endChar": 43
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34f414dc_985271ff",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3300,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:23:29Z",
+      "side": 1,
+      "message": "This is very belt-and-suspenders-y",
+      "range": {
+        "startLine": 3299,
+        "startChar": 61,
+        "endLine": 3300,
+        "endChar": 89
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a49c7f7f_77dfb17b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3301,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:23:29Z",
+      "side": 1,
+      "message": "overlength",
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "506376d1_4ff2a476",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:23:29Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 349,
+        "startChar": 60,
+        "endLine": 349,
+        "endChar": 73
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d767c858_406b25f8",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:23:29Z",
+      "side": 1,
+      "message": "Format is a bit overloaded - would Representation be better ?",
+      "range": {
+        "startLine": 611,
+        "startChar": 15,
+        "endLine": 611,
+        "endChar": 25
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da210db3_fdcaf280",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:23:29Z",
+      "side": 1,
+      "message": "rename to dstColorType ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 62,
+        "endLine": 45,
+        "endChar": 71
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
