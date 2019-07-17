@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b47f3a81_4d135d89",
+        "filename": "samplecode/SampleAARects.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-17T18:27:37Z",
+      "side": 1,
+      "message": "This is now used in exactly one place, and N isn\u0027t really even a name. We should just inline this.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 28
+      },
+      "revId": "4bbb5f2125564eeb2c7c52e8b1fe01c4fe3059db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88b35ad2_05409cdc",
+        "filename": "samplecode/SampleClipDrawMatch.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-17T18:27:37Z",
+      "side": 1,
+      "message": "I suppose these are harder to initialize?",
+      "range": {
+        "startLine": 125,
+        "startChar": 26,
+        "endLine": 125,
+        "endChar": 61
+      },
+      "revId": "4bbb5f2125564eeb2c7c52e8b1fe01c4fe3059db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
