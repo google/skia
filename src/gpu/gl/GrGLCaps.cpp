@@ -3652,6 +3652,58 @@ GrPixelConfig GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& fo
     return get_yuva_config(*glFormat);
 }
 
+static GrColorType get_yuva_colortype(GrGLenum format) {
+    GrColorType colorType = GrColorType::kUnknown;
+
+    switch (format) {
+        case GR_GL_ALPHA8:  // fall through
+        case GR_GL_R8:
+            colorType = GrColorType::kAlpha_8;
+            break;
+        case GR_GL_RG8:
+            colorType = GrColorType::kRG_88;
+            break;
+        case GR_GL_RGBA8:
+            colorType = GrColorType::kRGBA_8888;
+            break;
+        case GR_GL_RGB8:
+            colorType = GrColorType::kRGB_888x;
+            break;
+        case GR_GL_BGRA8:
+            colorType = GrColorType::kBGRA_8888;
+            break;
+        case GR_GL_RGB10_A2:
+            colorType = GrColorType::kRGBA_1010102;
+            break;
+        case GR_GL_R16F:
+            colorType = GrColorType::kAlpha_F16;
+            break;
+        case GR_GL_R16:
+            colorType = GrColorType::kR_16;
+            break;
+        case GR_GL_RG16:
+            colorType = GrColorType::kRG_1616;
+            break;
+        // Experimental (for Y416 and mutant P016/P010)
+        case GR_GL_RGBA16:
+            colorType = GrColorType::kRGBA_16161616;
+            break;
+        case GR_GL_RG16F:
+            colorType = GrColorType::kRG_F16;
+            break;
+    }
+
+    return colorType;
+}
+
+GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const {
+    const GrGLenum* glFormat = format.getGLFormat();
+    if (!glFormat) {
+        return GrColorType::kUnknown;
+    }
+    return get_yuva_colortype(*glFormat);
+}
+
 GrBackendFormat GrGLCaps::getBackendFormatFromColorType(GrColorType ct) const {
     auto format = this->getFormatFromColorType(ct);
     if (format == GrGLFormat::kUnknown) {
