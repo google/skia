@@ -153,6 +153,38 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
             return false;
     }
 }
+
+bool GrVkFormatColorTypePairIsValid(VkFormat format, GrColorType colorType) {
+    switch (format) {
+        case VK_FORMAT_R8G8B8A8_UNORM:           return GrColorType::kRGBA_8888 == colorType ||
+                                                        GrColorType::kRGB_888x == colorType;
+        case VK_FORMAT_B8G8R8A8_UNORM:           return GrColorType::kBGRA_8888 == colorType;
+        case VK_FORMAT_R8G8B8A8_SRGB:            return GrColorType::kRGBA_8888_SRGB == colorType;
+        case VK_FORMAT_R8G8B8_UNORM:             return GrColorType::kRGB_888x == colorType;
+        case VK_FORMAT_R8G8_UNORM:               return GrColorType::kRG_88 == colorType;
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return GrColorType::kRGBA_1010102 == colorType;
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:      return GrColorType::kBGR_565 == colorType;
+        // R4G4B4A4 is not required to be supported so we actually
+        // store RGBA_4444 data as B4G4R4A4.
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:    return GrColorType::kABGR_4444 == colorType;
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:    return GrColorType::kABGR_4444 == colorType;
+        case VK_FORMAT_R8_UNORM:                 return GrColorType::kAlpha_8 == colorType ||
+                                                        GrColorType::kGray_8 == colorType;
+        case VK_FORMAT_R32G32B32A32_SFLOAT:      return GrColorType::kRGBA_F32 == colorType;
+        case VK_FORMAT_R32G32_SFLOAT:            return GrColorType::kRG_F32 == colorType;
+        case VK_FORMAT_R16G16B16A16_SFLOAT:      return GrColorType::kRGBA_F16 == colorType ||
+                                                        GrColorType::kRGBA_F16_Clamped == colorType;
+        case VK_FORMAT_R16_SFLOAT:               return GrColorType::kAlpha_F16 == colorType;
+        case VK_FORMAT_R16_UNORM:                return GrColorType::kR_16 == colorType;
+        case VK_FORMAT_R16G16_UNORM:             return GrColorType::kRG_1616 == colorType;
+        // Experimental (for Y416 and mutant P016/P010)
+        case VK_FORMAT_R16G16B16A16_UNORM:       return GrColorType::kRGBA_16161616 == colorType;
+        case VK_FORMAT_R16G16_SFLOAT:            return GrColorType::kRG_F16 == colorType;
+        default:                                 return false;
+    }
+
+    SkUNREACHABLE;
+}
 #endif
 
 bool GrVkFormatIsSupported(VkFormat format) {

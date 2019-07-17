@@ -709,6 +709,35 @@ GrPixelConfig GrMtlCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& f
     return get_yuva_config(*mtlFormat);
 }
 
+static GrColorType get_yuva_colortype(GrMTLPixelFormat grFormat) {
+    MTLPixelFormat format = static_cast<MTLPixelFormat>(grFormat);
+
+    switch (format) {
+        case MTLPixelFormatA8Unorm:           // fall through
+        case MTLPixelFormatR8Unorm:           return GrColorType::kAlpha_8;
+        case MTLPixelFormatRG8Unorm:          return GrColorType::kRG_88;
+        case MTLPixelFormatRGBA8Unorm:        return GrColorType::kRGBA_8888;
+        case MTLPixelFormatBGRA8Unorm:        return GrColorType::kBGRA_8888;
+        case MTLPixelFormatRGB10A2Unorm:      return GrColorType::kRGBA_1010102;
+        case MTLPixelFormatR16Unorm:          return GrColorType::kR_16;
+        case MTLPixelFormatRG16Unorm:         return GrColorType::kRG_1616;
+        // Experimental (for Y416 and mutant P016/P010)
+        case MTLPixelFormatRGBA16Unorm:       return GrColorType::kRGBA_16161616;
+        case MTLPixelFormatRG16Float:         return GrColorType::kRG_F16;
+        default:                              return GrColorType::kUnknown_GrPixelConfig;
+    }
+
+    SkUNREACHABLE;
+}
+
+GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const {
+    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
+    if (!mtlFormat) {
+        return GrColorType::kUnknown;
+    }
+    return get_yuva_colortype(*mtlFormat);
+}
+
 GrBackendFormat GrMtlCaps::getBackendFormatFromColorType(GrColorType ct) const {
     GrPixelConfig config = GrColorTypeToPixelConfig(ct);
     if (config == kUnknown_GrPixelConfig) {

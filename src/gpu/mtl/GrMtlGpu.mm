@@ -509,6 +509,7 @@ static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> 
 }
 
 sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
+                                                GrColorType grColorType,
                                                 GrWrapOwnership,
                                                 GrWrapCacheable cacheable, GrIOType ioType) {
     id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
@@ -516,8 +517,12 @@ sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendT
         return nullptr;
     }
 
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
+                                                                    grColorType);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, false, backendTex.config());
+    init_surface_desc(&surfDesc, mtlTexture, false, config);
 
     return GrMtlTexture::MakeWrappedTexture(this, surfDesc, mtlTexture, cacheable, ioType);
 }
@@ -532,8 +537,12 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
+    GrPixelConfig config = caps->getConfigFromBackendFormat(backendTex.getBackendFormat(),
+                                                            colorType);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, true, backendTex.config());
+    init_surface_desc(&surfDesc, mtlTexture, true, config);
 
     surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, colorType,
                                                                    backendTex.getBackendFormat());
@@ -545,7 +554,8 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
                                                                     cacheable);
 }
 
-sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
+sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
+                                                          GrColorType grColorType) {
     // TODO: Revisit this when the Metal backend is completed. It may support MSAA render targets.
     if (backendRT.sampleCnt() > 1) {
         return nullptr;
@@ -555,22 +565,31 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
         return nullptr;
     }
 
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendRT.getBackendFormat(),
+                                                                    grColorType);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, true, backendRT.config());
+    init_surface_desc(&surfDesc, mtlTexture, true, config);
 
     return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, mtlTexture);
 }
 
 sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
-        const GrBackendTexture& backendTex, int sampleCnt) {
+        const GrBackendTexture& backendTex, int sampleCnt, GrColorType grColorType) {
     id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
     if (!mtlTexture) {
         return nullptr;
     }
 
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
+                                                                    grColorType);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, true, backendTex.config());
-    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, surfDesc.fConfig);
+    init_surface_desc(&surfDesc, mtlTexture, true, config);
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, grColorType,
+                                                                   backendTex.getBackendFormat());
     if (!surfDesc.fSampleCnt) {
         return nullptr;
     }
