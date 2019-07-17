@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa8dad3e_46ece462",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 1203,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T18:17:35Z",
+      "side": 1,
+      "message": "can we add a comment that this is really only for the handling of SRGB since we don\u0027t have an SRGB SkColorType.",
+      "range": {
+        "startLine": 1202,
+        "startChar": 0,
+        "endLine": 1203,
+        "endChar": 28
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09fa6a9c_340f1fd0",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 3655,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T18:17:35Z",
+      "side": 1,
+      "message": "I think this should take a GrGLFormat instead. We have a helper function GrGLFormatFromBackendFormat the can also handle the check in the calling function. I think I would just use that and merge these two functions together.",
+      "range": {
+        "startLine": 3655,
+        "startChar": 38,
+        "endLine": 3655,
+        "endChar": 54
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6576fb1_876c3e48",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 3696,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T18:17:35Z",
+      "side": 1,
+      "message": "I feel like our typical style is to just have the return in the switch statements and not set a variable and then return it.",
+      "range": {
+        "startLine": 3696,
+        "startChar": 4,
+        "endLine": 3696,
+        "endChar": 21
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a989bfd_77d0fb89",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 16
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T18:17:35Z",
+      "side": 1,
+      "message": "why is this is split into its own function when only 1 guy calls it?",
+      "range": {
+        "startLine": 712,
+        "startChar": 19,
+        "endLine": 712,
+        "endChar": 37
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62ef50ab_48cc177c",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1128,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T18:17:35Z",
+      "side": 1,
+      "message": "ditto about separate function",
+      "range": {
+        "startLine": 1128,
+        "startChar": 18,
+        "endLine": 1128,
+        "endChar": 37
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d37bbaf5_52258257",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T18:17:35Z",
+      "side": 1,
+      "message": "can this be deleted?",
+      "range": {
+        "startLine": 103,
+        "startChar": 14,
+        "endLine": 103,
+        "endChar": 32
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
