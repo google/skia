@@ -20,24 +20,21 @@
 #include "tools/Resources.h"
 
 namespace {
-
 class CowboyView : public Sample {
-public:
-    CowboyView()
-        : fLabel("SampleCowboy")
-        , fState(kZoomIn)
-        , fAnimationLoop(kAnimationIterations)
-        , fDelta(1) {}
-    ~CowboyView() override = default;
-
-protected:
     static constexpr auto kAnimationIterations = 5;
-
     enum State {
         kZoomIn,
         kScroll,
         kZoomOut
     };
+    sk_sp<SkSVGDOM> fDom;
+    SkString        fPath;
+    const char*     fLabel = "SampleCowboy";
+    State           fState = kZoomIn;
+    int             fAnimationLoop = kAnimationIterations;
+    SkScalar        fDelta = 1;
+
+
 
     void onOnceBeforeDraw() override {
         constexpr char path[] = "Cowboy.svg";
@@ -92,11 +89,9 @@ protected:
         if (fDom) {
             fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
         }
-
-        this->INHERITED::onSizeChange();
     }
 
-    SkString name() override { return fLabel; }
+    SkString name() override { return SkString(fLabel); }
 
     bool onAnimate(double nanos) override {
         if (!fDom) {
@@ -123,18 +118,7 @@ protected:
         }
         return true;
     }
-
-private:
-    sk_sp<SkSVGDOM> fDom;
-    SkString        fPath;
-    SkString        fLabel;
-    State           fState;
-    int             fAnimationLoop;
-    SkScalar        fDelta;
-
-    typedef Sample INHERITED;
 };
-
 } // anonymous namespace
 
 DEF_SAMPLE( return new CowboyView(); )

@@ -70,15 +70,14 @@ static sk_sp<SkShader> make_bg_shader() {
 
 class AARectsModesView : public Sample {
     SkPaint fBGPaint;
-public:
-    AARectsModesView () {
+
+    void onOnceBeforeDraw() override {
         fBGPaint.setShader(make_bg_shader());
     }
 
-protected:
-    virtual SkString name() { return SkString("AARectsModes"); }
+    SkString name() override { return SkString("AARectsModes"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         const SkRect bounds = SkRect::MakeWH(W, H);
         static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 
@@ -107,11 +106,5 @@ protected:
             canvas->translate(W * 5 / 4, 0);
         }
     }
-
-private:
-    typedef Sample INHERITED;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
 DEF_SAMPLE( return new AARectsModesView(); )

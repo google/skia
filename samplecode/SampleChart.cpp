@@ -81,13 +81,13 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
 // A set of scrolling line plots with the area between each plot filled. Stresses out GPU path
 // filling
 class ChartView : public Sample {
-public:
-    ChartView() {
-        fShift = 0;
-        fSize.set(-1, -1);
-    }
+    static constexpr int kNumGraphs = 5;
+    static constexpr int kPixelsPerTick = 3;
+    static constexpr int kShiftPerFrame = 1;
+    int                 fShift = 0;
+    SkISize             fSize = {-1, -1};
+    SkTDArray<SkScalar> fData[kNumGraphs];
 
-protected:
     SkString name() override { return SkString("Chart"); }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -158,19 +158,6 @@ protected:
 
         fShift += kShiftPerFrame;
     }
-
-private:
-    enum {
-        kNumGraphs = 5,
-        kPixelsPerTick = 3,
-        kShiftPerFrame = 1,
-    };
-    int                 fShift;
-    SkISize             fSize;
-    SkTDArray<SkScalar> fData[kNumGraphs];
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new ChartView(); )

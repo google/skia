@@ -115,8 +115,17 @@ static void draw_normal_geom(SkCanvas* canvas, const SkPoint& offset, int geom, 
 }
 
 class ClipDrawMatchView : public Sample {
+    SkInterpolator  fTrans;
+    Geometry        fGeom;
+    bool            fClipFirst = true;
+    int             fSign = 1;
+    const double    fStart = SkTime::GetMSecs();
+
 public:
-    ClipDrawMatchView() : fTrans(2, 5), fGeom(kRect_Geometry), fClipFirst(true), fSign(1) {
+    ClipDrawMatchView() : fTrans(2, 5), fGeom(kRect_Geometry) {}
+
+private:
+    void onOnceBeforeDraw() override {
         SkScalar values[2];
 
         fTrans.setRepeatCount(999);
@@ -132,7 +141,6 @@ public:
         fTrans.setKeyFrame(4, GetMSecs() + 5000, values);
     }
 
-protected:
     SkString name() override { return SkString("ClipDrawMatch"); }
 
     bool onChar(SkUnichar uni) override {
@@ -239,17 +247,6 @@ protected:
     SkMSec GetMSecs() const {
         return static_cast<SkMSec>(SkTime::GetMSecs() - fStart);
     }
-
-private:
-    SkInterpolator  fTrans;
-    Geometry        fGeom;
-    bool            fClipFirst;
-    int             fSign;
-    const double    fStart = SkTime::GetMSecs();
-
-    typedef Sample INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new ClipDrawMatchView(); )
