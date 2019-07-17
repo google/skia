@@ -33,6 +33,7 @@
 #include "tools/flags/CommonFlags.h"
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/viewer/BisectSlide.h"
+#include "tools/viewer/ByteCodeSlide.h"
 #include "tools/viewer/GMSlide.h"
 #include "tools/viewer/ImageSlide.h"
 #include "tools/viewer/ParticlesSlide.h"
@@ -556,6 +557,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('u', "GUI", "Zoom UI", [this]() {
         fZoomUI = !fZoomUI;
         fStatsLayer.setDisplayScale(fZoomUI ? 2.0f : 1.0f);
+        fImGuiLayer.setDisplayScale(fZoomUI ? 2.0f : 1.0f);
         fWindow->inval();
     });
 
@@ -686,6 +688,14 @@ void Viewer::initSlides() {
     {
         // TODO: Convert this to a sample
         sk_sp<Slide> slide(new ParticlesSlide());
+        if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
+            fSlides.push_back(std::move(slide));
+        }
+    }
+
+    // ByteCode demo
+    {
+        sk_sp<Slide> slide(new ByteCodeSlide());
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
             fSlides.push_back(std::move(slide));
         }

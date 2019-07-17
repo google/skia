@@ -48,6 +48,8 @@ ImGuiLayer::ImGuiLayer() {
     io.KeyMap[ImGuiKey_Y] = (int)Window::Key::kY;
     io.KeyMap[ImGuiKey_Z] = (int)Window::Key::kZ;
 
+    io.FontGlobalScale = 2.0f;
+
     int w, h;
     unsigned char* pixels;
     io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
@@ -72,8 +74,8 @@ void ImGuiLayer::onAttach(Window* window) {
 
 bool ImGuiLayer::onMouse(int x, int y, InputState state, ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
-    io.MousePos.x = static_cast<float>(x);
-    io.MousePos.y = static_cast<float>(y);
+    io.MousePos.x = x / fDisplayScale;
+    io.MousePos.y = y / fDisplayScale;
     if (InputState::kDown == state) {
         io.MouseDown[0] = true;
     } else if (InputState::kUp == state) {
@@ -103,8 +105,8 @@ void ImGuiLayer::onPrePaint() {
     io.DeltaTime = static_cast<float>(currentTime - previousTime);
     previousTime = currentTime;
 
-    io.DisplaySize.x = static_cast<float>(fWindow->width());
-    io.DisplaySize.y = static_cast<float>(fWindow->height());
+    io.DisplaySize.x = fWindow->width() / fDisplayScale;
+    io.DisplaySize.y = fWindow->height() / fDisplayScale;
 
     io.KeyAlt = io.KeysDown[static_cast<int>(Window::Key::kOption)];
     io.KeyCtrl = io.KeysDown[static_cast<int>(Window::Key::kCtrl)];
@@ -125,6 +127,9 @@ void ImGuiLayer::onPaint(SkSurface* surface) {
     SkTDArray<SkColor> color;
 
     auto canvas = surface->getCanvas();
+
+    SkAutoCanvasRestore scaleAcr(canvas, true);
+    canvas->scale(fDisplayScale, fDisplayScale);
 
     for (int i = 0; i < drawData->CmdListsCount; ++i) {
         const ImDrawList* drawList = drawData->CmdLists[i];
