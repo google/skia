@@ -20,9 +20,6 @@
 #ifdef SK_METAL
 #include "tools/gpu/mtl/MtlTestContext.h"
 #endif
-#ifdef SK_DAWN
-#include "tools/gpu/dawn/DawnTestContext.h"
-#endif
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "tools/gpu/mock/MockTestContext.h"
@@ -227,17 +224,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     ? static_cast<MtlTestContext*>(masterContext->fTestContext) : nullptr;
             SkASSERT(kMetal_ContextType == type);
             testCtx.reset(CreatePlatformMtlTestContext(mtlSharedContext));
-            if (!testCtx) {
-                return ContextInfo();
-            }
-            break;
-        }
-#endif
-#ifdef SK_DAWN
-        case GrBackendApi::kDawn: {
-            DawnTestContext* dawnSharedContext = masterContext
-                    ? static_cast<DawnTestContext*>(masterContext->fTestContext) : nullptr;
-            testCtx.reset(CreatePlatformDawnTestContext(dawnSharedContext));
             if (!testCtx) {
                 return ContextInfo();
             }

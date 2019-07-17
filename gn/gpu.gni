@@ -704,19 +704,6 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkVertexBuffer.h",
 ]
 
-skia_dawn_sources = [
-  "$_src/gpu/dawn/GrDawnCaps.cpp",
-  "$_src/gpu/dawn/GrDawnCaps.h",
-  "$_src/gpu/dawn/GrDawnGpu.cpp",
-  "$_src/gpu/dawn/GrDawnGpu.h",
-  "$_src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
-  "$_src/gpu/dawn/GrDawnGpuCommandBuffer.h",
-  "$_src/gpu/dawn/GrDawnRenderTarget.cpp",
-  "$_src/gpu/dawn/GrDawnRenderTarget.h",
-  "$_src/gpu/dawn/GrDawnUtil.cpp",
-  "$_src/gpu/dawn/GrDawnUtil.h",
-]
-
 skia_metal_sources = [
   "$_include/gpu/mtl/GrMtlTypes.h",
   "$_src/gpu/mtl/GrMtlBuffer.h",

@@ -182,7 +182,6 @@ static inline constexpr size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
  */
 enum class GrBackendApi : unsigned {
     kMetal,
-    kDawn,
     kOpenGL,
     kVulkan,
     /**
