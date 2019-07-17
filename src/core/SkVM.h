@@ -369,6 +369,7 @@ namespace skvm {
         I32 to_i32(F32 x);
 
         std::vector<Instruction> program() const { return fProgram; }
+        std::vector<Val>         deaths() const;
 
     private:
         // We reserve the last Val ID as a sentinel meaning none, n/a, null, nil, etc.
