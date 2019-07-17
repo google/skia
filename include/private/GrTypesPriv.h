@@ -18,6 +18,7 @@
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkWeakRefCnt.h"
 
+class GrBackendFormat;
 class GrCaps;
 
 // The old libstdc++ uses the draft name "monotonic_clock" rather than "steady_clock". This might
@@ -1220,6 +1221,10 @@ static constexpr GrColorType SkColorTypeToGrColorType(SkColorType ct) {
     }
     SkUNREACHABLE;
 }
+
+GrColorType SkColorTypeAndFormatToGrColorType(const GrCaps* caps,
+                                              SkColorType skCT,
+                                              const GrBackendFormat& format);
 
 static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
     switch (ct) {
