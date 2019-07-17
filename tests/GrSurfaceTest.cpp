@@ -29,13 +29,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     auto resourceProvider = context->priv().resourceProvider();
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = 1;
     sk_sp<GrSurface> texRT1 = resourceProvider->createTexture(
-        desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
+            desc, GrRenderable::kYes, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asTexture());
@@ -46,9 +45,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT1->asRenderTarget()) ==
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
-    desc.fFlags = kNone_GrSurfaceFlags;
     sk_sp<GrTexture> tex1 = resourceProvider->createTexture(
-        desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
+            desc, GrRenderable::kNo, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
@@ -107,11 +105,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             GrSurfaceDesc desc;
             desc.fWidth = width;
             desc.fHeight = height;
-            desc.fFlags = renderable == GrRenderable::kYes ? kRenderTarget_GrSurfaceFlag
-                                                           : kNone_GrSurfaceFlags;
             desc.fConfig = config;
             desc.fSampleCnt = 1;
-            return rp->createTexture(desc, SkBudgeted::kNo,
+            return rp->createTexture(desc, renderable, SkBudgeted::kNo,
                                      GrResourceProvider::Flags::kNoPendingIO);
         }
     };
@@ -160,19 +156,17 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             GrSurfaceDesc desc;
             desc.fWidth = kW;
             desc.fHeight = kH;
-            desc.fFlags = kNone_GrSurfaceFlags;
             desc.fConfig = config;
             desc.fSampleCnt = 1;
 
-            sk_sp<GrTextureProxy> proxy =
-                    proxyProvider->createMipMapProxy(format, desc, origin, SkBudgeted::kNo);
+            sk_sp<GrTextureProxy> proxy = proxyProvider->createMipMapProxy(
+                    format, desc, GrRenderable::kNo, origin, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter,
                             SkToBool(proxy.get()) ==
                                     (caps->isConfigTexturable(desc.fConfig) &&
                                      caps->mipMapSupport() && !GrPixelConfigIsCompressed(config)));
 
-            desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            tex = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+            tex = resourceProvider->createTexture(desc, GrRenderable::kYes, SkBudgeted::kNo,
                                                   GrResourceProvider::Flags::kNoPendingIO);
             bool isRenderable = caps->isConfigRenderable(config);
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
@@ -180,7 +174,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                             isRenderable);
 
             desc.fSampleCnt = 2;
-            tex = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+            tex = resourceProvider->createTexture(desc, GrRenderable::kYes, SkBudgeted::kNo,
                                                   GrResourceProvider::Flags::kNoPendingIO);
             isRenderable = SkToBool(caps->getRenderTargetSampleCount(2, config));
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
@@ -220,16 +214,15 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
             if (!caps->isConfigTexturable(desc.fConfig)) {
                 continue;
             }
-            for (bool rt : {false, true}) {
-                if (rt && !caps->isConfigRenderable(desc.fConfig)) {
+            for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
+                if (renderable == GrRenderable::kYes && !caps->isConfigRenderable(desc.fConfig)) {
                     continue;
                 }
-                desc.fFlags |= rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
                 for (GrSurfaceOrigin origin :
                      {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
                     for (auto fit : {SkBackingFit::kApprox, SkBackingFit::kExact}) {
                         auto proxy = proxyProvider->testingOnly_createInstantiatedProxy(
-                                desc, origin, fit, SkBudgeted::kYes);
+                                desc, renderable, origin, fit, SkBudgeted::kYes);
                         if (!proxy) {
                             continue;
                         }
@@ -284,7 +277,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         // Try creating the texture as a deferred proxy.
                         for (int i = 0; i < 2; ++i) {
                             sk_sp<GrSurfaceContext> surfCtx;
-                            if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
+                            if (renderable == GrRenderable::kYes) {
                                 surfCtx = context->priv().makeDeferredRenderTargetContext(
                                         fit, desc.fWidth, desc.fHeight, colorType, nullptr,
                                         desc.fSampleCnt, GrMipMapped::kNo, origin, nullptr);
@@ -387,7 +380,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 
         // Copies should not work with a read-only texture
         auto copySrc = proxyProvider->createTextureProxy(
-                SkImage::MakeFromRaster(write, nullptr, nullptr), kNone_GrSurfaceFlags, 1,
+                SkImage::MakeFromRaster(write, nullptr, nullptr), GrRenderable::kNo, 1,
                 SkBudgeted::kYes, SkBackingFit::kExact);
         REPORTER_ASSERT(reporter, copySrc);
         auto copyResult = surfContext->testCopy(copySrc.get());
@@ -453,10 +446,8 @@ static sk_sp<GrTexture> make_normal_texture(GrContext* context, GrRenderable ren
     GrSurfaceDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = desc.fHeight = kSurfSize;
-    desc.fFlags = GrRenderable::kYes == renderable ? kRenderTarget_GrSurfaceFlag
-                                                   : kNone_GrSurfaceFlags;
     return context->priv().resourceProvider()->createTexture(
-        desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
+            desc, renderable, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
 }
 
 DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
@@ -523,7 +514,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
 
                 auto texture = make(context, 1);
                 REPORTER_ASSERT(reporter, idleIDs.find(1) == idleIDs.end());
-                bool isRT = SkToBool(texture->asRenderTarget());
+                auto renderable = GrRenderable(SkToBool(texture->asRenderTarget()));
                 auto backendFormat = texture->backendFormat();
                 texture.reset();
                 REPORTER_ASSERT(reporter, idleIDs.find(1) != idleIDs.end());
@@ -546,9 +537,6 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 desc.fWidth = w;
                 desc.fHeight = h;
                 desc.fConfig = kRGBA_8888_GrPixelConfig;
-                if (isRT) {
-                    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-                }
                 SkBudgeted budgeted;
                 if (texture->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
                     budgeted = SkBudgeted::kYes;
@@ -556,7 +544,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                     budgeted = SkBudgeted::kNo;
                 }
                 auto proxy = context->priv().proxyProvider()->createLazyProxy(
-                        singleUseLazyCB, backendFormat, desc,
+                        singleUseLazyCB, backendFormat, desc, renderable,
                         GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                         GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
                         GrSurfaceProxy::LazyInstantiationType::kSingleUse);
@@ -593,7 +581,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                     return GrSurfaceProxy::LazyInstantiationResult{std::move(texture), mode};
                 };
                 proxy = context->priv().proxyProvider()->createLazyProxy(
-                        deinstantiateLazyCB, backendFormat, desc,
+                        deinstantiateLazyCB, backendFormat, desc, renderable,
                         GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                         GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
                         GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
