@@ -48,6 +48,8 @@ ImGuiLayer::ImGuiLayer() {
     io.KeyMap[ImGuiKey_Y] = (int)Window::Key::kY;
     io.KeyMap[ImGuiKey_Z] = (int)Window::Key::kZ;
 
+    io.FontGlobalScale = 2.0f;
+
     int w, h;
     unsigned char* pixels;
     io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
