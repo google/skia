@@ -453,6 +453,9 @@ protected:
 private:
     friend class SkGraphics;
     friend bool SkIsSameFilter(const SkImageFilter* a, const SkImageFilter* b);
+    // Helper method to inspect onFilterNodeBounds() without going through filterBounds()
+    friend SkIRect SkFilterNodeBounds(const SkImageFilter*, const SkIRect& srcRect, const SkMatrix&,
+                                      MapDirection, const SkIRect* inputRect);
 
     static void PurgeCache();
 
