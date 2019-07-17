@@ -22,6 +22,30 @@
       "revId": "66612326220655e97a0f426630830bc274130aeb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5485abae_ec891d31",
+        "filename": "tests/TextureBindingsResetTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T19:48:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "344363ff_6869cbe0",
+      "range": {
+        "startLine": 80,
+        "startChar": 73,
+        "endLine": 80,
+        "endChar": 74
+      },
+      "revId": "66612326220655e97a0f426630830bc274130aeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
