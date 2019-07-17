@@ -20,7 +20,8 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format, const GrSurfaceDes
                                GrSurfaceOrigin origin, GrMipMapped mipMapped,
                                const GrSwizzle& textureSwizzle, SkBackingFit fit,
                                SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(format, srcDesc, origin, textureSwizzle, fit, budgeted, surfaceFlags)
+        : INHERITED(format, srcDesc, GrRenderable::kNo, origin, textureSwizzle, fit, budgeted,
+                    surfaceFlags)
         , fMipMapped(mipMapped)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {}
@@ -31,8 +32,8 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantia
                                GrSurfaceOrigin origin, GrMipMapped mipMapped,
                                const GrSwizzle& texSwizzle, SkBackingFit fit, SkBudgeted budgeted,
                                GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(std::move(callback), lazyType, format, desc, origin, texSwizzle, fit, budgeted,
-                    surfaceFlags)
+        : INHERITED(std::move(callback), lazyType, format, desc, GrRenderable::kNo, origin,
+                    texSwizzle, fit, budgeted, surfaceFlags)
         , fMipMapped(mipMapped)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {}
@@ -70,9 +71,8 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (LazyState::kNot != this->lazyInstantiationState()) {
         return false;
     }
-    if (!this->instantiateImpl(resourceProvider, 1, /* needsStencil = */ false,
-                               kNone_GrSurfaceFlags, fMipMapped,
-                               fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
+    if (!this->instantiateImpl(resourceProvider, 1, /* needsStencil = */ false, GrRenderable::kNo,
+                               fMipMapped, fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
         return false;
     }
 
@@ -82,10 +82,9 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
 }
 
 sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvider) const {
-    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, 1,
-                                                       /* needsStencil = */ false,
-                                                       kNone_GrSurfaceFlags,
-                                                       fMipMapped);
+    sk_sp<GrSurface> surface =
+            this->createSurfaceImpl(resourceProvider, 1,
+                                    /* needsStencil = */ false, GrRenderable::kNo, fMipMapped);
     if (!surface) {
         return nullptr;
     }

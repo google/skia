@@ -407,8 +407,9 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
     return stencil;
 }
 
-sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                           const GrMipLevel texels[], int mipLevelCount) {
+sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
+                                           SkBudgeted budgeted, const GrMipLevel texels[],
+                                           int mipLevelCount) {
     int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
 
     if (!fMtlCaps->isConfigTexturable(desc.fConfig)) {
@@ -422,8 +423,6 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         return nullptr; // TODO: add compressed texture support
     }
-
-    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     sk_sp<GrMtlTexture> tex;
     // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
@@ -442,7 +441,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     // to copy to them.
     texDesc.storageMode = MTLStorageModePrivate;
     texDesc.usage = MTLTextureUsageShaderRead;
-    texDesc.usage |= renderTarget ? MTLTextureUsageRenderTarget : 0;
+    texDesc.usage |= (renderable == GrRenderable::kYes) ? MTLTextureUsageRenderTarget : 0;
 
     GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
     if (mipLevels > 1) {
@@ -455,7 +454,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         }
     }
 
-    if (renderTarget) {
+    if (renderable == GrRenderable::kYes) {
         tex = GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(this, budgeted,
                                                                    desc, texDesc, mipMapsStatus);
     } else {
@@ -506,11 +505,10 @@ static id<MTLTexture> get_texture_from_backend(const GrBackendRenderTarget& back
 }
 
 static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> mtlTexture,
-                                     bool isRenderTarget, GrPixelConfig config) {
-    if (isRenderTarget) {
+                                     GrRenderable renderable, GrPixelConfig config) {
+    if (renderable == GrRenderable::kYes) {
         SkASSERT(MTLTextureUsageRenderTarget & mtlTexture.usage);
     }
-    surfaceDesc->fFlags = isRenderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     surfaceDesc->fWidth = mtlTexture.width;
     surfaceDesc->fHeight = mtlTexture.height;
     surfaceDesc->fConfig = config;
@@ -526,7 +524,7 @@ sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendT
     }
 
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, false, backendTex.config());
+    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kNo, backendTex.config());
 
     return GrMtlTexture::MakeWrappedTexture(this, surfDesc, mtlTexture, cacheable, ioType);
 }
@@ -542,7 +540,7 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
     }
 
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, true, backendTex.config());
+    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, backendTex.config());
 
     surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, colorType,
                                                                    backendTex.getBackendFormat());
@@ -565,7 +563,7 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
     }
 
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, true, backendRT.config());
+    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, backendRT.config());
 
     return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, mtlTexture);
 }
@@ -578,7 +576,7 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
     }
 
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, true, backendTex.config());
+    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, backendTex.config());
     surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, surfDesc.fConfig);
     if (!surfDesc.fSampleCnt) {
         return nullptr;
