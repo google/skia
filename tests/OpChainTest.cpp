@@ -166,14 +166,13 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = kNumOps + 1;
     desc.fHeight = 1;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
     const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
 
     auto proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
+            format, desc, GrRenderable::kYes, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+            SkBackingFit::kExact, SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
     proxy->instantiate(context->priv().resourceProvider());
     int result[result_width()];

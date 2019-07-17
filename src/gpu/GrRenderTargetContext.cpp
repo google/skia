@@ -2615,12 +2615,14 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
 
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
+    // TODO: We don't really use renderability or GrSurfaceDesc. Remove them from caps function?
     GrSurfaceDesc desc;
     bool rectsMustMatch = false;
     bool disallowSubrect = false;
-    if (!this->caps()->initDescForDstCopy(rtProxy, &desc, &rectsMustMatch,
+    GrRenderable renderable = GrRenderable::kNo;
+    if (!this->caps()->initDescForDstCopy(rtProxy, &desc, &renderable, &rectsMustMatch,
                                           &disallowSubrect)) {
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        renderable = GrRenderable::kYes;
         desc.fConfig = rtProxy->config();
     }
 

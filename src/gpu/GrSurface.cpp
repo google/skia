@@ -16,14 +16,13 @@
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/SkGr.h"
 
-size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool binSize) {
+size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, GrRenderable renderable, bool binSize) {
     size_t size;
 
     int width  = binSize ? GrResourceProvider::MakeApprox(desc.fWidth)  : desc.fWidth;
     int height = binSize ? GrResourceProvider::MakeApprox(desc.fHeight) : desc.fHeight;
 
-    bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (isRenderTarget) {
+    if (renderable == GrRenderable::kYes) {
         // We own one color value for each MSAA sample.
         SkASSERT(desc.fSampleCnt >= 1);
         int colorValuesPerPixel = desc.fSampleCnt;

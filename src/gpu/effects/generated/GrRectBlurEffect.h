@@ -49,9 +49,8 @@ public:
                 return nullptr;
             }
 
-            blurProfile =
-                    proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
-                                                      SkBudgeted::kYes, SkBackingFit::kExact);
+            blurProfile = proxyProvider->createTextureProxy(std::move(image), GrRenderable::kNo, 1,
+                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!blurProfile) {
                 return nullptr;
             }

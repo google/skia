@@ -225,7 +225,7 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
         bm.setImmutable();
         sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
 
-        blurProfile = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
+        blurProfile = proxyProvider->createTextureProxy(std::move(image), GrRenderable::kNo, 1,
                                                         SkBudgeted::kYes, SkBackingFit::kExact);
         if (!blurProfile) {
             return nullptr;

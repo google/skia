@@ -23,7 +23,7 @@
 
 struct ProxyParams {
     int             fSize;
-    bool            fIsRT;
+    GrRenderable    fRenderable;
     SkColorType     fColorType;
     SkBackingFit    fFit;
     int             fSampleCnt;
@@ -38,7 +38,6 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
     GrPixelConfig config = GrColorTypeToPixelConfig(grCT);
 
     GrSurfaceDesc desc;
-    desc.fFlags = p.fIsRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fWidth  = p.fSize;
     desc.fHeight = p.fSize;
     desc.fConfig = config;
@@ -46,7 +45,7 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(grCT);
 
-    return proxyProvider->createProxy(format, desc, p.fOrigin, p.fFit, p.fBudgeted);
+    return proxyProvider->createProxy(format, desc, p.fRenderable, p.fOrigin, p.fFit, p.fBudgeted);
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
@@ -139,8 +138,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         bool          fExpectation;
     };
 
-    constexpr bool kRT = true;
-    constexpr bool kNotRT = false;
+    constexpr GrRenderable kRT = GrRenderable::kYes;
+    constexpr GrRenderable kNotRT = GrRenderable::kNo;
 
     constexpr bool kShare = true;
     constexpr bool kDontShare = false;
@@ -273,20 +272,19 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     GrPixelConfig config = GrColorTypeToPixelConfig(grCT);
 
     GrSurfaceDesc desc;
-    desc.fFlags = p.fIsRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fWidth = p.fSize;
     desc.fHeight = p.fSize;
     desc.fConfig = config;
     desc.fSampleCnt = p.fSampleCnt;
 
     SkBackingFit fit = p.fFit;
-    auto callback = [fit, desc](GrResourceProvider* resourceProvider) {
+    auto callback = [fit, desc, renderable = p.fRenderable](GrResourceProvider* resourceProvider) {
         sk_sp<GrTexture> texture;
         if (fit == SkBackingFit::kApprox) {
             texture = resourceProvider->createApproxTexture(
-                desc, GrResourceProvider::Flags::kNoPendingIO);
+                    desc, renderable, GrResourceProvider::Flags::kNoPendingIO);
         } else {
-            texture = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+            texture = resourceProvider->createTexture(desc, renderable, SkBudgeted::kNo,
                                                       GrResourceProvider::Flags::kNoPendingIO);
         }
         return GrSurfaceProxy::LazyInstantiationResult(std::move(texture));
@@ -295,8 +293,8 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     auto lazyType = deinstantiate ? GrSurfaceProxy::LazyInstantiationType ::kDeinstantiate
                                   : GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
-    return proxyProvider->createLazyProxy(callback, format, desc, p.fOrigin, GrMipMapped::kNo,
-                                          flags, p.fFit, p.fBudgeted, lazyType);
+    return proxyProvider->createLazyProxy(callback, format, desc, p.fRenderable, p.fOrigin,
+                                          GrMipMapped::kNo, flags, p.fFit, p.fBudgeted, lazyType);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
@@ -306,17 +304,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
     texParams.fFit = SkBackingFit::kExact;
     texParams.fOrigin = kTopLeft_GrSurfaceOrigin;
     texParams.fColorType = kRGBA_8888_SkColorType;
-    texParams.fIsRT = false;
+    texParams.fRenderable = GrRenderable::kNo;
     texParams.fSampleCnt = 1;
     texParams.fSize = 100;
     texParams.fBudgeted = SkBudgeted::kNo;
-    ProxyParams rtParams = texParams;
-    rtParams.fIsRT = true;
     auto proxyProvider = context->priv().proxyProvider();
     auto caps = context->priv().caps();
     auto p0 = make_lazy(proxyProvider, caps, texParams, true);
     auto p1 = make_lazy(proxyProvider, caps, texParams, false);
-    texParams.fFit = rtParams.fFit = SkBackingFit::kApprox;
+    ProxyParams rtParams = texParams;
+    rtParams.fRenderable = GrRenderable::kYes;
+    rtParams.fFit = SkBackingFit::kApprox;
     auto p2 = make_lazy(proxyProvider, caps, rtParams, true);
     auto p3 = make_lazy(proxyProvider, caps, rtParams, false);
 
@@ -359,7 +357,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
     // Force the resource allocator to always believe it is over budget
     context->setResourceCacheLimits(0, 0);
 
-    const ProxyParams params  = { 64, false, kRGBA_8888_SkColorType,
+    const ProxyParams params  = { 64, GrRenderable::kNo, kRGBA_8888_SkColorType,
                                   SkBackingFit::kExact, 0, kTopLeft_GrSurfaceOrigin,
                                   SkBudgeted::kYes };
 

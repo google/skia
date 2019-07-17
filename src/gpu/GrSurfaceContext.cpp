@@ -308,7 +308,8 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
         GrSurfaceOrigin tempOrigin =
                 this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : dstProxy->origin();
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
-                format, desc, tempOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
+                format, desc, GrRenderable::kNo, tempOrigin, SkBackingFit::kApprox,
+                SkBudgeted::kYes);
 
         if (!tempProxy) {
             return false;

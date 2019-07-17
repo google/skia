@@ -2723,7 +2723,10 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
 }
 
 bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                                  bool* rectsMustMatch, bool* disallowSubrect) const {
+                                  GrRenderable* renderable, bool* rectsMustMatch,
+                                  bool* disallowSubrect) const {
+    *renderable = GrRenderable::kNo;
+
     // By default, we don't require rects to match.
     *rectsMustMatch = false;
 
@@ -2733,7 +2736,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
     if (src->asTextureProxy() && !this->isConfigRenderable(src->config())) {
-        desc->fFlags = kRenderTarget_GrSurfaceFlag;
+        *renderable = GrRenderable::kYes;
         desc->fConfig = src->config();
         return true;
     }
@@ -2794,9 +2797,8 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
         }
     }
 
-    // We'll do a CopyTexSubImage. Make the dst a plain old texture.
+    // We'll do a CopyTexSubImage.
     desc->fConfig = src->config();
-    desc->fFlags = kNone_GrSurfaceFlags;
     return true;
 }
 

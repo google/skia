@@ -68,10 +68,8 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
         desc.fConfig = config;
         desc.fWidth = width;
         desc.fHeight = height;
-        desc.fFlags = GrRenderable::kYes == renderable ? kRenderTarget_GrSurfaceFlag
-                                                       : kNone_GrSurfaceFlags;
         proxy = context->priv().proxyProvider()->createProxy(
-                format, desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
+                format, desc, renderable, origin, SkBackingFit::kExact, SkBudgeted::kYes);
         if (!proxy) {
             return nullptr;
         }

@@ -146,8 +146,8 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
               (isPowerOfTwo || isExact) ? RectInfo::kHard : RectInfo::kBad,
               name);
 
-    return proxyProvider->createProxy(format, desc, kTopLeft_GrSurfaceOrigin, fit,
-                                      SkBudgeted::kYes);
+    return proxyProvider->createProxy(format, desc, GrRenderable::kNo, kTopLeft_GrSurfaceOrigin,
+                                      fit, SkBudgeted::kYes);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,

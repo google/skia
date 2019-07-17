@@ -336,7 +336,8 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
     return this->onCanCopySurface(dst, src, srcRect, dstPoint);
 }
 
-bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) const {
+bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable renderable,
+                                 GrMipMapped mipped) const {
     if (!this->isConfigTexturable(desc.fConfig)) {
         return false;
     }
@@ -349,7 +350,7 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) 
         return false;
     }
 
-    if (SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag)) {
+    if (renderable == GrRenderable::kYes) {
         if (0 == this->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig)) {
             return false;
         }

@@ -144,8 +144,9 @@ static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLeve
     return levelsWithPixelsCnt == mipLevelCount;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
-                                      const GrMipLevel texels[], int mipLevelCount) {
+sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderable renderable,
+                                      SkBudgeted budgeted, const GrMipLevel texels[],
+                                      int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (GrPixelConfigIsCompressed(origDesc.fConfig)) {
         // Call GrGpu::createCompressedTexture.
@@ -154,12 +155,11 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     GrSurfaceDesc desc = origDesc;
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
-    if (!this->caps()->validateSurfaceDesc(desc, mipMapped)) {
+    if (!this->caps()->validateSurfaceDesc(desc, renderable, mipMapped)) {
         return nullptr;
     }
 
-    bool isRT = desc.fFlags & kRenderTarget_GrSurfaceFlag;
-    if (isRT) {
+    if (renderable == GrRenderable::kYes) {
         desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
     }
     // Attempt to catch un- or wrongly initialized sample counts.
@@ -177,9 +177,9 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     }
 
     this->handleDirtyContext();
-    sk_sp<GrTexture> tex = this->onCreateTexture(desc, budgeted, texels, mipLevelCount);
+    sk_sp<GrTexture> tex = this->onCreateTexture(desc, renderable, budgeted, texels, mipLevelCount);
     if (tex) {
-        if (!this->caps()->reuseScratchTextures() && !isRT) {
+        if (!this->caps()->reuseScratchTextures() && renderable == GrRenderable::kNo) {
             tex->resourcePriv().removeScratchKey();
         }
         fStats.incTextureCreates();
@@ -192,8 +192,9 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     return tex;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
-    return this->createTexture(desc, budgeted, nullptr, 0);
+sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
+                                      SkBudgeted budgeted) {
+    return this->createTexture(desc, renderable, budgeted, nullptr, 0);
 }
 
 sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,

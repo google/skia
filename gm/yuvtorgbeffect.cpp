@@ -100,7 +100,7 @@ protected:
         sk_sp<GrTextureProxy> proxies[3];
 
         for (int i = 0; i < 3; ++i) {
-            proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
+            proxies[i] = proxyProvider->createTextureProxy(fImage[i], GrRenderable::kNo, 1,
                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!proxies[i]) {
                 *errorMsg = "Failed to create proxy";
@@ -219,7 +219,7 @@ protected:
         sk_sp<GrTextureProxy> proxies[2];
 
         for (int i = 0; i < 2; ++i) {
-            proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
+            proxies[i] = proxyProvider->createTextureProxy(fImage[i], GrRenderable::kNo, 1,
                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!proxies[i]) {
                 *errorMsg = "Failed to create proxy";
@@ -316,7 +316,7 @@ protected:
         sk_sp<GrTextureProxy> proxies[3];
 
         for (int i = 0; i < 3; ++i) {
-            proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
+            proxies[i] = proxyProvider->createTextureProxy(fImage[i], GrRenderable::kNo, 1,
                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!proxies[i]) {
                 *errorMsg = "Failed to create proxy";

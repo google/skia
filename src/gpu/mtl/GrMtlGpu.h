@@ -135,7 +135,7 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
-    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, GrRenderable, SkBudgeted budgeted,
                                      const GrMipLevel texels[], int mipLevelCount) override;
     sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, SkImage::CompressionType,
                                                SkBudgeted, const void* data) override {

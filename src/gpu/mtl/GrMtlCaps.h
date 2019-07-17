@@ -63,7 +63,8 @@ public:
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const;
 
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                            bool* rectsMustMatch, bool* disallowSubrect) const override {
+                            GrRenderable* renderable, bool* rectsMustMatch,
+                            bool* disallowSubrect) const override {
         return false;
     }
 

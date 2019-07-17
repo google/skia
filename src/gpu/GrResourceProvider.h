@@ -71,25 +71,27 @@ public:
 
     /**
      * Finds a texture that approximately matches the descriptor. Will be at least as large in width
-     * and height as desc specifies. If desc specifies that the texture should be a render target
-     * then result will be a render target. Format and sample count will always match the request.
+     * and height as desc specifies. If renderable is kYes then the GrTexture will also be a
+     * GrRenderTarget. The texture's format and sample count will always match the request.
      * The contents of the texture are undefined.
      */
-    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, Flags);
+    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, GrRenderable, Flags);
 
-    /** Create an exact fit texture with no initial data to upload.
+    /** Create an exact fit texture with no initial data to upload. */
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted,
+                                   Flags = Flags::kNone);
+
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted,
+                                   const GrMipLevel texels[], int mipLevelCount);
+
+    /** Create a potentially loose fit texture with the provided data */
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable renderable, SkBudgeted,
+                                   SkBackingFit, const GrMipLevel&, Flags);
+
+    /**
+     * Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
+     * This does not currently support MIP maps. It will not be renderable.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, Flags = Flags::kNone);
-
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel texels[],
-                                   int mipLevelCount);
-
-    // Create a potentially loose fit texture with the provided data
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, SkBackingFit,
-                                   const GrMipLevel&, Flags);
-
-    // Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
-    // This does not currently support MIP maps.
     sk_sp<GrTexture> createCompressedTexture(int width, int height, SkImage::CompressionType,
                                              SkBudgeted, SkData* data);
 
@@ -264,13 +266,13 @@ private:
 
     // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
     // it returns null. If non-null, the resulting texture is always budgeted.
-    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, Flags);
+    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, GrRenderable, Flags);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
      * update the budgeting accordingly.
      */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, Flags);
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, GrRenderable, SkBudgeted, Flags);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }

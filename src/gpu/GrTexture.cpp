@@ -78,43 +78,44 @@ bool GrTexture::StealBackendTexture(sk_sp<GrTexture> texture,
 
 void GrTexture::computeScratchKey(GrScratchKey* key) const {
     if (!GrPixelConfigIsCompressed(this->config())) {
-        const GrRenderTarget* rt = this->asRenderTarget();
         int sampleCount = 1;
-        if (rt) {
+        GrRenderable renderable = GrRenderable::kNo;
+        if (const auto* rt = this->asRenderTarget()) {
             sampleCount = rt->numSamples();
+            renderable = GrRenderable::kYes;
         }
-        GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                         SkToBool(rt), sampleCount,
-                                         this->texturePriv().mipMapped(), key);
+        GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(), renderable,
+                                         sampleCount, this->texturePriv().mipMapped(), key);
     }
 }
 
 void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int height,
-                                      bool isRenderTarget, int sampleCnt,
-                                      GrMipMapped mipMapped, GrScratchKey* key) {
+                                      GrRenderable renderable, int sampleCnt, GrMipMapped mipMapped,
+                                      GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
-    uint32_t flags = isRenderTarget;
     SkASSERT(width > 0);
     SkASSERT(height > 0);
     SkASSERT(sampleCnt > 0);
-    SkASSERT(1 == sampleCnt || isRenderTarget);
+    SkASSERT(1 == sampleCnt || renderable == GrRenderable::kYes);
 
     // make sure desc.fConfig fits in 5 bits
     SkASSERT(sk_float_log2(kLast_GrPixelConfig) <= 5);
     SkASSERT(static_cast<int>(config) < (1 << 5));
     SkASSERT(sampleCnt < (1 << 8));
-    SkASSERT(flags < (1 << 10));
     SkASSERT(static_cast<int>(mipMapped) <= 1);
 
     GrScratchKey::Builder builder(key, kType, 3);
     builder[0] = width;
     builder[1] = height;
-    builder[2] = config | (static_cast<uint8_t>(mipMapped) << 5) | (sampleCnt << 6) | (flags << 14);
+    builder[2] = config
+               | (static_cast<uint32_t>(mipMapped) << 5)
+               | (sampleCnt << 6)
+               | (static_cast<uint32_t>(renderable) << 14);
 }
 
-void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrScratchKey* key) {
+void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrRenderable renderable,
+                                      GrScratchKey* key) {
     // Note: the fOrigin field is not used in the scratch key
-    return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight,
-                             SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag), desc.fSampleCnt,
+    return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight, renderable, desc.fSampleCnt,
                              GrMipMapped::kNo, key);
 }

@@ -85,8 +85,9 @@ GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
     fCaps.reset(new GrMockCaps(contextOptions, options));
 }
 
-sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                            const GrMipLevel texels[], int mipLevelCount) {
+sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
+                                            SkBudgeted budgeted, const GrMipLevel texels[],
+                                            int mipLevelCount) {
     if (fMockOptions.fFailTextureAllocations) {
         return nullptr;
     }
@@ -99,7 +100,7 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgete
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
     GrMockTextureInfo texInfo(ct, NextInternalTextureID());
-    if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
+    if (renderable == GrRenderable::kYes) {
         GrMockRenderTargetInfo rtInfo(ct, NextInternalRenderTargetID());
         return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, budgeted, desc, mipMapsStatus,
                                                               texInfo, rtInfo));
@@ -140,7 +141,6 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
 
     SkASSERT(colorType == texInfo.fColorType);
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
     desc.fConfig = texInfo.pixelConfig();
@@ -160,7 +160,6 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendRenderTarget(const GrBackendRender
     SkAssertResult(rt.getMockRenderTargetInfo(&info));
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = rt.width();
     desc.fHeight = rt.height();
     desc.fConfig = info.pixelConfig();
@@ -175,7 +174,6 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     SkAssertResult(tex.getMockTextureInfo(&texInfo));
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
     desc.fConfig = texInfo.pixelConfig();
