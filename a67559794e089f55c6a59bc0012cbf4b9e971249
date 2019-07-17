@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fe3742bb_b7f300a3",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-17T02:19:26Z",
+      "side": 1,
+      "message": "Seems fine for now. We can revisit in the future if it matters. I think we\u0027re basically just waiting on being able to use std::variant to redo this.",
+      "parentUuid": "b393989d_c5ffa8b9",
+      "revId": "a67559794e089f55c6a59bc0012cbf4b9e971249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "27ab21af_bb2a2dd0",
         "filename": "src/gpu/dawn/GrDawnCaps.h",
         "patchSetId": 3
