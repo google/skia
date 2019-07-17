@@ -1352,6 +1352,11 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
 
     GrGLenum colorRenderbufferFormat = 0; // suppress warning
 
+    GrGLFormat format = GrGLFormatFromGLEnum(texInfo.fFormat);
+    if (format == GrGLFormat::kUnknown) {
+        goto FAILED;
+    }
+
     if (desc.fSampleCnt > 1 && GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType()) {
         goto FAILED;
     }
@@ -1372,10 +1377,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
             !idDesc->fMSColorRenderbufferID) {
             goto FAILED;
         }
-        GrGLFormat glFormat =
-                GrGLFormatFromGLEnum(this->glCaps().configSizedInternalFormat(desc.fConfig));
-        colorRenderbufferFormat =
-                this->glCaps().getRenderbufferInternalFormat(glFormat);
+        colorRenderbufferFormat = this->glCaps().getRenderbufferInternalFormat(format);
     } else {
         idDesc->fRTFBOID = idDesc->fTexFBOID;
     }
@@ -1396,12 +1398,12 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER,
                                         idDesc->fMSColorRenderbufferID));
-        if (!this->glCaps().isConfigVerifiedColorAttachment(desc.fConfig)) {
+        if (!this->glCaps().isFormatVerifiedColorAttachment(format)) {
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 goto FAILED;
             }
-            fGLContext->caps()->markConfigAsValidColorAttachment(desc.fConfig);
+            fGLContext->caps()->markFormatAsValidColorAttachment(format);
         }
     }
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fTexFBOID);
@@ -1417,12 +1419,12 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
                                      texInfo.fTarget,
                                      texInfo.fID, 0));
     }
-    if (!this->glCaps().isConfigVerifiedColorAttachment(desc.fConfig)) {
+    if (!this->glCaps().isFormatVerifiedColorAttachment(format)) {
         GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             goto FAILED;
         }
-        fGLContext->caps()->markConfigAsValidColorAttachment(desc.fConfig);
+        fGLContext->caps()->markFormatAsValidColorAttachment(format);
     }
 
     return true;
