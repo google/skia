@@ -24,30 +24,24 @@
 
 #include <string.h>
 
-namespace skiagm {
+namespace {
 
 constexpr SkColor gPathColor = SK_ColorBLACK;
 constexpr SkColor gClipAColor = SK_ColorBLUE;
 constexpr SkColor gClipBColor = SK_ColorRED;
 
-class ComplexClipGM : public GM {
+class ComplexClipGM : public skiagm::GM {
 public:
-    ComplexClipGM(bool aaclip, bool saveLayer, bool invertDraw)
-    : fDoAAClip(aaclip)
-    , fDoSaveLayer(saveLayer)
-    , fInvertDraw(invertDraw) {
-        this->setBGColor(0xFFDEDFDE);
-    }
+    ComplexClipGM(bool aaclip, bool saveLayer, bool invertDraw, const char* name)
+        : fName(name)
+        , fDoAAClip(aaclip)
+        , fDoSaveLayer(saveLayer)
+        , fInvertDraw(invertDraw) {}
 
-protected:
-    SkString onShortName() override {
-        SkString str;
-        str.printf("complexclip_%s%s%s",
-                   fDoAAClip ? "aa" : "bw",
-                   fDoSaveLayer ? "_layer" : "",
-                   fInvertDraw ? "_invert" : "");
-        return str;
-    }
+private:
+    void onOnceBeforeDraw() override { this->setBGColor(0xFFDEDFDE); }
+
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override { return SkISize::Make(970, 780); }
 
@@ -172,7 +166,7 @@ protected:
             canvas->restore();
         }
     }
-private:
+
     void drawHairlines(SkCanvas* canvas, const SkPath& path,
                        const SkPath& clipA, const SkPath& clipB) {
         SkPaint paint;
@@ -191,21 +185,30 @@ private:
         canvas->drawPath(clipB, paint);
     }
 
+    const char* fName = nullptr;
     bool fDoAAClip;
     bool fDoSaveLayer;
     bool fInvertDraw;
-
-    typedef GM INHERITED;
 };
+}  // namespace
 
-//////////////////////////////////////////////////////////////////////////////
+//                ComplexClipGM(aaclip, layer, invert, name)
+DEF_GM(return new ComplexClipGM(false,  false, false,  "complexclip_bw");)
+DEF_GM(return new ComplexClipGM(false,  false, true,   "complexclip_bw_invert");)
+DEF_GM(return new ComplexClipGM(false,  true,  false,  "complexclip_bw_layer");)
+DEF_GM(return new ComplexClipGM(false,  true,  true,   "complexclip_bw_layer_invert");)
+DEF_GM(return new ComplexClipGM(true,   false, false,  "complexclip_aa");)
+DEF_GM(return new ComplexClipGM(true,   false, true,   "complexclip_aa_invert");)
+DEF_GM(return new ComplexClipGM(true,   true,  false,  "complexclip_aa_layer");)
+DEF_GM(return new ComplexClipGM(true,   true,  true,   "complexclip_aa_layer_invert");)
 
-DEF_GM(return new ComplexClipGM(false, false, false);)
-DEF_GM(return new ComplexClipGM(false, false, true);)
-DEF_GM(return new ComplexClipGM(false, true, false);)
-DEF_GM(return new ComplexClipGM(false, true, true);)
-DEF_GM(return new ComplexClipGM(true, false, false);)
-DEF_GM(return new ComplexClipGM(true, false, true);)
-DEF_GM(return new ComplexClipGM(true, true, false);)
-DEF_GM(return new ComplexClipGM(true, true, true);)
-}
+
+
+
+
+
+
+
+
+
+

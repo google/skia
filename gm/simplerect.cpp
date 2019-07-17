@@ -15,20 +15,11 @@
 #include "include/utils/SkRandom.h"
 #include "tools/ToolUtils.h"
 
+namespace {
 class SimpleRectGM : public skiagm::GM {
-public:
-    SimpleRectGM() {}
+    SkString onShortName() override { return SkString("simplerect"); }
 
-protected:
-    SkString onShortName() override {
-        SkString name;
-        name.printf("simplerect");
-        return name;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 800);
-    }
+    SkISize onISize() override { return {800, 800}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(1, 1);    // want to exercise non-identity ctm performance
@@ -50,9 +41,6 @@ protected:
     }
 
     bool onAnimate(double nanos) override { return true; }
-
-private:
-
-    typedef GM INHERITED;
 };
+}  // namespace
 DEF_GM(return new SimpleRectGM;)

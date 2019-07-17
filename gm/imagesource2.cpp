@@ -21,27 +21,22 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageSource.h"
 
-namespace skiagm {
+namespace {
 
 // This GM reproduces the issue in crbug.com/472795. The SkImageSource image
 // is shifted for high quality mode between cpu and gpu.
-class ImageSourceGM : public GM {
+class ImageSourceGM : public skiagm::GM {
 public:
-    ImageSourceGM(const char* suffix, SkFilterQuality filter) : fSuffix(suffix), fFilter(filter) {
-        this->setBGColor(0xFFFFFFFF);
-    }
+    ImageSourceGM(const char* n, SkFilterQuality filter) : fName(n), fFilter(filter) {}
 
-protected:
-    SkString onShortName() override {
-        SkString name("imagesrc2_");
-        name.append(fSuffix);
-        return name;
-    }
+private:
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override { return SkISize::Make(256, 256); }
 
     // Create an image with high frequency vertical stripes
     void onOnceBeforeDraw() override {
+        this->setBGColor(0xFFFFFFFF);
         constexpr SkPMColor gColors[] = {
             SK_ColorRED,     SK_ColorGRAY,
             SK_ColorGREEN,   SK_ColorGRAY,
@@ -83,20 +78,17 @@ protected:
         canvas->restore();
     }
 
-private:
     static constexpr int kImageSize = 503;
 
-    SkString fSuffix;
+    const char* fName;
     SkFilterQuality fFilter;
     sk_sp<SkImage>  fImage;
 
     typedef GM INHERITED;
 };
+}  // namespace
 
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new ImageSourceGM("none", kNone_SkFilterQuality);)
-DEF_GM(return new ImageSourceGM("low", kLow_SkFilterQuality);)
-DEF_GM(return new ImageSourceGM("med", kMedium_SkFilterQuality);)
-DEF_GM(return new ImageSourceGM("high", kHigh_SkFilterQuality);)
-}
+DEF_GM(return new ImageSourceGM("imagesrc2_none", kNone_SkFilterQuality);)
+DEF_GM(return new ImageSourceGM("imagesrc2_low",  kLow_SkFilterQuality);)
+DEF_GM(return new ImageSourceGM("imagesrc2_med",  kMedium_SkFilterQuality);)
+DEF_GM(return new ImageSourceGM("imagesrc2_high", kHigh_SkFilterQuality);)

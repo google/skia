@@ -33,11 +33,11 @@
 #include <memory>
 #include <utility>
 
-namespace skiagm {
+namespace {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class RRectGM : public GM {
+class RRectGM : public skiagm::GM {
 public:
     enum Type {
         kBW_Draw_Type,
@@ -46,7 +46,7 @@ public:
         kAA_Clip_Type,
         kEffect_Type,
     };
-    RRectGM(Type type) : fType(type) { }
+    RRectGM(Type type, const char* n) : fName(n), fType(type) {}
 
 protected:
 
@@ -55,27 +55,7 @@ protected:
         this->setUpRRects();
     }
 
-    SkString onShortName() override {
-        SkString name("rrect");
-        switch (fType) {
-            case kBW_Draw_Type:
-                name.append("_draw_bw");
-                break;
-            case kAA_Draw_Type:
-                name.append("_draw_aa");
-                break;
-            case kBW_Clip_Type:
-                name.append("_clip_bw");
-                break;
-            case kAA_Clip_Type:
-                name.append("_clip_aa");
-                break;
-            case kEffect_Type:
-                name.append("_effect");
-                break;
-        }
-        return name;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
@@ -181,6 +161,7 @@ protected:
     }
 
 private:
+    const char* fName;
     Type fType;
 
     static constexpr int kImageWidth = 640;
@@ -261,13 +242,10 @@ const SkVector RRectGM::gRadii[kNumComplexCases][4] = {
     { { 0.3f, 0.4f }, { 0.3f, 0.4f }, { 0.3f, 0.4f }, { 0.3f, 0.4f } },
 
 };
+}  // namespace
 
-///////////////////////////////////////////////////////////////////////////////
-
-DEF_GM( return new RRectGM(RRectGM::kAA_Draw_Type); )
-DEF_GM( return new RRectGM(RRectGM::kBW_Draw_Type); )
-DEF_GM( return new RRectGM(RRectGM::kAA_Clip_Type); )
-DEF_GM( return new RRectGM(RRectGM::kBW_Clip_Type); )
-DEF_GM( return new RRectGM(RRectGM::kEffect_Type); )
-
-}
+DEF_GM( return new RRectGM(RRectGM::kAA_Draw_Type, "rrect_draw_aa"); )
+DEF_GM( return new RRectGM(RRectGM::kBW_Draw_Type, "rrect_draw_bw"); )
+DEF_GM( return new RRectGM(RRectGM::kAA_Clip_Type, "rrect_clip_aa"); )
+DEF_GM( return new RRectGM(RRectGM::kBW_Clip_Type, "rrect_clip_bw"); )
+DEF_GM( return new RRectGM(RRectGM::kEffect_Type,  "rrect_effect" ); )

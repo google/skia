@@ -50,6 +50,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
 static void show_bounds(SkCanvas* canvas, const SkIRect* clip, const SkIRect* inSubset,
                         const SkIRect* outSubset) {
     const SkIRect* rects[] { clip, inSubset, outSubset };
@@ -236,20 +238,17 @@ public:
             : fStrategy(strategy)
             , fFilterWithCropRect(filterWithCropRect)
             , fMainImage(nullptr)
-            , fAuxImage(nullptr) {}
+            , fAuxImage(nullptr)
+    {
+        if (strategy == Strategy::kSaveLayer) {
+            fName = filterWithCropRect ? "imagemakewithfilter_crop_ref" : "imagemakewithfilter_ref";
+        } else {
+            fName = filterWithCropRect ? "imagemakewithfilter_crop"     : "imagemakewithfilter";
+        }
+    }
 
 protected:
-    SkString onShortName() override {
-        SkString name = SkString("imagemakewithfilter");
-
-        if (fFilterWithCropRect) {
-            name.append("_crop");
-        }
-        if (fStrategy == Strategy::kSaveLayer) {
-            name.append("_ref");
-        }
-        return name;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override { return SkISize::Make(1980, 860); }
 
@@ -373,6 +372,7 @@ protected:
     }
 
 private:
+    const char* fName = nullptr;
     Strategy fStrategy;
     bool fFilterWithCropRect;
     sk_sp<SkImage> fMainImage;
@@ -421,6 +421,8 @@ private:
 
     typedef GM INHERITED;
 };
+}  // namespace
+
 // The different strategies should all look the same, with the exception of filters that affect
 // transparent black (i.e. the lighting filter). In the save layer case, the filter affects the
 // transparent pixels outside of the drawn subset, whereas the makeWithFilter is restricted. This

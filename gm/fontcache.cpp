@@ -28,6 +28,8 @@
 
 class GrRenderTargetContext;
 
+namespace {
+
 static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkFont& font) {
     SkPaint paint;
@@ -38,7 +40,9 @@ static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
 class FontCacheGM : public skiagm::GpuGM {
 public:
     FontCacheGM(GrContextOptions::Enable allowMultipleTextures)
-        : fAllowMultipleTextures(allowMultipleTextures) {
+        : fName(GrContextOptions::Enable::kYes == allowMultipleTextures ? "fontcache-mt"
+                                                                        : "fontcache")
+        , fAllowMultipleTextures(allowMultipleTextures) {
         this->setBGColor(SK_ColorLTGRAY);
     }
 
@@ -48,13 +52,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        SkString name("fontcache");
-        if (GrContextOptions::Enable::kYes == fAllowMultipleTextures) {
-            name.append("-mt");
-        }
-        return name;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override { return SkISize::Make(kSize, kSize); }
 
@@ -126,16 +124,14 @@ private:
         } while (true);
     }
 
+    const char* fName = nullptr;
     static constexpr SkScalar kSize = 1280;
 
     GrContextOptions::Enable fAllowMultipleTextures;
     sk_sp<SkTypeface> fTypefaces[6];
     typedef GM INHERITED;
 };
-
-constexpr SkScalar FontCacheGM::kSize;
-
-//////////////////////////////////////////////////////////////////////////////
+}  // namespace
 
 DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kNo))
 DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kYes))
