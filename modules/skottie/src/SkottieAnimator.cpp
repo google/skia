@@ -90,6 +90,12 @@ protected:
         //        and the last frame is not discarded (its t1 is assumed -> inf)
         //
 
+        // default control points for linear lerp
+        static constexpr SkPoint kDefaultC0 = { 0, 0 },
+                                 kDefaultC1 = { 1, 1 };
+        SkPoint                     prev_c0 = kDefaultC0,
+                                    prev_c1 = kDefaultC1;
+
         for (const skjson::ObjectValue* jframe : jframes) {
             if (!jframe) continue;
 
@@ -130,17 +136,21 @@ protected:
                 continue;
             }
 
-            // default is linear lerp
-            static constexpr SkPoint kDefaultC0 = { 0, 0 },
-                                     kDefaultC1 = { 1, 1 };
             const auto c0 = ParseDefault<SkPoint>((*jframe)["o"], kDefaultC0),
                        c1 = ParseDefault<SkPoint>((*jframe)["i"], kDefaultC1);
+            const auto linear_kf = SkScalarNearlyEqual(c0.x(), c0.y()) &&
+                                   SkScalarNearlyEqual(c1.x(), c1.y());
 
             int cm_idx = -1;
-            if (c0 != kDefaultC0 || c1 != kDefaultC1) {
-                // TODO: is it worth de-duping these?
-                cm_idx = SkToInt(fCubicMaps.size());
-                fCubicMaps.emplace_back(c0, c1);
+            if (!linear_kf) {
+                // De-dupe sequential cubic mappers.
+                if (c0 != prev_c0 || c1 != prev_c1) {
+                    fCubicMaps.emplace_back(c0, c1);
+                    prev_c0 = c0;
+                    prev_c1 = c1;
+                }
+                SkASSERT(!fCubicMaps.empty());
+                cm_idx = SkToInt(fCubicMaps.size()) - 1;
             }
 
             fRecs.push_back({t0, t0, v0_idx, v1_idx, cm_idx });
