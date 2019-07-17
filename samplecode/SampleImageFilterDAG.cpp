@@ -29,6 +29,8 @@
 #include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkSpecialImage.h"
 
+#include "tools/ToolUtils.h"
+
 namespace {
 
 struct FilterNode {
@@ -246,10 +248,11 @@ static void draw_node(SkCanvas* canvas, const FilterNode& node) {
     filterPaint.setImageFilter(node.fFilter);
 
     SkPaint paint;
-    static const SkPoint kPoints[2] = {{0, 0}, {5, 5}};
     static const SkColor kColors[2] = {SK_ColorGREEN, SK_ColorWHITE};
-    paint.setShader(SkGradientShader::MakeLinear(kPoints, kColors, nullptr, SK_ARRAY_COUNT(kPoints),
-                                                 SkTileMode::kMirror));
+    SkPoint points[2] = { {node.fContent.fLeft + 15.f, node.fContent.fTop + 15.f},
+                          {node.fContent.fRight - 15.f, node.fContent.fBottom - 15.f} };
+    paint.setShader(SkGradientShader::MakeLinear(points, kColors, nullptr, SK_ARRAY_COUNT(kColors),
+                                                 SkTileMode::kRepeat));
 
     SkPaint line;
     line.setStrokeWidth(1.f);
@@ -262,23 +265,14 @@ static void draw_node(SkCanvas* canvas, const FilterNode& node) {
         canvas->concat(node.fLocalCTM);
         SkASSERT(node.fRemainingCTM.isIdentity());
 
-        canvas->clipRect(node.fContent, false);
+        canvas->clipRect(node.fContent, /* aa */ true);
         canvas->saveLayer(nullptr, &filterPaint);
         canvas->drawRect(node.fContent, paint);
         canvas->restore(); // Completes the image filter
         canvas->restore(); // Undoes matrix and clip
     } else {
-        // Once the remaining CTM is handled by a draw instead of a matrix image filter, this can
-        // go away since there won't be any implicit node that embeds the remaining CTM.
-        bool implicitMatrixNode = node.fDepth == 1 && !node.fRemainingCTM.isIdentity();
-
         canvas->save();
         canvas->concat(node.fLocalCTM);
-        if (!implicitMatrixNode) {
-            // The matrix transform node currently bakes remainingCTm into its image,
-            // so don't push it into the canvas
-            canvas->concat(node.fRemainingCTM);
-        }
 
         canvas->saveLayer(nullptr, &filterPaint);
         canvas->drawRect(node.fContent, paint);
@@ -286,41 +280,30 @@ static void draw_node(SkCanvas* canvas, const FilterNode& node) {
 
         // Draw content-rect bounds
         line.setColor(SK_ColorBLACK);
-        if (implicitMatrixNode) {
-            // The matrix transform node imagery doesn't need the remaining CTM, but the content
-            // bounds do, so push it on now that the filtering has finished.
-            canvas->concat(node.fRemainingCTM);
-        }
         canvas->drawRect(node.fContent, line);
         canvas->restore(); // Undoes the matrix
 
-        // Bounding boxes have all been mapped by the local matrix already, but draw them in
-        // the final coordinate transform.
-        // FIXME (michaelludwig) - These bounds don't line up as expected when the CTM has been
-        // decomposed because this code matches the correct (remaining * (local * rect)) equation,
-        // but the current decomposition produces (local * remaining * rect), so translations aren't
-        // scaled properly.
+        // Bounding boxes have all been mapped by the local matrix already, so drawing them with
+        // the identity CTM should align everything
         canvas->save();
-        if (!implicitMatrixNode) {
-            canvas->concat(node.fRemainingCTM);
-        }
+        canvas->resetMatrix();
 
         line.setColor(SK_ColorRED);
         canvas->drawRect(SkRect::Make(node.fLayerBounds).makeOutset(5.f, 5.f), line);
 
-        line.setColor(SK_ColorBLUE);
+        line.setColor(SK_ColorMAGENTA);
         canvas->drawRect(SkRect::Make(node.fReverseLocalBounds).makeOutset(4.f, 4.f), line);
-        line.setColor(SK_ColorYELLOW);
+        line.setColor(SK_ColorBLUE);
         canvas->drawRect(SkRect::Make(node.fForwardBounds).makeOutset(2.f, 2.f), line);
 
         // Dashed lines for the isolated shapes
         static const SkScalar kDashParams[] = {6.f, 12.f};
         line.setPathEffect(SkDashPathEffect::Make(kDashParams, 2, 0.f));
 
-        line.setColor(SK_ColorBLUE);
+        line.setColor(SK_ColorMAGENTA);
         canvas->drawRect(SkRect::Make(node.fReverseLocalIsolatedBounds).makeOutset(3.f, 3.f), line);
-        line.setColor(SK_ColorYELLOW);
-        canvas->drawRect(SkRect::Make(node.fForwardIsolatedBounds).makeOutset(1.f, 1.f), line); // FIXME dashed
+        line.setColor(SK_ColorBLUE);
+        canvas->drawRect(SkRect::Make(node.fForwardIsolatedBounds).makeOutset(1.f, 1.f), line);
 
         canvas->restore();
     }
@@ -329,7 +312,7 @@ static void draw_node(SkCanvas* canvas, const FilterNode& node) {
 static constexpr float kLineHeight = 16.f;
 static constexpr float kLineInset = 8.f;
 
-static void print_matrix(SkCanvas* canvas, const char* prefix, const SkMatrix& matrix,
+static float print_matrix(SkCanvas* canvas, const char* prefix, const SkMatrix& matrix,
                          float x, float y, const SkFont& font, const SkPaint& paint) {
     canvas->drawString(prefix, x, y, font, paint);
     y += kLineHeight;
@@ -340,77 +323,89 @@ static void print_matrix(SkCanvas* canvas, const char* prefix, const SkMatrix& m
         canvas->drawString(row, x, y, font, paint);
         y += kLineHeight;
     }
+    return y;
 }
 
-static void print_size(SkCanvas* canvas, const char* prefix, const SkIRect& rect,
+static float print_size(SkCanvas* canvas, const char* prefix, const SkIRect& rect,
                        float x, float y, const SkFont& font, const SkPaint& paint) {
     canvas->drawString(prefix, x, y, font, paint);
     y += kLineHeight;
     SkString sz;
     sz.appendf("%d x %d", rect.width(), rect.height());
     canvas->drawString(sz, x, y, font, paint);
+    return y + kLineHeight;
 }
 
-static void print_info(SkCanvas* canvas, const FilterNode& node) {
+static float print_info(SkCanvas* canvas, const FilterNode& node) {
     SkFont font(nullptr, 12);
     SkPaint text;
     text.setAntiAlias(true);
 
+    float y = kLineHeight;
     if (node.fDepth == 0) {
-        canvas->drawString("Final Results", kLineInset, kLineHeight, font, text);
+        canvas->drawString("Final Results", kLineInset, y, font, text);
         // The actual interesting matrices are in the root node's first child
-        print_matrix(canvas, "Local", node.fInputNodes[0].fLocalCTM,
-                     kLineInset, 2 * kLineHeight, font, text);
-        print_matrix(canvas, "Embedded", node.fInputNodes[0].fRemainingCTM,
-                     16 * kLineInset, 2 * kLineHeight, font, text);
+        y = print_matrix(canvas, "Local", node.fInputNodes[0].fLocalCTM,
+                     kLineInset, y + kLineHeight, font, text);
+        y = print_matrix(canvas, "Embedded", node.fInputNodes[0].fRemainingCTM,
+                     kLineInset, y, font, text);
     } else if (node.fFilter) {
-        canvas->drawString(node.fFilter->getTypeName(), kLineInset, kLineHeight, font, text);
-        print_size(canvas, "Layer Size", node.fLayerBounds, kLineInset, 2 * kLineHeight,
+        canvas->drawString(node.fFilter->getTypeName(), kLineInset, y, font, text);
+        print_size(canvas, "Layer Size", node.fLayerBounds, kLineInset, y + kLineHeight,
                    font, text);
-        print_size(canvas, "Ideal Size", node.fReverseLocalBounds, kLineInset, 4 * kLineHeight,
-                   font, text);
+        y = print_size(canvas, "Ideal Size", node.fReverseLocalBounds, 10 * kLineInset,
+                       y + kLineHeight, font, text);
     } else {
         canvas->drawString("Source Input", kLineInset, kLineHeight, font, text);
+        y += kLineHeight;
     }
+
+    return y;
 }
 
-// Returns how far to the right the subtree took up in canvas
+// Returns bottom edge in pixels that the subtree reached in canvas
 static float draw_dag(SkCanvas* canvas, SkSurface* nodeSurface, const FilterNode& node) {
     // First capture the results of the node, into nodeSurface
     draw_node(nodeSurface->getCanvas(), node);
     sk_sp<SkImage> nodeResults = nodeSurface->makeImageSnapshot();
 
+    // Fill in background of the filter node with a checkerboard
+    canvas->save();
+    canvas->clipRect(SkRect::MakeWH(nodeResults->width(), nodeResults->height()));
+    ToolUtils::draw_checkerboard(canvas, SK_ColorGRAY, SK_ColorLTGRAY, 10);
+    canvas->restore();
+
     // Display filtered results in current canvas' location (assumed CTM is set for this node)
     canvas->drawImage(nodeResults, 0, 0);
 
     SkPaint line;
+    line.setAntiAlias(true);
     line.setStyle(SkPaint::kStroke_Style);
     line.setStrokeWidth(3.f);
 
     // Text info
     canvas->save();
-    canvas->translate(nodeResults->width(), 0);
-    print_info(canvas, node);
+    canvas->translate(0, nodeResults->height());
+    float textHeight = print_info(canvas, node);
     canvas->restore();
 
     // Border around filtered results + text info
-    static const float kTextWidth = 150.f;
-    float textWidth = node.fDepth > 0 ? kTextWidth : 1.75f * kTextWidth;
-    canvas->drawRect(SkRect::MakeWH(nodeResults->width() + textWidth, nodeResults->height()), line);
+    canvas->drawRect(SkRect::MakeWH(nodeResults->width(), nodeResults->height() + textHeight),
+                     line);
 
     static const float kPad = 20.f;
-    float x = 0;
-    float y = nodeResults->height() + kPad;
+    float x = nodeResults->width() + kPad;
+    float y = 0;
     for (int i = 0; i < node.fInputNodes.count(); ++i) {
         // Line connecting this node to its child
-        canvas->drawLine(0.5f * nodeResults->width(), nodeResults->height(), // bottom of node
-                         x + 0.5f * nodeResults->width(), y, line);          // top of child
+        canvas->drawLine(nodeResults->width(), 0.5f * nodeResults->height(), // right of node
+                         x, y + 0.5f * nodeResults->height(), line);         // left of child
         canvas->save();
         canvas->translate(x, y);
-        x = draw_dag(canvas, nodeSurface, node.fInputNodes[i]);
+        y = draw_dag(canvas, nodeSurface, node.fInputNodes[i]);
         canvas->restore();
     }
-    return SkMaxScalar(x, nodeResults->width() + textWidth + kPad);
+    return SkMaxScalar(y, nodeResults->height() + textHeight + kPad);
 }
 
 static void draw_dag(SkCanvas* canvas, sk_sp<SkImageFilter> filter,
