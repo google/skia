@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e933e281_927f7b88",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 1203,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:06:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa8dad3e_46ece462",
+      "range": {
+        "startLine": 1202,
+        "startChar": 0,
+        "endLine": 1203,
+        "endChar": 28
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09fa6a9c_340f1fd0",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 16
@@ -45,6 +69,30 @@
       "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cf19b11_16f0e5b9",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 3655,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:06:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09fa6a9c_340f1fd0",
+      "range": {
+        "startLine": 3655,
+        "startChar": 38,
+        "endLine": 3655,
+        "endChar": 54
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "aca959fc_b1041ece",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 3696,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:06:21Z",
+      "side": 1,
+      "message": "Done - get_yuva_config was in this format",
+      "parentUuid": "d6576fb1_876c3e48",
+      "range": {
+        "startLine": 3696,
+        "startChar": 4,
+        "endLine": 3696,
+        "endChar": 21
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a989bfd_77d0fb89",
         "filename": "src/gpu/mtl/GrMtlCaps.mm",
         "patchSetId": 16
@@ -91,6 +163,30 @@
       "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04014c3c_5b987254",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 16
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:06:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a989bfd_77d0fb89",
+      "range": {
+        "startLine": 712,
+        "startChar": 19,
+        "endLine": 712,
+        "endChar": 37
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "8055db58_25545494",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1128,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:06:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62ef50ab_48cc177c",
+      "range": {
+        "startLine": 1128,
+        "startChar": 18,
+        "endLine": 1128,
+        "endChar": 37
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d37bbaf5_52258257",
         "filename": "src/gpu/vk/GrVkUtil.cpp",
         "patchSetId": 16
@@ -128,6 +248,30 @@
       "writtenOn": "2019-07-17T18:17:35Z",
       "side": 1,
       "message": "can this be deleted?",
+      "range": {
+        "startLine": 103,
+        "startChar": 14,
+        "endLine": 103,
+        "endChar": 32
+      },
+      "revId": "bc66eaec471b0b1fb9c9ac904743eae320a78e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9df376f1_a7c47bcb",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-17T19:06:21Z",
+      "side": 1,
+      "message": "Yep - deleted.",
+      "parentUuid": "d37bbaf5_52258257",
       "range": {
         "startLine": 103,
         "startChar": 14,
