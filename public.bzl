@@ -251,6 +251,9 @@ BASE_SRCS_ALL = struct(
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",
 
+        # Currently exclude all Dawn-specific files
+        "src/gpu/dawn/*",
+
         # Defines main.
         "src/sksl/SkSLMain.cpp",
 
