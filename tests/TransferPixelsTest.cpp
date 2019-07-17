@@ -51,8 +51,10 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType colorType, char* d
     int h = texture->height();
     size_t rowBytes = GrColorTypeBytesPerPixel(colorType) * w;
 
+    GrColorType srcCT = GrPixelConfigToColorType(texture->config());
+
     GrCaps::SupportedRead supportedRead = caps->supportedReadPixelsColorType(
-            texture->config(), texture->backendFormat(), colorType);
+            srcCT, texture->config(), texture->backendFormat(), colorType);
     if (supportedRead.fColorType != colorType || supportedRead.fSwizzle != GrSwizzle("rgba")) {
         size_t tmpRowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * w;
         std::unique_ptr<char[]> tmpPixels(new char[tmpRowBytes * h]);
@@ -240,7 +242,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     // Create the transfer buffer.
     auto allowedRead =
-            caps->supportedReadPixelsColorType(desc.fConfig, tex->backendFormat(), colorType);
+            caps->supportedReadPixelsColorType(colorType, desc.fConfig, tex->backendFormat(),
+                                               colorType);
     GrPixelInfo readInfo(allowedRead.fColorType, kPremul_SkAlphaType, nullptr, kTextureWidth,
                          kTextureHeight);
 

@@ -371,7 +371,8 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable rendera
     return true;
 }
 
-GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrPixelConfig config,
+GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrColorType srcColorType,
+                                                           GrPixelConfig config,
                                                            const GrBackendFormat&,
                                                            GrColorType dstColorType) const {
     return SupportedRead{GrSwizzle::RGBA(), GrPixelConfigToColorType(config)};

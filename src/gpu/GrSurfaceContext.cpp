@@ -172,7 +172,8 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     bool flip = srcProxy->origin() == kBottomLeft_GrSurfaceOrigin;
 
     auto supportedRead = caps->supportedReadPixelsColorType(
-            srcProxy->config(), srcProxy->backendFormat(), dstInfo.colorType());
+            this->colorSpaceInfo().colorType(), srcProxy->config(), srcProxy->backendFormat(),
+            dstInfo.colorType());
 
     bool makeTight = !caps->readPixelsRowBytesSupport() && tightRowBytes != rowBytes;
 
