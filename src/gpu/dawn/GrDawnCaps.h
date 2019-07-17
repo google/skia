@@ -37,7 +37,8 @@ public:
         return false;
     }
 
-    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&, GrColorType) const override {
+    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&, GrColorType) const
+                                                                                         override {
         return GrPixelConfig::kUnknown_GrPixelConfig;
     }
 

@@ -5,8 +5,13 @@
  * found in the LICENSE file.
  */
 
+#ifndef GrDawnUtil_DEFINED
+#define GrDawnUtil_DEFINED
+
 #include "include/private/GrTypesPriv.h"
 #include "dawn/dawncpp.h"
 
 GrPixelConfig GrDawnFormatToPixelConfig(dawn::TextureFormat format);
 bool GrPixelConfigToDawnFormat(GrPixelConfig config, dawn::TextureFormat* format);
+
+#endif // GrDawnUtil_DEFINED
