@@ -728,7 +728,7 @@ SkCodec::Result SkWuffsCodec::resetDecoder() {
 
 const char* SkWuffsCodec::decodeFrameConfig() {
     while (true) {
-        const char* status = fDecoder->decode_frame_config(&fFrameConfig, fIOBuffer.reader());
+        const char* status = fDecoder->decode_frame_config(&fFrameConfig, &fIOBuffer);
         if ((status == wuffs_base__suspension__short_read) &&
             fill_buffer(&fIOBuffer, fStream.get())) {
             continue;
@@ -742,7 +742,7 @@ const char* SkWuffsCodec::decodeFrameConfig() {
 const char* SkWuffsCodec::decodeFrame() {
     while (true) {
         const char* status =
-            fDecoder->decode_frame(&fPixelBuffer, fIOBuffer.reader(),
+            fDecoder->decode_frame(&fPixelBuffer, &fIOBuffer,
                                    wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen), NULL);
         if ((status == wuffs_base__suspension__short_read) &&
             fill_buffer(&fIOBuffer, fStream.get())) {
