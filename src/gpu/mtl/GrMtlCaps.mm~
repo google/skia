@@ -446,6 +446,7 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
     MTLPixelFormatABGR4Unorm,
 #endif
     MTLPixelFormatRGBA32Float,
+    MTLPixelFormatRG32Float,
     MTLPixelFormatRGBA8Unorm_sRGB,
     MTLPixelFormatR16Unorm,
     MTLPixelFormatRG16Unorm,
@@ -519,9 +520,27 @@ void GrMtlCaps::initFormatTable() {
         info->fFlags = 0;
     }
 
+<<<<<<< HEAD
+    // Alpha_half uses R16Float
+    info = &fConfigTable[kAlpha_half_GrPixelConfig];
+    info->fFlags = ConfigInfo::kAllFlags;
+
+    // RGBA_half uses RGBA16Float
+    info = &fConfigTable[kRGBA_half_GrPixelConfig];
+    info->fFlags = ConfigInfo::kAllFlags;
+=======
+    // RG32Float
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG32Float)];
+    if (this->isMac()) {
+        info->fFlags = FormatInfo::kAllFlags;
+    } else {
+        info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+    }
+
     // R16Float
     info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Float)];
     info->fFlags = FormatInfo::kAllFlags;
+>>>>>>> git squash commit for jims-cl.
 
     // RGBA16Float
     info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Float)];
