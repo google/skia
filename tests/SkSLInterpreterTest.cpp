@@ -733,6 +733,16 @@ DEF_TEST(SkSLInterpreterCross, r) {
     test(r, "float3 main(float3 x, float3 y) { return cross(x, y); }", args, 3, expected);
 }
 
+DEF_TEST(SkSLInterpreterInverse, r) {
+    SkMatrix m;
+    m.setRotate(30);
+    float args[4] = { m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleX() };
+    SkDebugf("input %g %g %g %g\n", args[0], args[1], args[2], args[3]);
+    (void)m.invert(&m);
+    float expected[4] = { m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleX() };
+    test(r, "float2x2 main(float2x2 m) { return inverse(m); }", args, 4, expected);
+}
+
 DEF_TEST(SkSLInterpreterDot, r) {
     float args[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f };
     float expected = args[0] * args[2] +

@@ -84,6 +84,9 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kDivideS, "divideS")
         VECTOR_DISASSEMBLE(kDivideU, "divideu")
         VECTOR_MATRIX_DISASSEMBLE(kDup, "dup")
+        case ByteCodeInstruction::kInverse2x2: printf("inverse2x2"); break;
+        case ByteCodeInstruction::kInverse3x3: printf("inverse3x3"); break;
+        case ByteCodeInstruction::kInverse4x4: printf("inverse4x4"); break;
         case ByteCodeInstruction::kLoad: printf("load %d", READ8()); break;
         case ByteCodeInstruction::kLoad2: printf("load2 %d", READ8()); break;
         case ByteCodeInstruction::kLoad3: printf("load3 %d", READ8()); break;
@@ -527,6 +530,25 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 int count = READ8();
                 memcpy(sp + 1, sp - count + 1, count * sizeof(VValue));
                 sp += count;
+                break;
+            }
+
+            case ByteCodeInstruction::kInverse2x2: {
+                F32 a = sp[-3].fFloat,
+                    b = sp[-2].fFloat,
+                    c = sp[-1].fFloat,
+                    d = sp[ 0].fFloat;
+                F32 idet = F32(1) / (a*d - b*c);
+                sp[-3].fFloat = d * idet;
+                sp[-2].fFloat = -b * idet;
+                sp[-1].fFloat = -c * idet;
+                sp[ 0].fFloat = a * idet;
+                break;
+            }
+            case ByteCodeInstruction::kInverse3x3: {
+                break;
+            }
+            case ByteCodeInstruction::kInverse4x4: {
                 break;
             }
 
