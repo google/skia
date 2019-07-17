@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ea73cde4_682ce294",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2029,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T20:02:50Z",
+      "side": 1,
+      "message": "Currently it would break the supportedReadPixelsColorType function. Talked offline leaving as is.",
+      "parentUuid": "54082e1d_29adeb12",
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "614a4bf4_7e59d0f9",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2019-07-17T19:23:29Z",
       "side": 1,
       "message": "same here ?",
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d553bd0a_8b305413",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2049,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T20:02:50Z",
+      "side": 1,
+      "message": "ditto.",
+      "parentUuid": "614a4bf4_7e59d0f9",
       "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "1f31cbc0_71af335c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T20:02:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0208c6fd_6ae7af43",
+      "range": {
+        "startLine": 2218,
+        "startChar": 36,
+        "endLine": 2218,
+        "endChar": 43
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34f414dc_985271ff",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -70,6 +130,30 @@
       "writtenOn": "2019-07-17T19:23:29Z",
       "side": 1,
       "message": "This is very belt-and-suspenders-y",
+      "range": {
+        "startLine": 3299,
+        "startChar": 61,
+        "endLine": 3300,
+        "endChar": 89
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83ca63ef_18b06b7f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3300,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T20:02:50Z",
+      "side": 1,
+      "message": "Explained above in header.",
+      "parentUuid": "34f414dc_985271ff",
       "range": {
         "startLine": 3299,
         "startChar": 61,
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "91346f53_5c45bf31",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3301,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T20:02:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a49c7f7f_77dfb17b",
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "506376d1_4ff2a476",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 1
@@ -110,6 +212,30 @@
       "writtenOn": "2019-07-17T19:23:29Z",
       "side": 1,
       "message": "??",
+      "range": {
+        "startLine": 349,
+        "startChar": 60,
+        "endLine": 349,
+        "endChar": 73
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15c967be_a79e0e81",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T20:02:50Z",
+      "side": 1,
+      "message": "This will get cleaned up in the follow CL. It is currently used for getting the read swizzle and it was easier to leave this in short term than recalculate it in the function.",
+      "parentUuid": "506376d1_4ff2a476",
       "range": {
         "startLine": 349,
         "startChar": 60,
@@ -169,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "bc33cef2_9e2d1405",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T20:02:50Z",
+      "side": 1,
+      "message": "talked offline, leaving as is for now.",
+      "parentUuid": "e737e997_b278e92f",
+      "range": {
+        "startLine": 611,
+        "startChar": 15,
+        "endLine": 611,
+        "endChar": 25
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "da210db3_fdcaf280",
         "filename": "tests/TransferPixelsTest.cpp",
         "patchSetId": 1
@@ -189,6 +339,30 @@
       "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8f50eb7_aee436f8",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-17T20:02:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da210db3_fdcaf280",
+      "range": {
+        "startLine": 45,
+        "startChar": 62,
+        "endLine": 45,
+        "endChar": 71
+      },
+      "revId": "22a54d2516ac37b90af9f54975409ebed766bb02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
