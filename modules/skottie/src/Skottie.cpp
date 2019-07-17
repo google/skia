@@ -400,11 +400,6 @@ sk_sp<SkData> ResourceProvider::load(const char[], const char[]) const {
 
 sk_sp<ImageAsset> ResourceProvider::loadImageAsset(const char path[], const char name[],
                                                    const char id[]) const {
-    // temporary redirect for legacy clients.
-    return this->loadImageAsset(path, name);
-}
-
-sk_sp<ImageAsset> ResourceProvider::loadImageAsset(const char path[], const char name[]) const {
     return nullptr;
 }
 

@@ -75,10 +75,6 @@ public:
                                              const char resource_name[],
                                              const char resource_id[]) const;
 
-    // DEPRECATED - to be removed
-    virtual sk_sp<ImageAsset> loadImageAsset(const char resource_path[],
-                                             const char resource_name[]) const;
-
     /**
      * Load an external font and return as SkData.
      *
