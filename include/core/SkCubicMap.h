@@ -22,6 +22,10 @@ class SK_API SkCubicMap {
 public:
     SkCubicMap(SkPoint p1, SkPoint p2);
 
+    static bool IsLinear(SkPoint p1, SkPoint p2) {
+        return SkScalarNearlyEqual(p1.fX, p1.fY) && SkScalarNearlyEqual(p2.fX, p2.fY);
+    }
+
     float computeYFromX(float x) const;
 
     SkPoint computeFromT(float t) const;
