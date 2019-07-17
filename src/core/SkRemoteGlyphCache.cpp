@@ -69,25 +69,33 @@ static const SkDescriptor* create_descriptor(
 
 size_t pad(size_t size, size_t alignment) { return (size + (alignment - 1)) & ~(alignment - 1); }
 
+// Alignment between x86 and x64 differs for some types, in particular
+// int64_t and doubles have 4 and 8-byte alignment, respectively.
+// Be consistent even when writing and reading across different architectures.
+template<typename T>
+size_t serialization_alignment() {
+  return sizeof(T) == 8 ? 8 : alignof(T);
+}
+
 class Serializer {
 public:
     Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} { }
 
     template <typename T, typename... Args>
     T* emplace(Args&&... args) {
-        auto result = allocate(sizeof(T), alignof(T));
+        auto result = allocate(sizeof(T), serialization_alignment<T>());
         return new (result) T{std::forward<Args>(args)...};
     }
 
     template <typename T>
     void write(const T& data) {
-        T* result = (T*)allocate(sizeof(T), alignof(T));
+        T* result = (T*)allocate(sizeof(T), serialization_alignment<T>());
         memcpy(result, &data, sizeof(T));
     }
 
     template <typename T>
     T* allocate() {
-        T* result = (T*)allocate(sizeof(T), alignof(T));
+        T* result = (T*)allocate(sizeof(T), serialization_alignment<T>());
         return result;
     }
 
@@ -116,7 +124,7 @@ public:
 
     template <typename T>
     bool read(T* val) {
-        auto* result = this->ensureAtLeast(sizeof(T), alignof(T));
+        auto* result = this->ensureAtLeast(sizeof(T), serialization_alignment<T>());
         if (!result) return false;
 
         memcpy(val, const_cast<const char*>(result), sizeof(T));
