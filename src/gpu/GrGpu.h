@@ -107,11 +107,6 @@ public:
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, GrRenderable renderable, SkBudgeted,
                                    const GrMipLevel texels[], int mipLevelCount);
 
-    /**
-     * Simplified createTexture() interface for when there is no initial texel data to upload.
-     */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted);
-
     sk_sp<GrTexture> createCompressedTexture(int width, int height, SkImage::CompressionType,
                                              SkBudgeted, const void* data, size_t dataSize);
 
