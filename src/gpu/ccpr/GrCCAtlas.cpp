@@ -76,26 +76,48 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
 
     fTopNode = skstd::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
 
-    GrColorType colorType = (CoverageType::kFP16_CoverageCount == fCoverageType)
-            ? GrColorType::kAlpha_F16 : GrColorType::kAlpha_8;
+    GrColorType colorType;
+    GrPixelConfig pixelConfig;
+    int sampleCount;
+
+    switch (fCoverageType) {
+        case CoverageType::kFP16_CoverageCount:
+            colorType = GrColorType::kAlpha_F16;
+            pixelConfig = kAlpha_half_GrPixelConfig;
+            sampleCount = 1;
+            break;
+        case CoverageType::kA8_Multisample:
+            SkASSERT(caps.internalMultisampleCount(kAlpha_8_GrPixelConfig) > 1);
+            colorType = GrColorType::kAlpha_8;
+            pixelConfig = kAlpha_8_GrPixelConfig;
+            sampleCount = (caps.mixedSamplesSupport())
+                    ? 1 : caps.internalMultisampleCount(pixelConfig);
+            break;
+        case CoverageType::kA8_LiteralCoverage:
+            colorType = GrColorType::kAlpha_8;
+            pixelConfig = kAlpha_8_GrPixelConfig;
+            sampleCount = 1;
+            break;
+    }
+
     const GrBackendFormat format = caps.getBackendFormatFromColorType(colorType);
-    GrPixelConfig pixelConfig = (CoverageType::kFP16_CoverageCount == fCoverageType)
-            ? kAlpha_half_GrPixelConfig : kAlpha_8_GrPixelConfig;
 
     fTextureProxy = GrProxyProvider::MakeFullyLazyProxy(
-            [this, pixelConfig](GrResourceProvider* resourceProvider) {
+            [this, pixelConfig, sampleCount](GrResourceProvider* resourceProvider) {
                     if (!fBackingTexture) {
                         GrSurfaceDesc desc;
                         desc.fWidth = fWidth;
                         desc.fHeight = fHeight;
                         desc.fConfig = pixelConfig;
+                        desc.fSampleCnt = sampleCount;
                         fBackingTexture = resourceProvider->createTexture(
                                 desc, GrRenderable::kYes, SkBudgeted::kYes,
                                 GrResourceProvider::Flags::kNoPendingIO);
                     }
                     return GrSurfaceProxy::LazyInstantiationResult(fBackingTexture);
             },
-            format, GrProxyProvider::Renderable::kYes, kTextureOrigin, pixelConfig, caps);
+            format, GrProxyProvider::Renderable::kYes, kTextureOrigin, pixelConfig, caps,
+            sampleCount);
 
     fTextureProxy->priv().setIgnoredByResourceAllocator();
 }
@@ -156,6 +178,12 @@ void GrCCAtlas::setStrokeBatchID(int id) {
     fStrokeBatchID = id;
 }
 
+void GrCCAtlas::setEndStencilResolveInstance(int idx) {
+    // This can't be called anymore once makeRenderTargetContext() has been called.
+    SkASSERT(!fTextureProxy->isInstantiated());
+    fEndStencilResolveInstance = idx;
+}
+
 static uint32_t next_atlas_unique_id() {
     static std::atomic<uint32_t> nextID;
     return nextID++;
@@ -193,7 +221,7 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
     fTextureProxy->priv().setLazySize(fDrawBounds.width(), fDrawBounds.height());
 
     if (backingTexture) {
-        SkASSERT(backingTexture->config() == kAlpha_half_GrPixelConfig);
+        SkASSERT(backingTexture->config() == fTextureProxy->config());
         SkASSERT(backingTexture->width() == fWidth);
         SkASSERT(backingTexture->height() == fHeight);
         fBackingTexture = std::move(backingTexture);
