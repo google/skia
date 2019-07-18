@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0bcdcf72_760888f1",
+        "filename": "src/gpu/vk/GrVkImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-18T19:07:36Z",
+      "side": 1,
+      "message": "Slight behavior difference here: We make it protected if imageDesc.fIsProtected indicates. I figured this is inconsequential now but closer to where we eventually want to be.",
+      "revId": "6a192d7e71d0fd3523716fe093263d408cf0b272",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
