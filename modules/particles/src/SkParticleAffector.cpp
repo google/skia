@@ -477,7 +477,7 @@ public:
     void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
             fRandomValue->setRandom(&ps[i].fRandom);
-            SkAssertResult(fByteCode->run(fMain, &ps[i].fAge, nullptr, 1, &params.fDeltaTime, 2));
+            fByteCode->run(fMain, &ps[i].fAge, nullptr, 1, &params.fDeltaTime, 2);
         }
     }
 
