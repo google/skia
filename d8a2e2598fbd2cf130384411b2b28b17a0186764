@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "05b092fd_cad1ddd1",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-18T05:33:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98e82c8e_f253903a",
+      "range": {
+        "startLine": 263,
+        "startChar": 0,
+        "endLine": 268,
+        "endChar": 39
+      },
+      "revId": "d8a2e2598fbd2cf130384411b2b28b17a0186764",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c473d59_97d3d302",
         "filename": "src/gpu/ccpr/GrStencilAtlasOp.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-07-16T17:28:40Z",
       "side": 1,
       "message": "Just a note that maybe it\u0027s time to take advantage of relaxed constexpr and get rid of the template abominations in GrUserStencilSettings.",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 71
+      },
+      "revId": "d8a2e2598fbd2cf130384411b2b28b17a0186764",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24760988_39755fa8",
+        "filename": "src/gpu/ccpr/GrStencilAtlasOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-18T05:33:27Z",
+      "side": 1,
+      "message": "Agreed, that would be nice.",
+      "parentUuid": "2c473d59_97d3d302",
       "range": {
         "startLine": 92,
         "startChar": 0,
