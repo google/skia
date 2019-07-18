@@ -208,6 +208,7 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kInverse3x3:
         case ByteCodeInstruction::kInverse4x4: return 0;
 
+        case ByteCodeInstruction::kClampIndex: return 0;
         case ByteCodeInstruction::kNotB: return 0;
         case ByteCodeInstruction::kNegateFN: return 0;
 
@@ -459,9 +460,16 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
         case Expression::kIndex_Kind: {
             const IndexExpression& i = (const IndexExpression&)expr;
             int stride = SlotCount(i.fType);
+            int length = i.fBase->fType.columns();
+            SkASSERT(length <= 255);
             int offset = -1;
             if (i.fIndex->isConstant()) {
-                offset = i.fIndex->getConstantInt() * stride;
+                int64_t index = i.fIndex->getConstantInt();
+                if (index < 0 || index >= length) {
+                    fErrors.error(i.fIndex->fOffset, "Array index out of bounds.");
+                    return 0;
+                }
+                offset = index * stride;
             } else {
                 if (i.fIndex->hasSideEffects()) {
                     // Having a side-effect in an indexer is technically safe for an rvalue,
@@ -471,6 +479,8 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
                     return 0;
                 }
                 this->writeExpression(*i.fIndex);
+                this->write(ByteCodeInstruction::kClampIndex);
+                this->write8(length);
                 if (stride != 1) {
                     this->write(ByteCodeInstruction::kPushImmediate);
                     this->write32(stride);
@@ -829,7 +839,7 @@ void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
 }
 
 void ByteCodeGenerator::writeVariableExpression(const Expression& expr) {
-    Variable::Storage storage;
+    Variable::Storage storage = Variable::kLocal_Storage;
     int location = this->getLocation(expr, &storage);
     bool isGlobal = storage == Variable::kGlobal_Storage;
     int count = SlotCount(expr.fType);
@@ -1230,7 +1240,7 @@ public:
         if (!discard) {
             fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, count));
         }
-        Variable::Storage storage;
+        Variable::Storage storage = Variable::kLocal_Storage;
         int location = fGenerator.getLocation(*fSwizzle.fBase, &storage);
         bool isGlobal = storage == Variable::kGlobal_Storage;
         if (location < 0) {
@@ -1275,7 +1285,7 @@ public:
                 fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, count));
             }
         }
-        Variable::Storage storage;
+        Variable::Storage storage = Variable::kLocal_Storage;
         int location = fGenerator.getLocation(fExpression, &storage);
         bool isGlobal = storage == Variable::kGlobal_Storage;
         if (location < 0 || count > 4) {
