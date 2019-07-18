@@ -444,7 +444,11 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
 
     // Fragment shader.
-    fShader->emitFragmentCode(proc, args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
+    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
+    f->codeAppendf("half coverage;");
+    fShader->emitFragmentCoverageCode(f, "coverage");
+    f->codeAppendf("%s = half4(coverage);", args.fOutputColor);
+    f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
 }
 
 void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider* rp) {
@@ -507,11 +511,8 @@ void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
         xyAttribType = kFloat4_GrVertexAttribType;
         xySLType = kFloat4_GrSLType;
     } else {
-        GR_STATIC_ASSERT(offsetof(TriPointInstance, fX) == 0);
-        GR_STATIC_ASSERT(sizeof(TriPointInstance::fX) ==
-                         GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
-        GR_STATIC_ASSERT(sizeof(TriPointInstance::fY) ==
-                         GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
+        GR_STATIC_ASSERT(sizeof(TriPointInstance) ==
+                         2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
         xyAttribType = kFloat3_GrVertexAttribType;
         xySLType = kFloat3_GrSLType;
     }

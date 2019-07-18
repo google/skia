@@ -268,7 +268,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     gPathRendererNames[GpuPathRenderers::kAll] = "All Path Renderers";
     gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
     gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
-    gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "Coverage counting";
+    gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "CCPR";
     gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
     gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
 

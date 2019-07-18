@@ -974,7 +974,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
 }
 
 std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
-        GrCoverageCountingPathRenderer* ccpr, uint32_t opListID, int rtWidth, int rtHeight) {
+        GrCoverageCountingPathRenderer* ccpr, uint32_t opListID) {
     // Make sure finishAndDetachAnalyticFPs hasn't been called already.
     SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
 
@@ -983,8 +983,7 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
         for (const SkPath& ccprClipPath : fCCPRClipPaths) {
             SkASSERT(ccpr);
             SkASSERT(fHasScissor);
-            auto fp = ccpr->makeClipProcessor(opListID, ccprClipPath, fScissor, rtWidth, rtHeight,
-                                              *fCaps);
+            auto fp = ccpr->makeClipProcessor(opListID, ccprClipPath, fScissor, *fCaps);
             fAnalyticFPs.push_back(std::move(fp));
         }
         fCCPRClipPaths.reset();

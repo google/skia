@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 
-bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
+bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageType*) {
     return false;
 }
 
@@ -17,7 +17,7 @@ sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSu
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
-        uint32_t opListID, const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth,
-        int rtHeight, const GrCaps& caps) {
+        uint32_t opListID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
+        const GrCaps& caps) {
     return nullptr;
 }
