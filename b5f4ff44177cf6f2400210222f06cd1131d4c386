@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97c58870_9bae754e",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:36:22Z",
+      "side": 1,
+      "message": "heh",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 8
+      },
+      "revId": "b5f4ff44177cf6f2400210222f06cd1131d4c386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c687d306_a7217ce5",
+        "filename": "gm/emptypath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:36:22Z",
+      "side": 1,
+      "message": "constexpr?",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 150,
+        "endChar": 19
+      },
+      "revId": "b5f4ff44177cf6f2400210222f06cd1131d4c386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de29beb5_b96bb0eb",
+        "filename": "gm/gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 770,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:36:22Z",
+      "side": 1,
+      "message": "I would prefer this to be in onShortName. In fact, \u0027suffix\u0027 was a bad idea to begin with, it should be up to the constructor or onShortName to take the flags into account and set the name based on those. That seems to have never been done, since the flags are always 0 (seem to be here for developer tweaking).",
+      "range": {
+        "startLine": 770,
+        "startChar": 44,
+        "endLine": 770,
+        "endChar": 64
+      },
+      "revId": "b5f4ff44177cf6f2400210222f06cd1131d4c386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
