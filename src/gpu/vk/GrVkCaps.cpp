@@ -629,7 +629,6 @@ static bool format_is_srgb(VkFormat format) {
 
     switch (format) {
         case VK_FORMAT_R8G8B8A8_SRGB:
-        case VK_FORMAT_B8G8R8A8_SRGB:
             return true;
         default:
             return false;
@@ -652,7 +651,6 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_R4G4B4A4_UNORM_PACK16,
     VK_FORMAT_R32G32B32A32_SFLOAT,
     VK_FORMAT_R8G8B8A8_SRGB,
-    VK_FORMAT_B8G8R8A8_SRGB,
     VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
     VK_FORMAT_R16_UNORM,
     VK_FORMAT_R16G16_UNORM,
@@ -889,6 +887,11 @@ GrCaps::SurfaceReadPixelsSupport GrVkCaps::surfaceSupportsReadPixels(
     if (auto tex = static_cast<const GrVkTexture*>(surface->asTexture())) {
         // We can't directly read from a VkImage that has a ycbcr sampler.
         if (tex->ycbcrConversionInfo().isValid()) {
+            return SurfaceReadPixelsSupport::kCopyToTexture2D;
+        }
+        // We can't directly read from a compressed format
+        SkImage::CompressionType compressionType;
+        if (GrVkFormatToCompressionType(tex->imageFormat(), &compressionType)) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
     }
@@ -1146,7 +1149,7 @@ static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorTyp
         case GrColorType::kRG_88:
             return VK_FORMAT_R8G8_UNORM == vkFormat;
         case GrColorType::kBGRA_8888:
-            return VK_FORMAT_B8G8R8A8_UNORM == vkFormat || VK_FORMAT_B8G8R8A8_SRGB == vkFormat;
+            return VK_FORMAT_B8G8R8A8_UNORM == vkFormat;
         case GrColorType::kRGBA_1010102:
             return VK_FORMAT_A2B10G10R10_UNORM_PACK32 == vkFormat;
         case GrColorType::kGray_8:
@@ -1232,5 +1235,62 @@ size_t GrVkCaps::onTransferFromOffsetAlignment(GrColorType bufferColorType) cons
         case 2:     return 2 * bpp;
         // bpp is not a multiple of 2.
         default:    return 4 * bpp;
+    }
+}
+
+GrCaps::SupportedRead GrVkCaps::supportedReadPixelsColorType(
+        GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
+        GrColorType dstColorType) const {
+    const VkFormat* vkFormat = srcBackendFormat.getVkFormat();
+    if (!vkFormat) {
+        return {GrSwizzle(), GrColorType::kUnknown};
+    }
+
+    switch (*vkFormat) {
+        case VK_FORMAT_R8G8B8A8_UNORM:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_8888};
+        case VK_FORMAT_R8_UNORM:
+            if (srcColorType == GrColorType::kAlpha_8) {
+                return {GrSwizzle::RGBA(), GrColorType::kAlpha_8};
+            } else if (srcColorType == GrColorType::kGray_8) {
+                return {GrSwizzle::RGBA(), GrColorType::kGray_8};
+            }
+        case VK_FORMAT_B8G8R8A8_UNORM:
+            return {GrSwizzle::RGBA(), GrColorType::kBGRA_8888};
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+            return {GrSwizzle::RGBA(), GrColorType::kBGR_565};
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+            if (srcColorType == GrColorType::kRGBA_F16) {
+                return {GrSwizzle::RGBA(), GrColorType::kRGBA_F16};
+            } else if (srcColorType == GrColorType::kRGBA_F16_Clamped){
+                return {GrSwizzle::RGBA(), GrColorType::kRGBA_F16_Clamped};
+            }
+        case VK_FORMAT_R16_SFLOAT:
+            return {GrSwizzle::RGBA(), GrColorType::kAlpha_F16};
+        case VK_FORMAT_R8G8B8_UNORM:
+            return {GrSwizzle::RGBA(), GrColorType::kRGB_888x};
+        case VK_FORMAT_R8G8_UNORM:
+            return {GrSwizzle::RGBA(), GrColorType::kRG_88};
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_1010102};
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+            return {GrSwizzle::RGBA(), GrColorType::kABGR_4444};
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
+            return {GrSwizzle::RGBA(), GrColorType::kABGR_4444};
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_F32};
+        case VK_FORMAT_R8G8B8A8_SRGB:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_8888_SRGB};
+        case VK_FORMAT_R16_UNORM:
+            return {GrSwizzle::RGBA(), GrColorType::kR_16};
+        case VK_FORMAT_R16G16_UNORM:
+            return {GrSwizzle::RGBA(), GrColorType::kRG_1616};
+        // Experimental (for Y416 and mutant P016/P010)
+        case VK_FORMAT_R16G16B16A16_UNORM:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_16161616};
+        case VK_FORMAT_R16G16_SFLOAT:
+            return {GrSwizzle::RGBA(), GrColorType::kRG_F16};
+        default:
+            return {GrSwizzle(), GrColorType::kUnknown};
     }
 }

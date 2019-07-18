@@ -900,3 +900,61 @@ GrSwizzle GrMtlCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorTyp
 GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     return get_swizzle(format, colorType, true);
 }
+
+GrCaps::SupportedRead GrMtlCaps::supportedReadPixelsColorType(
+        GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
+        GrColorType dstColorType) const {
+    const GrMTLPixelFormat* grMtlFormat = srcBackendFormat.getMtlFormat();
+    if (!grMtlFormat) {
+        return {GrSwizzle(), GrColorType::kUnknown};
+    }
+
+    switch (*grMtlFormat) {
+        case MTLPixelFormatRGBA8Unorm:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_8888};
+        case MTLPixelFormatR8Unorm:
+            if (srcColorType == GrColorType::kAlpha_8) {
+                return {GrSwizzle::RGBA(), GrColorType::kAlpha_8};
+            } else if (srcColorType == GrColorType::kGray_8) {
+                return {GrSwizzle::RGBA(), GrColorType::kGray_8};
+            }
+        case MTLPixelFormatBGRA8Unorm:
+            return {GrSwizzle::RGBA(), GrColorType::kBGRA_8888};
+#ifdef SK_BIULD_FOR_IOS
+        case MTLPixelFormatB5G6R5Unorm:
+            return {GrSwizzle::RGBA(), GrColorType::kBGR_565};
+#endif
+        case MTLPixelFormatRGBA16Float:
+            if (srcColorType == GrColorType::kRGBA_F16) {
+                return {GrSwizzle::RGBA(), GrColorType::kRGBA_F16};
+            } else if (srcColorType == GrColorType::kRGBA_F16_Clamped){
+                return {GrSwizzle::RGBA(), GrColorType::kRGBA_F16_Clamped};
+            }
+        case MTLPixelFormatR16Float:
+            return {GrSwizzle::RGBA(), GrColorType::kAlpha_F16};
+        case MTLPixelFormatRG8Unorm:
+            return {GrSwizzle::RGBA(), GrColorType::kRG_88};
+        case MTLPixelFormatRGB10A2Unorm:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_1010102};
+#ifdef SK_BIULD_FOR_IOS
+        case MTLPixelFormatABGR4Unorm:
+            return {GrSwizzle::RGBA(), GrColorType::kABGR_4444};
+#endif
+        case MTLPixelFormatRGBA32Float:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_F32};
+        case MTLPixelFormatRGBA8Unorm_sRGB:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_8888_SRGB};
+        case MTLPixelFormatR16Unorm:
+            return {GrSwizzle::RGBA(), GrColorType::kR_16};
+        case MTLPixelFormatRG16Unorm:
+            return {GrSwizzle::RGBA(), GrColorType::kRG_1616};
+        // Experimental (for Y416 and mutant P016/P010)
+        case MTLPixelFormatRGBA16Unorm:
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_16161616};
+        case MTLPixelFormatRG16Float:
+            return {GrSwizzle::RGBA(), GrColorType::kRG_F16};
+        default:
+            return {GrSwizzle(), GrColorType::kUnknown};
+    }
+}
+

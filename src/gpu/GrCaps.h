@@ -237,7 +237,7 @@ public:
     };
 
     /**
-     * Given a src surface's pixel config and its backend format as well as a color type the caller
+     * Given a src surface's color type and its backend format as well as a color type the caller
      * would like read into, this provides a legal color type that the caller may pass to
      * GrGpu::readPixels(). The returned color type may differ from the passed dstColorType, in
      * which case the caller must convert the read pixel data (see GrConvertPixels). When converting
@@ -245,7 +245,6 @@ public:
      * the returned color type for kUnknown.
      */
     virtual SupportedRead supportedReadPixelsColorType(GrColorType srcColorType,
-                                                       GrPixelConfig srcConfig,
                                                        const GrBackendFormat& srcFormat,
                                                        GrColorType dstColorType) const;
 
