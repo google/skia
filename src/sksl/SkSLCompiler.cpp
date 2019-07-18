@@ -1325,6 +1325,7 @@ bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
     if (!program.fIsOptimized) {
         program.fIsOptimized = true;
+        return true;
         fIRGenerator->fKind = program.fKind;
         fIRGenerator->fSettings = &program.fSettings;
         for (auto& element : program) {

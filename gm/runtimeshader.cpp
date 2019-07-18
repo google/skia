@@ -27,7 +27,14 @@ extern sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
 const char* gProg = R"(
     layout(ctype=SkRect) in uniform half4 gColor;
 
+    float4x4 gInvM;
+
+    void setup(in float4x4 ctm, in float4x4 localm) {
+        gInvM = inverse(ctm * localm);
+    }
+
     void main(float x, float y, inout half4 color) {
+
         color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
     }
 )";
