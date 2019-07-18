@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db5767d7_3e3ab948",
+        "filename": "infra/bots/gen_compile_isolate.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-18T15:59:16Z",
+      "side": 1,
+      "message": "\u003e Attribute \u0027children\u0027 defined outside __init__.\n\u003e To disable, add: # pylint: disable\u003dattribute-defined-outside-init\n\n_children\n\nHowever, if you fix this, you will also need to fix the logic above to not add new children to leaf nodes.",
+      "parentUuid": "c8a3db67_bffc3d13",
+      "revId": "b04ff5f9fb6aa001bc765978b520712ac9944606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
