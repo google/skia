@@ -70,8 +70,8 @@ static constexpr GrGeometryProcessor::Attribute gVertex =
  */
 class ClockwiseGM : public GpuGM {
 private:
-    SkString onShortName() final { return SkString("clockwise"); }
-    SkISize onISize() override { return SkISize::Make(300, 200); }
+    SkString onShortName() override { return SkString("clockwise"); }
+    SkISize onISize() override { return {300, 200}; }
     void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*) override;
 };
 
