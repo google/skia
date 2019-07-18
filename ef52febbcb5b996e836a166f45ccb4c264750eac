@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48cf183b_0465e0b1",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T21:17:43Z",
+      "side": 1,
+      "message": "Any idea what to so in the \u0027else\u0027 case here? I believe PDF creates a font with glyphs that draw using an image, but I think an image could be output here. At the very least, we should put in a \u0027we\u0027re going to drop a lot of color emoji\u0027 comment right here. Note that there are glyphs with simple paths that also have a color version which may have been intended, so in a good case you\u0027ll at least get some kind of fallback (on Windows, on Mac you get nothing).",
+      "range": {
+        "startLine": 152,
+        "startChar": 16,
+        "endLine": 152,
+        "endChar": 17
+      },
+      "revId": "ef52febbcb5b996e836a166f45ccb4c264750eac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
