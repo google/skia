@@ -13,9 +13,10 @@
 
 class SkXMLWriter;
 
-class SkSVGDevice : public SkClipStackDevice {
+class SkSVGDevice final : public SkClipStackDevice {
 public:
-    static sk_sp<SkBaseDevice> Make(const SkISize& size, std::unique_ptr<SkXMLWriter>);
+    static sk_sp<SkBaseDevice> Make(const SkISize& size, std::unique_ptr<SkXMLWriter>,
+                                    uint32_t flags);
 
 protected:
     void drawPaint(const SkPaint& paint) override;
@@ -42,8 +43,11 @@ protected:
                     const SkPaint&) override;
 
 private:
-    SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>);
+    SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, uint32_t);
     ~SkSVGDevice() override;
+
+    void drawGlyphRunAsText(const SkGlyphRun&, const SkPoint&, const SkPaint&);
+    void drawGlyphRunAsPath(const SkGlyphRun&, const SkPoint&, const SkPaint&);
 
     struct MxCp;
     void drawBitmapCommon(const MxCp&, const SkBitmap& bm, const SkPaint& paint);
@@ -51,9 +55,11 @@ private:
     class AutoElement;
     class ResourceBucket;
 
-    std::unique_ptr<SkXMLWriter>    fWriter;
+    const std::unique_ptr<SkXMLWriter>    fWriter;
+    const std::unique_ptr<ResourceBucket> fResourceBucket;
+    const uint32_t                        fFlags;
+
     std::unique_ptr<AutoElement>    fRootElement;
-    std::unique_ptr<ResourceBucket> fResourceBucket;
 
     typedef SkClipStackDevice INHERITED;
 };
