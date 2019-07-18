@@ -32,18 +32,14 @@
 // This GM mimics a blurred RR seen in the wild.
 class BlurRoundRectGM : public skiagm::GM {
 public:
-    BlurRoundRectGM(int width, int height)
-        : fName("blurroundrect"), fWidth(width), fHeight(height) {
-        fName.appendf("-WH-%ix%i-unevenCorners", width,  height);
-    }
+    BlurRoundRectGM(int w, int h) : fWidth(w), fHeight(h) {}
 
+private:
     SkString onShortName() override {
-        return fName;
+        return SkStringPrintf("blurroundrect-WH-%ix%i-unevenCorners", fWidth, fHeight);
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(fWidth, fHeight);
-    }
+    SkISize onISize() override { return {fWidth, fHeight}; }
 
     void onOnceBeforeDraw() override {
         SkVector radii[4];
@@ -85,12 +81,8 @@ public:
         canvas->drawRRect(fRRect, paint);
     }
 
-private:
-    SkString        fName;
-    SkRRect         fRRect;
-    int             fWidth, fHeight;
-
-    typedef skiagm::GM INHERITED;
+    SkRRect     fRRect;
+    int         fWidth, fHeight;
 };
 
 /*
@@ -120,20 +112,9 @@ static sk_sp<SkShader> MakeRadial() {
 
 // Simpler blurred RR test cases where all the radii are the same.
 class SimpleBlurRoundRectGM : public skiagm::GM {
-public:
-    SimpleBlurRoundRectGM()
-        : fName("simpleblurroundrect") {
-    }
+    SkString onShortName() override { return SkString("simpleblurroundrect"); }
 
-protected:
-
-    SkString onShortName() override {
-        return fName;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1000, 500);
-    }
+    SkISize onISize() override { return {1000, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(1.5f, 1.5f);
@@ -166,10 +147,6 @@ protected:
             }
         }
     }
-private:
-    const SkString  fName;
-
-    typedef         skiagm::GM INHERITED;
 };
 
 // Create one with dimensions/rounded corners based on the skp
