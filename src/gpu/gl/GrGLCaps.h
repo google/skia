@@ -346,7 +346,7 @@ public:
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
-    SupportedRead supportedReadPixelsColorType(GrColorType, GrPixelConfig, const GrBackendFormat&,
+    SupportedRead supportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                GrColorType) const override;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
@@ -595,12 +595,6 @@ private:
         // ReadPixels. One is implicitly specified by the current FBO's format. The other is
         // queryable. This stores the queried option (lazily).
         ReadPixelsFormat fSecondReadPixelsFormat;
-
-
-        // If data from a surface of this config is read back to a GrColorType with all four
-        // color channels this indicates how each channel should be interpreted. May contain
-        // 0s and 1s.
-        GrSwizzle fRGBAReadSwizzle = GrSwizzle("rgba");
     };
 
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
@@ -618,6 +612,11 @@ private:
                 : fColorType(colorType)
                 , fFlags(flags) {}
 
+        ColorTypeInfo(GrColorType colorType, uint32_t flags, GrSwizzle rgbaReadSwizzle)
+                : fColorType(colorType)
+                , fFlags(flags)
+                , fRGBAReadSwizzle(rgbaReadSwizzle) {}
+
         GrColorType fColorType;
         enum {
             kUploadData_Flag = 0x1,
@@ -626,6 +625,11 @@ private:
             kRenderable_Flag = 0x2,
         };
         uint32_t fFlags;
+
+        // If data from a surface of this colorType & format is read back to a GrColorType with all
+        // four color channels this indicates how each channel should be interpreted. May contain
+        // 0s and 1s.
+        GrSwizzle fRGBAReadSwizzle = GrSwizzle("rgba");
     };
 
     struct FormatInfo {
@@ -636,6 +640,15 @@ private:
                 }
             }
             return 0;
+        }
+
+        GrSwizzle rgbaReadSwizzle(GrColorType colorType) const {
+            for (int i = 0; i < fColorTypeInfos.count(); ++i) {
+                if (fColorTypeInfos[i].fColorType == colorType) {
+                    return fColorTypeInfos[i].fRGBAReadSwizzle;
+                }
+            }
+            return GrSwizzle();
         }
 
         enum {

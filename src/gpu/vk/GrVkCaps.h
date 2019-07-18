@@ -53,6 +53,8 @@ public:
     int maxRenderTargetSampleCount(VkFormat format) const;
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
+    SupportedRead supportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
+                                               GrColorType) const override;
 
     bool isVkFormatTexturableLinearly(VkFormat format) const {
         return SkToBool(FormatInfo::kTextureable_Flag & this->getFormatInfo(format).fLinearFlags);
@@ -228,7 +230,7 @@ private:
 
         SkTDArray<int> fColorSampleCounts;
     };
-    static const size_t kNumVkFormats = 19;
+    static const size_t kNumVkFormats = 18;
     FormatInfo fFormatTable[kNumVkFormats];
 
     const FormatInfo& getFormatInfo(VkFormat) const;
