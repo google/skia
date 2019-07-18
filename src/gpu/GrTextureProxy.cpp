@@ -19,9 +19,10 @@
 GrTextureProxy::GrTextureProxy(const GrBackendFormat& format, const GrSurfaceDesc& srcDesc,
                                GrSurfaceOrigin origin, GrMipMapped mipMapped,
                                const GrSwizzle& textureSwizzle, SkBackingFit fit,
-                               SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
+                               SkBudgeted budgeted, GrProtected isProtected,
+                               GrInternalSurfaceFlags surfaceFlags)
         : INHERITED(format, srcDesc, GrRenderable::kNo, origin, textureSwizzle, fit, budgeted,
-                    surfaceFlags)
+                    isProtected, surfaceFlags)
         , fMipMapped(mipMapped)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {}
@@ -31,9 +32,9 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantia
                                const GrBackendFormat& format, const GrSurfaceDesc& desc,
                                GrSurfaceOrigin origin, GrMipMapped mipMapped,
                                const GrSwizzle& texSwizzle, SkBackingFit fit, SkBudgeted budgeted,
-                               GrInternalSurfaceFlags surfaceFlags)
+                               GrProtected isProtected, GrInternalSurfaceFlags surfaceFlags)
         : INHERITED(std::move(callback), lazyType, format, desc, GrRenderable::kNo, origin,
-                    texSwizzle, fit, budgeted, surfaceFlags)
+                    texSwizzle, fit, budgeted, isProtected, surfaceFlags)
         , fMipMapped(mipMapped)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {}

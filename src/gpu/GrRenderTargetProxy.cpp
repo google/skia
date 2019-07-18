@@ -23,9 +23,10 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
                                          const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
                                          const GrSwizzle& textureSwizzle,
                                          const GrSwizzle& outputSwizzle, SkBackingFit fit,
-                                         SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
+                                         SkBudgeted budgeted, GrProtected isProtected,
+                                         GrInternalSurfaceFlags surfaceFlags)
         : INHERITED(format, desc, GrRenderable::kYes, origin, textureSwizzle, fit, budgeted,
-                    surfaceFlags)
+                    isProtected, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
         , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo)
         , fOutputSwizzle(outputSwizzle) {}
@@ -36,10 +37,11 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          const GrBackendFormat& format, const GrSurfaceDesc& desc,
                                          GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle,
                                          const GrSwizzle& outputSwizzle, SkBackingFit fit,
-                                         SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags,
+                                         SkBudgeted budgeted, GrProtected isProtected,
+                                         GrInternalSurfaceFlags surfaceFlags,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(callback), lazyType, format, desc, GrRenderable::kYes, origin,
-                    textureSwizzle, fit, budgeted, surfaceFlags)
+                    textureSwizzle, fit, budgeted, isProtected, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
         , fOutputSwizzle(outputSwizzle) {}
