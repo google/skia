@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07ed1269_9df9057b",
+        "filename": "gm/complexclip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:20:46Z",
+      "side": 0,
+      "message": "This actually seems more straight forward and more obviously correct than explicitly unrolling this into a bunch of strings.",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 49
+      },
+      "revId": "3e6aa9f52839cd0d80b108d18adc7fb3437f272e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b096a74_b03a4850",
+        "filename": "gm/complexclip2.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:20:46Z",
+      "side": 0,
+      "message": "I also prefer this to listing things out.",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 19
+      },
+      "revId": "3e6aa9f52839cd0d80b108d18adc7fb3437f272e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

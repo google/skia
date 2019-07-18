@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab8a5de2_92376fc6",
+        "filename": "gm/bigrrectaaeffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:20:46Z",
+      "side": 1,
+      "message": "This isn\u0027t great. I was going to say you could write a little factory to do this instead... but that\u0027s what the constructor is for?",
+      "range": {
+        "startLine": 130,
+        "startChar": 8,
+        "endLine": 130,
+        "endChar": 19
+      },
+      "revId": "4346add5997d8a0d0f9274be5f16f9c52f3404bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "411e462f_60154734",
+        "filename": "gm/bitmaprect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:20:46Z",
+      "side": 1,
+      "message": "There\u0027s no reason this shouldn\u0027t continue to be built with android. Are we having issues with unused symbols?",
+      "range": {
+        "startLine": 154,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 28
+      },
+      "revId": "4346add5997d8a0d0f9274be5f16f9c52f3404bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcb0a8c1_1e5cde0a",
+        "filename": "gm/blurignorexform.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:20:46Z",
+      "side": 1,
+      "message": "Document we don\u0027t get here.. SK_ABORT",
+      "range": {
+        "startLine": 47,
+        "startChar": 20,
+        "endLine": 47,
+        "endChar": 21
+      },
+      "revId": "4346add5997d8a0d0f9274be5f16f9c52f3404bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83706e2d_2ff6aead",
+        "filename": "gm/complexclip2.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:20:46Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem to be used on this side? If the idea is to eventually initialize the base class with the name, I would prefer moving this logic into the constructors and creating SkString fName fields which will eventually be on the base class and be computed when initializing the base class in the constructor. (Of course that means no implied constructors.) I also don\u0027t see what we possibly gain by fName being a pointer (to constant data) instead of an SkString.",
+      "range": {
+        "startLine": 108,
+        "startChar": 23,
+        "endLine": 108,
+        "endChar": 30
+      },
+      "revId": "4346add5997d8a0d0f9274be5f16f9c52f3404bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70a0407d_45ab7914",
+        "filename": "gm/complexclip2.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T20:20:46Z",
+      "side": 1,
+      "message": "In other words, this is redundant information which needs to be thought about.",
+      "range": {
+        "startLine": 195,
+        "startChar": 83,
+        "endLine": 195,
+        "endChar": 92
+      },
+      "revId": "4346add5997d8a0d0f9274be5f16f9c52f3404bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
