@@ -28,7 +28,7 @@ arcofzorro,-1
 arcs_as_paths,-1
 arcto,-1
 arithmode,0
-atlastext,0
+atlastext,2
 b_119394958,-1
 badpaint,-1
 bezier_conic_effects,-1
@@ -39,8 +39,8 @@ big_rrect_circular_corner_aa_effect,-1
 big_rrect_ellipse_aa_effect,-1
 big_rrect_elliptical_corner_aa_effect,-1
 big_rrect_rect_aa_effect,-1
-bigbitmaprect_i,0
-bigbitmaprect_s,0
+bigbitmaprect_i,1
+bigbitmaprect_s,1
 bigblurs,-1
 bigconic,-1
 bigmatrix,-1
@@ -86,14 +86,14 @@ blurroundrect-WH-100x100-unevenCorners,-1
 blurs,-1
 bmp_filter_quality_repeat,-1
 bug339297,0
-bug339297_as_clip,0
+bug339297_as_clip,1
 bug5099,-1
 bug5252,-1
 bug530095,-1
 bug583299,0
 bug591993,0
 bug593049,0
-bug6083,0
+bug6083,1
 bug615686,-1
 bug6643,0
 bug6783,0
@@ -141,7 +141,7 @@ colorfilteralpha8,0
 colorfilterimagefilter,0
 colorfilterimagefilter_layer,0
 colorfiltershader,0
-colormatrix,0
+colormatrix,1
 colorwheel,0
 colorwheelnative,0
 combinemaskfilter,0
@@ -170,7 +170,7 @@ composeshader,0
 composeshader_alpha,0
 composeshader_bitmap,0
 composeshader_bitmap2,-1
-composeshader_grid,0
+composeshader_grid,1
 concavepaths,-1
 conicpaths,-1
 const_color_processor,-1
@@ -357,7 +357,7 @@ gradients_no_texture_nodither,-1
 gradients_nodither,-1
 gradients_view_perspective,-1
 gradients_view_perspective_nodither,-1
-gradtext,0
+gradtext,1
 grayscalejpg,0
 hairlines,-1
 hairmodes,-1
@@ -380,9 +380,9 @@ imagealphathreshold_crop,0
 imagealphathreshold_image,-1
 imagealphathreshold_surface,0
 imageblur,-1
-imageblur2,0
+imageblur2,2
 imageblur_large,0
-imageblurclampmode,0
+imageblurclampmode,1
 imageblurrepeatmode,0
 imageblurtiled,0
 imagefilters_xfermodes,-1
@@ -390,7 +390,7 @@ imagefiltersbase,-1
 imagefiltersclipped,-1
 imagefilterscropexpand,-1
 imagefilterscropped,-1
-imagefiltersgraph,0
+imagefiltersgraph,1
 imagefiltersscaled,-1
 imagefiltersstroked,-1
 imagefilterstransformed,-1
@@ -410,7 +410,7 @@ internal_links,-1
 inverse_paths,-1
 jpg-color-cube,0
 largecircle,-1
-largeglyphblur,0
+largeglyphblur,1
 lattice,-1
 lattice2,0
 lattice_alpha,0
@@ -446,9 +446,9 @@ manyrrects,-1
 matrixconvolution,-1
 matrixconvolution_color,-1
 matriximagefilter,-1
-megalooper_0x0,0
-megalooper_1x4,0
-megalooper_4x1,0
+megalooper_0x0,1
+megalooper_1x4,1
+megalooper_4x1,1
 mipmap,-1
 mipmap_gray8_srgb,0
 mipmap_srgb,0
@@ -480,7 +480,7 @@ nonclosedpaths,-1
 not_native32_bitmap_config,0
 offsetimagefilter,0
 onebadarc,0
-orientation,0
+orientation,1
 ovals,-1
 ovals_as_paths,-1
 overdrawcolorfilter,0
@@ -564,11 +564,11 @@ savelayer_with_backdrop,-1
 scale-pixels,0
 scaled_tilemode_bitmap,0
 scaled_tilemode_gradient,0
-scaled_tilemodes,0
+scaled_tilemodes,1
 scaled_tilemodes_npot,-1
-scaledemoji,0
+scaledemoji,1
 scaledemoji_rendering,-1
-scaledemojipos,0
+scaledemojipos,1
 scaledstrokes,-1
 scalepixels_unpremul,0
 shadermaskfilter_gradient,-1
@@ -620,7 +620,7 @@ smallarc,-1
 smallpaths,-1
 spritebitmap,0
 squarehair,-1
-srcmode,0
+srcmode,1
 srgb_colorfilter,0
 stlouisarch,-1
 stringart,-1
@@ -646,7 +646,7 @@ teenyStrokes,-1
 testgradient,-1
 text_scale_skew,-1
 textblob,-1
-textblob_intercepts,0
+textblob_intercepts,1
 textblobblockreordering,0
 textblobcolortrans,0
 textblobgeometrychange,-1
@@ -700,7 +700,7 @@ windowrectangles,-1
 windowrectangles_mask,-1
 xfermodeimagefilter,-1
 xfermodes,-1
-xfermodes2,0
+xfermodes2,1
 xfermodes3,0
 yuv_nv12_to_rgb_effect,-1
 yuv_to_rgb_effect,-1
