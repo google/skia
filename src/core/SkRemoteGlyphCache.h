@@ -195,6 +195,16 @@ public:
         virtual bool deleteHandle(SkDiscardableHandleId) = 0;
 
         virtual void notifyCacheMiss(CacheMissType) {}
+
+        struct ReadFailureData {
+            size_t memorySize;
+            size_t bytesRead;
+            uint64_t typefaceSize;
+            uint64_t strikeCount;
+            uint64_t glyphImagesCount;
+            uint64_t glyphPathsCount;
+        };
+        virtual void notifyReadFailure(const ReadFailureData& data) {}
     };
 
     explicit SkStrikeClient(sk_sp<DiscardableHandleManager>,
