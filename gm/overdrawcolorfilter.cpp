@@ -30,17 +30,9 @@ static inline void set_bitmap(SkBitmap* bitmap, uint8_t alpha) {
 }
 
 class OverdrawColorFilter : public skiagm::GM {
-public:
-    OverdrawColorFilter() {}
+    SkString onShortName() override { return SkString("overdrawcolorfilter"); }
 
-protected:
-    virtual SkString onShortName() override {
-        return SkString("overdrawcolorfilter");
-    }
-
-    virtual SkISize onISize() override {
-        return SkISize::Make(200, 400);
-    }
+    SkISize onISize() override { return {200, 400}; }
 
     void onDraw(SkCanvas* canvas) override {
         static const SkPMColor colors[SkOverdrawColorFilter::kNumColors] = {
@@ -69,9 +61,6 @@ protected:
         set_bitmap(&bitmap, 6);
         canvas->drawBitmap(bitmap, 100, 200, &paint);
     }
-
-private:
-    typedef GM INHERITED;
 };
 
 DEF_GM(return new OverdrawColorFilter;)

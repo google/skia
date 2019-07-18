@@ -20,7 +20,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 
-namespace skiagm {
+namespace {
 
 // This GM draws a 3x3 grid (with the center element excluded) of rectangles
 // filled with a bitmap shader. The bitmap shader is transformed so that the
@@ -49,7 +49,7 @@ static SkBitmap create_bitmap() {
 constexpr SkScalar RECT_SIZE = 64;
 constexpr SkScalar SLIDE_SIZE = 300;
 
-class ClippedBitmapShadersGM : public GM {
+class ClippedBitmapShadersGM : public skiagm::GM {
 public:
     ClippedBitmapShadersGM(SkTileMode mode, bool hq=false)
     : fMode(mode), fHQ(hq) {
@@ -59,7 +59,7 @@ protected:
     SkTileMode fMode;
     bool fHQ;
 
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         SkString descriptor;
         switch (fMode) {
             case SkTileMode::kRepeat:
@@ -82,11 +82,9 @@ protected:
         return descriptor;
     }
 
-    virtual SkISize onISize() {
-        return SkISize::Make(300, 300);
-    }
+    SkISize onISize() override { return {300, 300}; }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         SkBitmap bmp = create_bitmap();
         SkMatrix s;
         s.reset();
@@ -120,8 +118,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
+}  // namespace
 
 DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kRepeat); )
 DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kMirror); )
@@ -130,6 +127,3 @@ DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kClamp); )
 DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kRepeat, true); )
 DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kMirror, true); )
 DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kClamp, true); )
-
-
-}

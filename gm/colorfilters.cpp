@@ -45,24 +45,14 @@ static void install_lighting(SkPaint* paint, uint32_t mul, uint32_t add) {
 }
 
 class ColorFiltersGM : public skiagm::GM {
-public:
-    ColorFiltersGM() {
-        fName.set("lightingcolorfilter");
-    }
+    SkString onShortName() override { return SkString("lightingcolorfilter"); }
 
-protected:
-    virtual SkString onShortName() override {
-        return fName;
-    }
-
-    virtual SkISize onISize() override {
-        return SkISize::Make(620, 430);
-    }
+    SkISize onISize() override { return {620, 430}; }
 
     void onDraw(SkCanvas* canvas) override {
+        SkRect r = {0, 0, 600, 50};
+
         SkPaint paint;
-        SkRect r;
-        r.setWH(600, 50);
         paint.setShader(make_shader(r));
 
         const struct {
@@ -85,13 +75,6 @@ protected:
             canvas->translate(0, r.height() + 10);
         }
     }
-
-private:
-    SkString fName;
-    typedef GM INHERITED;
 };
-
-
-//////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new ColorFiltersGM;)

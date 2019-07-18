@@ -18,25 +18,16 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-namespace skiagm {
-
+namespace {
 /**
  *  Test copying an image from 8888 to 4444.
  */
-class CopyTo4444GM : public GM {
-public:
-    CopyTo4444GM() {}
+class CopyTo4444GM : public skiagm::GM {
+    SkString onShortName() override { return SkString("copyTo4444"); }
 
-protected:
-    virtual SkString onShortName() {
-        return SkString("copyTo4444");
-    }
+    SkISize onISize() override { return {360, 180}; }
 
-    virtual SkISize onISize() {
-        return SkISize::Make(360, 180);
-    }
-
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkBitmap bm, bm4444;
         if (!GetResourceAsBitmap("images/dog.jpg", &bm)) {
             *errorMsg = "Could not decode the file. Did you forget to set the resourcePath?";
@@ -49,16 +40,12 @@ protected:
         canvas->drawBitmap(bm4444, SkIntToScalar(bm.width()), 0);
         return DrawResult::kOk;
     }
-
-private:
-    typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
+}  // namespace
 
 DEF_GM( return new CopyTo4444GM; )
 
-}
+//////////////////////////////////////////////////////////////////////////////
 
 DEF_SIMPLE_GM(format4444, canvas, 64, 64) {
     canvas->scale(16, 16);
