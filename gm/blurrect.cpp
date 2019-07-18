@@ -98,16 +98,14 @@ static sk_sp<SkShader> make_radial() {
 typedef void (*PaintProc)(SkPaint*, SkScalar width);
 
 class BlurRectGM : public skiagm::GM {
-      sk_sp<SkMaskFilter> fMaskFilters[kLastEnum_SkBlurStyle + 1];
-      SkString  fName;
-      SkAlpha   fAlpha;
 public:
-    BlurRectGM(const char name[], U8CPU alpha)
-        : fName(name)
-        , fAlpha(SkToU8(alpha)) {
-    }
+    BlurRectGM(const char name[], U8CPU alpha) : fName(name), fAlpha(SkToU8(alpha)) {}
 
-protected:
+private:
+    sk_sp<SkMaskFilter> fMaskFilters[kLastEnum_SkBlurStyle + 1];
+    const char* fName;
+    SkAlpha fAlpha;
+
     void onOnceBeforeDraw() override {
         for (int i = 0; i <= kLastEnum_SkBlurStyle; ++i) {
             fMaskFilters[i] = SkMaskFilter::MakeBlur((SkBlurStyle)i,
@@ -115,13 +113,9 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
-    SkISize onISize() override {
-        return SkISize::Make(860, 820);
-    }
+    SkISize onISize() override { return {860, 820}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
@@ -161,7 +155,6 @@ protected:
         }
     }
 
-private:
     void drawProcs(SkCanvas* canvas, const SkRect& r, const SkPaint& paint,
                    bool doClip, const Proc procs[], size_t procsCount) {
         SkAutoCanvasRestore acr(canvas, true);
@@ -179,8 +172,6 @@ private:
             canvas->translate(0, r.height() * 4/3);
         }
     }
-private:
-    typedef GM INHERITED;
 };
 
 DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {
