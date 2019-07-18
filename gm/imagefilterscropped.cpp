@@ -117,7 +117,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    void onOnceBeforeDraw() override{
+    void onOnceBeforeDraw() override {
         make_checkerboard();
     }
 

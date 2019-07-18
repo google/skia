@@ -20,23 +20,15 @@
 #include "include/core/SkTypes.h"
 
 class LcdTextGM : public skiagm::GM {
-public:
-    LcdTextGM() {
-        const int pointSize = 36;
-        textHeight = SkIntToScalar(pointSize);
-    }
+    static constexpr SkScalar kTextHeight = 36;
+    SkScalar fY = kTextHeight;
 
-protected:
+    SkString onShortName() override { return SkString("lcdtext"); }
 
-    SkString onShortName() {
-        return SkString("lcdtext");
-    }
+    SkISize onISize() override { return {640, 480}; }
 
-    SkISize onISize() { return SkISize::Make(640, 480); }
-
-    virtual void onDraw(SkCanvas* canvas) {
-
-        y = textHeight;
+    void onDraw(SkCanvas* canvas) override {
+        fY = kTextHeight;
         drawText(canvas, SkString("TEXT: SubpixelTrue LCDRenderTrue"),
                  true,  true);
         drawText(canvas, SkString("TEXT: SubpixelTrue LCDRenderFalse"),
@@ -52,20 +44,16 @@ protected:
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         paint.setDither(true);
-        SkFont font(nullptr, textHeight);
+        SkFont font(nullptr, kTextHeight);
         if (subpixelTextEnabled) {
             font.setSubpixel(true);
         }
         if (lcdRenderTextEnabled) {
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         }
-        canvas->drawString(string, 0, y, font, paint);
-        y += textHeight;
+        canvas->drawString(string, 0, fY, font, paint);
+        fY += kTextHeight;
     }
-
-private:
-    typedef skiagm::GM INHERITED;
-    SkScalar y, textHeight;
 };
 
 /*
@@ -75,29 +63,21 @@ private:
  *  Test this both by changing "textsize" and by changing the computed size (textsize * CTM)
  */
 class LcdTextSizeGM : public skiagm::GM {
-    enum {
-        kLCDTextSizeLimit = 48
-    };
-
     static void ScaleAbout(SkCanvas* canvas, SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
         SkMatrix m;
         m.setScale(sx, sy, px, py);
         canvas->concat(m);
     }
 
-public:
-    LcdTextSizeGM() {}
+    SkString onShortName() override { return SkString("lcdtextsize"); }
 
-protected:
-    SkString onShortName() {
-        return SkString("lcdtextsize");
-    }
+    SkISize onISize() override { return {320, 120}; }
 
-    SkISize onISize() { return SkISize::Make(320, 120); }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         const char* lcd_text = "LCD";
         const char* gray_text = "GRAY";
+
+        constexpr static float kLCDTextSizeLimit = 48;
 
         const struct {
             SkPoint     fLoc;
@@ -122,9 +102,6 @@ protected:
             canvas->drawString(rec[i].fText, loc.x(), loc.y(), font, SkPaint());
         }
     }
-
-private:
-    typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new LcdTextGM; )
 DEF_GM( return new LcdTextSizeGM; )
