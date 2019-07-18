@@ -158,9 +158,7 @@ void GrVkTexture::onAbandon() {
 }
 
 GrBackendTexture GrVkTexture::getBackendTexture() const {
-    return GrBackendTexture(this->width(), this->height(),
-                            this->isProtected() ? GrProtected::kYes : GrProtected::kNo, fInfo,
-                            this->grVkImageLayout());
+    return GrBackendTexture(this->width(), this->height(), fInfo, this->grVkImageLayout());
 }
 
 GrVkGpu* GrVkTexture::getVkGpu() const {

@@ -135,6 +135,7 @@ struct GrVkImageInfo {
     VkFormat                 fFormat;
     uint32_t                 fLevelCount;
     uint32_t                 fCurrentQueueFamily;
+    GrProtected              fProtected;
     GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
 
     GrVkImageInfo()
@@ -145,10 +146,11 @@ struct GrVkImageInfo {
             , fFormat(VK_FORMAT_UNDEFINED)
             , fLevelCount(0)
             , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED)
+            , fProtected(GrProtected::kNo)
             , fYcbcrConversionInfo() {}
 
     GrVkImageInfo(VkImage image, GrVkAlloc alloc, VkImageTiling imageTiling, VkImageLayout layout,
-                  VkFormat format, uint32_t levelCount,
+                  VkFormat format, uint32_t levelCount, GrProtected isProtected = GrProtected::kNo,
                   uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
                   GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo())
             : fImage(image)
@@ -158,6 +160,7 @@ struct GrVkImageInfo {
             , fFormat(format)
             , fLevelCount(levelCount)
             , fCurrentQueueFamily(currentQueueFamily)
+            , fProtected(isProtected)
             , fYcbcrConversionInfo(ycbcrConversionInfo) {}
 
     GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
@@ -168,6 +171,7 @@ struct GrVkImageInfo {
             , fFormat(info.fFormat)
             , fLevelCount(info.fLevelCount)
             , fCurrentQueueFamily(info.fCurrentQueueFamily)
+            , fProtected(info.fProtected)
             , fYcbcrConversionInfo(info.fYcbcrConversionInfo) {}
 
     // This gives a way for a client to update the layout of the Image if they change the layout
@@ -179,7 +183,7 @@ struct GrVkImageInfo {
         return fImage == that.fImage && fAlloc == that.fAlloc &&
                fImageTiling == that.fImageTiling && fImageLayout == that.fImageLayout &&
                fFormat == that.fFormat && fLevelCount == that.fLevelCount &&
-               fCurrentQueueFamily == that.fCurrentQueueFamily &&
+               fCurrentQueueFamily == that.fCurrentQueueFamily && fProtected == that.fProtected &&
                fYcbcrConversionInfo == that.fYcbcrConversionInfo;
     }
 };

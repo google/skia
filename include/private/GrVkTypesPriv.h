@@ -37,6 +37,7 @@ struct GrVkBackendSurfaceInfo {
 
     GrVkImageInfo snapImageInfo() const;
 
+    bool isProtected() const { return fImageInfo.fProtected == GrProtected::kYes; }
 #if GR_TEST_UTILS
     bool operator==(const GrVkBackendSurfaceInfo& that) const;
 #endif
