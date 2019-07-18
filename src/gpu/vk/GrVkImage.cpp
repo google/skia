@@ -176,7 +176,10 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
     SkASSERT(VK_IMAGE_TILING_OPTIMAL == imageDesc.fImageTiling ||
              VK_SAMPLE_COUNT_1_BIT == vkSamples);
 
-    VkImageCreateFlags createflags = gpu->protectedContext() ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+    VkImageCreateFlags createflags = 0;
+    if (imageDesc.fIsProtected == GrProtected::kYes || gpu->protectedContext()) {
+        createflags |= VK_IMAGE_CREATE_PROTECTED_BIT;
+    }
     const VkImageCreateInfo imageCreateInfo = {
         VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,         // sType
         nullptr,                                     // pNext
@@ -210,6 +213,8 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
     info->fFormat = imageDesc.fFormat;
     info->fLevelCount = imageDesc.fLevels;
     info->fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+    info->fProtected =
+            (createflags & VK_IMAGE_CREATE_PROTECTED_BIT) ? GrProtected::kYes : GrProtected::kNo;
     return true;
 }
 
