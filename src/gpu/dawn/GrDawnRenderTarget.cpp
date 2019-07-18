@@ -13,30 +13,19 @@
 
 GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
                                        const GrSurfaceDesc& desc,
-                                       const GrDawnImageInfo& info,
-                                       GrBackendObjectOwnership ownership)
+                                       const GrDawnImageInfo& info)
     : GrSurface(gpu, desc)
     , GrRenderTarget(gpu, desc)
     , fInfo(info) {
-    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
-}
-
-GrDawnRenderTarget*
-GrDawnRenderTarget::Create(GrDawnGpu* gpu,
-                           const GrSurfaceDesc& desc,
-                           const GrDawnImageInfo& info,
-                           GrBackendObjectOwnership ownership) {
-    SkASSERT(1 == info.fLevelCount);
-    return new GrDawnRenderTarget(gpu, desc, info, ownership);
 }
 
 sk_sp<GrDawnRenderTarget>
 GrDawnRenderTarget::MakeWrapped(GrDawnGpu* gpu,
                                 const GrSurfaceDesc& desc,
                                 const GrDawnImageInfo& info) {
-    return sk_sp<GrDawnRenderTarget>(
-        GrDawnRenderTarget::Create(gpu, desc, info,
-                                  GrBackendObjectOwnership::kBorrowed));
+    sk_sp<GrDawnRenderTarget> rt(new GrDawnRenderTarget(gpu, desc, info));
+    rt->registerWithCacheWrapped(GrWrapCacheable::kNo);
+    return rt;
 }
 
 bool GrDawnRenderTarget::completeStencilAttachment() {

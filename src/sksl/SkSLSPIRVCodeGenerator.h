@@ -134,6 +134,7 @@ private:
         kMod_SpecialIntrinsic,
         kDFdy_SpecialIntrinsic,
         kSaturate_SpecialIntrinsic,
+        kSampledImage_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
     };

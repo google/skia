@@ -32,11 +32,6 @@ public:
         return true;
     }
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                            bool* rectsMustMatch, bool* disallowSubrect) const override {
-        return false;
-    }
-
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&, GrColorType) const
                                                                                          override {
         return GrPixelConfig::kUnknown_GrPixelConfig;

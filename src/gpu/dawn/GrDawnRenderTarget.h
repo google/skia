@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrDawnRenderTarget_DEFINED
 #define GrDawnRenderTarget_DEFINED
 
@@ -35,12 +34,12 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
     GrBackendFormat backendFormat() const override;
+    const dawn::Texture texture() const { return fInfo.fTexture; }
 
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
                        const GrSurfaceDesc& desc,
-                       const GrDawnImageInfo& info,
-                       GrBackendObjectOwnership);
+                       const GrDawnImageInfo& info);
 
     GrDawnGpu* getDawnGpu() const;
 
