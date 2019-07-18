@@ -1942,7 +1942,7 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
         SkDebugf("Failed to create testing only image\n");
         return GrBackendTexture();
     }
-    GrBackendTexture beTex = GrBackendTexture(w, h, isProtected, info);
+    GrBackendTexture beTex = GrBackendTexture(w, h, info);
 #if GR_TEST_UTILS
     // Lots of tests don't go through Skia's public interface which will set the config so for
     // testing we make sure we set a config here.

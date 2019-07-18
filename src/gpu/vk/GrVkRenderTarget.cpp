@@ -377,8 +377,7 @@ void GrVkRenderTarget::onAbandon() {
 
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    return GrBackendRenderTarget(this->width(), this->height(), this->numSamples(),
-                                 this->isProtected() ? GrProtected::kYes : GrProtected::kNo, fInfo,
+    return GrBackendRenderTarget(this->width(), this->height(), this->numSamples(), fInfo,
                                  this->grVkImageLayout());
 }
 
