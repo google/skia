@@ -1033,6 +1033,7 @@ bool ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p, bool 
             SkASSERT(SlotCount(p.fOperand->fType) == 1);
             std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
             lvalue->load();
+            // If we're not supposed to discard the result, then make a copy *before* the +/-
             if (!discard) {
                 this->write(ByteCodeInstruction::kDup);
             }
@@ -1051,8 +1052,8 @@ bool ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p, bool 
                                             ByteCodeInstruction::kSubtractF,
                                             1);
             }
-            lvalue->store(discard);
-            this->write(ByteCodeInstruction::kPop);
+            // Always consume the result as part of the store
+            lvalue->store(true);
             discard = false;
             break;
         }

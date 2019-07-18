@@ -387,6 +387,8 @@ DEF_TEST(SkSLInterpreterIfVector, r) {
 }
 
 DEF_TEST(SkSLInterpreterWhile, r) {
+    test(r, "void main(inout half4 color) { while (color.r < 8) { color.r++; } }",
+         1, 2, 3, 4, 8, 2, 3, 4);
     test(r, "void main(inout half4 color) { while (color.r < 1) color.r += 0.25; }", 0, 0, 0, 0, 1,
          0, 0, 0);
     test(r, "void main(inout half4 color) { while (color.r > 1) color.r -= 0.25; }", 0, 0, 0, 0, 0,
