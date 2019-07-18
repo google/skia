@@ -17,13 +17,14 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     , fContext(*context)
     , fOutput(output)
     , fIntrinsics {
-         { "cos",   ByteCodeInstruction::kCos },
-         { "cross", ByteCodeInstruction::kCross },
-         { "dot",   SpecialIntrinsic::kDot },
-         { "sin",   ByteCodeInstruction::kSin },
-         { "sqrt",  ByteCodeInstruction::kSqrt },
-         { "tan",   ByteCodeInstruction::kTan },
-         { "mix",   ByteCodeInstruction::kMix },
+         { "cos",     ByteCodeInstruction::kCos },
+         { "cross",   ByteCodeInstruction::kCross },
+         { "dot",     SpecialIntrinsic::kDot },
+         { "inverse", ByteCodeInstruction::kInverse2x2 },
+         { "sin",     ByteCodeInstruction::kSin },
+         { "sqrt",    ByteCodeInstruction::kSqrt },
+         { "tan",     ByteCodeInstruction::kTan },
+         { "mix",     ByteCodeInstruction::kMix },
       } {}
 
 
@@ -202,6 +203,10 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
 
         VECTOR_UNARY_OP(kNegateF)
         VECTOR_UNARY_OP(kNegateI)
+
+        case ByteCodeInstruction::kInverse2x2:
+        case ByteCodeInstruction::kInverse3x3:
+        case ByteCodeInstruction::kInverse4x4: return 0;
 
         case ByteCodeInstruction::kNotB: return 0;
         case ByteCodeInstruction::kNegateFN: return 0;
@@ -885,6 +890,17 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             case ByteCodeInstruction::kCross:
                 this->write(found->second.fValue.fInstruction);
                 break;
+            case ByteCodeInstruction::kInverse2x2: {
+                SkASSERT(c.fArguments.size() > 0);
+                auto op = ByteCodeInstruction::kInverse2x2;
+                switch (count) {
+                    case 4: break;  // float2x2
+                    case 9:  op = ByteCodeInstruction::kInverse3x3; break;
+                    case 16: op = ByteCodeInstruction::kInverse4x4; break;
+                    default: SkASSERT(false);
+                }
+                this->write(op);
+            } break;
             default:
                 SkASSERT(false);
         }
