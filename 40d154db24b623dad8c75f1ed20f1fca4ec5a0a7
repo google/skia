@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91df2986_4f9ad874",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 1019,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-18T17:08:52Z",
+      "side": 1,
+      "message": "nit: maybe this is clearer:\nvar task *specs.TaskSpec\nif ... {\n  task \u003d b.kitchenTask(name, \"sync_and_compile\", \"swarm_recipe.isolate\", b.cfg.ServiceAccountCompile, b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_BUILD)\n  b.usesGit(task, name)\n} else {\n  task \u003d b.kitchenTask(name, \"compile\", \"compile.isolate\", b.cfg.ServiceAccountCompile, b.swarmDimensions(parts), map[string]string{}, OUTPUT_BUILD)\n  task.Idempotent \u003d true\n}",
+      "range": {
+        "startLine": 1000,
+        "startChar": 0,
+        "endLine": 1019,
+        "endChar": 2
+      },
+      "revId": "40d154db24b623dad8c75f1ed20f1fca4ec5a0a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
