@@ -24,7 +24,7 @@
 struct ProxyParams {
     int             fSize;
     GrRenderable    fRenderable;
-    GrColorType     fColorType;
+    SkColorType     fColorType;
     SkBackingFit    fFit;
     int             fSampleCnt;
     GrSurfaceOrigin fOrigin;
@@ -34,7 +34,8 @@ struct ProxyParams {
 
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                            const ProxyParams& p) {
-    GrPixelConfig config = GrColorTypeToPixelConfig(p.fColorType);
+    GrColorType grCT = SkColorTypeToGrColorType(p.fColorType);
+    GrPixelConfig config = GrColorTypeToPixelConfig(grCT);
 
     GrSurfaceDesc desc;
     desc.fWidth  = p.fSize;
@@ -42,7 +43,7 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
     desc.fConfig = config;
     desc.fSampleCnt = p.fSampleCnt;
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(p.fColorType);
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(grCT);
 
     return proxyProvider->createProxy(format, desc, p.fRenderable, p.fOrigin, p.fFit, p.fBudgeted);
 }
@@ -51,10 +52,7 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
                                           GrBackendTexture* backendTex) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    SkColorType skColorType = GrColorTypeToSkColorType(p.fColorType);
-    SkASSERT(SkColorType::kUnknown_SkColorType != skColorType);
-
-    *backendTex = context->createBackendTexture(p.fSize, p.fSize, skColorType,
+    *backendTex = context->createBackendTexture(p.fSize, p.fSize, p.fColorType,
                                                 SkColors::kTransparent,
                                                 GrMipMapped::kNo, GrRenderable::kNo,
                                                 GrProtected::kNo);
@@ -62,9 +60,8 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
         return nullptr;
     }
 
-    return proxyProvider->wrapBackendTexture(*backendTex, p.fColorType, p.fOrigin,
-                                             kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
-                                             kRead_GrIOType);
+    return proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin, kBorrow_GrWrapOwnership,
+                                             GrWrapCacheable::kNo, kRead_GrIOType);
 }
 
 static void cleanup_backend(GrContext* context, const GrBackendTexture& backendTex) {
@@ -149,8 +146,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     // Non-RT GrSurfaces are never recycled on some platforms.
     bool kConditionallyShare = resourceProvider->caps()->reuseScratchTextures();
 
-    const GrColorType kRGBA = GrColorType::kRGBA_8888;
-    const GrColorType kBGRA = GrColorType::kBGRA_8888;
+    const SkColorType kRGBA = kRGBA_8888_SkColorType;
+    const SkColorType kBGRA = kBGRA_8888_SkColorType;
 
     const SkBackingFit kE = SkBackingFit::kExact;
     const SkBackingFit kA = SkBackingFit::kApprox;
@@ -271,7 +268,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
 
 sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                 const ProxyParams& p, bool deinstantiate) {
-    GrPixelConfig config = GrColorTypeToPixelConfig(p.fColorType);
+    GrColorType grCT = SkColorTypeToGrColorType(p.fColorType);
+    GrPixelConfig config = GrColorTypeToPixelConfig(grCT);
 
     GrSurfaceDesc desc;
     desc.fWidth = p.fSize;
@@ -291,7 +289,7 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
         }
         return GrSurfaceProxy::LazyInstantiationResult(std::move(texture));
     };
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(p.fColorType);
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(grCT);
     auto lazyType = deinstantiate ? GrSurfaceProxy::LazyInstantiationType ::kDeinstantiate
                                   : GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
@@ -305,7 +303,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
     ProxyParams texParams;
     texParams.fFit = SkBackingFit::kExact;
     texParams.fOrigin = kTopLeft_GrSurfaceOrigin;
-    texParams.fColorType = GrColorType::kRGBA_8888;
+    texParams.fColorType = kRGBA_8888_SkColorType;
     texParams.fRenderable = GrRenderable::kNo;
     texParams.fSampleCnt = 1;
     texParams.fSize = 100;
@@ -359,7 +357,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
     // Force the resource allocator to always believe it is over budget
     context->setResourceCacheLimits(0, 0);
 
-    const ProxyParams params  = { 64, GrRenderable::kNo, GrColorType::kRGBA_8888,
+    const ProxyParams params  = { 64, GrRenderable::kNo, kRGBA_8888_SkColorType,
                                   SkBackingFit::kExact, 0, kTopLeft_GrSurfaceOrigin,
                                   SkBudgeted::kYes };
 

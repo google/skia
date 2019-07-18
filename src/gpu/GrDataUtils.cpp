@@ -581,19 +581,3 @@ bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
     }
     return true;
 }
-
-
-GrColorType SkColorTypeAndFormatToGrColorType(const GrCaps* caps,
-                                              SkColorType skCT,
-                                              const GrBackendFormat& format) {
-    GrColorType grCT = SkColorTypeToGrColorType(skCT);
-    // Until we support SRGB in the SkColorType we have to do this manual check here to make sure
-    // we use the correct GrColorType.
-    if (caps->isFormatSRGB(format)) {
-        if (grCT != GrColorType::kRGBA_8888) {
-            return GrColorType::kUnknown;
-        }
-        grCT = GrColorType::kRGBA_8888_SRGB;
-    }
-    return grCT;
-}

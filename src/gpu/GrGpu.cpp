@@ -221,29 +221,19 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
-                                           GrColorType colorType,
                                            GrWrapOwnership ownership, GrWrapCacheable cacheable,
                                            GrIOType ioType) {
     SkASSERT(ioType != kWrite_GrIOType);
     this->handleDirtyContext();
-
-    const GrCaps* caps = this->caps();
-    SkASSERT(caps);
-
-    if (!caps->isFormatTexturable(colorType, backendTex.getBackendFormat())) {
+    SkASSERT(this->caps());
+    if (!this->caps()->isConfigTexturable(backendTex.config())) {
         return nullptr;
     }
-    if (backendTex.width() > caps->maxTextureSize() ||
-        backendTex.height() > caps->maxTextureSize()) {
+    if (backendTex.width() > this->caps()->maxTextureSize() ||
+        backendTex.height() > this->caps()->maxTextureSize()) {
         return nullptr;
     }
-
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendTex.getBackendFormat(),
-                                                                     colorType)));
-
-    return this->onWrapBackendTexture(backendTex, colorType, ownership, cacheable, ioType);
+    return this->onWrapBackendTexture(backendTex, ownership, cacheable, ioType);
 }
 
 sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -277,47 +267,25 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
     return tex;
 }
 
-sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
-                                                     GrColorType colorType) {
-    this->handleDirtyContext();
-
-    const GrCaps* caps = this->caps();
-
-    SkASSERT(GrCaps::AreConfigsCompatible(backendRT.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendRT.getBackendFormat(),
-                                                                     colorType)));
-
-    if (0 == caps->getRenderTargetSampleCount(backendRT.sampleCnt(), colorType,
-                                              backendRT.getBackendFormat())) {
+sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
+    if (0 == this->caps()->getRenderTargetSampleCount(backendRT.sampleCnt(), backendRT.config())) {
         return nullptr;
     }
-
-    return this->onWrapBackendRenderTarget(backendRT, colorType);
+    this->handleDirtyContext();
+    return this->onWrapBackendRenderTarget(backendRT);
 }
 
-sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& backendTex,
-                                                              int sampleCnt,
-                                                              GrColorType colorType) {
+sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
+                                                              int sampleCnt) {
+    if (0 == this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config())) {
+        return nullptr;
+    }
+    int maxSize = this->caps()->maxTextureSize();
+    if (tex.width() > maxSize || tex.height() > maxSize) {
+        return nullptr;
+    }
     this->handleDirtyContext();
-
-    const GrCaps* caps = this->caps();
-
-    int maxSize = caps->maxTextureSize();
-    if (backendTex.width() > maxSize || backendTex.height() > maxSize) {
-        return nullptr;
-    }
-
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendTex.getBackendFormat(),
-                                                                     colorType)));
-
-    if (0 == caps->getRenderTargetSampleCount(sampleCnt, colorType,
-                                              backendTex.getBackendFormat())) {
-        return nullptr;
-    }
-    return this->onWrapBackendTextureAsRenderTarget(backendTex, sampleCnt, colorType);
+    return this->onWrapBackendTextureAsRenderTarget(tex, sampleCnt);
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo& imageInfo,
