@@ -363,12 +363,10 @@ namespace skvm {
             union { Reg z; int imm; };
         };
 
-        Program(std::vector<Instruction>, int regs, int loop, std::vector<int> strides);
-        Program() : Program({}, 0, 0, {}) {}
-
         Program(std::vector<Builder::Instruction> instructions,
                 std::vector<Val>                  deaths,
                 std::vector<int>                  strides);
+        Program() : Program({}, {}, {}) {}
 
         ~Program();
         Program(Program&&);
@@ -392,14 +390,21 @@ namespace skvm {
     private:
         void eval(int n, void* args[]) const;
 
+        void setupInterpreter(std::vector<Builder::Instruction>, std::vector<Val> deaths);
+        void setupJIT        (std::vector<Builder::Instruction>, std::vector<Val> deaths);
+        bool jit             (std::vector<Builder::Instruction>, std::vector<Val> deaths,
+                              Assembler*) const;
+
+        // Dump jit-*.dump files for perf inject.
+        void dumpJIT() const;
+
         std::vector<Instruction> fInstructions;
         int                      fRegs;
         int                      fLoop;
         std::vector<int>         fStrides;
 
-        void*  fJITBuf      = nullptr;  // Raw mmap'd buffer.
-        size_t fJITSize     = 0;        // Size of buf in bytes.
-        void (*fJITEntry)() = nullptr;  // Entry point, offset into buf.
+        void*  fJITBuf  = nullptr;
+        size_t fJITSize = 0;
     };
 
 
