@@ -12,11 +12,17 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
-void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth,
-                        int rtHeight, const GrCaps& caps) {
+void GrCCClipPath::init(
+        const SkPath& deviceSpacePath, const SkIRect& accessRect,
+        GrCCAtlas::CoverageType coverageType, const GrCaps& caps) {
     SkASSERT(!this->isInitialized());
 
-    const GrBackendFormat format = caps.getBackendFormatFromColorType(GrColorType::kAlpha_F16);
+    const bool isCoverageCount = (GrCCAtlas::CoverageType::kFP16_CoverageCount == coverageType);
+
+    const GrPixelConfig atlasConfig =
+            (isCoverageCount) ? kAlpha_half_GrPixelConfig : kAlpha_8_GrPixelConfig;
+    const GrBackendFormat format = caps.getBackendFormatFromColorType(
+            (isCoverageCount) ? GrColorType::kAlpha_F16 : GrColorType::kAlpha_8);
 
     fAtlasLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
             [this](GrResourceProvider* resourceProvider)
@@ -43,10 +49,10 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
 
                 return std::move(texture);
             },
-            format, GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin,
-            kAlpha_half_GrPixelConfig, caps);
+            format, GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin, atlasConfig, caps);
 
     fDeviceSpacePath = deviceSpacePath;
+
     fDeviceSpacePath.getBounds().roundOut(&fPathDevIBounds);
     fAccessRect = accessRect;
 }
@@ -67,7 +73,8 @@ void GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
                                      GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(this->isInitialized());
     SkASSERT(!fHasAtlas);
-    fAtlas = resources->renderDeviceSpacePathInAtlas(fAccessRect, fDeviceSpacePath, fPathDevIBounds,
-                                                     &fDevToAtlasOffset);
+    fAtlas = resources->renderDeviceSpacePathInAtlas(
+            fAccessRect, fDeviceSpacePath, fPathDevIBounds, GrFillRuleForSkPath(fDeviceSpacePath),
+            &fDevToAtlasOffset);
     SkDEBUGCODE(fHasAtlas = true);
 }
