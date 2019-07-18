@@ -59,6 +59,7 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
             printf("callexternal %d, %d, %d", argumentCount, returnCount, externalValue);
             break;
         }
+        case ByteCodeInstruction::kClampIndex: printf("clampindex %d", READ8()); break;
         VECTOR_DISASSEMBLE(kCompareIEQ, "compareieq")
         VECTOR_DISASSEMBLE(kCompareINEQ, "compareineq")
         VECTOR_MATRIX_DISASSEMBLE(kCompareFEQ, "comparefeq")
@@ -351,7 +352,7 @@ static T vec_mod(T a, T b) {
     return a - skvx::trunc(a / b) * b;
 }
 
-static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
+static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
                      float* outReturn[], VValue globals[], bool stripedOutput, int N,
                      int baseIndex) {
     // Needs to be the first N non-negative integers, at least as large as VecWidth
@@ -382,8 +383,7 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 
     if (f->fConditionCount + 1 > (int)SK_ARRAY_COUNT(condStack) ||
         f->fLoopCount + 1 > (int)SK_ARRAY_COUNT(loopStack)) {
-        SkDEBUGFAIL("Function with too much nested control flow to evaluate");
-        return;
+        return false;
     }
 
     auto mask = [&]() { return *maskPtr & *loopPtr; };
@@ -460,6 +460,14 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                     }
                 }
                 sp += returnCount - 1;
+                break;
+            }
+
+            case ByteCodeInstruction::kClampIndex: {
+                int length = READ8();
+                if (skvx::any(mask() & ((sp[0].fSigned < 0) | (sp[0].fSigned >= length)))) {
+                    return false;
+                }
                 break;
             }
 
@@ -753,7 +761,7 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                             }
                         }
                     }
-                    return;
+                    return true;
                 } else {
                     // When we were called, the caller reserved stack space for their copy of our
                     // return value, then 'stack' was positioned after that, where our parameters
@@ -988,8 +996,11 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 
             default:
                 SkDEBUGFAILF("unsupported instruction %d\n", (int) inst);
+                return false;
         }
     }
+    // Unreachable
+    return false;
 }
 
 } // namespace Interpreter
@@ -1007,7 +1018,7 @@ void ByteCodeFunction::disassemble() const {
 #endif
 }
 
-void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int N,
+bool ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int N,
                    const float* uniforms, int uniformCount) const {
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
 #ifdef TRACE
@@ -1016,13 +1027,17 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
     Interpreter::VValue stack[128];
     int stackNeeded = f->fParameterCount + f->fLocalCount + f->fStackCount;
     if (stackNeeded > (int)SK_ARRAY_COUNT(stack)) {
-        SkDEBUGFAIL("Function requires too much stack space to evaluate");
-        return;
+        return false;
     }
 
-    SkASSERT(uniformCount == (int)fInputSlots.size());
+    if (uniformCount != (int)fInputSlots.size()) {
+        return false;
+    }
+
     Interpreter::VValue globals[32];
-    SkASSERT((int)SK_ARRAY_COUNT(globals) >= fGlobalCount);
+    if (fGlobalCount > (int)SK_ARRAY_COUNT(globals)) {
+        return false;
+    }
     for (uint8_t slot : fInputSlots) {
         globals[slot].fFloat = *uniforms++;
     }
@@ -1046,7 +1061,9 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
 
         bool stripedOutput = false;
         float** outArray = outReturn ? &outReturn : nullptr;
-        innerRun(this, f, stack, outArray, globals, stripedOutput, w, baseIndex);
+        if (!innerRun(this, f, stack, outArray, globals, stripedOutput, w, baseIndex)) {
+            return false;
+        }
 
         // Transpose out parameters back
         {
@@ -1074,12 +1091,14 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         N -= w;
         baseIndex += w;
     }
+    return true;
 #else
     SkDEBUGFAIL("ByteCode interpreter not enabled");
+    return false;
 #endif
 }
 
-void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, int N,
+bool ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, int N,
                           const float* uniforms, int uniformCount,
                           float* outArgs[], int outCount) const {
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
@@ -1089,22 +1108,26 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
     Interpreter::VValue stack[128];
     int stackNeeded = f->fParameterCount + f->fLocalCount + f->fStackCount;
     if (stackNeeded > (int)SK_ARRAY_COUNT(stack)) {
-        SkDEBUGFAIL("Function requires too much stack space to evaluate");
-        return;
+        return false;
+    }
+
+    if (nargs != f->fParameterCount ||
+        outCount != f->fReturnCount ||
+        uniformCount != (int)fInputSlots.size()) {
+        return false;
+    }
+
+    Interpreter::VValue globals[32];
+    if (fGlobalCount > (int)SK_ARRAY_COUNT(globals)) {
+        return false;
+    }
+    for (uint8_t slot : fInputSlots) {
+        globals[slot].fFloat = *uniforms++;
     }
 
     // innerRun just takes outArgs, so clear it if the count is zero
     if (outCount == 0) {
         outArgs = nullptr;
-    }
-
-    SkASSERT(nargs == f->fParameterCount);
-    SkASSERT(outCount == f->fReturnCount);
-    SkASSERT(uniformCount == (int)fInputSlots.size());
-    Interpreter::VValue globals[32];
-    SkASSERT((int)SK_ARRAY_COUNT(globals) >= fGlobalCount);
-    for (uint8_t slot : fInputSlots) {
-        globals[slot].fFloat = *uniforms++;
     }
 
     int baseIndex = 0;
@@ -1118,7 +1141,9 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         }
 
         bool stripedOutput = true;
-        innerRun(this, f, stack, outArgs, globals, stripedOutput, w, baseIndex);
+        if (!innerRun(this, f, stack, outArgs, globals, stripedOutput, w, baseIndex)) {
+            return false;
+        }
 
         // Copy out parameters back
         int slot = 0;
@@ -1138,8 +1163,11 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         N -= w;
         baseIndex += w;
     }
+
+    return true;
 #else
     SkDEBUGFAIL("ByteCode interpreter not enabled");
+    return false;
 #endif
 }
 
