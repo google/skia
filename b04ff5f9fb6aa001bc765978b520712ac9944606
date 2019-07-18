@@ -2,6 +2,24 @@
   "comments": [
     {
       "key": {
+        "uuid": "711758ca_b47e1ffb",
+        "filename": "infra/bots/gen_compile_isolate.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-18T16:17:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc179c7c_4e8f0067",
+      "revId": "b04ff5f9fb6aa001bc765978b520712ac9944606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db5767d7_3e3ab948",
         "filename": "infra/bots/gen_compile_isolate.py",
         "patchSetId": 4
@@ -17,6 +35,24 @@
       "revId": "b04ff5f9fb6aa001bc765978b520712ac9944606",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1068819f_272a320f",
+        "filename": "infra/bots/gen_compile_isolate.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-18T16:17:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db5767d7_3e3ab948",
+      "revId": "b04ff5f9fb6aa001bc765978b520712ac9944606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
