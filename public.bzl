@@ -251,6 +251,9 @@ BASE_SRCS_ALL = struct(
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",
 
+        # Currently exclude all Dawn-specific files
+        "src/gpu/dawn/*",
+
         # Defines main.
         "src/sksl/SkSLMain.cpp",
 
@@ -502,6 +505,7 @@ DM_SRCS_ALL = struct(
         "tools/fonts/test_font_serif.inc",
         "tools/gpu/**/*.cpp",
         "tools/gpu/**/*.h",
+        "tools/gpu/dawn/*",
         "tools/ios_utils.h",
         "tools/random_parse_path.cpp",
         "tools/random_parse_path.h",
