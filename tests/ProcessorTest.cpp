@@ -465,11 +465,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
     // Because processor factories configure themselves in random ways, this is not exhaustive.
     for (int i = 0; i < FPFactory::Count(); ++i) {
+        printf("############ TEST %d\n", i);
         int timesToInvokeFactory = 5;
         // Increase the number of attempts if the FP has child FPs since optimizations likely depend
         // on child optimizations being present.
         std::unique_ptr<GrFragmentProcessor> fp = FPFactory::MakeIdx(i, &testData);
         for (int j = 0; j < fp->numChildProcessors(); ++j) {
+            printf("#### REP %d\n", j);
             // This value made a reasonable trade off between time and coverage when this test was
             // written.
             timesToInvokeFactory *= FPFactory::Count() / 2;
@@ -688,6 +690,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
         static constexpr int kTimesToInvokeFactory = 10;
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
             auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
+            SkDebugf("processor: %s, count: %d\n", fp->name(), j);
             auto clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
@@ -724,6 +727,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                     }
                 }
             }
+            SkDebugf("FINISHED: processor: %s, count: %d\n", fp->name(), j);
         }
     }
 }

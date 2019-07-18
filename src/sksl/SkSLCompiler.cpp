@@ -1260,6 +1260,7 @@ Symbol* Compiler::takeOwnership(std::unique_ptr<Symbol> symbol) {
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
                                                   const Program::Settings& settings) {
+    printf("%s\n", text.c_str());
     fErrorText = "";
     fErrorCount = 0;
     std::vector<std::unique_ptr<ProgramElement>>* inherited;
