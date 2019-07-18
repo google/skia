@@ -70,9 +70,8 @@ namespace {
         write(o, rest...);
     }
 
-    static void dump(const Builder& builder, SkWStream* o) {
+    static void dump_builder(const Builder& builder, SkWStream* o) {
         const std::vector<Builder::Instruction> program = builder.program();
-        const std::vector<Val> deaths = builder.deaths();
 
         o->writeDecAsText(program.size());
         o->writeText(" values:\n");
@@ -83,7 +82,7 @@ namespace {
                  y = inst.y,
                  z = inst.z;
             int imm = inst.imm;
-            write(o, deaths[id] == 0 ? "☠️ " : "  ");
+            write(o, inst.death == 0 ? "☠️ " : "  ");
             switch (op) {
                 case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
@@ -129,7 +128,7 @@ namespace {
         }
     }
 
-    static void dump(const Program& program, SkWStream* o) {
+    static void dump_program(const Program& program, SkWStream* o) {
         const std::vector<Program::Instruction> instructions = program.instructions();
         const int nregs = program.nregs();
         const int loop  = program.loop();
@@ -193,10 +192,11 @@ namespace {
         }
     }
 
-    static void dump(const Builder& builder, const Program& program, SkWStream* o) {
-        dump(builder, o);
+    static void dump(Builder& builder, SkWStream* o) {
+        skvm::Program program = builder.done();
+        dump_builder(builder, o);
         o->writeText("\n");
-        dump(program, o);
+        dump_program(program, o);
         o->writeText("\n");
     }
 
@@ -218,33 +218,29 @@ DEF_TEST(SkVM, r) {
         auto srcFmt = (Fmt)s,
              dstFmt = (Fmt)d;
         SrcoverBuilder_F32 builder{srcFmt, dstFmt};
-        skvm::Program program = builder.done();
 
         buf.writeText(fmt_name(srcFmt));
         buf.writeText(" over ");
         buf.writeText(fmt_name(dstFmt));
         buf.writeText("\n");
-        dump(builder, program, &buf);
+        dump(builder, &buf);
     }
 
     // Write the I32 Srcovers also.
     {
         SrcoverBuilder_I32_Naive builder;
-        skvm::Program program = builder.done();
         buf.writeText("I32 (Naive) 8888 over 8888\n");
-        dump(builder, program, &buf);
+        dump(builder, &buf);
     }
     {
         SrcoverBuilder_I32 builder;
-        skvm::Program program = builder.done();
         buf.writeText("I32 8888 over 8888\n");
-        dump(builder, program, &buf);
+        dump(builder, &buf);
     }
     {
         SrcoverBuilder_I32_SWAR builder;
-        skvm::Program program = builder.done();
         buf.writeText("I32 (SWAR) 8888 over 8888\n");
-        dump(builder, program, &buf);
+        dump(builder, &buf);
     }
 
     sk_sp<SkData> blob = buf.detachAsData();

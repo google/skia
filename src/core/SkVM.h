@@ -255,9 +255,12 @@ namespace skvm {
             Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             Val x,y,z;      // Enough arguments for mad().
             int imm;        // Immediate bit pattern, shift count, argument index, etc.
+
+            // Not populated until done() has been called.
+            int death;      // Index of last live instruction taking this input; live if != 0.
         };
 
-        Program done() const;
+        Program done();
 
         // Declare a varying argument with given stride.
         Arg arg(int stride);
@@ -328,7 +331,6 @@ namespace skvm {
         I32 to_i32(F32 x);
 
         std::vector<Instruction> program() const { return fProgram; }
-        std::vector<Val>         deaths() const;
 
     private:
         struct InstructionHash {
@@ -341,7 +343,8 @@ namespace skvm {
                      ^ Hash(inst.x)
                      ^ Hash(inst.y)
                      ^ Hash(inst.z)
-                     ^ Hash(inst.imm);
+                     ^ Hash(inst.imm)
+                     ^ Hash(inst.death);
             }
         };
 
@@ -366,9 +369,8 @@ namespace skvm {
         Program(std::vector<Instruction>, int regs, int loop, std::vector<int> strides);
         Program() : Program({}, 0, 0, {}) {}
 
-        Program(std::vector<Builder::Instruction> instructions,
-                std::vector<Val>                  deaths,
-                std::vector<int>                  strides);
+        Program(const std::vector<Builder::Instruction>& instructions,
+                const std::vector<int>                 & strides);
 
         ~Program();
         Program(Program&&);
