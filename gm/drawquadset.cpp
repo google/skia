@@ -175,7 +175,7 @@ namespace skiagm {
 
 class DrawQuadSetGM : public GM {
 private:
-    SkString onShortName() final { return SkString("draw_quad_set"); }
+    SkString onShortName() override { return SkString("draw_quad_set"); }
     SkISize onISize() override { return SkISize::Make(800, 800); }
 
     void onDraw(SkCanvas* canvas) override {
