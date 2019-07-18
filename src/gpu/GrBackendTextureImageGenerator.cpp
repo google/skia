@@ -193,7 +193,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                 return {std::move(tex), GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             },
             format, desc, GrRenderable::kNo, fSurfaceOrigin, mipMapped,
-            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo);
+            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
+            GrProtected::kNo);
 
     if (!proxy) {
         return nullptr;

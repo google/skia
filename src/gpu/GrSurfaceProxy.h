@@ -327,16 +327,17 @@ protected:
     // Deferred version
     GrSurfaceProxy(const GrBackendFormat& format, const GrSurfaceDesc& desc,
                    GrRenderable renderable, GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle,
-                   SkBackingFit fit, SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
+                   SkBackingFit fit, SkBudgeted budgeted, GrProtected isProtected,
+                   GrInternalSurfaceFlags surfaceFlags)
             : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, format, desc, renderable,
-                             origin, textureSwizzle, fit, budgeted, surfaceFlags) {
+                             origin, textureSwizzle, fit, budgeted, isProtected, surfaceFlags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrBackendFormat& format,
                    const GrSurfaceDesc&, GrRenderable, GrSurfaceOrigin,
-                   const GrSwizzle& textureSwizzle, SkBackingFit, SkBudgeted,
+                   const GrSwizzle& textureSwizzle, SkBackingFit, SkBudgeted, GrProtected,
                    GrInternalSurfaceFlags);
 
     // Wrapped version.

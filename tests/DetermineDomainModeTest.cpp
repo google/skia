@@ -147,7 +147,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
               name);
 
     return proxyProvider->createProxy(format, desc, GrRenderable::kNo, kTopLeft_GrSurfaceOrigin,
-                                      fit, SkBudgeted::kYes);
+                                      fit, SkBudgeted::kYes, GrProtected::kNo);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,

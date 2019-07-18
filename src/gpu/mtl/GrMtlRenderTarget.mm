@@ -20,8 +20,8 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      id<MTLTexture> colorTexture,
                                      id<MTLTexture> resolveTexture,
                                      Wrapped)
-        : GrSurface(gpu, desc)
-        , GrRenderTarget(gpu, desc)
+        : GrSurface(gpu, desc, GrProtected::kNo)
+        , GrRenderTarget(gpu, desc, GrProtected::kNo)
         , fColorTexture(colorTexture)
         , fResolveTexture(resolveTexture) {
     SkASSERT(desc.fSampleCnt > 1);
@@ -32,8 +32,8 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      const GrSurfaceDesc& desc,
                                      id<MTLTexture> colorTexture,
                                      Wrapped)
-        : GrSurface(gpu, desc)
-        , GrRenderTarget(gpu, desc)
+        : GrSurface(gpu, desc, GrProtected::kNo)
+        , GrRenderTarget(gpu, desc, GrProtected::kNo)
         , fColorTexture(colorTexture)
         , fResolveTexture(nil) {
     SkASSERT(1 == desc.fSampleCnt);
@@ -45,8 +45,8 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      const GrSurfaceDesc& desc,
                                      id<MTLTexture> colorTexture,
                                      id<MTLTexture> resolveTexture)
-        : GrSurface(gpu, desc)
-        , GrRenderTarget(gpu, desc)
+        : GrSurface(gpu, desc, GrProtected::kNo)
+        , GrRenderTarget(gpu, desc, GrProtected::kNo)
         , fColorTexture(colorTexture)
         , fResolveTexture(resolveTexture) {
     SkASSERT(desc.fSampleCnt > 1);
@@ -55,8 +55,8 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      const GrSurfaceDesc& desc,
                                      id<MTLTexture> colorTexture)
-        : GrSurface(gpu, desc)
-        , GrRenderTarget(gpu, desc)
+        : GrSurface(gpu, desc, GrProtected::kNo)
+        , GrRenderTarget(gpu, desc, GrProtected::kNo)
         , fColorTexture(colorTexture)
         , fResolveTexture(nil) {
     SkASSERT(1 == desc.fSampleCnt);

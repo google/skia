@@ -98,6 +98,7 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
     desc.fSampleCnt = sampleCount;
 
     sk_sp<GrTexture> tex(provider->createTexture(desc, GrRenderable::kYes, budgeted,
+                                                 GrProtected::kNo,
                                                  GrResourceProvider::Flags::kNoPendingIO));
     if (!tex || !tex->asRenderTarget()) {
         return nullptr;
@@ -1618,7 +1619,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    return provider->createTexture(desc, renderable, SkBudgeted::kYes,
+    return provider->createTexture(desc, renderable, SkBudgeted::kYes, GrProtected::kNo,
                                    GrResourceProvider::Flags::kNoPendingIO);
 }
 
@@ -1637,7 +1638,8 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
     auto origin = renderable == GrRenderable::kYes ? kBottomLeft_GrSurfaceOrigin
                                                    : kTopLeft_GrSurfaceOrigin;
 
-    return proxyProvider->createMipMapProxy(format, desc, renderable, origin, SkBudgeted::kYes);
+    return proxyProvider->createMipMapProxy(format, desc, renderable, origin, SkBudgeted::kYes,
+                                            GrProtected::kNo);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,
