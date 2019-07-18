@@ -54,6 +54,7 @@ static void draw_row(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, 
 
 class FilterBitmapGM : public skiagm::GM {
     void onOnceBeforeDraw() override {
+        this->setBGColor(0xFFDDDDDD);
 
         this->makeBitmap();
 
@@ -69,25 +70,11 @@ class FilterBitmapGM : public skiagm::GM {
         fMatrix[2].setScale(0.7f, 1.05f);
     }
 
-public:
+protected:
     SkBitmap    fBM;
     SkMatrix    fMatrix[3];
-    SkString    fName;
 
-    FilterBitmapGM()
-    {
-        this->setBGColor(0xFFDDDDDD);
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return fName;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1024, 768);
-    }
+    SkISize onISize() override { return SkISize::Make(1024, 768); }
 
     virtual void makeBitmap() = 0;
     virtual SkScalar getScale() = 0;
@@ -104,21 +91,17 @@ protected:
             canvas->translate(0, size.fHeight);
         }
     }
-
-private:
-    typedef skiagm::GM INHERITED;
 };
 
 class FilterBitmapTextGM: public FilterBitmapGM {
-  public:
-      FilterBitmapTextGM(float textSize)
-      : fTextSize(textSize)
-        {
-            fName.printf("filterbitmap_text_%.2fpt", fTextSize);
-        }
+public:
+      FilterBitmapTextGM(float textSize) : fTextSize(textSize) {}
 
-  protected:
-      float fTextSize;
+private:
+      SkString onShortName() override {
+          return SkStringPrintf("filterbitmap_text_%.2fpt", fTextSize);
+      }
+      const float fTextSize;
 
       SkScalar getScale() override {
           return 32.f/fTextSize;
@@ -143,20 +126,18 @@ class FilterBitmapTextGM: public FilterBitmapGM {
           setTypeface(&font, "serif", SkFontStyle::BoldItalic());
           canvas.drawString("Hamburgefons", fTextSize/2, 4.8f*fTextSize, font, paint);
       }
-  private:
-      typedef FilterBitmapGM INHERITED;
 };
 
 class FilterBitmapCheckerboardGM: public FilterBitmapGM {
+    SkString onShortName() override {
+        return SkStringPrintf("filterbitmap_checkerboard_%d_%d%s",
+                              fSize, fNumChecks, fConvertToG8 ? "_g8" : "");
+    }
 public:
     FilterBitmapCheckerboardGM(int size, int num_checks, bool convertToG8 = false)
-        : fSize(size), fNumChecks(num_checks), fConvertToG8(convertToG8)
-    {
-        fName.printf("filterbitmap_checkerboard_%d_%d%s",
-                     fSize, fNumChecks, convertToG8 ? "_g8" : "");
-    }
+        : fSize(size), fNumChecks(num_checks), fConvertToG8(convertToG8) {}
 
-  protected:
+protected:
       int fSize;
       int fNumChecks;
 
@@ -190,23 +171,24 @@ private:
 };
 
 class FilterBitmapImageGM: public FilterBitmapGM {
-public:
-    FilterBitmapImageGM(const char filename[], bool convertToG8 = false)
-        : fFilename(filename), fConvertToG8(convertToG8)
-    {
-        fName.printf("filterbitmap_image_%s%s", filename, convertToG8 ? "_g8" : "");
+    const char* fFilename;
+    int fSize;
+
+    SkString onShortName() override {
+        return SkStringPrintf("filterbitmap_image_%s%s", fFilename, fConvertToG8 ? "_g8" : "");
     }
 
-protected:
-      SkString fFilename;
-      int fSize;
+public:
+    FilterBitmapImageGM(const char filename[], bool convertToG8 = false)
+        : fFilename(filename), fConvertToG8(convertToG8) {}
 
+protected:
       SkScalar getScale() override {
           return 192.f/fSize;
       }
 
       void makeBitmap() override {
-        SkString resource = SkStringPrintf("images/%s", fFilename.c_str());
+        SkString resource = SkStringPrintf("images/%s", fFilename);
         if (!GetResourceAsBitmap(resource.c_str(), &fBM)) {
             fBM.allocN32Pixels(1, 1);
             fBM.eraseARGB(255, 255, 0 , 0); // red == bad
