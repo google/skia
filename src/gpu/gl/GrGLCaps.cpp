@@ -3516,7 +3516,9 @@ static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGL
             }
             break;
         case GrColorType::kAlpha_F16:
-            if (GR_GL_R16F == format) {
+            if (GR_GL_LUMINANCE16F == format) {
+                return kAlpha_half_GrPixelConfig;
+            } else if (GR_GL_R16F == format) {
                 return kAlpha_half_as_Red_GrPixelConfig;
             }
             break;
