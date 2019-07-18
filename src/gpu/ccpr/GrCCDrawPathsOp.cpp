@@ -116,6 +116,8 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
     if (!clippedDrawBounds.intersect(conservativeDevBounds, SkRect::Make(maskDevIBounds))) {
         clippedDrawBounds.setEmpty();
     }
+    // We always have AA bloat, even in MSAA atlas mode. This is because by the time this Op comes
+    // along and draws to the main canvas, the atlas has been resolved to analytic coverage.
     this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
 }
 
@@ -236,8 +238,8 @@ void GrCCDrawPathsOp::SingleDraw::accountForOwnPath(
     SkASSERT(!fCacheEntry);
 
     if (pathCache) {
-        fCacheEntry =
-                pathCache->find(onFlushRP, fShape, fMaskDevIBounds, fMatrix, &fCachedMaskShift);
+        fCacheEntry = pathCache->find(
+                onFlushRP, fShape, fMaskDevIBounds, fMatrix, &fCachedMaskShift);
     }
 
     if (fCacheEntry) {
@@ -282,14 +284,14 @@ bool GrCCDrawPathsOp::SingleDraw::shouldCachePathMask(int maxRenderTargetSize) c
         return false;  // Don't cache a path mask until at least its second hit.
     }
 
-    int shapeMaxDimension = SkTMax(fShapeConservativeIBounds.height(),
-                                   fShapeConservativeIBounds.width());
+    int shapeMaxDimension = SkTMax(
+            fShapeConservativeIBounds.height(), fShapeConservativeIBounds.width());
     if (shapeMaxDimension > maxRenderTargetSize) {
         return false;  // This path isn't cachable.
     }
 
-    int64_t shapeArea = sk_64_mul(fShapeConservativeIBounds.height(),
-                                  fShapeConservativeIBounds.width());
+    int64_t shapeArea = sk_64_mul(
+            fShapeConservativeIBounds.height(), fShapeConservativeIBounds.width());
     if (shapeArea < 100*100) {
         // If a path is small enough, we might as well try to render and cache the entire thing, no
         // matter how much of it is actually visible.
@@ -329,23 +331,20 @@ void GrCCDrawPathsOp::setupResources(
 void GrCCDrawPathsOp::SingleDraw::setupResources(
         GrCCPathCache* pathCache, GrOnFlushResourceProvider* onFlushRP,
         GrCCPerFlushResources* resources, DoCopiesToA8Coverage doCopies, GrCCDrawPathsOp* op) {
-    using DoEvenOddFill = GrCCPathProcessor::DoEvenOddFill;
-
     SkPath path;
     fShape.asPath(&path);
 
-    auto doEvenOddFill = DoEvenOddFill(fShape.style().strokeRec().isFillStyle() &&
-                                       SkPath::kEvenOdd_FillType == path.getFillType());
-    SkASSERT(SkPath::kEvenOdd_FillType == path.getFillType() ||
-             SkPath::kWinding_FillType == path.getFillType());
+    auto fillRule = (fShape.style().strokeRec().isFillStyle())
+            ? GrFillRuleForSkPath(path)
+            : GrFillRule::kNonzero;
 
     if (fCacheEntry) {
         // Does the path already exist in a cached atlas texture?
         if (fCacheEntry->cachedAtlas()) {
             SkASSERT(fCacheEntry->cachedAtlas()->getOnFlushProxy());
             if (DoCopiesToA8Coverage::kYes == doCopies && fDoCopyToA8Coverage) {
-                resources->upgradeEntryToLiteralCoverageAtlas(pathCache, onFlushRP,
-                                                              fCacheEntry.get(), doEvenOddFill);
+                resources->upgradeEntryToLiteralCoverageAtlas(
+                        pathCache, onFlushRP, fCacheEntry.get(), fillRule);
                 SkASSERT(fCacheEntry->cachedAtlas());
                 SkASSERT(GrCCAtlas::CoverageType::kA8_LiteralCoverage
                                  == fCacheEntry->cachedAtlas()->coverageType());
@@ -362,7 +361,15 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
             op->recordInstance(coverageMode, fCacheEntry->cachedAtlas()->getOnFlushProxy(),
                                resources->nextPathInstanceIdx());
             resources->appendDrawPathInstance().set(
-                    *fCacheEntry, fCachedMaskShift, SkPMColor4f_toFP16(fColor), doEvenOddFill);
+                    *fCacheEntry, fCachedMaskShift, SkPMColor4f_toFP16(fColor), fillRule);
+#ifdef SK_DEBUG
+            if (fDoCachePathMask) {
+                // A path mask didn't exist for this path at the beginning of flush, but we have one
+                // now. What this means is that we've drawn the same path multiple times this flush.
+                // Let the resources know that we reused one for their internal debug counters.
+                resources->debugOnly_didReuseRenderedPath();
+            }
+#endif
             return;
         }
     }
@@ -377,10 +384,11 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     if (auto atlas = resources->renderShapeInAtlas(
                 fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
                 &devToAtlasOffset)) {
-        op->recordInstance(GrCCPathProcessor::CoverageMode::kCoverageCount, atlas->textureProxy(),
-                           resources->nextPathInstanceIdx());
+        auto coverageMode = GrCCPathProcessor::GetCoverageMode(
+                resources->renderedPathCoverageType());
+        op->recordInstance(coverageMode, atlas->textureProxy(), resources->nextPathInstanceIdx());
         resources->appendDrawPathInstance().set(
-                octoBounds, devToAtlasOffset, SkPMColor4f_toFP16(fColor), doEvenOddFill);
+                octoBounds, devToAtlasOffset, SkPMColor4f_toFP16(fColor), fillRule);
 
         if (fDoCachePathMask) {
             SkASSERT(fCacheEntry);

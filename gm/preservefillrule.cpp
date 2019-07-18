@@ -62,6 +62,11 @@ private:
                       SkString* errorMsg) override {
         using CoverageType = GrCCAtlas::CoverageType;
 
+        if (rtc->numSamples() > 1) {
+            errorMsg->set("ccpr is currently only used for coverage AA");
+            return DrawResult::kSkip;
+        }
+
         auto* ccpr = ctx->priv().drawingManager()->getCoverageCountingPathRenderer();
         if (!ccpr) {
             errorMsg->set("ccpr only");
@@ -117,7 +122,7 @@ private:
                     CoverageType atlasCoverageType = entry->cachedAtlas()->coverageType();
                     if (i < 2) {
                         // We never copy to an a8 atlas before the second hit.
-                        ERR_MSG_ASSERT(CoverageType::kFP16_CoverageCount == atlasCoverageType);
+                        ERR_MSG_ASSERT(ccpr->coverageType() == atlasCoverageType);
                     } else if (fLiteralCoverageAtlas) {
                         // Verify fStarSize is large enough that the paths got copied to an a8
                         // atlas.
@@ -125,7 +130,7 @@ private:
                     } else {
                         // Verify fStarSize is small enough that the paths did *NOT* get copied to
                         // an a8 atlas.
-                        ERR_MSG_ASSERT(CoverageType::kFP16_CoverageCount == atlasCoverageType);
+                        ERR_MSG_ASSERT(ccpr->coverageType() == atlasCoverageType);
                     }
                 }
                 ++numCachedPaths;

@@ -33,11 +33,6 @@ class GrOpFlushState;
  */
 class GrCCPathProcessor : public GrGeometryProcessor {
 public:
-    enum class DoEvenOddFill : bool {
-        kNo = false,
-        kYes = true
-    };
-
     struct Instance {
         SkRect fDevBounds;  // "right < left" indicates even-odd fill type.
         SkRect fDevBounds45;  // Bounding box in "| 1  -1 | * devCoords" space. See GrOctoBounds.
@@ -45,8 +40,8 @@ public:
         SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
         uint64_t fColor;  // Color always stored as 4 x fp16
 
-        void set(const GrOctoBounds&, const SkIVector& devToAtlasOffset, uint64_t, DoEvenOddFill);
-        void set(const GrCCPathCacheEntry&, const SkIVector& shift, uint64_t, DoEvenOddFill);
+        void set(const GrOctoBounds&, const SkIVector& devToAtlasOffset, uint64_t, GrFillRule);
+        void set(const GrCCPathCacheEntry&, const SkIVector& shift, uint64_t, GrFillRule);
     };
 
     GR_STATIC_ASSERT(4 * 12 == sizeof(Instance));
@@ -106,8 +101,8 @@ private:
 
 inline void GrCCPathProcessor::Instance::set(
         const GrOctoBounds& octoBounds, const SkIVector& devToAtlasOffset, uint64_t color,
-        DoEvenOddFill doEvenOddFill) {
-    if (DoEvenOddFill::kNo == doEvenOddFill) {
+        GrFillRule fillRule) {
+    if (GrFillRule::kNonzero == fillRule) {
         // We cover "nonzero" paths with clockwise triangles, which is the default result from
         // normal octo bounds.
         fDevBounds = octoBounds.bounds();
