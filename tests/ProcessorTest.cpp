@@ -659,6 +659,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 // Tests that fragment processors returned by GrFragmentProcessor::clone() are equivalent to their
 // progenitors.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
+    printf("START CLONE TEST\n");
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     auto resourceProvider = context->priv().resourceProvider();
@@ -684,10 +685,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                                       kPremul_SkAlphaType);
 
     // Because processor factories configure themselves in random ways, this is not exhaustive.
-    for (int i = 0; i < GrFragmentProcessorTestFactory::Count(); ++i) {
+    int i = 2; {
         static constexpr int kTimesToInvokeFactory = 10;
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
             auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
+            SkDebugf("processor: %s(%d), count: %d\n", fp->name(), i, j);
             auto clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
@@ -724,8 +726,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                     }
                 }
             }
+            SkDebugf("FINISHED: processor: %s, count: %d\n", fp->name(), j);
         }
     }
+    printf("FINISH CLONE TEST\n");
 }
 
 #endif  // GR_TEST_UTILS

@@ -94,6 +94,7 @@ public:
             return nullptr;
         }
         uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
+        SkDebugf("index: %d\n", idx);
         return MakeIdx(idx, data);
     }
 
