@@ -44,7 +44,7 @@ protected:
         return SkString("tileimagefilter");
     }
 
-    SkISize onISize() override{
+    SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 

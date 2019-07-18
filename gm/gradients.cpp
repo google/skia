@@ -187,20 +187,12 @@ constexpr GradMaker gGradMakers4f[] ={
 
 class GradientsGM : public GM {
 public:
-    GradientsGM(bool dither) : fDither(dither) {
-        this->setBGColor(0xFFDDDDDD);
-    }
+    GradientsGM(bool dither) : fDither(dither) {}
 
 protected:
+    const bool fDither;
 
-    SkString onShortName() {
-        return SkString(fDither ? "gradients" : "gradients_nodither");
-    }
-
-    virtual SkISize onISize() { return SkISize::Make(840, 815); }
-
-    virtual void onDraw(SkCanvas* canvas) {
-
+    void onDraw(SkCanvas* canvas) override {
         SkPoint pts[2] = {
             { 0, 0 },
             { SkIntToScalar(100), SkIntToScalar(100) }
@@ -231,11 +223,14 @@ protected:
         }
     }
 
-protected:
-    bool fDither;
-
 private:
-    typedef GM INHERITED;
+    void onOnceBeforeDraw() override { this->setBGColor(0xFFDDDDDD); }
+
+    SkString onShortName() override {
+        return SkString(fDither ? "gradients" : "gradients_nodither");
+    }
+
+    SkISize onISize() override { return {840, 815}; }
 };
 DEF_GM( return new GradientsGM(true); )
 DEF_GM( return new GradientsGM(false); )
@@ -243,20 +238,18 @@ DEF_GM( return new GradientsGM(false); )
 // Like the original gradients GM, but using the SkColor4f shader factories. Should be identical.
 class Gradients4fGM : public GM {
 public:
-    Gradients4fGM(bool dither) : fDither(dither) {
-        this->setBGColor(0xFFDDDDDD);
-    }
+    Gradients4fGM(bool dither) : fDither(dither) {}
 
-protected:
+private:
+    void onOnceBeforeDraw() override { this->setBGColor(0xFFDDDDDD); }
 
-    SkString onShortName() {
+    SkString onShortName() override {
         return SkString(fDither ? "gradients4f" : "gradients4f_nodither");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(840, 815); }
+    SkISize onISize() override { return {840, 815}; }
 
-    virtual void onDraw(SkCanvas* canvas) {
-
+    void onDraw(SkCanvas* canvas) override {
         SkPoint pts[2] ={
             { 0, 0 },
             { SkIntToScalar(100), SkIntToScalar(100) }
@@ -287,11 +280,7 @@ protected:
         }
     }
 
-protected:
     bool fDither;
-
-private:
-    typedef GM INHERITED;
 };
 DEF_GM(return new Gradients4fGM(true); )
 DEF_GM(return new Gradients4fGM(false); )
@@ -304,16 +293,16 @@ public:
         this->setBGColor(0xFFDDDDDD);
     }
 
-protected:
+private:
 
-    SkString onShortName() {
+    SkString onShortName() override {
         return SkString(fDither ? "gradients_local_perspective" :
                                   "gradients_local_perspective_nodither");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(840, 815); }
+    SkISize onISize() override { return {840, 815}; }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
 
         SkPoint pts[2] = {
             { 0, 0 },
@@ -344,10 +333,7 @@ protected:
         }
     }
 
-private:
     bool fDither;
-
-    typedef GM INHERITED;
 };
 DEF_GM( return new GradientsLocalPerspectiveGM(true); )
 DEF_GM( return new GradientsLocalPerspectiveGM(false); )
@@ -358,21 +344,21 @@ class GradientsViewPerspectiveGM : public GradientsGM {
 public:
     GradientsViewPerspectiveGM(bool dither) : INHERITED(dither) { }
 
-protected:
-    SkString onShortName() {
+private:
+    SkString onShortName() override {
         return SkString(fDither ? "gradients_view_perspective" :
                                   "gradients_view_perspective_nodither");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(840, 500); }
+    SkISize onISize() override { return {840, 500}; }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         SkMatrix perspective;
         perspective.setIdentity();
         perspective.setPerspY(0.001f);
         perspective.setSkewX(SkIntToScalar(8) / 25);
         canvas->concat(perspective);
-        INHERITED::onDraw(canvas);
+        this->INHERITED::onDraw(canvas);
     }
 
 private:
@@ -401,19 +387,15 @@ class GradientsDegenrate2PointGM : public GM {
 public:
     GradientsDegenrate2PointGM(bool dither) : fDither(dither) {}
 
-protected:
-    SkString onShortName() {
+private:
+    SkString onShortName() override {
         return SkString(fDither ? "gradients_degenerate_2pt" : "gradients_degenerate_2pt_nodither");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(320, 320); }
+    SkISize onISize() override { return {320, 320}; }
 
-    void drawBG(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorBLUE);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
 
         SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorGREEN, SK_ColorRED };
         SkScalar pos[] = { 0, 0.01f, 0.99f, SK_Scalar1 };
@@ -431,10 +413,7 @@ protected:
         canvas->drawPaint(paint);
     }
 
-private:
     bool fDither;
-
-    typedef GM INHERITED;
 };
 DEF_GM( return new GradientsDegenrate2PointGM(true); )
 DEF_GM( return new GradientsDegenrate2PointGM(false); )
@@ -481,19 +460,15 @@ class ClampedGradientsGM : public GM {
 public:
     ClampedGradientsGM(bool dither) : fDither(dither) {}
 
-protected:
-    SkString onShortName() {
+private:
+    SkString onShortName() override {
         return SkString(fDither ? "clamped_gradients" : "clamped_gradients_nodither");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(640, 510); }
+    SkISize onISize() override { return {640, 510}; }
 
-    void drawBG(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFDDDDDD);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
 
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(300) };
         SkPaint paint;
@@ -510,10 +485,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-private:
     bool fDither;
-
-    typedef GM INHERITED;
 };
 DEF_GM( return new ClampedGradientsGM(true); )
 DEF_GM( return new ClampedGradientsGM(false); )
@@ -525,17 +497,15 @@ class RadialGradientGM : public GM {
 public:
     RadialGradientGM() {}
 
-protected:
-
+private:
     SkString onShortName() override { return SkString("radial_gradient"); }
-    SkISize onISize() override { return SkISize::Make(1280, 1280); }
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFF000000);
-    }
+
+    SkISize onISize() override { return {1280, 1280}; }
+
     void onDraw(SkCanvas* canvas) override {
         const SkISize dim = this->getISize();
 
-        this->drawBG(canvas);
+        canvas->drawColor(0xFF000000);
 
         SkPaint paint;
         paint.setDither(true);
@@ -554,8 +524,6 @@ protected:
         };
         canvas->drawRect(r, paint);
     }
-private:
-    typedef GM INHERITED;
 };
 DEF_GM( return new RadialGradientGM; )
 
@@ -563,16 +531,12 @@ class RadialGradient2GM : public GM {
 public:
     RadialGradient2GM(bool dither) : fDither(dither) {}
 
-protected:
-
+private:
     SkString onShortName() override {
         return SkString(fDither ? "radial_gradient2" : "radial_gradient2_nodither");
     }
 
-    SkISize onISize() override { return SkISize::Make(800, 400); }
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFF000000);
-    }
+    SkISize onISize() override { return {800, 400}; }
 
     // Reproduces the example given in bug 7671058.
     void onDraw(SkCanvas* canvas) override {
@@ -631,12 +595,12 @@ class RadialGradient3GM : public GM {
 public:
     RadialGradient3GM(bool dither) : fDither(dither) { }
 
-protected:
+private:
     SkString onShortName() override {
         return SkString(fDither ? "radial_gradient3" : "radial_gradient3_nodither");
     }
 
-    SkISize onISize() override { return SkISize::Make(500, 500); }
+    SkISize onISize() override { return {500, 500}; }
 
     bool runAsBench() const override { return true; }
 
@@ -668,12 +632,12 @@ class RadialGradient4GM : public GM {
 public:
     RadialGradient4GM(bool dither) : fDither(dither) { }
 
-protected:
+private:
     SkString onShortName() override {
         return SkString(fDither ? "radial_gradient4" : "radial_gradient4_nodither");
     }
 
-    SkISize onISize() override { return SkISize::Make(500, 500); }
+    SkISize onISize() override { return {500, 500}; }
 
     void onOnceBeforeDraw() override {
         const SkPoint center = { 250, 250 };
@@ -706,7 +670,7 @@ class LinearGradientGM : public GM {
 public:
     LinearGradientGM(bool dither) : fDither(dither) { }
 
-protected:
+private:
     SkString onShortName() override {
         return SkString(fDither ? "linear_gradient" : "linear_gradient_nodither");
     }
@@ -715,7 +679,7 @@ protected:
     const SkScalar kHeight = 5.f;
     const SkScalar kMinWidth = 540.f;
 
-    SkISize onISize() override { return SkISize::Make(500, 500); }
+    SkISize onISize() override { return {500, 500}; }
 
     void onOnceBeforeDraw() override {
         SkPoint pts[2] = { {0, 0}, {0, 0} };
@@ -756,20 +720,12 @@ DEF_GM( return new LinearGradientGM(false); )
 
 class LinearGradientTinyGM : public GM {
 public:
-    LinearGradientTinyGM(uint32_t flags, const char* suffix = nullptr)
-    : fName("linear_gradient_tiny")
-    , fFlags(flags) {
-        fName.append(suffix);
-    }
+    LinearGradientTinyGM(uint32_t flags, const char* name = nullptr) : fName(name), fFlags(flags) {}
 
-protected:
-    SkString onShortName() override {
-        return fName;
-    }
+private:
+    SkString onShortName() override { return SkString(fName); }
 
-    SkISize onISize() override {
-        return SkISize::Make(600, 500);
-    }
+    SkISize onISize() override { return {600, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         const SkScalar kRectSize = 100;
@@ -808,13 +764,10 @@ protected:
         }
     }
 
-private:
-    typedef GM INHERITED;
-
-    SkString fName;
+    const char* fName;
     uint32_t fFlags;
 };
-DEF_GM( return new LinearGradientTinyGM(0); )
+DEF_GM( return new LinearGradientTinyGM(0, "linear_gradient_tiny"); )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
