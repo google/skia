@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "149b99ef_7df3fe61",
+        "filename": "gm/blurrect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T21:09:42Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 102,
+        "startChar": 60,
+        "endLine": 102,
+        "endChar": 61
+      },
+      "revId": "799c455f2af6ab87c6b1b196706f1f4e05342c3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2374cf5_e1b80377",
+        "filename": "gm/blurroundrect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T21:09:42Z",
+      "side": 1,
+      "message": "If the name is known out here, that would be a parameter to DEF_GM, not the constructor. (Possibly overriding the name provided by the class itself?) I prefer the GM class itself knowing its own name.",
+      "range": {
+        "startLine": 161,
+        "startChar": 42,
+        "endLine": 161,
+        "endChar": 84
+      },
+      "revId": "799c455f2af6ab87c6b1b196706f1f4e05342c3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03084cc2_33ab0a5b",
+        "filename": "gm/filterindiabox.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T21:09:42Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 69,
+        "startChar": 8,
+        "endLine": 69,
+        "endChar": 11
+      },
+      "revId": "799c455f2af6ab87c6b1b196706f1f4e05342c3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71f01184_8ee755ef",
+        "filename": "gm/fontmgr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-18T21:09:42Z",
+      "side": 1,
+      "message": "These a particularly icky to have out here.",
+      "range": {
+        "startLine": 359,
+        "startChar": 63,
+        "endLine": 359,
+        "endChar": 71
+      },
+      "revId": "799c455f2af6ab87c6b1b196706f1f4e05342c3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
