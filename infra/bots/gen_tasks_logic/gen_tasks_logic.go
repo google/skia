@@ -997,8 +997,26 @@ func attempts(name string) int {
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func (b *builder) compile(name string, parts map[string]string) string {
-	task := b.kitchenTask(name, "compile", "swarm_recipe.isolate", b.cfg.ServiceAccountCompile, b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_BUILD)
-	b.usesGit(task, name)
+	recipe := "compile"
+	isolate := "compile.isolate"
+	var props map[string]string
+	needSync := false
+	if strings.Contains(name, "NoDEPS") ||
+		strings.Contains(name, "CMake") ||
+		strings.Contains(name, "CommandBuffer") ||
+		strings.Contains(name, "Flutter") ||
+		strings.Contains(name, "ParentRevision") {
+		recipe = "sync_and_compile"
+		isolate = "swarm_recipe.isolate"
+		props = EXTRA_PROPS
+		needSync = true
+	}
+	task := b.kitchenTask(name, recipe, isolate, b.cfg.ServiceAccountCompile, b.swarmDimensions(parts), props, OUTPUT_BUILD)
+	if needSync {
+		b.usesGit(task, name)
+	} else {
+		task.Idempotent = true
+	}
 	usesDocker(task, name)
 
 	// Android bots require a toolchain.
