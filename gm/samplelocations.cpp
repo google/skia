@@ -79,7 +79,12 @@ public:
             , fOrigin(origin) {}
 
 private:
-    SkString onShortName() override;
+    SkString onShortName() override {
+        return SkStringPrintf("samplelocations%s%s",
+                              (GradType::kHW == fGradType) ? "_hwgrad" : "_swgrad",
+                              (kTopLeft_GrSurfaceOrigin == fOrigin) ? "_topleft" : "_botleft");
+    }
+
     SkISize onISize() override { return SkISize::Make(200, 200); }
     DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*, SkString* errorMsg) override;
 
@@ -244,13 +249,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
-
-SkString SampleLocationsGM::onShortName() {
-    SkString name("samplelocations");
-    name.append((GradType::kHW == fGradType) ? "_hwgrad" : "_swgrad");
-    name.append((kTopLeft_GrSurfaceOrigin == fOrigin) ? "_topleft" : "_botleft");
-    return name;
-}
 
 DrawResult SampleLocationsGM::onDraw(
         GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas, SkString* errorMsg) {

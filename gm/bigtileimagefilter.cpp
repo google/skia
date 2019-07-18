@@ -52,7 +52,7 @@ protected:
         return SkString("bigtileimagefilter");
     }
 
-    SkISize onISize() override{
+    SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);
     }
 

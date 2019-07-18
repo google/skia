@@ -61,18 +61,11 @@ static void show_zero_len_dash(SkCanvas* canvas) {
 }
 
 class DashingGM : public skiagm::GM {
-public:
-    DashingGM() {}
+    SkString onShortName() override { return SkString("dashing"); }
 
-protected:
+    SkISize onISize() override { return {640, 340}; }
 
-    SkString onShortName() {
-        return SkString("dashing");
-    }
-
-    SkISize onISize() { return SkISize::Make(640, 340); }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         constexpr struct {
             int fOnInterval;
             int fOffInterval;
@@ -148,18 +141,11 @@ static void make_path_star(SkPath* path, const SkRect& bounds) {
 }
 
 class Dashing2GM : public skiagm::GM {
-public:
-    Dashing2GM() {}
+    SkString onShortName() override { return SkString("dashing2"); }
 
-protected:
+    SkISize onISize() override { return {640, 480}; }
 
-    SkString onShortName() {
-        return SkString("dashing2");
-    }
-
-    SkISize onISize() { return SkISize::Make(640, 480); }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         constexpr int gIntervals[] = {
             3,  // 3 dashes: each count [0] followed by intervals [1..count]
             2,  10, 10,
@@ -207,16 +193,9 @@ protected:
 
 // Test out the on/off line dashing Chrome if fond of
 class Dashing3GM : public skiagm::GM {
-public:
-    Dashing3GM() {}
+    SkString onShortName() override { return SkString("dashing3"); }
 
-protected:
-
-    SkString onShortName() {
-        return SkString("dashing3");
-    }
-
-    SkISize onISize() { return SkISize::Make(640, 480); }
+    SkISize onISize() override { return {640, 480}; }
 
     // Draw a 100x100 block of dashed lines. The horizontal ones are BW
     // while the vertical ones are AA.
@@ -258,7 +237,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         // 1on/1off 1x1 squares with phase of 0 - points fastpath
         canvas->save();
             canvas->translate(2, 0);
@@ -337,18 +316,11 @@ protected:
 //////////////////////////////////////////////////////////////////////////////
 
 class Dashing4GM : public skiagm::GM {
-public:
-    Dashing4GM() {}
+    SkString onShortName() override { return SkString("dashing4"); }
 
-protected:
+    SkISize onISize() override { return {640, 1100}; }
 
-    SkString onShortName() {
-        return SkString("dashing4");
-    }
-
-    SkISize onISize() { return SkISize::Make(640, 1100); }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         constexpr struct {
             int fOnInterval;
             int fOffInterval;
@@ -442,19 +414,12 @@ class Dashing5GM : public skiagm::GM {
 public:
     Dashing5GM(bool doAA) : fDoAA(doAA) {}
 
-protected:
-
+private:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override {
-        if (fDoAA) {
-            return SkString("dashing5_aa");
-        } else {
-            return SkString("dashing5_bw");
-        }
-    }
+    SkString onShortName() override { return SkString(fDoAA ?  "dashing5_aa" : "dashing5_bw"); }
 
-    SkISize onISize() override { return SkISize::Make(400, 200); }
+    SkISize onISize() override { return {400, 200}; }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr int kOn = 4;

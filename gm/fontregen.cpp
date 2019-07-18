@@ -47,25 +47,19 @@ static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
 }
 
 class FontRegenGM : public skiagm::GpuGM {
-public:
-    FontRegenGM() {
-        this->setBGColor(SK_ColorLTGRAY);
-    }
 
     void modifyGrContextOptions(GrContextOptions* options) override {
         options->fGlyphCacheTextureMaximumBytes = 0;
         options->fAllowMultipleGlyphCacheTextures = GrContextOptions::Enable::kNo;
     }
 
-protected:
-    SkString onShortName() override {
-        SkString name("fontregen");
-        return name;
-    }
+    SkString onShortName() override { return SkString("fontregen"); }
 
-    SkISize onISize() override { return SkISize::Make(kSize, kSize); }
+    SkISize onISize() override { return {kSize, kSize}; }
 
     void onOnceBeforeDraw() override {
+        this->setBGColor(SK_ColorLTGRAY);
+
         auto tf = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Normal());
 
         static const SkString kTexts[] = {
@@ -106,13 +100,11 @@ protected:
     }
 
 private:
-    static constexpr SkScalar kSize = 512;
+    static constexpr int kSize = 512;
 
     sk_sp<SkTextBlob> fBlobs[3];
     typedef GM INHERITED;
 };
-
-constexpr SkScalar FontRegenGM::kSize;
 
 //////////////////////////////////////////////////////////////////////////////
 
