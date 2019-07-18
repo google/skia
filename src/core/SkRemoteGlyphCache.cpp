@@ -151,6 +151,8 @@ public:
       return this->ensureAtLeast(size, alignment);
     }
 
+    size_t bytesRead() const { return fBytesRead; }
+
 private:
     const volatile char* ensureAtLeast(size_t size, size_t alignment) {
         size_t padded = pad(fBytesRead, alignment);
@@ -622,10 +624,14 @@ SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManage
 
 SkStrikeClient::~SkStrikeClient() = default;
 
-#define READ_FAILURE                                                \
-    {                                                               \
-        SkDebugf("Bad font data serialization line: %d", __LINE__); \
-        return false;                                               \
+#define READ_FAILURE                                                     \
+    {                                                                    \
+        SkDebugf("Bad font data serialization line: %d", __LINE__);      \
+        DiscardableHandleManager::ReadFailureData data = {               \
+                memorySize,  deserializer.bytesRead(), typefaceSize,     \
+                strikeCount, glyphImagesCount,         glyphPathsCount}; \
+        fDiscardableHandleManager->notifyReadFailure(data);              \
+        return false;                                                    \
     }
 
 // No need to read fForceBW because it is a flag private to SkScalerContext_DW, which will never
@@ -651,6 +657,10 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
     Deserializer deserializer(static_cast<const volatile char*>(memory), memorySize);
 
     uint64_t typefaceSize = 0u;
+    uint64_t strikeCount = 0u;
+    uint64_t glyphImagesCount = 0u;
+    uint64_t glyphPathsCount = 0u;
+
     if (!deserializer.read<uint64_t>(&typefaceSize)) READ_FAILURE
 
     for (size_t i = 0; i < typefaceSize; ++i) {
@@ -663,7 +673,6 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         addTypeface(wire);
     }
 
-    uint64_t strikeCount = 0u;
     if (!deserializer.read<uint64_t>(&strikeCount)) READ_FAILURE
 
     for (size_t i = 0; i < strikeCount; ++i) {
@@ -708,7 +717,6 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             proxyContext->initCache(strike.get(), fStrikeCache);
         }
 
-        uint64_t glyphImagesCount = 0u;
         if (!deserializer.read<uint64_t>(&glyphImagesCount)) READ_FAILURE
         for (size_t j = 0; j < glyphImagesCount; j++) {
             SkTLazy<SkGlyph> glyph;
@@ -724,7 +732,6 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             strike->mergeGlyphAndImage(glyph->getPackedID(), *glyph);
         }
 
-        uint64_t glyphPathsCount = 0u;
         if (!deserializer.read<uint64_t>(&glyphPathsCount)) READ_FAILURE
         for (size_t j = 0; j < glyphPathsCount; j++) {
             SkTLazy<SkGlyph> glyph;
