@@ -192,28 +192,6 @@ def _CheckGNFormatted(input_api, output_api):
   return results
 
 
-def _CheckCompileIsolate(input_api, output_api):
-  """Ensure that gen_compile_isolate.py does not change compile.isolate."""
-  # Only run the check if files were added or removed.
-  results = []
-  script = os.path.join('infra', 'bots', 'gen_compile_isolate.py')
-  isolate = os.path.join('infra', 'bots', 'compile.isolated')
-  for f in input_api.AffectedFiles():
-    if f.Action() in ('A', 'D', 'R'):
-      break
-    if f.LocalPath() in (script, isolate):
-      break
-  else:
-    return results
-
-  cmd = ['python', script, 'test']
-  try:
-    subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-  except subprocess.CalledProcessError as e:
-    results.append(output_api.PresubmitError(e.output))
-  return results
-
-
 class _WarningsAsErrors():
   def __init__(self, output_api):
     self.output_api = output_api
@@ -250,7 +228,6 @@ def _CommonChecks(input_api, output_api):
   results.extend(_CopyrightChecks(input_api, output_api,
                                   source_file_filter=sources))
   results.extend(_ToolFlags(input_api, output_api))
-  results.extend(_CheckCompileIsolate(input_api, output_api))
   return results
 
 

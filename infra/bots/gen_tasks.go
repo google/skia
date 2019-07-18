@@ -12,7 +12,6 @@ import (
 	"go.skia.org/skia/infra/bots/gen_tasks_logic"
 )
 
-// Regenerate the tasks.json file.
 func main() {
 	gen_tasks_logic.GenTasks(nil)
 }
