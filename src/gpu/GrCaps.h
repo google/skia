@@ -245,7 +245,6 @@ public:
      * the returned color type for kUnknown.
      */
     virtual SupportedRead supportedReadPixelsColorType(GrColorType srcColorType,
-                                                       GrPixelConfig srcConfig,
                                                        const GrBackendFormat& srcFormat,
                                                        GrColorType dstColorType) const;
 
