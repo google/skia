@@ -53,9 +53,10 @@ protected:
                     fPixels.data() + 3 * fCount,
                 };
 
-                fByteCode->runStriped(fMain, args, 4, fCount, nullptr, 0, nullptr, 0);
+                SkAssertResult(fByteCode->runStriped(fMain, args, 4, fCount,
+                                                     nullptr, 0, nullptr, 0));
             } else {
-                fByteCode->run(fMain, fPixels.data(), nullptr, fCount, nullptr, 0);
+                SkAssertResult(fByteCode->run(fMain, fPixels.data(), nullptr, fCount, nullptr, 0));
             }
         }
     }
@@ -186,7 +187,7 @@ protected:
         }
 
         // Trigger one run now to check correctness
-        fByteCode->run(fMain, fSrc.data(), fDst.data(), fGroups, nullptr, 0);
+        SkAssertResult(fByteCode->run(fMain, fSrc.data(), fDst.data(), fGroups, nullptr, 0));
         for (int i = 0; i < fGroups; ++i) {
             for (int j = 1; j < fValues; ++j) {
                 SkASSERT(fDst[i * fValues + j] >= fDst[i * fValues + j - 1]);
@@ -196,7 +197,7 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            fByteCode->run(fMain, fSrc.data(), fDst.data(), fGroups, nullptr, 0);
+            SkAssertResult(fByteCode->run(fMain, fSrc.data(), fDst.data(), fGroups, nullptr, 0));
         }
     }
 

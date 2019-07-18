@@ -32,6 +32,8 @@ enum class ByteCodeInstruction : uint16_t {
     // Followed by three bytes indicating: the number of argument slots, the number of return slots,
     // and the index of the external value to call
     kCallExternal,
+    // For dynamic array access: Followed by byte indicating length of array
+    kClampIndex,
     VECTOR(kCompareIEQ),
     VECTOR(kCompareINEQ),
     VECTOR_MATRIX(kCompareFEQ),
@@ -197,15 +199,13 @@ struct SK_API ByteCode {
      * The return value is stored in 'outReturn' (may be null, to discard the return value).
      * 'uniforms' are mapped to 'uniform' globals, in order.
      */
-    void run(const ByteCodeFunction*, float* args, float* outReturn, int N,
-             const float* uniforms, int uniformCount) const;
+    bool SKSL_WARN_UNUSED_RESULT run(const ByteCodeFunction*, float* args, float* outReturn, int N,
+                                     const float* uniforms, int uniformCount) const;
 
-    // For now, if outArgCount > 0, then we will memcpy VecWidth number of elements into
-    // each slot in outArgs. This may change in the future, as that may be more than is actually
-    // valid (depending on the N that was passed in.
-    void runStriped(const ByteCodeFunction*, float* args[], int nargs, int N,
-                    const float* uniforms, int uniformCount,
-                    float* outArgs[], int outArgCount) const;
+    bool SKSL_WARN_UNUSED_RESULT runStriped(const ByteCodeFunction*,
+                                            float* args[], int nargs, int N,
+                                            const float* uniforms, int uniformCount,
+                                            float* outArgs[], int outArgCount) const;
 };
 
 }
