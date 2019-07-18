@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b26aaee5_4cf05345",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-18T18:12:47Z",
+      "side": 1,
+      "message": "update?",
+      "range": {
+        "startLine": 240,
+        "startChar": 6,
+        "endLine": 243,
+        "endChar": 82
+      },
+      "revId": "9fab261e2fb9e952b4e5912a291ff6a4d2c1cb4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92bb2da6_9a799840",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-18T18:12:47Z",
+      "side": 1,
+      "message": "If you have a default, you don\u0027t need. Also if you have SkUNREACHABLE you don\u0027t need a return (it\u0027s kinda the point of it).",
+      "range": {
+        "startLine": 959,
+        "startChar": 1,
+        "endLine": 960,
+        "endChar": 48
+      },
+      "revId": "9fab261e2fb9e952b4e5912a291ff6a4d2c1cb4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8abce55f_19de7ed3",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1297,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-18T18:12:47Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1296,
+        "startChar": 0,
+        "endLine": 1297,
+        "endChar": 48
+      },
+      "revId": "9fab261e2fb9e952b4e5912a291ff6a4d2c1cb4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "695ac92f_4907f90f",
+        "filename": "tests/GrTestingBackendTextureUploadTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-18T18:12:47Z",
+      "side": 1,
+      "message": "need this check? also \u003crvalue\u003e \u003d\u003d \u003clvalue\u003e is no longer preferred since we get a warning if you accidentally write \u003clvalue\u003e \u003d \u003crvalue\u003e.",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 37
+      },
+      "revId": "9fab261e2fb9e952b4e5912a291ff6a4d2c1cb4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
