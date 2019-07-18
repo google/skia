@@ -1525,7 +1525,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             // kAlpha_8
             {
                 uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-                info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags);
+                info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags, GrSwizzle("000r"));
                 this->setColorTypeFormat(GrColorType::kAlpha_8, GrGLFormat::kR8);
             }
 
@@ -1576,7 +1576,8 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             {
                 uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
-                    info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags);
+                    info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags,
+                                                      GrSwizzle("000r"));
                     int idx = static_cast<int>(GrColorType::kAlpha_8);
                     if (fColorTypeToFormatTable[idx] == GrGLFormat::kUnknown) {
                         this->setColorTypeFormat(GrColorType::kAlpha_8, GrGLFormat::kALPHA8);
@@ -1831,7 +1832,8 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             // kAlpha_F16
             {
                 uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-                info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_F16, flags);
+                info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_F16, flags,
+                                                  GrSwizzle("000r"));
                 this->setColorTypeFormat(GrColorType::kAlpha_F16, GrGLFormat::kR16F);
             }
         }
@@ -2430,12 +2432,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     ConfigInfo& alphaInfo = fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig];
     alphaInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     alphaInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_ALPHA;
-    alphaInfo.fRGBAReadSwizzle = GrSwizzle("000a");
 
     ConfigInfo& redInfo = fConfigTable[kAlpha_8_as_Red_GrPixelConfig];
     redInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     redInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    redInfo.fRGBAReadSwizzle = GrSwizzle("000r");
 
     if (textureRedSupport) {
         fConfigTable[kAlpha_8_GrPixelConfig] = redInfo;
@@ -2471,7 +2471,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     ConfigInfo& redHalf = fConfigTable[kAlpha_half_as_Red_GrPixelConfig];
     redHalf.fFormats.fExternalType = redHalfExternalType;
     redHalf.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
-    redHalf.fRGBAReadSwizzle = GrSwizzle("000r");
     fConfigTable[kAlpha_half_GrPixelConfig] = redHalf;
 
     fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
@@ -3278,8 +3277,8 @@ GrCaps::SurfaceReadPixelsSupport GrGLCaps::surfaceSupportsReadPixels(
 }
 
 GrCaps::SupportedRead GrGLCaps::supportedReadPixelsColorType(
-        GrColorType srcColorType, GrPixelConfig srcPixelConfig,
-        const GrBackendFormat& srcBackendFormat, GrColorType dstColorType) const {
+        GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
+        GrColorType dstColorType) const {
     // For now, we mostly report the read back format that is required by the ES spec without
     // checking for implementation allowed formats or consider laxer rules in non-ES GL. TODO: Relax
     // this as makes sense to increase performance and correctness.
@@ -3289,7 +3288,7 @@ GrCaps::SupportedRead GrGLCaps::supportedReadPixelsColorType(
     }
     GrGLFormat srcFormat = GrGLBackendFormatToGLFormat(srcBackendFormat);
 
-    auto swizzle = fConfigTable[srcPixelConfig].fRGBAReadSwizzle;
+    auto swizzle = this->getFormatInfo(srcFormat).rgbaReadSwizzle(srcColorType);
     switch (this->getFormatInfo(srcFormat).fFormatType) {
         case FormatType::kUnknown:
             return {GrSwizzle{}, GrColorType::kUnknown};

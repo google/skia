@@ -1743,16 +1743,12 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
     auto dstCT = SkColorTypeToGrColorType(info.colorType());
     bool needsRescale = srcRect.width() != info.width() || srcRect.height() != info.height();
     auto colorTypeOfFinalContext = this->colorSpaceInfo().colorType();
-    GrPixelConfig configOfFinalContext = fRenderTargetProxy->config();
     auto backendFormatOfFinalContext = fRenderTargetProxy->backendFormat();
     if (needsRescale) {
         colorTypeOfFinalContext = dstCT;
         backendFormatOfFinalContext = this->caps()->getBackendFormatFromColorType(dstCT);
-        configOfFinalContext = this->caps()->getConfigFromBackendFormat(backendFormatOfFinalContext,
-                                                                        dstCT);
     }
     auto readInfo = this->caps()->supportedReadPixelsColorType(colorTypeOfFinalContext,
-                                                               configOfFinalContext,
                                                                backendFormatOfFinalContext, dstCT);
     // Fail if we can't read from the source surface's color type.
     if (readInfo.fColorType == GrColorType::kUnknown) {
@@ -1841,8 +1837,7 @@ GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels
         return {};
     }
     auto supportedRead = this->caps()->supportedReadPixelsColorType(
-            this->colorSpaceInfo().colorType(), fRenderTargetProxy->config(),
-            fRenderTargetProxy->backendFormat(), dstCT);
+            this->colorSpaceInfo().colorType(), fRenderTargetProxy->backendFormat(), dstCT);
     // Fail if read color type does not have all of dstCT's color channels and those missing color
     // channels are in the src.
     uint32_t dstComponents = GrColorTypeComponentFlags(dstCT);
