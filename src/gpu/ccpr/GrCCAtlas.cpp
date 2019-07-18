@@ -91,11 +91,12 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
                         desc.fConfig = pixelConfig;
                         fBackingTexture = resourceProvider->createTexture(
                                 desc, GrRenderable::kYes, SkBudgeted::kYes,
-                                GrResourceProvider::Flags::kNoPendingIO);
+                                GrProtected::kNo, GrResourceProvider::Flags::kNoPendingIO);
                     }
                     return GrSurfaceProxy::LazyInstantiationResult(fBackingTexture);
             },
-            format, GrProxyProvider::Renderable::kYes, kTextureOrigin, pixelConfig, caps);
+            format, GrProxyProvider::Renderable::kYes, GrProtected::kNo, kTextureOrigin,
+            pixelConfig, caps);
 
     fTextureProxy->priv().setIgnoredByResourceAllocator();
 }

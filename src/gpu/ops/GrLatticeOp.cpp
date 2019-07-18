@@ -409,7 +409,8 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
     auto proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, GrRenderable::kNo, origin, SkBackingFit::kExact, SkBudgeted::kYes);
+            format, desc, GrRenderable::kNo, origin, SkBackingFit::kExact, SkBudgeted::kYes,
+            GrProtected::kNo);
 
     do {
         if (random->nextBool()) {

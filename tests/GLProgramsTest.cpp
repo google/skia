@@ -275,7 +275,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
             context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
         proxies[0] = proxyProvider->createProxy(
                 format, dummyDesc, GrRenderable::kYes, kBottomLeft_GrSurfaceOrigin, mipMapped,
-                SkBackingFit::kExact, SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
+                SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
     }
     {
         GrSurfaceDesc dummyDesc;
@@ -286,7 +286,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
             context->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_8);
         proxies[1] = proxyProvider->createProxy(
                 format, dummyDesc, GrRenderable::kNo, kTopLeft_GrSurfaceOrigin, mipMapped,
-                SkBackingFit::kExact, SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
+                SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
     }
 
     if (!proxies[0] || !proxies[1]) {

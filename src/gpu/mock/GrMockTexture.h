@@ -17,15 +17,15 @@
 
 class GrMockTexture : public GrTexture {
 public:
-    GrMockTexture(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
+    GrMockTexture(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc, GrProtected isProtected,
                   GrMipMapsStatus mipMapsStatus, const GrMockTextureInfo& info)
-            : GrMockTexture(gpu, desc, mipMapsStatus, info) {
+            : GrMockTexture(gpu, desc, isProtected, mipMapsStatus, info) {
         this->registerWithCache(budgeted);
     }
 
-    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrMipMapsStatus mipMapsStatus,
+    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrProtected isProtected, GrMipMapsStatus mipMapsStatus,
                   const GrMockTextureInfo& info, GrWrapCacheable cacheable, GrIOType ioType)
-            : GrMockTexture(gpu, desc, mipMapsStatus, info) {
+            : GrMockTexture(gpu, desc, isProtected, mipMapsStatus, info) {
         if (ioType == kRead_GrIOType) {
             this->setReadOnly();
         }
@@ -47,10 +47,10 @@ public:
 
 protected:
     // constructor for subclasses
-    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrMipMapsStatus mipMapsStatus,
+    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrProtected isProtected, GrMipMapsStatus mipMapsStatus,
                   const GrMockTextureInfo& info)
-            : GrSurface(gpu, desc)
-            , INHERITED(gpu, desc, GrTextureType::k2D, mipMapsStatus)
+            : GrSurface(gpu, desc, isProtected)
+            , INHERITED(gpu, desc, isProtected, GrTextureType::k2D, mipMapsStatus)
             , fInfo(info) {}
 
     void onRelease() override {
@@ -74,15 +74,15 @@ private:
 class GrMockRenderTarget : public GrRenderTarget {
 public:
     GrMockRenderTarget(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
-                       const GrMockRenderTargetInfo& info)
-            : GrSurface(gpu, desc), INHERITED(gpu, desc), fInfo(info) {
+                       GrProtected isProtected, const GrMockRenderTargetInfo& info)
+            : GrSurface(gpu, desc, isProtected), INHERITED(gpu, desc, isProtected), fInfo(info) {
         this->registerWithCache(budgeted);
     }
 
     enum Wrapped { kWrapped };
-    GrMockRenderTarget(GrMockGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
+    GrMockRenderTarget(GrMockGpu* gpu, Wrapped, const GrSurfaceDesc& desc, GrProtected isProtected,
                        const GrMockRenderTargetInfo& info)
-            : GrSurface(gpu, desc), INHERITED(gpu, desc), fInfo(info) {
+            : GrSurface(gpu, desc, isProtected), INHERITED(gpu, desc, isProtected), fInfo(info) {
         this->registerWithCacheWrapped(GrWrapCacheable::kNo);
     }
 
@@ -114,9 +114,9 @@ public:
 
 protected:
     // constructor for subclasses
-    GrMockRenderTarget(GrMockGpu* gpu, const GrSurfaceDesc& desc,
+    GrMockRenderTarget(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrProtected isProtected,
                        const GrMockRenderTargetInfo& info)
-            : GrSurface(gpu, desc), INHERITED(gpu, desc), fInfo(info) {}
+            : GrSurface(gpu, desc, isProtected), INHERITED(gpu, desc, isProtected), fInfo(info) {}
 
 private:
     GrMockRenderTargetInfo fInfo;
@@ -127,22 +127,22 @@ private:
 class GrMockTextureRenderTarget : public GrMockTexture, public GrMockRenderTarget {
 public:
     // Internally created.
-    GrMockTextureRenderTarget(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
+    GrMockTextureRenderTarget(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc, GrProtected isProtected,
                               GrMipMapsStatus mipMapsStatus, const GrMockTextureInfo& texInfo,
                               const GrMockRenderTargetInfo& rtInfo)
-            : GrSurface(gpu, desc)
-            , GrMockTexture(gpu, desc, mipMapsStatus, texInfo)
-            , GrMockRenderTarget(gpu, desc, rtInfo) {
+            : GrSurface(gpu, desc, isProtected)
+            , GrMockTexture(gpu, desc, isProtected, mipMapsStatus, texInfo)
+            , GrMockRenderTarget(gpu, desc, isProtected, rtInfo) {
         this->registerWithCache(budgeted);
     }
 
     // Renderable wrapped backend texture.
-    GrMockTextureRenderTarget(GrMockGpu* gpu, const GrSurfaceDesc& desc,
+    GrMockTextureRenderTarget(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrProtected isProtected,
                               GrMipMapsStatus mipMapsStatus, const GrMockTextureInfo& texInfo,
                               const GrMockRenderTargetInfo& rtInfo, GrWrapCacheable cacheble)
-            : GrSurface(gpu, desc)
-            , GrMockTexture(gpu, desc, mipMapsStatus, texInfo)
-            , GrMockRenderTarget(gpu, desc, rtInfo) {
+            : GrSurface(gpu, desc, isProtected)
+            , GrMockTexture(gpu, desc, isProtected, mipMapsStatus, texInfo)
+            , GrMockRenderTarget(gpu, desc, isProtected, rtInfo) {
         this->registerWithCacheWrapped(cacheble);
     }
 

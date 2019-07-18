@@ -100,7 +100,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     auto resourceProvider = context->priv().resourceProvider();
 
     *backingSurface =
-            resourceProvider->createTexture(backingDesc, GrRenderable::kYes, SkBudgeted::kNo,
+            resourceProvider->createTexture(backingDesc, GrRenderable::kYes, SkBudgeted::kNo, GrProtected::kNo,
                                             GrResourceProvider::Flags::kNoPendingIO);
     if (!(*backingSurface)) {
         return nullptr;

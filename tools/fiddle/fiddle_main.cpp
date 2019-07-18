@@ -164,7 +164,7 @@ static bool setup_backend_objects(GrContext* context,
         }
 
         backingTexture = resourceProvider->createTexture(
-                backingDesc, GrRenderable::kNo, SkBudgeted::kNo, texels.get(), mipLevelCount);
+                backingDesc, GrRenderable::kNo, SkBudgeted::kNo, GrProtected::kNo, texels.get(), mipLevelCount);
         if (!backingTexture) {
             return false;
         }
@@ -190,7 +190,7 @@ static bool setup_backend_objects(GrContext* context,
         GrMipLevel level0 = { data.get(), backingDesc.fWidth*sizeof(uint32_t) };
 
         sk_sp<GrTexture> tmp = resourceProvider->createTexture(backingDesc, GrRenderable::kYes,
-                                                               SkBudgeted::kNo, &level0, 1);
+                                                               SkBudgeted::kNo, GrProtected::kNo, &level0, 1);
         if (!tmp || !tmp->asRenderTarget()) {
             return false;
         }
@@ -218,7 +218,7 @@ static bool setup_backend_objects(GrContext* context,
         }
 
         backingTextureRenderTarget = resourceProvider->createTexture(
-                backingDesc, GrRenderable::kYes, SkBudgeted::kNo, texels.get(), mipLevelCount);
+                backingDesc, GrRenderable::kYes, SkBudgeted::kNo, GrProtected::kNo, texels.get(), mipLevelCount);
         if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
             return false;
         }

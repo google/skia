@@ -77,7 +77,7 @@ protected:
     // Deferred version
     GrRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&,
                         GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
-                        const GrSwizzle& outputSwizzle, SkBackingFit, SkBudgeted,
+                        const GrSwizzle& outputSwizzle, SkBackingFit, SkBudgeted, GrProtected,
                         GrInternalSurfaceFlags);
 
     enum class WrapsVkSecondaryCB : bool { kNo = false, kYes = true };
@@ -95,7 +95,7 @@ protected:
     GrRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType lazyType,
                         const GrBackendFormat&, const GrSurfaceDesc&, GrSurfaceOrigin,
                         const GrSwizzle& textureSwizzle, const GrSwizzle& outputSwizzle,
-                        SkBackingFit, SkBudgeted, GrInternalSurfaceFlags,
+                        SkBackingFit, SkBudgeted, GrProtected, GrInternalSurfaceFlags,
                         WrapsVkSecondaryCB wrapsVkSecondaryCB);
 
     // Wrapped version

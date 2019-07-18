@@ -88,6 +88,7 @@ public:
      * @param desc           describes the texture to be created.
      * @param renderable     should the resulting texture be renderable
      * @param budgeted       does this texture count against the resource cache budget?
+     * @param isProtected    should the texture be created as protected.
      * @param texels         array of mipmap levels containing texel data to load.
      *                       If level i has pixels then it is assumed that its dimensions are
      *                       max(1, floor(desc.fWidth / 2)) by max(1, floor(desc.fHeight / 2)).
@@ -105,12 +106,13 @@ public:
      * @return  The texture object if successful, otherwise nullptr.
      */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, GrRenderable renderable, SkBudgeted,
-                                   const GrMipLevel texels[], int mipLevelCount);
+                                   GrProtected isProtected, const GrMipLevel texels[],
+                                   int mipLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted, GrProtected);
 
     sk_sp<GrTexture> createCompressedTexture(int width, int height, SkImage::CompressionType,
                                              SkBudgeted, const void* data, size_t dataSize);
@@ -527,8 +529,8 @@ private:
     // Texture size and sample size will have already been validated in base class before
     // onCreateTexture is called.
     virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, GrRenderable renderable,
-                                             SkBudgeted, const GrMipLevel texels[],
-                                             int mipLevelCount) = 0;
+                                             SkBudgeted, GrProtected isProtected,
+                                             const GrMipLevel texels[], int mipLevelCount) = 0;
     virtual sk_sp<GrTexture> onCreateCompressedTexture(int width, int height,
                                                        SkImage::CompressionType, SkBudgeted,
                                                        const void* data) = 0;
