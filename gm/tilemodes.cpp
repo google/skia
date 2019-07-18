@@ -197,17 +197,13 @@ typedef sk_sp<SkShader> (*ShaderProc)(SkTileMode, SkTileMode);
 
 class Tiling2GM : public skiagm::GM {
     ShaderProc fProc;
-    SkString   fName;
+    const char* fName;
+
 public:
-    Tiling2GM(ShaderProc proc, const char name[]) : fProc(proc) {
-        fName.printf("tilemode_%s", name);
-    }
+    Tiling2GM(ShaderProc proc, const char name[]) : fProc(proc), fName(name) {}
 
-protected:
-
-    SkString onShortName() override {
-        return fName;
-    }
+private:
+    SkString onShortName() override { return SkString(fName); }
 
     SkISize onISize() override { return SkISize::Make(650, 610); }
 
@@ -261,12 +257,10 @@ protected:
             y += r.height() * 4 / 3;
         }
     }
-
-private:
-    typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new Tiling2GM(make_bm, "bitmap"); )
-DEF_GM( return new Tiling2GM(make_grad, "gradient"); )
+
+DEF_GM( return new Tiling2GM(make_bm,   "tilemode_bitmap"); )
+DEF_GM( return new Tiling2GM(make_grad, "tilemode_gradient"); )
 
 ////////////////////
 
