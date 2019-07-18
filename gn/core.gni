@@ -548,6 +548,8 @@ skia_skpicture_sources = [
   "$_include/core/SkPicture.h",
   "$_include/core/SkPictureRecorder.h",
   "$_src/core/SkBigPicture.cpp",
+  "$_src/core/SkCollatingCanvas.cpp",
+  "$_src/core/SkCollatingCanvas.h",
   "$_src/core/SkMultiPictureDraw.cpp",
   "$_src/core/SkPicture.cpp",
   "$_src/core/SkPictureCommon.h",
