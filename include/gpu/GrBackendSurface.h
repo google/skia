@@ -216,9 +216,10 @@ public:
     bool isSameTexture(const GrBackendTexture&);
 
 #if GR_TEST_UTILS
-    // We can remove the pixelConfig setter once we remove the GrPixelConfig from the
-    // GrBackendTexture and plumb the GrPixelConfig manually throughout our code (or remove all use
+    // We can remove the pixelConfig getter and setter once we remove the GrPixelConfig from the
+    // GrBackendTexture and plumb the GrPixelconfig manually throughout our code (or remove all use
     // of GrPixelConfig in general).
+    GrPixelConfig pixelConfig() const { return fConfig; }
     void setPixelConfig(GrPixelConfig config) { fConfig = config; }
 
     static bool TestingOnly_Equals(const GrBackendTexture& , const GrBackendTexture&);
@@ -370,9 +371,10 @@ public:
 
 
 #if GR_TEST_UTILS
-    // We can remove the pixelConfig setter once we remove the pixel config from the
+    // We can remove the pixelConfig getter and setter once we remove the pixel config from the
     // GrBackendRenderTarget and plumb the pixel config manually throughout our code (or remove all
     // use of GrPixelConfig in general).
+    GrPixelConfig pixelConfig() const { return fConfig; }
     void setPixelConfig(GrPixelConfig config) { fConfig = config; }
 
     static bool TestingOnly_Equals(const GrBackendRenderTarget&, const GrBackendRenderTarget&);

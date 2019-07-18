@@ -591,9 +591,13 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             continue;
         }
 
-        GrColorType grCT = SkColorTypeAndFormatToGrColorType(glCaps, combo.fColorType, format);
-        if (GrColorType::kUnknown == grCT) {
-            continue;
+        GrColorType grCT = SkColorTypeToGrColorType(combo.fColorType);
+        // TODO: Once SkColorType has an SRGB type we can remove this manual setting.
+        if (glCaps->isFormatSRGB(format)) {
+            if (grCT != GrColorType::kRGBA_8888) {
+                continue;
+            }
+            grCT = GrColorType::kRGBA_8888_SRGB;
         }
 
         if (!glCaps->isFormatTexturable(grCT, format)) {

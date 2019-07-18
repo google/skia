@@ -116,7 +116,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
 
 static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
                                                  const GrBackendTexture& backendTex,
-                                                 GrColorType colorType, GrSurfaceOrigin origin,
+                                                 GrSurfaceOrigin origin,
                                                  SkAlphaType at, sk_sp<SkColorSpace> colorSpace,
                                                  GrWrapOwnership ownership,
                                                  SkImage::TextureReleaseProc releaseProc,
@@ -127,9 +127,8 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
 
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy =
-            proxyProvider->wrapBackendTexture(backendTex, colorType, origin, ownership,
-                                              GrWrapCacheable::kNo, kRead_GrIOType,
-                                              releaseProc, releaseCtx);
+            proxyProvider->wrapBackendTexture(backendTex, origin, ownership, GrWrapCacheable::kNo,
+                                              kRead_GrIOType, releaseProc, releaseCtx);
     if (!proxy) {
         return nullptr;
     }
@@ -144,20 +143,11 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
     if (!ctx) {
         return nullptr;
     }
-
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(ctx->priv().caps(), ct,
-                                                                tex.getBackendFormat());
-    if (GrColorType::kUnknown == grColorType) {
-        return nullptr;
-    }
-
     GrBackendTexture texCopy = tex;
-    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, grColorType,
-                                                 ct, at, cs)) {
+    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
         return nullptr;
     }
-
-    return new_wrapped_texture_common(ctx, texCopy, grColorType, origin, at, std::move(cs),
+    return new_wrapped_texture_common(ctx, texCopy, origin, at, std::move(cs),
                                       kBorrow_GrWrapOwnership, releaseP, releaseC);
 }
 
@@ -169,20 +159,11 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
         // We have a DDL context and we don't support adopted textures for them.
         return nullptr;
     }
-
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(ctx->priv().caps(), ct,
-                                                                tex.getBackendFormat());
-    if (GrColorType::kUnknown == grColorType) {
-        return nullptr;
-    }
-
     GrBackendTexture texCopy = tex;
-    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, grColorType,
-                                                 ct, at, cs)) {
+    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
         return nullptr;
     }
-
-    return new_wrapped_texture_common(ctx, texCopy, grColorType, origin, at, std::move(cs),
+    return new_wrapped_texture_common(ctx, texCopy, origin, at, std::move(cs),
                                       kAdopt_GrWrapOwnership, nullptr, nullptr);
 }
 
@@ -262,18 +243,11 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
         GrSurfaceOrigin imageOrigin,
         const GrBackendTexture& backendTexture,
         sk_sp<SkColorSpace> imageColorSpace) {
-
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(ctx->priv().caps(),
-                                                                kRGBA_8888_SkColorType,
-                                                                backendTexture.getBackendFormat());
-    if (GrColorType::kUnknown == grColorType) {
-        return nullptr;
-    }
-
     GrBackendTexture backendTextureCopy = backendTexture;
+
     SkAlphaType at = SkImage_GpuBase::GetAlphaTypeFromYUVAIndices(yuvaIndices);
     if (!SkImage_Gpu::ValidateBackendTexture(ctx, backendTextureCopy, &backendTextureCopy.fConfig,
-                                             grColorType, kRGBA_8888_SkColorType, at, nullptr)) {
+                                             kRGBA_8888_SkColorType, at, nullptr)) {
         return nullptr;
     }
 
@@ -281,7 +255,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
     // in order to draw to it for the yuv->rgb conversion.
     sk_sp<GrRenderTargetContext> renderTargetContext(
             ctx->priv().makeBackendTextureRenderTargetContext(backendTextureCopy, imageOrigin, 1,
-                                                              grColorType,
+                                                              GrColorType::kRGBA_8888,
                                                               std::move(imageColorSpace)));
 
     if (!renderTargetContext) {
@@ -440,16 +414,15 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(context->priv().caps(),
-                                                                colorType,
-                                                                backendFormat);
-    if (GrColorType::kUnknown == grColorType) {
+    GrPixelConfig config =
+            context->priv().caps()->getConfigFromBackendFormat(backendFormat,
+                                                               SkColorTypeToGrColorType(colorType));
+    if (config == kUnknown_GrPixelConfig) {
         return nullptr;
     }
 
     callDone.clear();
-    auto proxy = MakePromiseImageLazyProxy(context, width, height, origin,
-                                           grColorType, backendFormat,
+    auto proxy = MakePromiseImageLazyProxy(context, width, height, origin, config, backendFormat,
                                            mipMapped, textureFulfillProc, textureReleaseProc,
                                            textureDoneProc, textureContext, version);
     if (!proxy) {
@@ -628,9 +601,8 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     SkColorType colorType =
             GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
 
-    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
     backendTexture.fConfig = context->priv().caps()->getConfigFromBackendFormat(
-            backendFormat, grColorType);
+            backendFormat, SkColorTypeToGrColorType(colorType));
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     if (!proxyProvider) {
@@ -639,7 +611,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     }
 
     sk_sp<GrTextureProxy> proxy =
-            proxyProvider->wrapBackendTexture(backendTexture, grColorType, surfaceOrigin,
+            proxyProvider->wrapBackendTexture(backendTexture, surfaceOrigin,
                                               kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                               kRW_GrIOType, deleteImageProc, deleteImageCtx);
     if (!proxy) {

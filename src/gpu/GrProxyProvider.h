@@ -110,7 +110,7 @@ public:
      * Create a texture proxy that wraps a (non-renderable) backend texture. GrIOType must be
      * kRead or kRW.
      */
-    sk_sp<GrTextureProxy> wrapBackendTexture(const GrBackendTexture&, GrColorType, GrSurfaceOrigin,
+    sk_sp<GrTextureProxy> wrapBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
                                              GrWrapOwnership, GrWrapCacheable, GrIOType,
                                              ReleaseProc = nullptr, ReleaseContext = nullptr);
 
@@ -126,16 +126,14 @@ public:
     /*
      * Create a render target proxy that wraps a backend render target
      */
-    sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrColorType,
-                                                  GrSurfaceOrigin,
+    sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrSurfaceOrigin,
                                                   ReleaseProc = nullptr, ReleaseContext = nullptr);
 
     /*
      * Create a render target proxy that wraps a backend texture
      */
-    sk_sp<GrSurfaceProxy> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                           GrColorType,
-                                                           GrSurfaceOrigin,
+    sk_sp<GrSurfaceProxy> wrapBackendTextureAsRenderTarget(const GrBackendTexture& backendTex,
+                                                           GrSurfaceOrigin origin,
                                                            int sampleCnt);
 
     sk_sp<GrRenderTargetProxy> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,

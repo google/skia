@@ -80,6 +80,7 @@ private:
     sk_sp<GrSemaphore>   fSemaphore;
 
     GrBackendTexture     fBackendTexture;
+    GrPixelConfig        fConfig;
     GrSurfaceOrigin      fSurfaceOrigin;
 
     typedef SkImageGenerator INHERITED;
