@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6037e6ce_06a574bc",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-18T14:39:59Z",
+      "side": 1,
+      "message": "Y?",
+      "range": {
+        "startLine": 751,
+        "startChar": 79,
+        "endLine": 751,
+        "endChar": 80
+      },
+      "revId": "9ebafc817ffb709cf4f4f60408635c8fa365014e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bda0283_d993fdd0",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-18T14:39:59Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 753,
+        "startChar": 79,
+        "endLine": 753,
+        "endChar": 80
+      },
+      "revId": "9ebafc817ffb709cf4f4f60408635c8fa365014e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
