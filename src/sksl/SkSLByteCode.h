@@ -58,6 +58,7 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kDivideU),
     // Duplicates the top stack value
     VECTOR_MATRIX(kDup),
+    kInverse2x2, kInverse3x3, kInverse4x4,
     // kLoad/kLoadGlobal are followed by a byte indicating the local/global slot to load
     VECTOR(kLoad),
     VECTOR(kLoadGlobal),

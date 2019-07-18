@@ -13,7 +13,17 @@
 
 #include "tests/Test.h"
 
-void test(skiatest::Reporter* r, const char* src, float* in, int expectedCount, float* expected) {
+static bool nearly_equal(const float a[], const float b[], int count) {
+    for (int i = 0; i < count; ++i) {
+        if (!SkScalarNearlyEqual(a[i], b[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void test(skiatest::Reporter* r, const char* src, float* in, int expectedCount, float* expected,
+          bool exactCompare = true) {
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
@@ -31,7 +41,8 @@ void test(skiatest::Reporter* r, const char* src, float* in, int expectedCount, 
         SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
         std::unique_ptr<float[]> out = std::unique_ptr<float[]>(new float[expectedCount]);
         byteCode->run(main, in, out.get(), 1, nullptr, 0);
-        bool valid = !memcmp(out.get(), expected, sizeof(float) * expectedCount);
+        bool valid = exactCompare ? !memcmp(out.get(), expected, sizeof(float) * expectedCount)
+                                  : nearly_equal(out.get(), expected, expectedCount);
         if (!valid) {
             printf("for program: %s\n", src);
             printf("    expected (");
@@ -733,6 +744,35 @@ DEF_TEST(SkSLInterpreterCross, r) {
                                             SkPoint3::Make(args[3], args[4], args[5]));
     float expected[] = { cross.fX, cross.fY, cross.fZ };
     test(r, "float3 main(float3 x, float3 y) { return cross(x, y); }", args, 3, expected);
+}
+
+DEF_TEST(SkSLInterpreterInverse, r) {
+    {
+        SkMatrix m;
+        m.setRotate(30).postScale(1, 2);
+        float args[4] = { m[0], m[3], m[1], m[4] };
+        SkAssertResult(m.invert(&m));
+        float expt[4] = { m[0], m[3], m[1], m[4] };
+        test(r, "float2x2 main(float2x2 m) { return inverse(m); }", args, 4, expt, false);
+    }
+    {
+        SkMatrix m;
+        m.setRotate(30).postScale(1, 2).postTranslate(1, 2);
+        float args[9] = { m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8] };
+        SkAssertResult(m.invert(&m));
+        float expt[9] = { m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8] };
+        test(r, "float3x3 main(float3x3 m) { return inverse(m); }", args, 9, expt, false);
+    }
+    {
+        float args[16], expt[16];
+        SkMatrix44 m;
+        // just some crazy thing that is invertible
+        m.set4x4(1, 2, 3, 4, 1, 2, 0, 3, 1, 0, 1, 4, 1, 3, 2, 0);
+        m.asColMajorf(args);
+        SkAssertResult(m.invert(&m));
+        m.asColMajorf(expt);
+        test(r, "float4x4 main(float4x4 m) { return inverse(m); }", args, 16, expt, false);
+    }
 }
 
 DEF_TEST(SkSLInterpreterDot, r) {
