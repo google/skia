@@ -12,6 +12,7 @@
 #include "tools/SkSharingProc.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
@@ -167,7 +168,7 @@ class SkpDebugPlayer {
       // a newly allocated DebugCanvas initialized with the SkPicture that was in the file.
       std::unique_ptr<DebugCanvas> loadSingleFrame(SkMemoryStream* stream) {
         // note overloaded = operator that actually does a move
-        sk_sp<SkPicture> picture = SkPicture::MakeFromStream(stream);
+        sk_sp<SkPicture> picture = SkPicture::MakeFromStream(stream, ToolUtils::GlobalFontMgr());
         if (!picture) {
           SkDebugf("Unable to deserialze frame.\n");
           return nullptr;

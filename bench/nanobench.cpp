@@ -42,6 +42,8 @@
 #include "tools/CrashHandler.h"
 #include "tools/ProcStats.h"
 #include "tools/Stats.h"
+#include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/ios_utils.h"
@@ -694,7 +696,7 @@ public:
             return nullptr;
         }
 
-        return SkPicture::MakeFromStream(stream.get());
+        return SkPicture::MakeFromStream(stream.get(), ToolUtils::GlobalFontMgr());
     }
 
     static sk_sp<SkPicture> ReadSVGPicture(const char* path) {
@@ -1144,6 +1146,7 @@ int main(int argc, char** argv) {
 #endif
     SetupCrashHandler();
     SkAutoGraphics ag;
+    ToolUtils::SetDefaultFontMgr();
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
     SetCtxOptionsFromCommonFlags(&grContextOpts);

@@ -29,6 +29,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/utils/SkUTF.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <string.h>
 
@@ -57,7 +58,7 @@ protected:
 
         sk_sp<SkTypeface> orig(ToolUtils::create_portable_typeface("serif", SkFontStyle::Bold()));
         if (nullptr == orig) {
-            orig = SkTypeface::MakeDefault();
+            orig = ToolUtils::DefaultTypeface();
         }
         fColorType = ToolUtils::emoji_typeface();
 

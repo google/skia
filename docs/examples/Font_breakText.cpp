@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     const int count = sizeof(str) - 1;
     canvas->drawText(str, count, 25, 50, paint);
     SkScalar measuredWidth;
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(50);
     int partialBytes = font.breakText(str, count, SkTextEncoding::kUTF8,
             100, &measuredWidth);

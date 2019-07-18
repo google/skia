@@ -17,6 +17,7 @@
 #include "src/core/SkRecorder.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/SkSharingProc.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tests/Test.h"
 
 namespace {
@@ -104,7 +105,7 @@ static void draw_something(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {
 
     SkPaint paint2;
     auto text = SkTextBlob::MakeFromString(
-        SkStringPrintf("Frame %d", seed).c_str(), SkFont(nullptr, 2+seed));
+        SkStringPrintf("Frame %d", seed).c_str(), SkFont(ToolUtils::DefaultTypeface(), 2+seed));
     canvas->drawTextBlob(text.get(), 50, 25, paint2);
 }
 
@@ -166,8 +167,9 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     // Deserailize
     std::vector<SkDocumentPage> frames(frame_count);
     REPORTER_ASSERT(reporter,
-        SkMultiPictureDocumentRead(writtenStream.get(), frames.data(), frame_count, &dprocs),
-        "Failed while reading MultiPictureDocument");
+                    SkMultiPictureDocumentRead(writtenStream.get(), frames.data(), frame_count,
+                                               ToolUtils::GlobalFontMgr(), &dprocs),
+                    "Failed while reading MultiPictureDocument");
 
     // Examine each frame.
     SkRecorder resultRecorder(nullptr, 1, 1);

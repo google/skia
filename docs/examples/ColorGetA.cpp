@@ -10,7 +10,8 @@ void draw(SkCanvas* canvas) {
         paint.setAlpha(alpha);
         canvas->drawRect({5, 5, 100, 20}, paint);
         SkAlpha alphaInPaint = SkColorGetA(paint.getColor());
-        canvas->drawString(std::to_string(alphaInPaint).c_str(), 110, 18, SkFont(), paint);
+        canvas->drawString(std::to_string(alphaInPaint).c_str(), 110, 18,
+                           SkFont(ToolUtils::DefaultTypeface()), paint);
         canvas->translate(0, 15);
     }
 }

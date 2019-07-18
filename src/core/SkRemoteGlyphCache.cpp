@@ -324,7 +324,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     SkAutoDescriptor descStorage;
     auto desc = create_descriptor(paint, font, matrix, props, flags, &descStorage, effects);
 
-    return this->getOrCreateCache(*desc, *font.getTypefaceOrDefault(), *effects);
+    return this->getOrCreateCache(*desc, *font.getTypeface(), *effects);
 
 }
 

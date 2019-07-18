@@ -6,7 +6,7 @@
 REG_FIDDLE(Typeface_Methods, 256, 100, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
+    paint.setTypeface(ToolUtils::TypefaceFromName(nullptr, SkFontStyle()));
     paint.setAntiAlias(true);
     paint.setTextSize(36);
     canvas->drawString("A Big Hello!", 10, 40, paint);

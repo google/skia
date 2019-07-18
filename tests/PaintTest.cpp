@@ -19,6 +19,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/utils/SkUTF.h"
 #include "tests/Test.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #undef ASSERT
 
 // temparary api for bicubic, just be sure we can set/clear it
@@ -162,7 +163,7 @@ DEF_TEST(Paint_flattening, reporter) {
 // found and fixed for android: not initializing rect for string's of length 0
 DEF_TEST(Paint_regression_measureText, reporter) {
 
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(12.0f);
 
     SkRect r;
@@ -245,7 +246,7 @@ DEF_TEST(Paint_nothingToDraw, r) {
 }
 
 DEF_TEST(Font_getpos, r) {
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     const char text[] = "Hamburgefons!@#!#23425,./;'[]";
     int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
     SkAutoTArray<uint16_t> glyphStorage(count);

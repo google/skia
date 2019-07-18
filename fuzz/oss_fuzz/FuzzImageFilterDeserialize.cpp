@@ -11,7 +11,6 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPaint.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "tools/fonts/TestFontMgr.h"
 
 void FuzzImageFilterDeserialize(sk_sp<SkData> bytes) {
@@ -41,7 +40,7 @@ void FuzzImageFilterDeserialize(sk_sp<SkData> bytes) {
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+    ToolUtils::SetGlobalPortableFontMgr();
     auto bytes = SkData::MakeWithoutCopy(data, size);
     FuzzImageFilterDeserialize(bytes);
     return 0;

@@ -16,6 +16,7 @@
 #include "tools/ResourceFactory.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static DEFINE_string2(resourcePath, i, "resources",
                       "Directory with test resources: images, fonts, etc.");
@@ -56,5 +57,5 @@ sk_sp<SkData> GetResourceAsData(const char* resource) {
 }
 
 sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource, int ttcIndex) {
-    return SkTypeface::MakeFromStream(GetResourceAsStream(resource), ttcIndex);
+    return ToolUtils::GlobalFontMgr()->makeFromStream(GetResourceAsStream(resource), ttcIndex);
 }

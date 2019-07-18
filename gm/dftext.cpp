@@ -224,9 +224,8 @@ protected:
 
         // check color emoji
         if (fEmojiTypeface) {
-            SkFont emoiFont;
+            SkFont emoiFont(fEmojiTypeface);
             emoiFont.setSubpixel(true);
-            emoiFont.setTypeface(fEmojiTypeface);
             emoiFont.setSize(SkIntToScalar(19));
             canvas->drawSimpleText(fEmojiText, strlen(fEmojiText), SkTextEncoding::kUTF8, 670, 90, emoiFont, paint);
         }

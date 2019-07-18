@@ -420,8 +420,7 @@ static void draw_list(SkCanvas* canvas, sk_sp<SkTextBlob> blob, bool useDrawBehi
 }
 
 DEF_SIMPLE_GM(save_behind, canvas, 830, 670) {
-    SkFont font;
-    font.setTypeface(ToolUtils::create_portable_typeface());
+    SkFont font(ToolUtils::create_portable_typeface());
     font.setSize(30);
 
     const char text[] = "This is a very long line of text";

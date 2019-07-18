@@ -10,6 +10,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkStream.h"
 #include "src/utils/SkOSPath.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <utility>
 
@@ -44,7 +45,7 @@ sk_sp<BisectSlide> BisectSlide::Create(const char filepath[]) {
         return nullptr;
 #endif
     } else {
-        sk_sp<SkPicture> skp = SkPicture::MakeFromStream(&stream);
+        sk_sp<SkPicture> skp = SkPicture::MakeFromStream(&stream, ToolUtils::GlobalFontMgr());
         if (!skp) {
             SkDebugf("BISECT: couldn't load skp at \"%s\"\n", filepath);
             return nullptr;

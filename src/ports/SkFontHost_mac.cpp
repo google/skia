@@ -2900,6 +2900,12 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+
 sk_sp<SkFontMgr> SkFontMgr::Factory() { return sk_make_sp<SkFontMgr_Mac>(); }
+
+#endif
+
+sk_sp<SkFontMgr> SkNativeFontMgrFactory() { return sk_make_sp<SkFontMgr_Mac>(); }
 
 #endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

@@ -14,6 +14,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static sk_sp<SkImage> picture_to_image(sk_sp<SkPicture> pic) {
     SkIRect r = pic->cullRect().round();
@@ -73,7 +74,7 @@ DEF_TEST(serial_procs_image, reporter) {
         REPORTER_ASSERT(reporter, data);
 
         dproc.fImageProc = dprocs[i];
-        auto new_pic = SkPicture::MakeFromData(data.get(), &dproc);
+        auto new_pic = SkPicture::MakeFromData(data.get(), ToolUtils::GlobalFontMgr(), &dproc);
         REPORTER_ASSERT(reporter, data);
 
         auto dst_img = picture_to_image(new_pic);
@@ -143,7 +144,7 @@ static void test_pictures(skiatest::Reporter* reporter, sk_sp<SkPicture> p0, int
     auto d0 = p0->serialize(&sprocs);
     REPORTER_ASSERT(reporter, ctx.fArray.count() == count);
     SkDeserialProcs dprocs = maked(array_deserial_proc, &ctx);
-    p0 = SkPicture::MakeFromData(d0.get(), &dprocs);
+    p0 = SkPicture::MakeFromData(d0.get(), ToolUtils::GlobalFontMgr(), &dprocs);
     REPORTER_ASSERT(reporter, ctx.fArray.count() == 0);
 }
 
@@ -182,7 +183,7 @@ static sk_sp<SkPicture> make_picture(sk_sp<SkTypeface> tf0, sk_sp<SkTypeface> tf
     SkPictureRecorder rec;
     SkCanvas* canvas = rec.beginRecording(100, 100);
     SkPaint paint;
-    SkFont font;
+    SkFont font(nullptr);
     font.setTypeface(tf0); canvas->drawString("hello", 0, 0, font, paint);
     font.setTypeface(tf1); canvas->drawString("hello", 0, 0, font, paint);
     font.setTypeface(tf0); canvas->drawString("hello", 0, 0, font, paint);
@@ -212,4 +213,3 @@ DEF_TEST(serial_typeface, reporter) {
     // only have written the data 1 time per typeface.
     REPORTER_ASSERT(reporter, counter == 2);
 }
-
