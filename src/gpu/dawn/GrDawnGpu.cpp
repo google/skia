@@ -98,8 +98,9 @@ bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                            const GrMipLevel texels[], int mipLevelCount) {
+sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
+                                            SkBudgeted budgeted, const GrMipLevel texels[],
+                                            int mipLevelCount) {
     return nullptr;
 }
 
@@ -138,7 +139,6 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     }
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
     desc.fConfig = tex.config();
