@@ -18,46 +18,40 @@
 
 namespace skvm {
 
-    // Basic liveness analysis:
-    // an instruction is dead once all live instructions that need it as an input have retired.
-    std::vector<Val> Builder::deaths() const {
-        std::vector<Val> death(fProgram.size(), 0);
-
+    Program Builder::done() {
+        // Basic liveness analysis:
+        // an instruction is live until all live instructions that need its input have retired.
         for (Val id = fProgram.size(); id --> 0; ) {
-            const Instruction& inst = fProgram[id];
+            Instruction& inst = fProgram[id];
             // All side-effect-only instructions (stores) are live.
             if (inst.op <= Op::store32) {
-                death[id] = id;
+                inst.death = id;
             }
             // The arguments of a live instruction must live until at least that instruction.
-            if (death[id] != 0) {
+            if (inst.death != 0) {
                 // Notice how we're walking backward, storing the latest instruction in death.
-                if (inst.x != NA && death[inst.x] == 0) { death[inst.x] = id; }
-                if (inst.y != NA && death[inst.y] == 0) { death[inst.y] = id; }
-                if (inst.z != NA && death[inst.z] == 0) { death[inst.z] = id; }
+                if (inst.x != NA && fProgram[inst.x].death == 0) { fProgram[inst.x].death = id; }
+                if (inst.y != NA && fProgram[inst.y].death == 0) { fProgram[inst.y].death = id; }
+                if (inst.z != NA && fProgram[inst.z].death == 0) { fProgram[inst.z].death = id; }
             }
         }
 
-        return death;
-    }
-
-    Program Builder::done() const {
-        return {fProgram, this->deaths(), fStrides};
+        return {fProgram, fStrides};
     }
 
     static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
-        return a.op  == b.op
-            && a.x   == b.x
-            && a.y   == b.y
-            && a.z   == b.z
-            && a.imm == b.imm;
+        return a.op    == b.op
+            && a.x     == b.x
+            && a.y     == b.y
+            && a.z     == b.z
+            && a.imm   == b.imm
+            && a.death == b.death;
     }
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
-
     Val Builder::push(Op op, Val x, Val y, Val z, int imm) {
-        Instruction inst{op, x, y, z, imm};
+        Instruction inst{op, x, y, z, imm, /*death=*/0};
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
@@ -1518,11 +1512,8 @@ namespace skvm {
     #endif  // defined(SKVM_JIT)
     }
 
-    Program::Program(std::vector<Builder::Instruction> instructions,
-                     std::vector<Val>                  deaths,
-                     std::vector<int>                  strides) : fStrides(strides) {
-        SkASSERT(instructions.size() == deaths.size());
-
+    Program::Program(const std::vector<Builder::Instruction>& instructions,
+                     const std::vector<int>                 & strides) : fStrides(strides) {
         // We're going to do a bit of work first to translate Builder::Instructions
         // into Program::Instructions used by the interpreter (and only the interpreter).
 
@@ -1547,41 +1538,40 @@ namespace skvm {
                 if (inst.y != NA) { analysis[id].hoist &= analysis[inst.y].hoist; }
                 if (inst.z != NA) { analysis[id].hoist &= analysis[inst.z].hoist; }
             }
-
-            // Extend the lifetime of any live hoisted instruction to the full program.
-            if (analysis[id].hoist && deaths[id] != 0) {
-                deaths[id] = (Val)instructions.size();
-            }
         }
 
         // This next bit is a bit more complicated than strictly necessary;
         // we could just assign every live instruction to its own register.
         //
-        // But recycling registers in the loop is fairly cheap, and good
-        // practice for the JITs where minimizing register pressure really is
-        // important.  (Also helps minimize unit test diffs.)
+        // But recycling registers in the loop is fairly cheap, and good practice
+        // for the JITs where minimizing register pressure really is important.
+        // (Also helps minimize unit test diffs.)
 
-        // Assign a register to each live hoisted instruction.
+        // Assign a register to each live hoisted instruction.  We'll never recycle these.
         fRegs = 0;
         int live_instructions = 0;
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (deaths[id] != 0 && analysis[id].hoist) {
+            const Builder::Instruction& inst = instructions[id];
+            if (inst.death != 0 && analysis[id].hoist) {
                 live_instructions++;
                 analysis[id].reg = fRegs++;
             }
         }
 
+        // Assign registers to each live loop instruction, recycling them when we can.
         std::vector<Reg> avail;
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (deaths[id] != 0 && !analysis[id].hoist) {
+            const Builder::Instruction& inst = instructions[id];
+            if (inst.death != 0 && !analysis[id].hoist) {
                 live_instructions++;
-                const Builder::Instruction& inst = instructions[id];
 
                 /// If an instruction's input is no longer live, we can recycle its register.
                 auto maybe_recycle_register = [&](Val input) {
                     // If this is a real input and it's lifetime ends at this instruction,
                     // we can recycle the register it's occupying.
-                    if (input != NA && deaths[input] == id) {
+                    if (input != NA
+                            && !analysis[input].hoist
+                            && instructions[input].death == id) {
                         avail.push_back(analysis[input].reg);
                     }
                 };
@@ -1628,14 +1618,16 @@ namespace skvm {
         };
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (deaths[id] != 0 && analysis[id].hoist) {
-                push_instruction(id, instructions[id]);
+            const Builder::Instruction& inst = instructions[id];
+            if (inst.death != 0 && analysis[id].hoist) {
+                push_instruction(id, inst);
                 fLoop++;
             }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (deaths[id] != 0 && !analysis[id].hoist) {
-                push_instruction(id, instructions[id]);
+            const Builder::Instruction& inst = instructions[id];
+            if (inst.death != 0 && !analysis[id].hoist) {
+                push_instruction(id, inst);
             }
         }
     }
