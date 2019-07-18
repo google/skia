@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c982298d_75b87541",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-07-18T20:34:53Z",
+      "side": 1,
+      "message": "Might be better to make this a struct so we can add more stuff for crash keys if needed without having to change the API.",
+      "range": {
+        "startLine": 198,
+        "startChar": 39,
+        "endLine": 200,
+        "endChar": 63
+      },
+      "revId": "26ef2da33b19bbdcb7ddc4cb836ea56255c167ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
