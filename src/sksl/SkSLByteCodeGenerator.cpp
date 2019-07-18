@@ -203,6 +203,7 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VECTOR_UNARY_OP(kNegateF)
         VECTOR_UNARY_OP(kNegateI)
 
+        case ByteCodeInstruction::kClampIndex: return 0;
         case ByteCodeInstruction::kNotB: return 0;
         case ByteCodeInstruction::kNegateFN: return 0;
 
@@ -454,9 +455,16 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
         case Expression::kIndex_Kind: {
             const IndexExpression& i = (const IndexExpression&)expr;
             int stride = SlotCount(i.fType);
+            int length = i.fBase->fType.columns();
+            SkASSERT(length <= 255);
             int offset = -1;
             if (i.fIndex->isConstant()) {
-                offset = i.fIndex->getConstantInt() * stride;
+                int64_t index = i.fIndex->getConstantInt();
+                if (index < 0 || index >= length) {
+                    fErrors.error(i.fIndex->fOffset, "Array index out of bounds.");
+                    return 0;
+                }
+                offset = index * stride;
             } else {
                 if (i.fIndex->hasSideEffects()) {
                     // Having a side-effect in an indexer is technically safe for an rvalue,
@@ -466,6 +474,8 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
                     return 0;
                 }
                 this->writeExpression(*i.fIndex);
+                this->write(ByteCodeInstruction::kClampIndex);
+                this->write8(length);
                 if (stride != 1) {
                     this->write(ByteCodeInstruction::kPushImmediate);
                     this->write32(stride);
