@@ -260,7 +260,7 @@ namespace skvm {
             int death;      // Index of last live instruction taking this input; live if != 0.
         };
 
-        Program done(const char* debug_name = nullptr);
+        Program done();
 
         // Declare a varying argument with given stride.
         Arg arg(int stride);
@@ -302,7 +302,7 @@ namespace skvm {
         I32 shr(I32 x, int bits);
         I32 sra(I32 x, int bits);
 
-        I32 extract(I32 x, int bits, I32 y);   // (x >> bits) & y
+        I32 extract(I32 x, int bits, I32 z);   // (x >> bits) & z
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits)
 
         // Shuffle the bytes in x according to each nibble of control, as if
@@ -366,10 +366,11 @@ namespace skvm {
             union { Reg z; int imm; };
         };
 
+        Program(std::vector<Instruction>, int regs, int loop, std::vector<int> strides);
+        Program() : Program({}, 0, 0, {}) {}
+
         Program(const std::vector<Builder::Instruction>& instructions,
-                const std::vector<int>                 & strides,
-                const char* debug_name);
-        Program() : Program({}, {}, nullptr) {}
+                const std::vector<int>                 & strides);
 
         ~Program();
         Program(Program&&);
@@ -393,20 +394,14 @@ namespace skvm {
     private:
         void eval(int n, void* args[]) const;
 
-        void setupInterpreter(const std::vector<Builder::Instruction>&);
-        void setupJIT        (const std::vector<Builder::Instruction>&, const char* debug_name);
-        bool jit             (const std::vector<Builder::Instruction>&, Assembler*) const;
-
-        // Dump jit-*.dump files for perf inject.
-        void dumpJIT(const char* debug_name) const;
-
         std::vector<Instruction> fInstructions;
         int                      fRegs;
         int                      fLoop;
         std::vector<int>         fStrides;
 
-        void*  fJITBuf  = nullptr;
-        size_t fJITSize = 0;
+        void*  fJITBuf      = nullptr;  // Raw mmap'd buffer.
+        size_t fJITSize     = 0;        // Size of buf in bytes.
+        void (*fJITEntry)() = nullptr;  // Entry point, offset into buf.
     };
 
 

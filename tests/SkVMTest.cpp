@@ -284,9 +284,6 @@ DEF_TEST(SkVM, r) {
                 for (int i = 0; i < 4; i++) {
                     uint8_t d = got  & 0xff,
                             w = want & 0xff;
-                    if (abs(d-w) >= 2) {
-                        SkDebugf("d %02x, w %02x\n", d,w);
-                    }
                     REPORTER_ASSERT(r, abs(d-w) < 2);
                     got  >>= 8;
                     want >>= 8;
@@ -295,10 +292,10 @@ DEF_TEST(SkVM, r) {
         });
     };
 
-    test_8888(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done("srcover_f32"));
-    test_8888(SrcoverBuilder_I32_Naive{}.done("srcover_i32_naive"));
-    test_8888(SrcoverBuilder_I32{}.done("srcover_i32"));
-    test_8888(SrcoverBuilder_I32_SWAR{}.done("srcover_i32_SWAR"));
+    test_8888(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done());
+    test_8888(SrcoverBuilder_I32_Naive{}.done());
+    test_8888(SrcoverBuilder_I32{}.done());
+    test_8888(SrcoverBuilder_I32_SWAR{}.done());
 
     test_jit_and_interpreter(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done(),
                              [&](const skvm::Program& program) {
