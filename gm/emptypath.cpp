@@ -24,15 +24,9 @@
 namespace skiagm {
 
 class EmptyPathGM : public GM {
-public:
-    EmptyPathGM() {}
+    SkString onShortName() override { return SkString("emptypath"); }
 
-protected:
-    SkString onShortName() {
-        return SkString("emptypath");
-    }
-
-    SkISize onISize() { return SkISize::Make(600, 280); }
+    SkISize onISize() override { return {600, 280}; }
 
     void drawEmpty(SkCanvas* canvas,
                     SkColor color,
@@ -50,7 +44,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;
@@ -119,9 +113,6 @@ protected:
         canvas->restore();
         canvas->restore();
     }
-
-private:
-    typedef GM INHERITED;
 };
 DEF_GM( return new EmptyPathGM; )
 
@@ -156,21 +147,15 @@ static void make_path_move_mix(SkPath* path, const SkPoint pts[3]) {
 }
 
 class EmptyStrokeGM : public GM {
-    SkPoint fPts[3];
+    static constexpr SkPoint kPts[3] = {
+        {40, 40},
+        {80, 40},
+        {120, 40},
+    };
 
-public:
-    EmptyStrokeGM() {
-        fPts[0].set(40, 40);
-        fPts[1].set(80, 40);
-        fPts[2].set(120, 40);
-    }
+    SkString onShortName() override { return SkString("emptystroke"); }
 
-protected:
-    SkString onShortName() override {
-        return SkString("emptystroke");
-    }
-
-    SkISize onISize() override { return SkISize::Make(200, 240); }
+    SkISize onISize() override { return {200, 240}; }
 
     void onDraw(SkCanvas* canvas) override {
         const MakePathProc procs[] = {
@@ -192,15 +177,12 @@ protected:
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(procs); ++i) {
             SkPath path;
-            procs[i](&path, fPts);
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, 3, fPts, dotPaint);
+            procs[i](&path, kPts);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, 3, kPts, dotPaint);
             canvas->drawPath(path, strokePaint);
             canvas->translate(0, 40);
         }
     }
-
-private:
-    typedef GM INHERITED;
 };
 DEF_GM( return new EmptyStrokeGM; )
 
