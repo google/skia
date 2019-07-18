@@ -9,7 +9,9 @@
 #define SKSL_BYTECODE
 
 #include "src/sksl/SkSLString.h"
+#include "include/core/SkString.h"
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -167,10 +169,11 @@ struct ByteCodeFunction {
      * Print bytecode disassembly to stdout.
      */
     void disassemble() const;
+    void disassemble(std::vector<SkString>&, std::map<int, int>&) const;
 };
 
 struct SK_API ByteCode {
-    static constexpr int kVecWidth = 16;
+    static constexpr int kVecWidth = 4;
 
     ByteCode() = default;
     ByteCode(const ByteCode&) = delete;
@@ -206,6 +209,15 @@ struct SK_API ByteCode {
                                             float* args[], int nargs, int N,
                                             const float* uniforms, int uniformCount,
                                             float* outArgs[], int outArgCount) const;
+};
+
+struct Snapshot {
+    std::vector<float> stack[ByteCode::kVecWidth];
+    std::vector<bool> cond[ByteCode::kVecWidth];
+    std::vector<bool> mask[ByteCode::kVecWidth];
+    std::vector<bool> cont[ByteCode::kVecWidth];
+    std::vector<bool> loop[ByteCode::kVecWidth];
+    int ip;
 };
 
 }

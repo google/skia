@@ -14,6 +14,7 @@
 #include "include/core/SkSwizzle.h"
 #include "include/core/SkTime.h"
 #include "include/core/SkVertices.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include "imgui.h"
 
@@ -21,6 +22,8 @@
 #include <map>
 
 using namespace sk_app;
+
+static DEFINE_double(guiScale, 1.0, "Font scale for GUI");
 
 ImGuiLayer::ImGuiLayer() {
     // ImGui initialization:
@@ -47,6 +50,8 @@ ImGuiLayer::ImGuiLayer() {
     io.KeyMap[ImGuiKey_X] = (int)Window::Key::kX;
     io.KeyMap[ImGuiKey_Y] = (int)Window::Key::kY;
     io.KeyMap[ImGuiKey_Z] = (int)Window::Key::kZ;
+
+    io.FontGlobalScale = 1.5f; // FLAGS_guiScale;
 
     int w, h;
     unsigned char* pixels;
