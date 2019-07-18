@@ -10,6 +10,11 @@
 
 #include "src/gpu/gl/GrGLUtil.h"
 
+#ifdef SK_DAWN
+#include "include/gpu/dawn/GrDawnTypes.h"
+#include "src/gpu/dawn/GrDawnUtil.h"
+#endif
+
 #ifdef SK_VULKAN
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/vk/GrVkImageLayout.h"
@@ -42,6 +47,11 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
             fMtlFormat = that.fMtlFormat;
+            break;
+#endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn:
+            fDawnFormat = that.fDawnFormat;
             break;
 #endif
         case GrBackendApi::kMock:
@@ -138,6 +148,22 @@ const GrVkYcbcrConversionInfo* GrBackendFormat::getVkYcbcrConversionInfo() const
     return nullptr;
 }
 
+#ifdef SK_DAWN
+GrBackendFormat::GrBackendFormat(dawn::TextureFormat format)
+        : fBackend(GrBackendApi::kDawn)
+        , fValid(true)
+        , fDawnFormat(format)
+        , fTextureType(GrTextureType::k2D) {
+}
+
+const dawn::TextureFormat* GrBackendFormat::getDawnFormat() const {
+    if (this->isValid() && GrBackendApi::kDawn == fBackend) {
+        return &fDawnFormat;
+    }
+    return nullptr;
+}
+#endif
+
 #ifdef SK_METAL
 GrBackendFormat::GrBackendFormat(GrMTLPixelFormat mtlFormat)
         : fBackend(GrBackendApi::kMetal)
@@ -207,6 +233,11 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
             return fMtlFormat == that.fMtlFormat;
 #endif
             break;
+        case GrBackendApi::kDawn:
+#ifdef SK_DAWN
+            return fDawnFormat == that.fDawnFormat;
+#endif
+            break;
         case GrBackendApi::kMock:
             return fMockColorType == that.fMockColorType;
         default:
@@ -214,6 +245,19 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     }
     return false;
 }
+
+#ifdef SK_DAWN
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   const GrDawnImageInfo& dawnInfo)
+        : fIsValid(true)
+        , fWidth(width)
+        , fHeight(height)
+        , fConfig(GrDawnFormatToPixelConfig(dawnInfo.fFormat))
+        , fMipMapped(GrMipMapped(dawnInfo.fLevelCount > 1))
+        , fBackend(GrBackendApi::kDawn)
+        , fDawnInfo(dawnInfo) {}
+#endif
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
@@ -357,6 +401,11 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
             fMtlInfo = that.fMtlInfo;
             break;
 #endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn:
+            fDawnInfo = that.fDawnInfo;
+            break;
+#endif
         case GrBackendApi::kMock:
             fMockInfo = that.fMockInfo;
             break;
@@ -366,6 +415,16 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     fIsValid = true;
     return *this;
 }
+
+#ifdef SK_DAWN
+bool GrBackendTexture::getDawnImageInfo(GrDawnImageInfo* outInfo) const {
+    if (this->isValid() && GrBackendApi::kDawn == fBackend) {
+        *outInfo = fDawnInfo;
+        return true;
+    }
+    return false;
+}
+#endif
 
 bool GrBackendTexture::getVkImageInfo(GrVkImageInfo* outInfo) const {
 #ifdef SK_VULKAN
@@ -484,6 +543,11 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
             return GrBackendFormat::MakeVk(info.fFormat);
         }
 #endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn: {
+            return GrBackendFormat::MakeDawn(fDawnInfo.fFormat);
+        }
+#endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal: {
             GrMtlTextureInfo mtlInfo;
@@ -527,6 +591,10 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
         case GrBackendApi::kMetal:
             return t0.fMtlInfo == t1.fMtlInfo;
 #endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn:
+            return t0.fDawnInfo == t1.fDawnInfo;
+#endif
         default:
             return false;
     }
@@ -534,6 +602,22 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_DAWN
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             int stencilBits,
+                                             const GrDawnImageInfo& dawnInfo)
+        : fIsValid(true)
+        , fWidth(width)
+        , fHeight(height)
+        , fSampleCnt(sampleCnt)
+        , fStencilBits(stencilBits)
+        , fConfig(GrDawnFormatToPixelConfig(dawnInfo.fFormat))
+        , fBackend(GrBackendApi::kDawn)
+        , fDawnInfo(dawnInfo) {}
+#endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
@@ -670,6 +754,11 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
             fVkInfo.assign(that.fVkInfo, this->isValid());
 #endif
             break;
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn:
+            fDawnInfo = that.fDawnInfo;
+            break;
+#endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
             fMtlInfo = that.fMtlInfo;
@@ -684,6 +773,16 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     fIsValid = that.fIsValid;
     return *this;
 }
+
+#ifdef SK_DAWN
+bool GrBackendRenderTarget::getDawnImageInfo(GrDawnImageInfo* outInfo) const {
+    if (this->isValid() && GrBackendApi::kDawn == fBackend) {
+        *outInfo = fDawnInfo;
+        return true;
+    }
+    return false;
+}
+#endif
 
 bool GrBackendRenderTarget::getVkImageInfo(GrVkImageInfo* outInfo) const {
 #ifdef SK_VULKAN
@@ -801,6 +900,10 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
             return r0.fMtlInfo == r1.fMtlInfo;
+#endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn:
+            return r0.fDawnInfo == r1.fDawnInfo;
 #endif
         default:
             return false;

@@ -650,6 +650,7 @@ optional("gpu") {
 
   if (skia_use_dawn) {
     public_defines += [ "SK_DAWN" ]
+    sources += skia_dawn_sources
     public_deps += [
       "//third_party/dawn:dawn_headers",
       "//third_party/dawn:libdawn",
@@ -1565,6 +1566,10 @@ if (skia_enable_tools) {
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
+    }
+    if (skia_use_dawn) {
+      public_deps += [ "//third_party/dawn:dawn_headers" ]
+      sources += [ "tools/gpu/dawn/DawnTestContext.cpp" ]
     }
   }
 

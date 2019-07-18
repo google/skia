@@ -231,14 +231,16 @@ SkString GrContextPriv::dump() const {
 
     static const char* kBackendStr[] = {
         "Metal",
+        "Dawn",
         "OpenGL",
         "Vulkan",
         "Mock",
     };
     GR_STATIC_ASSERT(0 == (unsigned)GrBackendApi::kMetal);
-    GR_STATIC_ASSERT(1 == (unsigned)GrBackendApi::kOpenGL);
-    GR_STATIC_ASSERT(2 == (unsigned)GrBackendApi::kVulkan);
-    GR_STATIC_ASSERT(3 == (unsigned)GrBackendApi::kMock);
+    GR_STATIC_ASSERT(1 == (unsigned)GrBackendApi::kDawn);
+    GR_STATIC_ASSERT(2 == (unsigned)GrBackendApi::kOpenGL);
+    GR_STATIC_ASSERT(3 == (unsigned)GrBackendApi::kVulkan);
+    GR_STATIC_ASSERT(4 == (unsigned)GrBackendApi::kMock);
     writer.appendString("backend", kBackendStr[(unsigned)fContext->backend()]);
 
     writer.appendName("caps");

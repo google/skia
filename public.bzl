@@ -251,6 +251,9 @@ BASE_SRCS_ALL = struct(
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",
 
+        # Currently exclude all Dawn-specific files
+        "src/gpu/dawn/*",
+
         # Defines main.
         "src/sksl/SkSLMain.cpp",
 
@@ -517,6 +520,7 @@ DM_SRCS_ALL = struct(
         "tests/FontMgrFontConfigTest.cpp",  # FontConfig-only.
         "tests/skia_test.cpp",  # Old main.
         "tools/gpu/atlastext/*",
+        "tools/gpu/dawn/*",
         "tools/gpu/gl/angle/*",
         "tools/gpu/gl/egl/*",
         "tools/gpu/gl/glx/*",
