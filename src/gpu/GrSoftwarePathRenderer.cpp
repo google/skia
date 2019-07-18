@@ -185,7 +185,7 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrRecordingContext
             context->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_8);
 
     return proxyProvider->createProxy(format, desc, GrRenderable::kNo, kTopLeft_GrSurfaceOrigin,
-                                      fit, SkBudgeted::kYes);
+                                      fit, SkBudgeted::kYes, GrProtected::kNo);
 }
 
 namespace {

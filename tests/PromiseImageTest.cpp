@@ -424,7 +424,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
         desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fWidth = desc.fHeight = 100;
         textures[i] = ctx->priv().resourceProvider()->createTexture(
-                desc, GrRenderable::kNo, SkBudgeted::kYes, GrResourceProvider::Flags::kNoPendingIO);
+                desc, GrRenderable::kNo, SkBudgeted::kYes, GrProtected::kNo,
+                GrResourceProvider::Flags::kNoPendingIO);
         REPORTER_ASSERT(reporter, textures[i]);
     }
 

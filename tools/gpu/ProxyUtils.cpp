@@ -68,8 +68,9 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
         desc.fConfig = config;
         desc.fWidth = width;
         desc.fHeight = height;
-        proxy = context->priv().proxyProvider()->createProxy(
-                format, desc, renderable, origin, SkBackingFit::kExact, SkBudgeted::kYes);
+        proxy = context->priv().proxyProvider()->createProxy(format, desc, renderable, origin,
+                                                             SkBackingFit::kExact, SkBudgeted::kYes,
+                                                             GrProtected::kNo);
         if (!proxy) {
             return nullptr;
         }

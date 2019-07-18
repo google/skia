@@ -950,8 +950,8 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
 
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                          SkBudgeted budgeted, const GrMipLevel texels[],
-                                          int mipLevelCount) {
+                                          SkBudgeted budgeted, GrProtected isProtected,
+                                          const GrMipLevel texels[], int mipLevelCount) {
     VkFormat pixelFormat;
     SkAssertResult(GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat));
 
@@ -981,7 +981,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderabl
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
-    imageDesc.fIsProtected = desc.fIsProtected;
+    imageDesc.fIsProtected = isProtected;
 
     GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
     if (mipLevels > 1) {
@@ -1190,7 +1190,6 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = 1;
-    surfDesc.fIsProtected = backendTex.isProtected() ? GrProtected::kYes : GrProtected::kNo;
 
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
     SkASSERT(layout);
@@ -1231,7 +1230,6 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     GrSurfaceDesc surfDesc;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
-    surfDesc.fIsProtected = backendTex.isProtected() ? GrProtected::kYes : GrProtected::kNo;
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, colorType,
                                                                    backendTex.getBackendFormat());
@@ -1271,7 +1269,6 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     GrSurfaceDesc desc;
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
-    desc.fIsProtected = backendRT.isProtected() ? GrProtected::kYes : GrProtected::kNo;
     desc.fConfig = backendRT.config();
     desc.fSampleCnt = 1;
 
@@ -1310,7 +1307,6 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     GrSurfaceDesc desc;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-    desc.fIsProtected = tex.isProtected() ? GrProtected::kYes : GrProtected::kNo;
     desc.fConfig = tex.config();
     desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
     if (!desc.fSampleCnt) {
