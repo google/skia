@@ -192,11 +192,6 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderabl
     return tex;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                      SkBudgeted budgeted) {
-    return this->createTexture(desc, renderable, budgeted, nullptr, 0);
-}
-
 sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
                                                 SkImage::CompressionType compressionType,
                                                 SkBudgeted budgeted, const void* data,
