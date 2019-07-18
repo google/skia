@@ -22,6 +22,30 @@
       "revId": "77851dad3fe60fdddc44f9d99a1ecdbaaa79e4ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38ce108e_aabd6e65",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-18T13:32:04Z",
+      "side": 1,
+      "message": "Historically, we\u0027ve been encoding the size and offset of just about everything using bytes, assuming that our data set will be small (the stack is currently capped at 128 slots total). We can certainly expand this in the future if we do the same in a few other spots.\n\nOn the second point: I\u0027m going to switch the behavior in the interpreter to fail on out-of-bounds access, which will be easier to do by sending length (rather than length - 1).",
+      "parentUuid": "33b2dd06_26b90a9b",
+      "range": {
+        "startLine": 459,
+        "startChar": 31,
+        "endLine": 459,
+        "endChar": 34
+      },
+      "revId": "77851dad3fe60fdddc44f9d99a1ecdbaaa79e4ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
