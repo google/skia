@@ -94,7 +94,7 @@ protected:
     // Deferred version - no data.
     GrTextureProxy(const GrBackendFormat&, const GrSurfaceDesc& srcDesc, GrSurfaceOrigin,
                    GrMipMapped, const GrSwizzle& textureSwizzle, SkBackingFit, SkBudgeted,
-                   GrInternalSurfaceFlags);
+                   GrProtected, GrInternalSurfaceFlags);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -108,7 +108,7 @@ protected:
     // know the final size until flush time.
     GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrBackendFormat&,
                    const GrSurfaceDesc& desc, GrSurfaceOrigin, GrMipMapped, const GrSwizzle&,
-                   SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
+                   SkBackingFit, SkBudgeted, GrProtected, GrInternalSurfaceFlags);
 
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle&);

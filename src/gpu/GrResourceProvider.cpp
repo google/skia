@@ -78,6 +78,7 @@ static bool prepare_level(const GrMipLevel& inLevel, size_t bpp, int w, int h, b
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    GrRenderable renderable, SkBudgeted budgeted,
+                                                   GrProtected isProtected,
                                                    const GrMipLevel texels[], int mipLevelCount) {
     ASSERT_SINGLE_OWNER
 
@@ -110,13 +111,14 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
             h = std::max(h / 2, 1);
         }
     }
-    return fGpu->createTexture(desc, renderable, budgeted, tmpTexels.get(), mipLevelCount);
+    return fGpu->createTexture(desc, renderable, budgeted, isProtected, tmpTexels.get(),
+                               mipLevelCount);
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
                                                      GrRenderable renderable, SkBudgeted budgeted,
-                                                     Flags flags) {
-    sk_sp<GrTexture> tex(this->refScratchTexture(desc, renderable, flags));
+                                                     GrProtected isProtected, Flags flags) {
+    sk_sp<GrTexture> tex(this->refScratchTexture(desc, renderable, isProtected, flags));
     if (tex && SkBudgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
     }
@@ -128,6 +130,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    GrRenderable renderable,
                                                    SkBudgeted budgeted,
                                                    SkBackingFit fit,
+                                                   GrProtected isProtected,
                                                    const GrMipLevel& mipLevel,
                                                    Flags flags) {
     ASSERT_SINGLE_OWNER
@@ -159,9 +162,10 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     }
 
     GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
-    sk_sp<GrTexture> tex = (SkBackingFit::kApprox == fit)
-                                   ? this->createApproxTexture(desc, renderable, flags)
-                                   : this->createTexture(desc, renderable, budgeted, flags);
+    sk_sp<GrTexture> tex =
+            (SkBackingFit::kApprox == fit)
+                    ? this->createApproxTexture(desc, renderable, isProtected, flags)
+                    : this->createTexture(desc, renderable, budgeted, isProtected, flags);
     if (!tex) {
         return nullptr;
     }
@@ -197,7 +201,7 @@ sk_sp<GrTexture> GrResourceProvider::createCompressedTexture(int width, int heig
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    GrRenderable renderable, SkBudgeted budgeted,
-                                                   Flags flags) {
+                                                   GrProtected isProtected, Flags flags) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
@@ -209,7 +213,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
 
     // Compressed textures are read-only so they don't support re-use for scratch.
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(desc, renderable, budgeted, flags);
+        sk_sp<GrTexture> tex =
+                this->getExactScratch(desc, renderable, budgeted, isProtected, flags);
         if (tex) {
             return tex;
         }
@@ -222,10 +227,10 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         GrMipLevel level;
         level.fRowBytes = rowBytes;
         level.fPixels = zeros.get();
-        return fGpu->createTexture(desc, renderable, budgeted, &level, 1);
+        return fGpu->createTexture(desc, renderable, budgeted, isProtected, &level, 1);
     }
 
-    return fGpu->createTexture(desc, renderable, budgeted);
+    return fGpu->createTexture(desc, renderable, budgeted, isProtected);
 }
 
 // Map 'value' to a larger multiple of 2. Values <= 'kMagicTol' will pop up to
@@ -255,7 +260,8 @@ uint32_t GrResourceProvider::MakeApprox(uint32_t value) {
 }
 
 sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc,
-                                                         GrRenderable renderable, Flags flags) {
+                                                         GrRenderable renderable,
+                                                         GrProtected isProtected, Flags flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(Flags::kNone == flags || Flags::kNoPendingIO == flags);
 
@@ -272,7 +278,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    if (auto tex = this->refScratchTexture(desc, renderable, flags)) {
+    if (auto tex = this->refScratchTexture(desc, renderable, isProtected, flags)) {
         return tex;
     }
 
@@ -285,7 +291,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         wdesc->fHeight = MakeApprox(wdesc->fHeight);
     }
 
-    if (auto tex = this->refScratchTexture(*copyDesc, renderable, flags)) {
+    if (auto tex = this->refScratchTexture(*copyDesc, renderable, isProtected, flags)) {
         return tex;
     }
 
@@ -296,13 +302,14 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         GrMipLevel level;
         level.fRowBytes = rowBytes;
         level.fPixels = zeros.get();
-        return fGpu->createTexture(*copyDesc, renderable, SkBudgeted::kYes, &level, 1);
+        return fGpu->createTexture(*copyDesc, renderable, SkBudgeted::kYes, isProtected, &level, 1);
     }
-    return fGpu->createTexture(*copyDesc, renderable, SkBudgeted::kYes);
+    return fGpu->createTexture(*copyDesc, renderable, SkBudgeted::kYes, isProtected);
 }
 
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc,
-                                                       GrRenderable renderable, Flags flags) {
+                                                       GrRenderable renderable,
+                                                       GrProtected isProtected, Flags flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));

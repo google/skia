@@ -24,8 +24,8 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    GrGLenum format,
                                    const IDDesc& idDesc,
                                    GrGLStencilAttachment* stencil)
-    : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, stencil) {
+    : GrSurface(gpu, desc, GrProtected::kNo)
+    , INHERITED(gpu, desc, GrProtected::kNo, stencil) {
     this->setFlags(gpu->glCaps(), idDesc);
     this->init(desc, format, idDesc);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -33,8 +33,8 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
 
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, GrGLenum format,
                                    const IDDesc& idDesc)
-    : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc) {
+    : GrSurface(gpu, desc, GrProtected::kNo)
+    , INHERITED(gpu, desc, GrProtected::kNo) {
     this->setFlags(gpu->glCaps(), idDesc);
     this->init(desc, format, idDesc);
 }

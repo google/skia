@@ -501,7 +501,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         // to ops), so it can't have any pending IO.
         proxy = proxyProvider->createProxy(format, desc, GrRenderable::kNo,
                                            kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
-                                           SkBudgeted::kYes);
+                                           SkBudgeted::kYes, GrProtected::kNo);
 
         auto uploader = skstd::make_unique<GrTDeferredProxyUploader<ClipMaskData>>(reducedClip);
         GrTDeferredProxyUploader<ClipMaskData>* uploaderRaw = uploader.get();

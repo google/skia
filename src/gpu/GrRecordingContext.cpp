@@ -188,16 +188,15 @@ sk_sp<GrTextureContext> GrRecordingContext::makeDeferredTextureContext(
     GrSurfaceDesc desc;
     desc.fWidth = width;
     desc.fHeight = height;
-    desc.fIsProtected = isProtected;
     desc.fConfig = config;
 
     sk_sp<GrTextureProxy> texture;
     if (GrMipMapped::kNo == mipMapped) {
         texture = this->proxyProvider()->createProxy(format, desc, GrRenderable::kNo, origin, fit,
-                                                     budgeted);
+                                                     budgeted, isProtected);
     } else {
         texture = this->proxyProvider()->createMipMapProxy(format, desc, GrRenderable::kNo, origin,
-                                                           budgeted);
+                                                           budgeted, isProtected);
     }
     if (!texture) {
         return nullptr;
@@ -238,17 +237,16 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
     GrSurfaceDesc desc;
     desc.fWidth = width;
     desc.fHeight = height;
-    desc.fIsProtected = isProtected;
     desc.fConfig = config;
     desc.fSampleCnt = sampleCnt;
 
     sk_sp<GrTextureProxy> rtp;
     if (GrMipMapped::kNo == mipMapped) {
         rtp = this->proxyProvider()->createProxy(format, desc, GrRenderable::kYes, origin, fit,
-                                                 budgeted);
+                                                 budgeted, isProtected);
     } else {
         rtp = this->proxyProvider()->createMipMapProxy(format, desc, GrRenderable::kYes, origin,
-                                                       budgeted);
+                                                       budgeted, isProtected);
     }
     if (!rtp) {
         return nullptr;
