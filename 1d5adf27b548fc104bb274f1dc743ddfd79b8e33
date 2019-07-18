@@ -46,6 +46,30 @@
       "revId": "1d5adf27b548fc104bb274f1dc743ddfd79b8e33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "621b9c22_bd0c8cb1",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-18T14:33:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d1cc442_dcfe3c0c",
+      "range": {
+        "startLine": 469,
+        "startChar": 24,
+        "endLine": 469,
+        "endChar": 71
+      },
+      "revId": "1d5adf27b548fc104bb274f1dc743ddfd79b8e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
