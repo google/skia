@@ -1601,7 +1601,7 @@ public:
         unchanged if SkMatrix contains perspective; scale factors are not finite, or
         are nearly zero.
 
-        On success: Matrix = scale * Remaining.
+        On success: Matrix = Remaining * scale.
 
         @param scale      axes scaling factors; may be nullptr
         @param remaining  SkMatrix without scaling; may be nullptr
