@@ -475,7 +475,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderab
     }
 
     if (this->caps()->shouldInitializeTextures()) {
-        uint32_t levelMask = (1 << mipLevels) - 1;
+        uint32_t levelMask = ~0;
         SkASSERT(mipLevelCount < 32);
         for (int i = 0; i < mipLevelCount; ++i) {
             if (!texels[i].fPixels) {

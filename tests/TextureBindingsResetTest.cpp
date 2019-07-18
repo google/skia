@@ -74,12 +74,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     GrSurfaceDesc desc;
     desc.fWidth = desc.fHeight = 10;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    // Init with data just in case caps requires initialized textures.
-    GrMipLevel level;
-    level.fRowBytes = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
-    std::unique_ptr<char[]> zeros(new char[level.fRowBytes * desc.fHeight]());
-    level.fPixels = zeros.get();
-    auto tex = gpu->createTexture(desc, GrRenderable::kNo, SkBudgeted::kNo, &level, 1);
+    auto tex = gpu->createTexture(desc, GrRenderable::kNo, SkBudgeted::kNo);
     REPORTER_ASSERT(reporter, tex);
     context->resetGLTextureBindings();
     checkBindings();
