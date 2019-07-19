@@ -1144,6 +1144,11 @@ namespace skvm {
                 return r[id];
             };
 
+            // Because we use the same logic to pick an arbitrary dst and to pick tmp,
+            // and we know that tmp will never overlap any of the inputs, `dst() == tmp()`
+            // is a simple idiom to check that the destination does not overlap any of the inputs.
+            // Sometimes we can use this knowledge to do better instruction selection.
+
             // Ok!  Keep in mind that we haven't assigned tmp or dst yet,
             // just laid out hooks for how to do so if we need them, depending on the instruction.
             //
@@ -1182,12 +1187,14 @@ namespace skvm {
                 case Op::div_f32: a->vdivps(dst(), r[x], r[y]); break;
 
                 case Op::mad_f32:
-                    if (avail & (1<<r[x])) { set_dst(r[x]); a->vfmadd132ps(r[x], r[z], r[y]); } else
-                    if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmadd213ps(r[y], r[x], r[z]); } else
-                    if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmadd231ps(r[z], r[x], r[y]); } else
-                                           {                a->vmulps     (tmp(),  r[x], r[y]);
-                                                            a->vaddps     (dst(), tmp(), r[z]); }
-                    break;
+                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmadd132ps(r[x], r[z], r[y]); }
+                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmadd213ps(r[y], r[x], r[z]); }
+                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmadd231ps(r[z], r[x], r[y]); }
+                    else                        {                SkASSERT(dst() == tmp());
+                                                                 // TODO: vpor -> vmovdqa here?
+                                                                 a->vpor       (dst(),r[x], r[x]);
+                                                                 a->vfmadd132ps(dst(),r[z], r[y]); }
+                                                                 break;
 
                 case Op::add_i32: a->vpaddd (dst(), r[x], r[y]); break;
                 case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
@@ -1252,9 +1259,10 @@ namespace skvm {
                 case Op::div_f32: a->fdiv4s(dst(), r[x], r[y]); break;
 
                 case Op::mad_f32:
-                    if (avail & (1<<r[z])) { set_dst(r[z]); a->fmla4s( r[z], r[x], r[y]); }
-                    else                   {                a->fmul4s(tmp(), r[x], r[y]);
-                                                            a->fadd4s(dst(), tmp(), r[z]); }
+                    if (avail & (1<<r[z])) { set_dst(r[z]); a->fmla4s( r[z],  r[x],  r[y]);   }
+                    else                   {                a->orr16b(tmp(),  r[z],  r[z]);
+                                                            a->fmla4s(tmp(),  r[x],  r[y]);
+                                       if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
 
 
