@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39cea93c_55d57ac8",
+        "filename": "gm/gradients.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-19T14:29:50Z",
+      "side": 1,
+      "message": "compiler wants this static",
+      "range": {
+        "startLine": 716,
+        "startChar": 3,
+        "endLine": 716,
+        "endChar": 4
+      },
+      "revId": "eb2a2904581a311bf661ff0f5b0ae9ea62c923c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
