@@ -283,6 +283,7 @@ static constexpr GrGLFormat GrGLFormatFromGLEnum(GrGLenum glFormat) {
         case GR_GL_BGRA8:                return GrGLFormat::kBGRA8;
         case GR_GL_RGB565:               return GrGLFormat::kRGB565;
         case GR_GL_RGBA16F:              return GrGLFormat::kRGBA16F;
+        case GR_GL_LUMINANCE16F:         return GrGLFormat::kLUMINANCE16F;
         case GR_GL_R16F:                 return GrGLFormat::kR16F;
         case GR_GL_RGB8:                 return GrGLFormat::kRGB8;
         case GR_GL_RG8:                  return GrGLFormat::kRG8;

@@ -506,6 +506,7 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 
 #ifdef SK_DEBUG
 void GrSurfaceProxy::validateSurface(const GrSurface* surface) {
+    printf("validate proxy GrSurface %d proxy %d\n", surface->config(), fConfig);
     SkASSERT(surface->config() == fConfig);
 
     this->onValidateSurface(surface);
