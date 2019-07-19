@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "5a1c7e27_3c268c75",
+        "filename": "gm/blurroundrect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-19T03:39:26Z",
+      "side": 1,
+      "message": "What about this:\n\n    struct GMFactory {\n        const char* fName; \n        std::unique_ptr\u003cGM\u003e(*fFactory)();\n    };\n\n    static Registry\u003cGMFactory\u003e myfactory(\n        \"blurroundrect-WH-100x100-unevenCorners\",\n        []() { return std::unique_ptr\u003cGM\u003e(new BlurRoundRectGM(100, 100)); });",
+      "parentUuid": "f2374cf5_e1b80377",
+      "range": {
+        "startLine": 161,
+        "startChar": 42,
+        "endLine": 161,
+        "endChar": 84
+      },
+      "revId": "799c455f2af6ab87c6b1b196706f1f4e05342c3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "03084cc2_33ab0a5b",
         "filename": "gm/filterindiabox.cpp",
         "patchSetId": 4
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "b5d7873a_3e8fe682",
+        "filename": "gm/filterindiabox.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-19T03:39:26Z",
+      "side": 1,
+      "message": "there are two constructors for some reason.",
+      "parentUuid": "03084cc2_33ab0a5b",
+      "range": {
+        "startLine": 69,
+        "startChar": 8,
+        "endLine": 69,
+        "endChar": 11
+      },
+      "revId": "799c455f2af6ab87c6b1b196706f1f4e05342c3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71f01184_8ee755ef",
         "filename": "gm/fontmgr.cpp",
         "patchSetId": 4
@@ -91,6 +139,30 @@
       "revId": "799c455f2af6ab87c6b1b196706f1f4e05342c3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3afc2f89_e5dd63b1",
+        "filename": "gm/fontmgr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-19T03:39:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71f01184_8ee755ef",
+      "range": {
+        "startLine": 359,
+        "startChar": 63,
+        "endLine": 359,
+        "endChar": 71
+      },
+      "revId": "799c455f2af6ab87c6b1b196706f1f4e05342c3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

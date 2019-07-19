@@ -22,6 +22,30 @@
       "revId": "4456a0d35cabc94a7938156468c1c1e96b068435",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50d850d2_31ec18e4",
+        "filename": "gm/blurroundrect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-19T03:39:26Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "e2cd6287_40466bd0",
+      "range": {
+        "startLine": 36,
+        "startChar": 15,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "4456a0d35cabc94a7938156468c1c1e96b068435",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
