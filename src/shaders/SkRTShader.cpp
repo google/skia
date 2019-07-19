@@ -44,6 +44,21 @@ SkRTShader::SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkMatrix* loca
     , fIsOpaque(isOpaque)
 {}
 
+static void call_setup(const SkSL::ByteCode* code, const SkSL::ByteCodeFunction* func,
+                       const SkStageRec& rec, const float uniforms[], int uniformCount) {
+    float args[32];
+    SkMatrix44 m;
+    m = rec.fCTM;
+    m.asColMajorf(&args[0]);
+    if (rec.fLocalM) {
+        m = *rec.fLocalM;
+    } else {
+        m.reset();
+    }
+    m.asColMajorf(&args[16]);
+    code->run(func, args, nullptr, 32, uniforms, uniformCount);
+}
+
 bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
     ctx->paintColor = rec.fPaint.getColor4f();
@@ -74,6 +89,10 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     ctx->byteCode = fByteCode.get();
     ctx->fn = ctx->byteCode->getFunction("main");
 
+    // this entry-point is optional
+    if (auto setup = fByteCode->getFunction("setup")) {
+        call_setup(ctx->byteCode, setup, rec, (const float*)ctx->inputs, ctx->ninputs);
+    }
     rec.fPipeline->append(SkRasterPipeline::seed_shader);
     rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
     return true;

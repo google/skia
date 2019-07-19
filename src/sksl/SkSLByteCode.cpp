@@ -726,10 +726,13 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 F32 tmp[16] = { 0.0f };
                 F32* B = &(sp - (rCols * rRows) + 1)->fFloat;
                 F32* A = B - (lCols * lRows);
+                SkDebugf("begin\n");
                 for (int c = 0; c < rCols; ++c) {
                     for (int r = 0; r < lRows; ++r) {
                         for (int j = 0; j < lCols; ++j) {
                             tmp[c*lRows + r] += A[j*lRows + r] * B[c*rRows + j];
+                            SkDebugf("[%d] %g * [%d] %g : ", j*lRows + r, A[j*lRows + r][0], c*rRows + j, B[c*rRows + j][0]);
+                            SkDebugf("%d %d %d [%d] %g\n", c, r, j, c*lRows + r, tmp[c*lRows + r][0]);
                         }
                     }
                 }

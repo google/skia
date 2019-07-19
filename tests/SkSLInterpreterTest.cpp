@@ -301,6 +301,17 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
         test(r, "float4x4 main(float4x4 m) { return m * float4x4(m[1], m[2], m[3], m[0]); }",
              in, 16, (float*)&m);
     }
+
+    {
+        float args[16+4];
+        SkMatrix44 m;
+        m.setScale(1, 2, 3);
+        m.asColMajorf(args);
+        SkVector4 v = { 1, 2, 3, 4 };
+        memcpy(&args[16], &v, sizeof(v));
+        v = m * v;
+        test(r, "float4 main(float4x4 m, float4 v) { return m * v; }", args, 4, (float*)&v);
+    }
 }
 
 DEF_TEST(SkSLInterpreterTernary, r) {
