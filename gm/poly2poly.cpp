@@ -22,6 +22,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 #include <stdint.h>
 
@@ -66,9 +67,15 @@ protected:
         paint->setStyle(SkPaint::kFill_Style);
         SkScalar x = D/2;
         SkScalar y = D/2 - (fm.fAscent + fm.fDescent)/2;
-        uint16_t glyphID = 3; // X
-        SkTextUtils::Draw(canvas, &glyphID, sizeof(glyphID), SkTextEncoding::kGlyphID, x, y,
-                          font, *paint, SkTextUtils::kCenter_Align);
+        if (font.getTypeface()) {
+            // We have loaded fonts/Em.ttf.
+            uint16_t glyphID = 3; // X
+            SkTextUtils::Draw(canvas, &glyphID, sizeof(glyphID), SkTextEncoding::kGlyphID, x, y,
+                              font, *paint, SkTextUtils::kCenter_Align);
+        } else {
+            // We are using the default typeface.
+            SkTextUtils::DrawString(canvas, "X", x, y, font, *paint, SkTextUtils::kCenter_Align);
+        }
         canvas->restore();
     }
 
@@ -76,7 +83,13 @@ protected:
         fEmFace = MakeResourceAsTypeface("fonts/Em.ttf");
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (!fEmFace && ToolUtils::NativeFontsEnabled()) {
+            // Known not to work for portable FontMgr; it will use the default typeface instead.
+            *errorMsg = "FontMgr couldn't load fonts/Em.ttf";
+            return DrawResult::kFail;
+        }
+
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(4));
@@ -113,6 +126,7 @@ protected:
         const int dst4[] = { 0, 0, 96, 0, 64, 96, 0, 64 };
         doDraw(canvas, font, &paint, src4, dst4, 4);
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

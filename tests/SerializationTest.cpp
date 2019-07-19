@@ -373,7 +373,16 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
         // Load typeface from file to test CreateFromFile with index.
         auto typeface = MakeResourceAsTypeface("fonts/test.ttc", 1);
         if (!typeface) {
-            INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
+            // Known not to work for portable FontMgr, GDI, or CG.
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+            INFOF(reporter, "FontMgr does not support fontstream test.");
+#else
+            if (!ToolUtils::NativeFontsEnabled() || ToolUtils::GDIEnabled()) {
+                INFOF(reporter, "FontMgr does not support fontstream test.");
+            } else {
+                REPORT_FAILURE(reporter, "typeface", SkString("Could not load fonts/test.ttc"));
+            }
+#endif
         } else {
             serialize_and_compare_typeface(std::move(typeface), "A!", reporter);
         }
@@ -388,9 +397,9 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
             SkFixed axis = SK_FixedSqrt2;
             sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
                 skstd::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
-            if (!typeface) {
-                INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
-            } else {
+            // Known not to work for portable FontMgr.
+            REPORTER_ASSERT(reporter, typeface || !ToolUtils::NativeFontsEnabled());
+            if (typeface) {
                 serialize_and_compare_typeface(std::move(typeface), "ab", reporter);
             }
         }
