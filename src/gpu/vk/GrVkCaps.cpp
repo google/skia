@@ -11,6 +11,7 @@
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrUtil.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/vk/GrVkCaps.h"
 #include "src/gpu/vk/GrVkInterface.h"
@@ -727,6 +728,12 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrVkInterface* interface,
     if (kImagination_VkVendor == physProps.vendorID) {
         // MSAA does not work on imagination
         return;
+    }
+    if (kIntel_VkVendor == physProps.vendorID) {
+        // MSAA on Intel before Gen 9 is slow and/or buggy
+        if (GrGetIntelGpuFamily(physProps.deviceID) < kFirstGen9_IntelGpuFamily) {
+            return;
+        }
     }
     if (flags & VK_SAMPLE_COUNT_2_BIT) {
         fColorSampleCounts.push_back(2);
