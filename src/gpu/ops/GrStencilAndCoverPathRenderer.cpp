@@ -42,8 +42,7 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
         args.fHasUserStencilSettings) {
         return CanDrawPath::kNo;
     }
-    if (GrAAType::kCoverage == args.fAAType &&
-        !args.fProxy->canUseMixedSamples(*args.fCaps)) {
+    if (GrAAType::kCoverage == args.fAAType && !args.fProxy->canUseMixedSamples(*args.fCaps)) {
         // We rely on a mixed sampled stencil buffer to implement coverage AA.
         return CanDrawPath::kNo;
     }

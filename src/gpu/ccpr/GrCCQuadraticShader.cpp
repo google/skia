@@ -42,11 +42,14 @@ void GrCCQuadraticShader::onEmitVaryings(
     code->appendf("%s.zw = 2*bloat * float2(2 * %s.x, -1) * %s;",  // Gradient.
                   OutName(fCoord_fGrad), OutName(fCoord_fGrad), fQCoordMatrix.c_str());
 
-    // Coverages need full precision since distance to the opposite edge can be large.
-    fEdge_fWind_fCorner.reset(cornerCoverage ? kFloat4_GrSLType : kFloat2_GrSLType, scope);
-    varyingHandler->addVarying("edge_and_wind_and_corner", &fEdge_fWind_fCorner);
-    code->appendf("%s.x = %s;", OutName(fEdge_fWind_fCorner), coverage);
-    code->appendf("%s.y = %s;", OutName(fEdge_fWind_fCorner), wind);
+    if (coverage) {
+        // Coverages need full precision since distance to the opposite edge can be large.
+        fEdge_fWind_fCorner.reset((cornerCoverage) ? kFloat4_GrSLType : kFloat2_GrSLType, scope);
+        varyingHandler->addVarying((cornerCoverage) ? "edge_and_wind_and_corner" : "edge_and_wind",
+                                   &fEdge_fWind_fCorner);
+        code->appendf("%s.x = %s;", OutName(fEdge_fWind_fCorner), coverage);
+        code->appendf("%s.y = %s;", OutName(fEdge_fWind_fCorner), wind);
+    }
 
     if (cornerCoverage) {
         SkASSERT(coverage);
@@ -57,7 +60,7 @@ void GrCCQuadraticShader::onEmitVaryings(
     }
 }
 
-void GrCCQuadraticShader::onEmitFragmentCode(
+void GrCCQuadraticShader::emitFragmentCoverageCode(
         GrGLSLFPFragmentBuilder* f, const char* outputCoverage) const {
     this->calcHullCoverage(&AccessCodeString(f), fCoord_fGrad.fsIn(),
                            SkStringPrintf("%s.x", fEdge_fWind_fCorner.fsIn()).c_str(),
@@ -82,4 +85,11 @@ void GrCCQuadraticShader::calcHullCoverage(SkString* code, const char* coordAndG
     code->appendf("float edge_coverage = min(%s, 0);", edge);
     // Total hull coverage.
     code->appendf("%s = max(half(curve_coverage + edge_coverage), 0);", outputCoverage);
+}
+
+void GrCCQuadraticShader::emitSampleMaskCode(GrGLSLFPFragmentBuilder* f) const {
+    f->codeAppendf("float x = %s.x, y = %s.y;", fCoord_fGrad.fsIn(), fCoord_fGrad.fsIn());
+    f->codeAppendf("float f = x*x - y;");
+    f->codeAppendf("float2 grad = %s.zw;", fCoord_fGrad.fsIn());
+    f->applyFnToMultisampleMask("f", "grad", GrGLSLFPFragmentBuilder::ScopeFlags::kTopLevel);
 }

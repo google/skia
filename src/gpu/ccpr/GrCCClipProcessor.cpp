@@ -14,12 +14,12 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
-GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, MustCheckBounds mustCheckBounds,
-                                     SkPath::FillType overrideFillType)
+GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, IsCoverageCount isCoverageCount,
+                                     MustCheckBounds mustCheckBounds)
         : INHERITED(kGrCCClipProcessor_ClassID, kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fClipPath(clipPath)
-        , fMustCheckBounds((bool)mustCheckBounds)
-        , fOverrideFillType(overrideFillType)
+        , fIsCoverageCount(IsCoverageCount::kYes == isCoverageCount)
+        , fMustCheckBounds(MustCheckBounds::kYes == mustCheckBounds)
         , fAtlasAccess(sk_ref_sp(fClipPath->atlasLazyProxy()), GrSamplerState::Filter::kNearest,
                        GrSamplerState::WrapMode::kClamp) {
     SkASSERT(fAtlasAccess.proxy());
@@ -27,12 +27,16 @@ GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, MustCheckBoun
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCCClipProcessor::clone() const {
-    return skstd::make_unique<GrCCClipProcessor>(fClipPath, MustCheckBounds(fMustCheckBounds),
-                                                 fOverrideFillType);
+    return skstd::make_unique<GrCCClipProcessor>(
+            fClipPath, IsCoverageCount(fIsCoverageCount), MustCheckBounds(fMustCheckBounds));
 }
 
 void GrCCClipProcessor::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
-    b->add32((fOverrideFillType << 1) | (int)fMustCheckBounds);
+    const SkPath& clipPath = fClipPath->deviceSpacePath();
+    uint32_t key = (fIsCoverageCount) ? (uint32_t)GrFillRuleForSkPath(clipPath) : 0;
+    key = (key << 1) | ((clipPath.isInverseFillType()) ? 1 : 0);
+    key = (key << 1) | ((fMustCheckBounds) ? 1 : 0);
+    b->add32(key);
 }
 
 bool GrCCClipProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
@@ -41,7 +45,9 @@ bool GrCCClipProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
     // already weeded out FPs with different ClipPaths.
     SkASSERT(that.fClipPath->deviceSpacePath().getGenerationID() ==
              fClipPath->deviceSpacePath().getGenerationID());
-    return that.fOverrideFillType == fOverrideFillType;
+    return that.fClipPath->deviceSpacePath().getFillType() ==
+                   fClipPath->deviceSpacePath().getFillType() &&
+           that.fIsCoverageCount == fIsCoverageCount && that.fMustCheckBounds == fMustCheckBounds;
 }
 
 class GrCCClipProcessor::Impl : public GrGLSLFragmentProcessor {
@@ -52,6 +58,7 @@ public:
         GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 
         f->codeAppend ("half coverage;");
+
         if (proc.fMustCheckBounds) {
             const char* pathIBounds;
             fPathIBoundsUniform = uniHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
@@ -67,16 +74,19 @@ public:
         f->codeAppendf("float2 texcoord = sk_FragCoord.xy * %s.xy + %s.zw;",
                        atlasTransform, atlasTransform);
 
-        f->codeAppend ("half coverage_count = ");
+        f->codeAppend ("coverage = ");
         f->appendTextureLookup(args.fTexSamplers[0], "texcoord", kHalf2_GrSLType);
         f->codeAppend (".a;");
 
-        if (SkPath::kEvenOdd_FillType == proc.fOverrideFillType ||
-            SkPath::kInverseEvenOdd_FillType == proc.fOverrideFillType) {
-            f->codeAppend ("half t = mod(abs(coverage_count), 2);");
-            f->codeAppend ("coverage = 1 - abs(t - 1);");
-        } else {
-            f->codeAppend ("coverage = min(abs(coverage_count), 1);");
+        if (proc.fIsCoverageCount) {
+            auto fillRule = GrFillRuleForSkPath(proc.fClipPath->deviceSpacePath());
+            if (GrFillRule::kEvenOdd == fillRule) {
+                f->codeAppend ("half t = mod(abs(coverage), 2);");
+                f->codeAppend ("coverage = 1 - abs(t - 1);");
+            } else {
+                SkASSERT(GrFillRule::kNonzero == fillRule);
+                f->codeAppend ("coverage = min(abs(coverage), 1);");
+            }
         }
 
         if (proc.fMustCheckBounds) {
@@ -85,7 +95,7 @@ public:
             f->codeAppend ("}");
         }
 
-        if (SkPath::IsInverseFillType(proc.fOverrideFillType)) {
+        if (proc.fClipPath->deviceSpacePath().isInverseFillType()) {
             f->codeAppend ("coverage = 1 - coverage;");
         }
 

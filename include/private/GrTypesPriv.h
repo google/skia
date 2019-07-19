@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrSharedEnums.h"
@@ -250,6 +251,23 @@ enum class GrAA : bool {
     kNo = false,
     kYes = true
 };
+
+enum class GrFillRule : bool {
+    kNonzero,
+    kEvenOdd
+};
+
+inline GrFillRule GrFillRuleForSkPath(const SkPath& path) {
+    switch (path.getFillType()) {
+        case SkPath::kWinding_FillType:
+        case SkPath::kInverseWinding_FillType:
+            return GrFillRule::kNonzero;
+        case SkPath::kEvenOdd_FillType:
+        case SkPath::kInverseEvenOdd_FillType:
+            return GrFillRule::kEvenOdd;
+    }
+    SkUNREACHABLE;
+}
 
 /** This enum indicates the type of antialiasing to be performed. */
 enum class GrAAType : unsigned {
