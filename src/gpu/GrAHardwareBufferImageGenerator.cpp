@@ -186,7 +186,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
                 return std::move(tex);
             },
             backendFormat, desc, GrRenderable::kNo, fSurfaceOrigin, GrMipMapped::kNo,
-            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo);
+            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
+            GrProtected::kNo);
 
     return texProxy;
 }

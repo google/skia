@@ -145,8 +145,8 @@ static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLeve
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderable renderable,
-                                      SkBudgeted budgeted, const GrMipLevel texels[],
-                                      int mipLevelCount) {
+                                      SkBudgeted budgeted, GrProtected isProtected,
+                                      const GrMipLevel texels[], int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (GrPixelConfigIsCompressed(origDesc.fConfig)) {
         // Call GrGpu::createCompressedTexture.
@@ -177,7 +177,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderabl
     }
 
     this->handleDirtyContext();
-    sk_sp<GrTexture> tex = this->onCreateTexture(desc, renderable, budgeted, texels, mipLevelCount);
+    sk_sp<GrTexture> tex =
+            this->onCreateTexture(desc, renderable, budgeted, isProtected, texels, mipLevelCount);
     if (tex) {
         if (!this->caps()->reuseScratchTextures() && renderable == GrRenderable::kNo) {
             tex->resourcePriv().removeScratchKey();
@@ -193,8 +194,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderabl
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                      SkBudgeted budgeted) {
-    return this->createTexture(desc, renderable, budgeted, nullptr, 0);
+                                      SkBudgeted budgeted, GrProtected isProtected) {
+    return this->createTexture(desc, renderable, budgeted, isProtected, nullptr, 0);
 }
 
 sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
