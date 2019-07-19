@@ -22,6 +22,30 @@
       "revId": "22cc8f6e5daafe294cf165514469aaee71b3c24b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27470e5d_d1719b15",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-19T18:45:42Z",
+      "side": 1,
+      "message": "Oh, very cool! Done!",
+      "parentUuid": "8bf40071_a7b992bd",
+      "range": {
+        "startLine": 275,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 32
+      },
+      "revId": "22cc8f6e5daafe294cf165514469aaee71b3c24b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
