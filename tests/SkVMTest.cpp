@@ -352,9 +352,9 @@ DEF_TEST(SkVM_LoopCounts, r) {
               b.add(b.splat(1),
                     b.load32(arg)));
 
-    int buf[64];
-    for (int N = 0; N <= (int)SK_ARRAY_COUNT(buf); N++) {
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+        int buf[64];
+        for (int N = 0; N <= (int)SK_ARRAY_COUNT(buf); N++) {
             for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
                 buf[i] = i;
             }
@@ -366,8 +366,8 @@ DEF_TEST(SkVM_LoopCounts, r) {
             for (int i = N; i < (int)SK_ARRAY_COUNT(buf); i++) {
                 REPORTER_ASSERT(r, buf[i] == i);
             }
-        });
-    }
+        }
+    });
 }
 
 
