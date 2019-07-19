@@ -527,6 +527,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsMaskWithPathFall
     SkPaint paint;
 
     auto serverTf = MakeResourceAsTypeface("fonts/HangingS.ttf");
+    // Known not to work for portable FontMgr.
+    REPORTER_ASSERT(reporter, serverTf || !ToolUtils::NativeFontsEnabled());
     // TODO: when the cq bots can handle this font remove the check.
     if (serverTf == nullptr) {
         return;

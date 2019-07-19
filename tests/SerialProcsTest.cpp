@@ -191,11 +191,10 @@ static sk_sp<SkPicture> make_picture(sk_sp<SkTypeface> tf0, sk_sp<SkTypeface> tf
 }
 
 DEF_TEST(serial_typeface, reporter) {
-    auto tf0 = MakeResourceAsTypeface("fonts/hintgasp.ttf");
-    auto tf1 = MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf");
-    if (!tf0 || !tf1 || tf0.get() == tf1.get()) {
-        return; // need two different typefaces for this test to make sense.
-    }
+    auto tf0 = SkTypeface::MakeFromName(nullptr, SkFontStyle::Bold());
+    auto tf1 = SkTypeface::MakeFromName(nullptr, SkFontStyle::Italic());
+    // need two different typefaces for this test to make sense.
+    REPORTER_ASSERT(reporter, tf0 && tf1 && tf0.get() != tf1.get());
 
     auto pic = make_picture(tf0, tf1);
 
@@ -212,4 +211,3 @@ DEF_TEST(serial_typeface, reporter) {
     // only have written the data 1 time per typeface.
     REPORTER_ASSERT(reporter, counter == 2);
 }
-

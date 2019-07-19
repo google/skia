@@ -111,7 +111,12 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (!fReallyBigATypeface && ToolUtils::NativeFontsEnabled()) {
+            // Known not to work for portable FontMgr; it will use the default typeface instead.
+            *errorMsg = "FontMgr couldn't load fonts/ReallyBigA.ttf";
+            return DrawResult::kFail;
+        }
 
         canvas->drawColor(SK_ColorGRAY);
 
@@ -149,6 +154,7 @@ protected:
                 canvas->translate(0, SkScalarFloorToScalar(bounds.height() + SkIntToScalar(25)));
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

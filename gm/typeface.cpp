@@ -23,6 +23,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 #include <string.h>
 #include <utility>
@@ -358,26 +359,51 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
     }
 }
 
-DEF_SIMPLE_GM(typefacerendering, canvas, 640, 840) {
-    if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/hintgasp.ttf")) {
-        draw_typeface_rendering_gm(canvas, std::move(face));
+DEF_SIMPLE_GM_CAN_FAIL(typefacerendering, canvas, errorMsg, 640, 840) {
+    sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/hintgasp.ttf");
+    if (!face) {
+        *errorMsg = "FontMgr couldn't load fonts/hintgasp.ttf";
+        // Known not to work for portable FontMgr.
+        return ToolUtils::NativeFontsEnabled() ?
+                skiagm::DrawResult::kFail : skiagm::DrawResult::kSkip;
     }
+    draw_typeface_rendering_gm(canvas, std::move(face));
+    return skiagm::DrawResult::kOk;
 }
 
 // Type1 fonts don't currently work in Skia on Windows.
 #ifndef SK_BUILD_FOR_WIN
 
-DEF_SIMPLE_GM(typefacerendering_pfa, canvas, 640, 840) {
-    if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfa")) {
-        // This subsetted typeface doesn't have the character 'A'.
-        draw_typeface_rendering_gm(canvas, std::move(face), 'O');
+DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfa, canvas, errorMsg, 640, 840) {
+    sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfa");
+    if (!face) {
+        *errorMsg = "FontMgr couldn't load fonts/Roboto2-Regular.pfa";
+        // Known not to work for portable FontMgr.
+        return ToolUtils::NativeFontsEnabled() ?
+                skiagm::DrawResult::kFail : skiagm::DrawResult::kSkip;
     }
+    // This subsetted typeface doesn't have the character 'A'.
+    draw_typeface_rendering_gm(canvas, std::move(face), 'O');
+    return skiagm::DrawResult::kOk;
 }
 
-DEF_SIMPLE_GM(typefacerendering_pfb, canvas, 640, 840) {
-    if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfb")) {
-        draw_typeface_rendering_gm(canvas, std::move(face), 'O');
+DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfb, canvas, errorMsg, 640, 840) {
+    sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfb");
+    if (!face) {
+        // Known not to work for portable FontMgr.
+        if (!ToolUtils::NativeFontsEnabled()) {
+            return skiagm::DrawResult::kSkip;
+        }
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+        // Not supported by CG.
+        return skiagm::DrawResult::kSkip;
+#else
+        *errorMsg = "FontMgr couldn't load fonts/Roboto2-Regular.pfb";
+        return skiagm::DrawResult::kFail;
+#endif
     }
+    draw_typeface_rendering_gm(canvas, std::move(face), 'O');
+    return skiagm::DrawResult::kOk;
 }
 
 #endif

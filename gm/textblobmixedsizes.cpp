@@ -41,11 +41,11 @@ public:
     TextBlobMixedSizes(bool useDFT) : fUseDFT(useDFT) {}
 
 protected:
-    void onOnceBeforeDraw() override {
+    sk_sp<SkTextBlob> makeTextBlob(sk_sp<SkTypeface> tf) {
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
-        SkFont font(MakeResourceAsTypeface("fonts/HangingS.ttf"), 262);
+        SkFont font(std::move(tf), 262);
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
@@ -90,7 +90,7 @@ protected:
         ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // build
-        fBlob = builder.make();
+        return builder.make();
     }
 
     SkString onShortName() override {
@@ -102,7 +102,15 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* inputCanvas) override {
+    DrawResult onDraw(SkCanvas* inputCanvas, SkString* errorMsg) override {
+        auto tf = MakeResourceAsTypeface("fonts/HangingS.ttf");
+        if (!tf && ToolUtils::NativeFontsEnabled()) {
+            // Known not to work for portable FontMgr; it will use the default typeface instead.
+            *errorMsg = "FontMgr couldn't load fonts/HangingS.ttf";
+            return DrawResult::kFail;
+        }
+        auto textBlob = makeTextBlob(std::move(tf));
+
         SkCanvas* canvas = inputCanvas;
         sk_sp<SkSurface> surface;
         if (fUseDFT) {
@@ -121,7 +129,7 @@ protected:
         }
         canvas->drawColor(SK_ColorWHITE);
 
-        SkRect bounds = fBlob->bounds();
+        SkRect bounds = textBlob->bounds();
 
         const int kPadX = SkScalarFloorToInt(bounds.width() / 3);
         const int kPadY = SkScalarFloorToInt(bounds.height() / 3);
@@ -155,9 +163,9 @@ protected:
                     break;
             }
             if (!fUseDFT) {
-                canvas->drawTextBlob(fBlob, 0, 0, blurPaint);
+                canvas->drawTextBlob(textBlob, 0, 0, blurPaint);
             }
-            canvas->drawTextBlob(fBlob, 0, 0, paint);
+            canvas->drawTextBlob(textBlob, 0, 0, paint);
             canvas->restore();
             canvas->translate(bounds.width() + SK_Scalar1 * kPadX, 0);
             ++rowCount;
@@ -177,11 +185,10 @@ protected:
             inputCanvas->resetMatrix();
             inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
+        return DrawResult::kOk;
     }
 
 private:
-    sk_sp<SkTextBlob> fBlob;
-
     static constexpr int kWidth = 2100;
     static constexpr int kHeight = 1900;
 
