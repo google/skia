@@ -10,9 +10,9 @@
 
 #include "include/core/SkPath.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/ccpr/GrCCAtlas.h"
 
 struct GrCCPerFlushResourceSpecs;
-class GrCCAtlas;
 class GrCCPerFlushResources;
 class GrOnFlushResourceProvider;
 class GrProxyProvider;
@@ -37,8 +37,8 @@ public:
     }
 
     bool isInitialized() const { return fAtlasLazyProxy != nullptr; }
-    void init(const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth, int rtHeight,
-              const GrCaps&);
+    void init(const SkPath& deviceSpacePath, const SkIRect& accessRect,
+              GrCCAtlas::CoverageType atlasCoverageType, const GrCaps&);
 
     void addAccess(const SkIRect& accessRect) {
         SkASSERT(this->isInitialized());

@@ -29,7 +29,10 @@ public:
             GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code, const char* position,
             const char* coverage, const char* cornerCoverage, const char* wind) override;
 
-    void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
+    void emitFragmentCoverageCode(
+            GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
+
+    void emitSampleMaskCode(GrGLSLFPFragmentBuilder*) const override;
 
 private:
     void calcHullCoverage(SkString* code, const char* coordAndGrad, const char* d,

@@ -301,7 +301,9 @@ void CCPRGeometryView::updateGpuData() {
             SkASSERT(Verb::kMonotonicQuadraticTo == verb || Verb::kMonotonicConicTo == verb);
             if (PrimitiveType::kQuadratics == fPrimitiveType &&
                 Verb::kMonotonicQuadraticTo == verb) {
-                fTriPointInstances.push_back().set(&geometry.points()[ptsIdx], Sk2f(0, 0));
+                fTriPointInstances.push_back().set(
+                        &geometry.points()[ptsIdx], Sk2f(0, 0),
+                        TriPointInstance::Ordering::kXYTransposed);
             } else if (PrimitiveType::kConics == fPrimitiveType &&
                        Verb::kMonotonicConicTo == verb) {
                 fQuadPointInstances.push_back().setW(&geometry.points()[ptsIdx], Sk2f(0, 0),
@@ -310,7 +312,9 @@ void CCPRGeometryView::updateGpuData() {
             ptsIdx += 2;
         }
     } else {
-        fTriPointInstances.push_back().set(fPoints[0], fPoints[1], fPoints[3], Sk2f(0, 0));
+        fTriPointInstances.push_back().set(
+                fPoints[0], fPoints[1], fPoints[3], Sk2f(0, 0),
+                TriPointInstance::Ordering::kXYTransposed);
         fPath.lineTo(fPoints[1]);
         fPath.lineTo(fPoints[3]);
         fPath.close();
