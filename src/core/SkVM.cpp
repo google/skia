@@ -549,6 +549,9 @@ namespace skvm {
                   | (d    &  5_mask) <<  0);
     }
 
+    void Assembler::sli4s(V d, V n, int imm) {
+        this->op(0b0'1'1'011110'0100'000'01010'1,    ( imm&31), n, d);
+    }
     void Assembler::shl4s(V d, V n, int imm) {
         this->op(0b0'1'0'011110'0100'000'01010'1,    ( imm&31), n, d);
     }
@@ -1277,10 +1280,11 @@ namespace skvm {
                                   else     { a->and16b(dst(), r[x], r[y]); }
                                              break;
 
-                // TODO: use vsli when avail & (1<<r[x])
-                case Op::pack: a->shl4s (tmp(), r[y], imm);
-                               a->orr16b(dst(), tmp(), r[x]);
-                               break;
+                case Op::pack:
+                    if (avail & (1<<r[x])) { set_dst(r[x]); a->sli4s ( r[x],  r[y],  imm); }
+                    else                   {                a->shl4s (tmp(),  r[y],  imm);
+                                                            a->orr16b(dst(), tmp(), r[x]); }
+                                                            break;
 
                 case Op::to_f32: a->scvtf4s (dst(), r[x]); break;
                 case Op::to_i32: a->fcvtzs4s(dst(), r[x]); break;
