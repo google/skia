@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bf40071_a7b992bd",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-19T14:28:21Z",
+      "side": 1,
+      "message": "Want to try out using SkUNREACHABLE here? Simply replace both of these lines with:\n\nSkUNREACHABLE;\n\nno need for a bogus return. No need for a message. Plus if you ever decide you want this to be constexpr it\u0027ll still compile.",
+      "range": {
+        "startLine": 275,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 32
+      },
+      "revId": "22cc8f6e5daafe294cf165514469aaee71b3c24b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
