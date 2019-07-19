@@ -848,10 +848,10 @@ void gather_file_srcs(const CommandLineFlags::StringArray& flags,
 
 static bool gather_srcs() {
     for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
-        push_src("gm", "", new GMSrc(f));
+//        push_src("gm", "", new GMSrc(f));
     }
 
-    gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
+//    gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
 #if defined(SK_ENABLE_SKOTTIE)
     gather_file_srcs<SkottieSrc>(FLAGS_lotties, "json", "lottie");
@@ -1358,6 +1358,10 @@ static void gather_tests() {
         if (!in_shard()) {
             continue;
         }
+        if (strcmp("InitialTextureClear", test.name)) {
+            continue;
+        }
+
         if (CommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
