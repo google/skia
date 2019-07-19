@@ -370,6 +370,34 @@ DEF_TEST(SkVM_LoopCounts, r) {
     });
 }
 
+DEF_TEST(SkVM_mad, r) {
+    // This program is designed to exercise the tricky corners of instruction
+    // and register selection for Op::mad_f32.
+
+    skvm::Builder b;
+    {
+        skvm::Arg arg = b.arg<int>();
+
+        skvm::F32 x = b.to_f32(b.load32(arg)),
+                  y = b.mad(x,x,x),   // x is needed in the future, so r[x] != r[y].
+                  z = b.mad(y,y,x),   // y is needed in the future, but r[z] = r[x] is ok.
+                  w = b.mad(z,z,y),   // w can alias z but not y.
+                  v = b.mad(w,y,w);   // Got to stop somewhere.
+        b.store32(arg, b.to_i32(v));
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+        int x = 2;
+        program.eval(1, &x);
+        // x = 2
+        // y = 2*2 + 2 = 6
+        // z = 6*6 + 2 = 38
+        // w = 38*38 + 6 = 1450
+        // v = 1450*6 + 1450 = 10150
+        REPORTER_ASSERT(r, x == 10150);
+    });
+}
+
 
 template <typename Fn>
 static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8_t> expected) {
