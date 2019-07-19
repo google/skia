@@ -1,0 +1,29 @@
+# Copyright 2018 The Dawn Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# These are variables that are overridable by projects that include Dawn.
+
+dawn_root = "../externals/dawn"
+
+# The paths to Dawn's dependencies. For now, we leave these unset to
+# use Dawn's DEPS. Eventually, we'll move to Skia's copies of as
+# many of these as possible. This will require updating Skia's
+# SPIRV-Tools and Shaderc at a minimum.
+
+# dawn_jinja2_dir = "//third_party/jinja2"
+# dawn_glfw_dir = "//third_party/glfw"
+# dawn_googletest_dir = "//third_party/googletest"
+# dawn_shaderc_dir = "//third_party/shaderc"
+# dawn_spirv_tools_dir = "//third_party/SPIRV-Tools"
+# dawn_spirv_cross_dir = "//third_party/spirv-cross"
