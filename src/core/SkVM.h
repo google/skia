@@ -48,15 +48,12 @@ namespace skvm {
             v24, v25, v26, v27, v28, v29, v30, v31,
         };
 
-        void byte(const void*, int);
+        void bytes(const void*, int);
         void byte(uint8_t);
-        template <typename... Rest> void byte(uint8_t, Rest...);
-
         void word(uint32_t);
 
         // x86-64
 
-        void nop();
         void align(int mod);
 
         void vzeroupper();

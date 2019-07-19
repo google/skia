@@ -240,7 +240,7 @@ namespace skvm {
 
     size_t Assembler::size() const { return fSize; }
 
-    void Assembler::byte(const void* p, int n) {
+    void Assembler::bytes(const void* p, int n) {
         if (fCurr) {
             memcpy(fCurr, p, n);
             fCurr += n;
@@ -248,23 +248,20 @@ namespace skvm {
         fSize += n;
     }
 
-    void Assembler::byte(uint8_t b) { this->byte(&b, 1); }
+    void Assembler::byte(uint8_t b) { this->bytes(&b, 1); }
+    void Assembler::word(uint32_t w) { this->bytes(&w, 4); }
 
-    template <typename... Rest>
-    void Assembler::byte(uint8_t first, Rest... rest) {
-        this->byte(first);
-        this->byte(rest...);
-    }
-
-
-    void Assembler::nop() { this->byte(0x90); }
     void Assembler::align(int mod) {
         while (this->size() % mod) {
-            this->nop();
+            this->byte(0x00);
         }
     }
 
-    void Assembler::vzeroupper() { this->byte(0xc5, 0xf8, 0x77); }
+    void Assembler::vzeroupper() {
+        this->byte(0xc5);
+        this->byte(0xf8);
+        this->byte(0x77);
+    }
     void Assembler::ret() { this->byte(0xc3); }
 
     // Common instruction building for 64-bit opcodes with an immediate argument.
@@ -281,7 +278,7 @@ namespace skvm {
         this->byte(rex(1,0,0,dst>>3));
         this->byte(opcode);
         this->byte(mod_rm(Mod::Direct, opcode_ext, dst&7));
-        this->byte(&imm, imm_bytes);
+        this->bytes(&imm, imm_bytes);
     }
 
     void Assembler::add(GP64 dst, int imm) { this->op(0,0b000, dst,imm); }
@@ -291,7 +288,7 @@ namespace skvm {
     void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W/*=false*/) {
         VEX v = vex(W, dst>>3, 0, y>>3,
                     map, x, 1/*ymm, not xmm*/, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Direct, dst&7, y&7));
     }
@@ -373,7 +370,7 @@ namespace skvm {
 
         VEX v = vex(0, dst>>3, 0, rip>>3,
                     map, x, /*ymm?*/1, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, dst&7, rip&7));
         this->word(this->disp32(l));
@@ -388,7 +385,8 @@ namespace skvm {
         //    7?     one-byte-disp
         //    0F 8? four-byte-disp
         // We always use the near displacement to make updating labels simpler (no resizing).
-        this->byte(0x0f, condition);
+        this->byte(0x0f);
+        this->byte(condition);
         this->word(this->disp32(l));
     }
     void Assembler::je (Label* l) { this->jump(0x84, l); }
@@ -404,7 +402,7 @@ namespace skvm {
     void Assembler::load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr) {
         VEX v = vex(0, ymm>>3, 0, ptr>>3,
                     map, 0, /*ymm?*/1, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, ymm&7, ptr&7));
     }
@@ -419,7 +417,7 @@ namespace skvm {
             opcode = 0xd6;
         VEX v = vex(0, src>>3, 0, dst>>3,
                     map, 0, /*ymm?*/0, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
@@ -430,7 +428,7 @@ namespace skvm {
             opcode = 0x7e;
         VEX v = vex(0, src>>3, 0, dst>>3,
                     map, 0, /*ymm?*/0, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
@@ -441,7 +439,7 @@ namespace skvm {
             opcode = 0x7e;
         VEX v = vex(0, src>>3, 0, dst>>3,
                     map, 0, /*ymm?*/0, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Direct, src&7, dst&7));
     }
@@ -452,7 +450,7 @@ namespace skvm {
             opcode = 0x6e;
         VEX v = vex(0, dst>>3, 0, src>>3,
                     map, 0, /*ymm?*/0, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, dst&7, src&7));
     }
@@ -463,7 +461,7 @@ namespace skvm {
             opcode = 0x6e;
         VEX v = vex(0, dst>>3, 0, src>>3,
                     map, 0, /*ymm?*/0, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Direct, dst&7, src&7));
     }
@@ -472,7 +470,8 @@ namespace skvm {
         if ((dst>>3) || (src>>3)) {
             this->byte(rex(0,dst>>3,0,src>>3));
         }
-        this->byte(0x0f, 0xb6);
+        this->byte(0x0f);
+        this->byte(0xb6);
         this->byte(mod_rm(Mod::Indirect, dst&7, src&7));
     }
 
@@ -491,7 +490,7 @@ namespace skvm {
             opcode = 0x20;
         VEX v = vex(0, dst>>3, 0, ptr>>3,
                     map, src, /*ymm?*/0, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, dst&7, ptr&7));
         this->byte(imm);
@@ -504,14 +503,10 @@ namespace skvm {
 
         VEX v = vex(0, src>>3, 0, ptr>>3,
                     map, 0, /*ymm?*/0, prefix);
-        this->byte(v.bytes, v.len);
+        this->bytes(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, src&7, ptr&7));
         this->byte(imm);
-    }
-
-    void Assembler::word(uint32_t w) {
-        this->byte(&w, 4);
     }
 
     // https://static.docs.arm.com/ddi0596/a/DDI_0596_ARM_a64_instruction_set_architecture.pdf
@@ -1267,8 +1262,8 @@ namespace skvm {
             int mask[4];
             bytes_control(imm, mask);
             // Same pattern for bottom 4 and top 4 32-bit lanes.
-            a->byte(mask, sizeof(mask));
-            a->byte(mask, sizeof(mask));
+            a->bytes(mask, sizeof(mask));
+            a->bytes(mask, sizeof(mask));
         });
 
         splats.foreach([&](int imm, A::Label* l) {
