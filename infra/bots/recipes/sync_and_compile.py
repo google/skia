@@ -71,6 +71,10 @@ def RunSteps(api):
     if 'ParentRevision' in api.vars.builder_name:
       dst = api.vars.swarming_out_dir.join('ParentRevision')
     api.build.copy_build_products(out_dir=out_dir, dst=dst)
+    if 'SKQP' in api.vars.extra_tokens:
+      wlist = checkout_root.join(
+          'skia', 'infra','cts', 'whitelist_devices.json')
+      api.file.copy('copy whitelist', wlist, dst)
   finally:
     if 'Win' in api.vars.builder_cfg.get('os', ''):
       api.python.inline(
@@ -89,6 +93,7 @@ for p in psutil.process_iter():
 
 
 TEST_BUILDERS = [
+  'Build-Debian9-Clang-universal-devrel-Android_SKQP',
   'Build-Debian9-Clang-x86_64-Release-ParentRevision',
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
