@@ -426,11 +426,12 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 return {};
             }
 
-            auto backendTexture = promiseTexture->backendTexture();
-            backendTexture.fConfig = fConfig;
+            GrBackendTexture backendTexture = promiseTexture->backendTexture();
             if (!backendTexture.isValid()) {
                 return {};
             }
+
+            backendTexture.fConfig = fConfig;
 
             sk_sp<GrTexture> tex;
             static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
@@ -444,12 +445,14 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // that was previously used to fulfill a different promise image.
             if (auto surf = resourceProvider->findByUniqueKey<GrSurface>(key)) {
                 tex = sk_ref_sp(surf->asTexture());
+                printf("found tex! %d\n", tex->config());
                 SkASSERT(tex);
             } else {
                 if ((tex = resourceProvider->wrapBackendTexture(
                              backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes,
                              kRead_GrIOType))) {
                     tex->resourcePriv().setUniqueKey(key);
+                    printf("wrapping backend %d\n", tex->config());
                 } else {
                     return {};
                 }

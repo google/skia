@@ -221,6 +221,7 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
 
     switch (fBackend) {
         case GrBackendApi::kOpenGL:
+            printf("in operator== 0x%x ox%x\n", fGLFormat, that.fGLFormat);
             return fGLFormat == that.fGLFormat;
         case GrBackendApi::kVulkan:
 #ifdef SK_VULKAN
