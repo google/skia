@@ -22,6 +22,30 @@
       "revId": "aa861a1907a17c0a1033509b5c33983a819b2bb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcd8d015_dc6b1a25",
+        "filename": "tests/SVGDeviceTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-07-19T21:19:55Z",
+      "side": 0,
+      "message": "Hal, I thought there were some cases where this doesn\u0027t work? I don\u0027t remember what those cases were. Do we need to use clusters here?",
+      "parentUuid": "b5d4dd8c_68e9ad96",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 22
+      },
+      "revId": "aa861a1907a17c0a1033509b5c33983a819b2bb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
