@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ae911c8_4548a3d0",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-19T13:44:12Z",
+      "side": 1,
+      "message": "this reordering is just to reflect the field order above.\n\nI had to remove to default for isProtected to disambiguate a constructor call in Chrome but can add it back when the temp constructor is removed.",
+      "range": {
+        "startLine": 159,
+        "startChar": 18,
+        "endLine": 159,
+        "endChar": 42
+      },
+      "revId": "f46afc47ec34d77ee9951ea32e302aef7f657375",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
