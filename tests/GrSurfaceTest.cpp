@@ -128,7 +128,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             config == kAlpha_8_as_Red_GrPixelConfig ||
             config == kGray_8_as_Lum_GrPixelConfig ||
             config == kGray_8_as_Red_GrPixelConfig ||
-            config == kAlpha_half_as_Red_GrPixelConfig) {
+            config == kAlpha_half_as_Red_GrPixelConfig ||
+            config == kAlpha_half_as_Lum_GrPixelConfig) {
             continue;
         }
 
@@ -209,13 +210,15 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
         const GrCaps* caps = context->priv().caps();
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-        for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
+        for (int c = kAlpha_half_GrPixelConfig; c <= kLast_GrPixelConfig; ++c) {
             desc.fConfig = static_cast<GrPixelConfig>(c);
             if (!caps->isConfigTexturable(desc.fConfig)) {
+                SkDebugf("config %d - skipping - not renderable\n", c);
                 continue;
             }
             for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
                 if (renderable == GrRenderable::kYes && !caps->isConfigRenderable(desc.fConfig)) {
+                    SkDebugf("config %d - skipping - not renderable\n", c);
                     continue;
                 }
                 for (GrSurfaceOrigin origin :
@@ -236,7 +239,8 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                             uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
                             for (int i = 0; i < kSize * kSize; ++i) {
                                 if (cmp != data.get()[i]) {
-                                    ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                                    ERRORF(reporter, "Failed on config %d (pixel %d) 0x%x != 0x%x",
+                                        desc.fConfig, i, cmp, data.get()[i]);
                                     break;
                                 }
                             }
@@ -258,7 +262,9 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         if (GrBackendApi::kOpenGL == context->backend() &&
                             (desc.fConfig == kAlpha_8_as_Alpha_GrPixelConfig ||
                              desc.fConfig == kAlpha_8_as_Red_GrPixelConfig ||
-                             desc.fConfig == kAlpha_half_as_Red_GrPixelConfig)) {
+                             desc.fConfig == kAlpha_half_as_Red_GrPixelConfig ||
+                             desc.fConfig == kAlpha_half_as_Lum_GrPixelConfig)) {
+                            SkDebugf("skipping specific Alpha config %d\n", desc.fConfig);
                             continue;
                         }
 
@@ -273,6 +279,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         }
 
                         GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
+                        SkDebugf("colortype %d\n", colorType);
 
                         // Try creating the texture as a deferred proxy.
                         for (int i = 0; i < 2; ++i) {
@@ -296,7 +303,8 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                                 uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
                                 for (int i = 0; i < kSize * kSize; ++i) {
                                     if (cmp != data.get()[i]) {
-                                        ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                                        ERRORF(reporter, "Failed on config2 %d (pixel %d) 0x%x != 0x%x",
+                                            desc.fConfig, i, cmp, data.get()[i]);
                                         break;
                                     }
                                 }
