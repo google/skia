@@ -519,6 +519,16 @@ static sk_sp<SkImageFilter> apply_ctm_to_filter(sk_sp<SkImageFilter> input, cons
         // decomposeScale splits ctm into scale * ctmToEmbed, so bake ctmToEmbed into DAG
         // with a matrix filter and return scale as the remaining matrix for the real CTM.
         remainder->setScale(scale.fWidth, scale.fHeight);
+
+        // ctmToEmbed is passed to SkMatrixImageFilter, which performs its transforms as if it were
+        // a pre-transformation before applying the image-filter context's CTM. In this case, we
+        // need ctmToEmbed to be a post-transformation (i.e. after the scale matrix since
+        // decomposeScale produces ctm = ctmToEmbed * scale). Giving scale^-1 * ctmToEmbed * scale
+        // to the matrix filter achieves this effect.
+        // TODO (michaelludwig) - When the original root node of a filter can be drawn directly to a
+        // device using ctmToEmbed, this abuse of SkMatrixImageFilter can go away.
+        ctmToEmbed.preScale(scale.fWidth, scale.fHeight);
+        ctmToEmbed.postScale(1.f / scale.fWidth, 1.f / scale.fHeight);
     } else {
         // Unable to decompose
         // FIXME Ideally we'd embed the entire CTM as part of the matrix image filter, but
