@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fa64834_8fb0effd",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-19T15:39:02Z",
+      "side": 1,
+      "message": "May want to move this to sync_and_compile.py.",
+      "revId": "58d1f76fc00847f75ea93379eef9326f0f80ee58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
