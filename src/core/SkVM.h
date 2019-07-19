@@ -129,7 +129,8 @@ namespace skvm {
 
         // d = op(n,imm)
         using DOpNImm = void(V d, V n, int imm);
-        DOpNImm shl4s, sshr4s, ushr4s,
+        DOpNImm sli4s,
+                shl4s, sshr4s, ushr4s,
                                ushr8h;
 
         // d = op(n)
@@ -300,7 +301,7 @@ namespace skvm {
         I32 sra(I32 x, int bits);
 
         I32 extract(I32 x, int bits, I32 y);   // (x >> bits) & y
-        I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits)
+        I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
 
         // Shuffle the bytes in x according to each nibble of control, as if
         //
