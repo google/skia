@@ -22,8 +22,7 @@ using namespace SkRecords;
 // Run a pattern-based optimization once across the SkRecord, returning true if it made any changes.
 // It looks for spans which match Pass::Match, and when found calls onMatch() with that pattern,
 // record, and [begin,end) span of the commands that matched.
-template <typename Pass>
-static bool apply(Pass* pass, SkRecord* record) {
+template <typename Pass> static bool apply(Pass* pass, SkRecord* record) {
     typename Pass::Match match;
     bool changed = false;
     int begin, end = 0;
@@ -38,22 +37,20 @@ static bool apply(Pass* pass, SkRecord* record) {
 
 static void multiple_set_matrices(SkRecord* record) {
     struct {
-        typedef Pattern<Is<SetMatrix>,
-                        Greedy<Is<NoOp>>,
-                        Is<SetMatrix> >
-            Match;
+        typedef Pattern<Is<SetMatrix>, Greedy<Is<NoOp>>, Is<SetMatrix>> Match;
 
         bool onMatch(SkRecord* record, Match* pattern, int begin, int end) {
             record->replace<NoOp>(begin);  // first SetMatrix
             return true;
         }
     } pass;
-    while (apply(&pass, record));
+    while (apply(&pass, record))
+        ;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if 0   // experimental, but needs knowledge of previous matrix to operate correctly
+#if 0  // experimental, but needs knowledge of previous matrix to operate correctly
 static void apply_matrix_to_draw_params(SkRecord* record) {
     struct {
         typedef Pattern<Is<SetMatrix>,
@@ -75,14 +72,11 @@ static void apply_matrix_to_draw_params(SkRecord* record) {
 
 // Turns the logical NoOp Save and Restore in Save-Draw*-Restore patterns into actual NoOps.
 struct SaveOnlyDrawsRestoreNooper {
-    typedef Pattern<Is<Save>,
-                    Greedy<Or<Is<NoOp>, IsDraw>>,
-                    Is<Restore>>
-        Match;
+    typedef Pattern<Is<Save>, Greedy<Or<Is<NoOp>, IsDraw>>, Is<Restore>> Match;
 
     bool onMatch(SkRecord* record, Match*, int begin, int end) {
-        record->replace<NoOp>(begin);  // Save
-        record->replace<NoOp>(end-1);  // Restore
+        record->replace<NoOp>(begin);    // Save
+        record->replace<NoOp>(end - 1);  // Restore
         return true;
     }
 };
@@ -129,13 +123,9 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint* layerPaint,
         }
 
         // The layer paint can not have any effects.
-        if (layerPaint->getPathEffect()  ||
-            layerPaint->getShader()      ||
-            !layerPaint->isSrcOver()     ||
-            layerPaint->getMaskFilter()  ||
-            layerPaint->getColorFilter() ||
-            layerPaint->getLooper()      ||
-            layerPaint->getImageFilter()) {
+        if (layerPaint->getPathEffect() || layerPaint->getShader() || !layerPaint->isSrcOver() ||
+            layerPaint->getMaskFilter() || layerPaint->getColorFilter() ||
+            layerPaint->getLooper() || layerPaint->getImageFilter()) {
             return false;
         }
         paint->setAlpha(SkMulDiv255Round(paint->getAlpha(), SkColorGetA(layerColor)));
@@ -148,13 +138,9 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint* layerPaint,
 struct SaveNoDrawsRestoreNooper {
     // Greedy matches greedily, so we also have to exclude Save and Restore.
     // Nested SaveLayers need to be excluded, or we'll match their Restore!
-    typedef Pattern<Is<Save>,
-                    Greedy<Not<Or<Is<Save>,
-                                  Is<SaveLayer>,
-                                  Is<Restore>,
-                                  IsDraw>>>,
+    typedef Pattern<Is<Save>, Greedy<Not<Or<Is<Save>, Is<SaveLayer>, Is<Restore>, IsDraw>>>,
                     Is<Restore>>
-        Match;
+            Match;
 
     bool onMatch(SkRecord* record, Match*, int begin, int end) {
         // The entire span between Save and Restore (inclusively) does nothing.
@@ -169,7 +155,8 @@ void SkRecordNoopSaveRestores(SkRecord* record) {
     SaveNoDrawsRestoreNooper noDraws;
 
     // Run until they stop changing things.
-    while (apply(&onlyDraws, record) || apply(&noDraws, record));
+    while (apply(&onlyDraws, record) || apply(&noDraws, record))
+        ;
 }
 
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -194,7 +181,7 @@ struct SaveLayerDrawRestoreNooper {
         }
 
         if (match->first<SaveLayer>()->saveLayerFlags &
-                SkCanvasPriv::kDontClipToLayer_SaveLayerFlag) {
+            SkCanvasPriv::kDontClipToLayer_SaveLayerFlag) {
             // can't throw away the layer if set
             return false;
         }
@@ -222,8 +209,8 @@ struct SaveLayerDrawRestoreNooper {
     }
 
     static bool KillSaveLayerAndRestore(SkRecord* record, int saveLayerIndex) {
-        record->replace<NoOp>(saveLayerIndex);    // SaveLayer
-        record->replace<NoOp>(saveLayerIndex+2);  // Restore
+        record->replace<NoOp>(saveLayerIndex);      // SaveLayer
+        record->replace<NoOp>(saveLayerIndex + 2);  // Restore
         return true;
     }
 };
@@ -243,8 +230,9 @@ void SkRecordNoopSaveLayerDrawRestores(SkRecord* record) {
   Restore
 */
 struct SvgOpacityAndFilterLayerMergePass {
-    typedef Pattern<Is<SaveLayer>, Is<Save>, Is<ClipRect>, Is<SaveLayer>,
-                    Is<Restore>, Is<Restore>, Is<Restore>> Match;
+    typedef Pattern<Is<SaveLayer>, Is<Save>, Is<ClipRect>, Is<SaveLayer>, Is<Restore>, Is<Restore>,
+                    Is<Restore>>
+            Match;
 
     bool onMatch(SkRecord* record, Match* match, int begin, int end) {
         if (match->first<SaveLayer>()->backdrop) {
@@ -276,14 +264,31 @@ struct SvgOpacityAndFilterLayerMergePass {
     }
 
     static bool KillSaveLayerAndRestore(SkRecord* record, int saveLayerIndex) {
-        record->replace<NoOp>(saveLayerIndex);     // SaveLayer
-        record->replace<NoOp>(saveLayerIndex + 6); // Restore
+        record->replace<NoOp>(saveLayerIndex);      // SaveLayer
+        record->replace<NoOp>(saveLayerIndex + 6);  // Restore
         return true;
     }
 };
 
 void SkRecordMergeSvgOpacityAndFilterLayers(SkRecord* record) {
     SvgOpacityAndFilterLayerMergePass pass;
+    apply(&pass, record);
+}
+
+struct StripClobberPaints {
+    typedef Pattern<Is<DrawPaint>> Match;
+
+    bool onMatch(SkRecord* record, Match* match, int begin, int end) {
+        if (match->first<DrawPaint>()->paint.getAlpha() == 0) {
+            record->replace<NoOp>(begin);
+            return true;
+        }
+        return false;
+    }
+};
+
+void SkRecordStripClobberPaints(SkRecord* record) {
+    StripClobberPaints pass;
     apply(&pass, record);
 }
 
@@ -297,7 +302,7 @@ void SkRecordOptimize(SkRecord* record) {
     // As there is a known problem with this peephole and drawAnnotation, disable this.
     // If we want to enable this we must first fix this bug:
     //     https://bugs.chromium.org/p/skia/issues/detail?id=5548
-//    SkRecordNoopSaveRestores(record);
+    //    SkRecordNoopSaveRestores(record);
 
     // Turn off this optimization completely for Android framework
     // because it makes the following Android CTS test fail:
@@ -306,6 +311,7 @@ void SkRecordOptimize(SkRecord* record) {
     SkRecordNoopSaveLayerDrawRestores(record);
 #endif
     SkRecordMergeSvgOpacityAndFilterLayers(record);
+    SkRecordStripClobberPaints(record);
 
     record->defrag();
 }
