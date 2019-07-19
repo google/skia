@@ -149,9 +149,14 @@ struct GrVkImageInfo {
             , fProtected(GrProtected::kNo)
             , fYcbcrConversionInfo() {}
 
-    GrVkImageInfo(VkImage image, GrVkAlloc alloc, VkImageTiling imageTiling, VkImageLayout layout,
-                  VkFormat format, uint32_t levelCount, GrProtected isProtected = GrProtected::kNo,
-                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+    GrVkImageInfo(VkImage image,
+                  GrVkAlloc alloc,
+                  VkImageTiling imageTiling,
+                  VkImageLayout layout,
+                  VkFormat format,
+                  uint32_t levelCount,
+                  uint32_t currentQueueFamily,
+                  GrProtected isProtected,
                   GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo())
             : fImage(image)
             , fAlloc(alloc)
@@ -162,6 +167,18 @@ struct GrVkImageInfo {
             , fCurrentQueueFamily(currentQueueFamily)
             , fProtected(isProtected)
             , fYcbcrConversionInfo(ycbcrConversionInfo) {}
+
+    // Temporary until Chrome is updated to use above constructor
+    GrVkImageInfo(VkImage image, GrVkAlloc alloc,
+                  VkImageTiling imageTiling,
+                  VkImageLayout layout,
+                  VkFormat format,
+                  uint32_t levelCount,
+                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+                  GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo(),
+                  GrProtected isProtected = GrProtected::kNo)
+            : GrVkImageInfo(image, alloc, imageTiling, layout, format, levelCount,
+                            currentQueueFamily, isProtected, ycbcrConversionInfo) {}
 
     GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
             : fImage(info.fImage)
