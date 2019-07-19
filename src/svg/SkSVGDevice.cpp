@@ -882,8 +882,8 @@ public:
     }
 
     const SkString& text() const { return fText; }
-    const SkString& posX() const { return fPosX; }
-    const SkString& posY() const { return fPosY; }
+    const SkString& posX() const { return fHasConstX ? fConstXStr : fPosXStr; }
+    const SkString& posY() const { return fHasConstY ? fConstYStr : fPosYStr; }
 
 private:
     void appendUnichar(SkUnichar c, SkPoint position) {
@@ -928,22 +928,37 @@ private:
                 break;
         }
 
-        this->advancePos(discardPos, position);
         fLastCharWasWhitespace = isWhitespace;
-    }
 
-    void advancePos(bool discard, SkPoint position) {
-        if (!discard) {
-            SkPoint finalPosition = fOrigin + position;
-            fPosX.appendf("%.8g, ", finalPosition.x());
-            fPosY.appendf("%.8g, ", finalPosition.y());
+        if (discardPos) {
+            return;
+        }
+
+        position += fOrigin;
+        fPosXStr.appendf("%.8g, ", position.fX);
+        fPosYStr.appendf("%.8g, ", position.fY);
+
+        if (fConstXStr.isEmpty()) {
+            SkASSERT(fConstYStr.isEmpty());
+            fConstXStr = fPosXStr;
+            fConstYStr = fPosYStr;
+            fConstX    = position.fX;
+            fConstY    = position.fY;
+        } else {
+            fHasConstX &= SkScalarNearlyEqual(fConstX, position.fX);
+            fHasConstY &= SkScalarNearlyEqual(fConstY, position.fY);
         }
     }
 
     const SkPoint   fOrigin;
 
-    SkString fText, fPosX, fPosY;
-    bool     fLastCharWasWhitespace;
+    SkString fText,
+             fPosXStr, fPosYStr,
+             fConstXStr, fConstYStr;
+    SkScalar fConstX, fConstY;
+    bool     fLastCharWasWhitespace = true, // start off in whitespace mode to strip leading space
+             fHasConstX = true,
+             fHasConstY = true;
 };
 
 void SkSVGDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, const SkPoint& origin,
