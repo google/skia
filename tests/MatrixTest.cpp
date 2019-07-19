@@ -774,8 +774,7 @@ static bool check_decompScale(const SkMatrix& original) {
     {
         SkMatrix reconstituted = remaining;
 
-        // This should be 'preScale' but, due to skbug.com/7211, it is reversed!
-        reconstituted.postScale(scale.width(), scale.height());
+        reconstituted.preScale(scale.width(), scale.height());
         if (!nearly_equal(original, reconstituted)) {
             return false;
         }
@@ -799,8 +798,8 @@ static bool check_decompScale(const SkMatrix& original) {
 
     // Note, we intend the decomposition to be applied in the order scale and then remainder but,
     // due to skbug.com/7211, the order is reversed!
-    remaining.mapPoints(v2, testPts, kNumPoints);
-    scaleMat.mapPoints(v2, kNumPoints);
+    scaleMat.mapPoints(v2, testPts, kNumPoints);
+    remaining.mapPoints(v2, kNumPoints);
 
     for (int i = 0; i < kNumPoints; ++i) {
         if (!SkPointPriv::EqualsWithinTolerance(v1[i], v2[i], 0.00001f)) {
