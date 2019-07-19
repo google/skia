@@ -60,7 +60,6 @@ struct Layout {
         kR32F,
         kRGBA16F,
         kR16F,
-        kLUMINANCE16F,
         kRGBA8,
         kR8,
         kRGBA8I,
@@ -103,7 +102,6 @@ struct Layout {
             case Format::kR32F:         return "r32f";
             case Format::kRGBA16F:      return "rgba16f";
             case Format::kR16F:         return "r16f";
-            case Format::kLUMINANCE16F: return "lum16f";
             case Format::kRGBA8:        return "rgba8";
             case Format::kR8:           return "r8";
             case Format::kRGBA8I:       return "rgba8i";
@@ -125,9 +123,6 @@ struct Layout {
             return true;
         } else if (str == "r16f") {
             *format = Format::kR16F;
-            return true;
-        } else if (str == "lum16f") {
-            *format = Format::kLUMINANCE16F;
             return true;
         } else if (str == "rgba8") {
             *format = Format::kRGBA8;

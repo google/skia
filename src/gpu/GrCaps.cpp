@@ -151,7 +151,6 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kRGBA_1010102_GrPixelConfig: return "RGBA1010102";
         case kRGBA_float_GrPixelConfig: return "RGBAFloat";
         case kAlpha_half_GrPixelConfig: return "AlphaHalf";
-        case kAlpha_half_as_Lum_GrPixelConfig: return "AlphaHalf_asLum";
         case kAlpha_half_as_Red_GrPixelConfig: return "AlphaHalf_asRed";
         case kRGBA_half_GrPixelConfig: return "RGBAHalf";
         case kRGBA_half_Clamped_GrPixelConfig: return "RGBAHalfClamped";
@@ -395,8 +394,7 @@ bool GrCaps::AreConfigsCompatible(GrPixelConfig genericConfig, GrPixelConfig spe
             break;
         case kAlpha_half_GrPixelConfig:
             compatible = kAlpha_half_GrPixelConfig == specificConfig || // bc of the mock context
-                         kAlpha_half_as_Red_GrPixelConfig == specificConfig ||
-                         kAlpha_half_as_Lum_GrPixelConfig == specificConfig;
+                         kAlpha_half_as_Red_GrPixelConfig == specificConfig;
             break;
         case kRGB_888_GrPixelConfig:
             compatible = kRGB_888_GrPixelConfig == specificConfig ||

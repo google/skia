@@ -461,7 +461,6 @@
 
 /* Luminance sized formats */
 #define GR_GL_LUMINANCE8                     0x8040
-#define GR_GL_LUMINANCE16F                   0x881E
 
 /* Alpha sized formats */
 #define GR_GL_ALPHA8                         0x803C

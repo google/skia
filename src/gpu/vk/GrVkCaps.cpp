@@ -92,7 +92,6 @@ static int get_compatible_format_class(GrPixelConfig config) {
         case kUnknown_GrPixelConfig:
         case kAlpha_8_as_Alpha_GrPixelConfig:
         case kGray_8_as_Lum_GrPixelConfig:
-        case kAlpha_half_as_Lum_GrPixelConfig:
             SK_ABORT("Unsupported Vulkan pixel config");
             return 0;
 

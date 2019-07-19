@@ -77,8 +77,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kAlpha_half_as_Red_GrPixelConfig:
             *format = VK_FORMAT_R16_SFLOAT;
             return true;
-        case kAlpha_half_as_Lum_GrPixelConfig:
-            return false;
         case kR_16_GrPixelConfig:
             *format = VK_FORMAT_R16_UNORM;
             return true;

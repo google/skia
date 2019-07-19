@@ -128,8 +128,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             config == kAlpha_8_as_Red_GrPixelConfig ||
             config == kGray_8_as_Lum_GrPixelConfig ||
             config == kGray_8_as_Red_GrPixelConfig ||
-            config == kAlpha_half_as_Red_GrPixelConfig ||
-            config == kAlpha_half_as_Lum_GrPixelConfig) {
+            config == kAlpha_half_as_Red_GrPixelConfig) {
             continue;
         }
 
@@ -259,8 +258,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         if (GrBackendApi::kOpenGL == context->backend() &&
                             (desc.fConfig == kAlpha_8_as_Alpha_GrPixelConfig ||
                              desc.fConfig == kAlpha_8_as_Red_GrPixelConfig ||
-                             desc.fConfig == kAlpha_half_as_Red_GrPixelConfig ||
-                             desc.fConfig == kAlpha_half_as_Lum_GrPixelConfig)) {
+                             desc.fConfig == kAlpha_half_as_Red_GrPixelConfig)) {
                             continue;
                         }
 

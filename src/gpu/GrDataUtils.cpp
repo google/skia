@@ -235,7 +235,6 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             }
             break;
         }
-        case kAlpha_half_as_Lum_GrPixelConfig:                  // fall through
         case kAlpha_half_as_Red_GrPixelConfig:                  // fall through
         case kAlpha_half_GrPixelConfig: {
             SkHalf alphaHalf = SkFloatToHalf(colorf.fA);
