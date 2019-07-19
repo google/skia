@@ -91,6 +91,8 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kAlpha_half_as_Red_GrPixelConfig:
             *format = MTLPixelFormatR16Float;
             return true;
+        case kAlpha_half_as_Lum_GrPixelConfig:
+            return false;
         case kRGB_ETC1_GrPixelConfig:
 #ifdef SK_BUILD_FOR_IOS
             *format = MTLPixelFormatETC2_RGB8;
