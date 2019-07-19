@@ -8,7 +8,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
-#include "modules/particles/include/SkParticleAffector.h"
 #include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
@@ -31,7 +30,7 @@ EMSCRIPTEN_BINDINGS(Particles) {
         static bool didInit = false;
         if (!didInit) {
             REGISTER_REFLECTED(SkReflected);
-            SkParticleAffector::RegisterAffectorTypes();
+            SkParticleBinding::RegisterBindingTypes();
             SkParticleDrawable::RegisterDrawableTypes();
             didInit = true;
         }
