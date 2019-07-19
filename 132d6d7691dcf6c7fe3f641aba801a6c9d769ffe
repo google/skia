@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a300b701_d3be5f09",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-19T14:27:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78457999_e84f38ed",
+      "range": {
+        "startLine": 20,
+        "startChar": 13,
+        "endLine": 20,
+        "endChar": 18
+      },
+      "revId": "132d6d7691dcf6c7fe3f641aba801a6c9d769ffe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b43c40b7_71714b9e",
         "filename": "samplecode/SampleImageFilterDAG.cpp",
         "patchSetId": 2
@@ -39,6 +63,24 @@
       "revId": "132d6d7691dcf6c7fe3f641aba801a6c9d769ffe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a018325a_f17e90c2",
+        "filename": "samplecode/SampleImageFilterDAG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-19T14:27:10Z",
+      "side": 1,
+      "message": "Done, and included details about why the sample needs to track this as well (so that it can visualize the node properly, since it\u0027s behavior is different from the others).",
+      "parentUuid": "b43c40b7_71714b9e",
+      "revId": "132d6d7691dcf6c7fe3f641aba801a6c9d769ffe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -62,6 +104,30 @@
       "revId": "132d6d7691dcf6c7fe3f641aba801a6c9d769ffe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4e864b5_f7754d7d",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-19T14:27:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82335505_c1e0f80a",
+      "range": {
+        "startLine": 524,
+        "startChar": 94,
+        "endLine": 524,
+        "endChar": 98
+      },
+      "revId": "132d6d7691dcf6c7fe3f641aba801a6c9d769ffe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
