@@ -869,8 +869,7 @@ void SkSVGDevice::drawBitmapRect(const SkBitmap& bm, const SkRect* srcOrNull,
 class SVGTextBuilder : SkNoncopyable {
 public:
     SVGTextBuilder(SkPoint origin, const SkGlyphRun& glyphRun)
-            : fOrigin(origin)
-            , fLastCharWasWhitespace(true) { // start off in whitespace mode to strip all leadingspace
+            : fOrigin(origin) {
         auto runSize = glyphRun.runSize();
         SkAutoSTArray<64, SkUnichar> unichars(runSize);
         SkFontPriv::GlyphsToUnichars(glyphRun.font(), glyphRun.glyphsIDs().data(),
@@ -882,8 +881,8 @@ public:
     }
 
     const SkString& text() const { return fText; }
-    const SkString& posX() const { return fPosX; }
-    const SkString& posY() const { return fPosY; }
+    const SkString& posX() const { return fPosXStr; }
+    const SkString& posY() const { return fHasConstY ? fConstYStr : fPosYStr; }
 
 private:
     void appendUnichar(SkUnichar c, SkPoint position) {
@@ -928,22 +927,32 @@ private:
                 break;
         }
 
-        this->advancePos(discardPos, position);
         fLastCharWasWhitespace = isWhitespace;
-    }
 
-    void advancePos(bool discard, SkPoint position) {
-        if (!discard) {
-            SkPoint finalPosition = fOrigin + position;
-            fPosX.appendf("%.8g, ", finalPosition.x());
-            fPosY.appendf("%.8g, ", finalPosition.y());
+        if (discardPos) {
+            return;
+        }
+
+        position += fOrigin;
+        fPosXStr.appendf("%.8g, ", position.fX);
+        fPosYStr.appendf("%.8g, ", position.fY);
+
+        if (fConstYStr.isEmpty()) {
+            fConstYStr = fPosYStr;
+            fConstY    = position.fY;
+        } else {
+            fHasConstY &= SkScalarNearlyEqual(fConstY, position.fY);
         }
     }
 
     const SkPoint   fOrigin;
 
-    SkString fText, fPosX, fPosY;
-    bool     fLastCharWasWhitespace;
+    SkString fText,
+             fPosXStr, fPosYStr,
+             fConstYStr;
+    SkScalar fConstY;
+    bool     fLastCharWasWhitespace = true, // start off in whitespace mode to strip leading space
+             fHasConstY             = true;
 };
 
 void SkSVGDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, const SkPoint& origin,
