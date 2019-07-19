@@ -395,7 +395,7 @@ namespace skvm {
         bool jit             (const std::vector<Builder::Instruction>&, Assembler*) const;
 
         // Dump jit-*.dump files for perf inject.
-        void dumpJIT(const char* debug_name) const;
+        void dumpJIT(const char* debug_name, size_t size) const;
 
         std::vector<Instruction> fInstructions;
         int                      fRegs;
