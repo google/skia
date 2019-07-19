@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78457999_e84f38ed",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-19T14:06:22Z",
+      "side": 1,
+      "message": "draw ?",
+      "range": {
+        "startLine": 20,
+        "startChar": 13,
+        "endLine": 20,
+        "endChar": 18
+      },
+      "revId": "132d6d7691dcf6c7fe3f641aba801a6c9d769ffe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b43c40b7_71714b9e",
+        "filename": "samplecode/SampleImageFilterDAG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-19T14:06:22Z",
+      "side": 1,
+      "message": "// In the future we wish to replace implicit matrix nodes with direct draws to the final destination (instead of using a matrix image filter)\n\n?",
+      "revId": "132d6d7691dcf6c7fe3f641aba801a6c9d769ffe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82335505_c1e0f80a",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-19T14:06:22Z",
+      "side": 1,
+      "message": "we need ?",
+      "range": {
+        "startLine": 524,
+        "startChar": 94,
+        "endLine": 524,
+        "endChar": 98
+      },
+      "revId": "132d6d7691dcf6c7fe3f641aba801a6c9d769ffe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
