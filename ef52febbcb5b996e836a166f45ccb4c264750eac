@@ -22,6 +22,30 @@
       "revId": "ef52febbcb5b996e836a166f45ccb4c264750eac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c0d69e2_20c37911",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-19T13:17:48Z",
+      "side": 1,
+      "message": "Not sure what to do beyond a comment... interleaving images is not feasible with the current architecture - but maybe if we pursue Mike\u0027s glyph path caching idea it becomes less of a stretch (if all glyphs are instantiated as \u003csymbol\u003e or something, those could also point to images).\n\nThe API is also not particularly helpful - IINM, I can\u0027t even tell which glyph is a missing path associated with.",
+      "parentUuid": "48cf183b_0465e0b1",
+      "range": {
+        "startLine": 152,
+        "startChar": 16,
+        "endLine": 152,
+        "endChar": 17
+      },
+      "revId": "ef52febbcb5b996e836a166f45ccb4c264750eac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
