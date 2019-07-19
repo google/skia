@@ -114,6 +114,7 @@ public:
         kGrGaussianConvolutionFragmentProcessor_ClassID,
         kGrGSCoverageProcessor_ClassID,
         kGrImprovedPerlinNoiseEffect_ClassID,
+        kGrIncrDecrWindingCountXP_ClassID,
         kGrLightingEffect_ClassID,
         kGrLinearGradient_ClassID,
         kGrLinearGradientLayout_ClassID,
@@ -135,11 +136,13 @@ public:
         kGrRectBlurEffect_ClassID,
         kGrRRectBlurEffect_ClassID,
         kGrRRectShadowGeoProc_ClassID,
+        kGrResolveWindingCountXP_ClassID,
         kGrSimpleTextureEffect_ClassID,
         kGrSingleIntervalGradientColorizer_ClassID,
         kGrSkSLFP_ClassID,
         kGrSpecularLightingEffect_ClassID,
         kGrSRGBEffect_ClassID,
+        kGrSampleMaskProcessor_ClassID,
         kGrSweepGradient_ClassID,
         kGrSweepGradientLayout_ClassID,
         kGrTextureDomainEffect_ClassID,
@@ -165,6 +168,7 @@ public:
         kSampleLocationsTestProcessor_ClassID,
         kSeriesFragmentProcessor_ClassID,
         kShaderPDXferProcessor_ClassID,
+        kStencilResolveProcessor_ClassID,
         kFwidthSquircleTestProcessor_ClassID,
         kSwizzleFragmentProcessor_ClassID,
         kTestFP_ClassID,
@@ -227,6 +231,7 @@ protected:
     GrProcessor& operator=(const GrProcessor&) = delete;
 
     void setWillUseCustomFeature(CustomFeatures feature) { fRequestedFeatures |= feature; }
+    void resetCustomFeatures() { fRequestedFeatures = CustomFeatures::kNone; }
 
     const ClassID fClassID;
     CustomFeatures fRequestedFeatures = CustomFeatures::kNone;

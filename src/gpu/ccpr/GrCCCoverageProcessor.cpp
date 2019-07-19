@@ -33,7 +33,8 @@ class GrCCCoverageProcessor::TriangleShader : public GrCCCoverageProcessor::Shad
         }
     }
 
-    void onEmitFragmentCode(GrGLSLFPFragmentBuilder* f, const char* outputCoverage) const override {
+    void emitFragmentCoverageCode(
+            GrGLSLFPFragmentBuilder* f, const char* outputCoverage) const override {
         if (kHalf_GrSLType == fCoverages.type()) {
             f->codeAppendf("%s = %s;", outputCoverage, fCoverages.fsIn());
         } else {
@@ -41,6 +42,8 @@ class GrCCCoverageProcessor::TriangleShader : public GrCCCoverageProcessor::Shad
                            outputCoverage, fCoverages.fsIn(), fCoverages.fsIn(), fCoverages.fsIn());
         }
     }
+
+    void emitSampleMaskCode(GrGLSLFPFragmentBuilder*) const override { return; }
 
     GrGLSLVarying fCoverages;
 };
@@ -190,15 +193,6 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
             break;
     }
     return this->onCreateGLSLInstance(std::move(shader));
-}
-
-void GrCCCoverageProcessor::Shader::emitFragmentCode(
-        const GrCCCoverageProcessor& proc, GrGLSLFPFragmentBuilder* f, const char* skOutputColor,
-        const char* skOutputCoverage) const {
-    f->codeAppendf("half coverage = 0;");
-    this->onEmitFragmentCode(f, "coverage");
-    f->codeAppendf("%s.a = coverage;", skOutputColor);
-    f->codeAppendf("%s = half4(1);", skOutputCoverage);
 }
 
 void GrCCCoverageProcessor::draw(
