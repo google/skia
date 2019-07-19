@@ -407,13 +407,13 @@ DEF_TEST(SkVM_Assembler, r) {
         0xc3,
     });
 
-    // Align should pad with nop().
+    // Align should pad with zero
     test_asm(r, [&](A& a) {
         a.ret();
         a.align(4);
     },{
         0xc3,
-        0x90, 0x90, 0x90,
+        0x00, 0x00, 0x00,
     });
 
     test_asm(r, [&](A& a) {
