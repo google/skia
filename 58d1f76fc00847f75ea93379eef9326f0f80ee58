@@ -16,6 +16,24 @@
       "revId": "58d1f76fc00847f75ea93379eef9326f0f80ee58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cea3690_5495f992",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-19T18:14:47Z",
+      "side": 1,
+      "message": "Done in https://skia-review.googlesource.com/c/skia/+/228566 [infra] Move SKQP recipe test to correct recipe",
+      "parentUuid": "5fa64834_8fb0effd",
+      "revId": "58d1f76fc00847f75ea93379eef9326f0f80ee58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
