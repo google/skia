@@ -216,7 +216,7 @@ public:
     }
 
     const char* sampleVariablesExtensionString() const {
-        SkASSERT(this->sampleVariablesSupport());
+        SkASSERT(this->sampleVariablesSupport() || this->sampleVariablesStencilSupport());
         return fSampleVariablesExtensionString;
     }
 
