@@ -70,6 +70,9 @@ static inline sk_sp<SkTypeface> create_portable_typeface() {
     return create_portable_typeface(nullptr, SkFontStyle());
 }
 
+/** Return true if the nativeFonts flag is enabled. */
+bool NativeFontsEnabled();
+
 /**
  *  Turn on portable (--nonativeFonts) or GDI font rendering (--gdi).
  */

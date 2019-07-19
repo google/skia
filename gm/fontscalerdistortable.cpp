@@ -21,6 +21,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 #include <string.h>
 #include <memory>
@@ -52,12 +53,17 @@ protected:
         sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
         std::unique_ptr<SkStreamAsset> distortableStream(GetResourceAsStream("fonts/Distortable.ttf"));
-        sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
-
         if (!distortableStream) {
             *errorMsg = "No distortableStream";
             return DrawResult::kFail;
         }
+        sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
+        if (!distortable) {
+            *errorMsg = "FontMgr couldn't load fonts/Distortable.ttf";
+            // Known not to work for portable FontMgr.
+            return ToolUtils::NativeFontsEnabled() ? DrawResult::kFail : DrawResult::kSkip;
+        }
+
         const char* text = "abc";
         const size_t textLen = strlen(text);
 
@@ -79,6 +85,12 @@ protected:
                     font.setTypeface(fontMgr->makeFromStream(
                         distortableStream->duplicate(),
                         SkFontArguments().setVariationDesignPosition(position)));
+                    if (!font.getTypeface()) {
+                        *errorMsg = "FontMgr couldn't load fonts/Distortable.ttf from stream";
+                        // Known not to work for portable FontMgr.
+                        return ToolUtils::NativeFontsEnabled() ?
+                                DrawResult::kFail : DrawResult::kSkip;
+                    }
                 }
 
                 SkAutoCanvasRestore acr(canvas, true);

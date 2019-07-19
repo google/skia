@@ -15,6 +15,7 @@
 #include "src/core/SkOSFile.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 //#define DUMP_TABLES
 //#define DUMP_TTC_TABLES
@@ -114,13 +115,12 @@ static void test_fontstream(skiatest::Reporter* reporter) {
 // Exercise this rare cmap format (platform 3, encoding 0)
 static void test_symbolfont(skiatest::Reporter* reporter) {
     auto tf = MakeResourceAsTypeface("fonts/SpiderSymbol.ttf");
+    // Known not to work for portable FontMgr.
+    REPORTER_ASSERT(reporter, tf || !ToolUtils::NativeFontsEnabled());
     if (tf) {
         SkUnichar c = 0xf021;
         uint16_t g = SkFont(tf).unicharToGlyph(c);
         REPORTER_ASSERT(reporter, g == 3);
-    } else {
-        // not all platforms support data fonts, so we just note that failure
-        SkDebugf("Skipping FontHostTest::test_symbolfont\n");
     }
 }
 

@@ -45,7 +45,13 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (!typefaces[0] && !typefaces[1] && !typefaces[2] && ToolUtils::NativeFontsEnabled()) {
+            // Known not to work for portable FontMgr; it will use the default typeface instead.
+            *errorMsg = "FontMgr couldn't load any of "
+                        "fonts/colr.ttf, fonts/sbix.ttf, or fonts/cbdt.ttf";
+            return DrawResult::kFail;
+        }
 
         canvas->drawColor(SK_ColorGRAY);
         SkScalar y = 0;
@@ -70,6 +76,7 @@ protected:
                 y += metrics.fDescent + metrics.fLeading;
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

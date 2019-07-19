@@ -57,8 +57,9 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
     os2Table->usWidthClass.value = static_cast<WidthType>(SkEndian_SwapBE16(width));
 
     sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromData(sk_ref_sp(data)));
+    // Known not to work for portable FontMgr.
+    REPORTER_ASSERT(reporter, newTypeface || !ToolUtils::NativeFontsEnabled());
     if (!newTypeface) {
-        // Not all SkFontMgr can MakeFromStream().
         return;
     }
 
@@ -103,8 +104,9 @@ DEF_TEST(TypefaceStyle, reporter) {
 
 DEF_TEST(TypefaceRoundTrip, reporter) {
     sk_sp<SkTypeface> typeface(MakeResourceAsTypeface("fonts/7630.otf"));
+    // Known not to work for portable FontMgr.
+    REPORTER_ASSERT(reporter, typeface || !ToolUtils::NativeFontsEnabled());
     if (!typeface) {
-        // Not all SkFontMgr can MakeFromStream().
         return;
     }
 
@@ -159,9 +161,9 @@ DEF_TEST(TypefaceAxes, reporter) {
     params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
     // TODO: if axes are set and the back-end doesn't support them, should we create the typeface?
     sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
-
+    // Known not to work for portable FontMgr.
+    REPORTER_ASSERT(reporter, typeface || !ToolUtils::NativeFontsEnabled());
     if (!typeface) {
-        // Not all SkFontMgr can makeFromStream().
         return;
     }
 
@@ -195,9 +197,9 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
     // The first named variation position in Distortable is 'Thin'.
     params.setCollectionIndex(0x00010000);
     sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+    // Known not to work for portable FontMgr.
+    REPORTER_ASSERT(reporter, typeface || !ToolUtils::NativeFontsEnabled());
     if (!typeface) {
-        // FreeType is the only weird thing that supports this, Skia just needs to make sure if it
-        // gets one of these things make sense.
         return;
     }
 
@@ -248,9 +250,9 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
 
     SkFontArguments params;
     sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
-
+    // Known not to work for portable FontMgr.
+    REPORTER_ASSERT(reporter, typeface || !ToolUtils::NativeFontsEnabled());
     if (!typeface) {
-        // Not all SkFontMgr can makeFromStream().
         return;
     }
 
@@ -304,9 +306,7 @@ DEF_TEST(TypefaceCache, reporter) {
 
 static void check_serialize_behaviors(sk_sp<SkTypeface> tf, bool isLocalData,
                                       skiatest::Reporter* reporter) {
-    if (!tf) {
-        return;
-    }
+    REPORTER_ASSERT(reporter, tf);
     auto data0 = tf->serialize(SkTypeface::SerializeBehavior::kDoIncludeData);
     auto data1 = tf->serialize(SkTypeface::SerializeBehavior::kDontIncludeData);
     auto data2 = tf->serialize(SkTypeface::SerializeBehavior::kIncludeDataIfLocal);
@@ -322,10 +322,12 @@ static void check_serialize_behaviors(sk_sp<SkTypeface> tf, bool isLocalData,
 
 DEF_TEST(Typeface_serialize, reporter) {
     check_serialize_behaviors(SkTypeface::MakeDefault(), false, reporter);
-    check_serialize_behaviors(SkTypeface::MakeFromStream(
-                                         GetResourceAsStream("fonts/Distortable.ttf")),
-                              true, reporter);
-
+    auto typeface = SkTypeface::MakeFromStream(GetResourceAsStream("fonts/Distortable.ttf"));
+    // Known not to work for portable FontMgr.
+    REPORTER_ASSERT(reporter, typeface || !ToolUtils::NativeFontsEnabled());
+    if (typeface) {
+        check_serialize_behaviors(std::move(typeface), true, reporter);
+    }
 }
 
 DEF_TEST(Typeface_glyph_to_char, reporter) {

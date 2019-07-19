@@ -307,6 +307,8 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
 
     const char resource[] = "fonts/Roboto2-Regular_NoEmbed.ttf";
     sk_sp<SkTypeface> noEmbedTypeface(MakeResourceAsTypeface(resource));
+    // Known not to work for portable FontMgr.
+    REPORTER_ASSERT(reporter, noEmbedTypeface || !ToolUtils::NativeFontsEnabled());
     if (noEmbedTypeface) {
         REPORTER_ASSERT(reporter,
                         !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &doc));
