@@ -432,6 +432,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 return {};
             }
 
+
             sk_sp<GrTexture> tex;
             static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
             GrUniqueKey key;
