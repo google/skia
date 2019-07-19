@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1352807e_2a6e67d7",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-19T13:33:25Z",
+      "side": 1,
+      "message": "ignoreable: rm name ?",
+      "range": {
+        "startLine": 532,
+        "startChar": 68,
+        "endLine": 532,
+        "endChar": 80
+      },
+      "revId": "8c8baba47f8b6a2f6302391c80b87bc8d59079e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "338182c6_62a30c74",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-19T13:33:25Z",
+      "side": 1,
+      "message": "Won\u0027t this come back to bite us at some point ?\nI.e., if this mask is to be used in a protected context doesn\u0027t it need to have the correct protection setting here?",
+      "revId": "8c8baba47f8b6a2f6302391c80b87bc8d59079e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6a85fd5_fb5f495b",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-19T13:33:25Z",
+      "side": 1,
+      "message": "promise",
+      "range": {
+        "startLine": 492,
+        "startChar": 10,
+        "endLine": 492,
+        "endChar": 19
+      },
+      "revId": "8c8baba47f8b6a2f6302391c80b87bc8d59079e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
