@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "eb9a78fc_1de4dc0b",
+        "filename": "gm/blurroundrect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-19T14:26:06Z",
+      "side": 1,
+      "message": "If gms were something other people could write and we didn\u0027t control them directly this would probably be ok (though I think then we\u0027d want to just do namespacing, and maybecleaner namespacing for the names would be a good idea anyway), but we do control them and so it\u0027s a lot easier for the gm to just know its own name.",
+      "parentUuid": "5a1c7e27_3c268c75",
+      "range": {
+        "startLine": 161,
+        "startChar": 42,
+        "endLine": 161,
+        "endChar": 84
+      },
+      "revId": "799c455f2af6ab87c6b1b196706f1f4e05342c3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "03084cc2_33ab0a5b",
         "filename": "gm/filterindiabox.cpp",
         "patchSetId": 4

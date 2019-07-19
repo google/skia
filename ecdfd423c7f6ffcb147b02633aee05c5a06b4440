@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1951cce7_b4b71171",
+        "filename": "gm/fontmgr.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-19T14:26:06Z",
+      "side": 1,
+      "message": "fSkewX",
+      "range": {
+        "startLine": 206,
+        "startChar": 26,
+        "endLine": 206,
+        "endChar": 30
+      },
+      "revId": "ecdfd423c7f6ffcb147b02633aee05c5a06b4440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eacf7ede_e973a46e",
+        "filename": "gm/fontmgr.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-19T14:26:06Z",
+      "side": 1,
+      "message": "fSkewX",
+      "range": {
+        "startLine": 207,
+        "startChar": 65,
+        "endLine": 207,
+        "endChar": 70
+      },
+      "revId": "ecdfd423c7f6ffcb147b02633aee05c5a06b4440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
