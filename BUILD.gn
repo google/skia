@@ -2435,6 +2435,7 @@ if (skia_enable_tools) {
     sources = [
       "tools/viewer/AnimTimer.h",
       "tools/viewer/BisectSlide.cpp",
+      "tools/viewer/ByteCodeSlide.cpp",
       "tools/viewer/GMSlide.cpp",
       "tools/viewer/ImGuiLayer.cpp",
       "tools/viewer/ImageSlide.cpp",
