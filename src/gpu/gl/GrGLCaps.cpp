@@ -1374,6 +1374,8 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     uint32_t fpRenderFlags = (GR_IS_GR_GL(standard)) ? msaaRenderFlags : nonMSAARenderFlags;
 
     if (GR_IS_GR_GL(standard)) {
+        // TODO: it seems like GL_ARB_texture_float GL_ARB_color_buffer_float should be taken
+        // into account here
         if (version >= GR_GL_VER(3, 0)) {
             hasFP16Textures = true;
             halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kAll;
@@ -1575,12 +1577,11 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             // kAlpha_8
             {
                 uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-                if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
-                    info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags);
-                    int idx = static_cast<int>(GrColorType::kAlpha_8);
-                    if (fColorTypeToFormatTable[idx] == GrGLFormat::kUnknown) {
-                        this->setColorTypeFormat(GrColorType::kAlpha_8, GrGLFormat::kALPHA8);
-                    }
+                info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_8, flags);
+
+                int idx = static_cast<int>(GrColorType::kAlpha_8);
+                if (fColorTypeToFormatTable[idx] == GrGLFormat::kUnknown) {
+                    this->setColorTypeFormat(GrColorType::kAlpha_8, GrGLFormat::kALPHA8);
                 }
             }
         }
@@ -1805,6 +1806,34 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
     }
 
+#if 0
+    InsertFormatMapping(&map, GL_R16F,
+        VersionOrExts(3, 0, "GL_ARB_texture_rg ARB_texture_float"),
+        AlwaysSupported(),
+        VersionOrExts(3, 0, "GL_ARB_texture_rg GL_ARB_texture_float GL_ARB_color_buffer_float"),
+        VersionOrExts(3, 0, "GL_OES_texture_half_float GL_EXT_texture_rg"),
+        VersionOrExts(3, 0, "GL_OES_texture_half_float_linear"),
+        ExtsOnly("GL_EXT_texture_storage GL_OES_texture_half_float GL_EXT_texture_rg GL_EXT_color_buffer_half_float", "GL_EXT_color_buffer_float"),
+        ExtsOnly("GL_EXT_texture_rg GL_OES_texture_half_float GL_EXT_color_buffer_half_float", "GL_EXT_color_buffer_float"));
+    InsertFormatMapping(&map, GL_RG16F,
+        VersionOrExts(3, 0, "GL_ARB_texture_rg ARB_texture_float"),
+        AlwaysSupported(),
+        VersionOrExts(3, 0, "GL_ARB_texture_rg GL_ARB_texture_float GL_ARB_color_buffer_float"),
+        VersionOrExts(3, 0, "GL_OES_texture_half_float GL_EXT_texture_rg"),
+        VersionOrExts(3, 0, "GL_OES_texture_half_float_linear"),
+        ExtsOnly("GL_EXT_texture_storage GL_OES_texture_half_float GL_EXT_texture_rg GL_EXT_color_buffer_half_float", "GL_EXT_color_buffer_float"),
+        ExtsOnly("GL_EXT_texture_rg GL_OES_texture_half_float GL_EXT_color_buffer_half_float", "GL_EXT_color_buffer_float"));
+
+    InsertFormatMapping(&map, GL_LUMINANCE16F_EXT,
+        VersionOrExts(3, 0, "GL_ARB_texture_float"),
+        AlwaysSupported(),
+        NeverSupported(),
+        ExtsOnly("GL_OES_texture_half_float"),
+        ExtsOnly("GL_OES_texture_half_float_linear"),
+        NeverSupported(),
+        NeverSupported()                );
+#endif
+
     // R16F
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kR16F);
@@ -1833,6 +1862,63 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 uint32_t flags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_F16, flags);
                 this->setColorTypeFormat(GrColorType::kAlpha_F16, GrGLFormat::kR16F);
+            }
+        }
+    }
+
+    // LUMINANCE16F
+    {
+        // NOTE: We disallow lum16f on ES devices if linear filtering modes are not
+        // supported. This is for simplicity, but a more granular approach is possible.
+        bool lum16FSupported = false;
+
+        if (GR_IS_GR_GL(standard)) {
+            if (version >= GR_GL_VER(3, 0)) {
+                lum16FSupported = true;
+            } else if (ctxInfo.hasExtension("GL_ARB_texture_float")) {
+                lum16FSupported = true;
+            }
+        } else if (GR_IS_GR_GL_ES(standard)) {
+            if (version >= GR_GL_VER(3, 0)) {
+                lum16FSupported = true;
+            } else if (ctxInfo.hasExtension("GL_OES_texture_float_linear") &&
+                       ctxInfo.hasExtension("GL_OES_texture_float")) {
+                lum16FSupported = true;
+            } else if (ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
+                       ctxInfo.hasExtension("GL_OES_texture_half_float")) {
+                lum16FSupported = true;
+            }
+        } // No WebGL support
+
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kLUMINANCE16F);
+        info.fFormatType = FormatType::kFloat;
+        info.fBaseInternalFormat = GR_GL_LUMINANCE;
+        info.fSizedInternalFormat = GR_GL_LUMINANCE16F;
+        info.fInternalFormatForTexImage =
+                texImageSupportsSizedInternalFormat ? GR_GL_LUMINANCE16F : GR_GL_LUMINANCE;
+        info.fInternalFormatForRenderbuffer =
+                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_LUMINANCE16F
+                                                               : GR_GL_LUMINANCE;
+        info.fDefaultExternalType = halfFloatType;
+
+        if (lum16FSupported) {
+            info.fFlags = FormatInfo::kTextureable_Flag;
+        }
+        if (texStorageSupported &&
+            !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2) {
+            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
+        }
+
+        if (lum16FSupported) {
+            // kAlpha_F16
+            {
+                uint32_t flags = ColorTypeInfo::kUploadData_Flag;
+                info.fColorTypeInfos.emplace_back(GrColorType::kAlpha_F16, flags);
+
+                int idx = static_cast<int>(GrColorType::kAlpha_F16);
+                if (fColorTypeToFormatTable[idx] == GrGLFormat::kUnknown) {
+                    this->setColorTypeFormat(GrColorType::kAlpha_F16, GrGLFormat::kLUMINANCE16F);
+                }
             }
         }
     }
@@ -2461,18 +2547,40 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     rgbaF32Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RGBA;
     rgbaF32Info.fFormats.fExternalType = GR_GL_FLOAT;
 
-    GrGLenum redHalfExternalType;
-    if (GR_IS_GR_GL(standard) ||
-       (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0))) {
-        redHalfExternalType = GR_GL_HALF_FLOAT;
-    } else {
-        redHalfExternalType = GR_GL_HALF_FLOAT_OES;
+    // single channel half formats
+    {
+        GrGLenum halfExternalType;
+        if (GR_IS_GR_GL(standard) ||
+            (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0))) {
+            halfExternalType = GR_GL_HALF_FLOAT;
+        } else {
+            halfExternalType = GR_GL_HALF_FLOAT_OES;
+        }
+
+        // RED16F
+        {
+            ConfigInfo& redHalf = fConfigTable[kAlpha_half_as_Red_GrPixelConfig];
+            redHalf.fFormats.fExternalType = halfExternalType;
+            redHalf.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
+            redHalf.fRGBAReadSwizzle = GrSwizzle("000r");
+
+            if (textureRedSupport) {
+                fConfigTable[kAlpha_half_GrPixelConfig] = redHalf;
+            }
+        }
+
+        // LUM16F
+        {
+            ConfigInfo& lumHalf = fConfigTable[kAlpha_half_as_Lum_GrPixelConfig];
+            lumHalf.fFormats.fExternalType = halfExternalType;
+            lumHalf.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_LUMINANCE;
+            lumHalf.fRGBAReadSwizzle = GrSwizzle("000r");
+
+            if (!textureRedSupport) {
+                fConfigTable[kAlpha_half_GrPixelConfig] = lumHalf;
+            }
+        }
     }
-    ConfigInfo& redHalf = fConfigTable[kAlpha_half_as_Red_GrPixelConfig];
-    redHalf.fFormats.fExternalType = redHalfExternalType;
-    redHalf.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
-    redHalf.fRGBAReadSwizzle = GrSwizzle("000r");
-    fConfigTable[kAlpha_half_GrPixelConfig] = redHalf;
 
     fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_RGBA;
@@ -3425,6 +3533,8 @@ GrGLFormat GrGLCaps::pixelConfigToFormat(GrPixelConfig config) const {
             return GrGLFormat::kLUMINANCE8;
         case kGray_8_as_Red_GrPixelConfig:
             return GrGLFormat::kR8;
+        case kAlpha_half_as_Lum_GrPixelConfig:
+            return GrGLFormat::kLUMINANCE16F;
         case kAlpha_half_as_Red_GrPixelConfig:
             return GrGLFormat::kR16F;
         case kRGB_ETC1_GrPixelConfig: {
@@ -3526,7 +3636,10 @@ static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGL
             }
             break;
         case GrColorType::kAlpha_F16:
-            if (GR_GL_R16F == format) {
+            printf("in validate_sized 0x%x\n", format);
+            if (GR_GL_LUMINANCE16F == format) {
+                return kAlpha_half_as_Lum_GrPixelConfig;
+            } else if (GR_GL_R16F == format) {
                 return kAlpha_half_as_Red_GrPixelConfig;
             }
             break;
@@ -3624,6 +3737,9 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
         case GR_GL_RGB10_A2:
             config = kRGBA_1010102_GrPixelConfig;
             break;
+        case GR_GL_LUMINANCE16F:
+            config = kAlpha_half_as_Lum_GrPixelConfig;
+            break;
         case GR_GL_R16F:
             config = kAlpha_half_as_Red_GrPixelConfig;
             break;
@@ -3651,6 +3767,30 @@ GrPixelConfig GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& fo
         return kUnknown_GrPixelConfig;
     }
     return get_yuva_config(*glFormat);
+}
+
+GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const {
+    GrGLFormat grGLFormat = GrGLBackendFormatToGLFormat(format);
+
+    switch (grGLFormat) {
+        case GrGLFormat::kALPHA8:       // fall through
+        case GrGLFormat::kR8:           return GrColorType::kAlpha_8;
+        case GrGLFormat::kRG8:          return GrColorType::kRG_88;
+        case GrGLFormat::kRGBA8:        return GrColorType::kRGBA_8888;
+        case GrGLFormat::kRGB8:         return GrColorType::kRGB_888x;
+        case GrGLFormat::kBGRA8:        return GrColorType::kBGRA_8888;
+        case GrGLFormat::kRGB10_A2:     return GrColorType::kRGBA_1010102;
+        case GrGLFormat::kLUMINANCE16F: // fall through
+        case GrGLFormat::kR16F:         return GrColorType::kAlpha_F16;
+        case GrGLFormat::kR16:          return GrColorType::kR_16;
+        case GrGLFormat::kRG16:         return GrColorType::kRG_1616;
+        // Experimental (for Y416 and mutant P016/P010)
+        case GrGLFormat::kRGBA16:       return GrColorType::kRGBA_16161616;
+        case GrGLFormat::kRG16F:        return GrColorType::kRG_F16;
+        default: return GrColorType::kUnknown;
+    }
+
+    SkUNREACHABLE;
 }
 
 GrBackendFormat GrGLCaps::getBackendFormatFromColorType(GrColorType ct) const {
@@ -3702,7 +3842,7 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
         case GrColorType::kGray_8:
             return GR_GL_LUMINANCE8 == format || GR_GL_R8 == format;
         case GrColorType::kAlpha_F16:
-            return GR_GL_R16F == format;
+            return GR_GL_R16F == format || GR_GL_LUMINANCE16F == format;
         case GrColorType::kRGBA_F16:
             return GR_GL_RGBA16F == format;
         case GrColorType::kRGBA_F16_Clamped:
@@ -3750,12 +3890,13 @@ static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorTyp
             }
             break;
         case GrColorType::kAlpha_F16:
-            SkASSERT(glFormat == GR_GL_R16F);
+            SkASSERT(glFormat == GR_GL_R16F || glFormat == GR_GL_LUMINANCE16F);
             if (forOutput) {
                 return GrSwizzle::AAAA();
             } else {
                 return GrSwizzle::RRRR();
             }
+            break;
         case GrColorType::kGray_8:
             if (glFormat == GR_GL_R8) {
                 if (!forOutput) {

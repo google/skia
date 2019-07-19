@@ -372,11 +372,13 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                                        PromiseImageTextureReleaseProc releaseProc,
                                        PromiseImageTextureDoneProc doneProc,
                                        PromiseImageTextureContext context,
-                                       GrPixelConfig config,
+                                       const GrBackendFormat& backendFormat,
+                                       GrColorType colorType,
                                        PromiseImageApiVersion version)
                 : fFulfillProc(fulfillProc)
                 , fReleaseProc(releaseProc)
-                , fConfig(config)
+                , fBackendFormat(backendFormat)
+                , fColorType(colorType)
                 , fVersion(version) {
             fDoneCallback = sk_make_sp<GrRefCntedCallback>(doneProc, context);
         }
@@ -426,10 +428,23 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 return {};
             }
 
-            auto backendTexture = promiseTexture->backendTexture();
-            backendTexture.fConfig = fConfig;
+            GrBackendTexture backendTexture = promiseTexture->backendTexture();
             if (!backendTexture.isValid()) {
                 return {};
+            }
+
+            if (backendTexture.getBackendFormat() != fBackendFormat) {
+                return {};
+            }
+
+            // TODO: delete this block
+            {
+                GrPixelConfig config = resourceProvider->caps()->getConfigFromBackendFormat(
+                                                                backendTexture.getBackendFormat(),
+                                                                fColorType);
+                printf("in promise - config %d\n", config);
+                SkASSERT(kUnknown_GrPixelConfig != config);
+                backendTexture.fConfig = config;
             }
 
             sk_sp<GrTexture> tex;
@@ -444,12 +459,14 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // that was previously used to fulfill a different promise image.
             if (auto surf = resourceProvider->findByUniqueKey<GrSurface>(key)) {
                 tex = sk_ref_sp(surf->asTexture());
+                printf("found tex! %d\n", tex->config());
                 SkASSERT(tex);
             } else {
                 if ((tex = resourceProvider->wrapBackendTexture(
                              backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes,
                              kRead_GrIOType))) {
                     tex->resourcePriv().setUniqueKey(key);
+                    printf("wrapping backend %d\n", tex->config());
                 } else {
                     return {};
                 }
@@ -477,11 +494,17 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         sk_sp<GrRefCntedCallback> fDoneCallback;
         GrTexture* fTexture = nullptr;
         uint32_t fTextureContextID = SK_InvalidUniqueID;
-        GrPixelConfig fConfig;
+        GrBackendFormat fBackendFormat;
+        GrColorType fColorType;
         PromiseImageApiVersion fVersion;
-    } callback(fulfillProc, releaseProc, doneProc, textureContext, config, version);
+    } callback(fulfillProc, releaseProc, doneProc, textureContext, backendFormat,
+               colorType, version);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrPixelConfig config = context->priv().caps()->getConfigFromBackendFormat(
+                                                                     backendFormat,
+                                                                     colorType);
+    printf("config to desc in promise %d\n", config);
 
     GrSurfaceDesc desc;
     desc.fWidth = width;
