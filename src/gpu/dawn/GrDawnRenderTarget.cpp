@@ -15,8 +15,8 @@ GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
                                        const GrSurfaceDesc& desc,
                                        const GrDawnImageInfo& info,
                                        GrBackendObjectOwnership ownership)
-    : GrSurface(gpu, desc)
-    , GrRenderTarget(gpu, desc)
+    : GrSurface(gpu, desc, GrProtected::kNo)
+    , GrRenderTarget(gpu, desc, GrProtected::kNo)
     , fInfo(info) {
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
