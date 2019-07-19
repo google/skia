@@ -55,7 +55,8 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
                                const GrBackendFormat& format, const GrSurfaceDesc& desc,
                                GrRenderable renderable, GrSurfaceOrigin origin,
                                const GrSwizzle& textureSwizzle, SkBackingFit fit,
-                               SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
+                               SkBudgeted budgeted, GrProtected isProtected,
+                               GrInternalSurfaceFlags surfaceFlags)
         : fSurfaceFlags(surfaceFlags)
         , fFormat(format)
         , fConfig(desc.fConfig)
@@ -67,7 +68,7 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
         , fBudgeted(budgeted)
         , fLazyInstantiateCallback(std::move(callback))
         , fLazyInstantiationType(lazyType)
-        , fIsProtected(desc.fIsProtected)
+        , fIsProtected(isProtected)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
     SkASSERT(fFormat.isValid());
@@ -138,7 +139,6 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     GrSurfaceDesc desc;
     desc.fWidth = fWidth;
     desc.fHeight = fHeight;
-    desc.fIsProtected = fIsProtected;
     desc.fConfig = fConfig;
     desc.fSampleCnt = sampleCnt;
 
@@ -163,18 +163,18 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
             texels[i].fRowBytes = 0;
         }
 
-        surface = resourceProvider->createTexture(desc, renderable, fBudgeted, texels.get(),
-                                                  mipCount);
+        surface = resourceProvider->createTexture(desc, renderable, fBudgeted, fIsProtected,
+                                                  texels.get(), mipCount);
         if (surface) {
             SkASSERT(surface->asTexture());
             SkASSERT(GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
         }
     } else {
         if (SkBackingFit::kApprox == fFit) {
-            surface =
-                    resourceProvider->createApproxTexture(desc, renderable, resourceProviderFlags);
+            surface = resourceProvider->createApproxTexture(desc, renderable, fIsProtected,
+                                                            resourceProviderFlags);
         } else {
-            surface = resourceProvider->createTexture(desc, renderable, fBudgeted,
+            surface = resourceProvider->createTexture(desc, renderable, fBudgeted, fIsProtected,
                                                       resourceProviderFlags);
         }
     }

@@ -141,7 +141,6 @@ bool SkDeferredDisplayListRecorder::init() {
     GrSurfaceDesc desc;
     desc.fWidth = fCharacterization.width();
     desc.fHeight = fCharacterization.height();
-    desc.fIsProtected = fCharacterization.isProtected();
     desc.fConfig = config;
     desc.fSampleCnt = fCharacterization.sampleCount();
 
@@ -177,6 +176,7 @@ bool SkDeferredDisplayListRecorder::init() {
             optionalTextureInfo,
             SkBackingFit::kExact,
             SkBudgeted::kYes,
+            fCharacterization.isProtected(),
             fCharacterization.vulkanSecondaryCBCompatible());
 
     if (!proxy) {

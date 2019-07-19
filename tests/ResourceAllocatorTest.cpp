@@ -45,7 +45,8 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(grCT);
 
-    return proxyProvider->createProxy(format, desc, p.fRenderable, p.fOrigin, p.fFit, p.fBudgeted);
+    return proxyProvider->createProxy(format, desc, p.fRenderable, p.fOrigin, p.fFit, p.fBudgeted,
+                                      GrProtected::kNo);
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
@@ -282,9 +283,10 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
         sk_sp<GrTexture> texture;
         if (fit == SkBackingFit::kApprox) {
             texture = resourceProvider->createApproxTexture(
-                    desc, renderable, GrResourceProvider::Flags::kNoPendingIO);
+                    desc, renderable, GrProtected::kNo, GrResourceProvider::Flags::kNoPendingIO);
         } else {
             texture = resourceProvider->createTexture(desc, renderable, SkBudgeted::kNo,
+                                                      GrProtected::kNo,
                                                       GrResourceProvider::Flags::kNoPendingIO);
         }
         return GrSurfaceProxy::LazyInstantiationResult(std::move(texture));
@@ -294,7 +296,8 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
                                   : GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
     return proxyProvider->createLazyProxy(callback, format, desc, p.fRenderable, p.fOrigin,
-                                          GrMipMapped::kNo, flags, p.fFit, p.fBudgeted, lazyType);
+                                          GrMipMapped::kNo, flags, p.fFit, p.fBudgeted,
+                                          GrProtected::kNo, lazyType);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {

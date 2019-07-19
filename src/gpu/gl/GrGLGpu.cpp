@@ -676,6 +676,10 @@ static bool check_backend_texture(const GrBackendTexture& backendTex, const GrGL
     } else if (GR_GL_TEXTURE_2D != idDesc->fInfo.fTarget) {
         return false;
     }
+    if (backendTex.isProtected()) {
+        // Not supported in GL backend at this time.
+        return false;
+    }
     return true;
 }
 
@@ -767,6 +771,11 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
     GrGLFramebufferInfo info;
     if (!backendRT.getGLFramebufferInfo(&info)) {
+        return nullptr;
+    }
+
+    if (backendRT.isProtected()) {
+        // Not supported in GL at this time.
         return nullptr;
     }
 
@@ -1463,8 +1472,13 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
 sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                           GrRenderable renderable,
                                           SkBudgeted budgeted,
+                                          GrProtected isProtected,
                                           const GrMipLevel texels[],
                                           int mipLevelCount) {
+    // We don't support protected textures in GL.
+    if (isProtected == GrProtected::kYes) {
+        return nullptr;
+    }
     // We fail if the MSAA was requested and is not available.
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt > 1) {
         return return_null_texture();

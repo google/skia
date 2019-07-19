@@ -172,7 +172,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
 
     auto proxy = context->priv().proxyProvider()->createProxy(
             format, desc, GrRenderable::kYes, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-            SkBackingFit::kExact, SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
+            SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
     proxy->instantiate(context->priv().resourceProvider());
     int result[result_width()];

@@ -90,7 +90,7 @@ public:
     const GrRenderTargetPriv renderTargetPriv() const;
 
 protected:
-    GrRenderTarget(GrGpu*, const GrSurfaceDesc&, GrStencilAttachment* = nullptr);
+    GrRenderTarget(GrGpu*, const GrSurfaceDesc&, GrProtected, GrStencilAttachment* = nullptr);
     ~GrRenderTarget() override;
 
     // override of GrResource

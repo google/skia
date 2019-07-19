@@ -29,13 +29,14 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  const GrVkImageView* colorAttachmentView,
                                                  const GrVkImageView* resolveAttachmentView,
                                                  GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, desc)
+        : GrSurface(gpu, desc, info.fProtected)
         , GrVkImage(info, layout, GrBackendObjectOwnership::kOwned)
         , GrVkTexture(gpu, desc, info, layout, texView, mipMapsStatus,
                       GrBackendObjectOwnership::kOwned)
         , GrVkRenderTarget(gpu, desc, info, layout, msaaInfo, std::move(msaaLayout),
                            colorAttachmentView, resolveAttachmentView,
                            GrBackendObjectOwnership::kOwned) {
+    SkASSERT(info.fProtected == msaaInfo.fProtected);
     this->registerWithCache(budgeted);
 }
 
@@ -47,7 +48,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  const GrVkImageView* texView,
                                                  const GrVkImageView* colorAttachmentView,
                                                  GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, desc)
+        : GrSurface(gpu, desc, info.fProtected)
         , GrVkImage(info, layout, GrBackendObjectOwnership::kOwned)
         , GrVkTexture(gpu, desc, info, layout, texView, mipMapsStatus,
                       GrBackendObjectOwnership::kOwned)
@@ -68,11 +69,12 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  GrMipMapsStatus mipMapsStatus,
                                                  GrBackendObjectOwnership ownership,
                                                  GrWrapCacheable cacheable)
-        : GrSurface(gpu, desc)
+        : GrSurface(gpu, desc, info.fProtected)
         , GrVkImage(info, layout, ownership)
         , GrVkTexture(gpu, desc, info, layout, texView, mipMapsStatus, ownership)
         , GrVkRenderTarget(gpu, desc, info, layout, msaaInfo, std::move(msaaLayout),
                            colorAttachmentView, resolveAttachmentView, ownership) {
+    SkASSERT(info.fProtected == msaaInfo.fProtected);
     this->registerWithCacheWrapped(cacheable);
 }
 
@@ -85,7 +87,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  GrMipMapsStatus mipMapsStatus,
                                                  GrBackendObjectOwnership ownership,
                                                  GrWrapCacheable cacheable)
-        : GrSurface(gpu, desc)
+        : GrSurface(gpu, desc, info.fProtected)
         , GrVkImage(info, layout, ownership)
         , GrVkTexture(gpu, desc, info, layout, texView, mipMapsStatus, ownership)
         , GrVkRenderTarget(gpu, desc, info, layout, colorAttachmentView, ownership) {

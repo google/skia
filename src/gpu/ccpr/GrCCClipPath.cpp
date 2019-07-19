@@ -43,7 +43,7 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
 
                 return std::move(texture);
             },
-            format, GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin,
+            format, GrProxyProvider::Renderable::kYes, GrProtected::kNo, kTopLeft_GrSurfaceOrigin,
             kAlpha_half_GrPixelConfig, caps);
 
     fDeviceSpacePath = deviceSpacePath;

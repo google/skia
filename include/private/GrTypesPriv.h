@@ -146,16 +146,10 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
  * Describes a surface to be created.
  */
 struct GrSurfaceDesc {
-    GrSurfaceDesc()
-            : fWidth(0)
-            , fHeight(0)
-            , fIsProtected(GrProtected::kNo)
-            , fConfig(kUnknown_GrPixelConfig)
-            , fSampleCnt(1) {}
+    GrSurfaceDesc() : fWidth(0) , fHeight(0) , fConfig(kUnknown_GrPixelConfig) , fSampleCnt(1) {}
 
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
-    GrProtected            fIsProtected;       //!< Surface is protected
 
     /**
      * Format of source data of the texture. Not guaranteed to be the same as
