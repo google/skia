@@ -99,8 +99,8 @@ bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int 
 
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                            SkBudgeted budgeted, const GrMipLevel texels[],
-                                            int mipLevelCount) {
+                                            SkBudgeted budgeted, GrProtected,
+                                            const GrMipLevel texels[], int mipLevelCount) {
     return nullptr;
 }
 
