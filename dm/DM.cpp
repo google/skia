@@ -1358,6 +1358,10 @@ static void gather_tests() {
         if (!in_shard()) {
             continue;
         }
+        if (strcmp("InitialTextureClear", test.name)) {
+            continue;
+        }
+
         if (CommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
