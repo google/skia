@@ -148,6 +148,7 @@ private:
 
     // The pointer to the node may be invalidated by modifying the fNodes vector
     ASTNode& getNode(ASTNode::ID id) {
+        SkASSERT(id.fValue >= 0 && id.fValue < (int) fFile->fNodes.size());
         return fFile->fNodes[id.fValue];
     }
 

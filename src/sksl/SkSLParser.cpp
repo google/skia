@@ -1880,6 +1880,9 @@ ASTNode::ID Parser::postfixExpression() {
             case Token::MINUSMINUS: // fall through
             case Token::COLONCOLON:
                 result = this->suffix(result);
+                if (!result) {
+                    return ASTNode::ID::Invalid();
+                }
                 break;
             default:
                 return result;
@@ -1890,6 +1893,7 @@ ASTNode::ID Parser::postfixExpression() {
 /* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN |
    PLUSPLUS | MINUSMINUS | COLONCOLON IDENTIFIER */
 ASTNode::ID Parser::suffix(ASTNode::ID base) {
+    SkASSERT(base);
     Token next = this->nextToken();
     AutoDepth depth(this);
     if (!depth.checkValid()) {
@@ -1948,8 +1952,7 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
             return result;
         }
         default: {
-            this->error(next,  "expected expression suffix, but found '" + this->text(next) +
-                                         "'\n");
+            this->error(next,  "expected expression suffix, but found '" + this->text(next) + "'");
             return ASTNode::ID::Invalid();
         }
     }
@@ -2005,7 +2008,7 @@ ASTNode::ID Parser::term() {
         }
         default:
             this->nextToken();
-            this->error(t.fOffset,  "expected expression, but found '" + this->text(t) + "'\n");
+            this->error(t.fOffset,  "expected expression, but found '" + this->text(t) + "'");
     }
     return ASTNode::ID::Invalid();
 }
@@ -2041,7 +2044,7 @@ bool Parser::boolLiteral(bool* dest) {
             *dest = false;
             return true;
         default:
-            this->error(t, "expected 'true' or 'false', but found '" + this->text(t) + "'\n");
+            this->error(t, "expected 'true' or 'false', but found '" + this->text(t) + "'");
             return false;
     }
 }

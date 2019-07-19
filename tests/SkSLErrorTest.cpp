@@ -37,6 +37,12 @@ static void test_success(skiatest::Reporter* r, const char* src) {
     REPORTER_ASSERT(r, program);
 }
 
+DEF_TEST(SkSLOpenArray, r) {
+    test_failure(r,
+                 "void main(inout float4 color) { color.r[ = ( color.g ); }",
+                 "error: 1: expected expression, but found '='\n1 error\n");
+}
+
 DEF_TEST(SkSLUndefinedSymbol, r) {
     test_failure(r,
                  "void main() { x = float2(1); }",
