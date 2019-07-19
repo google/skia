@@ -21,10 +21,12 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkTo.h"
+#include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkParse.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/shaders/SkImageShader.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 #include <string.h>
 
@@ -34,9 +36,10 @@
 #include "src/xml/SkDOM.h"
 #include "src/xml/SkXMLWriter.h"
 
-static std::unique_ptr<SkCanvas> MakeDOMCanvas(SkDOM* dom) {
+static std::unique_ptr<SkCanvas> MakeDOMCanvas(SkDOM* dom, uint32_t flags = 0) {
     auto svgDevice = SkSVGDevice::Make(SkISize::Make(100, 100),
-                                       skstd::make_unique<SkXMLParserWriter>(dom->beginParsing()));
+                                       skstd::make_unique<SkXMLParserWriter>(dom->beginParsing()),
+                                       flags);
     return svgDevice ? skstd::make_unique<SkCanvas>(svgDevice)
                      : nullptr;
 }
@@ -386,6 +389,36 @@ DEF_TEST(SVGDevice_ColorFilters, reporter) {
 
     REPORTER_ASSERT(reporter, strcmp(dom.findAttr(compositeElement, "in"), "flood") == 0);
     REPORTER_ASSERT(reporter, strcmp(dom.findAttr(compositeElement, "operator"), "in") == 0);
+}
+
+DEF_TEST(SVGDevice_textpath, reporter) {
+    SkDOM dom;
+    SkFont font(ToolUtils::create_portable_typeface());
+    SkPaint paint;
+
+    // By default, we emit <text> nodes.
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        svgCanvas->drawString("foo", 100, 100, font, paint);
+    }
+    const auto* rootElement = dom.finishParsing();
+    REPORTER_ASSERT(reporter, rootElement, "root element not found");
+    const auto* textElement = dom.getFirstChild(rootElement, "text");
+    REPORTER_ASSERT(reporter, textElement, "text element not found");
+    const auto* pathElement = dom.getFirstChild(rootElement, "path");
+    REPORTER_ASSERT(reporter, !pathElement, "path element found");
+
+    // With kConvertTextToPaths_Flag, we emit <path> nodes.
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom, SkSVGCanvas::kConvertTextToPaths_Flag);
+        svgCanvas->drawString("foo", 100, 100, font, paint);
+    }
+    rootElement = dom.finishParsing();
+    REPORTER_ASSERT(reporter, rootElement, "root element not found");
+    textElement = dom.getFirstChild(rootElement, "text");
+    REPORTER_ASSERT(reporter, !textElement, "text element found");
+    pathElement = dom.getFirstChild(rootElement, "path");
+    REPORTER_ASSERT(reporter, pathElement, "path element not found");
 }
 
 #endif

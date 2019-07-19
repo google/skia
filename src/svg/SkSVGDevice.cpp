@@ -20,6 +20,7 @@
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTHash.h"
 #include "include/private/SkTo.h"
+#include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkBase64.h"
 #include "include/utils/SkParsePath.h"
 #include "src/codec/SkJpegCodec.h"
@@ -129,6 +130,32 @@ bool RequiresViewportReset(const SkPaint& paint) {
       return true;
   }
   return false;
+}
+
+SkPath GetPath(const SkGlyphRun& glyphRun, const SkPoint& offset) {
+    SkPath path;
+
+    struct Rec {
+        SkPath*        fPath;
+        const SkPoint  fOffset;
+        const SkPoint* fPos;
+    } rec = { &path, offset, glyphRun.positions().data() };
+
+    glyphRun.font().getPaths(glyphRun.glyphsIDs().data(), SkToInt(glyphRun.glyphsIDs().size()),
+            [](const SkPath* path, const SkMatrix& mx, void* ctx) {
+                Rec* rec = reinterpret_cast<Rec*>(ctx);
+                if (path) {
+                    SkMatrix total = mx;
+                    total.postTranslate(rec->fPos->fX + rec->fOffset.fX,
+                                        rec->fPos->fY + rec->fOffset.fY);
+                    rec->fPath->addPath(*path, total);
+                } else {
+                    // TODO: this is going to drop color emojis.
+                }
+                rec->fPos += 1; // move to the next glyph's position
+            }, &rec);
+
+    return path;
 }
 
 }  // namespace
@@ -639,16 +666,18 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
     }
 }
 
-sk_sp<SkBaseDevice> SkSVGDevice::Make(const SkISize& size, std::unique_ptr<SkXMLWriter> writer) {
-    return writer ? sk_sp<SkBaseDevice>(new SkSVGDevice(size, std::move(writer)))
+sk_sp<SkBaseDevice> SkSVGDevice::Make(const SkISize& size, std::unique_ptr<SkXMLWriter> writer,
+                                      uint32_t flags) {
+    return writer ? sk_sp<SkBaseDevice>(new SkSVGDevice(size, std::move(writer), flags))
                   : nullptr;
 }
 
-SkSVGDevice::SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter> writer)
+SkSVGDevice::SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter> writer, uint32_t flags)
     : INHERITED(SkImageInfo::MakeUnknown(size.fWidth, size.fHeight),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fWriter(std::move(writer))
     , fResourceBucket(new ResourceBucket)
+    , fFlags(flags)
 {
     SkASSERT(fWriter);
 
@@ -917,21 +946,29 @@ private:
     bool     fLastCharWasWhitespace;
 };
 
+void SkSVGDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, const SkPoint& origin,
+                                     const SkPaint& runPaint) {
+    this->drawPath(GetPath(glyphRun, origin), runPaint);
+}
+
+void SkSVGDevice::drawGlyphRunAsText(const SkGlyphRun& glyphRun, const SkPoint& origin,
+                                     const SkPaint& runPaint) {
+    AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), runPaint);
+    elem.addTextAttributes(glyphRun.font());
+
+    SVGTextBuilder builder(origin, glyphRun);
+    elem.addAttribute("x", builder.posX());
+    elem.addAttribute("y", builder.posY());
+    elem.addText(builder.text());
+}
+
 void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
-
-    auto processGlyphRun = [this]
-                           (SkPoint origin, const SkGlyphRun& glyphRun, const SkPaint& runPaint) {
-        AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), runPaint);
-        elem.addTextAttributes(glyphRun.font());
-
-        SVGTextBuilder builder(origin, glyphRun);
-        elem.addAttribute("x", builder.posX());
-        elem.addAttribute("y", builder.posY());
-        elem.addText(builder.text());
-    };
+    const auto processGlyphRun = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag)
+            ? &SkSVGDevice::drawGlyphRunAsPath
+            : &SkSVGDevice::drawGlyphRunAsText;
 
     for (auto& glyphRun : glyphRunList) {
-        processGlyphRun(glyphRunList.origin(), glyphRun, glyphRunList.paint());
+        (this->*processGlyphRun)(glyphRun, glyphRunList.origin(), glyphRunList.paint());
     }
 }
 
