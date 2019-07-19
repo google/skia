@@ -1143,18 +1143,19 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     switch (modifiers.fLayout.fFormat) {
         case Layout::Format::kUnspecified:
             break;
-        case Layout::Format::kRGBA32F: // fall through
+        case Layout::Format::kRGBA32F:      // fall through
         case Layout::Format::kR32F:
             this->write("highp ");
             break;
-        case Layout::Format::kRGBA16F: // fall through
-        case Layout::Format::kR16F:    // fall through
+        case Layout::Format::kRGBA16F:      // fall through
+        case Layout::Format::kR16F:         // fall through
+        case Layout::Format::kLUMINANCE16F: // fall through
         case Layout::Format::kRG16F:
             this->write("mediump ");
             break;
-        case Layout::Format::kRGBA8:  // fall through
-        case Layout::Format::kR8:     // fall through
-        case Layout::Format::kRGBA8I: // fall through
+        case Layout::Format::kRGBA8:        // fall through
+        case Layout::Format::kR8:           // fall through
+        case Layout::Format::kRGBA8I:       // fall through
         case Layout::Format::kR8I:
             this->write("lowp ");
             break;
