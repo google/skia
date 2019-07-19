@@ -1048,10 +1048,8 @@ namespace skvm {
             return false;
         }
 
-        // All 16 ymm registers are available to use, reserving ymm15 as a tmp scratch register.
-        // TODO: pick tmp dynamically as needed?  E.g. it can often overlap with r[id].
-        uint32_t avail = 0b0111'1111'1111'1111;
-        const A::Ymm tmp = A::ymm15;
+        // All 16 ymm registers are available to use.
+        uint32_t avail = 0b1111'1111'1111'1111;
         std::vector<A::Ymm> r(instructions.size());
 
         SkTHashMap<int, A::Label> vpshufb_masks,
@@ -1060,7 +1058,7 @@ namespace skvm {
         auto emit = [&](Val id, bool scalar) {
             const Builder::Instruction& inst = instructions[id];
 
-            // No need to emit instructions producing values that are never needed (dead code).
+            // No need to emit dead code instructions that produce values that are never used.
             if (inst.death == 0) {
                 return true;
             }
@@ -1071,28 +1069,82 @@ namespace skvm {
                 z = inst.z;
             int imm = inst.imm;
 
-            // Mark any inputs that die here as available before picking a destination register.
-            // This works fine as long as we make sure not to overwrite the destination until
-            // we've read all the inputs; compound operations should use tmp until the last write.
+            // Most (but not all) ops create an output value and need somewhere to put it, dst.
+            // We track each instruction's dst in r[] so we can thread it through as an input
+            // to any future instructions needing that value.
+            //
+            // And some ops may need a temporary scratch register, tmp.  Some need both tmp and dst.
+            //
+            // tmp and dst are very similar and can and will often be assigned the same register,
+            // but tmp may never alias any of the instructions's inputs, while dst may when this
+            // instruction consumes that input, if the input reaches its end of life here.
+            //
+            // We'll assign both registers lazily to keep register pressure as low as possible.
+            bool tmp_is_set = false,
+                 dst_is_set = false;
+            A::Ymm tmp_reg = A::ymm0;  // This initial value won't matter... anything legal is fine.
 
+            bool ok = true;   // Set to false if we need to assign a register and none's available.
+
+            // First lock in how to choose tmp if we need to based on the registers
+            // available before this instruction, not including any of its input registers.
+            auto tmp = [&,avail/*important, closing over avail's current value*/]{
+                if (!tmp_is_set) {
+                    tmp_is_set = true;
+                    if (int found = __builtin_ffs(avail)) {
+                        // This is a scratch register just for this op,
+                        // so we leave it marked available for future ops.
+                        tmp_reg = (A::Ymm)(found - 1);
+                    } else {
+                        // We needed a tmp register but couldn't find one available. :'(
+                        // This will cause emit() to return false, in turn causing jit() to too.
+                        ok = false;
+                    }
+                }
+                return tmp_reg;
+            };
+
+            // Now make available any registers that are consumed by this instruction.
+            // (The register pool we can pick dst from is >= the pool for tmp, adding any of these.)
             if (x != NA && instructions[x].death == id) { avail |= 1 << r[x]; }
             if (y != NA && instructions[y].death == id) { avail |= 1 << r[y]; }
             if (z != NA && instructions[z].death == id) { avail |= 1 << r[z]; }
 
-            // Most instructions won't care what register they'll write to,
-            // so provisionally pick an arbitrary available register.
-            if (int found = __builtin_ffs(avail)) {
-                r[id] = (A::Ymm)(found-1);
-            } else {
-                return false;
-            }
+            // Some ops may decide dst on their own to best fit the instruction (see Op::mad_f32).
+            // set_dst() and dst() just below work with that perhaps-just-updated avail.
+            auto set_dst = [&](A::Ymm reg){
+                SkASSERT(dst_is_set == false);
+                dst_is_set = true;
 
+                SkASSERT(avail & (1<<reg));
+                avail ^= 1<<reg;
+
+                r[id] = reg;
+            };
+
+            // Thanks to AVX's 3-argument instruction set, most ops can use any register as dst.
+            auto dst = [&]{
+                if (!dst_is_set) {
+                    if (int found = __builtin_ffs(avail)) {
+                        set_dst((A::Ymm)(found-1));
+                    } else {
+                        // Same deal as with tmp... all the registers are occupied.  Time to fail!
+                        ok = false;
+                    }
+                }
+                return r[id];
+            };
+
+            // Ok!  Keep in mind that we haven't assigned tmp or dst yet,
+            // just laid out hooks for how to do so if we need them, depending on the instruction.
+            //
+            // Now let's actually assemble the instruction!
             switch (op) {
                 case Op::store8: if (scalar) { a->vpextrb  (arg[imm], (A::Xmm)r[x], 0); }
-                                 else        { a->vpackusdw(tmp, r[x], r[x]);
-                                               a->vpermq   (tmp, tmp, 0xd8);
-                                               a->vpackuswb(tmp, tmp, tmp);
-                                               a->vmovq    (arg[imm], (A::Xmm)tmp); }
+                                 else        { a->vpackusdw(tmp(), r[x], r[x]);
+                                               a->vpermq   (tmp(), tmp(), 0xd8);
+                                               a->vpackuswb(tmp(), tmp(), tmp());
+                                               a->vmovq    (arg[imm], (A::Xmm)tmp()); }
                                  break;
 
                 case Op::store32: if (scalar) { a->vmovd  (arg[imm], (A::Xmm)r[x]); }
@@ -1100,75 +1152,69 @@ namespace skvm {
                                   break;
 
                 case Op::load8:  if (scalar) {
-                                     a->vpxor  (r[id], r[id], r[id]);
-                                     a->vpinsrb((A::Xmm)r[id], (A::Xmm)r[id], arg[imm], 0);
+                                     a->vpxor  (dst(), dst(), dst());
+                                     a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), arg[imm], 0);
                                  } else {
-                                     a->vpmovzxbd(r[id], arg[imm]);
+                                     a->vpmovzxbd(dst(), arg[imm]);
                                  } break;
 
-                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)r[id], arg[imm]); }
-                                 else        { a->vmovups(        r[id], arg[imm]); }
+                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), arg[imm]); }
+                                 else        { a->vmovups(        dst(), arg[imm]); }
                                  break;
 
                 case Op::splat:  if (!splats.find(imm)) { splats.set(imm, {}); }
-                                 a->vbroadcastss(r[id], splats.find(imm));
+                                 a->vbroadcastss(dst(), splats.find(imm));
                                  break;
 
-                case Op::add_f32: a->vaddps(r[id], r[x], r[y]); break;
-                case Op::sub_f32: a->vsubps(r[id], r[x], r[y]); break;
-                case Op::mul_f32: a->vmulps(r[id], r[x], r[y]); break;
-                case Op::div_f32: a->vdivps(r[id], r[x], r[y]); break;
+                case Op::add_f32: a->vaddps(dst(), r[x], r[y]); break;
+                case Op::sub_f32: a->vsubps(dst(), r[x], r[y]); break;
+                case Op::mul_f32: a->vmulps(dst(), r[x], r[y]); break;
+                case Op::div_f32: a->vdivps(dst(), r[x], r[y]); break;
 
                 case Op::mad_f32:
-                    if (avail & (1<<r[x])) { r[id] = r[x]; a->vfmadd132ps(r[x], r[z], r[y]); } else
-                    if (avail & (1<<r[y])) { r[id] = r[y]; a->vfmadd213ps(r[y], r[x], r[z]); } else
-                    if (avail & (1<<r[z])) { r[id] = r[z]; a->vfmadd231ps(r[z], r[x], r[y]); } else
-                                           {               a->vmulps     (tmp,  r[x], r[y]);
-                                                           a->vaddps     (r[id], tmp, r[z]); }
+                    if (avail & (1<<r[x])) { set_dst(r[x]); a->vfmadd132ps(r[x], r[z], r[y]); } else
+                    if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmadd213ps(r[y], r[x], r[z]); } else
+                    if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmadd231ps(r[z], r[x], r[y]); } else
+                                           {                a->vmulps     (tmp(),  r[x], r[y]);
+                                                            a->vaddps     (dst(), tmp(), r[z]); }
                     break;
 
-                case Op::add_i32: a->vpaddd (r[id], r[x], r[y]); break;
-                case Op::sub_i32: a->vpsubd (r[id], r[x], r[y]); break;
-                case Op::mul_i32: a->vpmulld(r[id], r[x], r[y]); break;
+                case Op::add_i32: a->vpaddd (dst(), r[x], r[y]); break;
+                case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
+                case Op::mul_i32: a->vpmulld(dst(), r[x], r[y]); break;
 
-                case Op::sub_i16x2: a->vpsubw (r[id], r[x], r[y]); break;
-                case Op::mul_i16x2: a->vpmullw(r[id], r[x], r[y]); break;
-                case Op::shr_i16x2: a->vpsrlw (r[id], r[x],  imm); break;
+                case Op::sub_i16x2: a->vpsubw (dst(), r[x], r[y]); break;
+                case Op::mul_i16x2: a->vpmullw(dst(), r[x], r[y]); break;
+                case Op::shr_i16x2: a->vpsrlw (dst(), r[x],  imm); break;
 
-                case Op::bit_and:   a->vpand (r[id], r[x], r[y]); break;
-                case Op::bit_or :   a->vpor  (r[id], r[x], r[y]); break;
-                case Op::bit_xor:   a->vpxor (r[id], r[x], r[y]); break;
-                case Op::bit_clear: a->vpandn(r[id], r[y], r[x]); break;  // N.B. Y then X.
+                case Op::bit_and:   a->vpand (dst(), r[x], r[y]); break;
+                case Op::bit_or :   a->vpor  (dst(), r[x], r[y]); break;
+                case Op::bit_xor:   a->vpxor (dst(), r[x], r[y]); break;
+                case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // N.B. Y then X.
 
-                case Op::shl: a->vpslld(r[id], r[x], imm); break;
-                case Op::shr: a->vpsrld(r[id], r[x], imm); break;
-                case Op::sra: a->vpsrad(r[id], r[x], imm); break;
+                case Op::shl: a->vpslld(dst(), r[x], imm); break;
+                case Op::shr: a->vpsrld(dst(), r[x], imm); break;
+                case Op::sra: a->vpsrad(dst(), r[x], imm); break;
 
-                case Op::extract: if (imm == 0) { a->vpand (r[id], r[x], r[y]); }
-                                  else          { a->vpsrld(tmp, r[x], imm);
-                                                  a->vpand(r[id], tmp, r[y]); }
+                case Op::extract: if (imm == 0) { a->vpand (dst(),  r[x], r[y]); }
+                                  else          { a->vpsrld(tmp(),  r[x], imm);
+                                                  a->vpand (dst(), tmp(), r[y]); }
                                   break;
 
-                case Op::pack: a->vpslld(tmp,  r[y], imm);
-                               a->vpor  (r[id], tmp, r[x]);
+                case Op::pack: a->vpslld(tmp(),  r[y], imm);
+                               a->vpor  (dst(), tmp(), r[x]);
                                break;
 
-                case Op::to_f32: a->vcvtdq2ps (r[id], r[x]); break;
-                case Op::to_i32: a->vcvttps2dq(r[id], r[x]); break;
+                case Op::to_f32: a->vcvtdq2ps (dst(), r[x]); break;
+                case Op::to_i32: a->vcvttps2dq(dst(), r[x]); break;
 
                 case Op::bytes:  if (!vpshufb_masks.find(imm)) { vpshufb_masks.set(imm, {}); }
-                                 a->vpshufb(r[id], r[x], vpshufb_masks.find(imm));
+                                 a->vpshufb(dst(), r[x], vpshufb_masks.find(imm));
                                  break;
             }
 
-            // For any instruction that stored to a register, mark that register as used.
-            // Doing this in this relatively late position allows this to reflect any choices
-            // instructions might have made to change this destination register inside the switch.
-            if (op > Op::store32) {
-                SkASSERT(avail & (1<<r[id]));
-                avail ^= 1<<r[id];
-            }
-            return true;
+            // Calls to tmp() or dst() might have flipped this false from its default true state.
+            return ok;
         };
 
         A::Label body,
