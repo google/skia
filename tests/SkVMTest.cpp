@@ -690,6 +690,20 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.sli4s(A::v4, A::v3,  0);
+        a.sli4s(A::v4, A::v3,  1);
+        a.sli4s(A::v4, A::v3,  8);
+        a.sli4s(A::v4, A::v3, 16);
+        a.sli4s(A::v4, A::v3, 31);
+    },{
+        0x64,0x54,0x20,0x6f,
+        0x64,0x54,0x21,0x6f,
+        0x64,0x54,0x28,0x6f,
+        0x64,0x54,0x30,0x6f,
+        0x64,0x54,0x3f,0x6f,
+    });
+
+    test_asm(r, [&](A& a) {
         a.scvtf4s (A::v4, A::v3);
         a.fcvtzs4s(A::v4, A::v3);
     },{
