@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5d4dd8c_68e9ad96",
+        "filename": "tests/SVGDeviceTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-19T16:29:41Z",
+      "side": 0,
+      "message": "Herb, do you recall what\u0027s up with this? SkFontPriv::GlyphsToUnichars seems to work (SkSVGDevice), are there special cases where this is problematic?",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 22
+      },
+      "revId": "aa861a1907a17c0a1033509b5c33983a819b2bb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
