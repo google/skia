@@ -847,17 +847,17 @@ void gather_file_srcs(const CommandLineFlags::StringArray& flags,
 }
 
 static bool gather_srcs() {
-    for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
-        push_src("gm", "", new GMSrc(f));
-    }
+//    for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
+//        push_src("gm", "", new GMSrc(f));
+//    }
 
-    gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
+//    gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
 #if defined(SK_ENABLE_SKOTTIE)
     gather_file_srcs<SkottieSrc>(FLAGS_lotties, "json", "lottie");
 #endif
 #if defined(SK_XML)
-    gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
+//    gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
 #endif
     if (!FLAGS_bisect.isEmpty()) {
         // An empty l/r trail string will draw all the paths.
@@ -872,6 +872,7 @@ static bool gather_srcs() {
 
     for (auto image : images) {
         push_codec_srcs(image);
+        break;
     }
 
     SkTArray<SkString> colorImages;
@@ -1358,6 +1359,10 @@ static void gather_tests() {
         if (!in_shard()) {
             continue;
         }
+        if (strcmp("InitialTextureClear", test.name)) {
+            continue;
+        }
+
         if (CommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
