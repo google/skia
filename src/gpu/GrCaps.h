@@ -366,7 +366,7 @@ public:
         return {};
     }
 
-    bool validateSurfaceDesc(const GrSurfaceDesc&, GrRenderable renderable, GrMipMapped) const;
+    bool validateSurfaceDesc(const GrSurfaceDesc&, GrRenderable renderable, int renderTargetSampleCount, GrMipMapped) const;
 
     /**
      * If the GrBackendRenderTarget can be used with the supplied SkColorType the return will be

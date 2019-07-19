@@ -75,17 +75,17 @@ public:
      * GrRenderTarget. The texture's format and sample count will always match the request.
      * The contents of the texture are undefined.
      */
-    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, GrRenderable, GrProtected, Flags);
+    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, GrRenderable, int renderTargetSampleCnt, GrProtected, Flags);
 
     /** Create an exact fit texture with no initial data to upload. */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted, GrProtected,
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, int renderTargetSampleCnt, SkBudgeted, GrProtected,
                                    Flags = Flags::kNone);
 
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted, GrProtected,
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, int renderTargetSampleCnt, SkBudgeted, GrProtected,
                                    const GrMipLevel texels[], int mipLevelCount);
 
     /** Create a potentially loose fit texture with the provided data */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted, SkBackingFit,
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, int renderTargetSampleCnt, SkBudgeted, SkBackingFit,
                                    GrProtected, const GrMipLevel&, Flags);
 
     /**
@@ -266,13 +266,13 @@ private:
 
     // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
     // it returns null. If non-null, the resulting texture is always budgeted.
-    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, GrRenderable, GrProtected, Flags);
+    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, GrRenderable, int renderTargetSampleCnt, GrProtected, Flags);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
      * update the budgeting accordingly.
      */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, GrRenderable, SkBudgeted, GrProtected,
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, GrRenderable, int renderTargetSampleCnt, SkBudgeted, GrProtected,
                                      Flags);
 
     GrResourceCache* cache() { return fCache; }

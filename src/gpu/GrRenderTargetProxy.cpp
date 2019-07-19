@@ -20,14 +20,14 @@
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
 // cases to make the sampleConfig/numSamples stuff more rational.
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendFormat& format,
-                                         const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
-                                         const GrSwizzle& textureSwizzle,
+                                         const GrSurfaceDesc& desc, int sampleCount,
+                                         GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle,
                                          const GrSwizzle& outputSwizzle, SkBackingFit fit,
                                          SkBudgeted budgeted, GrProtected isProtected,
                                          GrInternalSurfaceFlags surfaceFlags)
         : INHERITED(format, desc, GrRenderable::kYes, origin, textureSwizzle, fit, budgeted,
                     isProtected, surfaceFlags)
-        , fSampleCnt(desc.fSampleCnt)
+        , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo)
         , fOutputSwizzle(outputSwizzle) {}
 
@@ -35,6 +35,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
 GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          LazyInstantiationType lazyType,
                                          const GrBackendFormat& format, const GrSurfaceDesc& desc,
+                                         int sampleCount,
                                          GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle,
                                          const GrSwizzle& outputSwizzle, SkBackingFit fit,
                                          SkBudgeted budgeted, GrProtected isProtected,
@@ -42,7 +43,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(callback), lazyType, format, desc, GrRenderable::kYes, origin,
                     textureSwizzle, fit, budgeted, isProtected, surfaceFlags)
-        , fSampleCnt(desc.fSampleCnt)
+        , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
         , fOutputSwizzle(outputSwizzle) {}
 

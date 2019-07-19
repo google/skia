@@ -335,7 +335,7 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
     return this->onCanCopySurface(dst, src, srcRect, dstPoint);
 }
 
-bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable renderable,
+bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable renderable, int renderTargetSampleCount,
                                  GrMipMapped mipped) const {
     if (!this->isConfigTexturable(desc.fConfig)) {
         return false;
@@ -350,7 +350,7 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable rendera
     }
 
     if (renderable == GrRenderable::kYes) {
-        if (0 == this->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig)) {
+        if (0 == this->getRenderTargetSampleCount(renderTargetSampleCount, desc.fConfig)) {
             return false;
         }
         int maxRTSize = this->maxRenderTargetSize();
@@ -359,7 +359,7 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable rendera
         }
     } else {
         // We currently do not support multisampled textures
-        if (desc.fSampleCnt > 1) {
+        if (renderTargetSampleCount != 1) {
             return false;
         }
         int maxSize = this->maxTextureSize();

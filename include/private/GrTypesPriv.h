@@ -146,7 +146,7 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
  * Describes a surface to be created.
  */
 struct GrSurfaceDesc {
-    GrSurfaceDesc() : fWidth(0) , fHeight(0) , fConfig(kUnknown_GrPixelConfig) , fSampleCnt(1) {}
+    GrSurfaceDesc() : fWidth(0) , fHeight(0) , fConfig(kUnknown_GrPixelConfig) {}
 
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
@@ -156,15 +156,6 @@ struct GrSurfaceDesc {
      * internal format used by 3D API.
      */
     GrPixelConfig          fConfig;
-
-    /**
-     * The number of samples per pixel. Zero is treated equivalently to 1. This only
-     * applies if the kRenderTarget_GrSurfaceFlag is set. The actual number
-     * of samples may not exactly match the request. The request will be rounded
-     * up to the next supported sample count. A value larger than the largest
-     * supported sample count will fail.
-     */
-    int                    fSampleCnt;
 };
 
 /** Ownership rules for external GPU resources imported into Skia. */
