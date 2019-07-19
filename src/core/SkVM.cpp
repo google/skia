@@ -1161,6 +1161,9 @@ namespace skvm {
                                                a->vpackuswb(tmp(), tmp(), tmp());
                                                a->vmovq    (arg[imm], (A::Xmm)tmp()); }
                                  break;
+                                 // TODO: the else case is a situation where we could use r[x]
+                                 //       as tmp if it's available... we don't need it after the
+                                 //       first instruction.
 
                 case Op::store32: if (scalar) { a->vmovd  (arg[imm], (A::Xmm)r[x]); }
                                   else        { a->vmovups(arg[imm],         r[x]); }
@@ -1180,6 +1183,12 @@ namespace skvm {
                 case Op::splat:  if (!splats.find(imm)) { splats.set(imm, {}); }
                                  a->vbroadcastss(dst(), splats.find(imm));
                                  break;
+                                 // TODO: many of these instructions have variants that
+                                 // can read one of their arugments from 32-byte memory
+                                 // instead of a register.  Find a way to avoid needing
+                                 // to splat most* constants out at all?
+                                 // (*Might work for x - 255 but not 255 - x, so will
+                                 // always need to be able to splat to a register.)
 
                 case Op::add_f32: a->vaddps(dst(), r[x], r[y]); break;
                 case Op::sub_f32: a->vsubps(dst(), r[x], r[y]); break;
@@ -1234,6 +1243,7 @@ namespace skvm {
                    if (scalar) { a->strb  (tmp(), arg[imm]); }
                    else        { a->strs  (tmp(), arg[imm]); }
                                  break;
+                // TODO: another case where it'd be okay to alias r[x] and tmp if r[x] dies here.
 
                 case Op::store32: if (scalar) { a->strs(r[x], arg[imm]); }
                                   else        { a->strq(r[x], arg[imm]); }
@@ -1252,6 +1262,9 @@ namespace skvm {
                 case Op::splat:  if (!splats.find(imm)) { splats.set(imm, {}); }
                                  a->ldrq(dst(), splats.find(imm));
                                  break;
+                                 // TODO: If we hoist these, pack 4 values in each register
+                                 // and use vector/lane operations, cutting the register
+                                 // pressure cost of hoisting by 4?
 
                 case Op::add_f32: a->fadd4s(dst(), r[x], r[y]); break;
                 case Op::sub_f32: a->fsub4s(dst(), r[x], r[y]); break;
@@ -1408,6 +1421,17 @@ namespace skvm {
         if (!this->jit(instructions, &a)) {
             return;
         }
+        // TODO: try to JIT once allowing loop-invariant hoisting,
+        //       then once again without hoisting in case it caused too much register pressure.
+        // bool hoist = true;
+        // if (!this->jit(hoist, instructions, &a)) {
+        //      hoist = false;
+        //      if (!this->jit(hoist, instructions, &a)) {
+        //          return;
+        //      }
+        // }
+        // ....
+        // SkAssertResult(this->jit(hoist, instructions, &a));
 
         // Allocate space that we can remap as executable.
         const size_t page = sysconf(_SC_PAGESIZE);
