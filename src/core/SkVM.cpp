@@ -1030,24 +1030,34 @@ namespace skvm {
     }
 
     bool Program::jit(const std::vector<Builder::Instruction>& instructions, Assembler* a) const {
+        using A = Assembler;
+
     #if defined(__x86_64__)
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
+        A::GP64 N     = A::rdi,
+                arg[] = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
-        using A = Assembler;
+        // All 16 ymm registers are available to use.
+        using Reg = A::Ymm;
+        uint32_t avail = 0xffff;
 
-        A::GP64 N = A::rdi,
-            arg[] = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+    #elif defined(__aarch64__)
+        A::X N     = A::x0,
+             arg[] = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
+
+        // We can use v0-v7 and v16-v31 freely; we'd need to preseve v8-v15.
+        using Reg = A::V;
+        uint32_t avail = 0xffff00ff;
+    #endif
+
         if (SK_ARRAY_COUNT(arg) < fStrides.size()) {
             return false;
         }
 
-        // All 16 ymm registers are available to use.
-        uint32_t avail = 0b1111'1111'1111'1111;
-        std::vector<A::Ymm> r(instructions.size());
-
-        SkTHashMap<int, A::Label> vpshufb_masks,
+        std::vector<Reg> r(instructions.size());
+        SkTHashMap<int, A::Label> bytes_masks,
                                   splats;
 
         auto emit = [&](Val id, bool scalar) {
@@ -1064,7 +1074,7 @@ namespace skvm {
                 z = inst.z;
             int imm = inst.imm;
 
-            // Most (but not all) ops create an output value and need somewhere to put it, dst.
+            // Most (but not all) ops create an output value and need a register to hold it, dst.
             // We track each instruction's dst in r[] so we can thread it through as an input
             // to any future instructions needing that value.
             //
@@ -1072,12 +1082,12 @@ namespace skvm {
             //
             // tmp and dst are very similar and can and will often be assigned the same register,
             // but tmp may never alias any of the instructions's inputs, while dst may when this
-            // instruction consumes that input, if the input reaches its end of life here.
+            // instruction consumes that input, i.e. if the input reaches its end of life here.
             //
             // We'll assign both registers lazily to keep register pressure as low as possible.
             bool tmp_is_set = false,
                  dst_is_set = false;
-            A::Ymm tmp_reg = A::ymm0;  // This initial value won't matter... anything legal is fine.
+            Reg tmp_reg = (Reg)0;  // This initial value won't matter... anything legal is fine.
 
             bool ok = true;   // Set to false if we need to assign a register and none's available.
 
@@ -1089,10 +1099,10 @@ namespace skvm {
                     if (int found = __builtin_ffs(avail)) {
                         // This is a scratch register just for this op,
                         // so we leave it marked available for future ops.
-                        tmp_reg = (A::Ymm)(found - 1);
+                        tmp_reg = (Reg)(found - 1);
                     } else {
                         // We needed a tmp register but couldn't find one available. :'(
-                        // This will cause emit() to return false, in turn causing jit() to too.
+                        // This will cause emit() to return false, in turn causing jit() to fail.
                         ok = false;
                     }
                 }
@@ -1104,10 +1114,10 @@ namespace skvm {
             if (x != NA && instructions[x].death == id) { avail |= 1 << r[x]; }
             if (y != NA && instructions[y].death == id) { avail |= 1 << r[y]; }
             if (z != NA && instructions[z].death == id) { avail |= 1 << r[z]; }
+            // set_dst() and dst() will work read/write with this perhaps-just-updated avail.
 
             // Some ops may decide dst on their own to best fit the instruction (see Op::mad_f32).
-            // set_dst() and dst() just below work with that perhaps-just-updated avail.
-            auto set_dst = [&](A::Ymm reg){
+            auto set_dst = [&](Reg reg){
                 SkASSERT(dst_is_set == false);
                 dst_is_set = true;
 
@@ -1117,11 +1127,12 @@ namespace skvm {
                 r[id] = reg;
             };
 
-            // Thanks to AVX's 3-argument instruction set, most ops can use any register as dst.
+            // Thanks to AVX and NEON's 3-argument instruction sets,
+            // most ops can use any register as dst.
             auto dst = [&]{
                 if (!dst_is_set) {
                     if (int found = __builtin_ffs(avail)) {
-                        set_dst((A::Ymm)(found-1));
+                        set_dst((Reg)(found-1));
                     } else {
                         // Same deal as with tmp... all the registers are occupied.  Time to fail!
                         ok = false;
@@ -1135,6 +1146,7 @@ namespace skvm {
             //
             // Now let's actually assemble the instruction!
             switch (op) {
+            #if defined(__x86_64__)
                 case Op::store8: if (scalar) { a->vpextrb  (arg[imm], (A::Xmm)r[x], 0); }
                                  else        { a->vpackusdw(tmp(), r[x], r[x]);
                                                a->vpermq   (tmp(), tmp(), 0xd8);
@@ -1203,9 +1215,15 @@ namespace skvm {
                 case Op::to_f32: a->vcvtdq2ps (dst(), r[x]); break;
                 case Op::to_i32: a->vcvttps2dq(dst(), r[x]); break;
 
-                case Op::bytes:  if (!vpshufb_masks.find(imm)) { vpshufb_masks.set(imm, {}); }
-                                 a->vpshufb(dst(), r[x], vpshufb_masks.find(imm));
+                case Op::bytes:  if (!bytes_masks.find(imm)) { bytes_masks.set(imm, {}); }
+                                 a->vpshufb(dst(), r[x], bytes_masks.find(imm));
                                  break;
+            #elif defined(__aarch64__)
+                default:
+                    SkDebugf("%d unimplemented\n", op);
+                    ok = false;
+                    break;
+            #endif
             }
 
             // Calls to tmp() or dst() might have flipped this false from its default true state.
@@ -1216,54 +1234,78 @@ namespace skvm {
                  tail,
                  done;
 
+        #if defined(__x86_64__)
+            auto jump_if_less = [&](A::Label* l) { a->jl (l); };
+            auto jump         = [&](A::Label* l) { a->jmp(l); };
+
+            auto add = [&](A::GP64 gp, int imm) { a->add(gp, imm); };
+            auto sub = [&](A::GP64 gp, int imm) { a->sub(gp, imm); };
+
+            auto exit = [&]{ a->vzeroupper(); a->ret(); };
+        #elif defined(__aarch64__)
+            auto jump_if_less = [&](A::Label* l) { a->blt(l); };
+            auto jump         = [&](A::Label* l) { a->b  (l); };
+
+            auto add = [&](A::X gp, int imm) { a->add(gp, gp, imm); };
+            auto sub = [&](A::X gp, int imm) { a->sub(gp, gp, imm); };
+
+            auto exit = [&]{ a->ret(A::x30); };
+        #endif
+
         a->label(&body);
         {
             const int K = 8;
             a->cmp(N, K);
-            a->jl(&tail);
+            jump_if_less(&tail);
             for (Val id = 0; id < (Val)instructions.size(); id++) {
                 if (!emit(id, /*scalar=*/K==1)) {
                     return false;
                 }
             }
             for (int i = 0; i < (int)fStrides.size(); i++) {
-                a->add(arg[i], K*fStrides[i]);
+                add(arg[i], K*fStrides[i]);
             }
-            a->sub(N, K);
-            a->jmp(&body);
+            sub(N, K);
+            jump(&body);
         }
 
         a->label(&tail);
         {
             const int K = 1;
             a->cmp(N, K);
-            a->jl(&done);
+            jump_if_less(&done);
             for (Val id = 0; id < (Val)instructions.size(); id++) {
                 if (!emit(id, /*scalar=*/K==1)) {
                     return false;
                 }
             }
             for (int i = 0; i < (int)fStrides.size(); i++) {
-                a->add(arg[i], K*fStrides[i]);
+                add(arg[i], K*fStrides[i]);
             }
-            a->sub(N, K);
-            a->jmp(&tail);
+            sub(N, K);
+            jump(&tail);
         }
 
         a->label(&done);
         {
-            a->vzeroupper();
-            a->ret();
+            exit();
         }
 
-        vpshufb_masks.foreach([&](int imm, A::Label* l) {
+        bytes_masks.foreach([&](int imm, A::Label* l) {
+        #if defined(__x86_64__)
             a->align(32);
+        #elif defined(__aarch64__)
+            a->align(16);
+        #endif
+
             a->label(l);
             int mask[4];
             bytes_control(imm, mask);
-            // Same pattern for bottom 4 and top 4 32-bit lanes.
+            // One 16-byte pattern for ARM tbl, the same pattern twice for vpshufb.
             a->bytes(mask, sizeof(mask));
+        #if defined(__x86_64__)
             a->bytes(mask, sizeof(mask));
+        #endif
         });
 
         splats.foreach([&](int imm, A::Label* l) {
@@ -1273,10 +1315,6 @@ namespace skvm {
         });
 
         return true;
-    #else
-        (void)bytes_control;
-        return false;
-    #endif
     }
 
     void Program::setupJIT(const std::vector<Builder::Instruction>& instructions,
