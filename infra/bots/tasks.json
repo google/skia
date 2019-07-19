@@ -4395,7 +4395,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 7200000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "compile_android_framework.isolate",
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -4455,7 +4455,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 7200000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "compile_android_framework.isolate",
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
