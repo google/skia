@@ -20,6 +20,8 @@
 #include <stdint.h>
 // IWYU pragma: end_exports
 
+#define SK_SUPPORT_DRAWLOOPER
+
 /** \file SkTypes.h
 */
 

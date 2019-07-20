@@ -114,6 +114,9 @@ public:
                                   kSkDrawLooper_Type, data, size, procs).release()));
     }
 
+    void apply(SkCanvas* canvas, const SkPaint& paint,
+               std::function<void(SkCanvas*, const SkPaint&)>);
+
 protected:
     SkDrawLooper() {}
 
