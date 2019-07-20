@@ -65,3 +65,18 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& s,
 bool SkDrawLooper::asABlurShadow(BlurShadowRec*) const {
     return false;
 }
+
+void SkDrawLooper::apply(SkCanvas* canvas, const SkPaint& paint,
+                         std::function<void(SkCanvas*, const SkPaint&)> proc) {
+    SkSTArenaAlloc<256> alloc;
+    Context* ctx = this->makeContext(canvas, &alloc);
+    if (ctx) {
+        for (;;) {
+            SkPaint p = paint;
+            if (!ctx->next(canvas, &p)) {
+                break;
+            }
+            proc(canvas, p);
+        }
+    }
+}
