@@ -20,8 +20,7 @@ require (
 	golang.org/x/mobile v0.0.0-20190719004257-d2bd2a29d028 // indirect
 	golang.org/x/tools v0.0.0-20190719005602-e377ae9d6386 // indirect
 	google.golang.org/api v0.7.0
-	k8s.io/api v0.0.0-20190718062839-c8a0b81cb10e // indirect
-	k8s.io/apimachinery v0.0.0-20190719140911-bfcf53abc9f8 // indirect
+	k8s.io/api v0.0.0-20190720062849-3043179095b6 // indirect
 	k8s.io/kube-openapi v0.0.0-20190718094010-3cf2ea392886 // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190719182312-e94e05bfbbe3 // indirect
 )
