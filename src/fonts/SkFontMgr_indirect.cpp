@@ -158,6 +158,10 @@ SkTypeface* SkFontMgr_Indirect::onMatchFaceStyle(const SkTypeface* familyMember,
     return this->matchFamilyStyle(familyName.c_str(), fontStyle);
 }
 
+bool SkFontMgr_Indirect::onCanMake(Make make) const {
+    return fImpl->canMake(make);
+}
+
 sk_sp<SkTypeface> SkFontMgr_Indirect::onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                                             int ttcIndex) const {
     return fImpl->makeFromStream(std::move(stream), ttcIndex);

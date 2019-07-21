@@ -330,11 +330,12 @@ DEF_TEST(FontMgrAndroidSystemVariableTypeface, reporter) {
                                     SkFontArguments().setVariationDesignPosition(position)),
             kTextSize);
         fontStream.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-
+        REPORTER_ASSERT(reporter, fontStream.getTypeface());
 
         SkFont fontClone(
             typeface->makeClone(SkFontArguments().setVariationDesignPosition(position)), kTextSize);
         fontClone.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        REPORTER_ASSERT(reporter, fontClone.getTypeface());
 
         constexpr char text[] = "abc";
 
