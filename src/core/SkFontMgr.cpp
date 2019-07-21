@@ -63,6 +63,9 @@ protected:
         return nullptr;
     }
 
+    bool onCanMake(Make) const override {
+        return false;
+    }
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int) const override {
         return nullptr;
     }
@@ -121,6 +124,10 @@ SkTypeface* SkFontMgr::matchFamilyStyleCharacter(const char familyName[], const 
 SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face,
                                       const SkFontStyle& fs) const {
     return this->onMatchFaceStyle(face, fs);
+}
+
+bool SkFontMgr::canMake(Make make) const {
+    return this->onCanMake(make);
 }
 
 sk_sp<SkTypeface> SkFontMgr::makeFromData(sk_sp<SkData> data, int ttcIndex) const {
