@@ -8,6 +8,7 @@
 #ifndef SkFontMgr_DEFINED
 #define SkFontMgr_DEFINED
 
+#include "include/private/SkBitmaskEnum.h"
 #include "include/core/SkFontArguments.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkRefCnt.h"
@@ -89,6 +90,30 @@ public:
 
     SkTypeface* matchFaceStyle(const SkTypeface*, const SkFontStyle&) const;
 
+    enum class Make : uint32_t {
+        tt                     = (1 <<  0),
+        tt_collection          = (1 <<  1) | tt,
+        tt_collection_index    = (1 <<  2) | tt_collection,
+        tt_glyf                = (1 <<  3) | tt,
+        tt_glyf_COLR           = (1 <<  4) | tt_glyf,
+        tt_glyf_variable       = (1 <<  5) | tt_glyf,
+        tt_glyf_variable_index = (1 <<  6) | tt_glyf_variable,
+        tt_CBDT                = (1 <<  7) | tt,
+        tt_CBDT_raw            = (1 <<  8) | tt_CBDT,
+        tt_CBDT_png            = (1 <<  9) | tt_CBDT,
+        tt_sbix                = (1 << 10) | tt,
+        tt_sbix_png            = (1 << 11) | tt_sbix,
+        tt_sbix_jpeg           = (1 << 12) | tt_sbix,
+        tt_sbix_tiff           = (1 << 13) | tt_sbix,
+        tt_SVG                 = (1 << 14) | tt,
+        tt_CFF                 = (1 << 15) | tt,
+        tt_CFF2                = (1 << 16) | tt,
+        t1                     = (1 << 17),
+        t1_pfa                 = (1 << 18) | t1,
+        t1_pfb                 = (1 << 19) | t1,
+    };
+    bool canMake(Make) const;
+
     /**
      *  Create a typeface for the specified data and TTC index (pass 0 for none)
      *  or NULL if the data is not recognized. The caller must call unref() on
@@ -142,6 +167,7 @@ protected:
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const = 0;
 
+    virtual bool onCanMake(Make) const = 0;
     virtual sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const = 0;
     virtual sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
                                                     int ttcIndex) const = 0;
@@ -160,4 +186,7 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
+namespace skstd {
+    template <> struct is_bitmask_enum<SkFontMgr::Make> : std::true_type {};
+}
 #endif
