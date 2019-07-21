@@ -7,6 +7,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkStream.h"
@@ -55,6 +56,6 @@ sk_sp<SkData> GetResourceAsData(const char* resource) {
     return nullptr;
 }
 
-sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource, int ttcIndex) {
-    return SkTypeface::MakeFromStream(GetResourceAsStream(resource), ttcIndex);
+sk_sp<SkTypeface> MakeResourceAsTypeface(const SkFontMgr& fontMgr, const char* resource, int ttcIndex) {
+    return fontMgr.makeFromStream(GetResourceAsStream(resource), ttcIndex);
 }

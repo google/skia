@@ -226,6 +226,10 @@ SkTypeface* SkFontMgr_Custom::onMatchFaceStyle(const SkTypeface* familyMember,
     return nullptr;
 }
 
+bool SkFontMgr_Custom::onCanMake(Make make) const {
+    return fScanner.canMake(make);
+}
+
 sk_sp<SkTypeface> SkFontMgr_Custom::onMakeFromData(sk_sp<SkData> data, int ttcIndex) const {
     return this->makeFromStream(skstd::make_unique<SkMemoryStream>(std::move(data)), ttcIndex);
 }

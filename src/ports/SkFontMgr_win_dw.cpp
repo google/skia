@@ -293,6 +293,7 @@ protected:
                                             SkUnichar character) const override;
     SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                  const SkFontStyle& fontstyle) const override;
+    bool onCanMake(Make) const override;
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>, int ttcIndex) const override;
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>, const SkFontArguments&) const override;
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override;
@@ -901,6 +902,33 @@ private:
     IDWriteFactory* fFactory;
     T* fUnregister;
 };
+
+bool SkFontMgr_DirectWrite::onCanMake(Make make) const {
+    // TODO: version feature detection
+    constexpr Make supported =
+        Make::tt |
+        Make::tt_collection |
+        Make::tt_collection_index |
+        Make::tt_glyf |
+        Make::tt_glyf_COLR |
+        Make::tt_glyf_variable |
+        //Make::tt_glyf_variable_index |
+        Make::tt_CBDT |
+        //Make::tt_CBDT_raw |
+        Make::tt_CBDT_png |
+        Make::tt_sbix |
+        Make::tt_sbix_png |
+        //Make::tt_sbix_jpeg |
+        //Make::tt_sbix_tiff |
+        //Make::tt_SVG |
+        Make::tt_CFF |
+        Make::tt_CFF2 |
+        //Make::t1 |
+        //Make::t1_pfa |
+        //Make::t1_pfb |
+        static_cast<Make>(0);
+    return (make | supported) == supported;
+}
 
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                                                int ttcIndex) const {

@@ -13,6 +13,7 @@
 
 class SkBitmap;
 class SkData;
+class SkFontMgr;
 class SkStreamAsset;
 class SkTypeface;
 
@@ -34,6 +35,6 @@ inline sk_sp<SkImage> GetResourceAsImage(const char* resource) {
 
 std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource);
 
-sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource, int ttcIndex = 0);
+sk_sp<SkTypeface> MakeResourceAsTypeface(const SkFontMgr&, const char* resource, int ttcIndex = 0);
 
 #endif  // Resources_DEFINED
