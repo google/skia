@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
@@ -113,15 +114,19 @@ static void test_fontstream(skiatest::Reporter* reporter) {
 
 // Exercise this rare cmap format (platform 3, encoding 0)
 static void test_symbolfont(skiatest::Reporter* reporter) {
-    auto tf = MakeResourceAsTypeface("fonts/SpiderSymbol.ttf");
-    if (tf) {
-        SkUnichar c = 0xf021;
-        uint16_t g = SkFont(tf).unicharToGlyph(c);
-        REPORTER_ASSERT(reporter, g == 3);
-    } else {
-        // not all platforms support data fonts, so we just note that failure
-        SkDebugf("Skipping FontHostTest::test_symbolfont\n");
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+        return;
     }
+    auto tf = MakeResourceAsTypeface(*fontMgr, "fonts/SpiderSymbol.ttf");
+    if (!tf) {
+        ERRORF(reporter, "tf");
+        return;
+    }
+
+    SkUnichar c = 0xf021;
+    uint16_t g = SkFont(tf).unicharToGlyph(c);
+    REPORTER_ASSERT(reporter, g == 3);
 }
 
 static void test_tables(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& face) {

@@ -167,6 +167,7 @@ protected:
                                             const char* bcp47[], int bcp47Count,
                                             SkUnichar character) const override;
     SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override;
+    bool onCanMake(Make) const override;
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override;
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
                                             int ttcIndex) const override;
@@ -292,6 +293,10 @@ SkTypeface* SkFontMgr_Fuchsia::onMatchFamilyStyleCharacter(const char familyName
 
 SkTypeface* SkFontMgr_Fuchsia::onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const {
     return nullptr;
+}
+
+bool SkFontMgr_Fuchsia::onCanMake(Make make) const {
+    return SkTypeface_FreeType::Scanner().canMake(make);
 }
 
 sk_sp<SkTypeface> SkFontMgr_Fuchsia::onMakeFromData(sk_sp<SkData>, int ttcIndex) const {

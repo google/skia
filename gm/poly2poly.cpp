@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -22,6 +23,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 #include <stdint.h>
 
@@ -39,8 +41,8 @@ protected:
         return SkISize::Make(835, 840);
     }
 
-    static void doDraw(SkCanvas* canvas, const SkFont& font, SkPaint* paint, const int isrc[],
-                       const int idst[], int count) {
+    static void doDraw(SkCanvas* canvas, const SkFont& font, SkPaint* paint, SkGlyphID glyph,
+                       const int isrc[], const int idst[], int count) {
         SkMatrix matrix;
         SkPoint src[4], dst[4];
 
@@ -66,17 +68,31 @@ protected:
         paint->setStyle(SkPaint::kFill_Style);
         SkScalar x = D/2;
         SkScalar y = D/2 - (fm.fAscent + fm.fDescent)/2;
-        uint16_t glyphID = 3; // X
-        SkTextUtils::Draw(canvas, &glyphID, sizeof(glyphID), SkTextEncoding::kGlyphID, x, y,
+        SkTextUtils::Draw(canvas, &glyph, sizeof(glyph), SkTextEncoding::kGlyphID, x, y,
                           font, *paint, SkTextUtils::kCenter_Align);
         canvas->restore();
     }
 
     void onOnceBeforeDraw() override {
-        fEmFace = MakeResourceAsTypeface("fonts/Em.ttf");
+        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        if (fontMgr->canMake(SkFontFormat::TT_glyf)) {
+            fEmFace = MakeResourceAsTypeface(*fontMgr, "fonts/Em.ttf");
+            if (!fEmFace) {
+                fErrorMsg = "could not load em font";
+            }
+            fGlyphID = 3; // X
+        } else {
+            fEmFace = ToolUtils::create_portable_typeface();
+            fGlyphID = fEmFace->unicharToGlyph('X');
+        }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (fErrorMsg) {
+            *errorMsg = fErrorMsg;
+            return DrawResult::kFail;
+        }
+
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(4));
@@ -87,7 +103,7 @@ protected:
         // translate (1 point)
         const int src1[] = { 0, 0 };
         const int dst1[] = { 5, 5 };
-        doDraw(canvas, font, &paint, src1, dst1, 1);
+        doDraw(canvas, font, &paint, fGlyphID, src1, dst1, 1);
         canvas->restore();
 
         canvas->save();
@@ -95,7 +111,7 @@ protected:
         // rotate/uniform-scale (2 points)
         const int src2[] = { 32, 32, 64, 32 };
         const int dst2[] = { 32, 32, 64, 48 };
-        doDraw(canvas, font, &paint, src2, dst2, 2);
+        doDraw(canvas, font, &paint, fGlyphID, src2, dst2, 2);
         canvas->restore();
 
         canvas->save();
@@ -103,7 +119,7 @@ protected:
         // rotate/skew (3 points)
         const int src3[] = { 0, 0, 64, 0, 0, 64 };
         const int dst3[] = { 0, 0, 96, 0, 24, 64 };
-        doDraw(canvas, font, &paint, src3, dst3, 3);
+        doDraw(canvas, font, &paint, fGlyphID, src3, dst3, 3);
         canvas->restore();
 
         canvas->save();
@@ -111,13 +127,17 @@ protected:
         // perspective (4 points)
         const int src4[] = { 0, 0, 64, 0, 64, 64, 0, 64 };
         const int dst4[] = { 0, 0, 96, 0, 64, 96, 0, 64 };
-        doDraw(canvas, font, &paint, src4, dst4, 4);
+        doDraw(canvas, font, &paint, fGlyphID, src4, dst4, 4);
         canvas->restore();
+
+        return DrawResult::kOk;
     }
 
 private:
     typedef skiagm::GM INHERITED;
     sk_sp<SkTypeface> fEmFace;
+    const char* fErrorMsg = nullptr;
+    uint16_t fGlyphID;
 };
 
 //////////////////////////////////////////////////////////////////////////////

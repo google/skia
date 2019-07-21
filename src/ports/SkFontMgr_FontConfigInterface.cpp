@@ -226,6 +226,10 @@ protected:
         return nullptr;
     }
 
+    bool onCanMake(SkFontFormat format) const override {
+        return fScanner.canMake(format);
+    }
+
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
         return this->onMakeFromStreamIndex(SkMemoryStream::Make(std::move(data)), ttcIndex);
     }

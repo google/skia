@@ -958,6 +958,10 @@ protected:
         return this->matchFamilyStyle(get_string(fcTypeface->fPattern, FC_FAMILY), style);
     }
 
+    bool onCanMake(SkFontFormat format) const override {
+        return fScanner.canMake(format);
+    }
+
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                             int ttcIndex) const override {
         const size_t length = stream->getLength();

@@ -445,6 +445,10 @@ protected:
         return nullptr;
     }
 
+    bool onCanMake(SkFontFormat format) const override {
+        return fScanner.canMake(format);
+    }
+
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
         return this->makeFromStream(std::unique_ptr<SkStreamAsset>(new SkMemoryStream(std::move(data))),
                                     ttcIndex);

@@ -45,17 +45,24 @@ protected:
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+            return DrawResult::kSkip;
+        }
+
         SkPaint paint;
         paint.setAntiAlias(true);
         SkFont font;
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-        sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
-        std::unique_ptr<SkStreamAsset> distortableStream(GetResourceAsStream("fonts/Distortable.ttf"));
-        sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
-
+        std::unique_ptr<SkStreamAsset> distortableStream = GetResourceAsStream("fonts/Distortable.ttf");
         if (!distortableStream) {
             *errorMsg = "No distortableStream";
+            return DrawResult::kFail;
+        }
+        sk_sp<SkTypeface> distortable = MakeResourceAsTypeface(*fontMgr, "fonts/Distortable.ttf");
+        if (!distortable) {
+            *errorMsg = "Failed to create distortable font";
             return DrawResult::kFail;
         }
         const char* text = "abc";
@@ -71,7 +78,7 @@ protected:
                 SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
                 SkFontArguments::VariationPosition position =
                         { coordinates, SK_ARRAY_COUNT(coordinates) };
-                if (j == 0 && distortable) {
+                if (j == 0) {
                     sk_sp<SkTypeface> clone = distortable->makeClone(
                             SkFontArguments().setVariationDesignPosition(position));
                     font.setTypeface(clone ? std::move(clone) : distortable);
@@ -79,6 +86,10 @@ protected:
                     font.setTypeface(fontMgr->makeFromStream(
                         distortableStream->duplicate(),
                         SkFontArguments().setVariationDesignPosition(position)));
+                    if (!font.getTypeface()) {
+                        *errorMsg = "Failed to create from distortableStream";
+                        return DrawResult::kFail;
+                    }
                 }
 
                 SkAutoCanvasRestore acr(canvas, true);

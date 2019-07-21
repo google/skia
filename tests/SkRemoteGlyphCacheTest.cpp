@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
@@ -520,17 +521,19 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsMaskWithPathFallback,
         reporter, ctxInfo) {
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+        INFOF(reporter, "Skipping SkRemoteGlyphCache_DrawTextAsMaskWithPathFallback due to font.");
+        return;
+    }
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
 
     SkPaint paint;
 
-    auto serverTf = MakeResourceAsTypeface("fonts/HangingS.ttf");
-    // TODO: when the cq bots can handle this font remove the check.
-    if (serverTf == nullptr) {
-        return;
-    }
+    auto serverTf = MakeResourceAsTypeface(*fontMgr, "fonts/HangingS.ttf");
+    REPORTER_ASSERT(reporter, serverTf);
     auto serverTfData = server.serializeTypeface(serverTf.get());
 
     auto serverBlob = make_blob_causing_fallback(serverTf, serverTf.get(), reporter);

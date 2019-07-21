@@ -12,12 +12,36 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkBitmaskEnum.h"
 
 class SkData;
 class SkFontData;
 class SkStreamAsset;
 class SkString;
 class SkTypeface;
+
+enum class SkFontFormat : uint32_t {
+    TT,                      // At least minimal support for the TrueType / OpenType format
+    TT_Collection,           // At least minimal support for the TTC format (index may be ignored)
+    TT_Collection_Index,     // Supports the TTC format and the index is respected
+    TT_glyf,                 // Supports TrueType outlines
+    TT_glyf_COLR,            // Supports OpenType color outlines
+    TT_glyf_Variable,        // Supports OpenType variable fonts
+    TT_glyf_Variable_Index,  // Supports specifying a named instance through the index
+    TT_CBDT,                 // At least minimal support for CBDT bitmaps
+    TT_CBDT_Raw,             // Supports BGRA CBDT bitmaps
+    TT_CBDT_Png,             // Supports png encoded CBDT bitmaps
+    TT_sbix,                 // At least minimal support for sbix bitmaps
+    TT_sbix_Png,             // Supports png encoded sbix bitmaps
+    TT_sbix_Jpeg,            // Supports jpeg encoded sbix bitmaps
+    TT_sbix_Tiff,            // Supports tiff encoded sbix bitmaps
+    TT_SVG,                  // At least minimal support for SVG
+    TT_CFF,                  // Supports CFF outlines
+    TT_CFF2,                 // Supports CFF2 outlines
+    T1,                      // At least minimal support for the Type1 format
+    T1_Pfa,                  // Supports ascii encoded Type1
+    T1_Pfb,                  // Supports binary encoded Type1
+};
 
 class SK_API SkFontStyleSet : public SkRefCnt {
 public:
@@ -89,6 +113,8 @@ public:
 
     SkTypeface* matchFaceStyle(const SkTypeface*, const SkFontStyle&) const;
 
+    bool canMake(SkFontFormat) const;
+
     /**
      *  Create a typeface for the specified data and TTC index (pass 0 for none)
      *  or NULL if the data is not recognized. The caller must call unref() on
@@ -142,6 +168,7 @@ protected:
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const = 0;
 
+    virtual bool onCanMake(SkFontFormat) const = 0;
     virtual sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const = 0;
     virtual sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
                                                     int ttcIndex) const = 0;

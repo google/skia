@@ -163,6 +163,7 @@ public:
         return this->matchFamilyStyle(familyName.c_str(), style);
     }
 
+    bool onCanMake(SkFontFormat) const override { return false; }
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override { return nullptr; }
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
                                             int ttcIndex) const override {

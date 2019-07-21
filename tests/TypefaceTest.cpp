@@ -28,7 +28,7 @@
 
 #include <memory>
 
-static void TypefaceStyle_test(skiatest::Reporter* reporter,
+static void TypefaceStyle_test(skiatest::Reporter* reporter, const SkFontMgr& fontMgr,
                                uint16_t weight, uint16_t width, SkData* data)
 {
     sk_sp<SkData> dataCopy;
@@ -56,11 +56,8 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
     using WidthType = SkOTTableOS2_V0::WidthClass::Value;
     os2Table->usWidthClass.value = static_cast<WidthType>(SkEndian_SwapBE16(width));
 
-    sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromData(sk_ref_sp(data)));
-    if (!newTypeface) {
-        // Not all SkFontMgr can MakeFromStream().
-        return;
-    }
+    sk_sp<SkTypeface> newTypeface(fontMgr.makeFromData(sk_ref_sp(data)));
+    REPORTER_ASSERT(reporter, newTypeface);
 
     SkFontStyle newStyle = newTypeface->fontStyle();
 
@@ -85,6 +82,11 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
                     newStyle.width() == 5);
 }
 DEF_TEST(TypefaceStyle, reporter) {
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+        INFOF(reporter, "Skipping TypefaceStyle test since ttf isn't supported.");
+        return;
+    }
     std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("fonts/Em.ttf"));
     if (!stream) {
         REPORT_FAILURE(reporter, "fonts/Em.ttf", SkString("Cannot load resource"));
@@ -94,25 +96,25 @@ DEF_TEST(TypefaceStyle, reporter) {
 
     using SkFS = SkFontStyle;
     for (int weight = SkFS::kInvisible_Weight; weight <= SkFS::kExtraBlack_Weight; ++weight) {
-        TypefaceStyle_test(reporter, weight, 5, data.get());
+        TypefaceStyle_test(reporter, *fontMgr, weight, 5, data.get());
     }
     for (int width = SkFS::kUltraCondensed_Width; width <= SkFS::kUltraExpanded_Width; ++width) {
-        TypefaceStyle_test(reporter, 400, width, data.get());
+        TypefaceStyle_test(reporter, *fontMgr, 400, width, data.get());
     }
 }
 
 DEF_TEST(TypefaceRoundTrip, reporter) {
-    sk_sp<SkTypeface> typeface(MakeResourceAsTypeface("fonts/7630.otf"));
-    if (!typeface) {
-        // Not all SkFontMgr can MakeFromStream().
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_CFF)) {
+        INFOF(reporter, "Skipping TypefaceRoundTrip test since CFF isn't supported.");
         return;
     }
+    sk_sp<SkTypeface> typeface(MakeResourceAsTypeface(*fontMgr, "fonts/7630.otf"));
+    REPORTER_ASSERT(reporter, typeface);
 
     int fontIndex;
     std::unique_ptr<SkStreamAsset> stream = typeface->openStream(&fontIndex);
-
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
-    sk_sp<SkTypeface> typeface2 = fm->makeFromStream(std::move(stream), fontIndex);
+    sk_sp<SkTypeface> typeface2 = fontMgr->makeFromStream(std::move(stream), fontIndex);
     REPORTER_ASSERT(reporter, typeface2);
 }
 
@@ -141,14 +143,19 @@ DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
 };
 
 DEF_TEST(TypefaceAxes, reporter) {
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+        INFOF(reporter, "Skipping TypefaceAxes test since ttf isn't supported.");
+        return;
+    }
+
     std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
     if (!distortable) {
-        REPORT_FAILURE(reporter, "distortable", SkString());
+        ERRORF(reporter, "distortable");
         return;
     }
     constexpr int numberOfAxesInDistortable = 1;
 
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
     // The position may be over specified. If there are multiple values for a given axis,
     // ensure the last one since that's what css-fonts-4 requires.
     const SkFontArguments::VariationPosition::Coordinate position[] = {
@@ -158,12 +165,8 @@ DEF_TEST(TypefaceAxes, reporter) {
     SkFontArguments params;
     params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
     // TODO: if axes are set and the back-end doesn't support them, should we create the typeface?
-    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
-
-    if (!typeface) {
-        // Not all SkFontMgr can makeFromStream().
-        return;
-    }
+    sk_sp<SkTypeface> typeface = fontMgr->makeFromStream(std::move(distortable), params);
+    REPORTER_ASSERT(reporter, typeface);
 
     int count = typeface->getVariationDesignPosition(nullptr, 0);
     if (count == -1) {
@@ -184,20 +187,26 @@ DEF_TEST(TypefaceAxes, reporter) {
 }
 
 DEF_TEST(TypefaceVariationIndex, reporter) {
-    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
-    if (!distortable) {
-        REPORT_FAILURE(reporter, "distortable", SkString());
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_glyf_Variable_Index)) {
+        // FreeType is the only weird thing that supports this, Skia just needs to make sure if it
+        // gets one of these things make sense.
+        INFOF(reporter, "Skipping TypefaceVariationIndex test: variable index unsupported.");
         return;
     }
 
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+    if (!distortable) {
+        ERRORF(reporter, "distortable");
+        return;
+    }
+
     SkFontArguments params;
     // The first named variation position in Distortable is 'Thin'.
     params.setCollectionIndex(0x00010000);
-    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+    sk_sp<SkTypeface> typeface = fontMgr->makeFromStream(std::move(distortable), params);
     if (!typeface) {
-        // FreeType is the only weird thing that supports this, Skia just needs to make sure if it
-        // gets one of these things make sense.
+        ERRORF(reporter, "typeface");
         return;
     }
 
@@ -233,9 +242,15 @@ DEF_TEST(Typeface, reporter) {
 }
 
 DEF_TEST(TypefaceAxesParameters, reporter) {
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+        INFOF(reporter, "Skipping TypefaceAxesParameters test: ttf unsupported.");
+        return;
+    }
+
     std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
     if (!distortable) {
-        REPORT_FAILURE(reporter, "distortable", SkString());
+        ERRORF(reporter, "distortable");
         return;
     }
     constexpr int numberOfAxesInDistortable = 1;
@@ -244,13 +259,10 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
     constexpr SkScalar maxAxisInDistortable = 2;
     constexpr bool axisIsHiddenInDistortable = false;
 
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
-
     SkFontArguments params;
-    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
-
+    sk_sp<SkTypeface> typeface = fontMgr->makeFromStream(std::move(distortable), params);
     if (!typeface) {
-        // Not all SkFontMgr can makeFromStream().
+        ERRORF(reporter, "typeface");
         return;
     }
 
@@ -305,6 +317,7 @@ DEF_TEST(TypefaceCache, reporter) {
 static void check_serialize_behaviors(sk_sp<SkTypeface> tf, bool isLocalData,
                                       skiatest::Reporter* reporter) {
     if (!tf) {
+        ERRORF(reporter, "tf");
         return;
     }
     auto data0 = tf->serialize(SkTypeface::SerializeBehavior::kDoIncludeData);
@@ -322,9 +335,15 @@ static void check_serialize_behaviors(sk_sp<SkTypeface> tf, bool isLocalData,
 
 DEF_TEST(Typeface_serialize, reporter) {
     check_serialize_behaviors(SkTypeface::MakeDefault(), false, reporter);
-    check_serialize_behaviors(SkTypeface::MakeFromStream(
-                                         GetResourceAsStream("fonts/Distortable.ttf")),
-                              true, reporter);
+
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+        INFOF(reporter, "Skipping part of Typeface_serialize test: ttf unsupported.");
+    } else {
+        check_serialize_behaviors(
+                fontMgr->makeFromStream(GetResourceAsStream("fonts/Distortable.ttf")),
+                true, reporter);
+    }
 
 }
 
@@ -349,7 +368,7 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
     font.getTypeface()->getFamilyName(&familyName);
     for (size_t i = 0; i < codepointCount; ++i) {
 #if defined(SK_BUILD_FOR_WIN)
-        // GDI does not support character to glyph mapping outside BMP.
+        // LogFontTypeface does not support glyph to character mapping outside BMP.
         if (gSkFontMgr_DefaultFactory == &SkFontMgr_New_GDI &&
             0xFFFF < originalCodepoints[i] && newCodepoints[i] == 0)
         {

@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
@@ -48,10 +49,25 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fEmojiTypeface      = ToolUtils::planet_typeface();
-        fEmojiText = "♁♃";
-        fReallyBigATypeface = MakeResourceAsTypeface("fonts/ReallyBigA.ttf");
+        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+            fDrawResult = DrawResult::kSkip;
+            return;
+        }
 
+        sk_sp<SkTypeface> emojiTypeface = ToolUtils::planet_typeface();
+        if (!emojiTypeface) {
+            fErrorMsg = "no planet color font";
+            fDrawResult = DrawResult::kFail;
+            return;
+        }
+        const char* emojiText = "♁♃";
+        sk_sp<SkTypeface> reallyBigATypeface = MakeResourceAsTypeface(*fontMgr, "fonts/ReallyBigA.ttf");
+        if (!reallyBigATypeface) {
+            fErrorMsg = "could not load really big a";
+            fDrawResult = DrawResult::kFail;
+            return;
+        }
         SkTextBlobBuilder builder;
 
         // make textblob
@@ -87,18 +103,16 @@ protected:
                                     yOffset - bounds.height() * 0.5f);
 
         // color emoji font with large glyph
-        if (fEmojiTypeface) {
-            font.setEdging(SkFont::Edging::kAlias);
-            font.setSubpixel(false);
-            font.setTypeface(fEmojiTypeface);
-            font.measureText(fEmojiText, strlen(fEmojiText), SkTextEncoding::kUTF8, &bounds);
-            ToolUtils::add_to_text_blob(&builder, fEmojiText, font, xOffset, yOffset);
-        }
+        font.setEdging(SkFont::Edging::kAlias);
+        font.setSubpixel(false);
+        font.setTypeface(emojiTypeface);
+        font.measureText(emojiText, strlen(emojiText), SkTextEncoding::kUTF8, &bounds);
+        ToolUtils::add_to_text_blob(&builder, emojiText, font, xOffset, yOffset);
 
         // outline font with large glyph
         font.setSize(12);
         text = "aA";
-        font.setTypeface(fReallyBigATypeface);
+        font.setTypeface(reallyBigATypeface);
         ToolUtils::add_to_text_blob(&builder, text, font, corruptedAx, corruptedAy);
         fBlob = builder.make();
     }
@@ -111,7 +125,11 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (fDrawResult != DrawResult::kOk) {
+            *errorMsg = fErrorMsg;
+            return fDrawResult;
+        }
 
         canvas->drawColor(SK_ColorGRAY);
 
@@ -149,13 +167,13 @@ protected:
                 canvas->translate(0, SkScalarFloorToScalar(bounds.height() + SkIntToScalar(25)));
             }
         }
+        return DrawResult::kOk;
     }
 
 private:
-    sk_sp<SkTypeface> fEmojiTypeface;
-    sk_sp<SkTypeface> fReallyBigATypeface;
-    const char* fEmojiText;
     sk_sp<SkTextBlob> fBlob;
+    const char* fErrorMsg = nullptr;
+    DrawResult fDrawResult = DrawResult::kOk;
 
     static constexpr int kWidth = 1250;
     static constexpr int kHeight = 700;

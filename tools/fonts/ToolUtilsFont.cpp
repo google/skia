@@ -28,7 +28,8 @@ sk_sp<SkTypeface> planet_typeface() {
 #else
         filename = "fonts/planetcbdt.ttf";
 #endif
-        sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(filename);
+        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(*fontMgr, filename);
         if (typeface) {
             return typeface;
         }
@@ -47,7 +48,8 @@ sk_sp<SkTypeface> emoji_typeface() {
 #else
         filename = "fonts/cbdt.ttf";
 #endif
-        sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(filename);
+        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(*fontMgr, filename);
         if (typeface) {
             return typeface;
         }

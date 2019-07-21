@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
@@ -33,12 +34,16 @@ static void excercise_draw_pos_text(SkCanvas* canvas,
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(pdf_never_embed, canvas, errorMsg, 512, 512) {
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+        return skiagm::DrawResult::kSkip;
+    }
+
     SkPaint p;
 
-    SkFont font(MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf"), 60);
-    if (!font.getTypefaceOrDefault()) {
-        *errorMsg = "Could not load fonts/Roboto2-Regular_NoEmbed.ttf. "
-                    "Did you forget to set the resourcePath?";
+    SkFont font(MakeResourceAsTypeface(*fontMgr, "fonts/Roboto2-Regular_NoEmbed.ttf"), 60);
+    if (!font.getTypeface()) {
+        *errorMsg = "FontMgr couldn't load fonts/Roboto2-Regular_NoEmbed.ttf";
         return skiagm::DrawResult::kFail;
     }
 

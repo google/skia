@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMaskFilter.h"
@@ -40,12 +41,23 @@ public:
     // This gm tests that textblobs of mixed sizes with a large glyph will render properly
     TextBlobMixedSizes(bool useDFT) : fUseDFT(useDFT) {}
 
-protected:
+private:
     void onOnceBeforeDraw() override {
+        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        if (!fontMgr->canMake(SkFontFormat::TT_glyf)) {
+            fDrawResult = DrawResult::kSkip;
+            return;
+        }
+
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
-        SkFont font(MakeResourceAsTypeface("fonts/HangingS.ttf"), 262);
+        SkFont font(MakeResourceAsTypeface(*fontMgr, "fonts/HangingS.ttf"), 262);
+        if (!font.getTypeface()) {
+            fDrawResult = DrawResult::kFail;
+            fErrorMsg = "could not load hangingS";
+            return;
+        }
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
@@ -102,7 +114,11 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* inputCanvas) override {
+    DrawResult onDraw(SkCanvas* inputCanvas, SkString* errorMsg) override {
+        if (fDrawResult != DrawResult::kOk) {
+            *errorMsg = fErrorMsg;
+            return fDrawResult;
+        }
         SkCanvas* canvas = inputCanvas;
         sk_sp<SkSurface> surface;
         if (fUseDFT) {
@@ -177,17 +193,16 @@ protected:
             inputCanvas->resetMatrix();
             inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
+        return DrawResult::kOk;
     }
-
-private:
-    sk_sp<SkTextBlob> fBlob;
 
     static constexpr int kWidth = 2100;
     static constexpr int kHeight = 1900;
 
+    sk_sp<SkTextBlob> fBlob;
     bool fUseDFT;
-
-    typedef GM INHERITED;
+    DrawResult fDrawResult = DrawResult::kOk;
+    const char* fErrorMsg = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////////

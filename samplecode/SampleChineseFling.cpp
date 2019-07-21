@@ -23,7 +23,7 @@
 
 static sk_sp<SkTypeface> chinese_typeface() {
 #ifdef SK_BUILD_FOR_ANDROID
-    return MakeResourceAsTypeface("fonts/NotoSansCJK-Regular.ttc");
+    return MakeResourceAsTypeface(*SkFontMgr::RefDefault(), "fonts/NotoSansCJK-Regular.ttc");
 #elif defined(SK_BUILD_FOR_WIN)
     return SkTypeface::MakeFromName("SimSun", SkFontStyle());
 #elif defined(SK_BUILD_FOR_MAC)

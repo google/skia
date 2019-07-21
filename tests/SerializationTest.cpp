@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkPictureRecorder.h"
@@ -368,33 +369,45 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const cha
     compare_bitmaps(reporter, origBitmap, destBitmap);
 }
 
-static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
-    {
-        // Load typeface from file to test CreateFromFile with index.
-        auto typeface = MakeResourceAsTypeface("fonts/test.ttc", 1);
-        if (!typeface) {
-            INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
-        } else {
-            serialize_and_compare_typeface(std::move(typeface), "A!", reporter);
-        }
+DEF_TEST(TestPictureTypefaceSerialization_ttc, reporter) {
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_Collection_Index)) {
+        INFOF(reporter, "Could not run fontstream ttc test because ttc not supported.");
+        return;
     }
 
-    {
-        // Load typeface as stream to create with axis settings.
-        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
-        if (!distortable) {
-            INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
-        } else {
-            SkFixed axis = SK_FixedSqrt2;
-            sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
-                skstd::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
-            if (!typeface) {
-                INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
-            } else {
-                serialize_and_compare_typeface(std::move(typeface), "ab", reporter);
-            }
-        }
+    // Load typeface from file to test CreateFromFile with index.
+    auto typeface = MakeResourceAsTypeface(*fontMgr, "fonts/test.ttc", 1);
+    if (!typeface) {
+        ERRORF(reporter, "Could not create collection typeface.");
+        return;
     }
+    serialize_and_compare_typeface(std::move(typeface), "A!", reporter);
+}
+
+DEF_TEST(TestPictureTypefaceSerialization_variable, reporter) {
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontFormat::TT_glyf_Variable)) {
+        INFOF(reporter, "Could not run fontstream test because variable font not supported.");
+        return;
+    }
+
+    std::unique_ptr<SkStreamAsset> distortable = GetResourceAsStream("fonts/Distortable.ttf");
+    if (!distortable) {
+        INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
+        return;
+    }
+
+    // Load typeface as stream to create with axis settings.
+    SkFixed axis = SK_FixedSqrt2;
+    sk_sp<SkTypeface> typeface = fontMgr->makeFromFontData(
+        skstd::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1));
+    if (!typeface) {
+        ERRORF(reporter, "Could not create distortable typeface.");
+        return;
+    }
+
+    serialize_and_compare_typeface(std::move(typeface), "ab", reporter);
 }
 
 static void setup_bitmap_for_canvas(SkBitmap* bitmap) {
@@ -589,8 +602,6 @@ DEF_TEST(Serialization, reporter) {
             REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img1.get()));
         }
     }
-
-    TestPictureTypefaceSerialization(reporter);
 
     // Test SkLightingShader/NormalMapSource serialization
     {

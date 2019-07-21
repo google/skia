@@ -69,6 +69,7 @@ public:
             SkFixed fMaximum;
         };
         using AxisDefinitions = SkSTArray<4, AxisDefinition, true>;
+        bool canMake(SkFontFormat) const;
         bool recognizedFont(SkStreamAsset* stream, int* numFonts) const;
         bool scanFont(SkStreamAsset* stream, int ttcIndex,
                       SkString* name, SkFontStyle* style, bool* isFixedPitch,

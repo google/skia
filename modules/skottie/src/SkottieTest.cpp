@@ -477,6 +477,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
             return nullptr;
         }
 
+        bool onCanMake(SkFontFormat) const override { return false; }
         sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int) const override {
             return nullptr;
         }

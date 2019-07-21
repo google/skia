@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkPaint.h"
@@ -29,14 +30,27 @@ class ScaledEmojiRenderingGM : public GM {
 public:
     ScaledEmojiRenderingGM() {}
 
-protected:
+private:
     sk_sp<SkTypeface> typefaces[4];
 
     void onOnceBeforeDraw() override {
-        typefaces[0] = MakeResourceAsTypeface("fonts/colr.ttf");
-        typefaces[1] = MakeResourceAsTypeface("fonts/sbix.ttf");
-        typefaces[2] = MakeResourceAsTypeface("fonts/cbdt.ttf");
+        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        typefaces[0] = MakeResourceAsTypeface(*fontMgr, "fonts/colr.ttf");
+        if (!typefaces[0] && fontMgr->canMake(SkFontFormat::TT_glyf_COLR)) {
+            fErrorMsg = "could not create COLR font";
+        }
+        typefaces[1] = MakeResourceAsTypeface(*fontMgr, "fonts/sbix.ttf");
+        if (!typefaces[1] && fontMgr->canMake(SkFontFormat::TT_sbix_Png)) {
+            fErrorMsg = "could not create sbix font";
+        }
+        typefaces[2] = MakeResourceAsTypeface(*fontMgr, "fonts/cbdt.ttf");
+        if (!typefaces[2] && fontMgr->canMake(SkFontFormat::TT_CBDT_Png)) {
+            fErrorMsg = "could not create CBDT font";
+        }
         typefaces[3] = ToolUtils::create_portable_typeface("Emoji", SkFontStyle());
+        if (!typefaces[3]) {
+            fErrorMsg = "no portable emoji font";
+        }
     }
 
     SkString onShortName() override {
@@ -45,12 +59,19 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
 
-    void onDraw(SkCanvas* canvas) override {
-
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (fErrorMsg) {
+            *errorMsg = fErrorMsg;
+            return DrawResult::kFail;
+        }
         canvas->drawColor(SK_ColorGRAY);
         SkScalar y = 0;
 
         for (const auto& typeface: typefaces) {
+            if (!typeface) {
+                continue;
+            }
+
             SkFont font(typeface);
             font.setEdging(SkFont::Edging::kAlias);
 
@@ -70,10 +91,10 @@ protected:
                 y += metrics.fDescent + metrics.fLeading;
             }
         }
+        return DrawResult::kOk;
     }
 
-private:
-    typedef GM INHERITED;
+    const char* fErrorMsg = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////////
