@@ -76,7 +76,9 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
 
     // Copy the data, leaving out the old name table.
     // In theory, we could also remove the DSIG table if it exists.
-    size_t nameTableLogicalSize = sizeof(SkOTTableName) + (namesCount * sizeof(SkOTTableName::Record)) + (fontNameLen * sizeof(wchar_t));
+    size_t nameTableLogicalSize = sizeof(SkOTTableName)
+                                + (2 * namesCount * sizeof(SkOTTableName::Record))
+                                + (fontNameLen * sizeof(SK_OT_USHORT));
     size_t nameTablePhysicalSize = (nameTableLogicalSize + 3) & ~3; // Rounded up to a multiple of 4.
 
     size_t oldNameTablePhysicalSize = (SkEndian_SwapBE32(tableEntry.logicalLength) + 3) & ~3; // Rounded up to a multiple of 4.
@@ -108,6 +110,7 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
         if (oldOffset > oldNameTableOffset) {
             currentEntry->offset = SkEndian_SwapBE32(SkToU32(oldOffset - oldNameTablePhysicalSize));
         }
+
         if (SkOTTableHead::TAG == currentEntry->tag) {
             headTableEntry = currentEntry;
         }
@@ -120,19 +123,28 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
 
     // Write the new 'name' table after the original font data.
     SkOTTableName* nameTable = reinterpret_cast<SkOTTableName*>(data + originalDataSize);
-    unsigned short stringOffset = sizeof(SkOTTableName) + (namesCount * sizeof(SkOTTableName::Record));
+    unsigned short stringOffset = sizeof(SkOTTableName) + (2 * namesCount * sizeof(SkOTTableName::Record));
     nameTable->format = SkOTTableName::format_0;
-    nameTable->count = SkEndian_SwapBE16(namesCount);
+    nameTable->count = SkEndian_SwapBE16(2 * namesCount);
     nameTable->stringOffset = SkEndian_SwapBE16(stringOffset);
 
     SkOTTableName::Record* nameRecords = reinterpret_cast<SkOTTableName::Record*>(data + originalDataSize + sizeof(SkOTTableName));
+    // GDI will not use a Symbol cmap table if there is no Symbol encoded name.
     for (int i = 0; i < namesCount; ++i) {
         nameRecords[i].platformID.value = SkOTTableName::Record::PlatformID::Windows;
-        nameRecords[i].encodingID.windows.value = SkOTTableName::Record::EncodingID::Windows::UnicodeBMPUCS2;
+        nameRecords[i].encodingID.windows.value = SkOTTableName::Record::EncodingID::Windows::Symbol;
         nameRecords[i].languageID.windows.value = SkOTTableName::Record::LanguageID::Windows::English_UnitedStates;
         nameRecords[i].nameID.predefined.value = namesToCreate[i];
         nameRecords[i].offset = SkEndian_SwapBE16(0);
-        nameRecords[i].length = SkEndian_SwapBE16(SkToU16(fontNameLen * sizeof(wchar_t)));
+        nameRecords[i].length = SkEndian_SwapBE16(SkToU16(fontNameLen * sizeof(SK_OT_USHORT)));
+    }
+    for (int i = 0; i < namesCount; ++i) {
+        nameRecords[namesCount + i].platformID.value = SkOTTableName::Record::PlatformID::Windows;
+        nameRecords[namesCount + i].encodingID.windows.value = SkOTTableName::Record::EncodingID::Windows::UnicodeBMPUCS2;
+        nameRecords[namesCount + i].languageID.windows.value = SkOTTableName::Record::LanguageID::Windows::English_UnitedStates;
+        nameRecords[namesCount + i].nameID.predefined.value = namesToCreate[i];
+        nameRecords[namesCount + i].offset = SkEndian_SwapBE16(0);
+        nameRecords[namesCount + i].length = SkEndian_SwapBE16(SkToU16(fontNameLen * sizeof(SK_OT_USHORT)));
     }
 
     SK_OT_USHORT* nameString = reinterpret_cast<SK_OT_USHORT*>(data + originalDataSize + stringOffset);

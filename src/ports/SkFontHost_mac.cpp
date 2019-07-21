@@ -2656,6 +2656,33 @@ protected:
         return nullptr;
     }
 
+    bool onCanMake(Make make) const override {
+        // TODO: version feature detection
+        constexpr Make supported =
+            Make::tt |
+            Make::tt_collection |
+            //Make::tt_collection_index |
+            Make::tt_glyf |
+            Make::tt_glyf_COLR |
+            Make::tt_glyf_variable |
+            //Make::tt_glyf_variable_index |
+            //Make::tt_CBDT |
+            //Make::tt_CBDT_raw |
+            //Make::tt_CBDT_png |
+            Make::tt_sbix |
+            Make::tt_sbix_png |
+            Make::tt_sbix_jpeg |
+            Make::tt_sbix_tiff |
+            Make::tt_SVG |
+            Make::tt_CFF |
+            Make::tt_CFF2 |
+            Make::t1 |
+            Make::t1_pfa |
+            //Make::t1_pfb |
+            static_cast<Make>(0);
+        return (make | supported) == supported;
+    }
+
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
         SkUniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromData(data));
         if (!pr) {

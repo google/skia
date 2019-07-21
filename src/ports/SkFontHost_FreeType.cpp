@@ -1848,6 +1848,33 @@ FT_Face SkTypeface_FreeType::Scanner::openFace(SkStreamAsset* stream, int ttcInd
     return face;
 }
 
+bool SkTypeface_FreeType::Scanner::canMake(SkFontMgr::Make make) const {
+    // TODO: FreeType feature detection
+    constexpr SkFontMgr::Make supported =
+        SkFontMgr::Make::tt |
+        SkFontMgr::Make::tt_collection |
+        SkFontMgr::Make::tt_collection_index |
+        SkFontMgr::Make::tt_glyf |
+        SkFontMgr::Make::tt_glyf_COLR |
+        SkFontMgr::Make::tt_glyf_variable |
+        SkFontMgr::Make::tt_glyf_variable_index |
+        SkFontMgr::Make::tt_CBDT |
+        SkFontMgr::Make::tt_CBDT_raw |
+        SkFontMgr::Make::tt_CBDT_png |
+        SkFontMgr::Make::tt_sbix |
+        SkFontMgr::Make::tt_sbix_png |
+        //SkFontMgr::Make::tt_sbix_jpeg |
+        //SkFontMgr::Make::tt_sbix_tiff |
+        //SkFontMgr::Make::tt_SVG |
+        SkFontMgr::Make::tt_CFF |
+        SkFontMgr::Make::tt_CFF2 |
+        SkFontMgr::Make::t1 |
+        SkFontMgr::Make::t1_pfa |
+        SkFontMgr::Make::t1_pfb |
+        static_cast<SkFontMgr::Make>(0);
+    return (make | supported) == supported;
+}
+
 bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* numFaces) const {
     SkAutoMutexExclusive libraryLock(fLibraryMutex);
 
