@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkRRect.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
@@ -12,6 +13,7 @@
 
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
+#include "modules/sksg/include/SkSGInvalidationController.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGRect.h"
@@ -162,7 +164,6 @@ protected:
                     return true;
                 case 'I':
                     fShowInval = !fShowInval;
-                    fScene->setShowInval(fShowInval);
                     return true;
                 default:
                     break;
@@ -182,7 +183,23 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
+        sksg::InvalidationController ic;
+        fScene->animate(0, &ic);
         fScene->render(canvas);
+
+        if (fShowInval) {
+            SkPaint fill, stroke;
+            fill.setAntiAlias(true);
+            fill.setColor(0x40ff0000);
+            stroke.setAntiAlias(true);
+            stroke.setColor(0xffff0000);
+            stroke.setStyle(SkPaint::kStroke_Style);
+
+            for (const auto& r : ic) {
+                canvas->drawRect(r, fill);
+                canvas->drawRect(r, stroke);
+            }
+        }
     }
 
     bool onAnimate(double nanos) override {

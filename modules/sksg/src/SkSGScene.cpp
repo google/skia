@@ -42,31 +42,18 @@ Scene::Scene(sk_sp<RenderNode> root, AnimatorList&& animators)
 Scene::~Scene() = default;
 
 void Scene::render(SkCanvas* canvas) const {
-    // TODO: externalize the inval controller.
-    // TODO: relocate the revalidation to tick()?
-    InvalidationController ic;
-    fRoot->revalidate(fShowInval ? &ic : nullptr, SkMatrix::I());
+    // Ensure the SG is revalidated.
+    // Note: this is a no-op if the scene has already been revalidated - e.g. in animate().
+    fRoot->revalidate(nullptr, SkMatrix::I());
     fRoot->render(canvas);
-
-    if (fShowInval) {
-        SkPaint fill, stroke;
-        fill.setAntiAlias(true);
-        fill.setColor(0x40ff0000);
-        stroke.setAntiAlias(true);
-        stroke.setColor(0xffff0000);
-        stroke.setStyle(SkPaint::kStroke_Style);
-
-        for (const auto& r : ic) {
-            canvas->drawRect(r, fill);
-            canvas->drawRect(r, stroke);
-        }
-    }
 }
 
-void Scene::animate(float t) {
+void Scene::animate(float t, InvalidationController* ic) {
     for (const auto& anim : fAnimators) {
         anim->tick(t);
     }
+
+    fRoot->revalidate(ic, SkMatrix::I());
 }
 
 const RenderNode* Scene::nodeAt(const SkPoint& p) const {
