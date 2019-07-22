@@ -7,6 +7,8 @@
 
 #include "src/core/SkCpu.h"
 #include "src/core/SkVM.h"
+#include "tools/SkVMBuilders.h"
+#include <chrono>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -21,45 +23,82 @@ void SkDebugf(const char* fmt, ...) {
     va_end(args);
 }
 
+// ~~~~~~~~~~~~~~~~~~~ //
+
 using namespace skvm;
 
-static Program build() {
-    Builder b;
+template <typename Fn>
+static int time(Fn&& fn) {
+    using clock = std::chrono::steady_clock;
+    const int ms = 200;
 
-    Arg ptr = b.arg(0);
-    I32 v = b.load32(ptr);
-    b.store32(ptr, b.mul(v,v));
+    int n = 0;
+    for (auto start = clock::now(); clock::now() - start < std::chrono::milliseconds(ms); ) {
+        fn();
+        n++;
+    }
+    return n * (1000/ms);
+}
 
-    return b.done();
+static void print(double val, const char* unit) {
+    const char* labels[] = { "", "K", "M", "G", "T" };
+    const char** label = labels;
+
+    while (val > 1000.0) {
+        val *= 1/1000.0;
+        label++;
+    }
+
+    printf("\t%d %s%s", (int)val, *label, unit);
+}
+
+template <typename... Args>
+static void exercise(const char* name, skvm::Builder&& b, Args... args) {
+    printf("%20s", name);
+    {
+        b.done(name);
+        int loops = time([&]{
+            b.done(nullptr);
+        });
+        print(loops, "Hz");
+    }
+
+    for (const int N : {15, 255, 4095}) {
+        skvm::Program p = b.done(name);
+        int loops = time([&]{
+            p.eval(N, args...);
+        });
+        print(N*loops, "px/s");
+    }
+
+    printf("\n");
 }
 
 int main(int argc, char** argv) {
 #if defined(__x86_64__)
     SkCpu::CacheRuntimeFeatures();
 #endif
-    int loops = argc > 1 ? atoi(argv[1])
-                         : 1;
+    printf("%20s\tbuild\tN=15\t\tN=255\t\tN=4095\n", "");
 
-    if (loops < 0) {
-        // Benchmark program build and JIT.
-        loops = -loops;
-        while (loops --> 0) {
-            Program program = build();
-            int x = 4;
-            program.eval(0, &x);
-        }
-    } else {
-        // Benchmark JIT code.
-        Program program = build();
+    int ints[4096];
+    //float floats[4096];
 
-        int buf[4096];
-        for (int i = 0; i < 4096; i++) {
-            buf[i] = 1;
-        }
+    {
+        Builder b;
+        Arg ptr = b.arg(0);
+        I32 v = b.load32(ptr);
+        b.store32(ptr, b.mul(v,v));
 
-        while (loops --> 0) {
-            program.eval(4096, buf);
-        }
+        exercise("square", std::move(b), ints);
     }
+    {
+        Builder b;
+        Arg ptr = b.arg(0);
+        I32 v = b.load32(ptr);
+        b.store32(ptr, b.add(v,b.splat(1)));
+
+        exercise("plus_one", std::move(b), ints);
+    }
+
     return 0;
 }
