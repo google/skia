@@ -18,7 +18,7 @@ namespace textlayout {
 class FontResolver {
 public:
     struct FontDescr {
-        FontDescr() {}
+        //FontDescr() {}
         FontDescr(SkFont font, SkScalar height)
                 : fFont(font), fHeight(height) {}
         bool operator==(const FontDescr& a) const {
@@ -59,7 +59,7 @@ private:
 
     SkTHashMap<const char*, FontDescr> fFontMapping;
     SkTHashSet<FontDescr, Hash> fResolvedFonts;
-    FontDescr fFirstResolvedFont;
+    FontDescr fFirstResolvedFont{nullptr, 0.0};
 
     SkTArray<SkUnichar> fCodepoints;
     SkTArray<const char*> fCharacters;

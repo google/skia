@@ -9,6 +9,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
+#include "include/ports/SkNativeFontMgrFactory.h"
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecordOpts.h"
 #include "src/core/SkRecorder.h"
@@ -41,6 +42,8 @@ static void dump(const char* name, int w, int h, const SkRecord& record) {
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
 
+    auto fontmgr = SkNativeFontMgrFactory();
+
     for (int i = 0; i < FLAGS_skps.count(); i++) {
         if (CommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
             continue;
@@ -51,7 +54,7 @@ int main(int argc, char** argv) {
             SkDebugf("Could not read %s.\n", FLAGS_skps[i]);
             return 1;
         }
-        sk_sp<SkPicture> src(SkPicture::MakeFromStream(stream.get()));
+        sk_sp<SkPicture> src(SkPicture::MakeFromStream(stream.get(), fontmgr));
         if (!src) {
             SkDebugf("Could not read %s as an SkPicture.\n", FLAGS_skps[i]);
             return 1;

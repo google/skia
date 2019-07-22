@@ -21,6 +21,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "tests/Test.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <cmath>
 
@@ -79,7 +80,7 @@ DEF_TEST(DrawText_dashout, reporter) {
     SkCanvas emptyCanvas(emptyBitmap);
 
     SkPoint point = SkPoint::Make(25.0f, 25.0f);
-    SkFont font(nullptr, 20);
+    SkFont font(ToolUtils::DefaultTypeface(), 20);
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
     font.setSubpixel(true);
 
@@ -112,16 +113,17 @@ DEF_TEST(DrawText_dashout, reporter) {
 DEF_TEST(DrawText_weirdCoordinates, r) {
     auto surface = SkSurface::MakeRasterN32Premul(10,10);
     auto canvas = surface->getCanvas();
+    auto tf = ToolUtils::DefaultTypeface();
 
     SkScalar oddballs[] = { 0.0f, (float)INFINITY, (float)NAN, 34359738368.0f };
 
     for (auto x : oddballs) {
-        canvas->drawString("a", +x, 0.0f, SkFont(), SkPaint());
-        canvas->drawString("a", -x, 0.0f, SkFont(), SkPaint());
+        canvas->drawString("a", +x, 0.0f, SkFont(tf), SkPaint());
+        canvas->drawString("a", -x, 0.0f, SkFont(tf), SkPaint());
     }
     for (auto y : oddballs) {
-        canvas->drawString("a", 0.0f, +y, SkFont(), SkPaint());
-        canvas->drawString("a", 0.0f, -y, SkFont(), SkPaint());
+        canvas->drawString("a", 0.0f, +y, SkFont(tf), SkPaint());
+        canvas->drawString("a", 0.0f, -y, SkFont(tf), SkPaint());
     }
 }
 
@@ -131,7 +133,7 @@ DEF_TEST(DrawText_weirdMatricies, r) {
     auto surface = SkSurface::MakeRasterN32Premul(100,100);
     auto canvas = surface->getCanvas();
 
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
     struct {

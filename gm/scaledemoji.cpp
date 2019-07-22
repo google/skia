@@ -112,8 +112,7 @@ protected:
         canvas->drawColor(SK_ColorGRAY);
 
         SkPaint paint;
-        SkFont font;
-        font.setTypeface(fEmojiFont.fTypeface);
+        SkFont font(fEmojiFont.fTypeface);
         const char* text = fEmojiFont.fText;
 
         // draw text at different point sizes

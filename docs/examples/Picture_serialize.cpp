@@ -12,7 +12,8 @@ void draw(SkCanvas* canvas) {
     pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
     sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
     sk_sp<SkData> readableData = picture->serialize();
-    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size());
+    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size(),
+                                                    ToolUtils::GlobalFontMgr());
     copy->playback(canvas);
 }
 }  // END FIDDLE

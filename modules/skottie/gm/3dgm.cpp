@@ -25,6 +25,7 @@
 #include "include/utils/Sk3D.h"
 #include "modules/skottie/include/Skottie.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <math.h>
 #include <algorithm>
@@ -144,7 +145,7 @@ protected:
 
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
         font.setEdging(SkFont::Edging::kAlias);
 
         SkPath cube;
@@ -223,4 +224,3 @@ protected:
 };
 
 DEF_GM(return new GM3d;)
-

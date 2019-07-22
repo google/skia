@@ -13,6 +13,7 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkClipOpPriv.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 constexpr int W = 150;
 constexpr int H = 200;
@@ -20,7 +21,7 @@ constexpr int H = 200;
 static void show_text(SkCanvas* canvas, bool doAA) {
     SkRandom rand;
     SkPaint paint;
-    SkFont font(nullptr, 20);
+    SkFont font(ToolUtils::DefaultTypeface(), 20);
     font.setEdging(doAA ? SkFont::Edging::kSubpixelAntiAlias : SkFont::Edging::kAlias);
 
     for (int i = 0; i < 200; ++i) {

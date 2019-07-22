@@ -20,6 +20,7 @@
 #include "include/core/SkSurface.h"
 #include "src/core/SkRemoteGlyphCache.h"
 #include "src/core/SkScalerContext.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static std::string gSkpName;
 static bool gUseGpu = true;
@@ -155,14 +156,14 @@ static void final_draw(std::string outFilename, SkData* picData, SkStrikeClient*
     procs.fTypefaceProc = decode;
     procs.fTypefaceCtx = client;
 
-    auto pic = SkPicture::MakeFromData(picData, &procs);
+    auto pic = SkPicture::MakeFromData(picData, ToolUtils::GlobalFontMgr(), &procs);
 
     auto cullRect = pic->cullRect();
     auto r = cullRect.round();
 
     auto s = SkSurface::MakeRasterN32Premul(r.width(), r.height());
     auto c = s->getCanvas();
-    auto picUnderTest = SkPicture::MakeFromData(picData, &procs);
+    auto picUnderTest = SkPicture::MakeFromData(picData, ToolUtils::GlobalFontMgr(), &procs);
 
     Timer drawTime;
     auto randomData = SkData::MakeUninitialized(1u);
@@ -235,7 +236,7 @@ static int renderer(
 
     sk_sp<SkData> stream;
     if (gUseGpu) {
-        auto pic = SkPicture::MakeFromData(skpData.get());
+        auto pic = SkPicture::MakeFromData(skpData.get(), ToolUtils::GlobalFontMgr());
         auto colorSpace = SkColorSpace::MakeSRGB();
         SkSerialProcs procs;
         auto encode = [](SkTypeface* tf, void* ctx) -> sk_sp<SkData> {
@@ -272,6 +273,8 @@ int main(int argc, char** argv) {
     std::string skpName = argc > 1 ? std::string{argv[1]} : std::string{"skps/desk_nytimes.skp"};
     int mode = argc > 2 ? atoi(argv[2]) : -1;
     printf("skp: %s\n", skpName.c_str());
+
+    ToolUtils::SetGlobalNativeFontMgr();
 
     gSkpName = skpName;
 
@@ -324,4 +327,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-

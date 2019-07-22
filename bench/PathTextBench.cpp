@@ -14,6 +14,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static constexpr int kScreenWidth = 1500;
 static constexpr int kScreenHeight = 1500;
@@ -46,7 +47,7 @@ private:
     SkIPoint onGetSize() override { return SkIPoint::Make(kScreenWidth, kScreenHeight); }
 
     void onDelayedSetup() override {
-        SkFont defaultFont;
+        SkFont defaultFont(ToolUtils::DefaultTypeface());
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
         auto cache = strikeSpec.findOrCreateExclusiveStrike();
         for (int i = 0; i < kNumGlyphs; ++i) {

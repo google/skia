@@ -21,6 +21,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/ports/SkNativeFontMgrFactory.h"
 #include "modules/skshaper/include/SkShaper.h"
 
 // Options /////////////////////////////////////////////////////////////////////
@@ -128,8 +129,8 @@ struct Config {
 
 class Placement {
 public:
-    Placement(const Config* conf, SkDocument *doc)
-        : config(conf), document(doc), pageCanvas(nullptr) {
+    Placement(const Config* conf, SkDocument *doc, sk_sp<SkTypeface> typeface)
+        : config(conf), document(doc), pageCanvas(nullptr), font(std::move(typeface)) {
         white_paint.setColor(SK_ColorWHITE);
         glyph_paint.setColor(SK_ColorBLACK);
         glyph_paint.setAntiAlias(true);
@@ -201,13 +202,13 @@ int main(int argc, char **argv) {
     SkFILEWStream wStream(config.output_file_name.value.c_str());
     sk_sp<SkDocument> doc = MakePDFDocument(config, &wStream);
     assert(doc);
-    Placement placement(&config, doc.get());
-
     const std::string &font_file = config.font_file.value;
     sk_sp<SkTypeface> typeface;
     if (font_file.size() > 0) {
-        typeface = SkTypeface::MakeFromFile(font_file.c_str(), 0 /* index */);
+        typeface = SkNativeFontMgrFactory()->makeFromFile(font_file.c_str(), 0 /* index */);
     }
+    Placement placement(&config, doc.get(), std::move(typeface));
+
     std::unique_ptr<SkShaper> shaper = SkShaper::Make();
     assert(shaper);
     //SkString line("This is هذا هو الخط a line.");

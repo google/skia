@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
 #include "include/core/SkFontMgr.h"
 
 struct SkEmbeddedResource { const uint8_t* data; size_t size; };
@@ -12,6 +13,15 @@ struct SkEmbeddedResourceHeader { const SkEmbeddedResource* entries; int count; 
 sk_sp<SkFontMgr> SkFontMgr_New_Custom_Embedded(const SkEmbeddedResourceHeader* header);
 
 extern "C" const SkEmbeddedResourceHeader SK_EMBEDDED_FONTS;
+
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
+    return SkFontMgr_New_Custom_Embedded(&SK_EMBEDDED_FONTS);
+}
+
+#endif  // defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+
+sk_sp<SkFontMgr> SkNativeFontMgrFactory() {
     return SkFontMgr_New_Custom_Embedded(&SK_EMBEDDED_FONTS);
 }

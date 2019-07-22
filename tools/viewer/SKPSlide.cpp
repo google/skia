@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkStream.h"
 #include "src/core/SkOSFile.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 SKPSlide::SKPSlide(const SkString& name, const SkString& path) : fPath(path) {
     fName = name;
@@ -40,7 +41,7 @@ static sk_sp<SkPicture> read_picture(const char path[]) {
         return nullptr;
     }
 
-    auto pic = SkPicture::MakeFromStream(stream.get());
+    auto pic = SkPicture::MakeFromStream(stream.get(), ToolUtils::GlobalFontMgr());
     if (!pic) {
         SkDebugf("Could not read %s as an SkPicture.\n", path);
     }

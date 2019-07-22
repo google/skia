@@ -7,7 +7,7 @@ REG_FIDDLE(TextBlobBuilder_allocRunPos, 256, 90, false, 0) {
 void draw(SkCanvas* canvas) {
     SkTextBlobBuilder builder;
     SkPaint paint;
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPos(font, 5);
     paint.textToGlyphs("hello", 5, run.glyphs);
     SkPoint positions[] = {{0, 0}, {10, 10}, {20, 20}, {40, 40}, {80, 80}};

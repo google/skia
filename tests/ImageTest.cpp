@@ -37,6 +37,7 @@
 #include "tests/TestUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 using namespace sk_gpu_test;
 
@@ -242,7 +243,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     REPORTER_ASSERT(reporter, was_called);
     REPORTER_ASSERT(reporter, data && data->size() > 0);
 
-    auto deserialized = SkPicture::MakeFromData(data->data(), data->size());
+    auto deserialized = SkPicture::MakeFromData(data->data(), data->size(), ToolUtils::GlobalFontMgr());
     REPORTER_ASSERT(reporter, deserialized);
     REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
 }

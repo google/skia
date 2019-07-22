@@ -9,6 +9,7 @@
 
 #include "include/core/SkTextBlob.h"
 #include "tests/Test.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <algorithm>
 #include <memory>
@@ -46,7 +47,7 @@ DEF_TEST(GlyphRunBlob, reporter) {
     constexpr uint16_t count = 5;
     constexpr int runCount = 2;
 
-    auto tf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto tf = ToolUtils::TypefaceFromName("monospace", SkFontStyle());
 
     SkFont font;
     font.setTypeface(tf);

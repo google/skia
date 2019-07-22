@@ -51,7 +51,9 @@ public:
         , fFallbackFont(fFont)
         , fCurrentFont(nullptr)
     {
-        fFont.setTypeface(font.refTypefaceOrDefault());
+        if (!fFont.getTypeface()) {
+            fFont.setTypeface(SkTypeface::MakeEmpty());
+        }
         fFallbackFont.setTypeface(nullptr);
     }
     void consume() override {

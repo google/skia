@@ -24,6 +24,7 @@
 #include "include/effects/SkBlurDrawLooper.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/core/SkBlurMask.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     bm->allocPixels(SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
@@ -103,7 +104,8 @@ protected:
                     p.setLooper(fLooper);
                     str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
-                    SkTextUtils::DrawString(textCanvas, str.c_str(), x + r.width()/2, y, SkFont(), p,
+                    SkTextUtils::DrawString(textCanvas, str.c_str(), x + r.width()/2, y,
+                                            SkFont(ToolUtils::DefaultTypeface()), p,
                                             SkTextUtils::kCenter_Align);
 
                     x += r.width() * 4 / 3;
@@ -135,7 +137,7 @@ protected:
                     p.setLooper(fLooper);
                     textCanvas->drawString(
                             SkStringPrintf("%s, %s", gConfigNames[i], gFilterNames[j]),
-                            x, y + r.height() * 2 / 3, SkFont(), p);
+                            x, y + r.height() * 2 / 3, SkFont(ToolUtils::DefaultTypeface()), p);
                 }
 
                 y += r.height() * 4 / 3;

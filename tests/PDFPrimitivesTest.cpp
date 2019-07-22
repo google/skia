@@ -34,6 +34,7 @@
 #include "src/pdf/SkPDFUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <cstdlib>
 #include <cmath>
@@ -88,7 +89,8 @@ static void test_issue1083() {
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
     uint16_t glyphID = 65000;
-    canvas->drawSimpleText(&glyphID, 2, SkTextEncoding::kGlyphID, 0, 0, SkFont(), SkPaint());
+    canvas->drawSimpleText(&glyphID, 2, SkTextEncoding::kGlyphID, 0, 0,
+                           SkFont(ToolUtils::DefaultTypeface()), SkPaint());
 
     doc->close();
 }
@@ -309,7 +311,7 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
     sk_sp<SkTypeface> portableTypeface(ToolUtils::create_portable_typeface(nullptr, SkFontStyle()));
     REPORTER_ASSERT(reporter, SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &doc));
 
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
         return;
     }
@@ -392,7 +394,7 @@ static SkGlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* pos,
 }
 
 DEF_TEST(SkPDF_Clusterator, reporter) {
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     {
         constexpr unsigned len = 11;
         const uint32_t clusters[len] = { 3, 2, 2, 1, 0, 4, 4, 7, 6, 6, 5 };

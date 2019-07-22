@@ -91,6 +91,7 @@ public:
      */
     virtual SkStreamAsset* openStream(const FontIdentity&) = 0;
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     /**
      *  Return an SkTypeface for the given FontIdentity.
      *
@@ -102,6 +103,7 @@ public:
                                           identity.fTTCIndex);
 
     }
+#endif
 
     /**
      *  Return a singleton instance of a direct subclass that calls into

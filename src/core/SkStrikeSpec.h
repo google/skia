@@ -53,8 +53,10 @@ public:
     // This means that strikeToSourceRatio() is always 1.
     static SkStrikeSpec MakeWithNoDevice(const SkFont& font, const SkPaint* paint = nullptr);
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     // Make a canonical strike spec for device-less measurements using default typeface and size.
     static SkStrikeSpec MakeDefault();
+#endif
 
     // Make a strike spec for PDF Vector strikes
     static SkStrikeSpec MakePDFVector(const SkTypeface& typeface, int* size);

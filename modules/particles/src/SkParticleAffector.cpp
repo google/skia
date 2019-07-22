@@ -18,6 +18,7 @@
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalValue.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 void SkParticleAffector::apply(const SkParticleUpdateParams& params,
                                SkParticleState ps[], int count) {
@@ -357,7 +358,7 @@ private:
         }
 
         // Use the font manager's default font
-        SkFont font(nullptr, fFontSize);
+        SkFont font(ToolUtils::DefaultTypeface(), fFontSize);
         SkPath path;
         SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8, 0, 0, font, &path);
         SkContourMeasureIter iter(path, false);

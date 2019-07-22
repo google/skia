@@ -11,6 +11,7 @@
 #include "include/core/SkPath.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/timer/TimeUtils.h"
 
 // This draws an animation where every cubic has a cusp, to test drawing a circle
@@ -161,7 +162,8 @@ protected:
         canvas->drawPath(path, p);
         // draw time to make it easier to guess when the bad cubic was drawn
         std::string timeStr = std::to_string((float) (curTime - start) / 1000.f);
-        canvas->drawSimpleText(timeStr.c_str(), timeStr.size(), SkTextEncoding::kUTF8, 20, 20, SkFont(), SkPaint());
+        canvas->drawSimpleText(timeStr.c_str(), timeStr.size(), SkTextEncoding::kUTF8, 20, 20,
+                               SkFont(ToolUtils::DefaultTypeface()), SkPaint());
         SkDebugf("");
     }
 

@@ -25,7 +25,7 @@ class SkTextBlobRunIterator;
 
 class SkGlyphRun {
 public:
-    SkGlyphRun() = default;
+    SkGlyphRun() = delete;
     SkGlyphRun(const SkFont& font,
                SkSpan<const SkPoint> positions,
                SkSpan<const SkGlyphID> glyphIDs,

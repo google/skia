@@ -91,9 +91,8 @@ static void color_wheel_native(SkCanvas* canvas) {
     const SkScalar X = SkDoubleToScalar(D * sqrt_3_over_2);
     const SkScalar Y = D * SK_ScalarHalf;
 
-    SkFont font;
+    SkFont font(ToolUtils::create_portable_typeface(nullptr, SkFontStyle::Bold()));
     font.setEdging(SkFont::Edging::kAlias);
-    font.setTypeface(ToolUtils::create_portable_typeface(nullptr, SkFontStyle::Bold()));
     font.setSize(0.28125f * SCALE);
     draw_center_letter('K', font, SK_ColorBLACK, Z, Z, canvas);
     draw_center_letter('R', font, SK_ColorRED, Z, D, canvas);

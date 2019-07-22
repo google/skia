@@ -21,6 +21,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <string.h>
 #include <memory>
@@ -45,14 +46,14 @@ protected:
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
         if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
             return DrawResult::kSkip;
         }
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkFont font;
+        SkFont font = SkFont::NullFont();
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
         std::unique_ptr<SkStreamAsset> distortableStream = GetResourceAsStream("fonts/Distortable.ttf");

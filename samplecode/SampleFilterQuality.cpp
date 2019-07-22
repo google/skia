@@ -16,6 +16,7 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/timer/TimeUtils.h"
 
 static sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) {
@@ -270,7 +271,7 @@ protected:
 
         const SkScalar textX = fCell.width() * 2 + 30;
 
-        SkFont font(nullptr, 36);
+        SkFont font(ToolUtils::DefaultTypeface(), 36);
         SkPaint paint;
         canvas->drawString(SkStringPrintf("%.8g", (float)fScale), textX, 100, font, paint);
         canvas->drawString(SkStringPrintf("%.8g", (float)fAngle), textX, 150, font, paint);

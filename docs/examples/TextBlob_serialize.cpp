@@ -7,7 +7,7 @@ REG_FIDDLE(TextBlob_serialize, 256, 64, false, 0) {
 #include "include/core/SkSerialProcs.h"
 
 void draw(SkCanvas* canvas) {
-    SkFont blobFont;
+    SkFont blobFont(ToolUtils::DefaultTypeface());
     blobFont.setSize(24);
     sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World", 11, blobFont);
     char storage[2048];

@@ -964,9 +964,11 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
 
     sk_bzero(rec, sizeof(SkScalerContextRec));
 
-    SkTypeface* typeface = font.getTypefaceOrDefault();
+    SkTypeface* typeface = font.getTypeface();
 
-    rec->fFontID = typeface->uniqueID();
+    if (typeface) {
+        rec->fFontID = typeface->uniqueID();
+    }
     rec->fTextSize = font.getSize();
     rec->fPreScaleX = font.getScaleX();
     rec->fPreSkewX  = font.getSkewX();
@@ -1193,7 +1195,3 @@ bool SkScalerContext::CheckBufferSizeForRec(const SkScalerContextRec& rec,
     SkBinaryWriteBuffer buf;
     return size >= calculate_size_and_flatten(rec, effects, &buf);
 }
-
-
-
-

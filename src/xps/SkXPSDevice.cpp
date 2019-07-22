@@ -44,7 +44,6 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
-#include "src/core/SkTypefacePriv.h"
 #include "src/core/SkUtils.h"
 #include "src/sfnt/SkSFNTHeader.h"
 #include "src/sfnt/SkTTCFHeader.h"

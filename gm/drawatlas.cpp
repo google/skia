@@ -38,6 +38,7 @@
 #include "src/core/SkFontPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <initializer_list>
 
@@ -187,7 +188,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     const int N = sizeof(text0) - 1;
     SkPoint pos[N];
 
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(100);
 
     SkPaint paint;
@@ -233,8 +234,7 @@ DEF_SIMPLE_GM(drawTextRSXform, canvas, 430, 860) {
 
 // Exercise xform blob and its bounds
 DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
-    SkFont font;
-    font.setTypeface(ToolUtils::create_portable_typeface());
+    SkFont font(ToolUtils::create_portable_typeface());
     font.setSize(50);
 
     const char text[] = "CrazyXform";

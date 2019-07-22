@@ -14,7 +14,6 @@
 #include "include/private/SkFixed.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkTypefaceCache.h"
@@ -24,6 +23,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/fonts/TestEmptyTypeface.h"
 
 #include <memory>
@@ -82,7 +82,7 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter, const SkFontMgr& fo
                     newStyle.width() == 5);
 }
 DEF_TEST(TypefaceStyle, reporter) {
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
         INFOF(reporter, "Skipping TypefaceStyle test since ttf isn't supported.");
         return;
@@ -104,7 +104,7 @@ DEF_TEST(TypefaceStyle, reporter) {
 }
 
 DEF_TEST(TypefaceRoundTrip, reporter) {
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::tt_CFF)) {
         INFOF(reporter, "Skipping TypefaceRoundTrip test since CFF isn't supported.");
         return;
@@ -143,7 +143,7 @@ DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
 };
 
 DEF_TEST(TypefaceAxes, reporter) {
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
         INFOF(reporter, "Skipping TypefaceAxes test since ttf isn't supported.");
         return;
@@ -187,7 +187,7 @@ DEF_TEST(TypefaceAxes, reporter) {
 }
 
 DEF_TEST(TypefaceVariationIndex, reporter) {
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf_variable_index)) {
         // FreeType is the only weird thing that supports this, Skia just needs to make sure if it
         // gets one of these things make sense.
@@ -229,20 +229,20 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
     REPORTER_ASSERT(reporter, positionRead[0].value == 0.5);
 }
 
-DEF_TEST(Typeface, reporter) {
-
-    sk_sp<SkTypeface> t1(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
-    sk_sp<SkTypeface> t2(SkTypeface::MakeDefault());
-
-    REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), t2.get()));
-    REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t1.get()));
-    REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t2.get()));
-    REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), nullptr));
-    REPORTER_ASSERT(reporter, SkTypeface::Equal(t2.get(), nullptr));
-}
+//DEF_TEST(Typeface, reporter) {
+//
+//    sk_sp<SkTypeface> t1(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
+//    sk_sp<SkTypeface> t2(SkTypeface::MakeDefault());
+//
+//    REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), t2.get()));
+//    REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t1.get()));
+//    REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t2.get()));
+//    REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), nullptr));
+//    REPORTER_ASSERT(reporter, SkTypeface::Equal(t2.get(), nullptr));
+//}
 
 DEF_TEST(TypefaceAxesParameters, reporter) {
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
         INFOF(reporter, "Skipping TypefaceAxesParameters test: ttf unsupported.");
         return;
@@ -334,9 +334,9 @@ static void check_serialize_behaviors(sk_sp<SkTypeface> tf, bool isLocalData,
 }
 
 DEF_TEST(Typeface_serialize, reporter) {
-    check_serialize_behaviors(SkTypeface::MakeDefault(), false, reporter);
+    check_serialize_behaviors(ToolUtils::DefaultTypeface(), false, reporter);
 
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
         INFOF(reporter, "Skipping part of Typeface_serialize test: ttf unsupported.");
     } else {
@@ -344,7 +344,6 @@ DEF_TEST(Typeface_serialize, reporter) {
                 fontMgr->makeFromStream(GetResourceAsStream("fonts/Distortable.ttf")),
                 true, reporter);
     }
-
 }
 
 DEF_TEST(Typeface_glyph_to_char, reporter) {
@@ -369,7 +368,7 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
     for (size_t i = 0; i < codepointCount; ++i) {
 #if defined(SK_BUILD_FOR_WIN)
         // LogFontTypeface does not support glyph to character mapping outside BMP.
-        if (gSkFontMgr_DefaultFactory == &SkFontMgr_New_GDI &&
+        if (ToolUtils::FLAGS_nativeFonts && ToolUtils::FLAGS_gdi &&
             0xFFFF < originalCodepoints[i] && newCodepoints[i] == 0)
         {
             continue;
@@ -387,7 +386,7 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
 // style. See https://bugs.chromium.org/p/skia/issues/detail?id=8447 for more
 // context.
 DEF_TEST(LegacyMakeTypeface, reporter) {
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fm = ToolUtils::GlobalFontMgr();
     sk_sp<SkTypeface> typeface1 = fm->legacyMakeTypeface(nullptr, SkFontStyle::Italic());
     sk_sp<SkTypeface> typeface2 = fm->legacyMakeTypeface(nullptr, SkFontStyle::Bold());
     sk_sp<SkTypeface> typeface3 = fm->legacyMakeTypeface(nullptr, SkFontStyle::BoldItalic());

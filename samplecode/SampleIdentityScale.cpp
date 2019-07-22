@@ -17,6 +17,7 @@
 #include "samplecode/Sample.h"
 #include "src/core/SkClipOpPriv.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 // Intended to exercise pixel snapping observed with scaled images (and
 // with non-scaled images, but for a different reason):  Bug 1145
@@ -37,7 +38,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        SkFont font(nullptr, 48);
+        SkFont font(ToolUtils::DefaultTypeface(), 48);
         SkPaint paint;
 
         paint.setAntiAlias(true);

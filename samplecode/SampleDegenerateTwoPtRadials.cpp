@@ -10,6 +10,7 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkGradientShader.h"
 #include "samplecode/Sample.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorMAGENTA };
@@ -63,7 +64,7 @@ protected:
         SkString txt;
         txt.appendf("gap at \"tangent\" pt = %f", SkScalarToFloat(delta));
         canvas->drawString(txt, l + w / 2 + w * DELTA_SCALE * delta, t + h + SK_Scalar1 * 10,
-                           SkFont(), SkPaint());
+                           SkFont(ToolUtils::DefaultTypeface()), SkPaint());
     }
 
     bool onAnimate(double nanos) override {

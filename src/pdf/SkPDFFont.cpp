@@ -123,9 +123,8 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typefac
     }
 
     if (0 == metrics->fStemV || 0 == metrics->fCapHeight) {
-        SkFont font;
+        SkFont font(sk_ref_sp(typeface));
         font.setHinting(SkFontHinting::kNone);
-        font.setTypeface(sk_ref_sp(typeface));
         font.setSize(1000);  // glyph coordinate system
         if (0 == metrics->fStemV) {
             // Figure out a good guess for StemV - Min width of i, I, !, 1.
@@ -659,4 +658,3 @@ bool SkPDFFont::CanEmbedTypeface(SkTypeface* typeface, SkPDFDocument* doc) {
     const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, doc);
     return metrics && can_embed(*metrics);
 }
-

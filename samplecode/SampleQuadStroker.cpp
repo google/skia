@@ -31,6 +31,7 @@
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkStroke.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <cfloat>
 
@@ -398,7 +399,8 @@ protected:
                 SkString label;
                 label.appendS32(index);
                 canvas->drawString(label,
-                    pos.x() + tan.x() * 1.25f, pos.y() + tan.y() * 1.25f, SkFont(), paint);
+                                   pos.x() + tan.x() * 1.25f, pos.y() + tan.y() * 1.25f,
+                                   SkFont(ToolUtils::DefaultTypeface()), paint);
             }
         }
     }
@@ -525,7 +527,7 @@ protected:
         label.printf("%0.3g", value);
         paint.setColor(0xFF000000);
         paint.setStyle(SkPaint::kFill_Style);
-        SkFont font(nullptr, 11.0f);
+        SkFont font(ToolUtils::DefaultTypeface(), 11.0f);
         canvas->drawString(label, bounds.fLeft + 5, yPos - 5, font, paint);
         font.setSize(13.0f);
         canvas->drawString(name, bounds.fLeft, bounds.bottom() + 11, font, paint);

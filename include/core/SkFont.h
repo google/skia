@@ -8,6 +8,7 @@
 #ifndef SkFont_DEFINED
 #define SkFont_DEFINED
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
@@ -30,11 +31,19 @@ public:
         kSubpixelAntiAlias,  //!< glyph positioned in pixel using transparency
     };
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     /** Constructs SkFont with default values.
 
         @return  default initialized SkFont
     */
     SkFont();
+#endif
+
+    /** Constructs uninitialized SkFont. Must set a typeface before the font is valid.
+
+        @return  default SkFont
+    */
+    static SkFont NullFont() { return SkFont(); }
 
     /** Constructs SkFont with default values with SkTypeface and size in points.
 
@@ -192,6 +201,7 @@ public:
     */
     SkTypeface* getTypeface() const {return fTypeface.get(); }
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     /** Returns SkTypeface if set, or the default typeface.
         Does not alter SkTypeface SkRefCnt.
 
@@ -199,6 +209,7 @@ public:
         previously set.
     */
     SkTypeface* getTypefaceOrDefault() const;
+#endif
 
     /** Returns text size in points.
 
@@ -226,12 +237,14 @@ public:
     */
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
     /** Increases SkTypeface SkRefCnt by one.
 
         @return  SkTypeface if previously set or, a pointer to the default typeface if not
         previously set.
     */
     sk_sp<SkTypeface> refTypefaceOrDefault() const;
+#endif
 
     /** Sets SkTypeface to typeface, decreasing SkRefCnt of the previous SkTypeface.
         Pass nullptr to clear SkTypeface and use the default typeface. Increments
@@ -487,6 +500,14 @@ public:
     void dump() const;
 
 private:
+#if !defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+    /** Constructs SkFont with default values.
+
+        @return  default initialized SkFont
+    */
+    SkFont();
+#endif
+
     enum PrivFlags {
         kForceAutoHinting_PrivFlag      = 1 << 0,
         kEmbeddedBitmaps_PrivFlag       = 1 << 1,

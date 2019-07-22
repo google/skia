@@ -14,6 +14,7 @@
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBlurMask.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 
 static void test_huge_stroke(SkCanvas* canvas) {
@@ -149,7 +150,7 @@ protected:
         if (true) {
             canvas->drawColor(SK_ColorBLACK);
 
-            SkFont font(nullptr, 24);
+            SkFont font(ToolUtils::DefaultTypeface(), 24);
             paint.setColor(SK_ColorWHITE);
             canvas->translate(10, 30);
 

@@ -24,6 +24,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/shaders/SkColorShader.h"
 #include "src/utils/SkUTF.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static const char gText[] =
     "When in the Course of human events it becomes necessary for one people "
@@ -53,7 +54,7 @@ protected:
 
         for (int i = 9; i < 24; i += 2) {
             SkTextBlobBuilderRunHandler builder(gText, { margin, margin });
-            SkFont font(nullptr, SkIntToScalar(i));
+            SkFont font(ToolUtils::DefaultTypeface(), SkIntToScalar(i));
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
             fShaper->shape(gText, strlen(gText), font, true, w - margin, &builder);

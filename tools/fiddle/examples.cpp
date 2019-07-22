@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "tools/fiddle/examples.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 template sk_tools::Registry<fiddle::Example>* sk_tools::Registry<fiddle::Example>::gHead;
 
@@ -15,6 +16,7 @@ double duration = 1.0;
 double frame = 1.0;
 
 int main() {
+    ToolUtils::SetGlobalNativeFontMgr();
     constexpr int kImgCount = 7;
     sk_sp<SkImage> images[kImgCount];
     SkBitmap bitmaps[kImgCount];

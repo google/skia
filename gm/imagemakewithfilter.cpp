@@ -45,6 +45,7 @@
 
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <utility>
 
@@ -335,7 +336,7 @@ protected:
         // Header hinting at what the filters do
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
-        SkFont font(nullptr, 12);
+        SkFont font(ToolUtils::DefaultTypeface(), 12);
         for (size_t i = 0; i < SK_ARRAY_COUNT(filterNames); ++i) {
             canvas->drawString(filterNames[i], DX * i + MARGIN, 15, font, textPaint);
         }

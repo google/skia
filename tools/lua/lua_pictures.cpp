@@ -13,6 +13,7 @@
 #include "include/utils/SkLuaCanvas.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include <stdlib.h>
@@ -41,7 +42,7 @@ static DEFINE_bool2(quiet, q, false, "Silence all non-error related output");
 static sk_sp<SkPicture> load_picture(const char path[]) {
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
     if (stream) {
-        return SkPicture::MakeFromStream(stream.get());
+        return SkPicture::MakeFromStream(stream.get(), ToolUtils::GlobalFontMgr());
     }
     return nullptr;
 }
@@ -81,6 +82,7 @@ int main(int argc, char** argv) {
     }
 
     SkAutoGraphics ag;
+    ToolUtils::SetNativeGlobalFontMgr();
     SkLua L(summary);
 
     for (int i = 0; i < FLAGS_luaFile.count(); ++i) {

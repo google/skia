@@ -30,6 +30,7 @@
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
 using QuadPointInstance = GrCCCoverageProcessor::QuadPointInstance;
@@ -235,7 +236,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, fPoints + 3, pointsPaint);
     }
 
-    SkFont font(nullptr, 20);
+    SkFont font(ToolUtils::DefaultTypeface(), 20);
     SkPaint captionPaint;
     captionPaint.setColor(SK_ColorWHITE);
     canvas->drawString(caption, 10, 30, font, captionPaint);

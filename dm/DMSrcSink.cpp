@@ -49,6 +49,7 @@
 #include "tools/DDLTileHelper.h"
 #include "tools/Resources.h"
 #include "tools/debugger/DebugCanvas.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/gpu/MemoryCache.h"
 #if defined(SK_BUILD_FOR_WIN)
     #include "include/docs/SkXPSDocument.h"
@@ -1025,7 +1026,7 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
     if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get()));
+    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get(), ToolUtils::GlobalFontMgr()));
     if (!pic) {
         return SkStringPrintf("Couldn't parse file %s.", fPath.c_str());
     }
@@ -1271,7 +1272,8 @@ Error MSKPSrc::draw(int i, SkCanvas* canvas) const {
         if (!stream) {
             return SkStringPrintf("Unable to open file: %s", fPath.c_str());
         }
-        if (!SkMultiPictureDocumentRead(stream.get(), &fPages[0], fPages.count())) {
+        if (!SkMultiPictureDocumentRead(stream.get(), &fPages[0], fPages.count(),
+                                        ToolUtils::GlobalFontMgr())) {
             return SkStringPrintf("SkMultiPictureDocument reader failed on page %d: %s", i,
                                   fPath.c_str());
         }
@@ -1819,7 +1821,8 @@ Error ViaSerialization::draw(
     sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
 
     // Serialize it and then deserialize it.
-    sk_sp<SkPicture> deserialized(SkPicture::MakeFromData(pic->serialize().get()));
+    sk_sp<SkPicture> deserialized(SkPicture::MakeFromData(pic->serialize().get(),
+                                                          ToolUtils::GlobalFontMgr()));
 
     err = draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->drawPicture(deserialized);

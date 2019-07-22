@@ -128,10 +128,9 @@ private:
     sk_sp<SkTextBlob> makeBlob(unsigned blobIndex) {
         SkTextBlobBuilder builder;
 
-        SkFont font;
+        SkFont font(fTypeface);
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kAntiAlias);
-        font.setTypeface(fTypeface);
 
         for (unsigned l = 0; l < SK_ARRAY_COUNT(blobConfigs[blobIndex]); ++l) {
             unsigned currentGlyph = 0;

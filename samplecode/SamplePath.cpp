@@ -20,6 +20,7 @@
 #include "include/utils/SkParsePath.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/timer/TimeUtils.h"
 
 #include "src/core/SkGeometry.h"
@@ -694,7 +695,7 @@ protected:
 
             paint.setColor(SK_ColorBLACK);
             paint.setStyle(SkPaint::kFill_Style);
-            SkFont font(nullptr, 20);
+            SkFont font(ToolUtils::DefaultTypeface(), 20);
             canvas->drawString(SkStringPrintf("t = %g", fT), 20, 20, font, paint);
         }
 
@@ -747,4 +748,3 @@ private:
     typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new CubicCurve2; )
-

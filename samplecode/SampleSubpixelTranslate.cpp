@@ -15,6 +15,7 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/DecodeFile.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 // Intended to exercise pixel snapping observed with scaled images (and
 // with non-scaled images, but for a different reason):  Bug 1145
@@ -54,7 +55,7 @@ protected:
         };
 
         SkPaint paint;
-        SkFont font(nullptr, 48);
+        SkFont font(ToolUtils::DefaultTypeface(), 48);
         font.setSubpixel(true);
 
         paint.setAntiAlias(true);

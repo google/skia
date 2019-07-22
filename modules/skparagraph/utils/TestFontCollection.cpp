@@ -17,7 +17,10 @@ TestFontCollection::TestFontCollection(const std::string& resourceDir)
     while (iter.next(&path)) {
         SkString file_path;
         file_path.printf("%s/%s", fResourceDir.c_str(), path.c_str());
-        fontProvider->registerTypeface(SkTypeface::MakeFromFile(file_path.c_str()));
+        auto tf = fontProvider->makeFromFile(file_path.c_str());
+        if (tf) {
+            fontProvider->registerTypeface(std::move(tf));
+        }
     }
     fFontsFound = fontProvider->countFamilies();
     this->setTestFontManager(std::move(fontProvider));

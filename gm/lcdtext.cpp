@@ -18,6 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 class LcdTextGM : public skiagm::GM {
 public:
@@ -52,7 +53,7 @@ protected:
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         paint.setDither(true);
-        SkFont font(nullptr, textHeight);
+        SkFont font(ToolUtils::DefaultTypeface(), textHeight);
         if (subpixelTextEnabled) {
             font.setSubpixel(true);
         }
@@ -115,7 +116,7 @@ protected:
             const SkPoint loc = rec[i].fLoc;
             SkAutoCanvasRestore acr(canvas, true);
 
-            SkFont font(nullptr, rec[i].fTextSize);
+            SkFont font(ToolUtils::DefaultTypeface(), rec[i].fTextSize);
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
             ScaleAbout(canvas, rec[i].fScale, rec[i].fScale, loc.x(), loc.y());

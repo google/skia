@@ -160,12 +160,11 @@ protected:
         SkTextBlobBuilder builder;
 
         // LCD
-        SkFont font;
+        SkFont font(ToolUtils::create_portable_typeface());
         font.setSize(32);
         const char* text = "The quick brown fox jumps over the lazy dog";
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-        font.setTypeface(ToolUtils::create_portable_typeface());
         add_to_text_blob(&builder, text, font, 0, 0);
         fBlob = builder.make();
 

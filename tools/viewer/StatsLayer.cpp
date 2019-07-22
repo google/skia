@@ -12,6 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 StatsLayer::StatsLayer()
     : fCurrentMeasurement(-1)
@@ -159,7 +160,7 @@ void StatsLayer::onPaint(SkSurface* surface) {
         x += xStep;
     } while (i != nextMeasurement);
 
-    SkFont font(nullptr, 16);
+    SkFont font(ToolUtils::DefaultTypeface(), 16);
     paint.setColor(SK_ColorWHITE);
     double time = totalTime / SkTMax(1, totalCount);
     double measure = fCumulativeMeasurementTime / SkTMax(1, fCumulativeMeasurementCount);

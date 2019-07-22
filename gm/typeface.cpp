@@ -25,6 +25,7 @@
 #include "include/private/SkTemplates.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <string.h>
 #include <utility>
@@ -43,7 +44,7 @@ static void getGlyphPositions(const SkFont& font, const uint16_t glyphs[],
 
 static void applyKerning(SkPoint pos[], const int32_t adjustments[], int count,
                          const SkFont& font) {
-    SkScalar scale = font.getSize() / font.getTypefaceOrDefault()->getUnitsPerEm();
+    SkScalar scale = font.getSize() / font.getTypeface()->getUnitsPerEm();
 
     SkScalar globalAdj = 0;
     for (int i = 0; i < count - 1; ++i) {
@@ -54,11 +55,8 @@ static void applyKerning(SkPoint pos[], const int32_t adjustments[], int count,
 
 static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
                          SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
-    SkTypeface* face = font.getTypefaceOrDefault();
-    if (!face) {
-        canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x, y, font, paint);
-        return;
-    }
+    SkTypeface* face = font.getTypeface();
+    SkASSERT(face);
 
     SkAutoSTMalloc<128, uint16_t> glyphStorage(len);
     uint16_t* glyphs = glyphStorage.get();
@@ -103,7 +101,8 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         for (int i = 0; i < gStylesCount; i++) {
-            fFaces[i] = SkTypeface::MakeFromName(nullptr, gStyles[i]);
+            fFaces[i] = ToolUtils::TypefaceFromName(nullptr, gStyles[i]);
+            SkASSERT(fFaces[i]);
         }
     }
 
@@ -120,7 +119,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkFont font;
+        SkFont font = SkFont::NullFont();
         font.setSize(30);
 
         const char* text = fApplyKerning ? "Type AWAY" : "Hamburgefons";
@@ -361,7 +360,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(typefacerendering, canvas, errorMsg, 640, 840) {
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
         draw_typeface_rendering_gm(canvas, ToolUtils::create_portable_typeface());
         return skiagm::DrawResult::kOk;
@@ -376,7 +375,7 @@ DEF_SIMPLE_GM_CAN_FAIL(typefacerendering, canvas, errorMsg, 640, 840) {
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfa, canvas, errorMsg, 640, 840) {
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::t1_pfa)) {
         return skiagm::DrawResult::kSkip;
     }
@@ -391,7 +390,7 @@ DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfa, canvas, errorMsg, 640, 840) {
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfb, canvas, errorMsg, 640, 840) {
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::t1_pfb)) {
         return skiagm::DrawResult::kSkip;
     }

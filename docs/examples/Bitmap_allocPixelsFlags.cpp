@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
                             SkBitmap::kZeroPixels_AllocFlag);
     SkCanvas offscreen(bitmap);
     SkPaint paint;
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     offscreen.drawString("!@#$%", 0, 12, font, paint);
     canvas->scale(6, 6);
     canvas->drawBitmap(bitmap, 0, 0);

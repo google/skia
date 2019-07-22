@@ -5,7 +5,7 @@
 REG_FIDDLE(Canvas_drawTextBlob_2, 256, 120, false, 0) {
 void draw(SkCanvas* canvas) {
     SkTextBlobBuilder textBlobBuilder;
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(50);
     const SkTextBlobBuilder::RunBuffer& run =
             textBlobBuilder.allocRun(font, 1, 20, 100);

@@ -9,6 +9,7 @@
 #include "include/core/SkPaint.h"
 #include "src/utils/SkUTF.h"
 #include "tests/Test.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 // Simple test to ensure that when we call textToGlyphs, we get the same
 // result (for the same text) when using UTF8, UTF16, UTF32.
@@ -30,7 +31,7 @@ DEF_TEST(Unicode_textencodings, reporter) {
     uint16_t glyphs16[sizeof(text8)];
     uint16_t glyphs32[sizeof(text8)];
 
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
 
     int count8  = font.textToGlyphs(text8,  len8,  SkTextEncoding::kUTF8,  glyphs8,  SK_ARRAY_COUNT(glyphs8));
     int count16 = font.textToGlyphs(text16, len16, SkTextEncoding::kUTF16, glyphs16, SK_ARRAY_COUNT(glyphs16));
@@ -48,7 +49,7 @@ DEF_TEST(Unicode_textencodings, reporter) {
 #include "src/core/SkFontPriv.h"
 
 DEF_TEST(glyphs_to_unichars, reporter) {
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
 
     const int N = 52;
     SkUnichar uni[N];
@@ -63,4 +64,3 @@ DEF_TEST(glyphs_to_unichars, reporter) {
     SkFontPriv::GlyphsToUnichars(font, glyphs, N, uni2);
     REPORTER_ASSERT(reporter, memcmp(uni, uni2, sizeof(uni)) == 0);
 }
-

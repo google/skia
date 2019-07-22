@@ -17,7 +17,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -103,7 +102,7 @@ int main(int argc, char** argv) {
             "--help lists the valid types. If type is not specified,\n"
             "fuzz will make a guess based on the name of the file.\n");
     CommandLineFlags::Parse(argc, argv);
-    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+    ToolUtils::SetGlobalPortableFontMgr();
 
     SkString path = SkString(FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0]);
     SkString type = SkString(FLAGS_type.isEmpty() ? "" : FLAGS_type[0]);

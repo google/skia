@@ -21,6 +21,7 @@ static_library("particles") {
     public_configs = [ ":public_config" ]
     include_dirs = [ "../../tools/timer" ]
     deps = [
+      "../..:global_fontmgr",
       "../..:skia",
     ]
     sources = skia_particle_sources

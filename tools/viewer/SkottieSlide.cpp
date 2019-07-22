@@ -14,6 +14,7 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/utils/SkOSPath.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <cmath>
@@ -26,7 +27,7 @@ static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::
     paint.setAntiAlias(true);
     paint.setColor(0xffeeeeee);
 
-    SkFont font(nullptr, kTextSize);
+    SkFont font(ToolUtils::DefaultTypeface(), kTextSize);
 
     canvas->drawRect(kR, paint);
 

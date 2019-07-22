@@ -78,7 +78,6 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fLabelFont.setTypeface(ToolUtils::create_portable_typeface());
         fLabelFont.setSize(5 * kShapeSize/8);
         fLabelFont.setSubpixel(true);
 
@@ -274,7 +273,7 @@ protected:
     }
 
 private:
-    SkFont    fLabelFont;
+    SkFont    fLabelFont{ToolUtils::create_portable_typeface()};
     SkPath    fOval;
     SkPath    fConcave;
 

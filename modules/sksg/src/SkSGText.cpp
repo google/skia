@@ -45,8 +45,7 @@ SkPoint Text::alignedPosition(SkScalar advance) const {
 SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
     // TODO: we could potentially track invals which don't require rebuilding the blob.
 
-    SkFont font;
-    font.setTypeface(fTypeface);
+    SkFont font(fTypeface);
     font.setSize(fSize);
     font.setScaleX(fScaleX);
     font.setSkewX(fSkewX);

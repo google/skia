@@ -118,10 +118,12 @@ SkStrikeSpec SkStrikeSpec::MakeWithNoDevice(const SkFont& font, const SkPaint* p
 
 }
 
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 SkStrikeSpec SkStrikeSpec::MakeDefault() {
     SkFont defaultFont;
     return MakeCanonicalized(defaultFont);
 }
+#endif
 
 bool SkStrikeSpec::ShouldDrawAsPath(
         const SkPaint& paint, const SkFont& font, const SkMatrix& viewMatrix) {
@@ -152,10 +154,9 @@ bool SkStrikeSpec::ShouldDrawAsPath(
 }
 
 SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) {
-    SkFont font;
+    SkFont font(sk_ref_sp(&typeface));
     font.setHinting(SkFontHinting::kNone);
     font.setEdging(SkFont::Edging::kAlias);
-    font.setTypeface(sk_ref_sp(&typeface));
     int unitsPerEm = typeface.getUnitsPerEm();
     if (unitsPerEm <= 0) {
         unitsPerEm = 1024;
@@ -216,7 +217,10 @@ void SkStrikeSpec::commonSetup(const SkFont& font, const SkPaint& paint,
 
     fMaskFilter = sk_ref_sp(effects.fMaskFilter);
     fPathEffect = sk_ref_sp(effects.fPathEffect);
-    fTypeface = font.refTypefaceOrDefault();
+    fTypeface = font.refTypeface();
+    if (!fTypeface) {
+        fTypeface = SkTypeface::MakeEmpty();
+    }
 }
 
 SkScopedStrike SkStrikeSpec::findOrCreateScopedStrike(SkStrikeCacheInterface* cache) const {

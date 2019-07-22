@@ -27,7 +27,6 @@ public:
     SkTextBlobBench() {}
 
     void onDelayedSetup() override {
-        fFont.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle()));
         fFont.setSubpixel(true);
 
         // This text seems representative in both length and letter frequency.
@@ -50,7 +49,7 @@ public:
 
 private:
     SkTextBlobBuilder   fBuilder;
-    SkFont              fFont;
+    SkFont              fFont{ToolUtils::create_portable_typeface("serif", SkFontStyle())};
     SkTDArray<uint16_t> fGlyphs;
     SkTDArray<SkScalar> fXPos;
 

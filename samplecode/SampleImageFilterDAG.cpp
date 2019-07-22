@@ -30,6 +30,7 @@
 #include "src/core/SkSpecialImage.h"
 
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 namespace {
 
@@ -386,7 +387,7 @@ static float print_size(SkCanvas* canvas, const char* prefix, const SkIRect& rec
 }
 
 static float print_info(SkCanvas* canvas, const FilterNode& node) {
-    SkFont font(nullptr, 12);
+    SkFont font(ToolUtils::DefaultTypeface(), 12);
     SkPaint text;
     text.setAntiAlias(true);
 
