@@ -191,8 +191,9 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
-    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, GrRenderable, SkBudgeted, GrProtected,
-                                     const GrMipLevel[], int mipLevelCount) override;
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, GrRenderable, int renderTargetSampleCnt,
+                                     SkBudgeted, GrProtected, const GrMipLevel[],
+                                     int mipLevelCount) override;
     sk_sp<GrTexture> onCreateCompressedTexture(int width, int height,
                                                SkImage::CompressionType compression, SkBudgeted,
                                                const void* data) override;
@@ -398,8 +399,8 @@ private:
     GrGLenum uploadCompressedTexData(SkImage::CompressionType, int width, int height,
                                      GrGLenum target, const void* data);
 
-    bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
-                                   GrGLRenderTarget::IDDesc*);
+    bool createRenderTargetObjects(const GrSurfaceDesc&, int sampleCount,
+                                   const GrGLTextureInfo& texInfo, GrGLRenderTarget::IDDesc*);
 
     enum TempFBOTarget {
         kSrc_TempFBOTarget,

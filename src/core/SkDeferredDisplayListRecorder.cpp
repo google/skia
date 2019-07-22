@@ -142,7 +142,6 @@ bool SkDeferredDisplayListRecorder::init() {
     desc.fWidth = fCharacterization.width();
     desc.fHeight = fCharacterization.height();
     desc.fConfig = config;
-    desc.fSampleCnt = fCharacterization.sampleCount();
 
     sk_sp<SkDeferredDisplayList::LazyProxyData> lazyProxyData = fLazyProxyData;
 
@@ -171,6 +170,7 @@ bool SkDeferredDisplayListRecorder::init() {
             },
             fCharacterization.backendFormat(),
             desc,
+            fCharacterization.sampleCount(),
             fCharacterization.origin(),
             surfaceFlags,
             optionalTextureInfo,
