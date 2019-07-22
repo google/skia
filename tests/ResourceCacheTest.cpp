@@ -95,9 +95,8 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
     desc.fWidth = size;
     desc.fHeight = size;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fSampleCnt = sampleCount;
 
-    sk_sp<GrTexture> tex(provider->createTexture(desc, GrRenderable::kYes, budgeted,
+    sk_sp<GrTexture> tex(provider->createTexture(desc, GrRenderable::kYes, sampleCount, budgeted,
                                                  GrProtected::kNo,
                                                  GrResourceProvider::Flags::kNoPendingIO));
     if (!tex || !tex->asRenderTarget()) {
@@ -1617,9 +1616,8 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fSampleCnt = sampleCnt;
 
-    return provider->createTexture(desc, renderable, SkBudgeted::kYes, GrProtected::kNo,
+    return provider->createTexture(desc, renderable, sampleCnt, SkBudgeted::kYes, GrProtected::kNo,
                                    GrResourceProvider::Flags::kNoPendingIO);
 }
 
@@ -1632,14 +1630,13 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fSampleCnt = sampleCnt;
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
     auto origin = renderable == GrRenderable::kYes ? kBottomLeft_GrSurfaceOrigin
                                                    : kTopLeft_GrSurfaceOrigin;
 
-    return proxyProvider->createMipMapProxy(format, desc, renderable, origin, SkBudgeted::kYes,
-                                            GrProtected::kNo);
+    return proxyProvider->createMipMapProxy(format, desc, renderable, sampleCnt, origin,
+                                            SkBudgeted::kYes, GrProtected::kNo);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,

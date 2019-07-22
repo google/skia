@@ -16,7 +16,8 @@
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/SkGr.h"
 
-size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, GrRenderable renderable, bool binSize) {
+size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, GrRenderable renderable,
+                                int renderTargetSampleCnt, bool binSize) {
     size_t size;
 
     int width  = binSize ? GrResourceProvider::MakeApprox(desc.fWidth)  : desc.fWidth;
@@ -24,9 +25,9 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, GrRenderable renderab
 
     if (renderable == GrRenderable::kYes) {
         // We own one color value for each MSAA sample.
-        SkASSERT(desc.fSampleCnt >= 1);
-        int colorValuesPerPixel = desc.fSampleCnt;
-        if (desc.fSampleCnt > 1) {
+        SkASSERT(renderTargetSampleCnt >= 1);
+        int colorValuesPerPixel = renderTargetSampleCnt;
+        if (renderTargetSampleCnt > 1) {
             // Worse case, we own the resolve buffer so that is one more sample per pixel.
             colorValuesPerPixel += 1;
         }
@@ -41,6 +42,7 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, GrRenderable renderab
         size = colorValuesPerPixel * colorBytes;
         size += colorBytes/3; // in case we have to mipmap
     } else {
+        SkASSERT(renderTargetSampleCnt == 1);
         if (GrPixelConfigIsCompressed(desc.fConfig)) {
             size = GrCompressedFormatDataSize(desc.fConfig, width, height);
         } else {

@@ -116,8 +116,8 @@ void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int heigh
 }
 
 void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                      GrScratchKey* key) {
+                                      int sampleCnt, GrScratchKey* key) {
     // Note: the fOrigin field is not used in the scratch key
-    return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight, renderable, desc.fSampleCnt,
+    return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight, renderable, sampleCnt,
                              GrMipMapped::kNo, key);
 }

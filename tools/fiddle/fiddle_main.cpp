@@ -131,7 +131,6 @@ static bool setup_backend_objects(GrContext* context,
     backingDesc.fHeight = bm.height();
     // This config must match the SkColorType used in draw.cpp in the SkImage and Surface factories
     backingDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    backingDesc.fSampleCnt = 1;
 
     if (!bm.empty()) {
         SkPixmap originalPixmap;
@@ -164,7 +163,7 @@ static bool setup_backend_objects(GrContext* context,
         }
 
         backingTexture =
-                resourceProvider->createTexture(backingDesc, GrRenderable::kNo, SkBudgeted::kNo,
+                resourceProvider->createTexture(backingDesc, GrRenderable::kNo, 1, SkBudgeted::kNo,
                                                 GrProtected::kNo, texels.get(), mipLevelCount);
         if (!backingTexture) {
             return false;
@@ -178,7 +177,6 @@ static bool setup_backend_objects(GrContext* context,
 
     backingDesc.fWidth = options.fOffScreenWidth;
     backingDesc.fHeight = options.fOffScreenHeight;
-    backingDesc.fSampleCnt = options.fOffScreenSampleCount;
 
     SkAutoTMalloc<uint32_t> data(backingDesc.fWidth * backingDesc.fHeight);
     sk_memset32(data.get(), 0, backingDesc.fWidth * backingDesc.fHeight);
@@ -191,7 +189,8 @@ static bool setup_backend_objects(GrContext* context,
         GrMipLevel level0 = { data.get(), backingDesc.fWidth*sizeof(uint32_t) };
 
         sk_sp<GrTexture> tmp = resourceProvider->createTexture(
-                backingDesc, GrRenderable::kYes, SkBudgeted::kNo, GrProtected::kNo, &level0, 1);
+                backingDesc, GrRenderable::kYes, options.fOffScreenSampleCount, SkBudgeted::kNo,
+                GrProtected::kNo, &level0, 1);
         if (!tmp || !tmp->asRenderTarget()) {
             return false;
         }
@@ -219,8 +218,9 @@ static bool setup_backend_objects(GrContext* context,
         }
 
         backingTextureRenderTarget =
-                resourceProvider->createTexture(backingDesc, GrRenderable::kYes, SkBudgeted::kNo,
-                                                GrProtected::kNo, texels.get(), mipLevelCount);
+                resourceProvider->createTexture(backingDesc, GrRenderable::kYes,
+                        options.fOffScreenSampleCount, SkBudgeted::kNo, GrProtected::kNo,
+                        texels.get(), mipLevelCount);
         if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
             return false;
         }
