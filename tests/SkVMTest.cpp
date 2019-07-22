@@ -399,6 +399,28 @@ DEF_TEST(SkVM_mad, r) {
     });
 }
 
+DEF_TEST(SkVM_hoist, r) {
+    // This program uses enough constants that it will fail to JIT if we hoist them.
+    // The JIT will try again without hoisting, and that'll just need 2 registers.
+    skvm::Builder b;
+    {
+        skvm::Arg arg = b.arg<int>();
+        skvm::I32 x = b.load32(arg);
+        for (int i = 0; i < 32; i++) {
+            x = b.add(x, b.splat(i));
+        }
+        b.store32(arg, x);
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+        int x = 4;
+        program.eval(1, &x);
+        // x += 0 + 1 + 2 + 3 + ... + 30 + 31
+        // x += 496
+        REPORTER_ASSERT(r, x == 500);
+    });
+}
+
 
 template <typename Fn>
 static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8_t> expected) {

@@ -1030,7 +1030,9 @@ namespace skvm {
         }
     }
 
-    bool Program::jit(const std::vector<Builder::Instruction>& instructions, Assembler* a) const {
+    bool Program::jit(const std::vector<Builder::Instruction>& instructions,
+                      const bool hoist,
+                      Assembler* a) const {
         using A = Assembler;
 
     #if defined(__x86_64__)
@@ -1056,6 +1058,8 @@ namespace skvm {
         if (SK_ARRAY_COUNT(arg) < fStrides.size()) {
             return false;
         }
+
+        auto hoisted = [&](Val id) { return hoist && instructions[id].hoist; };
 
         std::vector<Reg> r(instructions.size());
         SkTHashMap<int, A::Label> bytes_masks,
@@ -1112,9 +1116,9 @@ namespace skvm {
 
             // Now make available any registers that are consumed by this instruction.
             // (The register pool we can pick dst from is >= the pool for tmp, adding any of these.)
-            if (x != NA && instructions[x].death == id) { avail |= 1 << r[x]; }
-            if (y != NA && instructions[y].death == id) { avail |= 1 << r[y]; }
-            if (z != NA && instructions[z].death == id) { avail |= 1 << r[z]; }
+            if (x != NA && instructions[x].death == id && !hoisted(x)) { avail |= 1 << r[x]; }
+            if (y != NA && instructions[y].death == id && !hoisted(y)) { avail |= 1 << r[y]; }
+            if (z != NA && instructions[z].death == id && !hoisted(z)) { avail |= 1 << r[z]; }
             // set_dst() and dst() will work read/write with this perhaps-just-updated avail.
 
             // Some ops may decide dst on their own to best fit the instruction (see Op::mad_f32).
@@ -1319,9 +1323,6 @@ namespace skvm {
             return ok;
         };
 
-        A::Label body,
-                 tail,
-                 done;
 
         #if defined(__x86_64__)
             const int K = 8;
@@ -1343,12 +1344,22 @@ namespace skvm {
             auto exit = [&]{ a->ret(A::x30); };
         #endif
 
+        A::Label body,
+                 tail,
+                 done;
+
+        for (Val id = 0; id < (Val)instructions.size(); id++) {
+            if (hoisted(id) && !emit(id, /*scalar=*/false)) {
+                return false;
+            }
+        }
+
         a->label(&body);
         {
             a->cmp(N, K);
             jump_if_less(&tail);
             for (Val id = 0; id < (Val)instructions.size(); id++) {
-                if (!emit(id, /*scalar=*/false)) {
+                if (!hoisted(id) && !emit(id, /*scalar=*/false)) {
                     return false;
                 }
             }
@@ -1364,7 +1375,7 @@ namespace skvm {
             a->cmp(N, 1);
             jump_if_less(&done);
             for (Val id = 0; id < (Val)instructions.size(); id++) {
-                if (!emit(id, /*scalar=*/true)) {
+                if (!hoisted(id) && !emit(id, /*scalar=*/true)) {
                     return false;
                 }
             }
@@ -1414,22 +1425,18 @@ namespace skvm {
 
     void Program::setupJIT(const std::vector<Builder::Instruction>& instructions,
                            const char* debug_name) {
-        // Run first with no buffer to determine a.size(), the number of bytes we'll assemble.
+        // Assemble with no buffer to determine a.size(), the number of bytes we'll assemble.
         Assembler a{nullptr};
-        if (!this->jit(instructions, &a)) {
-            return;
+
+        // First try allowing code hoisting (faster code)
+        // then again without if that fails (lower register pressure).
+        bool hoist = true;
+        if (!this->jit(instructions, hoist, &a)) {
+            hoist = false;
+            if (!this->jit(instructions, hoist, &a)) {
+                return;
+            }
         }
-        // TODO: try to JIT once allowing loop-invariant hoisting,
-        //       then once again without hoisting in case it caused too much register pressure.
-        // bool hoist = true;
-        // if (!this->jit(hoist, instructions, &a)) {
-        //      hoist = false;
-        //      if (!this->jit(hoist, instructions, &a)) {
-        //          return;
-        //      }
-        // }
-        // ....
-        // SkAssertResult(this->jit(hoist, instructions, &a));
 
         // Allocate space that we can remap as executable.
         const size_t page = sysconf(_SC_PAGESIZE);
@@ -1438,7 +1445,7 @@ namespace skvm {
 
         // Assemble the program for real.
         a = Assembler{fJITBuf};
-        SkAssertResult(this->jit(instructions, &a));
+        SkAssertResult(this->jit(instructions, hoist, &a));
         SkASSERT(a.size() <= fJITSize);
 
         // Remap as executable, and flush caches on platforms that need that.
