@@ -21,20 +21,21 @@
 // Constructor for wrapped render targets.
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    const GrSurfaceDesc& desc,
+                                   int sampleCount,
                                    GrGLenum format,
                                    const IDDesc& idDesc,
                                    GrGLStencilAttachment* stencil)
-    : GrSurface(gpu, desc, GrProtected::kNo)
-    , INHERITED(gpu, desc, GrProtected::kNo, stencil) {
+        : GrSurface(gpu, desc, GrProtected::kNo)
+        , INHERITED(gpu, desc, sampleCount, GrProtected::kNo, stencil) {
     this->setFlags(gpu->glCaps(), idDesc);
     this->init(desc, format, idDesc);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
-GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, GrGLenum format,
-                                   const IDDesc& idDesc)
-    : GrSurface(gpu, desc, GrProtected::kNo)
-    , INHERITED(gpu, desc, GrProtected::kNo) {
+GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, int sampleCount,
+                                   GrGLenum format, const IDDesc& idDesc)
+        : GrSurface(gpu, desc, GrProtected::kNo)
+        , INHERITED(gpu, desc, sampleCount, GrProtected::kNo) {
     this->setFlags(gpu->glCaps(), idDesc);
     this->init(desc, format, idDesc);
 }
@@ -58,6 +59,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, GrGLenum format, const ID
 
 sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                       const GrSurfaceDesc& desc,
+                                                      int sampleCount,
                                                       GrGLenum format,
                                                       const IDDesc& idDesc,
                                                       int stencilBits) {
@@ -70,10 +72,10 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
         format.fStencilBits = stencilBits;
         format.fTotalBits = stencilBits;
         // Ownership of sb is passed to the GrRenderTarget so doesn't need to be deleted
-        sb = new GrGLStencilAttachment(gpu, sbDesc, desc.fWidth, desc.fHeight,
-                                       desc.fSampleCnt, format);
+        sb = new GrGLStencilAttachment(gpu, sbDesc, desc.fWidth, desc.fHeight, sampleCount, format);
     }
-    return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(gpu, desc, format, idDesc, sb));
+    return sk_sp<GrGLRenderTarget>(
+            new GrGLRenderTarget(gpu, desc, sampleCount, format, idDesc, sb));
 }
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {

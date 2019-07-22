@@ -89,7 +89,6 @@ GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
     desc.fWidth = info.width();
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
-    desc.fSampleCnt = 1;
     return desc;
 }
 

@@ -16,11 +16,13 @@ public:
     static sk_sp<GrMtlTextureRenderTarget> MakeNewTextureRenderTarget(GrMtlGpu*,
                                                                       SkBudgeted,
                                                                       const GrSurfaceDesc&,
+                                                                      int sampleCnt,
                                                                       MTLTextureDescriptor*,
                                                                       GrMipMapsStatus);
 
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
                                                                           const GrSurfaceDesc&,
+                                                                          int sampleCnt,
                                                                           id<MTLTexture>,
                                                                           GrWrapCacheable);
     GrBackendFormat backendFormat() const override {
@@ -42,6 +44,7 @@ private:
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkBudgeted budgeted,
                              const GrSurfaceDesc& desc,
+                             int sampleCnt,
                              id<MTLTexture> colorTexture,
                              id<MTLTexture> resolveTexture,
                              GrMipMapsStatus);
@@ -54,6 +57,7 @@ private:
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              const GrSurfaceDesc& desc,
+                             int sampleCnt,
                              id<MTLTexture> colorTexture,
                              id<MTLTexture> resolveTexture,
                              GrMipMapsStatus,
