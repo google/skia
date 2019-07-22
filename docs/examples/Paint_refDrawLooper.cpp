@@ -4,11 +4,13 @@
 // HASH=2a3782c33f04ed17a725d0e449c6f7c3
 REG_FIDDLE(Paint_refDrawLooper, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     SkPaint paint1, paint2;
     SkLayerDrawLooper::Builder looperBuilder;
     paint1.setDrawLooper(looperBuilder.detach());
     SkDebugf("draw looper unique: %s\n", paint1.getDrawLooper()->unique() ? "true" : "false");
     paint2.setDrawLooper(paint1.refDrawLooper());
     SkDebugf("draw looper unique: %s\n", paint1.getDrawLooper()->unique() ? "true" : "false");
+#endif
 }
 }  // END FIDDLE

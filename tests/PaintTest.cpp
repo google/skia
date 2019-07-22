@@ -50,8 +50,10 @@ DEF_TEST(Paint_copy, reporter) {
     paint.setStyle(SkPaint::kStrokeAndFill_Style);
     paint.setStrokeWidth(SkIntToScalar(2));
     // set a few pointers
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     SkLayerDrawLooper::Builder looperBuilder;
     paint.setLooper(looperBuilder.detach());
+#endif
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                                SkBlurMask::ConvertRadiusToSigma(1)));
 
@@ -179,7 +181,9 @@ DEF_TEST(Paint_MoreFlattening, r) {
     SkPaint paint;
     paint.setColor(0x00AABBCC);
     paint.setBlendMode(SkBlendMode::kModulate);
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     paint.setLooper(nullptr);  // Default value, ignored.
+#endif
 
     SkBinaryWriteBuffer writer;
     SkPaintPriv::Flatten(paint, writer);
@@ -194,7 +198,9 @@ DEF_TEST(Paint_MoreFlattening, r) {
 
     // No matter the encoding, these must always hold.
     ASSERT(other.getColor()      == paint.getColor());
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     ASSERT(other.getLooper()     == paint.getLooper());
+#endif
     ASSERT(other.getBlendMode()  == paint.getBlendMode());
 }
 
