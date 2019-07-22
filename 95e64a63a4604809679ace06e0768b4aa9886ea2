@@ -16,6 +16,24 @@
       "revId": "95e64a63a4604809679ace06e0768b4aa9886ea2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ca86a44_087a8c55",
+        "filename": "infra/bots/compile_g3_framework.isolate",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-07-22T18:47:13Z",
+      "side": 1,
+      "message": "Yea I don\u0027t think it matters. Android bots had similar requirement.",
+      "parentUuid": "71adcd54_2455f571",
+      "revId": "95e64a63a4604809679ace06e0768b4aa9886ea2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
