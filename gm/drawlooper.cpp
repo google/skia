@@ -48,13 +48,14 @@ protected:
 
         SkPaint  paint;
         paint.setAntiAlias(true);
-        paint.setLooper(fLooper);
 
         SkFont font(ToolUtils::create_portable_typeface(), 72);
 
-        canvas->drawCircle(50, 50, 30, paint);
-        canvas->drawRect({ 150, 50, 200, 100 }, paint);
-        canvas->drawString("Looper", 230, 100, font, paint);
+        fLooper->apply(canvas, paint, [&font](SkCanvas* c, const SkPaint& p) {
+            c->drawCircle(50, 50, 30, p);
+            c->drawRect({ 150, 50, 200, 100 }, p);
+            c->drawString("Looper", 230, 100, font, p);
+        });
     }
 
 private:

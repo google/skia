@@ -78,11 +78,11 @@ public:
         SkPaint paint;
         canvas->drawRect(fRRect.rect(), paint);
 
-        paint.setLooper(looperBuilder.detach());
         paint.setColor(SK_ColorCYAN);
         paint.setAntiAlias(true);
-
-        canvas->drawRRect(fRRect, paint);
+        looperBuilder.detach()->apply(canvas, paint, [this](SkCanvas* c, const SkPaint& p) {
+            c->drawRRect(fRRect, p);
+        });
     }
 
 private:
