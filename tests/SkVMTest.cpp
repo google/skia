@@ -82,7 +82,8 @@ namespace {
                  y = inst.y,
                  z = inst.z;
             int imm = inst.imm;
-            write(o, inst.death == 0 ? "☠️ " : "  ");
+            write(o, inst.death == 0 ? "☠️ " :
+                     inst.hoist      ? "↑ " : "  ");
             switch (op) {
                 case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
