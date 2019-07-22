@@ -36,6 +36,23 @@ namespace skvm {
             }
         }
 
+        // Mark which values don't depend on the loop and can be hoisted.
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            Builder::Instruction& inst = fProgram[id];
+
+            // Loads and stores cannot be hoisted out of the loop.
+            if (inst.op <= Op::load32) {
+                inst.hoist = false;
+            }
+
+            // If any of an instruction's inputs can't be hoisted, it can't be hoisted itself.
+            if (inst.hoist) {
+                if (inst.x != NA) { inst.hoist &= fProgram[inst.x].hoist; }
+                if (inst.y != NA) { inst.hoist &= fProgram[inst.y].hoist; }
+                if (inst.z != NA) { inst.hoist &= fProgram[inst.z].hoist; }
+            }
+        }
+
         return {fProgram, fStrides, debug_name};
     }
 
@@ -45,13 +62,14 @@ namespace skvm {
             && a.y     == b.y
             && a.z     == b.z
             && a.imm   == b.imm
-            && a.death == b.death;
+            && a.death == b.death
+            && a.hoist == b.hoist;
     }
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
     Val Builder::push(Op op, Val x, Val y, Val z, int imm) {
-        Instruction inst{op, x, y, z, imm, /*death=*/0};
+        Instruction inst{op, x, y, z, imm, /*death=*/0, /*hoist=*/true};
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
@@ -882,28 +900,8 @@ namespace skvm {
 
     // Translate Builder::Instructions to Program::Instructions used by the interpreter.
     void Program::setupInterpreter(const std::vector<Builder::Instruction>& instructions) {
-        struct Analysis {
-            bool hoist = true;  // Can this instruction be hoisted outside the implicit loop?
-            Reg  reg   = 0;     // Register this instruction's output is assigned to.
-        };
-        std::vector<Analysis> analysis(instructions.size());
-
-        // Hoisting out non-loop-dependent values is pretty valuable to the interpreter.
-        for (Val id = 0; id < (Val)instructions.size(); id++) {
-            const Builder::Instruction& inst = instructions[id];
-
-            // Loads and stores cannot be hoisted out of the loop.
-            if (inst.op <= Op::load32) {
-                analysis[id].hoist = false;
-            }
-
-            // If any of an instruction's inputs can't be hoisted, it can't be hoisted itself.
-            if (analysis[id].hoist) {
-                if (inst.x != NA) { analysis[id].hoist &= analysis[inst.x].hoist; }
-                if (inst.y != NA) { analysis[id].hoist &= analysis[inst.y].hoist; }
-                if (inst.z != NA) { analysis[id].hoist &= analysis[inst.z].hoist; }
-            }
-        }
+        // Register each instruction is assigned to.
+        std::vector<Reg> reg(instructions.size());
 
         // This next bit is a bit more complicated than strictly necessary;
         // we could just assign every live instruction to its own register.
@@ -917,9 +915,9 @@ namespace skvm {
         int live_instructions = 0;
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && analysis[id].hoist) {
+            if (inst.death != 0 && inst.hoist) {
                 live_instructions++;
-                analysis[id].reg = fRegs++;
+                reg[id] = fRegs++;
             }
         }
 
@@ -927,7 +925,7 @@ namespace skvm {
         std::vector<Reg> avail;
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && !analysis[id].hoist) {
+            if (inst.death != 0 && !inst.hoist) {
                 live_instructions++;
 
                 /// If an instruction's input is no longer live, we can recycle its register.
@@ -935,9 +933,9 @@ namespace skvm {
                     // If this is a real input and it's lifetime ends at this instruction,
                     // we can recycle the register it's occupying.
                     if (input != NA
-                            && !analysis[input].hoist
+                            && !instructions[input].hoist
                             && instructions[input].death == id) {
-                        avail.push_back(analysis[input].reg);
+                        avail.push_back(reg[input]);
                     }
                 };
 
@@ -948,9 +946,9 @@ namespace skvm {
 
                 // Allocate a register if we have to, preferring to reuse anything available.
                 if (avail.empty()) {
-                    analysis[id].reg = fRegs++;
+                    reg[id] = fRegs++;
                 } else {
-                    analysis[id].reg = avail.back();
+                    reg[id] = avail.back();
                     avail.pop_back();
                 }
             }
@@ -967,7 +965,7 @@ namespace skvm {
         // so lookups don't have to know which arguments are used by which Ops.
         auto lookup_register = [&](Val id) {
             return id == NA ? (Reg)0
-                            : analysis[id].reg;
+                            : reg[id];
         };
 
         auto push_instruction = [&](Val id, const Builder::Instruction& inst) {
@@ -984,14 +982,14 @@ namespace skvm {
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && analysis[id].hoist) {
+            if (inst.death != 0 && inst.hoist) {
                 push_instruction(id, inst);
                 fLoop++;
             }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && !analysis[id].hoist) {
+            if (inst.death != 0 && !inst.hoist) {
                 push_instruction(id, inst);
             }
         }

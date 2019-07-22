@@ -255,7 +255,8 @@ namespace skvm {
             int imm;        // Immediate bit pattern, shift count, argument index, etc.
 
             // Not populated until done() has been called.
-            int death;      // Index of last live instruction taking this input; live if != 0.
+            int  death;     // Index of last live instruction taking this input; live if != 0.
+            bool hoist;     // Value independent of all loop variables?
         };
 
         Program done(const char* debug_name = nullptr);
@@ -342,7 +343,8 @@ namespace skvm {
                      ^ Hash(inst.y)
                      ^ Hash(inst.z)
                      ^ Hash(inst.imm)
-                     ^ Hash(inst.death);
+                     ^ Hash(inst.death)
+                     ^ Hash(inst.hoist);
             }
         };
 
