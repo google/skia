@@ -814,9 +814,7 @@ static int lpaint_getEffects(lua_State* L) {
     const SkPaint* paint = get_obj<SkPaint>(L, 1);
 
     lua_newtable(L);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     setfield_bool_if(L, "looper",      !!paint->getLooper());
-#endif
     setfield_bool_if(L, "pathEffect",  !!paint->getPathEffect());
     setfield_bool_if(L, "maskFilter",  !!paint->getMaskFilter());
     setfield_bool_if(L, "shader",      !!paint->getShader());

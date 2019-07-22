@@ -75,7 +75,6 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
     canvas.drawBitmap(src, SkIntToScalar(-10), 0, &paint);
     REPORTER_ASSERT(reporter, 0 == *dst.getAddr32(5, 5));
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     // now install our looper, which will draw, since it internally translates
     // to the left. The test is to ensure that canvas' quickReject machinary
     // allows us through, even though sans-looper we would look like we should
@@ -83,7 +82,6 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
     paint.setLooper(sk_make_sp<TestLooper>());
     canvas.drawBitmap(src, SkIntToScalar(-10), 0, &paint);
     REPORTER_ASSERT(reporter, 0xFFFFFFFF == *dst.getAddr32(5, 5));
-#endif
 }
 
 static void test_layers(skiatest::Reporter* reporter) {
@@ -168,7 +166,6 @@ DEF_TEST(QuickReject_MatrixState, reporter) {
     canvas.quickReject(SkRect::MakeWH(100.0f, 100.0f));
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
 #include "include/core/SkSurface.h"
 #include "include/effects/SkLayerDrawLooper.h"
 DEF_TEST(looper_nothingtodraw, reporter) {
@@ -194,4 +191,3 @@ DEF_TEST(looper_nothingtodraw, reporter) {
     // See https://skia-review.googlesource.com/c/skia/+/121220
     surf->getCanvas()->drawRect({1, 1, 10, 10}, paint);
 }
-#endif

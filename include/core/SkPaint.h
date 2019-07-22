@@ -556,7 +556,6 @@ public:
     */
     void setImageFilter(sk_sp<SkImageFilter> imageFilter);
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     /** Returns SkDrawLooper if set, or nullptr.
         Does not alter SkDrawLooper SkRefCnt.
 
@@ -590,7 +589,6 @@ public:
         (see skbug.com/6259)
     */
     void setLooper(sk_sp<SkDrawLooper> drawLooper);
-#endif
 
     /** Returns true if SkPaint prevents all drawing;
         otherwise, the SkPaint may or may not allow drawing.
@@ -641,10 +639,7 @@ public:
         SkPaint::Style style = this->getStyle();
         // ultra fast-case: filling with no effects that affect geometry
         if (kFill_Style == style) {
-            uintptr_t effects = 0;
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-            effects |= reinterpret_cast<uintptr_t>(this->getLooper());
-#endif
+            uintptr_t effects = reinterpret_cast<uintptr_t>(this->getLooper());
             effects |= reinterpret_cast<uintptr_t>(this->getMaskFilter());
             effects |= reinterpret_cast<uintptr_t>(this->getPathEffect());
             effects |= reinterpret_cast<uintptr_t>(this->getImageFilter());

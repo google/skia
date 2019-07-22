@@ -20,8 +20,6 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-
 /**
  *  Interprets c as an unpremultiplied color, and returns the
  *  premultiplied equivalent.
@@ -171,5 +169,3 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new UnpremulView(GetResourcePath("images")); )
-
-#endif

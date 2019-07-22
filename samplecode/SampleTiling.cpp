@@ -20,8 +20,6 @@
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-
 // effects
 #include "include/effects/SkBlurDrawLooper.h"
 #include "include/effects/SkGradientShader.h"
@@ -160,5 +158,3 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new TilingView(); )
-
-#endif

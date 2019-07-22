@@ -948,9 +948,7 @@ void DrawCommand::MakeJsonPaint(SkJSONWriter&   writer,
     apply_paint_patheffect(paint, writer, urlDataManager);
     apply_paint_maskfilter(paint, writer, urlDataManager);
     apply_flattenable(DEBUGCANVAS_ATTRIBUTE_SHADER, paint.getShader(), writer, urlDataManager);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     apply_flattenable(DEBUGCANVAS_ATTRIBUTE_LOOPER, paint.getLooper(), writer, urlDataManager);
-#endif
     apply_flattenable(
             DEBUGCANVAS_ATTRIBUTE_IMAGEFILTER, paint.getImageFilter(), writer, urlDataManager);
     apply_flattenable(
