@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75256d7f_f71dd29c",
+        "filename": "modules/skparagraph/src/FontCollection.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-22T19:49:59Z",
+      "side": 1,
+      "message": "nit\n\nfDefaultFontManager \u003d std::move(fontManager);",
+      "range": {
+        "startLine": 44,
+        "startChar": 26,
+        "endLine": 44,
+        "endChar": 37
+      },
+      "revId": "58fe16f2f8924a53a5e070549de3cc18bb6c8d87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
