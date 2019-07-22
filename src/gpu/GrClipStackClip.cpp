@@ -498,7 +498,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
 
         // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
         // to ops), so it can't have any pending IO.
-        proxy = proxyProvider->createProxy(format, desc, GrRenderable::kNo,
+        proxy = proxyProvider->createProxy(format, desc, GrRenderable::kNo, 1,
                                            kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
                                            SkBudgeted::kYes, GrProtected::kNo);
 

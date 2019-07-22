@@ -33,7 +33,6 @@ static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {
     return desc.fWidth <= 0 &&
            desc.fHeight <= 0 &&
            desc.fConfig != kUnknown_GrPixelConfig &&
-           desc.fSampleCnt == 1 &&
            SkBackingFit::kApprox == fit;
 }
 
@@ -140,7 +139,6 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     desc.fWidth = fWidth;
     desc.fHeight = fHeight;
     desc.fConfig = fConfig;
-    desc.fSampleCnt = sampleCnt;
 
     // The explicit resource allocator requires that any resources it pulls out of the
     // cache have no pending IO.
@@ -163,19 +161,19 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
             texels[i].fRowBytes = 0;
         }
 
-        surface = resourceProvider->createTexture(desc, renderable, fBudgeted, fIsProtected,
-                                                  texels.get(), mipCount);
+        surface = resourceProvider->createTexture(desc, renderable, sampleCnt, fBudgeted,
+                                                  fIsProtected, texels.get(), mipCount);
         if (surface) {
             SkASSERT(surface->asTexture());
             SkASSERT(GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
         }
     } else {
         if (SkBackingFit::kApprox == fFit) {
-            surface = resourceProvider->createApproxTexture(desc, renderable, fIsProtected,
-                                                            resourceProviderFlags);
+            surface = resourceProvider->createApproxTexture(desc, renderable, sampleCnt,
+                                                            fIsProtected, resourceProviderFlags);
         } else {
-            surface = resourceProvider->createTexture(desc, renderable, fBudgeted, fIsProtected,
-                                                      resourceProviderFlags);
+            surface = resourceProvider->createTexture(desc, renderable, sampleCnt, fBudgeted,
+                                                      fIsProtected, resourceProviderFlags);
         }
     }
     if (!surface) {
