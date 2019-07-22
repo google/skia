@@ -395,7 +395,10 @@ namespace skvm {
 
         void setupInterpreter(const std::vector<Builder::Instruction>&);
         void setupJIT        (const std::vector<Builder::Instruction>&, const char* debug_name);
-        bool jit             (const std::vector<Builder::Instruction>&, Assembler*) const;
+
+        bool jit(const std::vector<Builder::Instruction>&,
+                 bool hoist,
+                 Assembler*) const;
 
         // Dump jit-*.dump files for perf inject.
         void dumpJIT(const char* debug_name, size_t size) const;
