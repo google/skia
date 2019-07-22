@@ -4,6 +4,7 @@
 // HASH=84ec12a36e50df5ac565cc7a75ffbe9f
 REG_FIDDLE(Draw_Looper_Methods, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     SkLayerDrawLooper::LayerInfo info;
     info.fPaintBits = (SkLayerDrawLooper::BitFlags) SkLayerDrawLooper::kColorFilter_Bit;
     info.fColorMode = SkBlendMode::kSrc;
@@ -16,5 +17,6 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setDrawLooper(looperBuilder.detach());
     canvas->drawCircle(50, 50, 50, paint);
+#endif
 }
 }  // END FIDDLE

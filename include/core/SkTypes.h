@@ -20,6 +20,10 @@
 #include <stdint.h>
 // IWYU pragma: end_exports
 
+#ifndef SK_SUPPORT_LEGACY_DRAWLOOPER
+#define SK_SUPPORT_LEGACY_DRAWLOOPER
+#endif
+
 /** \file SkTypes.h
 */
 

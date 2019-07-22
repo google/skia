@@ -29,6 +29,7 @@
 #include "include/effects/SkLayerDrawLooper.h"
 #include "src/core/SkBlurMask.h"
 
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
 // This GM mimics a blurred RR seen in the wild.
 class BlurRoundRectGM : public skiagm::GM {
 public:
@@ -92,6 +93,10 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
+// Rounded rect with two opposite corners with large radii, the other two
+// small.
+DEF_GM(return new BlurRoundRectGM(100, 100);)
+#endif
 
 /*
  * Spits out a dummy gradient to test blur with shader on paint
@@ -178,9 +183,5 @@ private:
 // https://code.google.com/p/skia/issues/detail?id=1801 ('Win7 Test bots all failing GenerateGMs:
 // ran wrong number of tests')
 //DEF_GM(return new BlurRoundRectGM(600, 5514, 6);)
-
-// Rounded rect with two opposite corners with large radii, the other two
-// small.
-DEF_GM(return new BlurRoundRectGM(100, 100);)
 
 DEF_GM(return new SimpleBlurRoundRectGM();)
