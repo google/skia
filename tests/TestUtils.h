@@ -33,8 +33,12 @@ void fill_pixel_data(int width, int height, GrColor* data);
 
 // Create a solid colored backend texture
 bool create_backend_texture(GrContext*, GrBackendTexture* backendTex,
-                            const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color,
-                            GrRenderable);
+                            const SkImageInfo& ii, const SkColor4f& color,
+                            GrMipMapped, GrRenderable);
+
+// Create a backend texture with contents from an SkPixmap
+bool create_backend_texture(GrContext*, GrBackendTexture* backendTex,
+                            const SkPixmap&, GrMipMapped, GrRenderable);
 
 void delete_backend_texture(GrContext*, const GrBackendTexture& backendTex);
 
