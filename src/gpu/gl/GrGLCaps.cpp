@@ -3175,6 +3175,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDriverBlacklistCCPR = true;
     }
 
+    // Temporarily disable the MSAA implementation of CCPR on AMD and Qualcomm while we sort out
+    // an internal compiler error and a crash.
+    if (kATI_GrGLVendor == ctxInfo.vendor() || kQualcomm_GrGLVendor == ctxInfo.vendor()) {
+        fDriverBlacklistMSAACCPR = true;
+    }
+
 #ifdef SK_BUILD_FOR_ANDROID
     // Older versions of Android have problems with setting GL_TEXTURE_BASE_LEVEL or
     // GL_TEXTURE_MAX_LEVEL on GL_TEXTURE_EXTERTNAL_OES textures. We just leave them as is and hope
