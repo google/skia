@@ -420,9 +420,11 @@ public:
     /**
      * Creates a texture directly in the backend API without wrapping it in a GrTexture.
      * Must be matched with a call to deleteBackendTexture().
-     * Right now, the color is ignored if pixel data is provided.
-     * In the future, if neither a color nor pixels are provided then the backend texture
-     * will be uninitialized.
+     * If pixels data is provided it is used to initialize the texture and the color is ignored
+     * if it is present.
+     * If there is no pixel data but a color is provided then it is used to initialize the
+     * texture.
+     * If neither pixel data nor a color is provided then the texture is left uninitialized.
      */
     virtual GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
                                                   GrMipMapped, GrRenderable,

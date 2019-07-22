@@ -1910,6 +1910,7 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
                                                const void* srcData, size_t rowBytes,
                                                const SkColor4f* color, GrProtected isProtected) {
     const GrVkCaps& caps = this->vkCaps();
+
     this->handleDirtyContext();
 
     if (fProtectedContext != isProtected) {
