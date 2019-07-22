@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a30dc7fc_1200ad43",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-22T18:43:46Z",
+      "side": 1,
+      "message": "nit: doc default\n\nalso for BuilderNameSchemaFile",
+      "revId": "06920f9b851bf1f02b5b1b592f5a399c93a15e66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36403136_cad67be4",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-22T18:43:46Z",
+      "side": 1,
+      "message": "nit: unused",
+      "revId": "06920f9b851bf1f02b5b1b592f5a399c93a15e66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8363b3d_cd93e27d",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-22T18:43:46Z",
+      "side": 1,
+      "message": "typo getParentRevisionName",
+      "range": {
+        "startLine": 1209,
+        "startChar": 3,
+        "endLine": 1209,
+        "endChar": 25
+      },
+      "revId": "06920f9b851bf1f02b5b1b592f5a399c93a15e66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
