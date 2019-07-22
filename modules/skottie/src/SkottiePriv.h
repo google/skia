@@ -17,6 +17,7 @@
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/sksg/include/SkSGScene.h"
 #include "src/utils/SkUTF.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <functional>
 
@@ -148,7 +149,7 @@ private:
 
         const sk_sp<SkFontMgr>& get() {
             if (!fFontMgr) {
-                fFontMgr = SkFontMgr::RefDefault();
+                fFontMgr = ToolUtils::GlobalFontMgr();
                 SkASSERT(fFontMgr);
             }
             return fFontMgr;

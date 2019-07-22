@@ -7,7 +7,7 @@ REG_FIDDLE(Paint_getTypeface, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint;
    SkDebugf("nullptr %c= typeface\n", paint.getTypeface() ? '!' : '=');
-   paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
+   paint.setTypeface(ToolUtils::TypefaceFromName("monospace", SkFontStyle()));
    SkDebugf("nullptr %c= typeface\n", paint.getTypeface() ? '!' : '=');
 }
 }  // END FIDDLE

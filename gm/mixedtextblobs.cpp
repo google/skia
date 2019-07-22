@@ -21,6 +21,7 @@
 #include "include/core/SkTypeface.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <string.h>
 
@@ -49,7 +50,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
         if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
             fDrawResult = DrawResult::kSkip;
             return;

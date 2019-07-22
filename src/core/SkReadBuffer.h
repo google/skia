@@ -296,7 +296,7 @@ public:
     SkReadPaintResult readPaint  (SkPaint*   out, SkFont* font) {
         *out = SkPaint();
         if (font) {
-            *font = SkFont();
+            *font = SkFont(nullptr);
         }
         return kFailed_ReadPaint;
     }

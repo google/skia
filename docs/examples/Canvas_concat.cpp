@@ -5,7 +5,7 @@
 REG_FIDDLE(Canvas_concat, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkFont font(nullptr, 80);
+    SkFont font(ToolUtils::DefaultTypeface(), 80);
     font.setScaleX(.3f);
     SkMatrix matrix;
     SkRect rect[2] = {{ 10, 20, 90, 110 }, { 40, 130, 140, 180 }};

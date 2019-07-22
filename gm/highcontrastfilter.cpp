@@ -25,6 +25,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkHighContrastFilter.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -48,8 +49,7 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
              invertStr,
              config.fContrast);
 
-    SkFont font;
-    font.setTypeface(ToolUtils::create_portable_typeface());
+    SkFont font(ToolUtils::create_portable_typeface());
     font.setSize(0.05f);
     font.setEdging(SkFont::Edging::kAlias);
 
@@ -70,7 +70,7 @@ static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {
     paint.setARGB(0xff, 0x66, 0x11, 0x11);
     canvas->drawRect(bounds, paint);
 
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(0.15f);
     font.setEdging(SkFont::Edging::kAlias);
 

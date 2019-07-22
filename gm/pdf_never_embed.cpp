@@ -17,6 +17,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <string.h>
 
@@ -34,7 +35,7 @@ static void excercise_draw_pos_text(SkCanvas* canvas,
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(pdf_never_embed, canvas, errorMsg, 512, 512) {
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
     if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
         return skiagm::DrawResult::kSkip;
     }

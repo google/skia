@@ -24,6 +24,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <initializer_list>
 
@@ -47,7 +48,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         for (int i = 0; i < 3; ++i) {
-            SkFont font;
+            SkFont font(ToolUtils::DefaultTypeface());
             font.setSize(32);
             font.setEdging(i == 0 ? SkFont::Edging::kAlias :
                            (i == 1 ? SkFont::Edging::kAntiAlias :

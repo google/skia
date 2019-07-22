@@ -6,7 +6,7 @@
 REG_FIDDLE(Paint_refTypeface, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint1, paint2;
-   paint1.setTypeface(SkTypeface::MakeFromName("monospace",
+   paint1.setTypeface(ToolUtils::TypefaceFromName("monospace",
             SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
             SkFontStyle::kItalic_Slant)));
    SkDebugf("typeface1 %c= typeface2\n",

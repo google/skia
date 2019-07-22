@@ -12,11 +12,13 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
+#include "include/ports/SkNativeFontMgrFactory.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include <iostream>
@@ -133,7 +135,7 @@ static bool get_images_from_file(const SkString& file) {
         return nullptr;
     };
     procs.fImageCtx = &sniff;
-    return SkPicture::MakeFromStream(stream.get(), &procs) != nullptr;
+    return SkPicture::MakeFromStream(stream.get(), ToolUtils::GlobalFontMgr(), &procs) != nullptr;
 }
 
 int main(int argc, char** argv) {
@@ -149,6 +151,8 @@ int main(int argc, char** argv) {
         CommandLineFlags::PrintUsage();
         return 1;
     }
+
+    ToolUtils::SetGlobalNativeFontMgr();
 
     if (sk_isdir(inputs)) {
         SkOSFile::Iter iter(inputs, "skp");

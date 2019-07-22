@@ -6,6 +6,6 @@ REG_FIDDLE(Canvas_drawString_2, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkString string("a small hello");
-    canvas->drawString(string, 20, 20, SkFont(), paint);
+    canvas->drawString(string, 20, 20, SkFont(ToolUtils::DefaultTypeface()), paint);
 }
 }  // END FIDDLE

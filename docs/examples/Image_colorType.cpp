@@ -9,6 +9,7 @@ void draw(SkCanvas* canvas) {
                              "RGBA_F16" };
     SkColorType colorType = image->colorType();
     canvas->drawImage(image, 16, 0);
-    canvas->drawString(colors[(int) colorType], 20, image->height() + 20, SkFont(), SkPaint());
+    canvas->drawString(colors[(int) colorType], 20, image->height() + 20,
+                       SkFont(ToolUtils::DefaultTypeface()), SkPaint());
 }
 }  // END FIDDLE

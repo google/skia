@@ -9,6 +9,7 @@
 #include "include/core/SkTime.h"
 
 #include "tools/ModifierKey.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
 
@@ -86,7 +87,7 @@ struct EditorLayer : public sk_app::Window::Layer {
     bool fShiftDown = false;
 
     EditorLayer() {
-        fEditor.setFont(SkFont(SkTypeface::MakeFromName("monospace", SkFontStyle()), 18));
+        fEditor.setFont(SkFont(ToolUtils::TypefaceFromName("monospace", SkFontStyle()), 18));
     }
 
     void loadFile(const char* path) {

@@ -6,7 +6,7 @@
 REG_FIDDLE(Paint_setTypeface, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
+    paint.setTypeface(ToolUtils::TypefaceFromName("monospace", SkFontStyle()));
     canvas->drawString("hamburgerfons", 10, 30, paint);
     paint.setTypeface(nullptr);
     canvas->drawString("hamburgerfons", 10, 50, paint);

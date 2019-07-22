@@ -23,10 +23,10 @@
 #include "include/ports/SkTypeface_win.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkFontPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/fonts/TestFontMgr.h"
 
 #include <cmath>
@@ -440,23 +440,25 @@ sk_sp<SkSurface> makeSurface(SkCanvas*             canvas,
     return surf;
 }
 
-static DEFINE_bool(nativeFonts, true,
-                   "If true, use native font manager and rendering. "
-                   "If false, fonts will draw as portably as possible.");
+DEFINE_bool(nativeFonts, true,
+            "If true, use native font manager and rendering. "
+            "If false, fonts will draw as portably as possible.");
 #if defined(SK_BUILD_FOR_WIN)
-    static DEFINE_bool(gdi, false,
-                       "Use GDI instead of DirectWrite for font rendering.");
+    DEFINE_bool(gdi, false,
+                "Use GDI instead of DirectWrite for font rendering.");
 #endif
 
 void SetDefaultFontMgr() {
-    if (!FLAGS_nativeFonts) {
-        gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
-    }
+    if (FLAGS_nativeFonts) {
 #if defined(SK_BUILD_FOR_WIN)
-    if (FLAGS_gdi) {
-        gSkFontMgr_DefaultFactory = &SkFontMgr_New_GDI;
-    }
+        if (FLAGS_gdi) {
+            ToolUtils::SetGlobalGDIFontMgr();
+        }
 #endif
+        ToolUtils::SetGlobalNativeFontMgr();
+    } else {
+        ToolUtils::SetGlobalPortableFontMgr();
+    }
 }
 
 }  // namespace ToolUtils

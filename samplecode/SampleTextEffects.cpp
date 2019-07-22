@@ -23,6 +23,7 @@
 #include "include/effects/SkGradientShader.h"
 
 #include "include/effects/Sk2DPathEffect.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 class Dot2DPathEffect : public Sk2DPathEffect {
 public:
@@ -111,7 +112,7 @@ class TextEffectsView : public Sample {
 
 public:
     TextEffectsView() {
-        fFace = SkTypeface::MakeFromFile("/Users/reed/Downloads/p052024l.pfb");
+        fFace = ToolUtils::GlobalFontMgr()->makeFromFile("/Users/reed/Downloads/p052024l.pfb");
         fInterp = 0;
         fDx = SK_Scalar1/64;
     }
@@ -145,7 +146,7 @@ protected:
         SkScalar x = SkIntToScalar(20);
         SkScalar y = SkIntToScalar(300);
 
-        SkFont font(SkTypeface::MakeFromName("sans-serif", SkFontStyle::Bold()), 240);
+        SkFont font(ToolUtils::TypefaceFromName("sans-serif", SkFontStyle::Bold()), 240);
 
         SkString str("9");
 

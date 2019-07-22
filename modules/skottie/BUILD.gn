@@ -41,7 +41,7 @@ if (skia_enable_skottie) {
       configs += [ "../../:skia_private" ]
 
       sources = [
-          "utils/SkottieUtils.cpp",
+        "utils/SkottieUtils.cpp",
       ]
       deps = [
         ":skottie",
@@ -88,6 +88,7 @@ if (skia_enable_skottie) {
 
         deps = [
           "../..:experimental_svg_model",
+          "../..:global_fontmgr",
           "../..:skia",
         ]
 
@@ -107,6 +108,7 @@ if (skia_enable_skottie) {
 
         deps = [
           "../..:flags",
+          "../..:global_fontmgr",
           "../..:skia",
         ]
 

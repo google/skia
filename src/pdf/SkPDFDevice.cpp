@@ -802,7 +802,7 @@ void SkPDFDevice::internalDrawGlyphRun(
         this->drawGlyphRunAsPath(glyphRun, offset, runPaint);
         return;
     }
-    SkTypeface* typeface = glyphRunFont.getTypefaceOrDefault();
+    SkTypeface* typeface = glyphRunFont.getTypeface();
     if (!typeface) {
         SkDebugf("SkPDF: SkTypeface::MakeDefault() returned nullptr.\n");
         return;

@@ -29,7 +29,7 @@ public:
 
       // Move until we find the first character that cannot be resolved with the current font
       while (++fCurrentChar != fText.end()) {
-          SkFont font;
+          SkFont font(nullptr);
           SkScalar height;
           SkString locale;
           found = fFontResolver->findNext(fCurrentChar, &font, &height);
@@ -51,7 +51,7 @@ private:
 
     SkSpan<const char> fText;
     const char* fCurrentChar;
-    SkFont fFont;
+    SkFont fFont{nullptr};
     SkScalar fLineHeight;
     FontResolver* fFontResolver;
 };

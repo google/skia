@@ -21,6 +21,7 @@
 #include "include/core/SkTypeface.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <string.h>
 #include <initializer_list>
@@ -34,7 +35,7 @@ private:
     sk_sp<SkTypeface> typefaces[4];
 
     void onOnceBeforeDraw() override {
-        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        sk_sp<SkFontMgr> fontMgr = ToolUtils::GlobalFontMgr();
         typefaces[0] = MakeResourceAsTypeface(*fontMgr, "fonts/colr.ttf");
         if (!typefaces[0] && fontMgr->canMake(SkFontMgr::Make::tt_glyf_COLR)) {
             fErrorMsg = "could not create COLR font";

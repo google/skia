@@ -22,6 +22,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
     const SkColor bw[] = { SK_ColorBLACK, SK_ColorWHITE };
@@ -146,7 +147,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkFont font(SkTypeface::MakeFromName("serif", SkFontStyle::Italic()), 18);
+        SkFont font(ToolUtils::TypefaceFromName("serif", SkFontStyle::Italic()), 18);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {

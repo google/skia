@@ -28,6 +28,7 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/SkGr.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <utility>
 
@@ -38,7 +39,7 @@ static constexpr int kRowCount = 4;
 static constexpr int kColCount = 3;
 
 static void draw_text(SkCanvas* canvas, const char* text) {
-    canvas->drawString(text, 0, 0, SkFont(nullptr, 12), SkPaint());
+    canvas->drawString(text, 0, 0, SkFont(ToolUtils::DefaultTypeface(), 12), SkPaint());
 }
 
 static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {

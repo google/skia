@@ -50,7 +50,7 @@ public:
 
 private:
     SkTextBlobBuilder   fBuilder;
-    SkFont              fFont;
+    SkFont              fFont{nullptr};
     SkTDArray<uint16_t> fGlyphs;
     SkTDArray<SkScalar> fXPos;
 

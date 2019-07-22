@@ -26,6 +26,7 @@
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsConfig.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/gpu/GpuTimer.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -335,6 +336,7 @@ int main(int argc, char** argv) {
     if (FLAGS_duration <= 0) {
         exit(0); // This can be used to print the header and quit.
     }
+    ToolUtils::SetDefaultFontMgr();
 
     // Parse the config.
     const SkCommandLineConfigGpu* config = nullptr; // Initialize for spurious warning.
@@ -368,7 +370,7 @@ int main(int argc, char** argv) {
         if (srcfile.endsWith(".svg")) {
             skp = create_skp_from_svg(srcstream.get(), srcfile.c_str());
         } else {
-            skp = SkPicture::MakeFromStream(srcstream.get());
+            skp = SkPicture::MakeFromStream(srcstream.get(), ToolUtils::GlobalFontMgr());
         }
         if (!skp) {
             exitf(ExitErr::kData, "failed to parse file %s", srcfile.c_str());

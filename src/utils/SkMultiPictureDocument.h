@@ -39,6 +39,7 @@ SK_API int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* src);
 SK_API bool SkMultiPictureDocumentRead(SkStreamSeekable* src,
                                        SkDocumentPage* dstArray,
                                        int dstArrayCount,
+                                       sk_sp<SkFontMgr> fontmgr,
                                        const SkDeserialProcs* = nullptr);
 
 #endif  // SkMultiPictureDocument_DEFINED

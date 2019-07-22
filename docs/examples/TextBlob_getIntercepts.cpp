@@ -5,7 +5,7 @@
 // HASH=e9d4eb8ece521b1329e7433d4b243fdf
 REG_FIDDLE(TextBlob_getIntercepts, 256, 143, false, 0) {
 void draw(SkCanvas* canvas) {
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setSize(120);
     SkPoint textPos = { 20, 110 };
     int len = 3;

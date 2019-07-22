@@ -153,7 +153,7 @@ private:
     bool        fLCD;
     sk_sp<SkTypeface> fTypefaces[4];
     SkPaint     fPaint;
-    SkFont      fFont;
+    SkFont      fFont{nullptr};
 
     // precomputed for each text draw
     SkString        fStrings[kCnt];

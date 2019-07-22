@@ -5,7 +5,7 @@
 REG_FIDDLE(Canvas_resetMatrix, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     canvas->scale(4, 6);
     canvas->drawString("truth", 2, 10, font, paint);
     canvas->resetMatrix();

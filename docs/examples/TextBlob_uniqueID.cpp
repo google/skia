@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
         paint.textToGlyphs(bunny, len, glyphs);
         paint.setTextEncoding(SkTextEncoding::kGlyphID);
         paint.setTextScaleX(0.5);
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
         font.setScaleX(0.5);
         int runs[] = { 3, 1, 3 };
         SkPoint textPos = { 20, 50 };

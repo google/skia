@@ -7,6 +7,7 @@
 #include "src/utils/SkShaperJSONWriter.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #define VeryLongCanvasWidth 1000000
 #define TestCanvasWidth 1000
@@ -42,7 +43,8 @@ public:
         for (auto& font : fonts) {
             SkString file_path;
             file_path.printf("%s/%s", fResourceDir.c_str(), font.c_str());
-            fFontProvider->registerTypeface(SkTypeface::MakeFromFile(file_path.c_str()));
+            fFontProvider->registerTypeface(
+                ToolUtils::GlobalFontMgr()->makeFromFile(file_path.c_str()));
         }
 
         this->setTestFontManager(std::move(fFontProvider));

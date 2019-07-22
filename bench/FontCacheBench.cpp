@@ -15,6 +15,7 @@
 #include "include/private/SkTemplates.h"
 
 #include "bench/gUniqueGlyphIDs.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #define gUniqueGlyphIDs_Sentinel    0xFFFF
 
@@ -36,7 +37,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkFont font;
+        SkFont font(ToolUtils::DefaultTypeface());
         font.setEdging(SkFont::Edging::kAntiAlias);
 
         const uint16_t* array = gUniqueGlyphIDs;
@@ -148,7 +149,7 @@ DEF_BENCH( return new FontCacheBench(); )
 ///////////////////////////////////////////////////////////////////////////////
 
 class FontPathBench : public Benchmark {
-    SkFont fFont;
+    SkFont fFont{ToolUtils::DefaultTypeface()};
     uint16_t fGlyphs[100];
     SkString fName;
     const bool fOneAtATime;

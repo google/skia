@@ -21,6 +21,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <stdarg.h>
 
@@ -40,7 +41,7 @@ static void draw_failure_message(SkCanvas* canvas, const char format[], ...)  {
 
     constexpr SkScalar kOffset = 5.0f;
     canvas->drawColor(SkColorSetRGB(200,0,0));
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     SkRect bounds;
     font.measureText(failureMsg.c_str(), failureMsg.size(), SkTextEncoding::kUTF8, &bounds);
     SkPaint textPaint(SkColors::kWhite);

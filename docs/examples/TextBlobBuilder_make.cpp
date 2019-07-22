@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     SkDebugf("blob " "%s" " nullptr\n", blob == nullptr ? "equals" : "does not equal");
     SkPaint paint;
     paint.setTextEncoding(SkTextEncoding::kGlyphID);
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     paint.textToGlyphs("x", 1, builder.allocRun(font, 1, 20, 20).glyphs);
     blob = builder.make();
     SkDebugf("blob " "%s" " nullptr\n", blob == nullptr ? "equals" : "does not equal");

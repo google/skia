@@ -9,6 +9,7 @@
 #include "tools/skiaserve/Response.h"
 
 #include "include/core/SkGraphics.h"
+#include "tools/fonts/GlobalFontMgr.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include "tools/skiaserve/urlhandlers/UrlHandler.h"
@@ -87,6 +88,7 @@ int answer_to_connection(void* cls, struct MHD_Connection* connection,
 
 int skiaserve_main() {
     SkGraphics::Init();
+    ToolUtils::SetGlobalNativeFontMgr();
     Request request(SkString("/data")); // This simple server has one request
 
     struct sockaddr_in address;

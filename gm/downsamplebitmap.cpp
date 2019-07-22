@@ -98,7 +98,7 @@ static SkBitmap make_text(SkImageInfo info) {
     canvas.drawColor(SK_ColorWHITE);
 
     SkPaint paint;
-    SkFont font;
+    SkFont font(nullptr);
     font.setSubpixel(true);
     font.setSize(textSize);
 

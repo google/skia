@@ -19,6 +19,7 @@
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
 #include "tests/Test.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 static const SkColor bgColor = SK_ColorWHITE;
 
@@ -67,7 +68,7 @@ DEF_TEST(FontHostStream, reporter) {
         SkPaint paint;
         paint.setColor(SK_ColorGRAY);
 
-        SkFont font(SkTypeface::MakeFromName("Georgia", SkFontStyle()), 30);
+        SkFont font(ToolUtils::TypefaceFromName("Georgia", SkFontStyle()), 30);
         font.setEdging(SkFont::Edging::kAlias);
 
         SkIRect origRect = SkIRect::MakeWH(64, 64);
@@ -86,7 +87,10 @@ DEF_TEST(FontHostStream, reporter) {
         drawBG(&origCanvas);
         origCanvas.drawString("A", point.fX, point.fY, font, paint);
 
-        sk_sp<SkTypeface> typeface = font.refTypefaceOrDefault();
+        sk_sp<SkTypeface> typeface = font.refTypeface();
+        if (!typeface) {
+            return;
+        }
         int ttcIndex;
         std::unique_ptr<SkStreamAsset> fontData = typeface->openStream(&ttcIndex);
         if (!fontData) {
@@ -95,7 +99,8 @@ DEF_TEST(FontHostStream, reporter) {
             return;
         }
 
-        sk_sp<SkTypeface> streamTypeface(SkTypeface::MakeFromStream(std::move(fontData)));
+        sk_sp<SkTypeface> streamTypeface =
+                ToolUtils::GlobalFontMgr()->makeFromStream(std::move(fontData));
 
         SkFontDescriptor desc;
         bool isLocalStream = false;

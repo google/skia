@@ -37,6 +37,7 @@
 #include "src/gpu/text/GrTextContext.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
+#include "tools/fonts/GlobalFontMgr.h"
 
 #include <memory>
 #include <utility>
@@ -197,7 +198,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     SkPaint paint;
     paint.setColor(SK_ColorRED);
 
-    SkFont font;
+    SkFont font(ToolUtils::DefaultTypeface());
     font.setEdging(SkFont::Edging::kAlias);
 
     const char* text = "a";

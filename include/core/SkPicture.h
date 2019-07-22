@@ -16,6 +16,9 @@
 class SkCanvas;
 class SkData;
 struct SkDeserialProcs;
+#if !defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+class SkFontMgr;
+#endif
 class SkImage;
 class SkMatrix;
 struct SkSerialProcs;
@@ -37,6 +40,8 @@ class SkWStream;
 */
 class SK_API SkPicture : public SkRefCnt {
 public:
+
+#if defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 
     /** Recreates SkPicture that was serialized into a stream. Returns constructed SkPicture
         if successful; otherwise, returns nullptr. Fails if data does not permit
@@ -79,6 +84,56 @@ public:
     */
     static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
                                          const SkDeserialProcs* procs = nullptr);
+
+#else  // defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
+
+    /** Recreates SkPicture that was serialized into a stream. Returns constructed SkPicture
+        if successful; otherwise, returns nullptr. Fails if data does not permit
+        constructing valid SkPicture.
+
+        procs->fPictureProc permits supplying a custom function to decode SkPicture.
+        If procs->fPictureProc is nullptr, default decoding is used. procs->fPictureCtx
+        may be used to provide user context to procs->fPictureProc; procs->fPictureProc
+        is called with a pointer to data, data byte length, and user context.
+
+        @param stream   container for serial data
+        @param fontmgr  SkFontMgr with which to recreate serialized typefaces
+        @param procs    custom serial data decoders; may be nullptr
+        @return         SkPicture constructed from stream data
+    */
+    static sk_sp<SkPicture> MakeFromStream(SkStream* stream, sk_sp<SkFontMgr> fontmgr,
+                                           const SkDeserialProcs* procs = nullptr);
+
+    /** Recreates SkPicture that was serialized into data. Returns constructed SkPicture
+        if successful; otherwise, returns nullptr. Fails if data does not permit
+        constructing valid SkPicture.
+
+        procs->fPictureProc permits supplying a custom function to decode SkPicture.
+        If procs->fPictureProc is nullptr, default decoding is used. procs->fPictureCtx
+        may be used to provide user context to procs->fPictureProc; procs->fPictureProc
+        is called with a pointer to data, data byte length, and user context.
+
+        @param data     container for serial data
+        @param fontmgr  SkFontMgr with which to recreate serialized typefaces
+        @param procs    custom serial data decoders; may be nullptr
+        @return         SkPicture constructed from data
+    */
+    static sk_sp<SkPicture> MakeFromData(const SkData* data, sk_sp<SkFontMgr> fontmgr,
+                                         const SkDeserialProcs* procs = nullptr);
+
+    /**
+
+        @param data     pointer to serial data
+        @param size     size of data
+        @param fontmgr  SkFontMgr with which to recreate serialized typefaces
+        @param procs    custom serial data decoders; may be nullptr
+        @return         SkPicture constructed from data
+    */
+    static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
+                                         sk_sp<SkFontMgr> fontmgr,
+                                         const SkDeserialProcs* procs = nullptr);
+
+#endif // defined(SK_SUPPORT_LEGACY_GLOBAL_SKFONTMGR)
 
     /** \class SkPicture::AbortCallback
         AbortCallback is an abstract class. An implementation of AbortCallback may
@@ -224,7 +279,7 @@ private:
     void serialize(SkWStream*, const SkSerialProcs*, class SkRefCntSet* typefaces,
         bool textBlobsOnly=false) const;
     static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs*,
-                                           class SkTypefacePlayback*);
+                                           sk_sp<SkFontMgr> fontmgr, class SkTypefacePlayback*);
     friend class SkPictureData;
 
     /** Return true if the SkStream/Buffer represents a serialized picture, and

@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkSurface.h"
+#include "include/ports/SkNativeFontMgrFactory.h"
 #include "include/utils/SkRandom.h"
 
 #include "include/gpu/gl/GrGLInterface.h"
@@ -257,7 +258,7 @@ int main(int argc, char** argv) {
     sk_sp<SkImage> image = cpuSurface->makeImageSnapshot();
 
     int rotation = 0;
-    SkFont font;
+    SkFont font(SkNativeFontMgrFactory()->legacyMakeTypeface(nullptr, SkFontStyle::Normal()));
     while (!state.fQuit) { // Our application loop
         SkRandom rand;
         canvas->clear(SK_ColorWHITE);
