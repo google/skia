@@ -10,6 +10,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "modules/skottie/include/Skottie.h"
+#include "modules/sksg/include/SkSGInvalidationController.h"
 #include "src/core/SkMakeUnique.h"
 
 #include <string>
@@ -100,7 +101,12 @@ public:
     // skottie::Animation API
     void render(SkCanvas* canvas) const { fAnimation->render(canvas, nullptr); }
     void render(SkCanvas* canvas, const SkRect& dst) const { fAnimation->render(canvas, &dst); }
-    void seek(SkScalar t) { fAnimation->seek(t); }
+    // Returns a damage rect.
+    SkRect seek(SkScalar t) {
+        sksg::InvalidationController ic;
+        fAnimation->seek(t, &ic);
+        return ic.bounds();
+    }
     SkScalar duration() const { return fAnimation->duration(); }
     const SkSize&      size() const { return fAnimation->size(); }
     std::string version() const { return std::string(fAnimation->version().c_str()); }
