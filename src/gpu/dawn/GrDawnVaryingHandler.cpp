@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include "src/gpu/vk/GrVkVaryingHandler.h"
+#include "GrDawnVaryingHandler.h"
 
 /** Returns the number of locations take up by a given GrSLType. We assume that all
     scalar values are 32 bits. */
@@ -55,8 +55,6 @@ static inline int grsltype_to_location_size(GrSLType type) {
         case kHalf4x4_GrSLType:
             return 4;
         case kTexture2DSampler_GrSLType:
-        case kSampler_GrSLType:
-        case kTexture2D_GrSLType:
             return 0;
         case kTextureExternalSampler_GrSLType:
              return 0;
@@ -72,12 +70,16 @@ static inline int grsltype_to_location_size(GrSLType type) {
         case kUShort_GrSLType:
         case kUByte_GrSLType:
              return 1;
+        case kTexture2D_GrSLType:
+             return 0;
+        case kSampler_GrSLType:
+             return 0;
     }
     SK_ABORT("Unexpected type");
     return -1;
 }
 
-static void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
+static void finalize_helper(GrDawnVaryingHandler::VarArray& vars) {
     int locationIndex = 0;
     for (int i = 0; i < vars.count(); ++i) {
         GrShaderVar& var = vars[i];
@@ -100,7 +102,7 @@ static void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
     SkASSERT(locationIndex <= 64);
 }
 
-void GrVkVaryingHandler::onFinalize() {
+void GrDawnVaryingHandler::onFinalize() {
     finalize_helper(fVertexInputs);
     finalize_helper(fVertexOutputs);
     finalize_helper(fGeomInputs);
