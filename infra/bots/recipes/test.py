@@ -107,7 +107,9 @@ def dm_flags(api, bot):
 
     configs.append('8888')
 
-    if 'BonusConfigs' in bot or ('SAN' in bot and 'GCE' in bot):
+    if ('BonusConfigs' in bot or
+        ('SAN' in bot and 'GCE' in bot) or
+        'NativeFonts' in bot):
       configs.extend([
         'pdf',
         'g8', '565',
