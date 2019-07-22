@@ -481,6 +481,7 @@ private:
         bool fDisableNonRedSingleChannelTexStorageForANGLEGL = false;
         bool fDisableBGRATextureStorageForIntelWindowsES = false;
         bool fDisableRGB8ForMali400 = false;
+        bool fDisableLuminance16F = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
