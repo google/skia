@@ -41,14 +41,14 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
             }
             break;
         case GrColorType::kRGBA_8888:
-            if (dawn::TextureFormat::R8G8B8A8Unorm == textureFormat) {
+            if (dawn::TextureFormat::RGBA8Unorm == textureFormat) {
                 return kRGBA_8888_GrPixelConfig;
             }
             break;
         case GrColorType::kRGB_888x:
             break;
         case GrColorType::kBGRA_8888:
-            if (dawn::TextureFormat::B8G8R8A8Unorm == textureFormat) {
+            if (dawn::TextureFormat::BGRA8Unorm == textureFormat) {
                 return kBGRA_8888_GrPixelConfig;
             }
             break;
@@ -68,10 +68,10 @@ GrPixelConfig GrDawnCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& 
         case dawn::TextureFormat::R8Unorm:
             return kAlpha_8_as_Red_GrPixelConfig;
             break;
-        case dawn::TextureFormat::R8G8B8A8Unorm:
+        case dawn::TextureFormat::RGBA8Unorm:
             return kRGBA_8888_GrPixelConfig;
             break;
-        case dawn::TextureFormat::B8G8R8A8Unorm:
+        case dawn::TextureFormat::BGRA8Unorm:
             return kBGRA_8888_GrPixelConfig;
             break;
         default:

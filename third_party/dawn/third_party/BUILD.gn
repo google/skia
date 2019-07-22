@@ -46,6 +46,27 @@ static_library("spirv_cross") {
                         "${spirv_cross}")
 }
 
+# Empty targets to add the include dirs and list the sources of Khronos headers for header inclusion check.
+config("khronos_headers_public") {
+  include_dirs = [ "../../externals/dawn/third_party/khronos" ]
+}
+
+source_set("vulkan_headers") {
+  sources = [
+    "khronos/vulkan/vk_platform.h",
+    "khronos/vulkan/vulkan.h",
+  ]
+
+  public_configs = [ ":khronos_headers_public" ]
+}
+
+source_set("khronos_platform") {
+  sources = [
+    "khronos/KHR/khrplatform.h",
+  ]
+  public_configs = [ ":khronos_headers_public" ]
+}
+
 spirv_tools = "$dawn_thirdparty_root/SPIRV-Tools"
 spirv_tools_spirv_headers_dir = "$dawn_thirdparty_root/spirv-headers"
 
@@ -423,35 +444,6 @@ static_library("spvtools") {
   configs += [ ":spvtools_internal_config" ]
 }
 
-config("glad_config") {
-  include_dirs = [ "$dawn_thirdparty_root/glad/include" ]
-}
-
-static_library("glad") {
-  sources = rebase_path([
-                          "glad/include/KHR/khrplatform.h",
-                          "glad/include/glad/glad.h",
-                          "glad/src/glad.c",
-                        ],
-                        ".",
-                        "$dawn_thirdparty_root")
-
-  public_configs = [ ":glad_config" ]
-
-  cflags = []
-  if (is_win) {
-    cflags += [
-      "/wd4055",
-      "/wd4054",
-    ]  # type cast from void* to function pointer
-  } else {
-    cflags_c = [
-      "-Wno-unused-function",
-      "-Wno-strict-prototypes",
-    ]
-  }
-}
-
 static_library("spvtools_val") {
   sources = rebase_path([
                           "source/val/basic_block.cpp",
@@ -488,6 +480,7 @@ static_library("spvtools_val") {
                           "source/val/validate_logicals.cpp",
                           "source/val/validate_memory.cpp",
                           "source/val/validate_memory_semantics.cpp",
+                          "source/val/validate_misc.cpp",
                           "source/val/validate_mode_setting.cpp",
                           "source/val/validate_non_uniform.cpp",
                           "source/val/validate_primitives.cpp",
