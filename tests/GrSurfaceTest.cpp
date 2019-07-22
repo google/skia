@@ -128,7 +128,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             config == kAlpha_8_as_Red_GrPixelConfig ||
             config == kGray_8_as_Lum_GrPixelConfig ||
             config == kGray_8_as_Red_GrPixelConfig ||
-            config == kAlpha_half_as_Red_GrPixelConfig) {
+            config == kAlpha_half_as_Red_GrPixelConfig ||
+            config == kAlpha_half_as_Lum_GrPixelConfig) {
             continue;
         }
 
@@ -236,7 +237,8 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                             uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
                             for (int i = 0; i < kSize * kSize; ++i) {
                                 if (cmp != data.get()[i]) {
-                                    ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                                    ERRORF(reporter, "Failed on conf %d (pix %d) 0x%x != 0x%x",
+                                        desc.fConfig, i, cmp, data.get()[i]);
                                     break;
                                 }
                             }
@@ -258,7 +260,8 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         if (GrBackendApi::kOpenGL == context->backend() &&
                             (desc.fConfig == kAlpha_8_as_Alpha_GrPixelConfig ||
                              desc.fConfig == kAlpha_8_as_Red_GrPixelConfig ||
-                             desc.fConfig == kAlpha_half_as_Red_GrPixelConfig)) {
+                             desc.fConfig == kAlpha_half_as_Red_GrPixelConfig ||
+                             desc.fConfig == kAlpha_half_as_Lum_GrPixelConfig)) {
                             continue;
                         }
 
@@ -296,7 +299,8 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                                 uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
                                 for (int i = 0; i < kSize * kSize; ++i) {
                                     if (cmp != data.get()[i]) {
-                                        ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                                        ERRORF(reporter, "Failed on conf %d (pix %d) 0x%x != 0x%x",
+                                            desc.fConfig, i, cmp, data.get()[i]);
                                         break;
                                     }
                                 }

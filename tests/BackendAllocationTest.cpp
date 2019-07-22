@@ -558,6 +558,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kRG_88_GrPixelConfig,             { 0.5f, 0.5f, 0, 0 }},
         { kUnknown_SkColorType,             GR_GL_R16F,
           kAlpha_half_as_Red_GrPixelConfig, { 1.0f, 0, 0, 0.5f }},
+        { kUnknown_SkColorType,             GR_GL_LUMINANCE16F,
+          kAlpha_half_as_Lum_GrPixelConfig, kGrayCol            },
         { kUnknown_SkColorType,             GR_GL_COMPRESSED_RGB8_ETC2,
           kRGB_ETC1_GrPixelConfig,          SkColors::kRed      },
         { kUnknown_SkColorType,             GR_GL_COMPRESSED_ETC1_RGB8,
