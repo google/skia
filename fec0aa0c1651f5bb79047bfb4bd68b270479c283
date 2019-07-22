@@ -22,6 +22,64 @@
       "revId": "fec0aa0c1651f5bb79047bfb4bd68b270479c283",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1d71da9_b8d15257",
+        "filename": "include/core/SkFontMgr.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-22T16:59:18Z",
+      "side": 1,
+      "message": "TypefaceType?",
+      "parentUuid": "533bbeb0_78d5a106",
+      "range": {
+        "startLine": 93,
+        "startChar": 15,
+        "endLine": 93,
+        "endChar": 19
+      },
+      "revId": "fec0aa0c1651f5bb79047bfb4bd68b270479c283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33eedcde_def83f83",
+        "filename": "include/core/SkFontMgr.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-22T16:59:18Z",
+      "side": 1,
+      "message": "nit: Are these names documented somewhere? If so, link to doc. If not, consider adding doc to explain what these mean.",
+      "revId": "fec0aa0c1651f5bb79047bfb4bd68b270479c283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45cb1d8c_21d15b72",
+        "filename": "include/core/SkFontMgr.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-22T16:59:18Z",
+      "side": 1,
+      "message": "nit: consider documenting:\n - Return value of canMake does not guarantee that make* will not return nullptr.\n - How this method relates to other methods. (I think it only indicates what makeFrom* can do. Or does it also indicate what match* and legacyMakeTypeface can do?)",
+      "revId": "fec0aa0c1651f5bb79047bfb4bd68b270479c283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
