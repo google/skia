@@ -549,6 +549,21 @@ DEF_TEST(SkSLArrayConstructors, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLConstArray, r) {
+    test(r,
+         "const half test[] = half[](1, 2, 3, 4);"
+         "void main() {"
+         "sk_FragColor = half4(test[0], test[1], test[2], test[3]);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "const float test[] = float[](1.0, 2.0, 3.0, 4.0);\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(test[0], test[1], test[2], test[3]);\n"
+         "}\n");
+}
+
 DEF_TEST(SkSLDerivatives, r) {
     test(r,
          "void main() { sk_FragColor.r = half(dFdx(1)); }",
