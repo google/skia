@@ -155,9 +155,12 @@
 
     function drawFrame(canvas) {
       let seek = ((Date.now() - firstFrame) / duration) % 1.0;
-      animation.seek(seek);
-      canvas.clear(CanvasKit.WHITE);
-      animation.render(canvas, bounds);
+      let damage = animation.seek(seek);
+      // TODO: SkRect.isEmpty()?
+      if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
+        canvas.clear(CanvasKit.WHITE);
+        animation.render(canvas, bounds);
+      }
       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);
