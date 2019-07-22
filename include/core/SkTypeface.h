@@ -238,6 +238,22 @@ public:
     size_t getTableData(SkFontTableTag tag, size_t offset, size_t length,
                         void* data) const;
 
+    /** Similar to 'getTableData' but allocates the data for you.  On some
+     *  systems this is faster than calling 'getTableSize' 'malloc' then
+     *  'getTableData'.  The caller is responsible for calling 'free' on the
+     *  returned data.
+     *
+     *  @param tag  The table tag whose contents are to be copied
+     *  @param offset The offset in bytes into the table's contents where the
+     *  copy should start from.
+     *  @param length The number of bytes, starting at offset, of table data
+     *  to copy.
+     *  @param[out] data Pointer to void* who will get set if we can allocate
+     *  the space and copy the data into it.
+     */
+    size_t copyTableData(SkFontTableTag tag, size_t offset, size_t length,
+                         void** data) const;
+
     /**
      *  Return the units-per-em value for this typeface, or zero if there is an
      *  error.
@@ -400,6 +416,8 @@ protected:
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const = 0;
+    virtual size_t onCopyTableData(SkFontTableTag, size_t offset,
+                                   size_t length, void** data) const;
 
     virtual bool onComputeBounds(SkRect*) const;
 

@@ -725,6 +725,7 @@ protected:
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
+    size_t onCopyTableData(SkFontTableTag, size_t offset, size_t length, void** data) const override;
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
@@ -2271,6 +2272,30 @@ size_t SkTypeface_Mac::onGetTableData(SkFontTableTag tag, size_t offset,
     }
     if (dstData) {
         memcpy(dstData, CFDataGetBytePtr(srcData.get()) + offset, length);
+    }
+    return length;
+}
+
+size_t SkTypeface_Mac::onCopyTableData(SkFontTableTag tag, size_t offset,
+                                       size_t length, void** dstData) const {
+    SkUniqueCFRef<CFDataRef> srcData = copy_table_from_font(fFontRef.get(), tag);
+    if (!srcData) {
+        return 0;
+    }
+
+    size_t srcSize = CFDataGetLength(srcData.get());
+    if (offset >= srcSize) {
+        return 0;
+    }
+    if (length > srcSize - offset) {
+        length = srcSize - offset;
+    }
+    if (dstData) {
+        *dstData = malloc(length);
+        if (!*dstData) {
+            return 0;
+        }
+        memcpy(*dstData, CFDataGetBytePtr(srcData.get()) + offset, length);
     }
     return length;
 }
