@@ -20,6 +20,7 @@ class GrMtlRenderTarget: public GrRenderTarget {
 public:
     static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*,
                                                             const GrSurfaceDesc&,
+                                                            int sampleCnt,
                                                             id<MTLTexture>);
 
     ~GrMtlRenderTarget() override;
@@ -46,6 +47,7 @@ public:
 protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,
+                      int sampleCnt,
                       id<MTLTexture> colorTexture,
                       id<MTLTexture> resolveTexture);
 
@@ -79,6 +81,7 @@ private:
     enum Wrapped { kWrapped };
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,
+                      int sampleCnt,
                       id<MTLTexture> colorTexture,
                       id<MTLTexture> resolveTexture,
                       Wrapped);

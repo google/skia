@@ -408,8 +408,9 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
 }
 
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                           SkBudgeted budgeted, GrProtected isProtected,
-                                           const GrMipLevel texels[], int mipLevelCount) {
+                                           int renderTargetSampleCnt, SkBudgeted budgeted,
+                                           GrProtected isProtected, const GrMipLevel texels[],
+                                           int mipLevelCount) {
     // We don't support protected textures in Metal.
     if (isProtected == GrProtected::kYes) {
         return nullptr;
@@ -460,7 +461,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderab
 
     if (renderable == GrRenderable::kYes) {
         tex = GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(this, budgeted,
-                                                                   desc, texDesc, mipMapsStatus);
+                                                                   desc, renderTargetSampleCnt,
+                                                                   texDesc, mipMapsStatus);
     } else {
         tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc, mipMapsStatus);
     }
