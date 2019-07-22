@@ -12,6 +12,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
@@ -305,15 +306,17 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
     SkNullWStream nullWStream;
     SkPDFDocument doc(&nullWStream, SkPDF::Metadata());
 
-    const char resource[] = "fonts/Roboto2-Regular_NoEmbed.ttf";
-    sk_sp<SkTypeface> noEmbedTypeface(MakeResourceAsTypeface(resource));
-    if (noEmbedTypeface) {
-        REPORTER_ASSERT(reporter,
-                        !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &doc));
-    }
     sk_sp<SkTypeface> portableTypeface(ToolUtils::create_portable_typeface(nullptr, SkFontStyle()));
-    REPORTER_ASSERT(reporter,
-                    SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &doc));
+    REPORTER_ASSERT(reporter, SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &doc));
+
+    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+    if (!fontMgr->canMake(SkFontMgr::Make::tt_glyf)) {
+        return;
+    }
+    const char resource[] = "fonts/Roboto2-Regular_NoEmbed.ttf";
+    sk_sp<SkTypeface> noEmbedTypeface = MakeResourceAsTypeface(*fontMgr, resource);
+    REPORTER_ASSERT(reporter, noEmbedTypeface);
+    REPORTER_ASSERT(reporter, !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &doc));
 }
 
 
