@@ -314,12 +314,13 @@ public:
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
                     auto texture = resourceProvider->createTexture(
-                            desc, GrRenderable::kYes, SkBudgeted::kYes, GrProtected::kNo,
+                            desc, GrRenderable::kYes, 1, SkBudgeted::kYes, GrProtected::kNo,
                             GrResourceProvider::Flags::kNoPendingIO);
                     return std::move(texture);
                 },
                 format,
-                GrProxyProvider::Renderable::kYes,
+                GrRenderable::kYes,
+                1,
                 GrProtected::kNo,
                 kBottomLeft_GrSurfaceOrigin,
                 kRGBA_8888_GrPixelConfig,

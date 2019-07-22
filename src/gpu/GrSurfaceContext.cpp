@@ -280,7 +280,6 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
         GrSurfaceDesc desc;
         desc.fWidth = srcInfo.width();
         desc.fHeight = srcInfo.height();
-        desc.fSampleCnt = 1;
         GrColorType colorType;
 
         GrBackendFormat format;
@@ -308,7 +307,7 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
         GrSurfaceOrigin tempOrigin =
                 this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : dstProxy->origin();
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
-                format, desc, GrRenderable::kNo, tempOrigin, SkBackingFit::kApprox,
+                format, desc, GrRenderable::kNo, 1, tempOrigin, SkBackingFit::kApprox,
                 SkBudgeted::kYes, GrProtected::kNo);
 
         if (!tempProxy) {
