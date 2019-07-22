@@ -24,8 +24,6 @@
 #include "include/effects/SkBlurDrawLooper.h"
 #include "src/core/SkBlurMask.h"
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-
 namespace skiagm {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -140,5 +138,3 @@ private:
 DEF_GM( return new ShadowsGM; )
 
 }
-
-#endif

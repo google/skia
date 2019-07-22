@@ -18,8 +18,6 @@
 #include "include/effects/SkLayerDrawLooper.h"
 #include "src/core/SkBlurMask.h"
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-
 // Large blurred RR appear frequently on web pages. This benchmark measures our
 // performance in this case.
 class BlurRoundRectBench : public Benchmark {
@@ -87,5 +85,3 @@ DEF_BENCH(return new BlurRoundRectBench(100, 100, 6);)
 // Other radii options
 DEF_BENCH(return new BlurRoundRectBench(100, 100, 30);)
 DEF_BENCH(return new BlurRoundRectBench(100, 100, 90);)
-
-#endif

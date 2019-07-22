@@ -110,10 +110,7 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
               paintStyle == SkPaint::kStrokeAndFill_Style)) {
             return false;
         }
-        if (paint->getMaskFilter()
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-            || paint->getLooper()
-#endif
+        if (paint->getMaskFilter() || paint->getLooper()
             || paint->getPathEffect() || paint->getImageFilter()) {
             return false; // conservative
         }
@@ -419,13 +416,10 @@ public:
             // we remove the imagefilter/xfermode inside doNext()
         }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         if (SkDrawLooper* looper = paint.getLooper()) {
             fLooperContext = looper->makeContext(canvas, &fAlloc);
             fIsSimple = false;
-        } else
-#endif
-        {
+        } else {
             fLooperContext = nullptr;
             // can we be marked as simple?
             fIsSimple = !fTempLayerForImageFilter;
@@ -441,9 +435,7 @@ public:
 
     const SkPaint& paint() const {
         SkASSERT(fPaint);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         SkASSERT(fPaint->getDrawLooper() == nullptr);   // we should have cleared this
-#endif
         return *fPaint;
     }
 
@@ -481,10 +473,8 @@ bool AutoDrawLooper::doNext() {
 
     SkPaint* paint = fLazyPaintPerLooper.set(fLazyPaintInit.isValid() ?
                                              *fLazyPaintInit.get() : fOrigPaint);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     // never want our downstream clients (i.e. devices) to see loopers
     paint->setDrawLooper(nullptr);
-#endif
 
     if (fTempLayerForImageFilter) {
         paint->setImageFilter(nullptr);
@@ -2125,11 +2115,8 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
 }
 
 static bool needs_autodrawlooper(SkCanvas* canvas, const SkPaint& paint) {
-    return ((intptr_t)paint.getImageFilter()
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-            | (intptr_t)paint.getLooper()
-#endif
-            ) != 0;
+    return ((intptr_t)paint.getImageFilter()    |
+            (intptr_t)paint.getLooper()         ) != 0;
 }
 
 void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {

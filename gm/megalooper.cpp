@@ -24,8 +24,6 @@
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkClipOpPriv.h"
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-
 namespace {
 
 // This GM tests 3 different ways of drawing four shadows around a square:
@@ -257,5 +255,3 @@ const SkColor MegaLooperGM::gColors[4] = {
 DEF_GM( return new MegaLooperGM(MegaLooperGM::k0x0_Type); )
 DEF_GM( return new MegaLooperGM(MegaLooperGM::k4x1_Type); )
 DEF_GM( return new MegaLooperGM(MegaLooperGM::k1x4_Type); )
-
-#endif
