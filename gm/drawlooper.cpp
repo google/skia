@@ -25,8 +25,6 @@
 #include "src/core/SkBlurMask.h"
 #include "tools/ToolUtils.h"
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-
 #define WIDTH   200
 #define HEIGHT  200
 
@@ -104,5 +102,3 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new DrawLooperGM; )
-
-#endif
