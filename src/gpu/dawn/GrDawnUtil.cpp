@@ -9,13 +9,13 @@
 
 GrPixelConfig GrDawnFormatToPixelConfig(dawn::TextureFormat format) {
     switch (format) {
-        case dawn::TextureFormat::R8G8B8A8Unorm:
+        case dawn::TextureFormat::RGBA8Unorm:
             return kRGBA_8888_GrPixelConfig;
-        case dawn::TextureFormat::B8G8R8A8Unorm:
+        case dawn::TextureFormat::BGRA8Unorm:
             return kBGRA_8888_GrPixelConfig;
         case dawn::TextureFormat::R8Unorm:
             return kAlpha_8_GrPixelConfig;
-        case dawn::TextureFormat::D32FloatS8Uint:
+        case dawn::TextureFormat::Depth24PlusStencil8:
         default:
             SkASSERT(false);
             return kRGBA_8888_GrPixelConfig;
@@ -28,10 +28,10 @@ bool GrPixelConfigToDawnFormat(GrPixelConfig config, dawn::TextureFormat* format
         case kRGBA_4444_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kGray_8_GrPixelConfig:
-            *format = dawn::TextureFormat::R8G8B8A8Unorm;
+            *format = dawn::TextureFormat::RGBA8Unorm;
             return true;
         case kBGRA_8888_GrPixelConfig:
-            *format = dawn::TextureFormat::B8G8R8A8Unorm;
+            *format = dawn::TextureFormat::BGRA8Unorm;
             return true;
         case kAlpha_8_GrPixelConfig:
             *format = dawn::TextureFormat::R8Unorm;
