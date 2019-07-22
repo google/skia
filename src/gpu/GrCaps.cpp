@@ -47,6 +47,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fWritePixelsRowBytesSupport = false;
     fReadPixelsRowBytesSupport = false;
     fDriverBlacklistCCPR = false;
+    fDriverBlacklistMSAACCPR = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
     fAdvBlendEqBlacklist = 0;
@@ -84,6 +85,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     this->onApplyOptionsOverrides(options);
     if (options.fDisableDriverCorrectnessWorkarounds) {
         SkASSERT(!fDriverBlacklistCCPR);
+        SkASSERT(!fDriverBlacklistMSAACCPR);
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAdvBlendEqBlacklist);
         SkASSERT(!fPerformColorClearsAsDraws);
@@ -227,6 +229,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Write pixels row bytes support", fWritePixelsRowBytesSupport);
     writer->appendBool("Read pixels row bytes support", fReadPixelsRowBytesSupport);
     writer->appendBool("Blacklist CCPR on current driver [workaround]", fDriverBlacklistCCPR);
+    writer->appendBool("Blacklist MSAA version of CCPR on current driver [workaround]",
+                       fDriverBlacklistMSAACCPR);
     writer->appendBool("Clamp-to-border", fClampToBorderSupport);
 
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
