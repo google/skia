@@ -13,6 +13,8 @@
 #include "include/effects/SkLayerDrawLooper.h"
 #include "include/utils/SkRandom.h"
 
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
+
 // This bench replicates a problematic use case of a draw looper used
 // to create an inner blurred rect
 class RectoriBench : public Benchmark {
@@ -100,3 +102,5 @@ private:
 };
 
 DEF_BENCH(return new RectoriBench();)
+
+#endif
