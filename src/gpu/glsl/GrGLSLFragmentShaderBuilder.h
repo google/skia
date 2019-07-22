@@ -11,6 +11,7 @@
 #include "include/gpu/GrBlend.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/glsl/GrGLSLShaderBuilder.h"
+#include "GrGLSLFragmentProcessor.h"
 
 class GrRenderTarget;
 class GrGLSLVarying;
@@ -96,6 +97,9 @@ public:
      */
     virtual void onBeforeChildProcEmitCode() = 0;
     virtual void onAfterChildProcEmitCode() = 0;
+
+    virtual SkString writeProcessorFunction(GrGLSLFragmentProcessor* fp,
+                                            GrGLSLFragmentProcessor::EmitArgs& args);
 
     virtual const SkString& getMangleString() const = 0;
 

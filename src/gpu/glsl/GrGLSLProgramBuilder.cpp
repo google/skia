@@ -208,7 +208,6 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            input.c_str(),
                                            coords,
                                            textureSamplers);
-
     fragProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
