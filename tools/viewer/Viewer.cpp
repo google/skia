@@ -349,6 +349,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
+    fCommands.addCommand('r', "Redraw", "Toggle redraw", [this]() {
+        fRefresh = !fRefresh;
+        fWindow->inval();
+    });
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
         fStatsLayer.setActive(!fStatsLayer.getActive());
         fWindow->inval();
