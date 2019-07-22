@@ -142,12 +142,12 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
     desc.fConfig = tex.config();
-    desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
-    if (desc.fSampleCnt < 1) {
+    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
+    if (sampleCnt < 1) {
         return nullptr;
     }
 
-    sk_sp<GrDawnRenderTarget> tgt = GrDawnRenderTarget::MakeWrapped(this, desc, info);
+    sk_sp<GrDawnRenderTarget> tgt = GrDawnRenderTarget::MakeWrapped(this, desc, sampleCnt, info);
     return tgt;
 }
 
