@@ -118,6 +118,7 @@ private:
         SkIVector fCachedMaskShift;
         bool fDoCopyToA8Coverage = false;
         bool fDoCachePathMask = false;
+        SkDEBUGCODE(bool fWasCountedAsRender = false);
 
         SingleDraw* fNext = nullptr;
 

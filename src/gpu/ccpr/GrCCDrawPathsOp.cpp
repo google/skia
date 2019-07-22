@@ -275,6 +275,7 @@ void GrCCDrawPathsOp::SingleDraw::accountForOwnPath(
     ++specs->fNumRenderedPaths[idx];
     specs->fRenderedPathStats[idx].statPath(path);
     specs->fRenderedAtlasSpecs.accountForSpace(fMaskDevIBounds.width(), fMaskDevIBounds.height());
+    SkDEBUGCODE(fWasCountedAsRender = true);
 }
 
 bool GrCCDrawPathsOp::SingleDraw::shouldCachePathMask(int maxRenderTargetSize) const {
@@ -363,7 +364,7 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
             resources->appendDrawPathInstance().set(
                     *fCacheEntry, fCachedMaskShift, SkPMColor4f_toFP16(fColor), fillRule);
 #ifdef SK_DEBUG
-            if (fDoCachePathMask) {
+            if (fWasCountedAsRender) {
                 // A path mask didn't exist for this path at the beginning of flush, but we have one
                 // now. What this means is that we've drawn the same path multiple times this flush.
                 // Let the resources know that we reused one for their internal debug counters.
