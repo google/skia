@@ -174,7 +174,9 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         }))
         .function("size", &skottie::Animation::size)
         .function("duration", &skottie::Animation::duration)
-        .function("seek", &skottie::Animation::seek)
+        .function("seek", optional_override([](skottie::Animation& self, SkScalar t)->void {
+            self.seek(t);
+        }))
         .function("render", optional_override([](skottie::Animation& self, SkCanvas* canvas)->void {
             self.render(canvas, nullptr);
         }), allow_raw_pointers())

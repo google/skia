@@ -19,6 +19,7 @@ struct SkPoint;
 
 namespace sksg {
 
+class InvalidationController;
 class RenderNode;
 
 /**
@@ -67,18 +68,14 @@ public:
     Scene& operator=(const Scene&) = delete;
 
     void render(SkCanvas*) const;
-    void animate(float t);
+    void animate(float t, InvalidationController* = nullptr);
     const RenderNode* nodeAt(const SkPoint&) const;
-
-    void setShowInval(bool show) { fShowInval = show; }
 
 private:
     Scene(sk_sp<RenderNode> root, AnimatorList&& animators);
 
     const sk_sp<RenderNode> fRoot;
     const AnimatorList      fAnimators;
-
-    bool                    fShowInval = false;
 };
 
 } // namespace sksg

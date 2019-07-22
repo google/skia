@@ -29,4 +29,9 @@ void InvalidationController::inval(const SkRect& r, const SkMatrix& ctm) {
     fBounds.join(*rect);
 }
 
+void InvalidationController::reset() {
+    fRects.reset();
+    fBounds.setEmpty();
+}
+
 } // namespace sksg

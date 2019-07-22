@@ -33,6 +33,8 @@ public:
     const SkRect*  begin() const { return fRects.begin(); }
     const SkRect*    end() const { return fRects.end();   }
 
+    void reset();
+
 private:
     SkTDArray<SkRect> fRects;
     SkRect            fBounds;
