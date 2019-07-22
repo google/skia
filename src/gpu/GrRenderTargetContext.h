@@ -617,10 +617,6 @@ private:
                                              const GrOp& op,
                                              GrXferProcessor::DstProxy* result);
 
-    // The rescaling step of asyncRescaleAndReadPixels[YUV420]().
-    sk_sp<GrRenderTargetContext> rescale(const SkImageInfo& info, const SkIRect& srcRect,
-                                         SkSurface::RescaleGamma rescaleGamma,
-                                         SkFilterQuality rescaleQuality);
     // The async read step of asyncRescaleAndReadPixels()
     void asyncReadPixels(const SkIRect& rect, SkColorType colorType, ReadPixelsCallback callback,
                          ReadPixelsContext context);

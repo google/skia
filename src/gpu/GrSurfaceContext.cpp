@@ -22,6 +22,7 @@
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrBicubicEffect.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
@@ -420,3 +421,161 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     return this->getOpList()->copySurface(fContext, dst, src, srcRect, dstPoint);
 }
 
+sk_sp<GrRenderTargetContext> GrSurfaceContext::rescale(const SkImageInfo& info,
+                                                       const SkIRect& srcRect,
+                                                       SkSurface::RescaleGamma rescaleGamma,
+                                                       SkFilterQuality rescaleQuality) {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+    auto rtProxy = this->asRenderTargetProxy();
+    if (rtProxy && rtProxy->wrapsVkSecondaryCB()) {
+        return nullptr;
+    }
+
+    // We rescale by drawing and don't currently support drawing to a kUnpremul destination.
+    if (info.alphaType() == kUnpremul_SkAlphaType) {
+        return nullptr;
+    }
+
+    int srcW = srcRect.width();
+    int srcH = srcRect.height();
+    int srcX = srcRect.fLeft;
+    int srcY = srcRect.fTop;
+    sk_sp<GrTextureProxy> texProxy = sk_ref_sp(this->asTextureProxy());
+    SkCanvas::SrcRectConstraint constraint = SkCanvas::kStrict_SrcRectConstraint;
+    if (!texProxy) {
+        texProxy = GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), GrMipMapped::kNo, srcRect,
+                                        SkBackingFit::kApprox, SkBudgeted::kNo);
+        if (!texProxy) {
+            return nullptr;
+        }
+        srcX = 0;
+        srcY = 0;
+        constraint = SkCanvas::kFast_SrcRectConstraint;
+    }
+
+    float sx = (float)info.width() / srcW;
+    float sy = (float)info.height() / srcH;
+
+    // How many bilerp/bicubic steps to do in X and Y. + means upscaling, - means downscaling.
+    int stepsX;
+    int stepsY;
+    if (rescaleQuality > kNone_SkFilterQuality) {
+        stepsX = static_cast<int>((sx > 1.f) ? ceil(log2f(sx)) : floor(log2f(sx)));
+        stepsY = static_cast<int>((sy > 1.f) ? ceil(log2f(sy)) : floor(log2f(sy)));
+    } else {
+        stepsX = sx != 1.f;
+        stepsY = sy != 1.f;
+    }
+    SkASSERT(stepsX || stepsY);
+    auto currCtx = sk_ref_sp(this);
+    // Assume we should ignore the rescale linear request if the surface has no color space since
+    // it's unclear how we'd linearize from an unknown color space.
+    if (rescaleGamma == SkSurface::kLinear && this->colorSpaceInfo().colorSpace() &&
+        !this->colorSpaceInfo().colorSpace()->gammaIsLinear()) {
+        auto cs = this->colorSpaceInfo().colorSpace()->makeLinearGamma();
+        auto xform = GrColorSpaceXform::Make(this->colorSpaceInfo().colorSpace(),
+                                             this->colorSpaceInfo().alphaType(), cs.get(),
+                                             kPremul_SkAlphaType);
+        // We'll fall back to kRGBA_8888 if half float not supported.
+        auto linearRTC = fContext->priv().makeDeferredRenderTargetContextWithFallback(
+                SkBackingFit::kExact, srcW, srcH, GrColorType::kRGBA_F16, cs, 1, GrMipMapped::kNo,
+                kTopLeft_GrSurfaceOrigin);
+        if (!linearRTC) {
+            return nullptr;
+        }
+        linearRTC->drawTexture(GrNoClip(), texProxy, GrSamplerState::Filter::kNearest,
+                               SkBlendMode::kSrc, SK_PMColor4fWHITE, SkRect::Make(srcRect),
+                               SkRect::MakeWH(srcW, srcH), GrAA::kNo, GrQuadAAFlags::kNone,
+                               constraint, SkMatrix::I(), std::move(xform));
+        texProxy = linearRTC->asTextureProxyRef();
+        currCtx = std::move(linearRTC);
+        srcX = 0;
+        srcY = 0;
+        constraint = SkCanvas::kFast_SrcRectConstraint;
+    }
+    while (stepsX || stepsY) {
+        int nextW = info.width();
+        int nextH = info.height();
+        if (stepsX < 0) {
+            nextW = info.width() << (-stepsX - 1);
+            stepsX++;
+        } else if (stepsX != 0) {
+            if (stepsX > 1) {
+                nextW = srcW * 2;
+            }
+            --stepsX;
+        }
+        if (stepsY < 0) {
+            nextH = info.height() << (-stepsY - 1);
+            stepsY++;
+        } else if (stepsY != 0) {
+            if (stepsY > 1) {
+                nextH = srcH * 2;
+            }
+            --stepsY;
+        }
+        GrColorType colorType = currCtx->colorSpaceInfo().colorType();
+        auto cs = currCtx->colorSpaceInfo().refColorSpace();
+        sk_sp<GrColorSpaceXform> xform;
+        auto prevAlphaType = currCtx->colorSpaceInfo().alphaType();
+        if (!stepsX && !stepsY) {
+            // Might as well fold conversion to final info in the last step.
+            cs = info.refColorSpace();
+            colorType = SkColorTypeToGrColorType(info.colorType());
+            xform = GrColorSpaceXform::Make(currCtx->colorSpaceInfo().colorSpace(),
+                                            currCtx->colorSpaceInfo().alphaType(), cs.get(),
+                                            info.alphaType());
+        }
+        auto currRTC = fContext->priv().makeDeferredRenderTargetContextWithFallback(
+                SkBackingFit::kExact, nextW, nextH, colorType, std::move(cs), 1, GrMipMapped::kNo,
+                kTopLeft_GrSurfaceOrigin);
+        currCtx = currRTC;
+        if (!currCtx) {
+            return nullptr;
+        }
+        auto dstRect = SkRect::MakeWH(nextW, nextH);
+        if (rescaleQuality == kHigh_SkFilterQuality) {
+            SkMatrix matrix;
+            matrix.setScaleTranslate((float)srcW / nextW, (float)srcH / nextH, srcX, srcY);
+            std::unique_ptr<GrFragmentProcessor> fp;
+            auto dir = GrBicubicEffect::Direction::kXY;
+            if (nextW == srcW) {
+                dir = GrBicubicEffect::Direction::kY;
+            } else if (nextH == srcH) {
+                dir = GrBicubicEffect::Direction::kX;
+            }
+            if (srcW != texProxy->width() || srcH != texProxy->height()) {
+                auto domain = GrTextureDomain::MakeTexelDomain(
+                        SkIRect::MakeXYWH(srcX, srcY, srcW, srcH), GrTextureDomain::kClamp_Mode);
+                fp = GrBicubicEffect::Make(texProxy, matrix, domain, dir, prevAlphaType);
+            } else {
+                fp = GrBicubicEffect::Make(texProxy, matrix, dir, prevAlphaType);
+            }
+            if (xform) {
+                fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
+            }
+            GrPaint paint;
+            paint.addColorFragmentProcessor(std::move(fp));
+            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+            currRTC->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
+                                    dstRect);
+        } else {
+            auto filter = rescaleQuality == kNone_SkFilterQuality ? GrSamplerState::Filter::kNearest
+                                                                  : GrSamplerState::Filter::kBilerp;
+            auto srcSubset = SkRect::MakeXYWH(srcX, srcY, srcW, srcH);
+            currRTC->drawTexture(GrNoClip(), texProxy, filter, SkBlendMode::kSrc, SK_PMColor4fWHITE,
+                                 srcSubset, dstRect, GrAA::kNo, GrQuadAAFlags::kNone, constraint,
+                                 SkMatrix::I(), std::move(xform));
+        }
+        texProxy = currCtx->asTextureProxyRef();
+        srcX = srcY = 0;
+        srcW = nextW;
+        srcH = nextH;
+        constraint = SkCanvas::kFast_SrcRectConstraint;
+    }
+    SkASSERT(currCtx);
+    return sk_ref_sp(currCtx->asRenderTargetContext());
+}
