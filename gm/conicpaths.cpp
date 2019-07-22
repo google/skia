@@ -21,14 +21,9 @@
 
 class ConicPathsGM : public skiagm::GM {
 protected:
+    SkString onName() override { return SkString("conicpaths"); }
 
-    SkString onShortName() override {
-        return SkString("conicpaths");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(920, 960);
-    }
+    SkISize onISize() override { return {920, 960}; }
 
     void onOnceBeforeDraw() override {
         {

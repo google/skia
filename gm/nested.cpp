@@ -28,8 +28,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name("nested");
         if (fFlipped) {
             name.append("_flipY");

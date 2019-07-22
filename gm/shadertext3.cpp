@@ -68,12 +68,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("shadertext3"); }
 
-    SkString onShortName() override {
-        return SkString("shadertext3");
-    }
-
-    SkISize onISize() override{ return SkISize::Make(820, 930); }
+    SkISize onISize() override { return {820, 930}; }
 
     void onOnceBeforeDraw() override {
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);

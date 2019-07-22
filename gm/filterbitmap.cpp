@@ -80,14 +80,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return fName; }
 
-    SkString onShortName() override {
-        return fName;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1024, 768);
-    }
+    SkISize onISize() override { return {1024, 768}; }
 
     virtual void makeBitmap() = 0;
     virtual SkScalar getScale() = 0;

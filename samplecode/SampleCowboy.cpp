@@ -59,7 +59,7 @@ private:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (fDom) {
             canvas->setMatrix(SkMatrix::MakeScale(3));
             canvas->clipRect(SkRect::MakeLTRB(0, 0, 400, 400));
@@ -93,7 +93,7 @@ private:
         }
     }
 
-    SkString name() override { return SkASSERT(fName), SkString(fName); }
+    SkString onName() override { return SkASSERT(fName), SkString(fName); }
 
     bool onAnimate(double nanos) override {
         if (!fDom) {

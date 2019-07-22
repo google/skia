@@ -55,7 +55,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name("texture_domain_effect");
         if (fFilter == GrSamplerState::Filter::kBilerp) {
             name.append("_bilerp");

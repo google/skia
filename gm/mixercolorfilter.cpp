@@ -72,9 +72,7 @@ public:
         , fTileCount(tileCount) {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("mixerCF");
-    }
+    SkString onName() override { return SkString("mixerCF"); }
 
     SkISize onISize() override {
         return SkISize::Make(fTileSize.width()  * 1.2f * fTileCount,
@@ -157,9 +155,7 @@ public:
     ShaderMixerGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("mixershader_shadermixer");
-    }
+    SkString onName() override { return SkString("mixershader_shadermixer"); }
 
     void onOnceBeforeDraw() override {
         fS0 = make_resource_shader("images/mandrill_256.png", SIZE);

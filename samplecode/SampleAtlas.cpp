@@ -210,7 +210,7 @@ public:
     DrawAtlasView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) { }
 
 protected:
-    SkString name() override { return SkString(fName); }
+    SkString onName() override { return SkString(fName); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -224,9 +224,7 @@ protected:
         fDrawable = sk_make_sp<DrawAtlasDrawable>(fProc, SkRect::MakeWH(640, 480));
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawDrawable(fDrawable.get());
-    }
+    void onDraw(SkCanvas* canvas) override { canvas->drawDrawable(fDrawable.get()); }
 
     bool onAnimate(double /*nanos*/) override { return true; }
 #if 0

@@ -23,9 +23,9 @@ class BadPaintGM : public skiagm::GM {
     BadPaintGM() {}
 
 protected:
-    SkString onShortName() override { return SkString("badpaint"); }
+    SkString onName() override { return SkString("badpaint"); }
 
-    SkISize onISize() override { return SkISize::Make(100, 100); }
+    SkISize onISize() override { return {100, 100}; }
 
     void onOnceBeforeDraw() override {
         SkBitmap emptyBmp;

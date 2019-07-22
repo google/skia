@@ -118,9 +118,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Gradients"); }
+    SkString onName() override { return SkString("Gradients"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPoint pts[2] = {
             { 0, 0 },
             { SkIntToScalar(100), SkIntToScalar(100) }

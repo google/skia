@@ -51,9 +51,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Lighting"); }
+    SkString onName() override { return SkString("Lighting"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         sk_sp<SkLights> lights(create_lights(fLightAngle, fColorFactor));
 
         SkPaint paint;

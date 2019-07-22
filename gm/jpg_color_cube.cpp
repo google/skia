@@ -27,13 +27,9 @@ public:
     ColorCubeGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("jpg-color-cube");
-    }
+    SkString onName() override { return SkString("jpg-color-cube"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(512, 512);
-    }
+    SkISize onISize() override { return {512, 512}; }
 
     void onOnceBeforeDraw() override {
         SkBitmap bmp;

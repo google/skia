@@ -46,13 +46,9 @@ protected:
         fEmojiText     = ToolUtils::emoji_sample_text();
     }
 
-    SkString onShortName() override {
-        return SkString("dftext");
-    }
+    SkString onName() override { return SkString("dftext"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1024, 768);
-    }
+    SkISize onISize() override { return {1024, 768}; }
 
     virtual void onDraw(SkCanvas* inputCanvas) override {
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };

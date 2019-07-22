@@ -85,9 +85,7 @@ public:
     EncodePlatformGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("encode-platform");
-    }
+    SkString onName() override { return SkString("encode-platform"); }
 
     SkISize onISize() override {
         return SkISize::Make(256 * SK_ARRAY_COUNT(kTypes), 256 * 3);

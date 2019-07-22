@@ -32,32 +32,32 @@ class OverstrokeView : public Sample {
     }
 
    protected:
-    SkString name() override { return SkString("PathOverstroke"); }
+       SkString onName() override { return SkString("PathOverstroke"); }
 
-    bool onChar(SkUnichar uni) override {
-            switch (uni) {
-                case ',':
-                    fStroke += 1.0;
-                    return true;
-                case '.':
-                    fStroke -= 1.0;
-                    return true;
-                case 'x':
-                    fPathType = (fPathType + 1) % 4;
-                    return true;
-                case 'c':
-                    fClosePath = !fClosePath;
-                    return true;
-                case 'f':
-                    fDrawFillPath = !fDrawFillPath;
-                    return true;
-                case 'D':
-                    fDumpHex = !fDumpHex;
-                    return true;
-                default:
-                    break;
-            }
-            return false;
+       bool onChar(SkUnichar uni) override {
+           switch (uni) {
+               case ',':
+                   fStroke += 1.0;
+                   return true;
+               case '.':
+                   fStroke -= 1.0;
+                   return true;
+               case 'x':
+                   fPathType = (fPathType + 1) % 4;
+                   return true;
+               case 'c':
+                   fClosePath = !fClosePath;
+                   return true;
+               case 'f':
+                   fDrawFillPath = !fDrawFillPath;
+                   return true;
+               case 'D':
+                   fDumpHex = !fDumpHex;
+                   return true;
+               default:
+                   break;
+           }
+           return false;
     }
 
     SkPath quadPath(SkPoint p1, SkPoint p2) {
@@ -117,7 +117,7 @@ class OverstrokeView : public Sample {
         return path;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         const float SCALE = 1;
 
         canvas->translate(30, 40);

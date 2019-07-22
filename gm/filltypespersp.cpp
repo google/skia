@@ -37,14 +37,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("filltypespersp"); }
 
-    SkString onShortName() override {
-        return SkString("filltypespersp");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(835, 840);
-    }
+    SkISize onISize() override { return {835, 840}; }
 
     void showPath(SkCanvas* canvas, int x, int y, SkPath::FillType ft,
                   SkScalar scale, const SkPaint& paint) {

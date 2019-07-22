@@ -51,11 +51,9 @@ protected:
         fEmojiFont.fText     = ToolUtils::emoji_sample_text();
     }
 
-    SkString onShortName() override {
-        return SkString("scaledemoji");
-    }
+    SkString onName() override { return SkString("scaledemoji"); }
 
-    SkISize onISize() override { return SkISize::Make(1200, 1200); }
+    SkISize onISize() override { return {1200, 1200}; }
 
     void onDraw(SkCanvas* canvas) override {
 
@@ -101,11 +99,9 @@ protected:
         fEmojiFont.fText     = ToolUtils::emoji_sample_text();
     }
 
-    SkString onShortName() override {
-        return SkString("scaledemojipos");
-    }
+    SkString onName() override { return SkString("scaledemojipos"); }
 
-    SkISize onISize() override { return SkISize::Make(1200, 1200); }
+    SkISize onISize() override { return {1200, 1200}; }
 
     void onDraw(SkCanvas* canvas) override {
 

@@ -169,14 +169,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("bezier_conic_effects");
-    }
+    SkString onName() override { return SkString("bezier_conic_effects"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(800, 800);
-    }
-
+    SkISize onISize() override { return {800, 800}; }
 
     void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
@@ -374,14 +369,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("bezier_quad_effects");
-    }
+    SkString onName() override { return SkString("bezier_quad_effects"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(800, 800);
-    }
-
+    SkISize onISize() override { return {800, 800}; }
 
     void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {

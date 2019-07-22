@@ -30,7 +30,7 @@ static inline void set_bitmap(SkBitmap* bitmap, uint8_t alpha) {
 }
 
 class OverdrawColorFilter : public skiagm::GM {
-    SkString onShortName() override { return SkString("overdrawcolorfilter"); }
+    SkString onName() override { return SkString("overdrawcolorfilter"); }
 
     SkISize onISize() override { return {200, 400}; }
 

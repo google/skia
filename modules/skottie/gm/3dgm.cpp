@@ -125,8 +125,9 @@ protected:
         SkMatrix    viewport;
 
         {
-            float w = this->width();
-            float h = this->height();
+            SkISize size = this->getISize();
+            float w = (float)size.width();
+            float h = (float)size.height();
             float s = std::min(w, h);
             viewport.setTranslate(1, -1);
             viewport.postScale(s/2, -s/2);
@@ -193,7 +194,7 @@ protected:
 
     SkISize onISize() override { return { 1024, 768 }; }
 
-    SkString onShortName() override { return SkString("3dgm"); }
+    SkString onName() override { return SkString("3dgm"); }
 
     bool onAnimate(double nanos) override {
         if (!fAnim) {

@@ -38,9 +38,7 @@ public:
         fName.appendf("-WH-%ix%i-unevenCorners", width,  height);
     }
 
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onName() override { return fName; }
 
     SkISize onISize() override {
         return SkISize::Make(fWidth, fHeight);
@@ -131,14 +129,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return fName; }
 
-    SkString onShortName() override {
-        return fName;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1000, 500);
-    }
+    SkISize onISize() override { return {1000, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(1.5f, 1.5f);

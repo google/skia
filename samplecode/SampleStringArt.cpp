@@ -20,9 +20,9 @@ public:
     StringArtView() : fAngle(0.305f) {}
 
 protected:
-    SkString name() override { return SkString("StringArt"); }
+    SkString onName() override { return SkString("StringArt"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar angle = fAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
 
         SkPoint center = SkPoint::Make(SkScalarHalf(this->width()), SkScalarHalf(this->height()));

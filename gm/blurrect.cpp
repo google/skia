@@ -115,13 +115,9 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onName() override { return fName; }
 
-    SkISize onISize() override {
-        return SkISize::Make(860, 820);
-    }
+    SkISize onISize() override { return {860, 820}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);

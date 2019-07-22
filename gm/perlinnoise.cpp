@@ -32,7 +32,7 @@ class PerlinNoiseGM : public skiagm::GM {
 
     void onOnceBeforeDraw() override { this->setBGColor(0xFF000000); }
 
-    SkString onShortName() override { return SkString("perlinnoise"); }
+    SkString onName() override { return SkString("perlinnoise"); }
 
     SkISize onISize() override { return {200, 500}; }
 
@@ -106,7 +106,7 @@ private:
 class PerlinNoiseGM2 : public skiagm::GM {
     SkISize fSize = {80, 80};
 
-    SkString onShortName() override { return SkString("perlinnoise_localmatrix"); }
+    SkString onName() override { return SkString("perlinnoise_localmatrix"); }
 
     SkISize onISize() override { return {640, 480}; }
 

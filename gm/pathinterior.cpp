@@ -29,13 +29,9 @@ public:
     }
 
 protected:
-    SkISize onISize() override {
-        return SkISize::Make(770, 770);
-    }
+    SkISize onISize() override { return {770, 770}; }
 
-    SkString onShortName() override {
-        return SkString("pathinterior");
-    }
+    SkString onName() override { return SkString("pathinterior"); }
 
     void show(SkCanvas* canvas, const SkPath& path) {
         SkPaint paint;

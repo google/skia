@@ -43,13 +43,9 @@ public:
     EncodeJpegAlphaOptsGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("encode-alpha-jpeg");
-    }
+    SkString onName() override { return SkString("encode-alpha-jpeg"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(400, 200);
-    }
+    SkISize onISize() override { return {400, 200}; }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         sk_sp<SkImage> srcImg = GetResourceAsImage("images/rainbow-gradient.png");

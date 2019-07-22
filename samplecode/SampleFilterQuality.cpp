@@ -166,7 +166,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("FilterQuality"); }
+    SkString onName() override { return SkString("FilterQuality"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -248,7 +248,7 @@ protected:
         fImage = make_image();
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         fCell.set(this->height() / 2, this->height() / 2);
 
         SkScalar trans[2];

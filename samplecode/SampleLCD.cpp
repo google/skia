@@ -15,13 +15,13 @@ public:
     LCDView() {}
 
 protected:
-    SkString name() override { return SkString("LCD Text"); }
+    SkString onName() override { return SkString("LCD Text"); }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         this->drawBG(canvas);
 
         SkPaint paint;

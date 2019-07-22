@@ -51,9 +51,7 @@ public:
     MakeCSGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("makecolorspace");
-    }
+    SkString onName() override { return SkString("makecolorspace"); }
 
     SkISize onISize() override {
         return SkISize::Make(128*3, 128*4);

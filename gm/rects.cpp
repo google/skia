@@ -38,14 +38,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("rects"); }
 
-    SkString onShortName() override {
-        return SkString("rects");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1200, 900);
-    }
+    SkISize onISize() override { return {1200, 900}; }
 
     void makePaints() {
         {

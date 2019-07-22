@@ -27,10 +27,7 @@ public:
     BitmapImageGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("bitmap-image-srgb-legacy");
-    }
+    SkString onName() override { return SkString("bitmap-image-srgb-legacy"); }
 
     SkISize onISize() override {
         return SkISize::Make(2*kSize, 2*kSize);

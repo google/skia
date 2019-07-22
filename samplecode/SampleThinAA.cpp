@@ -281,7 +281,7 @@ protected:
         fAnimRotate = false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         // Move away from screen edge and add instructions
         SkPaint text;
         SkFont font(nullptr, 12);
@@ -372,7 +372,7 @@ protected:
         return true;
     }
 
-    SkString name() override { return SkString("Thin-AA"); }
+    SkString onName() override { return SkString("Thin-AA"); }
 
     bool onChar(SkUnichar key) override {
             switch(key) {

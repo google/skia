@@ -39,13 +39,9 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return SkString("image_scale_aligned");
-    }
+    SkString onName() override { return SkString("image_scale_aligned"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(580, 780);
-    }
+    SkISize onISize() override { return {580, 780}; }
 
     void onDraw(SkCanvas* canvas) override {
         struct {

@@ -77,8 +77,7 @@ public:
     ~GiantBitmapGM() override { delete fBM; }
 
 protected:
-
-    SkString onShortName() override {
+    SkString onName() override {
         SkString str("giantbitmap_");
         switch (fMode) {
             case SkTileMode::kClamp:
@@ -101,7 +100,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override { return SkISize::Make(640, 480); }
+    SkISize onISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

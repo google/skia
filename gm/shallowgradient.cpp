@@ -51,20 +51,15 @@ public:
     }
 
 protected:
+    SkString onName() override { return fName; }
 
-    SkString onShortName() override {
-        return fName;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 800);
-    }
+    SkISize onISize() override { return {800, 800}; }
 
     void onDraw(SkCanvas* canvas) override {
         const SkColor colors[] = { 0xFF555555, 0xFF444444 };
         const int colorCount = SK_ARRAY_COUNT(colors);
 
-        SkRect r = { 0, 0, this->width(), this->height() };
+        SkRect r = SkRect::Make(this->getISize());
         SkSize size = SkSize::Make(r.width(), r.height());
 
         SkPaint paint;

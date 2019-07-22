@@ -152,7 +152,7 @@ protected:
         this->updatePaddleStrategy();
     }
 
-    SkString name() override { return SkString("SGPong"); }
+    SkString onName() override { return SkString("SGPong"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -182,7 +182,7 @@ protected:
         this->INHERITED::onSizeChange();
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         sksg::InvalidationController ic;
         fScene->animate(0, &ic);
         fScene->render(canvas);

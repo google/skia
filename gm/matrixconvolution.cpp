@@ -36,10 +36,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkStringPrintf("matrixconvolution%s", fNameSuffix);
-    }
+    SkString onName() override { return SkStringPrintf("matrixconvolution%s", fNameSuffix); }
 
     void makeBitmap() {
         // Draw our bitmap in N32, so legacy devices get "premul" values they understand
@@ -57,9 +54,7 @@ protected:
         canvas.drawString("e", -10.0f, 80.0f, font, paint);
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(500, 300);
-    }
+    SkISize onISize() override { return {500, 300}; }
 
     void draw(SkCanvas* canvas, int x, int y, const SkIPoint& kernelOffset,
               SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha,

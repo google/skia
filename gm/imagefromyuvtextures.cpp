@@ -55,9 +55,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("image_from_yuv_textures");
-    }
+    SkString onName() override { return SkString("image_from_yuv_textures"); }
 
     SkISize onISize() override {
         return SkISize::Make(kBmpSize + 2 * kPad, 390);

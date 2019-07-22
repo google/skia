@@ -221,13 +221,9 @@ public:
     XfermodesGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("xfermodes");
-    }
+    SkString onName() override { return SkString("xfermodes"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1990, 570);
-    }
+    SkISize onISize() override { return {1990, 570}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));

@@ -242,13 +242,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("clipcubic");
-    }
+    SkString onName() override { return SkString("clipcubic"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(400, 410);
-    }
+    SkISize onISize() override { return {400, 410}; }
 
     void doDraw(SkCanvas* canvas, const SkPath& path) {
         SkPaint paint;

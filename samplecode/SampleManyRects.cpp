@@ -23,9 +23,9 @@ public:
     ManyRectsView() {}
 
 protected:
-    SkString name() override { return SkString("ManyRects"); }
+    SkString onName() override { return SkString("ManyRects"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkISize dsize = canvas->getBaseLayerSize();
         canvas->clear(0xFFF0E0F0);
 

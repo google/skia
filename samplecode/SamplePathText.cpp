@@ -47,13 +47,11 @@ public:
             const SkPath& p = glyphPaths[i % 52];
             fGlyphs[i].init(fRand, p);
         }
-
-        this->INHERITED::onOnceBeforeDraw();
         this->reset();
     }
     void onSizeChange() final { this->INHERITED::onSizeChange(); this->reset(); }
 
-    SkString name() override { return SkString(this->getName()); }
+    SkString onName() override { return SkString(this->getName()); }
 
     bool onChar(SkUnichar unichar) override {
             if (unichar == 'X') {
@@ -63,7 +61,7 @@ public:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (fDoClip) {
             SkPath deviceSpaceClipPath = fClipPath;
             deviceSpaceClipPath.transform(SkMatrix::MakeScale(this->width(), this->height()));

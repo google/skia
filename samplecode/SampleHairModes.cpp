@@ -75,9 +75,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("HairlineModes"); }
+    SkString onName() override { return SkString("HairlineModes"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         const SkRect bounds = SkRect::MakeWH(W, H);
         static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 

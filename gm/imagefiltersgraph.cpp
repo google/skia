@@ -38,12 +38,9 @@ public:
     ImageFiltersGraphGM() {}
 
 protected:
+    SkString onName() override { return SkString("imagefiltersgraph"); }
 
-    SkString onShortName() override {
-        return SkString("imagefiltersgraph");
-    }
-
-    SkISize onISize() override { return SkISize::Make(600, 150); }
+    SkISize onISize() override { return {600, 150}; }
 
     void onOnceBeforeDraw() override {
         fImage = SkImage::MakeFromBitmap(

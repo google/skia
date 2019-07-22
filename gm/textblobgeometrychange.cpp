@@ -29,9 +29,7 @@ public:
     TextBlobGeometryChange() { }
 
 protected:
-    SkString onShortName() override {
-        return SkString("textblobgeometrychange");
-    }
+    SkString onName() override { return SkString("textblobgeometrychange"); }
 
     SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);

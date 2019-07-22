@@ -78,7 +78,7 @@ public:
     AtlasTextGM() = default;
 
 protected:
-    SkString onShortName() override { return SkString("atlastext"); }
+    SkString onName() override { return SkString("atlastext"); }
 
     SkISize onISize() override { return SkISize::Make(kSize, kSize); }
 

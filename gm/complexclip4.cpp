@@ -28,9 +28,7 @@ public:
     }
 
 protected:
-
-
-    SkString onShortName() {
+    SkString onName() {
         SkString str;
         str.printf("complexclip4_%s",
                    fDoAAClip ? "aa" : "bw");

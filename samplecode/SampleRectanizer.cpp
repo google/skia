@@ -54,7 +54,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Rectanizer"); }
+    SkString onName() override { return SkString("Rectanizer"); }
 
     bool onChar(SkUnichar uni) override {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];
@@ -75,7 +75,7 @@ protected:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (fCurRandRect < kNumRandRects) {
             if (fRectanizers[fCurRectanizer]->addRect((*fCurRects)[fCurRandRect].fWidth,
                                                       (*fCurRects)[fCurRandRect].fHeight,

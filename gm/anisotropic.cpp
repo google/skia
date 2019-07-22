@@ -27,8 +27,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override { return SkString("anisotropic_hq"); }
+    SkString onName() override { return SkString("anisotropic_hq"); }
 
     SkISize onISize() override {
         return SkISize::Make(2*kImageSize + 3*kSpacer,

@@ -83,11 +83,9 @@ public:
     ImageFiltersCroppedGM () {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("imagefilterscropped");
-    }
+    SkString onName() override { return SkString("imagefilterscropped"); }
 
-    SkISize onISize() override { return SkISize::Make(400, 960); }
+    SkISize onISize() override { return {400, 960}; }
 
     void make_checkerboard() {
         fCheckerboard.allocN32Pixels(80, 80);

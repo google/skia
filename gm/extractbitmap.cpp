@@ -34,13 +34,9 @@ public:
     ExtractBitmapGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("extractbitmap");
-    }
+    SkString onName() override { return SkString("extractbitmap"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(600, 600);
-    }
+    SkISize onISize() override { return {600, 600}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkBitmap bitmap;

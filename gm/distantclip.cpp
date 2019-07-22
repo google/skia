@@ -25,10 +25,7 @@ public:
     DistantClipGM() { }
 
 protected:
-
-    SkString onShortName() {
-        return SkString("distantclip");
-    }
+    SkString onName() { return SkString("distantclip"); }
 
     SkISize onISize() { return SkISize::Make(100, 100); }
 

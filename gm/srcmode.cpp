@@ -70,15 +70,13 @@ static void draw_text(SkCanvas* canvas, const SkPaint& paint, const SkFont& font
 }
 
 class SrcModeGM : public skiagm::GM {
-    SkPath fPath;
-
     void onOnceBeforeDraw() override { this->setBGColor(SK_ColorBLACK); }
 
-    SkString onShortName() override { return SkString("srcmode"); }
+    SkString onName() override { return SkString("srcmode"); }
 
     SkISize onISize() override { return {640, 760}; }
 
-    void drawContent(SkCanvas* canvas) {
+    static void DrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         SkPaint paint;
@@ -137,7 +135,7 @@ class SrcModeGM : public skiagm::GM {
     void onDraw(SkCanvas* canvas) override {
         auto surf(compat_surface(canvas, this->getISize(), this->isCanvasDeferred()));
         surf->getCanvas()->drawColor(SK_ColorWHITE);
-        this->drawContent(surf->getCanvas());
+        DrawContent(surf->getCanvas());
         surf->draw(canvas, 0, 0, nullptr);
     }
 };

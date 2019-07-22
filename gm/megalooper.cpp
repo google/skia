@@ -45,7 +45,7 @@ public:
     MegaLooperGM(Type type) : fType(type) {}
 
 private:
-    SkString onShortName() override {
+    SkString onName() override {
         switch (fType) {
         case k0x0_Type:
             return SkString("megalooper_0x0");

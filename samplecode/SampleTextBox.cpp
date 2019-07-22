@@ -38,7 +38,7 @@ public:
     TextBoxView() : fShaper(SkShaper::Make()) {}
 
 protected:
-    SkString name() override { return SkString("TextBox"); }
+    SkString onName() override { return SkString("TextBox"); }
 
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
         SkAutoCanvasRestore acr(canvas, true);
@@ -63,7 +63,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar width = this->width() / 3;
         drawTest(canvas, width, this->height(), SK_ColorBLACK, SK_ColorWHITE);
         canvas->translate(width, 0);

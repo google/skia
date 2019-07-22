@@ -482,7 +482,7 @@ class ImageFilterDAGSample : public Sample {
 public:
     ImageFilterDAGSample() {}
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         static const SkRect kFilterRect = SkRect::MakeXYWH(20.f, 20.f, 60.f, 60.f);
         static const SkISize kFilterSurfaceSize = SkISize::Make(
                 2 * (kFilterRect.fRight + kFilterRect.fLeft),
@@ -491,7 +491,8 @@ public:
         // Somewhat clunky, but we want to use the viewer calculated CTM in the mini surfaces used
         // per DAG node. The rotation matrix viewer calculates is based on the sample size so trick
         // it into calculating the right matrix for us w/ 1 frame latency.
-        this->setSize(kFilterSurfaceSize.width(), kFilterSurfaceSize.height());
+        this->setWindowSize(
+                {(float)kFilterSurfaceSize.width(), (float)kFilterSurfaceSize.height()});
 
         // Make a large DAG
         //        /--- Color Filter <---- Blur <--- Offset
@@ -512,7 +513,7 @@ public:
         draw_dag(canvas, std::move(merge0), kFilterRect, kFilterSurfaceSize);
     }
 
-    SkString name() override { return SkString("ImageFilterDAG"); }
+    SkString onName() override { return SkString("ImageFilterDAG"); }
 
 private:
 

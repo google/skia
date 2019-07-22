@@ -32,9 +32,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("complexclip_blur_tiled");
-    }
+    SkString onName() override { return SkString("complexclip_blur_tiled"); }
 
     SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);

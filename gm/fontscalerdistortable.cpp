@@ -35,14 +35,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("fontscalerdistortable"); }
 
-    SkString onShortName() override {
-        return SkString("fontscalerdistortable");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(550, 700);
-    }
+    SkISize onISize() override { return {550, 700}; }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;

@@ -85,9 +85,9 @@ public:
     ~DrawShipView() override {}
 
 protected:
-    SkString name() override { return SkString(fName); }
+    SkString onName() override { return SkString(fName); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         const float kCosDiff = 0.99984769515f;
         const float kSinDiff = 0.01745240643f;
 

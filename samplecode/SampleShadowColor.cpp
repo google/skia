@@ -44,7 +44,7 @@ protected:
         fRectPath.addRect(SkRect::MakeXYWH(-50, -50, 100, 100));
     }
 
-    SkString name() override { return SkString("ShadowColor"); }
+    SkString onName() override { return SkString("ShadowColor"); }
 
     bool onChar(SkUnichar uni) override {
             bool handled = false;
@@ -160,7 +160,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         const SkScalar kLightWidth = 600;
         const SkScalar kAmbientAlpha = 0.03f;
         const SkScalar kSpotAlpha = 0.25f;

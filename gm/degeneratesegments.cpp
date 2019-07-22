@@ -34,9 +34,7 @@ protected:
         const char* fName2;
     };
 
-    SkString onShortName() {
-        return SkString("degeneratesegments");
-    }
+    SkString onName() { return SkString("degeneratesegments"); }
 
     SkISize onISize() { return SkISize::Make(896, 930); }
 

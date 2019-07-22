@@ -437,7 +437,7 @@ protected:
                              SkScalarRoundToInt(kCellHeight * fRenderers.count() + 75.f));
     }
 
-    SkString onShortName() override {
+    SkString onName() override {
         SkString fullName;
         fullName.appendf("compositor_quads_%s", fName.c_str());
         return fullName;

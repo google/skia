@@ -112,7 +112,7 @@ private:
 
 class PointSnapGM : public PixelSnapGM {
 protected:
-    SkString onShortName() override { return SkString("pixel_snap_point"); }
+    SkString onName() override { return SkString("pixel_snap_point"); }
     void drawElement(SkCanvas* canvas) override {
         const SkPoint pt = { 1, 1 };
         SkPaint paint;
@@ -126,7 +126,7 @@ private:
 
 class LineSnapGM : public PixelSnapGM {
 protected:
-    SkString onShortName() override { return SkString("pixel_snap_line"); }
+    SkString onName() override { return SkString("pixel_snap_line"); }
     void drawElement(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
@@ -141,7 +141,7 @@ private:
 
 class RectSnapGM : public PixelSnapGM {
 protected:
-    SkString onShortName() override { return SkString("pixel_snap_rect"); }
+    SkString onName() override { return SkString("pixel_snap_rect"); }
     void drawElement(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -154,7 +154,7 @@ private:
 
 class ComboSnapGM : public PixelSnapGM {
 protected:
-    SkString onShortName() override { return SkString("pixel_snap_combo"); }
+    SkString onName() override { return SkString("pixel_snap_combo"); }
     void drawElement(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(false);

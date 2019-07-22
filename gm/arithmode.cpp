@@ -81,7 +81,7 @@ static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar
 }
 
 class ArithmodeGM : public skiagm::GM {
-    SkString onShortName() override { return SkString("arithmode"); }
+    SkString onName() override { return SkString("arithmode"); }
 
     SkISize onISize() override { return {640, 572}; }
 

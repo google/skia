@@ -64,8 +64,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
+    SkString onName() override {
         if (fUseCropRect) {
             return SkString("imagealphathreshold_crop");
         }
@@ -129,9 +128,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("imagealphathreshold_surface");
-    }
+    SkString onName() override { return SkString("imagealphathreshold_surface"); }
 
     SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);

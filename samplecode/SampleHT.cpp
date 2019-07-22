@@ -142,11 +142,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("HT"); }
+    SkString onName() override { return SkString("HT"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawDrawable(fRoot.get());
-    }
+    void onDraw(SkCanvas* canvas) override { canvas->drawDrawable(fRoot.get()); }
 
     bool onAnimate(double nanos) override {
         fTime = TimeUtils::NanosToMSec(nanos);

@@ -25,9 +25,9 @@ class AnimBlurView : public Sample {
     SkScalar fBlurSigma = 0;
     SkScalar fCircleRadius = 100;
 
-    SkString name() override { return SkString("AnimBlur"); }
+    SkString onName() override { return SkString("AnimBlur"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         static const SkBlurStyle gStyles[] = {
             kNormal_SkBlurStyle,
             kInner_SkBlurStyle,

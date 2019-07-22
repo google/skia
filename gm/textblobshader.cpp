@@ -88,13 +88,9 @@ private:
                                                SkTileMode::kRepeat);
     }
 
-    SkString onShortName() override {
-        return SkString("textblobshader");
-    }
+    SkString onName() override { return SkString("textblobshader"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize onISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint p;

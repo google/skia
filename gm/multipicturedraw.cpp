@@ -522,7 +522,7 @@ namespace skiagm {
 
         SkISize onISize() override { return SkISize::Make(kPicWidth, kPicHeight); }
 
-        SkString onShortName() override {
+        SkString onName() override {
             const char* gContentNames[] = {
                 "noclip", "rectclip", "rrectclip", "pathclip",
                 "invpathclip", "sierpinski", "biglayer"

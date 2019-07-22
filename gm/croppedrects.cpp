@@ -35,8 +35,8 @@ constexpr SkRect kSrcImageClip{75, 75, 275, 275};
  */
 class CroppedRectsGM : public GM {
 private:
-    SkString onShortName() override final { return SkString("croppedrects"); }
-    SkISize onISize() override { return SkISize::Make(500, 500); }
+    SkString onName() override final { return SkString("croppedrects"); }
+    SkISize onISize() override { return {500, 500}; }
 
     void onOnceBeforeDraw() override {
         sk_sp<SkSurface> srcSurface = SkSurface::MakeRasterN32Premul(500, 500);

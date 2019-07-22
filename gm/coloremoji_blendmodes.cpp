@@ -65,9 +65,7 @@ protected:
                                             kOpaque_SkAlphaType), gData, 4);
     }
 
-    SkString onShortName() override {
-        return SkString("coloremoji_blendmodes");
-    }
+    SkString onName() override { return SkString("coloremoji_blendmodes"); }
 
     SkISize onISize() override {
         return {400, 640};

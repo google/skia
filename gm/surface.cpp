@@ -74,9 +74,7 @@ public:
     SurfacePropsGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("surfaceprops");
-    }
+    SkString onName() override { return SkString("surfaceprops"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H * 5);
@@ -129,13 +127,9 @@ public:
     NewSurfaceGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("surfacenew");
-    }
+    SkString onName() override { return SkString("surfacenew"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(300, 140);
-    }
+    SkISize onISize() override { return {300, 140}; }
 
     static void drawInto(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorRED);

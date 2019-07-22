@@ -141,7 +141,7 @@ protected:
         canvas->restore();
     }
 
-    SkString onShortName() override {
+    SkString onName() override {
         SkString str;
         str.printf("simpleaaclip_%s",
                     kRect_GeomType == fGeomType ? "rect" :
@@ -150,9 +150,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize onISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
 

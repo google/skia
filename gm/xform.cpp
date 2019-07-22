@@ -56,9 +56,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override { return SkString("exp_xform"); }
+    SkString onName() override { return SkString("exp_xform"); }
 
-    SkISize onISize() override { return SkISize::Make(520, 520); }
+    SkISize onISize() override { return {520, 520}; }
 
     void onDraw(SkCanvas* canvas) override {
         auto ctx = XContext::Make(canvas);

@@ -55,10 +55,7 @@ public:
     TrickyCubicStrokesGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("trickycubicstrokes");
-    }
+    SkString onName() override { return SkString("trickycubicstrokes"); }
 
     SkISize onISize() override {
         return SkISize::Make(3*kCellSize, 3*kCellSize);

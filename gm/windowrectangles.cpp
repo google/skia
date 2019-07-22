@@ -92,7 +92,7 @@ DrawResult WindowRectanglesBaseGM::onDraw(SkCanvas* canvas, SkString* errorMsg) 
  */
 class WindowRectanglesGM : public WindowRectanglesBaseGM {
 private:
-    SkString onShortName() final { return SkString("windowrectangles"); }
+    SkString onName() final { return SkString("windowrectangles"); }
     DrawResult onCoverClipStack(const SkClipStack&, SkCanvas*, SkString* errorMsg) final;
 };
 
@@ -147,7 +147,7 @@ constexpr static int kNumWindows = 8;
 class WindowRectanglesMaskGM : public WindowRectanglesBaseGM {
 private:
     constexpr static int kMaskCheckerSize = 5;
-    SkString onShortName() final { return SkString("windowrectangles_mask"); }
+    SkString onName() final { return SkString("windowrectangles_mask"); }
     DrawResult onCoverClipStack(const SkClipStack&, SkCanvas*, SkString* errorMsg) final;
     void visualizeAlphaMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
     void visualizeStencilMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);

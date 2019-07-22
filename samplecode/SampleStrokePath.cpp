@@ -123,7 +123,7 @@ protected:
         this->setBGColor(0xFFDDDDDD);
     }
 
-    SkString name() override { return SkString("StrokePath"); }
+    SkString onName() override { return SkString("StrokePath"); }
 
     SkRandom rand;
 
@@ -139,7 +139,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         test_huge_stroke(canvas); return;
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 

@@ -47,10 +47,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("bigtileimagefilter");
-    }
+    SkString onName() override { return SkString("bigtileimagefilter"); }
 
     SkISize onISize() override{
         return SkISize::Make(kWidth, kHeight);

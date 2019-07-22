@@ -32,9 +32,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("displacement");
-    }
+    SkString onName() override { return SkString("displacement"); }
 
     void onOnceBeforeDraw() override {
         fBitmap = ToolUtils::create_string_bitmap(80, 80, 0xFF884422, 15, 55, 96, "g");
@@ -50,9 +48,7 @@ protected:
         fLargeH = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(64, 96, c1, c2, 8));
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(600, 500);
-    }
+    SkISize onISize() override { return {600, 500}; }
 
     void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) const {
         canvas->save();

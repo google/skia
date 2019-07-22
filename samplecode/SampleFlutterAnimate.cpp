@@ -32,9 +32,9 @@ protected:
         initChars();
     }
 
-    SkString name() override { return SkString("FlutterAnimate"); }
+    SkString onName() override { return SkString("FlutterAnimate"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkFont font(fTypeface, 50);
         SkPaint paint;
         paint.setFilterQuality(kMedium_SkFilterQuality);

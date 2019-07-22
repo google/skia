@@ -20,7 +20,7 @@ extern "C" {
 //#define LUA_FILENAME    "lua/test.lua"
 #define LUA_FILENAME    "lua/slides.lua"
 
-static const char gDrawName[] = "onDrawContent";
+static const char gDrawName[] = "onDraw";
 static const char gClickName[] = "onClickHandler";
 static const char gUnicharName[] = "onCharHandler";
 
@@ -29,7 +29,7 @@ static const char gMissingCode[] = ""
     "paint:setAntiAlias(true)"
     "paint:setTextSize(30)"
     ""
-    "function onDrawContent(canvas)"
+    "function onDraw(canvas)"
     "   canvas:drawText('missing \"test.lua\"', 20, 50, paint)"
     "end"
     ;
@@ -68,7 +68,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Lua"); }
+    SkString onName() override { return SkString("Lua"); }
 
     bool onChar(SkUnichar uni) override {
             lua_State* L = this->ensureLua();
@@ -88,7 +88,7 @@ protected:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         lua_State* L = this->ensureLua();
 
         lua_getglobal(L, gDrawName);
@@ -108,8 +108,7 @@ protected:
         }
     }
 
-    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              ModifierKey modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         lua_State* L = this->ensureLua();
         lua_getglobal(L, gClickName);
         if (lua_isfunction(L, -1)) {

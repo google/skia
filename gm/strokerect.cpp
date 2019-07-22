@@ -57,14 +57,9 @@ public:
     StrokeRectGM() {}
 
 protected:
+    SkString onName() override { return SkString("strokerect"); }
 
-    SkString onShortName() override {
-        return SkString("strokerect");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1400, 740);
-    }
+    SkISize onISize() override { return {1400, 740}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);

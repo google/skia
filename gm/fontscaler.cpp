@@ -26,14 +26,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("fontscaler"); }
 
-    SkString onShortName() override {
-        return SkString("fontscaler");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1450, 750);
-    }
+    SkISize onISize() override { return {1450, 750}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkFont font;

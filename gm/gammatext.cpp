@@ -40,9 +40,7 @@ static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
 
 class GammaTextGM : public skiagm::GM {
 protected:
-    SkString onShortName() override {
-        return SkString("gammatext");
-    }
+    SkString onName() override { return SkString("gammatext"); }
 
     SkISize onISize() override {
         return SkISize::Make(1024, HEIGHT);
@@ -129,13 +127,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("gammagradienttext");
-    }
+    SkString onName() override { return SkString("gammagradienttext"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(300, 300);
-    }
+    SkISize onISize() override { return {300, 300}; }
 
     void onOnceBeforeDraw() override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {

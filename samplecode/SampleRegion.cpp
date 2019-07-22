@@ -176,7 +176,7 @@ public:
 
 
 protected:
-    SkString name() override { return SkString("Regions"); }
+    SkString onName() override { return SkString("Regions"); }
 
     static void drawstr(SkCanvas* canvas, const char text[], const SkPoint& loc,
                         bool hilite) {
@@ -272,7 +272,7 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (false) { // avoid bit rot, suppress warning
             test_strokerect(canvas);
             return;
@@ -325,8 +325,7 @@ protected:
         }
     }
 
-    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              ModifierKey modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }

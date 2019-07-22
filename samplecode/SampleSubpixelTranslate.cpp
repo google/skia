@@ -42,10 +42,9 @@ protected:
 
     SkPoint fCurPos;
 
-    SkString name() override { return SkString("SubpixelTranslate"); }
+    SkString onName() override { return SkString("SubpixelTranslate"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
-
+    void onDraw(SkCanvas* canvas) override {
         static const SkFilterQuality gQualitys[] = {
             kNone_SkFilterQuality,
             kLow_SkFilterQuality,

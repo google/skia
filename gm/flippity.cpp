@@ -168,10 +168,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("flippity");
-    }
+    SkString onName() override { return SkString("flippity"); }
 
     SkISize onISize() override {
         return SkISize::Make(kGMWidth, kGMHeight);

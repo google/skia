@@ -61,13 +61,9 @@ protected:
         canvas.drawRect(SkRect::MakeXYWH(0, 10, 10, 10), p);
     }
 
-    SkString onShortName() override {
-        return SkString("shadows");
-    }
+    SkString onName() override { return SkString("shadows"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(200, 200);
-    }
+    SkISize onISize() override { return {200, 200}; }
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkDrawLooper> shadowLoopers[] = {

@@ -100,13 +100,13 @@ public:
     LayersView() {}
 
 protected:
-    SkString name() override { return SkString("Layers"); }
+    SkString onName() override { return SkString("Layers"); }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorGRAY);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         this->drawBG(canvas);
 
         if (true) {
@@ -194,9 +194,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Backdrop"); }
+    SkString onName() override { return SkString("Backdrop"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawImage(fImage.get(), 0, 0, nullptr);
 
         const SkScalar w = 250;

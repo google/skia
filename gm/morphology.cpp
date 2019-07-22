@@ -32,9 +32,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("morphology");
-    }
+    SkString onName() override { return SkString("morphology"); }
 
     void onOnceBeforeDraw() override {
         fBitmap.allocN32Pixels(135, 135);

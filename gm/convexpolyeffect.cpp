@@ -148,13 +148,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("convex_poly_effect");
-    }
+    SkString onName() override { return SkString("convex_poly_effect"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(720, 800);
-    }
+    SkISize onISize() override { return {720, 800}; }
 
     void onOnceBeforeDraw() override {
         SkPath tri;

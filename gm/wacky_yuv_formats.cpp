@@ -1122,8 +1122,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name("wacky_yuv_formats");
         if (fUseTargetColorSpace) {
             name += "_cs";
@@ -1346,9 +1345,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("yuv_make_color_space");
-    }
+    SkString onName() override { return SkString("yuv_make_color_space"); }
 
     SkISize onISize() override {
         int numCols = 4; // (transparent, opaque) x (untagged, tagged)
@@ -1541,14 +1538,9 @@ public:
     YUVSplitterGM() {}
 
 protected:
+    SkString onName() override { return SkString("yuv_splitter"); }
 
-    SkString onShortName() override {
-        return SkString("yuv_splitter");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1024, 768);
-    }
+    SkISize onISize() override { return {1024, 768}; }
 
     void onOnceBeforeDraw() override {
         fOrig = GetResourceAsImage("images/mandrill_256.png");

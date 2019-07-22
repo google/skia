@@ -75,7 +75,7 @@ public:
 protected:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override {
+    SkString onName() override {
         if (Mode::kClipped == fMode) {
             return SkString("savelayer_unclipped");
         } else {
@@ -84,7 +84,7 @@ protected:
         }
     }
 
-    SkISize onISize() override { return SkISize::Make(320, 640); }
+    SkISize onISize() override { return {320, 640}; }
 
     void onDraw(SkCanvas* canvas) override {
         const SkScalar L = 10;

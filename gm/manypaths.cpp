@@ -40,9 +40,7 @@ protected:
     static const int kWidth = 800;
     static const int kHeight = 600;
 
-    SkString onShortName() override {
-        return SkString("manycircles");
-    }
+    SkString onName() override { return SkString("manycircles"); }
 
     SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);
@@ -78,14 +76,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("manyrrects"); }
 
-    SkString onShortName() override {
-        return SkString("manyrrects");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 300);
-    }
+    SkISize onISize() override { return {800, 300}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkRandom rand(1);

@@ -66,13 +66,9 @@ public:
     TallStretchedBitmapsGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("tall_stretched_bitmaps");
-    }
+    SkString onName() override { return SkString("tall_stretched_bitmaps"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(730, 690);
-    }
+    SkISize onISize() override { return {730, 690}; }
 
     void onOnceBeforeDraw() override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fTallBmps); ++i) {

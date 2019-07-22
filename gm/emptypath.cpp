@@ -28,9 +28,7 @@ public:
     EmptyPathGM() {}
 
 protected:
-    SkString onShortName() {
-        return SkString("emptypath");
-    }
+    SkString onName() { return SkString("emptypath"); }
 
     SkISize onISize() { return SkISize::Make(600, 280); }
 
@@ -166,11 +164,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("emptystroke");
-    }
+    SkString onName() override { return SkString("emptystroke"); }
 
-    SkISize onISize() override { return SkISize::Make(200, 240); }
+    SkISize onISize() override { return {200, 240}; }
 
     void onDraw(SkCanvas* canvas) override {
         const MakePathProc procs[] = {

@@ -39,11 +39,9 @@ protected:
         typefaces[3] = ToolUtils::create_portable_typeface("Emoji", SkFontStyle());
     }
 
-    SkString onShortName() override {
-        return SkString("scaledemoji_rendering");
-    }
+    SkString onName() override { return SkString("scaledemoji_rendering"); }
 
-    SkISize onISize() override { return SkISize::Make(1200, 1200); }
+    SkISize onISize() override { return {1200, 1200}; }
 
     void onDraw(SkCanvas* canvas) override {
 

@@ -121,9 +121,7 @@ public:
     StrokedLinesGM() { this->setBGColor(ToolUtils::color_to_565(0xFF1A65D7)); }
 
 protected:
-    SkString onShortName() override {
-        return SkString("strokedlines");
-    }
+    SkString onName() override { return SkString("strokedlines"); }
 
     SkISize onISize() override {
         return SkISize::Make(kNumColumns * (2*kRadius+2*kPad), kNumRows * (2*kRadius+2*kPad));

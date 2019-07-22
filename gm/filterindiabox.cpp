@@ -71,13 +71,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onName() override { return fName; }
 
-    SkISize onISize() override {
-        return SkISize::Make(680, 130);
-    }
+    SkISize onISize() override { return {680, 130}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);

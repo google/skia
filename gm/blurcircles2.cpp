@@ -46,11 +46,9 @@ public:
 protected:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override { return SkString("blurcircles2"); }
+    SkString onName() override { return SkString("blurcircles2"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(730, 1350);
-    }
+    SkISize onISize() override { return {730, 1350}; }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr SkScalar kMaxR = kMaxRadius + kMaxBlurRadius;

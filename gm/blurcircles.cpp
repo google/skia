@@ -25,13 +25,9 @@ public:
 protected:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override {
-        return SkString("blurcircles");
-    }
+    SkString onName() override { return SkString("blurcircles"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(950, 950);
-    }
+    SkISize onISize() override { return {950, 950}; }
 
     void onOnceBeforeDraw() override {
         const float blurRadii[kNumBlurs] = { 1,5,10,20 };

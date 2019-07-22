@@ -56,13 +56,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("composeshader");
-    }
+    SkString onName() override { return SkString("composeshader"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(120, 120);
-    }
+    SkISize onISize() override { return {120, 120}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -85,13 +81,9 @@ public:
     ComposeShaderAlphaGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("composeshader_alpha");
-    }
+    SkString onName() override { return SkString("composeshader_alpha"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(750, 220);
-    }
+    SkISize onISize() override { return {750, 220}; }
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkShader> shaders[] = {
@@ -181,7 +173,7 @@ protected:
         fLinearGradientShader = make_linear_gradient_shader(squareLength);
     }
 
-    SkString onShortName() override {
+    SkString onName() override {
         return SkStringPrintf("composeshader_bitmap%s", fUseLocalMatrix ? "_lm" : "");
     }
 

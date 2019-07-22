@@ -35,7 +35,7 @@ public:
     MixerView() {}
 
 protected:
-    SkString name() override { return SkString("Mixer"); }
+    SkString onName() override { return SkString("Mixer"); }
 
     void dodraw(SkCanvas* canvas, sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float gap) {
         SkPaint paint;
@@ -49,7 +49,7 @@ protected:
         canvas->drawImage(fImg, 2*fImg->width() + gap, 0, &paint);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (!fImg) {
             fImg = GetResourceAsImage("images/mandrill_256.png");
             fCF0 = SkColorFilters::Matrix(gMat);
@@ -71,7 +71,7 @@ protected:
         }
     }
 
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
+    Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }
@@ -125,9 +125,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("ShaderMixer"); }
+    SkString onName() override { return SkString("ShaderMixer"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (!fSurface) {
             fSurface = canvas->makeSurface(SkImageInfo::MakeN32Premul(SIZE, SIZE));
         }
@@ -154,7 +154,7 @@ protected:
         canvas->restore();
     }
 
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
+    Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
         fMode = (fMode == SkBlendMode::kSrcOver) ? SkBlendMode::kClear : SkBlendMode::kSrcOver;
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;

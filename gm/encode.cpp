@@ -26,13 +26,9 @@ public:
     EncodeGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("encode");
-    }
+    SkString onName() override { return SkString("encode"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1024, 600);
-    }
+    SkISize onISize() override { return {1024, 600}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkBitmap orig;

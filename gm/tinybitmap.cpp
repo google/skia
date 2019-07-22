@@ -31,9 +31,7 @@ public:
     }
 
 protected:
-    SkString onShortName() {
-        return SkString("tinybitmap");
-    }
+    SkString onName() { return SkString("tinybitmap"); }
 
     virtual SkISize onISize() { return SkISize::Make(100, 100); }
 

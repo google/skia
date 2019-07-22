@@ -65,10 +65,7 @@ public:
     DashingGM() {}
 
 protected:
-
-    SkString onShortName() {
-        return SkString("dashing");
-    }
+    SkString onName() { return SkString("dashing"); }
 
     SkISize onISize() { return SkISize::Make(640, 340); }
 
@@ -152,10 +149,7 @@ public:
     Dashing2GM() {}
 
 protected:
-
-    SkString onShortName() {
-        return SkString("dashing2");
-    }
+    SkString onName() { return SkString("dashing2"); }
 
     SkISize onISize() { return SkISize::Make(640, 480); }
 
@@ -211,10 +205,7 @@ public:
     Dashing3GM() {}
 
 protected:
-
-    SkString onShortName() {
-        return SkString("dashing3");
-    }
+    SkString onName() { return SkString("dashing3"); }
 
     SkISize onISize() { return SkISize::Make(640, 480); }
 
@@ -341,10 +332,7 @@ public:
     Dashing4GM() {}
 
 protected:
-
-    SkString onShortName() {
-        return SkString("dashing4");
-    }
+    SkString onName() { return SkString("dashing4"); }
 
     SkISize onISize() { return SkISize::Make(640, 1100); }
 
@@ -446,7 +434,7 @@ protected:
 
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override {
+    SkString onName() override {
         if (fDoAA) {
             return SkString("dashing5_aa");
         } else {
@@ -454,7 +442,7 @@ protected:
         }
     }
 
-    SkISize onISize() override { return SkISize::Make(400, 200); }
+    SkISize onISize() override { return {400, 200}; }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr int kOn = 4;

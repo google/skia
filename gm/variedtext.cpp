@@ -36,7 +36,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name("varied_text");
         if (fEffectiveClip) {
             name.append("_clipped");
@@ -51,9 +51,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize onISize() override { return {640, 480}; }
 
     void onOnceBeforeDraw() override {
         fPaint.setAntiAlias(true);

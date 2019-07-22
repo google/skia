@@ -53,10 +53,7 @@ public:
     StrokesGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("strokes_round");
-    }
+    SkString onName() override { return SkString("strokes_round"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -117,9 +114,7 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return SkString("zeroPath");
-    }
+    SkString onName() override { return SkString("zeroPath"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -173,10 +168,7 @@ private:
 };
 
 class TeenyStrokesGM : public skiagm::GM {
-
-    SkString onShortName() override {
-        return SkString("teenyStrokes");
-    }
+    SkString onName() override { return SkString("teenyStrokes"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -295,10 +287,7 @@ protected:
         }
     }
 
-
-    SkString onShortName() override {
-        return SkString("strokes_poly");
-    }
+    SkString onName() override { return SkString("strokes_poly"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -387,14 +376,9 @@ public:
     Strokes3GM() {}
 
 protected:
+    SkString onName() override { return SkString("strokes3"); }
 
-    SkString onShortName() override {
-        return SkString("strokes3");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1500, 1500);
-    }
+    SkISize onISize() override { return {1500, 1500}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint origPaint;
@@ -444,10 +428,7 @@ public:
     Strokes4GM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("strokes_zoomed");
-    }
+    SkString onName() override { return SkString("strokes_zoomed"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -472,10 +453,7 @@ public:
     Strokes5GM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("zero_control_stroke");
-    }
+    SkString onName() override { return SkString("zero_control_stroke"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);

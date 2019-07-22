@@ -41,11 +41,9 @@ public:
     ImageSourceGM() { }
 
 protected:
-    SkString onShortName() override {
-        return SkString("imagesource");
-    }
+    SkString onName() override { return SkString("imagesource"); }
 
-    SkISize onISize() override { return SkISize::Make(500, 150); }
+    SkISize onISize() override { return {500, 150}; }
 
     void onOnceBeforeDraw() override {
         SkBitmap bm = ToolUtils::create_string_bitmap(100, 100, 0xFFFFFFFF, 20, 70, 96, "e");

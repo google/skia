@@ -69,14 +69,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("imagefiltersscaled"); }
 
-    SkString onShortName() override {
-        return SkString("imagefiltersscaled");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1428, 500);
-    }
+    SkISize onISize() override { return {1428, 500}; }
 
     void onOnceBeforeDraw() override {
         fCheckerboard = SkImage::MakeFromBitmap(

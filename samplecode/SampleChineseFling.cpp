@@ -47,9 +47,9 @@ class ChineseFlingView : public Sample {
     SkRandom             fRand;
     int                  fIndex = 0;
 
-    SkString name() override { return SkString("chinese-fling"); }
+    SkString onName() override { return SkString("chinese-fling"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->clear(0xFFDDDDDD);
 
         SkPaint paint;
@@ -114,7 +114,7 @@ class ChineseZoomView : public Sample {
     SkScalar             fScale = 15;
     SkScalar             fTranslate = 0;
 
-    SkString name() override { return SkString("chinese-zoom"); }
+    SkString onName() override { return SkString("chinese-zoom"); }
 
     bool onChar(SkUnichar uni) override {
             if ('>' == uni) {
@@ -128,7 +128,7 @@ class ChineseZoomView : public Sample {
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->clear(0xFFDDDDDD);
 
         SkPaint paint;

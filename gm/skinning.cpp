@@ -88,7 +88,7 @@ protected:
         return true;
     }
 
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name("skinning");
         if (fDeformUsingCPU) {
             name.append("_cpu");
@@ -99,9 +99,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(2400, 2400);
-    }
+    SkISize onISize() override { return {2400, 2400}; }
 
     void onOnceBeforeDraw() override {
         fVertices = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,

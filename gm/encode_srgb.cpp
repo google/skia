@@ -92,7 +92,7 @@ public:
     {}
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         const char* format = nullptr;
         switch (fEncodedFormat) {
             case SkEncodedImageFormat::kPNG:

@@ -84,11 +84,9 @@ namespace skiagm {
         SkPaint fBGPaint;
 
     protected:
-        SkString onShortName() override {
-            return SkString("hairmodes");
-        }
+        SkString onName() override { return SkString("hairmodes"); }
 
-        virtual SkISize onISize() override { return SkISize::Make(640, 480); }
+        virtual SkISize onISize() override { return {640, 480}; }
 
         void onOnceBeforeDraw() override {
             fBGPaint.setShader(make_bg_shader());

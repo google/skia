@@ -28,10 +28,7 @@ public:
     PolygonsGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("polygons");
-    }
+    SkString onName() override { return SkString("polygons"); }
 
     SkISize onISize() override {
         int width = kNumPolygons * kCellSize + 40;

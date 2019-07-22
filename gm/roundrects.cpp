@@ -44,14 +44,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("roundrects"); }
 
-    SkString onShortName() override {
-        return SkString("roundrects");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1200, 900);
-    }
+    SkISize onISize() override { return {1200, 900}; }
 
     void makePaints() {
         {

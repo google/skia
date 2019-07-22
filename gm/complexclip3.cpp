@@ -35,8 +35,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() {
+    SkString onName() {
         SkString str;
         str.printf("complexclip3_%s", fDoSimpleClipFirst ? "simple" : "complex");
         return str;

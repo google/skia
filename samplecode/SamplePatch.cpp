@@ -233,9 +233,9 @@ struct PatchView : public Sample {
         this->setBGColor(SK_ColorGRAY);
     }
 
-    SkString name() override { return SkString("Patch"); }
+    SkString onName() override { return SkString("Patch"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         const int nu = 10;
         const int nv = 10;
 
@@ -377,11 +377,11 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("PseudoInk"); }
+    SkString onName() override { return SkString("PseudoInk"); }
 
     bool onAnimate(double nanos) override { return true; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (fDirty) {
             for (int i = 0; i < N; ++i) {
                 fVertices[i] = make_verts(fPath, 30);
@@ -443,7 +443,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("ManyStrokes"); }
+    SkString onName() override { return SkString("ManyStrokes"); }
 
     bool onAnimate(double nanos) override { return true; }
 
@@ -464,7 +464,7 @@ protected:
         canvas->restore();
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setColor(0);
         this->dodraw(canvas, nullptr, 0, 0, &p);

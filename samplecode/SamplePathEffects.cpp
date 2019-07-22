@@ -108,9 +108,9 @@ protected:
         this->setBGColor(0xFFDDDDDD);
     }
 
-    SkString name() override { return SkString("PathEffects"); }
+    SkString onName() override { return SkString("PathEffects"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
 
         canvas->translate(0, 50);

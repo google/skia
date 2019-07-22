@@ -57,13 +57,9 @@ protected:
          fPicture = make_picture();
     }
 
-    SkString onShortName() override {
-        return SkString("pictures");
-    }
+    SkString onName() override { return SkString("pictures"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(450, 120);
-    }
+    SkISize onISize() override { return {450, 120}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);

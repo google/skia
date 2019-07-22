@@ -53,9 +53,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("const_color_processor");
-    }
+    SkString onName() override { return SkString("const_color_processor"); }
 
     SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);

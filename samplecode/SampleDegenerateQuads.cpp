@@ -243,7 +243,7 @@ public:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         static const SkScalar kDotParams[2] = {1.f / kViewScale, 12.f / kViewScale};
         sk_sp<SkPathEffect> dots = SkDashPathEffect::Make(kDotParams, 2, 0.f);
         static const SkScalar kDashParams[2] = {8.f / kViewScale, 12.f / kViewScale};
@@ -383,7 +383,7 @@ public:
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override;
     bool onClick(Sample::Click*) override;
     bool onChar(SkUnichar) override;
-    SkString name() override { return SkString("DegenerateQuad"); }
+    SkString onName() override { return SkString("DegenerateQuad"); }
 
 private:
     class Click;

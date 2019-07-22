@@ -212,14 +212,9 @@ public:
     BleedGM(BleedTest bt) : fBT(bt){}
 
 protected:
+    SkString onName() override { return SkString(gBleedRec[fBT].fName); }
 
-    SkString onShortName() override {
-        return SkString(gBleedRec[fBT].fName);
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1200, 1080);
-    }
+    SkISize onISize() override { return {1200, 1080}; }
 
     void drawPixels(SkCanvas* canvas, const TestPixels& pixels, const SkRect& src,
                     const SkRect& dst, const SkPaint* paint,

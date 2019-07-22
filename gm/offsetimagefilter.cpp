@@ -35,9 +35,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("offsetimagefilter");
-    }
+    SkString onName() override { return SkString("offsetimagefilter"); }
 
     SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
@@ -111,11 +109,9 @@ public:
     SimpleOffsetImageFilterGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("simple-offsetimagefilter");
-    }
+    SkString onName() override { return SkString("simple-offsetimagefilter"); }
 
-    SkISize onISize() override { return SkISize::Make(640, 200); }
+    SkISize onISize() override { return {640, 200}; }
 
     void doDraw(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imgf,
                 const SkRect* clipR = nullptr) {

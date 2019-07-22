@@ -82,7 +82,7 @@ class ArcsView : public Sample {
     sk_sp<MyDrawable> fAnimatingDrawable;
     sk_sp<SkDrawable> fRootDrawable;
 
-    SkString name() override { return SkString("Arcs"); }
+    SkString onName() override { return SkString("Arcs"); }
 
     static void DrawRectWithLines(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
         canvas->drawRect(r, p);
@@ -169,9 +169,7 @@ class ArcsView : public Sample {
         fRootDrawable = recorder.finishRecordingAsDrawable();
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawDrawable(fRootDrawable.get());
-    }
+    void onDraw(SkCanvas* canvas) override { canvas->drawDrawable(fRootDrawable.get()); }
 
     bool onAnimate(double nanos) override {
         SkScalar angle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 24, 360));

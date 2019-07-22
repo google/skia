@@ -33,9 +33,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("etc1");
-    }
+    SkString onName() override { return SkString("etc1"); }
 
     SkISize onISize() override {
         return SkISize::Make(kTexWidth + 2*kPad, kTexHeight + 2*kPad);

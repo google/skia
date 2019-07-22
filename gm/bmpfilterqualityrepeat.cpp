@@ -46,9 +46,9 @@ protected:
         canvas.drawBitmap(colorBmp, 20, 20);
     }
 
-    SkString onShortName() override { return SkString("bmp_filter_quality_repeat"); }
+    SkString onName() override { return SkString("bmp_filter_quality_repeat"); }
 
-    SkISize onISize() override { return SkISize::Make(1000, 400); }
+    SkISize onISize() override { return {1000, 400}; }
 
     void onDraw(SkCanvas* canvas) override {
         this->drawAll(canvas, 2.5f);

@@ -55,14 +55,11 @@ public:
         this->drawTile(&bitmapCanvas);
     }
 
-
-    SkString onShortName() override {
+    SkString onName() override {
         return SkStringPrintf("pictureshader%s", fUseLocalMatrixWrapper ? "_localwrapper" : "");
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(1400, 1450);
-    }
+    SkISize onISize() override { return {1400, 1450}; }
 
     void onDraw(SkCanvas* canvas) override {
         this->drawSceneColumn(canvas, SkPoint::Make(0, 0), 1, 1, 0);

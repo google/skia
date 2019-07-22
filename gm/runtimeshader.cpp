@@ -43,13 +43,9 @@ public:
 protected:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onName() override { return fName; }
 
-    SkISize onISize() override {
-        return SkISize::Make(512, 256);
-    }
+    SkISize onISize() override { return {512, 256}; }
 
     void onOnceBeforeDraw() override {
         // use global to pass gl persistent cache test in dm

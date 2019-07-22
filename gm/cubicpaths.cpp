@@ -29,10 +29,7 @@ public:
     ClippedCubicGM() {}
 
 protected:
-
-    SkString onShortName() {
-        return SkString("clippedcubic");
-    }
+    SkString onName() { return SkString("clippedcubic"); }
 
     SkISize onISize() { return SkISize::Make(1240, 390); }
 
@@ -70,12 +67,9 @@ public:
     ClippedCubic2GM() {}
 
 protected:
+    SkString onName() override { return SkString("clippedcubic2"); }
 
-    SkString onShortName() override {
-        return SkString("clippedcubic2");
-    }
-
-    SkISize onISize() override { return SkISize::Make(1240, 390); }
+    SkISize onISize() override { return {1240, 390}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->save();
@@ -140,10 +134,7 @@ public:
     CubicPathGM() {}
 
 protected:
-
-    SkString onShortName() {
-        return SkString("cubicpath");
-    }
+    SkString onName() { return SkString("cubicpath"); }
 
     SkISize onISize() { return SkISize::Make(1240, 390); }
 
@@ -269,10 +260,7 @@ public:
     CubicClosePathGM() {}
 
 protected:
-
-    SkString onShortName() {
-        return SkString("cubicclosepath");
-    }
+    SkString onName() { return SkString("cubicclosepath"); }
 
     SkISize onISize() { return SkISize::Make(1240, 390); }
 

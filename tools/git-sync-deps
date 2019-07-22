@@ -31,6 +31,7 @@ Git Config:
 
 
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -167,7 +168,8 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
 
 def parse_file_to_dict(path):
   dictionary = {}
-  execfile(path, dictionary)
+  with open(path) as f:
+    exec(re.sub('Var\(([^()]*)\)', 'vars[\\1]', f.read()), dictionary)
   return dictionary
 
 
@@ -243,9 +245,9 @@ def main(argv):
     return 1
 
   git_sync_deps(deps_file_path, argv, verbose)
-  subprocess.check_call(
-      [sys.executable,
-       os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')])
+  fetch_gn = os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')
+  if os.path.exists(fetch_gn):
+    subprocess.check_call([sys.executable, fetch_gn])
   return 0
 
 

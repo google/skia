@@ -66,11 +66,11 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Vertices"); }
+    SkString onName() override { return SkString("Vertices"); }
 
     SkScalar fScale;
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setDither(true);
         paint.setFilterQuality(kLow_SkFilterQuality);

@@ -27,10 +27,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() {
-        return SkString("lcdtext");
-    }
+    SkString onName() { return SkString("lcdtext"); }
 
     SkISize onISize() { return SkISize::Make(640, 480); }
 
@@ -89,9 +86,7 @@ public:
     LcdTextSizeGM() {}
 
 protected:
-    SkString onShortName() {
-        return SkString("lcdtextsize");
-    }
+    SkString onName() { return SkString("lcdtextsize"); }
 
     SkISize onISize() { return SkISize::Make(320, 120); }
 

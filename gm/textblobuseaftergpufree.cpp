@@ -29,9 +29,7 @@ public:
     TextBlobUseAfterGpuFree() { }
 
 protected:
-    SkString onShortName() override {
-        return SkString("textblobuseaftergpufree");
-    }
+    SkString onName() override { return SkString("textblobuseaftergpufree"); }
 
     SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);

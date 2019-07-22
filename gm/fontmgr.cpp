@@ -78,13 +78,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onName() override { return fName; }
 
-    SkISize onISize() override {
-        return SkISize::Make(1536, 768);
-    }
+    SkISize onISize() override { return {1536, 768}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar y = 20;
@@ -139,13 +135,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("fontmgr_match");
-    }
+    SkString onName() override { return SkString("fontmgr_match"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 1024);
-    }
+    SkISize onISize() override { return {640, 1024}; }
 
     void iterateFamily(SkCanvas* canvas, const SkFont& font, SkFontStyleSet* fset) {
         SkFont f(font);
@@ -322,13 +314,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onName() override { return fName; }
 
-    SkISize onISize() override {
-        return SkISize::Make(1024, 850);
-    }
+    SkISize onISize() override { return {1024, 850}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkFont font;

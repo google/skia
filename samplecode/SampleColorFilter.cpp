@@ -122,7 +122,7 @@ class ColorFilterView : public Sample {
         }
     }
 
-    SkString name() override { return SkString("ColorFilter"); }
+    SkString onName() override { return SkString("ColorFilter"); }
 
     void onDrawBackground(SkCanvas* canvas) override {
         SkPaint paint;
@@ -130,7 +130,7 @@ class ColorFilterView : public Sample {
         canvas->drawPaint(paint);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (false) {
             SkPaint p;
             p.setAntiAlias(true);

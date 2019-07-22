@@ -73,7 +73,7 @@ protected:
         kNPOTSize = 21,
     };
 
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name("tilemodes");
         if (!fPowerOfTwoSize) {
             name.append("_npot");
@@ -81,7 +81,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(880, 560); }
+    SkISize onISize() override { return {880, 560}; }
 
     void onOnceBeforeDraw() override {
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
@@ -204,12 +204,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return fName; }
 
-    SkString onShortName() override {
-        return fName;
-    }
-
-    SkISize onISize() override { return SkISize::Make(650, 610); }
+    SkISize onISize() override { return {650, 610}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);

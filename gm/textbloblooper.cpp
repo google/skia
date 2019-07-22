@@ -235,9 +235,7 @@ protected:
                                        kitchenSink, SK_ARRAY_COUNT(kitchenSink)));
     }
 
-    SkString onShortName() override {
-        return SkString("textbloblooper");
-    }
+    SkString onName() override { return SkString("textbloblooper"); }
 
     SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);

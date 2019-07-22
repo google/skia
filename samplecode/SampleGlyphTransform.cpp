@@ -30,9 +30,9 @@ protected:
         fEmojiFont.fText     = ToolUtils::emoji_sample_text();
     }
 
-    SkString name() override { return SkString("Glyph Transform"); }
+    SkString onName() override { return SkString("Glyph Transform"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
 
         SkFont font(fEmojiFont.fTypeface);

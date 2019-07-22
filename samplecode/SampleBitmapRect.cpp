@@ -64,14 +64,14 @@ class BitmapRectView : public Sample {
     SkRect  fDstR[2] = {{10, 100, 260, 400}, {322.5, 100, 572.5, 400}};
     SkBitmap fBitmap;
 
-    SkString name() override { return SkString("BitmapRect"); }
+    SkString onName() override { return SkString("BitmapRect"); }
 
     void onOnceBeforeDraw() override {
         this->setBGColor(SK_ColorGRAY);
         make_bitmap(&fBitmap);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkRect srcR = {fSrcPt.fX - 16, fSrcPt.fY - 16,
                        fSrcPt.fX + 16, fSrcPt.fY + 16};
 
@@ -127,7 +127,7 @@ class BitmapRectView2 : public Sample {
     SkScalar fDX = 1;
     SkRect   fDstR[2] = {{20, 20, 620, 220}, {20, 270, 620, 470}};
 
-    SkString name() override { return SkString("BigBitmapRect"); }
+    SkString onName() override { return SkString("BigBitmapRect"); }
 
     void onOnceBeforeDraw() override {
         this->setBGColor(SK_ColorGRAY);
@@ -135,7 +135,7 @@ class BitmapRectView2 : public Sample {
         fLimitR = SkRect::Make(fBitmap.dimensions());
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorYELLOW);

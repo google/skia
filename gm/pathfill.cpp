@@ -311,14 +311,9 @@ protected:
         make_visualizer(&fVisualizerPath);
     }
 
+    SkString onName() override { return SkString("pathfill"); }
 
-    SkString onShortName() override {
-        return SkString("pathfill");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize onISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -359,13 +354,9 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return SkString("pathinvfill");
-    }
+    SkString onName() override { return SkString("pathinvfill"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(450, 220);
-    }
+    SkISize onISize() override { return {450, 220}; }
 
     static void show(SkCanvas* canvas, const SkPath& path, const SkPaint& paint,
                      const SkRect* clip, SkScalar top, const SkScalar bottom) {

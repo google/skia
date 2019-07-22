@@ -68,11 +68,9 @@ public:
     PictureImageFilterGM() { }
 
 protected:
-    SkString onShortName() override {
-        return SkString("pictureimagefilter");
-    }
+    SkString onName() override { return SkString("pictureimagefilter"); }
 
-    SkISize onISize() override { return SkISize::Make(600, 300); }
+    SkISize onISize() override { return {600, 300}; }
 
     void onOnceBeforeDraw() override {
         fPicture = make_picture();

@@ -192,10 +192,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() {
-        return SkString(fDither ? "gradients" : "gradients_nodither");
-    }
+    SkString onName() { return SkString(fDither ? "gradients" : "gradients_nodither"); }
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
@@ -248,10 +245,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() {
-        return SkString(fDither ? "gradients4f" : "gradients4f_nodither");
-    }
+    SkString onName() { return SkString(fDither ? "gradients4f" : "gradients4f_nodither"); }
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
@@ -305,8 +299,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() {
+    SkString onName() {
         return SkString(fDither ? "gradients_local_perspective" :
                                   "gradients_local_perspective_nodither");
     }
@@ -359,7 +352,7 @@ public:
     GradientsViewPerspectiveGM(bool dither) : INHERITED(dither) { }
 
 protected:
-    SkString onShortName() {
+    SkString onName() {
         return SkString(fDither ? "gradients_view_perspective" :
                                   "gradients_view_perspective_nodither");
     }
@@ -402,7 +395,7 @@ public:
     GradientsDegenrate2PointGM(bool dither) : fDither(dither) {}
 
 protected:
-    SkString onShortName() {
+    SkString onName() {
         return SkString(fDither ? "gradients_degenerate_2pt" : "gradients_degenerate_2pt_nodither");
     }
 
@@ -482,7 +475,7 @@ public:
     ClampedGradientsGM(bool dither) : fDither(dither) {}
 
 protected:
-    SkString onShortName() {
+    SkString onName() {
         return SkString(fDither ? "clamped_gradients" : "clamped_gradients_nodither");
     }
 
@@ -526,9 +519,8 @@ public:
     RadialGradientGM() {}
 
 protected:
-
-    SkString onShortName() override { return SkString("radial_gradient"); }
-    SkISize onISize() override { return SkISize::Make(1280, 1280); }
+    SkString onName() override { return SkString("radial_gradient"); }
+    SkISize onISize() override { return {1280, 1280}; }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
@@ -564,12 +556,11 @@ public:
     RadialGradient2GM(bool dither) : fDither(dither) {}
 
 protected:
-
-    SkString onShortName() override {
+    SkString onName() override {
         return SkString(fDither ? "radial_gradient2" : "radial_gradient2_nodither");
     }
 
-    SkISize onISize() override { return SkISize::Make(800, 400); }
+    SkISize onISize() override { return {800, 400}; }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
@@ -632,11 +623,11 @@ public:
     RadialGradient3GM(bool dither) : fDither(dither) { }
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         return SkString(fDither ? "radial_gradient3" : "radial_gradient3_nodither");
     }
 
-    SkISize onISize() override { return SkISize::Make(500, 500); }
+    SkISize onISize() override { return {500, 500}; }
 
     bool runAsBench() const override { return true; }
 
@@ -669,11 +660,11 @@ public:
     RadialGradient4GM(bool dither) : fDither(dither) { }
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         return SkString(fDither ? "radial_gradient4" : "radial_gradient4_nodither");
     }
 
-    SkISize onISize() override { return SkISize::Make(500, 500); }
+    SkISize onISize() override { return {500, 500}; }
 
     void onOnceBeforeDraw() override {
         const SkPoint center = { 250, 250 };
@@ -707,7 +698,7 @@ public:
     LinearGradientGM(bool dither) : fDither(dither) { }
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         return SkString(fDither ? "linear_gradient" : "linear_gradient_nodither");
     }
 
@@ -715,7 +706,7 @@ protected:
     const SkScalar kHeight = 5.f;
     const SkScalar kMinWidth = 540.f;
 
-    SkISize onISize() override { return SkISize::Make(500, 500); }
+    SkISize onISize() override { return {500, 500}; }
 
     void onOnceBeforeDraw() override {
         SkPoint pts[2] = { {0, 0}, {0, 0} };
@@ -763,13 +754,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onName() override { return fName; }
 
-    SkISize onISize() override {
-        return SkISize::Make(600, 500);
-    }
+    SkISize onISize() override { return {600, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         const SkScalar kRectSize = 100;

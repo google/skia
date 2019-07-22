@@ -69,13 +69,9 @@ public:
     NinePatchStretchGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("ninepatch-stretch");
-    }
+    SkString onName() override { return SkString("ninepatch-stretch"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(760, 800);
-    }
+    SkISize onISize() override { return {760, 800}; }
 
     void onDraw(SkCanvas* canvas) override {
         if (nullptr == fBitmap.pixelRef() || !fImage->isValid(canvas->getGrContext())) {

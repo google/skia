@@ -52,11 +52,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("rectangle_texture");
-    }
+    SkString onName() override { return SkString("rectangle_texture"); }
 
-    SkISize onISize() override { return SkISize::Make(1200, 500); }
+    SkISize onISize() override { return {1200, 500}; }
 
     void fillPixels(int width, int height, void *pixels) {
         SkBitmap bmp;

@@ -5,6 +5,8 @@
 * found in the LICENSE file.
 */
 
+#include "tools/viewer/Viewer.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
@@ -14,6 +16,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkPaintFilterCanvas.h"
+#include "samplecode/Sample.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMD5.h"
@@ -40,7 +43,6 @@
 #include "tools/viewer/SampleSlide.h"
 #include "tools/viewer/SlideDir.h"
 #include "tools/viewer/SvgSlide.h"
-#include "tools/viewer/Viewer.h"
 
 #include <stdlib.h>
 #include <map>
@@ -676,7 +678,7 @@ void Viewer::initSlides() {
 
     // samples
     for (const SampleFactory factory : SampleRegistry::Range()) {
-        sk_sp<Slide> slide(new SampleSlide(factory));
+        sk_sp<Slide> slide = MakeSampleSlide(factory);
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
             fSlides.push_back(slide);
         }

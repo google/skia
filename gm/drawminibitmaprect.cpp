@@ -84,7 +84,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override { return fName; }
+    SkString onName() override { return fName; }
 
     SkISize onISize() override { return SkISize::Make(gSize, gSize); }
 

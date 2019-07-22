@@ -16,9 +16,9 @@ class ComplexClipView : public Sample {
         this->setBGColor(0xFFA0DDA0);
     }
 
-    SkString name() override { return SkString("ComplexClip"); }
+    SkString onName() override { return SkString("ComplexClip"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPath path;
         path.moveTo(SkIntToScalar(0),   SkIntToScalar(50));
         path.quadTo(SkIntToScalar(0),   SkIntToScalar(0),   SkIntToScalar(50),  SkIntToScalar(0));

@@ -58,7 +58,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name("fontregen");
         return name;
     }

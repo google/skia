@@ -107,30 +107,17 @@ namespace skiagm {
 
         static constexpr char kErrorMsg_DrawSkippedGpuOnly[] = "This test is for GPU configs only.";
 
-        DrawResult draw(SkCanvas* canvas) {
-            SkString errorMsg;
-            return this->draw(canvas, &errorMsg);
-        }
-        DrawResult draw(SkCanvas*, SkString* errorMsg);
+        DrawResult draw(SkCanvas*, SkString* errorMsg = nullptr);
 
         void drawBackground(SkCanvas*);
-        DrawResult drawContent(SkCanvas* canvas) {
-            SkString errorMsg;
-            return this->drawContent(canvas, &errorMsg);
-        }
-        DrawResult drawContent(SkCanvas*, SkString* errorMsg);
+
+        DrawResult drawContent(SkCanvas*, SkString* errorMsg = nullptr);
 
         SkISize getISize() { return this->onISize(); }
-        const char* getName();
 
+        const SkString& name();
+        const char* getName() { return this->name().c_str(); }
         virtual bool runAsBench() const;
-
-        SkScalar width() {
-            return SkIntToScalar(this->getISize().width());
-        }
-        SkScalar height() {
-            return SkIntToScalar(this->getISize().height());
-        }
 
         SkColor getBGColor() const { return fBGColor; }
         void setBGColor(SkColor);
@@ -157,11 +144,13 @@ namespace skiagm {
         virtual void onDraw(SkCanvas*);
 
         virtual SkISize onISize() = 0;
-        virtual SkString onShortName() = 0;
+        virtual SkString onName() = 0;
 
         virtual bool onAnimate(double /*nanos*/);
         virtual bool onGetControls(SkMetaData*);
         virtual void onSetControls(const SkMetaData&);
+
+        virtual void onDrawBackground(SkCanvas*);
 
     private:
         Mode     fMode;
@@ -199,7 +188,7 @@ namespace skiagm {
 
     private:
         SkISize onISize() override;
-        SkString onShortName() override;
+        SkString onName() override;
         DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override;
 
         const SkString fName;
@@ -215,7 +204,7 @@ namespace skiagm {
 
     private:
         SkISize onISize() override;
-        SkString onShortName() override;
+        SkString onName() override;
         DrawResult onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                           SkString* errorMsg) override;
 

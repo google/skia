@@ -141,7 +141,7 @@ private:
         fTrans.setKeyFrame(4, GetMSecs() + 5000, values);
     }
 
-    SkString name() override { return SkString("ClipDrawMatch"); }
+    SkString onName() override { return SkString("ClipDrawMatch"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -232,7 +232,7 @@ private:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar trans[2];
         fTrans.timeToValues(GetMSecs(), trans);
 

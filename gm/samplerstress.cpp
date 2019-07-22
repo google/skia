@@ -38,14 +38,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("gpusamplerstress"); }
 
-    SkString onShortName() override {
-        return SkString("gpusamplerstress");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize onISize() override { return {640, 480}; }
 
     /**
      * Create a red & green stripes on black texture

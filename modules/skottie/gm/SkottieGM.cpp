@@ -44,9 +44,7 @@ private:
 class SkottieWebFontGM : public skiagm::GM {
 public:
 protected:
-    SkString onShortName() override {
-        return SkString("skottie_webfont");
-    }
+    SkString onName() override { return SkString("skottie_webfont"); }
 
     SkISize onISize() override {
         return SkISize::Make(kSize, kSize);
@@ -95,9 +93,7 @@ using namespace skottie_utils;
 
 class SkottieColorizeGM : public skiagm::GM {
 protected:
-    SkString onShortName() override {
-        return SkString("skottie_colorize");
-    }
+    SkString onName() override { return SkString("skottie_colorize"); }
 
     SkISize onISize() override {
         return SkISize::Make(kSize, kSize);
@@ -170,9 +166,7 @@ DEF_GM(return new SkottieColorizeGM;)
 class SkottieMultiFrameGM : public skiagm::GM {
 public:
 protected:
-    SkString onShortName() override {
-        return SkString("skottie_multiframe");
-    }
+    SkString onName() override { return SkString("skottie_multiframe"); }
 
     SkISize onISize() override {
         return SkISize::Make(kSize, kSize);

@@ -28,10 +28,7 @@ public:
     StrokeRectsGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("strokerects");
-    }
+    SkString onName() override { return SkString("strokerects"); }
 
     SkISize onISize() override {
         return SkISize::Make(W*2, H*2);

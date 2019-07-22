@@ -100,11 +100,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override { return SkString("trimpatheffect"); }
+    SkString onName() override { return SkString("trimpatheffect"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1400, 1000);
-    }
+    SkISize onISize() override { return {1400, 1000}; }
 
     void onDraw(SkCanvas* canvas) override {
         static constexpr SkSize kCellSize = { 440, 150 };

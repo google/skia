@@ -428,7 +428,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         if (fConvexOnly) {
             return SkString("convex-polygon-inset");
         } else {

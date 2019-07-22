@@ -22,7 +22,7 @@ static void test_circlebounds(SkCanvas*) {
 }
 
 class CircleView : public Sample {
-    SkString name() override { return SkString("Circles"); }
+    SkString onName() override { return SkString("Circles"); }
 
     void circle(SkCanvas* canvas, int width, bool aa) {
         SkPaint paint;
@@ -66,7 +66,7 @@ class CircleView : public Sample {
         path->close();
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);

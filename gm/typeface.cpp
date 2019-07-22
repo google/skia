@@ -105,7 +105,7 @@ protected:
         }
     }
 
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name("typefacestyles");
         if (fApplyKerning) {
             name.append("_kerning");
@@ -113,9 +113,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize onISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkFont font;

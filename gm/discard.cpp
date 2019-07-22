@@ -35,13 +35,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("discard");
-    }
+    SkString onName() override { return SkString("discard"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(100, 100);
-    }
+    SkISize onISize() override { return {100, 100}; }
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {

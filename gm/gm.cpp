@@ -85,15 +85,19 @@ DrawResult GM::drawContent(SkCanvas* canvas, SkString* errorMsg) {
         this->onOnceBeforeDraw();
     }
     SkAutoCanvasRestore acr(canvas, true);
-    DrawResult drawResult = this->onDraw(canvas, errorMsg);
+    SkString error;
+    DrawResult drawResult = this->onDraw(canvas, &error);
     if (DrawResult::kOk != drawResult) {
         if (DrawResult::kFail == drawResult) {
-            draw_failure_message(canvas, "DRAW FAILED: %s", errorMsg->c_str());
+            draw_failure_message(canvas, "DRAW FAILED: %s", error.c_str());
         } else if (SkString(kErrorMsg_DrawSkippedGpuOnly) == *errorMsg) {
             draw_gpu_only_message(canvas);
         } else {
-            draw_failure_message(canvas, "DRAW SKIPPED: %s", errorMsg->c_str());
+            draw_failure_message(canvas, "DRAW SKIPPED: %s", error.c_str());
         }
+    }
+    if (errorMsg) {
+        *errorMsg = std::move(error);
     }
     return drawResult;
 }
@@ -105,7 +109,11 @@ void GM::drawBackground(SkCanvas* canvas) {
         this->onOnceBeforeDraw();
     }
     SkAutoCanvasRestore acr(canvas, true);
-    canvas->drawColor(fBGColor, SkBlendMode::kSrc);
+    this->onDrawBackground(canvas);
+}
+
+void GM::onDrawBackground(SkCanvas* canvas) {
+    canvas->drawColor(this->getBGColor(), SkBlendMode::kSrc);
 }
 
 DrawResult GM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
@@ -116,23 +124,23 @@ void GM::onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
 
 
 SkISize SimpleGM::onISize() { return fSize; }
-SkString SimpleGM::onShortName() { return fName; }
+SkString SimpleGM::onName() { return fName; }
 DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(canvas, errorMsg);
 }
 
 SkISize SimpleGpuGM::onISize() { return fSize; }
-SkString SimpleGpuGM::onShortName() { return fName; }
+SkString SimpleGpuGM::onName() { return fName; }
 DrawResult SimpleGpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                                SkString* errorMsg) {
     return fDrawProc(ctx, rtc, canvas, errorMsg);
 }
 
-const char* GM::getName() {
+const SkString& GM::name() {
     if (fShortName.size() == 0) {
-        fShortName = this->onShortName();
+        fShortName = this->onName();
     }
-    return fShortName.c_str();
+    return fShortName;
 }
 
 void GM::setBGColor(SkColor color) {

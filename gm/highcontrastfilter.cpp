@@ -123,14 +123,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("highcontrastfilter"); }
 
-    SkString onShortName() override {
-        return SkString("highcontrastfilter");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(600, 420);
-    }
+    SkISize onISize() override { return {600, 420}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkHighContrastConfig configs[] = {

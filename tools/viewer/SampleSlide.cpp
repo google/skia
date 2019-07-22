@@ -9,41 +9,42 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkStream.h"
+#include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 
-using namespace sk_app;
+namespace {
+class SampleSlide : public Slide {
+    const SampleFactory fSampleFactory;
+    std::unique_ptr<Sample> fSample;
 
-SampleSlide::SampleSlide(const SampleFactory factory) : fSampleFactory(factory) {
-    std::unique_ptr<Sample> sample(factory());
-    fName = sample->name();
-}
+    SkISize getDimensions() const override { return fSample->windowSize().toCeil(); }
 
-SampleSlide::~SampleSlide() {}
+    void draw(SkCanvas* canvas) override {
+        SkASSERT(fSample);
+        fSample->drawSample(canvas);
+    }
+    void load(SkScalar winWidth, SkScalar winHeight) override {
+        fSample.reset(fSampleFactory());
+        fSample->setWindowSize({winWidth, winHeight});
+    }
+    void resize(SkScalar winWidth, SkScalar winHeight) override {
+        fSample->setWindowSize({winWidth, winHeight});
+    }
+    void unload() override { fSample = nullptr; }
 
-SkISize SampleSlide::getDimensions() const  {
-    return SkISize::Make(SkScalarCeilToInt(fSample->width()), SkScalarCeilToInt(fSample->height()));
-}
+    bool animate(double nanos) override { return fSample->animate(nanos); }
 
-bool SampleSlide::animate(double nanos) { return fSample->animate(nanos); }
+    bool onChar(SkUnichar c) override { return fSample && fSample->onChar(c); }
 
-void SampleSlide::draw(SkCanvas* canvas) {
-    SkASSERT(fSample);
-    fSample->draw(canvas);
-}
+    bool onMouse(SkScalar x, SkScalar y, InputState state, ModifierKey modifiers) override {
+        return fSample && fSample->mouse({x, y}, state, modifiers);
+    }
 
-void SampleSlide::load(SkScalar winWidth, SkScalar winHeight) {
-    fSample.reset(fSampleFactory());
-    fSample->setSize(winWidth, winHeight);
-}
-
-void SampleSlide::unload() {
-    fSample.reset();
-}
-
-bool SampleSlide::onChar(SkUnichar c) {
-    return fSample && fSample->onChar(c);
-}
-
-bool SampleSlide::onMouse(SkScalar x, SkScalar y, InputState state, ModifierKey modifierKeys) {
-    return fSample && fSample->mouse({x, y}, state, modifierKeys);
-}
+public:
+    SampleSlide(SampleFactory factory) : fSampleFactory(factory) {
+        std::unique_ptr<Sample> sample(factory());
+        fName = sample->name();
+    }
+};
+}  // namespace
+sk_sp<Slide> MakeSampleSlide(SampleFactory f) { return sk_sp<Slide>(new SampleSlide(f)); }

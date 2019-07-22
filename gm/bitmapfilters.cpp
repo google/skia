@@ -91,13 +91,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("bitmapfilters");
-    }
+    SkString onName() override { return SkString("bitmapfilters"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(540, 250);
-    }
+    SkISize onISize() override { return {540, 250}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar x = SkIntToScalar(10);
@@ -140,13 +136,9 @@ public:
     SkBitmap fBitmap, fAlpha;
 
 protected:
-    SkString onShortName() override {
-        return SkString("extractalpha");
-    }
+    SkString onName() override { return SkString("extractalpha"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(540, 330);
-    }
+    SkISize onISize() override { return {540, 330}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

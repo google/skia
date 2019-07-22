@@ -92,7 +92,7 @@ class ShadowsView : public Sample {
         fLightPos = SkPoint3::Make(350, 0, 600);
     }
 
-    SkString name() override { return SkString("AndroidShadows"); }
+    SkString onName() override { return SkString("AndroidShadows"); }
 
     bool onChar(SkUnichar uni) override {
             bool handled = false;
@@ -177,7 +177,7 @@ class ShadowsView : public Sample {
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFDDDDDD);
 
         const SkScalar kLightWidth = 800;

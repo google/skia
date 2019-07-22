@@ -90,13 +90,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onName() override { return fName; }
 
-    SkISize onISize() override {
-        return SkISize::Make(500, 600);
-    }
+    SkISize onISize() override { return {500, 600}; }
 
     void onDraw(SkCanvas* canvas) override {
         int veryBig = 65*1024; // 64K < size

@@ -46,7 +46,7 @@ public:
     }
 
 private:
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name("preservefillrule");
         name += (fLiteralCoverageAtlas) ? "_big" : "_little";
         return name;

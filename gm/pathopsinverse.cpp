@@ -57,13 +57,9 @@ protected:
         paint->setColor(color);
     }
 
-    SkString onShortName() override {
-        return SkString("pathopsinverse");
-    }
+    SkString onName() override { return SkString("pathopsinverse"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1200, 900);
-    }
+    SkISize onISize() override { return {1200, 900}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPath one, two;

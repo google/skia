@@ -110,7 +110,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("PerlinPatch"); }
+    SkString onName() override { return SkString("PerlinPatch"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -125,7 +125,7 @@ protected:
         return true;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (!canvas->getTotalMatrix().invert(&fInvMatrix)) {
             return;
         }

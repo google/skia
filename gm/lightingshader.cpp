@@ -73,7 +73,7 @@ protected:
 
     static constexpr int kNormalMapCount = kLast_NormalMap+1;
 
-    SkString onShortName() override { return SkString("lightingshader"); }
+    SkString onName() override { return SkString("lightingshader"); }
 
     SkISize onISize() override { return SkISize::Make(kGMSize, kGMSize); }
 

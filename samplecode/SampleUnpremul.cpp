@@ -44,7 +44,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("unpremul"); }
+    SkString onName() override { return SkString("unpremul"); }
 
     bool onChar(SkUnichar uni) override {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];
@@ -69,7 +69,7 @@ protected:
         ToolUtils::draw_checkerboard(canvas, 0xFFCCCCCC, 0xFFFFFFFF, 12);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
 

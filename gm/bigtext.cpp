@@ -22,22 +22,10 @@
  *  Skia may draw from outlines when the size is very large, so we exercise that
  *  here.
 */
+static constexpr int kWidth  = 640;
+static constexpr int kHeight = 480;
 
-class BigTextGM : public skiagm::GM {
-public:
-    BigTextGM() {}
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("bigtext");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(bigtext, canvas, kWidth, kHeight)  {
         SkPaint paint;
         paint.setAntiAlias(true);
         SkFont font(ToolUtils::create_portable_typeface(), 1500);
@@ -45,8 +33,8 @@ protected:
         SkRect r;
         (void)font.measureText("/", 1, SkTextEncoding::kUTF8, &r);
         SkPoint pos = {
-            this->width()/2 - r.centerX(),
-            this->height()/2 - r.centerY()
+            0.5f * kWidth  - r.centerX(),
+            0.5f * kHeight - r.centerY()
         };
 
         paint.setColor(SK_ColorRED);
@@ -54,10 +42,4 @@ protected:
 
         paint.setColor(SK_ColorBLUE);
         canvas->drawSimpleText("\\", 1, SkTextEncoding::kUTF8, pos.fX, pos.fY, font, paint);
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-DEF_GM(return new BigTextGM;)
+}

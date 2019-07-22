@@ -57,9 +57,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("yuv_to_rgb_effect");
-    }
+    SkString onName() override { return SkString("yuv_to_rgb_effect"); }
 
     SkISize onISize() override {
         int numRows = kLastEnum_SkYUVColorSpace + 1;
@@ -168,9 +166,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("yuv_nv12_to_rgb_effect");
-    }
+    SkString onName() override { return SkString("yuv_nv12_to_rgb_effect"); }
 
     SkISize onISize() override {
         int numRows = kLastEnum_SkYUVColorSpace + 1;
@@ -283,9 +279,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("yuv_to_rgb_domain_effect");
-    }
+    SkString onName() override { return SkString("yuv_to_rgb_domain_effect"); }
 
     SkISize onISize() override {
         return SkISize::Make((YSIZE + kTestPad) * 3 + kDrawPad, (YSIZE + kTestPad) * 2 + kDrawPad);

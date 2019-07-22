@@ -47,9 +47,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("contour_start");
-    }
+    SkString onName() override { return SkString("contour_start"); }
 
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 

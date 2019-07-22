@@ -41,9 +41,9 @@ class AARectView : public Sample {
         fBitmap = createBitmap(N);
     }
 
-    SkString name() override { return SkString("AA Rects"); }
+    SkString onName() override { return SkString("AA Rects"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 
         SkPaint bluePaint;

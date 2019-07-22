@@ -179,7 +179,7 @@ protected:
     static constexpr int kNumVertTiles = 7;
     static constexpr int kNumXtraCols = 2;
 
-    SkString onShortName() override{ return SkString("filterfastbounds"); }
+    SkString onName() override { return SkString("filterfastbounds"); }
 
     SkISize onISize() override{
         return SkISize::Make((SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols) * kTileWidth,

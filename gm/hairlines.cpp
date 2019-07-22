@@ -22,13 +22,9 @@ namespace skiagm {
 
 class HairlinesGM : public GM {
 protected:
+    SkString onName() override { return SkString("hairlines"); }
 
-
-    SkString onShortName() override {
-        return SkString("hairlines");
-    }
-
-    SkISize onISize() override { return SkISize::Make(1250, 1250); }
+    SkISize onISize() override { return {1250, 1250}; }
 
     void onOnceBeforeDraw() override {
         {

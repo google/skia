@@ -66,11 +66,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("SceneGraph"); }
+    SkString onName() override { return SkString("SceneGraph"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        fScene->render(canvas);
-    }
+    void onDraw(SkCanvas* canvas) override { fScene->render(canvas); }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         if (auto node = fScene->nodeAt({x, y})) {

@@ -644,7 +644,7 @@ struct BiControl : public UniControl {
 };
 
 
-class MyClick : public Sample::Click {
+class MyClick {
 public:
     enum ClickType {
         kInvalidType = -1,
@@ -963,7 +963,7 @@ public:
 
     #undef SET_BUTTON
 
-    SkString name() override { return SkString("AAGeometry"); }
+    SkString onName() override { return SkString("AAGeometry"); }
 
     bool onChar(SkUnichar) override;
 
@@ -1507,7 +1507,7 @@ public:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
 #if 0
         SkDEBUGCODE(SkDebugStrokeGlobals debugGlobals);
         SkOpAA aaResult(fPath, fWidthControl.fValLo, fResControl.fValLo
@@ -1603,30 +1603,35 @@ public:
         }
         return -1;
     }
+    struct AAGeomClick : public Sample::Click {
+        AAGeomClick(MyClick i) : fInfo(std::move(i)) {}
+        MyClick fInfo;
+    };
 
-    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         SkPoint pt = {x, y};
         int ptHit = hittest_pt(pt);
         if (ptHit >= 0) {
-            return new MyClick(MyClick::kPtType, ptHit);
+            return new AAGeomClick{MyClick(MyClick::kPtType, ptHit)};
         }
         SkPath::Verb verb;
         SkScalar weight;
         int verbHit = hittest_verb(pt, &verb, &weight);
         if (verbHit >= 0) {
-            return new MyClick(MyClick::kVerbType, verbHit, verb, weight);
+            return new AAGeomClick{MyClick(MyClick::kVerbType, verbHit, verb, weight)};
         }
         if (!fHideAll) {
             const SkRect& rectPt = SkRect::MakeXYWH(x, y, 1, 1);
             for (int index = 0; index < kControlCount; ++index) {
                 if (kControlList[index].fControl->contains(rectPt)) {
-                    return new MyClick(MyClick::kControlType,
-                            kControlList[index].fControlType);
+                    return new AAGeomClick{MyClick(MyClick::kControlType,
+                                                   kControlList[index].fControlType)};
                 }
             }
             for (int index = 0; index < kButtonCount; ++index) {
                 if (kButtonList[index].fButton->contains(rectPt)) {
-                    return new MyClick(MyClick::kControlType, kButtonList[index].fButtonType);
+                    return new AAGeomClick{MyClick(MyClick::kControlType,
+                                                   kButtonList[index].fButtonType)};
                 }
             }
         }
@@ -1636,7 +1641,7 @@ public:
         fActiveVerb = -1;
         fActivePt = -1;
         if (fHandlePathMove) {
-            return new MyClick(MyClick::kPathType, MyClick::kPathMove);
+            return new AAGeomClick{MyClick(MyClick::kPathType, MyClick::kPathMove)};
         }
         return nullptr;
     }
@@ -1648,7 +1653,7 @@ public:
     }
 
     bool onClick(Click* click) override {
-        MyClick* myClick = (MyClick*) click;
+        MyClick* myClick = &(((AAGeomClick*)click)->fInfo);
         switch (myClick->fType) {
             case MyClick::kPtType: {
                 savePath(click->fState);
@@ -1818,7 +1823,7 @@ bool AAGeometryView::onChar(SkUnichar uni) {
         for (int index = 0; index < kButtonCount; ++index) {
             Button* button = kButtonList[index].fButton;
             if (button->fVisible && uni == button->fLabel) {
-                MyClick click(MyClick::kControlType, kButtonList[index].fButtonType);
+                AAGeomClick click{MyClick(MyClick::kControlType, kButtonList[index].fButtonType)};
                 click.fState = InputState::kDown;
                 (void) this->onClick(&click);
                 return true;
@@ -1834,7 +1839,8 @@ bool AAGeometryView::onChar(SkUnichar uni) {
             for (int index = 0; index < kButtonCount; ++index) {
                 Button* button = kButtonList[index].fButton;
                 if (button->fVisible && (uni & ~0x20) == (button->fLabel & ~0x20)) {
-                    MyClick click(MyClick::kControlType, kButtonList[index].fButtonType);
+                    AAGeomClick click{MyClick(MyClick::kControlType,
+                                              kButtonList[index].fButtonType)};
                     click.fState = InputState::kDown;
                     (void) this->onClick(&click);
                     return true;

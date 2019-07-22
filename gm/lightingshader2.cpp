@@ -49,13 +49,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("lightingshader2");
-    }
+    SkString onName() override { return SkString("lightingshader2"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(600, 740);
-    }
+    SkISize onISize() override { return {600, 740}; }
 
     void onOnceBeforeDraw() override {
         // The light direction is towards the light with +Z coming out of the screen

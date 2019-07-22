@@ -45,7 +45,7 @@ static void install_lighting(SkPaint* paint, uint32_t mul, uint32_t add) {
 }
 
 class ColorFiltersGM : public skiagm::GM {
-    SkString onShortName() override { return SkString("lightingcolorfilter"); }
+    SkString onName() override { return SkString("lightingcolorfilter"); }
 
     SkISize onISize() override { return {620, 430}; }
 

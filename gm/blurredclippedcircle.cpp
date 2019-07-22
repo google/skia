@@ -31,10 +31,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("blurredclippedcircle");
-    }
+    SkString onName() override { return SkString("blurredclippedcircle"); }
 
     SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);

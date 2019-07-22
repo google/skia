@@ -39,9 +39,9 @@ struct Filter2View : public Sample {
         this->setBGColor(SK_ColorGRAY);
     }
 
-    SkString name() override { return SkString("Filter/Dither"); }
+    SkString onName() override { return SkString("Filter/Dither"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(50));
 
         const SkScalar W = SkIntToScalar(fBitmaps[0].width() + 1);

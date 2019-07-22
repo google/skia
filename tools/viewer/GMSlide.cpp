@@ -20,12 +20,9 @@ GMSlide::GMSlide(skiagm::GM* gm) : fGM(gm) {
 
 GMSlide::~GMSlide() = default;
 
-void GMSlide::draw(SkCanvas* canvas) {
-    // Do we care about timing the draw of the background (once)?
-    // Does the GM ever rely on drawBackground to lazily compute something?
-    fGM->drawBackground(canvas);
-    fGM->drawContent(canvas);
-}
+// Do we care about timing the draw of the background (once)?
+// Does the GM ever rely on drawBackground to lazily compute something?
+void GMSlide::draw(SkCanvas* canvas) { fGM->draw(canvas); }
 
 bool GMSlide::animate(double nanos) { return fGM->animate(nanos); }
 

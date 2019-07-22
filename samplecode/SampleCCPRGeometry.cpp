@@ -45,12 +45,12 @@ static constexpr float kDebugBloat = 40;
  */
 class CCPRGeometryView : public Sample {
     void onOnceBeforeDraw() override { this->updateGpuData(); }
-    void onDrawContent(SkCanvas*) override;
+    void onDraw(SkCanvas*) override;
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override;
     bool onClick(Sample::Click*) override;
     bool onChar(SkUnichar) override;
-    SkString name() override { return SkString("CCPRGeometry"); }
+    SkString onName() override { return SkString("CCPRGeometry"); }
 
     class Click;
     class DrawCoverageCountOp;
@@ -150,7 +150,7 @@ static void draw_klm_line(int w, int h, SkCanvas* canvas, const SkScalar line[3]
     canvas->drawLine(p1, p2, linePaint);
 }
 
-void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
+void CCPRGeometryView::onDraw(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
     if (!fDoStroke) {

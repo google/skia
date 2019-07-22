@@ -111,14 +111,9 @@ public:
     }
 
 protected:
+    SkString onName() override { return SkString("lumafilter"); }
 
-    SkString onShortName() override {
-        return SkString("lumafilter");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(600, 420);
-    }
+    SkISize onISize() override { return {600, 420}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkBlendMode modes[] = {

@@ -40,9 +40,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("xfermodeimagefilter");
-    }
+    SkString onName() override { return SkString("xfermodeimagefilter"); }
 
     SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);

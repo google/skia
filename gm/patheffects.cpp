@@ -119,12 +119,9 @@ public:
     PathEffectGM() {}
 
 protected:
+    SkString onName() override { return SkString("patheffect"); }
 
-    SkString onShortName() override {
-        return SkString("patheffect");
-    }
-
-    SkISize onISize() override { return SkISize::Make(800, 600); }
+    SkISize onISize() override { return {800, 600}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -185,12 +182,9 @@ public:
     ComboPathEfectsGM() {}
 
 protected:
+    SkString onName() override { return SkString("combo-patheffects"); }
 
-    SkString onShortName() override {
-        return SkString("combo-patheffects");
-    }
-
-    SkISize onISize() override { return SkISize::Make(360, 630); }
+    SkISize onISize() override { return {360, 630}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPath path0, path1, path2;

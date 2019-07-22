@@ -21,14 +21,9 @@ public:
     DRRectGM() {}
 
 protected:
+    SkString onName() override { return SkString("drrect"); }
 
-    SkString onShortName() override {
-        return SkString("drrect");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize onISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

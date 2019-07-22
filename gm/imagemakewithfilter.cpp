@@ -239,7 +239,7 @@ public:
             , fAuxImage(nullptr) {}
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name = SkString("imagemakewithfilter");
 
         if (fFilterWithCropRect) {
@@ -251,7 +251,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(1980, 860); }
+    SkISize onISize() override { return {1980, 860}; }
 
     void onOnceBeforeDraw() override {
         SkImageInfo info = SkImageInfo::MakeN32(100, 100, kUnpremul_SkAlphaType);

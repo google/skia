@@ -361,16 +361,6 @@ void FatBits::drawTriangle(SkCanvas* canvas, SkPoint pts[3]) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IndexClick : public Sample::Click {
-    int fIndex;
-public:
-    IndexClick(int index) : fIndex(index) {}
-
-    static int GetIndex(Sample::Click* click) {
-        return ((IndexClick*)click)->fIndex;
-    }
-};
-
 class DrawLineView : public Sample {
     FatBits fFB;
     SkPoint fPts[3];
@@ -391,7 +381,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("FatBits"); }
+    SkString onName() override { return SkString("FatBits"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -443,7 +433,7 @@ protected:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         fFB.drawBG(canvas);
         if (fFB.getTriangle()) {
             fFB.drawTriangle(canvas, fPts);
@@ -468,6 +458,11 @@ protected:
         }
     }
 
+    struct IndexClick : public Sample::Click {
+        const int fIndex;
+        IndexClick(int i) : fIndex(i) {}
+    };
+
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         SkPoint pt = { x, y };
         int index = -1;
@@ -484,7 +479,7 @@ protected:
     }
 
     bool onClick(Click* click) override {
-        int index = IndexClick::GetIndex(click);
+        int index = ((IndexClick*)click)->fIndex;
         if (index >= 0 && index <= 2) {
             fPts[index] = click->fCurr;
         } else {

@@ -15,9 +15,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("HairCurves"); }
+    SkString onName() override { return SkString("HairCurves"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);

@@ -95,13 +95,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("hardstop_gradients");
-    }
+    SkString onName() override { return SkString("hardstop_gradients"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(512, 512);
-    }
+    SkISize onISize() override { return {512, 512}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPoint points[2];

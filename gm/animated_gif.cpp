@@ -80,9 +80,7 @@ public:
     , fTotalFrames (-1) {}
 
 private:
-    SkString onShortName() override {
-        return SkString("animatedGif");
-    }
+    SkString onName() override { return SkString("animatedGif"); }
 
     SkISize onISize() override {
         if (this->initCodec()) {
@@ -203,9 +201,7 @@ public:
     }
 
 private:
-    SkString onShortName() override {
-        return SkString("AnimCodecPlayer");
-    }
+    SkString onName() override { return SkString("AnimCodecPlayer"); }
 
     SkISize onISize() override {
         return { 1024, 768 };

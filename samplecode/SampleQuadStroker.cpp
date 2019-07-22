@@ -209,7 +209,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("QuadStroker"); }
+    SkString onName() override { return SkString("QuadStroker"); }
 
     bool onChar(SkUnichar uni) override {
         if (fTextButton.fEnabled) {
@@ -592,7 +592,7 @@ protected:
                 && SkScalarNearlyEqual(beforeCCW.fY, afterCW.fY);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPath path;
         SkScalar width = fWidth;
 
@@ -721,8 +721,7 @@ protected:
         MyClick(int index) : fIndex(index) {}
     };
 
-    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              ModifierKey modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); ++i) {
             if (hittest(fPts[i], x, y)) {
                 return new MyClick((int)i);

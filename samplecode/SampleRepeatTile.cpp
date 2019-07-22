@@ -45,9 +45,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("RepeatTile"); }
+    SkString onName() override { return SkString("RepeatTile"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         make_paint(&paint, SkTileMode::kRepeat);
 

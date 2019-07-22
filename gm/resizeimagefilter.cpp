@@ -32,9 +32,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("resizeimagefilter");
-    }
+    SkString onName() override { return SkString("resizeimagefilter"); }
 
     void draw(SkCanvas* canvas,
               const SkRect& rect,
@@ -66,9 +64,7 @@ protected:
         canvas->restore();
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(520, 100);
-    }
+    SkISize onISize() override { return {520, 100}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);

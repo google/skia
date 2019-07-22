@@ -39,7 +39,7 @@ struct DownsampleBitmapGM : public skiagm::GM {
         this->setBGColor(0xFFDDDDDD);
     }
 
-    SkString onShortName() override { return fName; }
+    SkString onName() override { return fName; }
 
     SkISize onISize() override {
         SkBitmap bm = fMakeBitmap(SkImageInfo::MakeN32Premul(1,1)/*whatever*/);

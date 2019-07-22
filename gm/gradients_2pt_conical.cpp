@@ -343,9 +343,7 @@ public:
     }
 
 protected:
-    SkString onShortName() {
-        return fName;
-    }
+    SkString onName() { return fName; }
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 

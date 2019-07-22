@@ -79,8 +79,8 @@ public:
             , fOrigin(origin) {}
 
 private:
-    SkString onShortName() override;
-    SkISize onISize() override { return SkISize::Make(200, 200); }
+    SkString onName() override;
+    SkISize onISize() override { return {200, 200}; }
     DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*, SkString* errorMsg) override;
 
     const GradType fGradType;
@@ -245,7 +245,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-SkString SampleLocationsGM::onShortName() {
+SkString SampleLocationsGM::onName() {
     SkString name("samplelocations");
     name.append((GradType::kHW == fGradType) ? "_hwgrad" : "_swgrad");
     name.append((kTopLeft_GrSurfaceOrigin == fOrigin) ? "_topleft" : "_botleft");

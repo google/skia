@@ -92,14 +92,9 @@ static void draw_scene(SkCanvas* canvas, SkScalar pictureSize) {
 
 class PictureShaderTileGM : public skiagm::GM {
 protected:
+    SkString onName() override { return SkString("pictureshadertile"); }
 
-    SkString onShortName() override {
-        return SkString("pictureshadertile");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 600);
-    }
+    SkISize onISize() override { return {800, 600}; }
 
     void onOnceBeforeDraw() override {
         SkPictureRecorder recorder;

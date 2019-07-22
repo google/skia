@@ -35,10 +35,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("lighting");
-    }
+    SkString onName() override { return SkString("lighting"); }
 
     SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);

@@ -89,9 +89,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("simple-magnification");
-    }
+    SkString onName() override { return SkString("simple-magnification"); }
 
     SkISize onISize() override {
         return SkISize::Make(3*kPad+2*kImgSize, 3*kPad+2*kImgSize);

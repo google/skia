@@ -44,7 +44,7 @@ public:
     PerspShadersGM(bool doAA) : fDoAA(doAA) { }
 
 protected:
-    SkString onShortName() override {
+    SkString onName() override {
         SkString name;
         name.printf("persp_shaders_%s",
                      fDoAA ? "aa" : "bw");
