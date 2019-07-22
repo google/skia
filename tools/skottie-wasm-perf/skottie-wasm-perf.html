@@ -83,14 +83,16 @@
         seek = 0;
       }
 
-      animation.seek(seek);
-      animation.render(canvas, {
-                       fLeft: 0,
-                       fTop: 0,
-                       fRight: 1000,
-                       fBottom: 1000
-                       });
-      surface.flush();
+      let damage = animation.seek(seek);
+      if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
+        animation.render(canvas, {
+                         fLeft: 0,
+                         fTop: 0,
+                         fRight: 1000,
+                         fBottom: 1000
+                         });
+        surface.flush();
+      }
       console.log("Used seek: " + seek);
       seek += t_rate;
       frame++;
