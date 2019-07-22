@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71adcd54_2455f571",
+        "filename": "infra/bots/compile_g3_framework.isolate",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-22T18:45:46Z",
+      "side": 1,
+      "message": "nit: probably only needs g3_compile/trigger_wait_g3_task.py, but probably doesn\u0027t matter too much.",
+      "revId": "95e64a63a4604809679ace06e0768b4aa9886ea2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
