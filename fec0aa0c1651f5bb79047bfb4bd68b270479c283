@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "533bbeb0_78d5a106",
+        "filename": "include/core/SkFontMgr.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-22T16:42:02Z",
+      "side": 1,
+      "message": "Seems more natural to name Caps (capabilities), but whatever.",
+      "range": {
+        "startLine": 93,
+        "startChar": 15,
+        "endLine": 93,
+        "endChar": 19
+      },
+      "revId": "fec0aa0c1651f5bb79047bfb4bd68b270479c283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
