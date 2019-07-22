@@ -346,6 +346,7 @@ public:
 
     // Should we disable the CCPR code due to a faulty driver?
     bool driverBlacklistCCPR() const { return fDriverBlacklistCCPR; }
+    bool driverBlacklistMSAACCPR() const { return fDriverBlacklistMSAACCPR; }
 
     /**
      * This is used to try to ensure a successful copy a dst in order to perform shader-based
@@ -496,6 +497,7 @@ protected:
 
     // Driver workaround
     bool fDriverBlacklistCCPR                        : 1;
+    bool fDriverBlacklistMSAACCPR                    : 1;
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
 
