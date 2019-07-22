@@ -45,6 +45,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <math.h>

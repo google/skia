@@ -340,9 +340,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     };
 
     static constexpr int kSize = 100;
-    SkAutoPixmapStorage pixels;
-    pixels.alloc(SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    fillPixels(&pixels,
+    SkImageInfo ii = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkAutoPixmapStorage srcPixmap;
+    srcPixmap.alloc(ii);
+    fillPixels(&srcPixmap,
                [](int x, int y) {
                     return (0xFFU << 24) | (x << 16) | (y << 8) | uint8_t((x * y) & 0xFF);
                });
@@ -370,7 +371,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         auto readResult = surfContext->readPixels(pixels.info(), read.writable_addr(), 0, {0, 0});
         REPORTER_ASSERT(reporter, readResult);
         if (readResult) {
-            comparePixels(pixels, read, reporter);
+            comparePixels(srcPixmap, read, reporter);
         }
 
         // Write pixels should not work with a read-only texture.
@@ -739,8 +740,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
 
             GrBackendTexture backendTexture;
 
-            if (!create_backend_texture(context, &backendTexture, info,
-                                        GrMipMapped::kNo, SK_ColorBLACK, GrRenderable::kNo)) {
+            if (!create_backend_texture(context, &backendTexture, info, SkColors::kBlack,
+                                        GrMipMapped::kNo, GrRenderable::kNo)) {
                 REPORTER_ASSERT(reporter, false);
                 continue;
             }

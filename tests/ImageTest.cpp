@@ -830,8 +830,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
                                        kPremul_SkAlphaType);
     GrBackendTexture backendTex;
 
-    if (!create_backend_texture(ctx, &backendTex, ii, GrMipMapped::kNo, SK_ColorRED,
-                                GrRenderable::kNo)) {
+    if (!create_backend_texture(ctx, &backendTex, ii, SkColors::kRed,
+                                GrMipMapped::kNo, GrRenderable::kNo)) {
         ERRORF(reporter, "couldn't create backend texture\n");
     }
 

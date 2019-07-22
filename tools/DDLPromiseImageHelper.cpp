@@ -16,6 +16,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuYUVA.h"
+#include "tests/TestUtils.h"
 
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
     SkASSERT(fDoneCnt == fNumImages);
@@ -70,6 +71,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
     if (2 == channelCount) {
         const GrCaps* caps = context->priv().caps();
         GrGpu* gpu = context->priv().getGpu();
+        SkASSERT(gpu);
 
         SkASSERT(kRGBA_8888_SkColorType == pm.colorType());
         SkAutoTMalloc<char> pixels(2 * pm.width()*pm.height());
@@ -122,7 +124,6 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
             GrBackendTexture backendTex = context->priv().createBackendTexture(
                                                         &bm.pixmap(), 1, GrRenderable::kNo,
                                                         GrProtected::kNo);
-
             callbackContext->setBackendTexture(backendTex);
 
             // The GMs sometimes request too large an image
