@@ -542,8 +542,15 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    SkASSERT(validate_backend_format_and_config(this->caps(), backendTex.getBackendFormat(),
-                                                backendTex.config()));
+    const GrCaps* caps = this->caps();
+
+    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config1(),
+                                          caps->getConfigFromBackendFormat(
+                                                                     backendTex.getBackendFormat(),
+                                                                     grColorType)));
+
+    SkASSERT(validate_backend_format_and_colortype(caps, grColorType,
+                                                   backendTex.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -583,7 +590,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
+    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config1(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      colorType)));
@@ -632,7 +639,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         return nullptr;
     }
 
-    GrColorType colorType = GrPixelConfigToColorType(backendRT.config());
+    GrColorType colorType = GrPixelConfigToColorType(backendRT.config1());
 #ifdef SK_DEBUG
     GrPixelConfig testConfig =
             this->caps()->validateBackendRenderTarget(backendRT, colorType);
@@ -674,8 +681,15 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
         return nullptr;
     }
 
-    SkASSERT(validate_backend_format_and_config(this->caps(), backendTex.getBackendFormat(),
-                                                backendTex.config()));
+    const GrCaps* caps = this->caps();
+
+    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config1(),
+                                          caps->getConfigFromBackendFormat(
+                                                                     backendTex.getBackendFormat(),
+                                                                     grColorType)));
+
+    SkASSERT(validate_backend_format_and_colortype(caps, grColorType,
+                                                   backendTex.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
