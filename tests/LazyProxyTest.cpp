@@ -96,14 +96,14 @@ public:
                             desc.fHeight = 567;
                             desc.fConfig = kRGB_565_GrPixelConfig;
                             sk_sp<GrTexture> texture = rp->createTexture(
-                                    desc, GrRenderable::kNo, SkBudgeted::kYes, GrProtected::kNo,
+                                    desc, GrRenderable::kNo, 1, SkBudgeted::kYes, GrProtected::kNo,
                                     GrResourceProvider::Flags::kNoPendingIO);
                             REPORTER_ASSERT(fTest->fReporter, texture);
                             return std::move(texture);
                         }
                     },
-                    format, GrProxyProvider::Renderable::kNo, GrProtected::kNo,
-                    kTopLeft_GrSurfaceOrigin, kRGB_565_GrPixelConfig, *proxyProvider->caps());
+                    format, GrRenderable::kNo, 1, GrProtected::kNo, kTopLeft_GrSurfaceOrigin,
+                    kRGB_565_GrPixelConfig, *proxyProvider->caps());
 
             this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo,
                             GrOp::IsZeroArea::kNo);
@@ -139,8 +139,8 @@ public:
                         fAtlas->instantiate(rp);
                         return sk_ref_sp(fAtlas->peekTexture());
                     },
-                    format, GrProxyProvider::Renderable::kYes, GrProtected::kNo,
-                    kBottomLeft_GrSurfaceOrigin, kAlpha_half_GrPixelConfig, *proxyProvider->caps());
+                    format, GrRenderable::kYes, 1, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin,
+                    kAlpha_half_GrPixelConfig, *proxyProvider->caps());
             fAccess.reset(fLazyProxy, GrSamplerState::Filter::kNearest,
                           GrSamplerState::WrapMode::kClamp);
             this->setTextureSamplerCnt(1);
@@ -265,7 +265,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                 int* fValue = nullptr;
             };
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-                    TestCallback(&testCount), format, desc, GrRenderable::kNo,
+                    TestCallback(&testCount), format, desc, GrRenderable::kNo, 1,
                     kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
                     SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, lazyType);
 
@@ -331,12 +331,12 @@ private:
                         *testExecuteValue = 1;
                         return {};
                     }
-                    return {rp->createTexture(desc, GrRenderable::kNo, SkBudgeted::kNo,
+                    return {rp->createTexture(desc, GrRenderable::kNo, 1, SkBudgeted::kNo,
                                               GrProtected::kNo,
                                               GrResourceProvider::Flags::kNoPendingIO),
                             GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
-                format, desc, GrRenderable::kNo, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                 SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
 
         SkASSERT(fLazyProxy.get());
@@ -472,7 +472,7 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
                     texture->setRelease(DeinstantiateReleaseProc, releasePtr);
                     return std::move(texture);
                 },
-                format, desc, GrRenderable::kNo, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                 GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
                 GrProtected::kNo, lazyType);
 

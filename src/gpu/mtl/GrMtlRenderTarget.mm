@@ -17,14 +17,15 @@
 // Called for wrapped non-texture render targets.
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      const GrSurfaceDesc& desc,
+                                     int sampleCnt,
                                      id<MTLTexture> colorTexture,
                                      id<MTLTexture> resolveTexture,
                                      Wrapped)
         : GrSurface(gpu, desc, GrProtected::kNo)
-        , GrRenderTarget(gpu, desc, GrProtected::kNo)
+        , GrRenderTarget(gpu, desc, sampleCnt, GrProtected::kNo)
         , fColorTexture(colorTexture)
         , fResolveTexture(resolveTexture) {
-    SkASSERT(desc.fSampleCnt > 1);
+    SkASSERT(sampleCnt > 1);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -33,44 +34,43 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      id<MTLTexture> colorTexture,
                                      Wrapped)
         : GrSurface(gpu, desc, GrProtected::kNo)
-        , GrRenderTarget(gpu, desc, GrProtected::kNo)
+        , GrRenderTarget(gpu, desc, 1, GrProtected::kNo)
         , fColorTexture(colorTexture)
         , fResolveTexture(nil) {
-    SkASSERT(1 == desc.fSampleCnt);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 // Called by subclass constructors.
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      const GrSurfaceDesc& desc,
+                                     int sampleCnt,
                                      id<MTLTexture> colorTexture,
                                      id<MTLTexture> resolveTexture)
         : GrSurface(gpu, desc, GrProtected::kNo)
-        , GrRenderTarget(gpu, desc, GrProtected::kNo)
+        , GrRenderTarget(gpu, desc, sampleCnt, GrProtected::kNo)
         , fColorTexture(colorTexture)
         , fResolveTexture(resolveTexture) {
-    SkASSERT(desc.fSampleCnt > 1);
+    SkASSERT(sampleCnt > 1);
 }
 
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      const GrSurfaceDesc& desc,
                                      id<MTLTexture> colorTexture)
         : GrSurface(gpu, desc, GrProtected::kNo)
-        , GrRenderTarget(gpu, desc, GrProtected::kNo)
+        , GrRenderTarget(gpu, desc, 1, GrProtected::kNo)
         , fColorTexture(colorTexture)
-        , fResolveTexture(nil) {
-    SkASSERT(1 == desc.fSampleCnt);
-}
+        , fResolveTexture(nil) {}
 
-sk_sp<GrMtlRenderTarget>
-GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gpu, const GrSurfaceDesc& desc,
-                                           id<MTLTexture> texture) {
+sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gpu,
+                                                                    const GrSurfaceDesc& desc,
+                                                                    int sampleCnt,
+                                                                    id<MTLTexture> texture) {
     SkASSERT(nil != texture);
     SkASSERT(1 == texture.mipmapLevelCount);
     SkASSERT(MTLTextureUsageRenderTarget & texture.usage);
 
     GrMtlRenderTarget* mtlRT;
-    if (desc.fSampleCnt > 1) {
+    if (sampleCnt > 1) {
         MTLPixelFormat format;
         if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
             return nullptr;
@@ -82,7 +82,7 @@ GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gpu, const GrSurfaceDesc& d
         texDesc.height = desc.fHeight;
         texDesc.depth = 1;
         texDesc.mipmapLevelCount = 1;
-        texDesc.sampleCount = desc.fSampleCnt;
+        texDesc.sampleCount = sampleCnt;
         texDesc.arrayLength = 1;
         texDesc.storageMode = MTLStorageModePrivate;
         texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
@@ -92,7 +92,7 @@ GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gpu, const GrSurfaceDesc& d
             return nullptr;
         }
         SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & colorTexture.usage);
-        mtlRT = new GrMtlRenderTarget(gpu, desc, colorTexture, texture, kWrapped);
+        mtlRT = new GrMtlRenderTarget(gpu, desc, sampleCnt, colorTexture, texture, kWrapped);
     } else {
         mtlRT = new GrMtlRenderTarget(gpu, desc, texture, kWrapped);
     }

@@ -50,11 +50,6 @@ public:
     void flagAsNeedingResolve(const SkIRect* rect = nullptr);
 
     /**
-     * Call to override the region that needs to be resolved.
-     */
-    void overrideResolveRect(const SkIRect rect);
-
-    /**
      * Call to indicate that GrRenderTarget was externally resolved. This may
      * allow Gr to skip a redundant resolve step.
      */
@@ -90,7 +85,8 @@ public:
     const GrRenderTargetPriv renderTargetPriv() const;
 
 protected:
-    GrRenderTarget(GrGpu*, const GrSurfaceDesc&, GrProtected, GrStencilAttachment* = nullptr);
+    GrRenderTarget(GrGpu*, const GrSurfaceDesc&, int sampleCount, GrProtected,
+                   GrStencilAttachment* = nullptr);
     ~GrRenderTarget() override;
 
     // override of GrResource

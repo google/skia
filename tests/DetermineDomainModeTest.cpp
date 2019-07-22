@@ -146,7 +146,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
               (isPowerOfTwo || isExact) ? RectInfo::kHard : RectInfo::kBad,
               name);
 
-    return proxyProvider->createProxy(format, desc, GrRenderable::kNo, kTopLeft_GrSurfaceOrigin,
+    return proxyProvider->createProxy(format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
                                       fit, SkBudgeted::kYes, GrProtected::kNo);
 }
 

@@ -145,8 +145,9 @@ static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLeve
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderable renderable,
-                                      SkBudgeted budgeted, GrProtected isProtected,
-                                      const GrMipLevel texels[], int mipLevelCount) {
+                                      int renderTargetSampleCnt, SkBudgeted budgeted,
+                                      GrProtected isProtected, const GrMipLevel texels[],
+                                      int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (GrPixelConfigIsCompressed(origDesc.fConfig)) {
         // Call GrGpu::createCompressedTexture.
@@ -155,15 +156,16 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderabl
     GrSurfaceDesc desc = origDesc;
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
-    if (!this->caps()->validateSurfaceDesc(desc, renderable, mipMapped)) {
+    if (!this->caps()->validateSurfaceDesc(desc, renderable, renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
 
     if (renderable == GrRenderable::kYes) {
-        desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
+        renderTargetSampleCnt =
+                this->caps()->getRenderTargetSampleCount(renderTargetSampleCnt, desc.fConfig);
     }
     // Attempt to catch un- or wrongly initialized sample counts.
-    SkASSERT(desc.fSampleCnt > 0 && desc.fSampleCnt <= 64);
+    SkASSERT(renderTargetSampleCnt > 0 && renderTargetSampleCnt <= 64);
 
     bool mustHaveDataForAllLevels = this->caps()->createTextureMustSpecifyAllLevels();
     if (mipLevelCount) {
@@ -177,8 +179,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderabl
     }
 
     this->handleDirtyContext();
-    sk_sp<GrTexture> tex =
-            this->onCreateTexture(desc, renderable, budgeted, isProtected, texels, mipLevelCount);
+    sk_sp<GrTexture> tex = this->onCreateTexture(desc, renderable, renderTargetSampleCnt, budgeted,
+                                                 isProtected, texels, mipLevelCount);
     if (tex) {
         if (!this->caps()->reuseScratchTextures() && renderable == GrRenderable::kNo) {
             tex->resourcePriv().removeScratchKey();
@@ -194,8 +196,10 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderabl
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                      SkBudgeted budgeted, GrProtected isProtected) {
-    return this->createTexture(desc, renderable, budgeted, isProtected, nullptr, 0);
+                                      int renderTargetSampleCnt, SkBudgeted budgeted,
+                                      GrProtected isProtected) {
+    return this->createTexture(desc, renderable, renderTargetSampleCnt, budgeted, isProtected,
+                               nullptr, 0);
 }
 
 sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,

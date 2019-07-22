@@ -16,7 +16,7 @@ class GrDawnGpu;
 
 class GrDawnRenderTarget: public GrRenderTarget {
 public:
-    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*, const GrSurfaceDesc&,
+    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*, const GrSurfaceDesc&, int sampleCnt,
                                                  const GrDawnImageInfo&);
 
     ~GrDawnRenderTarget() override;
@@ -39,6 +39,7 @@ public:
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
                        const GrSurfaceDesc& desc,
+                       int sampleCnt,
                        const GrDawnImageInfo& info,
                        GrBackendObjectOwnership);
 
@@ -56,7 +57,7 @@ protected:
                                       numSamples, GrMipMapped::kNo);
     }
 
-    static GrDawnRenderTarget* Create(GrDawnGpu*, const GrSurfaceDesc&,
+    static GrDawnRenderTarget* Create(GrDawnGpu*, const GrSurfaceDesc&, int sampleCnt,
                                       const GrDawnImageInfo&, GrBackendObjectOwnership);
 
     bool completeStencilAttachment() override;

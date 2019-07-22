@@ -79,9 +79,8 @@ sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(
     const GrBackendFormat format = caps.getBackendFormatFromColorType(colorType);
 
     sk_sp<GrTextureProxy> proxy = GrProxyProvider::MakeFullyLazyProxy(
-            std::bind(callback, std::placeholders::_1, pixelConfig, sampleCount),
-            format, GrProxyProvider::Renderable::kYes, GrProtected::kNo, kTextureOrigin,
-            pixelConfig, caps, sampleCount);
+            std::bind(callback, std::placeholders::_1, pixelConfig, sampleCount), format,
+            GrRenderable::kYes, sampleCount, GrProtected::kNo, kTextureOrigin, pixelConfig, caps);
 
     return proxy;
 }
@@ -120,9 +119,8 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
             desc.fWidth = fWidth;
             desc.fHeight = fHeight;
             desc.fConfig = pixelConfig;
-            desc.fSampleCnt = sampleCount;
             fBackingTexture = resourceProvider->createTexture(
-                    desc, GrRenderable::kYes, SkBudgeted::kYes, GrProtected::kNo,
+                    desc, GrRenderable::kYes, sampleCount, SkBudgeted::kYes, GrProtected::kNo,
                     GrResourceProvider::Flags::kNoPendingIO);
         }
         return fBackingTexture;

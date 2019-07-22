@@ -24,8 +24,6 @@ static sk_sp<GrSurfaceProxy> make_wrapped_rt(GrProxyProvider* provider,
                                              skiatest::Reporter* reporter,
                                              const GrSurfaceDesc& desc,
                                              GrSurfaceOrigin origin) {
-    // We don't currently have a way of making MSAA backend render targets.
-    SkASSERT(1 == desc.fSampleCnt);
     auto ct = GrPixelConfigToColorType(desc.fConfig);
     auto backendRT = gpu->createTestingOnlyBackendRenderTarget(desc.fWidth, desc.fHeight, ct);
     return provider->wrapBackendRenderTarget(backendRT, origin, nullptr, nullptr);
@@ -42,7 +40,7 @@ void clean_up_wrapped_rt(GrGpu* gpu, sk_sp<GrSurfaceProxy> proxy) {
 static sk_sp<GrSurfaceProxy> make_offscreen_rt(GrProxyProvider* provider,
                                                const GrSurfaceDesc& desc,
                                                GrSurfaceOrigin origin) {
-    return provider->testingOnly_createInstantiatedProxy(desc, GrRenderable::kYes, origin,
+    return provider->testingOnly_createInstantiatedProxy(desc, GrRenderable::kYes, 1, origin,
                                                          SkBackingFit::kExact, SkBudgeted::kYes,
                                                          GrProtected::kNo);
 }
@@ -52,7 +50,7 @@ static sk_sp<GrSurfaceProxy> make_texture(GrProxyProvider* provider,
                                           GrRenderable renderable,
                                           GrSurfaceOrigin origin) {
     return provider->testingOnly_createInstantiatedProxy(
-            desc, renderable, origin, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
+            desc, renderable, 1, origin, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 }
 
 // Test converting between RenderTargetProxies and TextureProxies for preinstantiated Proxies
@@ -138,7 +136,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
                     GrColorType::kRGBA_8888);
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                format, desc, GrRenderable::kYes, kBottomLeft_GrSurfaceOrigin,
+                format, desc, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin,
                 SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
 
         // Both RenderTarget and Texture
@@ -152,7 +150,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
 
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                format, desc, GrRenderable::kYes, kBottomLeft_GrSurfaceOrigin,
+                format, desc, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin,
                 SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
 
         // Both RenderTarget and Texture - but via GrTextureProxy
@@ -166,7 +164,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
 
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                format, desc, GrRenderable::kNo, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
+                format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
                 SkBudgeted::kYes, GrProtected::kNo);
         // Texture-only
         GrTextureProxy* tProxy = proxy->asTextureProxy();

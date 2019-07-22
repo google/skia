@@ -522,7 +522,7 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     int numPlotsY = fTextureHeight/fPlotHeight;
 
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        fProxies[i] = proxyProvider->createProxy(fFormat, desc, GrRenderable::kNo,
+        fProxies[i] = proxyProvider->createProxy(fFormat, desc, GrRenderable::kNo, 1,
                                                  kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
                                                  SkBudgeted::kYes, GrProtected::kNo);
         if (!fProxies[i]) {

@@ -95,11 +95,10 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     backingDesc.fWidth = width;
     backingDesc.fHeight = height;
     backingDesc.fConfig = config;
-    backingDesc.fSampleCnt = sampleCnt;
 
     auto resourceProvider = context->priv().resourceProvider();
 
-    *backingSurface = resourceProvider->createTexture(backingDesc, GrRenderable::kYes,
+    *backingSurface = resourceProvider->createTexture(backingDesc, GrRenderable::kYes, sampleCnt,
                                                       SkBudgeted::kNo, GrProtected::kNo,
                                                       GrResourceProvider::Flags::kNoPendingIO);
     if (!(*backingSurface)) {

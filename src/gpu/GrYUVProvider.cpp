@@ -159,7 +159,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
 
     // TODO: investigate preallocating mip maps here
     sk_sp<GrRenderTargetContext> renderTargetContext(ctx->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, desc.fWidth, desc.fHeight, colorType, nullptr, desc.fSampleCnt,
+            SkBackingFit::kExact, desc.fWidth, desc.fHeight, colorType, nullptr, 1,
             GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
     if (!renderTargetContext) {
         return nullptr;

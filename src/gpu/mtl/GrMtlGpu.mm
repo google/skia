@@ -408,8 +408,9 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
 }
 
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                           SkBudgeted budgeted, GrProtected isProtected,
-                                           const GrMipLevel texels[], int mipLevelCount) {
+                                           int renderTargetSampleCnt, SkBudgeted budgeted,
+                                           GrProtected isProtected, const GrMipLevel texels[],
+                                           int mipLevelCount) {
     // We don't support protected textures in Metal.
     if (isProtected == GrProtected::kYes) {
         return nullptr;
@@ -460,7 +461,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderab
 
     if (renderable == GrRenderable::kYes) {
         tex = GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(this, budgeted,
-                                                                   desc, texDesc, mipMapsStatus);
+                                                                   desc, renderTargetSampleCnt,
+                                                                   texDesc, mipMapsStatus);
     } else {
         tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc, mipMapsStatus);
     }
@@ -516,7 +518,6 @@ static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> 
     surfaceDesc->fWidth = mtlTexture.width;
     surfaceDesc->fHeight = mtlTexture.height;
     surfaceDesc->fConfig = config;
-    surfaceDesc->fSampleCnt = 1;
 }
 
 sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
@@ -546,14 +547,14 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
     GrSurfaceDesc surfDesc;
     init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, backendTex.config());
 
-    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, colorType,
-                                                                   backendTex.getBackendFormat());
-    if (!surfDesc.fSampleCnt) {
+    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, colorType,
+                                                         backendTex.getBackendFormat());
+    if (!sampleCnt) {
         return nullptr;
     }
 
-    return GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, mtlTexture,
-                                                                    cacheable);
+    return GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, sampleCnt,
+                                                                    mtlTexture, cacheable);
 }
 
 sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
@@ -569,7 +570,8 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
     GrSurfaceDesc surfDesc;
     init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, backendRT.config());
 
-    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, mtlTexture);
+    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, backendRT.sampleCnt(),
+                                                      mtlTexture);
 }
 
 sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
@@ -581,12 +583,12 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
 
     GrSurfaceDesc surfDesc;
     init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, backendTex.config());
-    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, surfDesc.fConfig);
-    if (!surfDesc.fSampleCnt) {
+    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, surfDesc.fConfig);
+    if (!sampleCnt) {
         return nullptr;
     }
 
-    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, mtlTexture);
+    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, sampleCnt, mtlTexture);
 }
 
 bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {

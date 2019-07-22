@@ -13,29 +13,32 @@
 
 GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
                                        const GrSurfaceDesc& desc,
+                                       int sampleCnt,
                                        const GrDawnImageInfo& info,
                                        GrBackendObjectOwnership ownership)
-    : GrSurface(gpu, desc, GrProtected::kNo)
-    , GrRenderTarget(gpu, desc, GrProtected::kNo)
-    , fInfo(info) {
+        : GrSurface(gpu, desc, GrProtected::kNo)
+        , GrRenderTarget(gpu, desc, sampleCnt, GrProtected::kNo)
+        , fInfo(info) {
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 GrDawnRenderTarget*
 GrDawnRenderTarget::Create(GrDawnGpu* gpu,
                            const GrSurfaceDesc& desc,
+                           int sampleCnt,
                            const GrDawnImageInfo& info,
                            GrBackendObjectOwnership ownership) {
     SkASSERT(1 == info.fLevelCount);
-    return new GrDawnRenderTarget(gpu, desc, info, ownership);
+    return new GrDawnRenderTarget(gpu, desc, sampleCnt, info, ownership);
 }
 
 sk_sp<GrDawnRenderTarget>
 GrDawnRenderTarget::MakeWrapped(GrDawnGpu* gpu,
                                 const GrSurfaceDesc& desc,
+                                int sampleCnt,
                                 const GrDawnImageInfo& info) {
     return sk_sp<GrDawnRenderTarget>(
-        GrDawnRenderTarget::Create(gpu, desc, info,
+        GrDawnRenderTarget::Create(gpu, desc, sampleCnt, info,
                                   GrBackendObjectOwnership::kBorrowed));
 }
 

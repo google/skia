@@ -41,12 +41,11 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
     desc.fWidth  = p.fSize;
     desc.fHeight = p.fSize;
     desc.fConfig = config;
-    desc.fSampleCnt = p.fSampleCnt;
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(grCT);
 
-    return proxyProvider->createProxy(format, desc, p.fRenderable, p.fOrigin, p.fFit, p.fBudgeted,
-                                      GrProtected::kNo);
+    return proxyProvider->createProxy(format, desc, p.fRenderable, p.fSampleCnt, p.fOrigin, p.fFit,
+                                      p.fBudgeted, GrProtected::kNo);
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
@@ -163,9 +162,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         //----------------------------------------------------------------------------------------
         // Two proxies with overlapping intervals and compatible descriptors should never share
         // RT version
-        { { 64,    kRT, kRGBA, kA, 0, kTL, kNotB }, { 64,    kRT, kRGBA, kA, 0, kTL, kNotB }, kDontShare },
+        { { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, kDontShare },
         // non-RT version
-        { { 64, kNotRT, kRGBA, kA, 0, kTL, kNotB }, { 64, kNotRT, kRGBA, kA, 0, kTL, kNotB }, kDontShare },
+        { { 64, kNotRT, kRGBA, kA, 1, kTL, kNotB }, { 64, kNotRT, kRGBA, kA, 1, kTL, kNotB }, kDontShare },
     };
 
     for (auto test : gOverlappingTests) {
@@ -184,28 +183,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         //----------------------------------------------------------------------------------------
         // Two non-overlapping intervals w/ compatible proxies should share
         // both same size & approx
-        { { 64,    kRT, kRGBA, kA, 0, kTL, kNotB }, { 64,    kRT, kRGBA, kA, 0, kTL, kNotB }, kShare },
-        { { 64, kNotRT, kRGBA, kA, 0, kTL, kNotB }, { 64, kNotRT, kRGBA, kA, 0, kTL, kNotB }, kConditionallyShare },
+        { { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, kShare },
+        { { 64, kNotRT, kRGBA, kA, 1, kTL, kNotB }, { 64, kNotRT, kRGBA, kA, 1, kTL, kNotB }, kConditionallyShare },
         // diffs sizes but still approx
-        { { 64,    kRT, kRGBA, kA, 0, kTL, kNotB }, { 50,    kRT, kRGBA, kA, 0, kTL, kNotB }, kShare },
-        { { 64, kNotRT, kRGBA, kA, 0, kTL, kNotB }, { 50, kNotRT, kRGBA, kA, 0, kTL, kNotB }, kConditionallyShare },
+        { { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, { 50,    kRT, kRGBA, kA, 1, kTL, kNotB }, kShare },
+        { { 64, kNotRT, kRGBA, kA, 1, kTL, kNotB }, { 50, kNotRT, kRGBA, kA, 1, kTL, kNotB }, kConditionallyShare },
         // sames sizes but exact
-        { { 64,    kRT, kRGBA, kE, 0, kTL, kNotB }, { 64,    kRT, kRGBA, kE, 0, kTL, kNotB }, kShare },
-        { { 64, kNotRT, kRGBA, kE, 0, kTL, kNotB }, { 64, kNotRT, kRGBA, kE, 0, kTL, kNotB }, kConditionallyShare },
+        { { 64,    kRT, kRGBA, kE, 1, kTL, kNotB }, { 64,    kRT, kRGBA, kE, 1, kTL, kNotB }, kShare },
+        { { 64, kNotRT, kRGBA, kE, 1, kTL, kNotB }, { 64, kNotRT, kRGBA, kE, 1, kTL, kNotB }, kConditionallyShare },
         //----------------------------------------------------------------------------------------
         // Two non-overlapping intervals w/ different exact sizes should not share
-        { { 56,    kRT, kRGBA, kE, 0, kTL, kNotB }, { 54,    kRT, kRGBA, kE, 0, kTL, kNotB }, kDontShare },
+        { { 56,    kRT, kRGBA, kE, 1, kTL, kNotB }, { 54,    kRT, kRGBA, kE, 1, kTL, kNotB }, kDontShare },
         // Two non-overlapping intervals w/ _very different_ approx sizes should not share
-        { { 255,   kRT, kRGBA, kA, 0, kTL, kNotB }, { 127,   kRT, kRGBA, kA, 0, kTL, kNotB }, kDontShare },
+        { { 255,   kRT, kRGBA, kA, 1, kTL, kNotB }, { 127,   kRT, kRGBA, kA, 1, kTL, kNotB }, kDontShare },
         // Two non-overlapping intervals w/ different MSAA sample counts should not share
         { { 64,    kRT, kRGBA, kA, k2, kTL, kNotB },{ 64,    kRT, kRGBA, kA, k4,kTL, kNotB}, k2 == k4 },
         // Two non-overlapping intervals w/ different configs should not share
-        { { 64,    kRT, kRGBA, kA, 0, kTL, kNotB }, { 64,    kRT, kBGRA, kA, 0, kTL, kNotB }, kDontShare },
+        { { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, { 64,    kRT, kBGRA, kA, 1, kTL, kNotB }, kDontShare },
         // Two non-overlapping intervals w/ different RT classifications should never share
-        { { 64,    kRT, kRGBA, kA, 0, kTL, kNotB }, { 64, kNotRT, kRGBA, kA, 0, kTL, kNotB }, kDontShare },
-        { { 64, kNotRT, kRGBA, kA, 0, kTL, kNotB }, { 64,    kRT, kRGBA, kA, 0, kTL, kNotB }, kDontShare },
+        { { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, { 64, kNotRT, kRGBA, kA, 1, kTL, kNotB }, kDontShare },
+        { { 64, kNotRT, kRGBA, kA, 1, kTL, kNotB }, { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, kDontShare },
         // Two non-overlapping intervals w/ different origins should share
-        { { 64,    kRT, kRGBA, kA, 0, kTL, kNotB }, { 64,    kRT, kRGBA, kA, 0, kBL, kNotB }, kShare },
+        { { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, { 64,    kRT, kRGBA, kA, 1, kBL, kNotB }, kShare },
     };
 
     for (auto test : gNonOverlappingTests) {
@@ -223,7 +222,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     {
         // Wrapped backend textures should never be reused
         TestCase t[1] = {
-            { { 64, kNotRT, kRGBA, kE, 0, kTL, kNotB }, { 64, kNotRT, kRGBA, kE, 0, kTL, kNotB }, kDontShare }
+            { { 64, kNotRT, kRGBA, kE, 1, kTL, kNotB }, { 64, kNotRT, kRGBA, kE, 1, kTL, kNotB }, kDontShare }
         };
 
         GrBackendTexture backEndTex;
@@ -276,17 +275,17 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     desc.fWidth = p.fSize;
     desc.fHeight = p.fSize;
     desc.fConfig = config;
-    desc.fSampleCnt = p.fSampleCnt;
 
     SkBackingFit fit = p.fFit;
-    auto callback = [fit, desc, renderable = p.fRenderable](GrResourceProvider* resourceProvider) {
+    auto callback = [fit, desc, p](GrResourceProvider* resourceProvider) {
         sk_sp<GrTexture> texture;
         if (fit == SkBackingFit::kApprox) {
             texture = resourceProvider->createApproxTexture(
-                    desc, renderable, GrProtected::kNo, GrResourceProvider::Flags::kNoPendingIO);
+                    desc, p.fRenderable, p.fSampleCnt, GrProtected::kNo,
+                    GrResourceProvider::Flags::kNoPendingIO);
         } else {
-            texture = resourceProvider->createTexture(desc, renderable, SkBudgeted::kNo,
-                                                      GrProtected::kNo,
+            texture = resourceProvider->createTexture(desc, p.fRenderable, p.fSampleCnt,
+                                                      SkBudgeted::kNo, GrProtected::kNo,
                                                       GrResourceProvider::Flags::kNoPendingIO);
         }
         return GrSurfaceProxy::LazyInstantiationResult(std::move(texture));
@@ -295,8 +294,8 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     auto lazyType = deinstantiate ? GrSurfaceProxy::LazyInstantiationType ::kDeinstantiate
                                   : GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
-    return proxyProvider->createLazyProxy(callback, format, desc, p.fRenderable, p.fOrigin,
-                                          GrMipMapped::kNo, flags, p.fFit, p.fBudgeted,
+    return proxyProvider->createLazyProxy(callback, format, desc, p.fRenderable, p.fSampleCnt,
+                                          p.fOrigin, GrMipMapped::kNo, flags, p.fFit, p.fBudgeted,
                                           GrProtected::kNo, lazyType);
 }
 
@@ -361,7 +360,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
     context->setResourceCacheLimits(0, 0);
 
     const ProxyParams params  = { 64, GrRenderable::kNo, kRGBA_8888_SkColorType,
-                                  SkBackingFit::kExact, 0, kTopLeft_GrSurfaceOrigin,
+                                  SkBackingFit::kExact, 1, kTopLeft_GrSurfaceOrigin,
                                   SkBudgeted::kYes };
 
     {

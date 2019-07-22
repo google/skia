@@ -41,8 +41,9 @@ static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider, const
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
-    return proxyProvider->createProxy(format, desc, GrRenderable::kYes, kBottomLeft_GrSurfaceOrigin,
-                                      SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+    return proxyProvider->createProxy(format, desc, GrRenderable::kYes, 1,
+                                      kBottomLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
+                                      SkBudgeted::kYes, GrProtected::kNo);
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider, const GrCaps* caps) {
@@ -52,7 +53,7 @@ static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider, const 
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     return proxyProvider->testingOnly_createInstantiatedProxy(
-            desc, GrRenderable::kYes, kBottomLeft_GrSurfaceOrigin, SkBackingFit::kExact,
+            desc, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin, SkBackingFit::kExact,
             SkBudgeted::kNo, GrProtected::kNo);
 }
 

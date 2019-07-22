@@ -273,7 +273,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
         const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
-        proxies[0] = proxyProvider->createProxy(format, dummyDesc, GrRenderable::kYes,
+        proxies[0] = proxyProvider->createProxy(format, dummyDesc, GrRenderable::kYes, 1,
                                                 kBottomLeft_GrSurfaceOrigin, mipMapped,
                                                 SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
@@ -285,7 +285,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
         const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_8);
-        proxies[1] = proxyProvider->createProxy(format, dummyDesc, GrRenderable::kNo,
+        proxies[1] = proxyProvider->createProxy(format, dummyDesc, GrRenderable::kNo, 1,
                                                 kTopLeft_GrSurfaceOrigin, mipMapped,
                                                 SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);

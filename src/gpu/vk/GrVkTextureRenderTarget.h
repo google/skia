@@ -28,11 +28,13 @@ class GrVkTextureRenderTarget: public GrVkTexture, public GrVkRenderTarget {
 public:
     static sk_sp<GrVkTextureRenderTarget> MakeNewTextureRenderTarget(GrVkGpu*, SkBudgeted,
                                                                      const GrSurfaceDesc&,
+                                                                     int sampleCnt,
                                                                      const GrVkImage::ImageDesc&,
                                                                      GrMipMapsStatus);
 
     static sk_sp<GrVkTextureRenderTarget> MakeWrappedTextureRenderTarget(GrVkGpu*,
                                                                          const GrSurfaceDesc&,
+                                                                         int sampleCnt,
                                                                          GrWrapOwnership,
                                                                          GrWrapCacheable,
                                                                          const GrVkImageInfo&,
@@ -58,6 +60,7 @@ private:
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             SkBudgeted budgeted,
                             const GrSurfaceDesc& desc,
+                            int sampleCnt,
                             const GrVkImageInfo& info,
                             sk_sp<GrVkImageLayout> layout,
                             const GrVkImageView* texView,
@@ -80,6 +83,7 @@ private:
     // MSAA, wrapped
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             const GrSurfaceDesc& desc,
+                            int sampleCnt,
                             const GrVkImageInfo& info,
                             sk_sp<GrVkImageLayout> layout,
                             const GrVkImageView* texView,

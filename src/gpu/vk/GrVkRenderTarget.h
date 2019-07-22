@@ -34,7 +34,7 @@ struct GrVkImageInfo;
 class GrVkRenderTarget: public GrRenderTarget, public virtual GrVkImage {
 public:
     static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
-                                                           const GrVkImageInfo&,
+                                                           int sampleCnt, const GrVkImageInfo&,
                                                            sk_sp<GrVkImageLayout>);
 
     static sk_sp<GrVkRenderTarget> MakeSecondaryCBRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
@@ -97,6 +97,7 @@ public:
 protected:
     GrVkRenderTarget(GrVkGpu* gpu,
                      const GrSurfaceDesc& desc,
+                     int sampleCnt,
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
                      const GrVkImageInfo& msaaInfo,
@@ -137,6 +138,7 @@ protected:
 private:
     GrVkRenderTarget(GrVkGpu* gpu,
                      const GrSurfaceDesc& desc,
+                     int sampleCnt,
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
                      const GrVkImageInfo& msaaInfo,

@@ -19,10 +19,10 @@
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStencilSettings.h"
 
-GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, GrProtected isProtected,
-                               GrStencilAttachment* stencil)
+GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, int sampleCount,
+                               GrProtected isProtected, GrStencilAttachment* stencil)
         : INHERITED(gpu, desc, isProtected)
-        , fSampleCnt(desc.fSampleCnt)
+        , fSampleCnt(sampleCount)
         , fSamplePatternKey(GrSamplePatternDictionary::kInvalidSamplePatternKey)
         , fStencilAttachment(stencil) {
     fResolveRect = SkRectPriv::MakeILargestInverted();
@@ -39,17 +39,6 @@ void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {
             }
         } else {
             fResolveRect.setLTRB(0, 0, this->width(), this->height());
-        }
-    }
-}
-
-void GrRenderTarget::overrideResolveRect(const SkIRect rect) {
-    fResolveRect = rect;
-    if (fResolveRect.isEmpty()) {
-        fResolveRect = SkRectPriv::MakeILargestInverted();
-    } else {
-        if (!fResolveRect.intersect(0, 0, this->width(), this->height())) {
-            fResolveRect = SkRectPriv::MakeILargestInverted();
         }
     }
 }

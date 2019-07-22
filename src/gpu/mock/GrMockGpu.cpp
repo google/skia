@@ -143,8 +143,9 @@ void GrMockGpu::querySampleLocations(GrRenderTarget* rt, SkTArray<SkPoint>* samp
 }
 
 sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                            SkBudgeted budgeted, GrProtected isProtected,
-                                            const GrMipLevel texels[], int mipLevelCount) {
+                                            int renderTargetSampleCnt, SkBudgeted budgeted,
+                                            GrProtected isProtected, const GrMipLevel texels[],
+                                            int mipLevelCount) {
     if (fMockOptions.fFailTextureAllocations) {
         return nullptr;
     }
@@ -159,7 +160,8 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRendera
     GrMockTextureInfo texInfo(ct, NextInternalTextureID());
     if (renderable == GrRenderable::kYes) {
         GrMockRenderTargetInfo rtInfo(ct, NextInternalRenderTargetID());
-        return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, budgeted, desc, isProtected,
+        return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, budgeted, desc,
+                                                              renderTargetSampleCnt, isProtected,
                                                               mipMapsStatus, texInfo, rtInfo));
     }
     return sk_sp<GrTexture>(
@@ -211,8 +213,8 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     GrMockRenderTargetInfo rtInfo(texInfo.fColorType, NextInternalRenderTargetID());
 
     auto isProtected = GrProtected(tex.isProtected());
-    return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, desc, isProtected, mipMapsStatus,
-                                                          texInfo, rtInfo, cacheable));
+    return sk_sp<GrTexture>(new GrMockTextureRenderTarget(
+            this, desc, sampleCnt, isProtected, mipMapsStatus, texInfo, rtInfo, cacheable));
 }
 
 sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt) {
@@ -225,8 +227,8 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendRenderTarget(const GrBackendRender
     desc.fConfig = info.pixelConfig();
 
     auto isProtected = GrProtected(rt.isProtected());
-    return sk_sp<GrRenderTarget>(
-            new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc, isProtected, info));
+    return sk_sp<GrRenderTarget>(new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc,
+                                                        rt.sampleCnt(), isProtected, info));
 }
 
 sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
@@ -238,14 +240,13 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
     desc.fConfig = texInfo.pixelConfig();
-    desc.fSampleCnt = sampleCnt;
 
     // The client gave us the texture ID but we supply the render target ID.
     GrMockRenderTargetInfo rtInfo(texInfo.fColorType, NextInternalRenderTargetID());
 
     auto isProtected = GrProtected(tex.isProtected());
-    return sk_sp<GrRenderTarget>(
-            new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc, isProtected, rtInfo));
+    return sk_sp<GrRenderTarget>(new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc,
+                                                        sampleCnt, isProtected, rtInfo));
 }
 
 sk_sp<GrGpuBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,

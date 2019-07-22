@@ -192,11 +192,11 @@ sk_sp<GrTextureContext> GrRecordingContext::makeDeferredTextureContext(
 
     sk_sp<GrTextureProxy> texture;
     if (GrMipMapped::kNo == mipMapped) {
-        texture = this->proxyProvider()->createProxy(format, desc, GrRenderable::kNo, origin, fit,
-                                                     budgeted, isProtected);
+        texture = this->proxyProvider()->createProxy(format, desc, GrRenderable::kNo, 1, origin,
+                                                     fit, budgeted, isProtected);
     } else {
-        texture = this->proxyProvider()->createMipMapProxy(format, desc, GrRenderable::kNo, origin,
-                                                           budgeted, isProtected);
+        texture = this->proxyProvider()->createMipMapProxy(format, desc, GrRenderable::kNo, 1,
+                                                           origin, budgeted, isProtected);
     }
     if (!texture) {
         return nullptr;
@@ -238,15 +238,14 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = config;
-    desc.fSampleCnt = sampleCnt;
 
     sk_sp<GrTextureProxy> rtp;
     if (GrMipMapped::kNo == mipMapped) {
-        rtp = this->proxyProvider()->createProxy(format, desc, GrRenderable::kYes, origin, fit,
-                                                 budgeted, isProtected);
+        rtp = this->proxyProvider()->createProxy(format, desc, GrRenderable::kYes, sampleCnt,
+                                                 origin, fit, budgeted, isProtected);
     } else {
-        rtp = this->proxyProvider()->createMipMapProxy(format, desc, GrRenderable::kYes, origin,
-                                                       budgeted, isProtected);
+        rtp = this->proxyProvider()->createMipMapProxy(format, desc, GrRenderable::kYes, sampleCnt,
+                                                       origin, budgeted, isProtected);
     }
     if (!rtp) {
         return nullptr;
