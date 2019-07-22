@@ -496,6 +496,7 @@ protected:
 
     // Driver workaround
     bool fDriverBlacklistCCPR                        : 1;
+    bool fDriverBlacklistCCPRMSAA                    : 1;
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
 

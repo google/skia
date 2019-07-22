@@ -125,6 +125,9 @@ void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
     int sampleCnt = fProgramBuilder->effectiveSampleCnt();
     SkASSERT(sampleCnt > 1);
 
+    const SkTArray<SkPoint>& sampleLocations =
+            fProgramBuilder->renderTarget()->renderTargetPriv().getSampleLocations();
+
     this->codeAppendf("{");
 
     if (!grad) {
@@ -144,11 +147,17 @@ void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
     this->codeAppendf("if (%s*2 < fnwidth) {", fn);  // Are ANY samples inside the implicit fn?
     this->codeAppendf(    "if (%s*-2 >= fnwidth) {", fn);  // Are ALL samples inside the implicit?
     this->codeAppendf(        "mask = ~0;");
-    this->codeAppendf(    "} else for (int i = 0; i < %i; ++i) {", sampleCnt);
-    this->codeAppendf(        "float fnsample = dot(%s, _sampleOffsets[i]) + %s;", grad, fn);
-    this->codeAppendf(        "if (fnsample < 0) {");
-    this->codeAppendf(            "mask |= (1 << i);");
-    this->codeAppendf(        "}");
+    this->codeAppendf(    "} else {");
+    this->codeAppendf(        "float fnsample;");
+    for (int i = 0; i < sampleCnt; ++i) {
+        SkPoint offset = sampleLocations[i] - SkPoint::Make(.5f, .5f);
+        if (kBottomLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
+            offset.fY = -offset.fY;
+        }
+        this->codeAppendf(    "fnsample = dot(%s, float2(%f, %f)) + %s;",
+                              grad, offset.x(), offset.y(), fn);
+        this->codeAppendf(    "if (fnsample < 0) mask |= 0x%x;", (1 << i));
+    }
     this->codeAppendf(    "}");
     this->codeAppendf("}");
     this->maskOffMultisampleCoverage("mask", scopeFlags);
@@ -261,21 +270,6 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
 void GrGLSLFragmentShaderBuilder::onFinalize() {
     SkASSERT(fProgramBuilder->header().processorFeatures()
                      == fUsedProcessorFeaturesAllStages_DebugOnly);
-
-    if (CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures()) {
-        const SkTArray<SkPoint>& sampleLocations =
-                fProgramBuilder->renderTarget()->renderTargetPriv().getSampleLocations();
-        this->definitions().append("const float2 _sampleOffsets[] = float2[](");
-        for (int i = 0; i < sampleLocations.count(); ++i) {
-            SkPoint offset = sampleLocations[i] - SkPoint::Make(.5f, .5f);
-            if (kBottomLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
-                offset.fY = -offset.fY;
-            }
-            this->definitions().appendf("float2(%f, %f)", offset.x(), offset.y());
-            this->definitions().append((i + 1 != sampleLocations.count()) ? ", " : ");");
-        }
-    }
-
     fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
 }
 
