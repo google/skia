@@ -412,6 +412,10 @@ public:
         return fDontSetBaseOrMaxLevelForExternalTextures;
     }
 
+    // On PowerVRGX6250, we drop every pixel if we modify the sample mask while color writes are
+    // disabled.
+    bool neverDisableColorWrites() const { return fNeverDisableColorWrites; }
+
     // Returns the observed maximum number of instances the driver can handle in a single draw call
     // without crashing, or 'pendingInstanceCount' if this workaround is not necessary.
     // NOTE: the return value may be larger than pendingInstanceCount.
@@ -564,6 +568,7 @@ private:
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
     bool fDetachStencilFromMSAABuffersBeforeReadPixels : 1;
     bool fDontSetBaseOrMaxLevelForExternalTextures : 1;
+    bool fNeverDisableColorWrites : 1;
     int fMaxInstancesPerDrawWithoutCrashing;
 
     uint32_t fBlitFramebufferFlags;

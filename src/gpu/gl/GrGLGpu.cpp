@@ -1956,8 +1956,6 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     GrXferProcessor::BlendInfo blendInfo;
     pipeline.getXferProcessor().getBlendInfo(&blendInfo);
 
-    this->flushColorWrite(blendInfo.fWriteColor);
-
     this->flushProgram(std::move(program));
 
     // Swizzle the blend to match what the shader will output.
@@ -2725,8 +2723,16 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
 }
 
 void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle& swizzle) {
-    // Any optimization to disable blending should have already been applied and
-    // tweaked the equation to "add" or "subtract", and the coeffs to (1, 0).
+    if (!blendInfo.fWriteColor && this->glCaps().neverDisableColorWrites()) {
+        // We need to work around a driver bug by using a blend state that preserves the dst color,
+        // rather than disabling color writes.
+        GrXferProcessor::BlendInfo preserveDstBlend;
+        preserveDstBlend.reset();
+        preserveDstBlend.fSrcBlend = kZero_GrBlendCoeff;
+        preserveDstBlend.fDstBlend = kOne_GrBlendCoeff;
+        this->flushBlend(preserveDstBlend, swizzle);
+        return;
+    }
 
     GrBlendEquation equation = blendInfo.fEquation;
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
@@ -2752,41 +2758,42 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
 
             fHWBlendState.fEnabled = kNo_TriState;
         }
-        return;
-    }
+    } else {
+        if (kYes_TriState != fHWBlendState.fEnabled) {
+            GL_CALL(Enable(GR_GL_BLEND));
 
-    if (kYes_TriState != fHWBlendState.fEnabled) {
-        GL_CALL(Enable(GR_GL_BLEND));
+            fHWBlendState.fEnabled = kYes_TriState;
+        }
 
-        fHWBlendState.fEnabled = kYes_TriState;
-    }
+        if (fHWBlendState.fEquation != equation) {
+            GL_CALL(BlendEquation(gXfermodeEquation2Blend[equation]));
+            fHWBlendState.fEquation = equation;
+        }
 
-    if (fHWBlendState.fEquation != equation) {
-        GL_CALL(BlendEquation(gXfermodeEquation2Blend[equation]));
-        fHWBlendState.fEquation = equation;
-    }
+        if (GrBlendEquationIsAdvanced(equation)) {
+            SkASSERT(this->caps()->advancedBlendEquationSupport());
+            // Advanced equations have no other blend state.
+            return;
+        }
 
-    if (GrBlendEquationIsAdvanced(equation)) {
-        SkASSERT(this->caps()->advancedBlendEquationSupport());
-        // Advanced equations have no other blend state.
-        return;
-    }
+        if (fHWBlendState.fSrcCoeff != srcCoeff || fHWBlendState.fDstCoeff != dstCoeff) {
+            GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
+                              gXfermodeCoeff2Blend[dstCoeff]));
+            fHWBlendState.fSrcCoeff = srcCoeff;
+            fHWBlendState.fDstCoeff = dstCoeff;
+        }
 
-    if (fHWBlendState.fSrcCoeff != srcCoeff || fHWBlendState.fDstCoeff != dstCoeff) {
-        GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
-                          gXfermodeCoeff2Blend[dstCoeff]));
-        fHWBlendState.fSrcCoeff = srcCoeff;
-        fHWBlendState.fDstCoeff = dstCoeff;
-    }
-
-    if ((BlendCoeffReferencesConstant(srcCoeff) || BlendCoeffReferencesConstant(dstCoeff))) {
-        SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
-        if (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst) {
-            GL_CALL(BlendColor(blendConst.fR, blendConst.fG, blendConst.fB, blendConst.fA));
-            fHWBlendState.fConstColor = blendConst;
-            fHWBlendState.fConstColorValid = true;
+        if ((BlendCoeffReferencesConstant(srcCoeff) || BlendCoeffReferencesConstant(dstCoeff))) {
+            SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
+            if (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst) {
+                GL_CALL(BlendColor(blendConst.fR, blendConst.fG, blendConst.fB, blendConst.fA));
+                fHWBlendState.fConstColor = blendConst;
+                fHWBlendState.fConstColorValid = true;
+            }
         }
     }
+
+    flushColorWrite(blendInfo.fWriteColor);
 }
 
 static void get_gl_swizzle_values(const GrSwizzle& swizzle, GrGLenum glValues[4]) {
@@ -3522,7 +3529,6 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     GrXferProcessor::BlendInfo blendInfo;
     blendInfo.reset();
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
-    this->flushColorWrite(true);
     this->flushHWAAState(nullptr, false);
     this->disableScissor();
     this->disableWindowRectangles();
@@ -3659,7 +3665,6 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     GrXferProcessor::BlendInfo blendInfo;
     blendInfo.reset();
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
-    this->flushColorWrite(true);
     this->flushHWAAState(nullptr, false);
     this->disableScissor();
     this->disableWindowRectangles();
