@@ -22,6 +22,30 @@
       "revId": "3febd749429bb807108129b5ac2051e34bf6c5d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45241b2b_ffdc5bc4",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-23T17:14:13Z",
+      "side": 1,
+      "message": "IIUC we\u0027re filling \u0027write\u0027 with something that isn\u0027t \u0027srcPixmap\u0027 and then trying to (unsuccessfully) write to \u0027backendTex\u0027s proxy.",
+      "parentUuid": "1592384a_b6f0f79b",
+      "range": {
+        "startLine": 311,
+        "startChar": 56,
+        "endLine": 311,
+        "endChar": 61
+      },
+      "revId": "3febd749429bb807108129b5ac2051e34bf6c5d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
