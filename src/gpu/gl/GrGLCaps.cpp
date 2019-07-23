@@ -3369,6 +3369,11 @@ bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     return true;
 }
 
+GrCaps::SupportedWrite GrGLCaps::supportedWritePixelsColorType(GrPixelConfig config,
+                                                               GrColorType srcColorType) const {
+    return {GrPixelConfigToColorType(config), 1};
+}
+
 GrCaps::SurfaceReadPixelsSupport GrGLCaps::surfaceSupportsReadPixels(
         const GrSurface* surface) const {
     if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
@@ -3935,7 +3940,7 @@ size_t GrGLCaps::onTransferFromOffsetAlignment(GrColorType bufferColorType) cons
         case GR_GL_UNSIGNED_INT_24_8:               return sizeof(GrGLuint);
         case GR_GL_UNSIGNED_INT_10F_11F_11F_REV:    return sizeof(GrGLuint);
         case GR_GL_UNSIGNED_INT_5_9_9_9_REV:        return sizeof(GrGLuint);
-        case GR_GL_FLOAT_32_UNSIGNED_INT_24_8_REV:  return sizeof(GrGLuint);
+        case GR_GL_FLOAT_32_UNSIGNED_INT_24_8_REV:  return 4;
 #endif
         default:                                    return 0;
     }

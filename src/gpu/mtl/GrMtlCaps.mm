@@ -927,6 +927,12 @@ GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType
     return get_swizzle(format, colorType, true);
 }
 
+GrCaps::SupportedWrite GrMtlCaps::supportedWritePixelsColorType(GrPixelConfig config,
+                                                                GrColorType srcColorType) const {
+    GrColorType ct = GrPixelConfigToColorType(config);
+    return {ct, static_cast<size_t>(GrColorTypeBytesPerPixel(ct))};
+}
+
 GrCaps::SupportedRead GrMtlCaps::supportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {
