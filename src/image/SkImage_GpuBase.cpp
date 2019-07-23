@@ -56,6 +56,10 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
         return false;
     }
 
+    if (!ctx->priv().caps()->areColorTypeAndFormatCompatible(grCT, backendFormat)) {
+        return false;
+    }
+
     *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, grCT);
     return *config != kUnknown_GrPixelConfig;
 }
@@ -249,6 +253,7 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
         if (!backendFormat.isValid()) {
             return false;
         }
+
         yuvaTexturesCopy[textureIndex].fConfig =
                 caps->getYUVAConfigFromBackendFormat(backendFormat);
         if (yuvaTexturesCopy[textureIndex].fConfig == kUnknown_GrPixelConfig) {

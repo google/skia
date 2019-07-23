@@ -322,6 +322,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTex
                                               backendTex.getBackendFormat())) {
         return nullptr;
     }
+
     return this->onWrapBackendTextureAsRenderTarget(backendTex, sampleCnt, colorType);
 }
 
