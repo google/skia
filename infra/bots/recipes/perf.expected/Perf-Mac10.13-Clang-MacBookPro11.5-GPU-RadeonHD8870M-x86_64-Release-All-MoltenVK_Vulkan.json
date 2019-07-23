@@ -185,6 +185,7 @@
       "--nocpu",
       "--config",
       "vk",
+      "vkmsaa8",
       "--match",
       "~^path_text_clipped_uncached$",
       "~^path_text_uncached$",

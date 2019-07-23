@@ -185,6 +185,7 @@
       "--nocpu",
       "--config",
       "mtl",
+      "mtlmsaa8",
       "--match",
       "~inc0.gif",
       "~inc1.gif",
