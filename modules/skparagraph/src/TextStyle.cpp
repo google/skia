@@ -1,14 +1,22 @@
 // Copyright 2019 Google LLC.
 #include "modules/skparagraph/include/TextStyle.h"
+#include <include/private/SkTHash.h>
 #include "include/core/SkColor.h"
 #include "include/core/SkFontStyle.h"
+#include "modules/skparagraph/include/StringCache.h"
+
+namespace {
+    SkTHashMap<SkColor, SkPaint> fSimpleColorPaints;
+}
 
 namespace skia {
 namespace textlayout {
 
-TextStyle::TextStyle() : fFontStyle() {
-    fFontFamilies.reserve(1);
-    fFontFamilies.emplace_back(DEFAULT_FONT_FAMILY);
+TextStyle::TextStyle() : fFontStyle(), fFontFamilies(1), fLocale() {
+
+    fFontFamilies.emplace_back(StringCache::gStringCache.make(DEFAULT_FONT_FAMILY));
+    fLocale = StringCache::gStringCache.make("");
+
     fColor = SK_ColorWHITE;
     fDecoration.fType = TextDecoration::kNoDecoration;
     // Does not make sense to draw a transparent object, so we use it as a default
@@ -21,10 +29,9 @@ TextStyle::TextStyle() : fFontStyle() {
     fLetterSpacing = 0.0;
     fWordSpacing = 0.0;
     fHeight = 1.0;
-    fHasBackground = false;
     fHasForeground = false;
+    fHasBackground = false;
     fTextBaseline = TextBaseline::kAlphabetic;
-    fLocale = "";
 }
 
 bool TextStyle::equals(const TextStyle& other) const {
@@ -55,10 +62,15 @@ bool TextStyle::equals(const TextStyle& other) const {
     if (fLocale != other.fLocale) {
         return false;
     }
-    if (fHasForeground != other.fHasForeground || fForeground != other.fForeground) {
+    if (fHasForeground != other.fHasForeground) {
+        return false;
+    } else if (fHasForeground &&  fForeground != other.fForeground) {
         return false;
     }
-    if (fHasBackground != other.fHasBackground || fBackground != other.fBackground) {
+
+    if (fHasBackground != other.fHasBackground) {
+        return false;
+    } else if (fHasBackground && fBackground != other.fBackground) {
         return false;
     }
     if (fTextShadows.size() != other.fTextShadows.size()) {
@@ -84,7 +96,12 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             }
 
         case kBackground:
-            return (fHasBackground == other.fHasBackground && fBackground == other.fBackground);
+            if (fHasBackground) {
+                return other.fHasBackground && fBackground == other.fBackground;
+            } else {
+                return !other.fHasBackground;
+            }
+
 
         case kShadow:
             if (fTextShadows.size() != other.fTextShadows.size()) {
@@ -111,14 +128,42 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             return this->equals(other);
 
         case kFont:
-            // TODO: should not we take typefaces in account?
-            return fFontStyle == other.fFontStyle && fFontFamilies == other.fFontFamilies &&
-                   fFontSize == other.fFontSize && fHeight == other.fHeight;
+            return fFontStyle == other.fFontStyle &&
+                   fFontSize == other.fFontSize &&
+                   fHeight == other.fHeight &&
+                   fFontFamilies == other.fFontFamilies;
 
         default:
             SkASSERT(false);
             return false;
     }
+}
+
+const std::vector<SkString> TextStyle::getFontFamilies() const {
+
+    std::vector<SkString> result(fFontFamilies.size());
+    for (auto& cs : fFontFamilies) {
+        result.emplace_back(StringCache::gStringCache.makerSkString(cs));
+    }
+    return result;
+}
+
+void TextStyle::setFontFamilies(const std::vector<SkString>& families) {
+    fFontFamilies.reset();
+    fFontFamilies.reserve(families.size());
+    for (auto& family : families) {
+        fFontFamilies.emplace_back(StringCache::gStringCache.make(family.c_str()));
+    }
+}
+
+SkPaint* TextStyle::getPaint(SkColor color) {
+    auto found = fSimpleColorPaints.find(color);
+    if (found == nullptr) {
+        SkPaint paint;
+        paint.setColor(color);
+        found = fSimpleColorPaints.set(color, paint);
+    }
+    return found;
 }
 
 }  // namespace textlayout

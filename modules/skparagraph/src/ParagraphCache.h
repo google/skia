@@ -58,9 +58,7 @@ public:;
     InternalState fInternalState;
     SkTArray<Run> fRuns;
     SkTArray<Cluster, true> fClusters;
-    SkTArray<TextLine, true> fLines;
-    Measurement fMeasurement;
-    sk_sp<SkPicture> fPicture;
+    SkTArray<RunShifts, true> fRunShifts;
 };
 
 bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b);

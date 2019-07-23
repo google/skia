@@ -19,8 +19,7 @@ ParagraphCacheValue::ParagraphCacheValue(ParagraphImpl* paragraph)
         , fInternalState(paragraph->state())
         , fRuns(paragraph->fRuns)
         , fClusters(paragraph->fClusters)
-        , fMeasurement(paragraph->measurement())
-        , fPicture(paragraph->fPicture) { }
+        , fRunShifts(paragraph->fRunShifts) { }
 
 bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
 
@@ -47,19 +46,12 @@ bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
         cluster.setMaster(paragraph);
     }
 
-    paragraph->fLines.reset();
-    for (auto& line : found->fLines) {
-        paragraph->fLines.push_back(line);
-        paragraph->fLines.back().setMaster(paragraph);
+    paragraph->fRunShifts.reset();
+    for (auto& runShift : found->fRunShifts) {
+        paragraph->fRunShifts.push_back(runShift);
     }
 
     paragraph->fState = found->fInternalState;
-    paragraph->setMeasurement(found->fMeasurement);
-
-    paragraph->fOldWidth = found->fMeasurement.fWidth;
-    paragraph->fOldHeight = found->fMeasurement.fHeight;
-
-    paragraph->fPicture = found->fPicture;
 
     fChecker(paragraph, "findParagraph", true);
     return true;
@@ -80,15 +72,13 @@ void ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
     auto found = this->find(key);
     if (found != nullptr) {
         found->fInternalState = paragraph->fState;
-        found->fMeasurement = paragraph->measurement();
-        found->fLines = paragraph->fLines;
+        found->fRunShifts = paragraph->fRunShifts;
         for (size_t i = 0; i < paragraph->fRuns.size(); ++i) {
             auto& run = paragraph->fRuns[i];
             if (run.fSpaced) {
                 found->fRuns[i] = run;
             }
         }
-        found->fPicture = paragraph->fPicture;
         fChecker(paragraph, "updateParagraph", true);
     } else {
         auto value = new ParagraphCacheValue(paragraph);

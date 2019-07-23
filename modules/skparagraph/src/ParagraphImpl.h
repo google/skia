@@ -12,6 +12,7 @@
 #include "modules/skparagraph/src/ParagraphCache.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
+#include "modules/skparagraph/include/StringCache.h"
 
 class SkCanvas;
 
@@ -42,7 +43,7 @@ struct StyleBlock {
 class ParagraphImpl final : public Paragraph {
 public:
 
-    ParagraphImpl(const SkString& text,
+    ParagraphImpl(SkString text,
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   sk_sp<FontCollection> fonts);
@@ -78,7 +79,7 @@ public:
         return SkSpan<Block>(fTextStyles.data(), fTextStyles.size());
     }
     SkSpan<TextLine> lines() { return SkSpan<TextLine>(fLines.data(), fLines.size()); }
-    ParagraphStyle paragraphStyle() const { return fParagraphStyle; }
+    const ParagraphStyle& paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     void formatLines(SkScalar maxWidth);
 
@@ -101,7 +102,7 @@ public:
     bool strutForceHeight() const {
         return paragraphStyle().getStrutStyle().getForceStrutHeight();
     }
-    LineMetrics strutMetrics() const { return fStrutMetrics; }
+    LineMetrics& strutMetrics() { return fStrutMetrics; }
 
     Measurement measurement() {
         return {
@@ -130,7 +131,7 @@ public:
     Block& block(BlockIndex blockIndex);
 
     void markDirty() override { fState = kUnknown; }
-    void turnOnCache(bool on) { fParagraphCacheOn = on; }
+    void turnOnParagraphCache(bool on) { fParagraphCacheOn = on; }
     void setState(InternalState state);
     void resetCache() { fParagraphCache.reset(); }
     sk_sp<SkPicture> getPicture() { return fPicture; }
