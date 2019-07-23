@@ -544,7 +544,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
+    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config1(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      grColorType)));
@@ -590,7 +590,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
+    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config1(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      colorType)));
@@ -683,7 +683,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
+    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config1(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      grColorType)));
