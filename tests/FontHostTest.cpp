@@ -163,6 +163,9 @@ static void test_tables(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& f
             SkAutoMalloc data(size);
             size_t size2 = face->getTableData(tags[i], 0, size, data.get());
             REPORTER_ASSERT(reporter, size2 == size);
+            sk_sp<SkData> data2 = face->copyTableData(tags[i]);
+            REPORTER_ASSERT(reporter, size == data2->size());
+            REPORTER_ASSERT(reporter, !memcmp(data.get(), data2->data(), size));
         }
     }
 }
