@@ -23,8 +23,6 @@
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
-#include "src/core/SkMakeUnique.h"
-
 namespace skottie {
 namespace internal {
 
@@ -497,11 +495,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
 
     const auto has_animators = !layer_animators.empty();
 
-    std::unique_ptr<sksg::Animator> controller =
-            skstd::make_unique<LayerController>(std::move(layer_animators), layer,
-                                                transform_animator_count,
-                                                layer_info.fInPoint,
-                                                layer_info.fOutPoint);
+    sk_sp<sksg::Animator> controller = sk_make_sp<LayerController>(std::move(layer_animators),
+                                                                   layer,
+                                                                   transform_animator_count,
+                                                                   layer_info.fInPoint,
+                                                                   layer_info.fOutPoint);
 
     // Optional motion blur.
     if (has_animators && layerCtx->hasMotionBlur(*jlayer)) {
@@ -512,7 +510,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
                                                   layerCtx->fMotionBlurSamples,
                                                   layerCtx->fMotionBlurAngle,
                                                   layerCtx->fMotionBlurPhase);
-        controller = skstd::make_unique<MotionBlurController>(motion_blur);
+        controller = sk_make_sp<MotionBlurController>(motion_blur);
         layer = std::move(motion_blur);
     }
 

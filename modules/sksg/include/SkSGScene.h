@@ -26,7 +26,7 @@ class RenderNode;
  * Base class for animators.
  *
  */
-class Animator {
+class Animator : public SkRefCnt {
 public:
     virtual ~Animator();
     Animator(const Animator&) = delete;
@@ -40,7 +40,7 @@ protected:
     virtual void onTick(float t) = 0;
 };
 
-using AnimatorList = std::vector<std::unique_ptr<Animator>>;
+using AnimatorList = std::vector<sk_sp<Animator>>;
 
 class GroupAnimator : public Animator {
 protected:

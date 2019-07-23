@@ -80,9 +80,9 @@ private:
 
 class TextAnimatorList final : public sksg::GroupAnimator {
 public:
-    static std::unique_ptr<TextAnimatorList> Make(const skjson::ArrayValue&,
-                                                  const AnimationBuilder*,
-                                                  sk_sp<TextAdapter>);
+    static sk_sp<TextAnimatorList> Make(const skjson::ArrayValue&,
+                                        const AnimationBuilder*,
+                                        sk_sp<TextAdapter>);
     ~TextAnimatorList() override;
 
 protected:

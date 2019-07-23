@@ -11,7 +11,6 @@
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGScene.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTLazy.h"
 #include "src/utils/SkJSON.h"
 
@@ -71,17 +70,13 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
     if (requires_time_mapping) {
         const auto t_bias  = -start_time,
                    t_scale = sk_ieee_float_divide(1, stretch_time);
-        auto time_mapper =
-            skstd::make_unique<CompTimeMapper>(std::move(local_animators), t_bias,
-                                               sk_float_isfinite(t_scale) ? t_scale : 0);
+        auto time_mapper = sk_make_sp<CompTimeMapper>(std::move(local_animators), t_bias,
+                                                      sk_float_isfinite(t_scale) ? t_scale : 0);
         if (time_remap) {
-            // The lambda below captures a raw pointer to the mapper object.  That should be safe,
-            // because both the lambda and the mapper are scoped/owned by ctx->fAnimators.
-            auto* raw_mapper = time_mapper.get();
             auto  frame_rate = fFrameRate;
             this->bindProperty<ScalarValue>(*time_remap, ascope,
-                    [raw_mapper, frame_rate](const ScalarValue& t) {
-                        raw_mapper->remapTime(t * frame_rate);
+                    [time_mapper, frame_rate](const ScalarValue& t) {
+                        time_mapper->remapTime(t * frame_rate);
                     });
         }
         ascope->push_back(std::move(time_mapper));

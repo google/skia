@@ -13,7 +13,7 @@
 namespace skottie {
 namespace internal {
 
-sk_sp<MotionBlurEffect> MotionBlurEffect::Make(std::unique_ptr<sksg::Animator> animator,
+sk_sp<MotionBlurEffect> MotionBlurEffect::Make(sk_sp<sksg::Animator> animator,
                                                sk_sp<sksg::RenderNode> child,
                                                size_t samples_per_frame,
                                                float shutter_angle, float shutter_phase) {
@@ -33,7 +33,7 @@ sk_sp<MotionBlurEffect> MotionBlurEffect::Make(std::unique_ptr<sksg::Animator> a
                                                         phase, dt));
 }
 
-MotionBlurEffect::MotionBlurEffect(std::unique_ptr<sksg::Animator> animator,
+MotionBlurEffect::MotionBlurEffect(sk_sp<sksg::Animator> animator,
                                    sk_sp<sksg::RenderNode> child,
                                    size_t samples, float phase, float dt)
     : INHERITED({std::move(child)})

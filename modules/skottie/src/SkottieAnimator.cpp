@@ -232,17 +232,14 @@ private:
 template <typename T>
 class KeyframeAnimator final : public KeyframeAnimatorBase {
 public:
-    static std::unique_ptr<KeyframeAnimator> Make(const skjson::ArrayValue* jv,
-                                                  const AnimationBuilder* abuilder,
-                                                  std::function<void(const T&)>&& apply) {
+    static sk_sp<KeyframeAnimator> Make(const skjson::ArrayValue* jv,
+                                        const AnimationBuilder* abuilder,
+                                        std::function<void(const T&)>&& apply) {
         if (!jv) return nullptr;
 
-        std::unique_ptr<KeyframeAnimator> animator(
-            new KeyframeAnimator(*jv, abuilder, std::move(apply)));
-        if (!animator->count())
-            return nullptr;
+        sk_sp<KeyframeAnimator> animator(new KeyframeAnimator(*jv, abuilder, std::move(apply)));
 
-        return animator;
+        return animator->count() ? animator : nullptr;
     }
 
 protected:
@@ -359,14 +356,13 @@ static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
 
 class SplitPointAnimator final : public sksg::Animator {
 public:
-    static std::unique_ptr<SplitPointAnimator> Make(const skjson::ObjectValue* jprop,
-                                                    const AnimationBuilder* abuilder,
-                                                    std::function<void(const VectorValue&)>&& apply,
-                                                    const VectorValue*) {
+    static sk_sp<SplitPointAnimator> Make(const skjson::ObjectValue* jprop,
+                                          const AnimationBuilder* abuilder,
+                                          std::function<void(const VectorValue&)>&& apply,
+                                          const VectorValue*) {
         if (!jprop) return nullptr;
 
-        std::unique_ptr<SplitPointAnimator> split_animator(
-            new SplitPointAnimator(std::move(apply)));
+        sk_sp<SplitPointAnimator> split_animator(new SplitPointAnimator(std::move(apply)));
 
         // This raw pointer is captured in lambdas below. But the lambdas are owned by
         // the object itself, so the scope is bound to the life time of the object.
@@ -420,7 +416,7 @@ bool BindSplitPositionProperty(const skjson::Value& jv,
                                std::function<void(const VectorValue&)>&& apply,
                                const VectorValue* noop) {
     if (auto split_animator = SplitPointAnimator::Make(jv, abuilder, std::move(apply), noop)) {
-        ascope->push_back(std::unique_ptr<sksg::Animator>(split_animator.release()));
+        ascope->push_back(std::move(split_animator));
         return true;
     }
 

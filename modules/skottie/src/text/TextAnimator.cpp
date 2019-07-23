@@ -177,9 +177,9 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
         });
 }
 
-std::unique_ptr<TextAnimatorList> TextAnimatorList::Make(const skjson::ArrayValue& janimators,
-                                                         const AnimationBuilder* abuilder,
-                                                         sk_sp<TextAdapter> adapter) {
+sk_sp<TextAnimatorList> TextAnimatorList::Make(const skjson::ArrayValue& janimators,
+                                               const AnimationBuilder* abuilder,
+                                               sk_sp<TextAdapter> adapter) {
     AnimatorScope local_animator_scope;
     std::vector<sk_sp<TextAnimator>> animators;
     animators.reserve(janimators.size());
@@ -194,9 +194,9 @@ std::unique_ptr<TextAnimatorList> TextAnimatorList::Make(const skjson::ArrayValu
         return nullptr;
     }
 
-    return std::unique_ptr<TextAnimatorList>(new TextAnimatorList(std::move(adapter),
-                                                                  std::move(local_animator_scope),
-                                                                  std::move(animators)));
+    return sk_sp<TextAnimatorList>(new TextAnimatorList(std::move(adapter),
+                                                        std::move(local_animator_scope),
+                                                        std::move(animators)));
 }
 
 TextAnimatorList::TextAnimatorList(sk_sp<TextAdapter> adapter,

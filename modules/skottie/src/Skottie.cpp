@@ -28,7 +28,6 @@
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "modules/sksg/include/SkSGScene.h"
 #include "modules/sksg/include/SkSGTransform.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTraceEvent.h"
 
 #include <chrono>
