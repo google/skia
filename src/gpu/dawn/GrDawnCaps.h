@@ -41,6 +41,11 @@ public:
 
     GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
 
+    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+                                                 GrColorType srcColorType) const override {
+        return {GrColorType::kUnknown, 1};
+    }
+
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
         return SurfaceReadPixelsSupport::kSupported;
     }

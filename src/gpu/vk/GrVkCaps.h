@@ -52,6 +52,9 @@ public:
     int maxRenderTargetSampleCount(GrPixelConfig config) const override;
     int maxRenderTargetSampleCount(VkFormat format) const;
 
+    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+                                                 GrColorType srcColorType) const override;
+
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
     SupportedRead supportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                GrColorType) const override;
