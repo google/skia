@@ -99,7 +99,6 @@ template <typename T> struct SkRange {
 
 const SkRange<size_t> EMPTY_RANGE = SkRange<size_t>(EMPTY_INDEX, EMPTY_INDEX);
 
-
 enum class TextBaseline {
     kAlphabetic,
     kIdeographic,

@@ -269,7 +269,7 @@ public:
 
     SkScalar delta() const { return height() - ideographicBaseline(); }
 
-    void updateLineMetrics(LineMetrics& metrics, bool forceHeight) {
+    void updateLineMetrics(LineMetrics& metrics, bool forceHeight) const {
         if (forceHeight) {
             metrics.fAscent = fAscent;
             metrics.fDescent = fDescent;
