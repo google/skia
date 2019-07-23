@@ -1,0 +1,349 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e0ec482_2044ffef",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "Is this actually valid for any backend?",
+      "range": {
+        "startLine": 385,
+        "startChar": 0,
+        "endLine": 389,
+        "endChar": 1
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f21517a4_7c14a344",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1436,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "Isn\u0027t this the same as what you added on line 1402?",
+      "range": {
+        "startLine": 1433,
+        "startChar": 0,
+        "endLine": 1436,
+        "endChar": 5
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24003fa1_37003acb",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1507,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "Do we need a comment about this? I don\u0027t think it\u0027s actually right. Can we do a 0 here without breaking something?",
+      "range": {
+        "startLine": 1507,
+        "startChar": 51,
+        "endLine": 1507,
+        "endChar": 61
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c880b282_baaab0ac",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3291,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "FWIW, I looked at the spec today, and this one doesn\u0027t have a corresponding GL data type and is just documented to be \"4\".",
+      "range": {
+        "startLine": 3291,
+        "startChar": 51,
+        "endLine": 3291,
+        "endChar": 75
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f18bc4d_1b0ae3f3",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3472,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "const auto\u0026?",
+      "range": {
+        "startLine": 3472,
+        "startChar": 12,
+        "endLine": 3472,
+        "endChar": 18
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecea7148_f6a16632",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "This is outdated.",
+      "range": {
+        "startLine": 625,
+        "startChar": 21,
+        "endLine": 625,
+        "endChar": 85
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be9674d9_ac2659b3",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "I don\u0027t think there is anything called kOther. I\u0027m also not sure this sentence adds much value, easily could become outdated and if a reader really cares why we need both it\u0027s easy to check whether they are set differently.",
+      "range": {
+        "startLine": 628,
+        "startChar": 69,
+        "endLine": 628,
+        "endChar": 75
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d035890b_b5a598fc",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "Outdated? In the old code we needed this all four color channel verbiage, but I don\u0027t think it makes sense anymore.",
+      "range": {
+        "startLine": 633,
+        "startChar": 12,
+        "endLine": 635,
+        "endChar": 33
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d31a4739_e7ce6727",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "It seems like we always know the size at compile time for each GrGLFormat. Maybe we should use a smaller type with less machinery  like SkAutoTMalloc or std::unique_ptr\u003cExternalIOFormats[]\u003e paired with a size?",
+      "range": {
+        "startLine": 657,
+        "startChar": 7,
+        "endLine": 657,
+        "endChar": 59
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73a0d948_9afe900f",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "surfaceColorType?",
+      "range": {
+        "startLine": 670,
+        "startChar": 44,
+        "endLine": 670,
+        "endChar": 53
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf2ca099_895cc7c6",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "surfaceColorType?",
+      "range": {
+        "startLine": 680,
+        "startChar": 42,
+        "endLine": 680,
+        "endChar": 51
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9048fe5a_60d0e133",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "format() ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 15,
+        "endLine": 45,
+        "endChar": 24
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb27c4bc_d8bf217c",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "Presumably we could compute the alignment offset after the below switch using GrColorTypeBytesPerPixel() since the allowed read color type has to have the same bpp as the texture format (and omit mtl_format_to_pixel_size)?",
+      "range": {
+        "startLine": 967,
+        "startChar": 4,
+        "endLine": 967,
+        "endChar": 68
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8793023f_c0058876",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "required?",
+      "range": {
+        "startLine": 968,
+        "startChar": 0,
+        "endLine": 970,
+        "endChar": 5
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4d5700d_7efbfb01",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 1017,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:52:51Z",
+      "side": 1,
+      "message": "If we keep the above !offsetAlignment check is this reachable?",
+      "range": {
+        "startLine": 1016,
+        "startChar": 0,
+        "endLine": 1017,
+        "endChar": 59
+      },
+      "revId": "e507e96ff239ec9f4fb304084b23318e689a77e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
