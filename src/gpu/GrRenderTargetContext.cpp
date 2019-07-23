@@ -818,8 +818,8 @@ void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
     if (multisampled && 1 == numRequiredSamples) {
         // The caller has requested a multisampled stencil buffer on a non-MSAA render target. Use
         // mixed samples.
-        SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
-        numRequiredSamples = this->caps()->internalMultisampleCount(
+        SkASSERT(fRenderTargetProxy->canUseMixedSamples1(*this->caps()));
+        numRequiredSamples = this->caps()->internalMultisampleCount1(
                 this->asSurfaceProxy()->config());
     }
     SkASSERT(numRequiredSamples > 0);
@@ -2387,7 +2387,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
 #ifdef SK_DEBUG
     if (hasMixedSampledCoverage) {
         SkASSERT(usesStencil);
-        SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
+        SkASSERT(fRenderTargetProxy->canUseMixedSamples1(*this->caps()));
     }
 #endif
     GrProcessorSet::Analysis analysis = op->finalize(

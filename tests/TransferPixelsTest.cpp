@@ -221,7 +221,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     if (!context->priv().caps()->isConfigTexturable(desc.fConfig) ||
         (renderable == GrRenderable::kYes &&
-         !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
+         !context->priv().caps()->isConfigRenderable1(desc.fConfig))) {
         return;
     }
 

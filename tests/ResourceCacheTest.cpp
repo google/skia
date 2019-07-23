@@ -1658,7 +1658,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
         size_t size = tex->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
 
-        size_t sampleCount = (size_t)context->priv().caps()->getRenderTargetSampleCount(
+        size_t sampleCount = (size_t)context->priv().caps()->getRenderTargetSampleCount1(
                 4, kRGBA_8888_GrPixelConfig);
         if (sampleCount >= 4) {
             tex = make_normal_texture(resourceProvider, GrRenderable::kYes, kSize, kSize,
@@ -1685,7 +1685,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
         size_t size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
 
-        size_t sampleCount = (size_t)context->priv().caps()->getRenderTargetSampleCount(
+        size_t sampleCount = (size_t)context->priv().caps()->getRenderTargetSampleCount1(
                 4, kRGBA_8888_GrPixelConfig);
         if (sampleCount >= 4) {
             proxy = make_mipmap_proxy(proxyProvider, caps, GrRenderable::kYes, kSize, kSize,

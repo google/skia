@@ -169,7 +169,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             tex = resourceProvider->createTexture(desc, GrRenderable::kYes, 1, SkBudgeted::kNo,
                                                   GrProtected::kNo,
                                                   GrResourceProvider::Flags::kNoPendingIO);
-            bool isRenderable = caps->isConfigRenderable(config);
+            bool isRenderable = caps->isFormatRenderable(colorType, format);
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "config:%d, tex:%d, isRenderable:%d", config, SkToBool(tex),
                             isRenderable);
@@ -177,7 +177,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             tex = resourceProvider->createTexture(desc, GrRenderable::kYes, 2, SkBudgeted::kNo,
                                                   GrProtected::kNo,
                                                   GrResourceProvider::Flags::kNoPendingIO);
-            isRenderable = SkToBool(caps->getRenderTargetSampleCount(2, config));
+            isRenderable = SkToBool(caps->getRenderTargetSampleCount1(2, config));
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "config:%d, tex:%d, isRenderable:%d", config, SkToBool(tex),
                             isRenderable);
@@ -216,7 +216,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                 continue;
             }
             for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-                if (renderable == GrRenderable::kYes && !caps->isConfigRenderable(desc.fConfig)) {
+                if (renderable == GrRenderable::kYes && !caps->isConfigRenderable1(desc.fConfig)) {
                     continue;
                 }
                 for (GrSurfaceOrigin origin :

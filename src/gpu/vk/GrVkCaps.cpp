@@ -816,7 +816,7 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount,
     return this->getRenderTargetSampleCount(requestedCount, *format.getVkFormat());
 }
 
-int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
+int GrVkCaps::getRenderTargetSampleCount1(int requestedCount, GrPixelConfig config) const {
     // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
     // blends that reference dst alpha when the values in the dst alpha channel are uninitialized.
     if (config == kRGB_888X_GrPixelConfig) {
@@ -863,7 +863,7 @@ int GrVkCaps::maxRenderTargetSampleCount(GrColorType, const GrBackendFormat& for
     return this->maxRenderTargetSampleCount(*format.getVkFormat());
 }
 
-int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
+int GrVkCaps::maxRenderTargetSampleCount1(GrPixelConfig config) const {
     // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
     // blends that reference dst alpha when the values in the dst alpha channel are uninitialized.
     if (config == kRGB_888X_GrPixelConfig) {

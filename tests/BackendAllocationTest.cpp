@@ -23,15 +23,15 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
                    std::function<GrBackendTexture (GrContext*,
                                                    GrMipMapped,
                                                    GrRenderable)> create,
-                   SkColorType colorType, GrMipMapped mipMapped, GrRenderable renderable) {
+                   GrColorType grColorType, GrMipMapped mipMapped, GrRenderable renderable) {
     GrResourceCache* cache = context->priv().getResourceCache();
 
     const int initialCount = cache->getResourceCount();
 
     GrBackendTexture backendTex = create(context, mipMapped, renderable);
     if (!backendTex.isValid()) {
-        ERRORF(reporter, "Couldn't create backendTexture for colorType %d renderable %s\n",
-               colorType,
+        ERRORF(reporter, "Couldn't create backendTexture for grColorType %d renderable %s\n",
+               grColorType,
                GrRenderable::kYes == renderable ? "yes" : "no");
         return;
     }
@@ -39,7 +39,10 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
     // Skia proper should know nothing about the new backend object
     REPORTER_ASSERT(reporter, initialCount == cache->getResourceCount());
 
-    if (kUnknown_SkColorType == colorType) {
+    SkColorType skColorType = GrColorTypeToSkColorType(grColorType);
+
+    // Wrapping a backendTexture in an image requires an SkColorType
+    if (kUnknown_SkColorType == skColorType) {
         context->deleteBackendTexture(backendTex);
         return;
     }
@@ -49,11 +52,11 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
                                                                   backendTex,
                                                                   kTopLeft_GrSurfaceOrigin,
                                                                   0,
-                                                                  colorType,
+                                                                  skColorType,
                                                                   nullptr, nullptr);
         if (!surf) {
             ERRORF(reporter, "Couldn't make surface from backendTexture for colorType %d\n",
-                    colorType);
+                   skColorType);
         } else {
             REPORTER_ASSERT(reporter, initialCount+1 == cache->getResourceCount());
         }
@@ -63,12 +66,12 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
         sk_sp<SkImage> img = SkImage::MakeFromTexture(context,
                                                       backendTex,
                                                       kTopLeft_GrSurfaceOrigin,
-                                                      colorType,
+                                                      skColorType,
                                                       kPremul_SkAlphaType,
                                                       nullptr);
         if (!img) {
-            ERRORF(reporter, "Couldn't make image from backendTexture for colorType %d\n",
-                    colorType);
+            ERRORF(reporter, "Couldn't make image from backendTexture for skColorType %d\n",
+                   skColorType);
         } else {
             SkImage_Base* ib = as_IB(img);
 
@@ -128,7 +131,7 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                                                      const SkColor4f&,
                                                      GrMipMapped,
                                                      GrRenderable)> create,
-                     SkColorType colorType, const SkColor4f& color,
+                     GrColorType grColorType, const SkColor4f& color,
                      GrMipMapped mipMapped, GrRenderable renderable) {
     GrBackendTexture backendTex = create(context, color, mipMapped, renderable);
     if (!backendTex.isValid()) {
@@ -136,25 +139,28 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
         return;
     }
 
-    if (kUnknown_SkColorType == colorType) {
+    SkColorType skColorType = GrColorTypeToSkColorType(grColorType);
+
+    // Can't wrap backend textures in images and surfaces w/o an SkColorType
+    if (kUnknown_SkColorType == skColorType) {
         // TODO: burrow in and scrappily check that data was uploaded!
         context->deleteBackendTexture(backendTex);
         return;
     }
 
-    SkAlphaType at = SkColorTypeIsAlwaysOpaque(colorType) ? kOpaque_SkAlphaType
-                                                          : kPremul_SkAlphaType;
+    SkAlphaType at = SkColorTypeIsAlwaysOpaque(skColorType) ? kOpaque_SkAlphaType
+                                                            : kPremul_SkAlphaType;
 
-    SkImageInfo ii = SkImageInfo::Make(32, 32, colorType, at);
+    SkImageInfo ii = SkImageInfo::Make(32, 32, skColorType, at);
 
     SkColor4f rasterColor = color;
-    if (kGray_8_SkColorType == colorType) {
+    if (kGray_8_SkColorType == skColorType) {
         // For the GPU backends, gray implies a single channel which is opaque.
         rasterColor.fR = color.fA;
         rasterColor.fG = color.fA;
         rasterColor.fB = color.fA;
         rasterColor.fA = 1.0f;
-    } else if (kAlpha_8_SkColorType == colorType) {
+    } else if (kAlpha_8_SkColorType == skColorType) {
         // For the GPU backends, alpha implies a single alpha channel.
         rasterColor.fR = 0;
         rasterColor.fG = 0;
@@ -175,13 +181,13 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                                                                   backendTex,
                                                                   kTopLeft_GrSurfaceOrigin,
                                                                   0,
-                                                                  colorType,
+                                                                  skColorType,
                                                                   nullptr, nullptr);
         if (surf) {
             bool result = surf->readPixels(actual, 0, 0);
             REPORTER_ASSERT(reporter, result);
 
-            compare_pixmaps(expected, actual, colorType, reporter);
+            compare_pixmaps(expected, actual, skColorType, reporter);
 
             actual.erase(SkColors::kTransparent);
         }
@@ -191,7 +197,7 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
         sk_sp<SkImage> img = SkImage::MakeFromTexture(context,
                                                       backendTex,
                                                       kTopLeft_GrSurfaceOrigin,
-                                                      colorType,
+                                                      skColorType,
                                                       at,
                                                       nullptr);
         if (img) {
@@ -206,7 +212,7 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                             colorType);
 #endif
                 } else {
-                    compare_pixmaps(expected, actual, colorType, reporter);
+                    compare_pixmaps(expected, actual, skColorType, reporter);
                 }
             }
 
@@ -218,7 +224,7 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                 if (GrBackendApi::kOpenGL == context->backend()) {
                     GrGLGpu* glGPU = static_cast<GrGLGpu*>(context->priv().getGpu());
 
-                    if (kRGBA_F32_SkColorType == colorType && GrMipMapped::kYes == mipMapped &&
+                    if (kRGBA_F32_SkColorType == skColorType && GrMipMapped::kYes == mipMapped &&
                         kGLES_GrGLStandard == glGPU->ctxInfo().standard()) {
                         context->deleteBackendTexture(backendTex);
                         return;
@@ -264,7 +270,7 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
 
                     if (!colors_eq(actualColor, rasterColor.toSkColor(), 1)) {
                         ERRORF(reporter, "Pixel mismatch colorType %d: level: %d e: 0x%x a: 0x%x\n",
-                               colorType, i, rasterColor.toSkColor(), actualColor);
+                               skColorType, i, rasterColor.toSkColor(), actualColor);
                     }
                 }
             }
@@ -435,7 +441,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                         // Ganesh can't perform the blends correctly when rendering this format
                         continue;
                     }
-                    if (!caps->isConfigRenderable(combo.fConfig)) {
+                    if (!caps->isConfigRenderable1(combo.fConfig)) {
                         continue;
                     }
                 }
@@ -506,77 +512,78 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
     constexpr SkColor4f kGrayCol { 0.75f, 0.75f, 0.75f, 0.75f };
 
     struct {
-        SkColorType   fColorType;
+        GrColorType   fColorType1;
         GrGLenum      fFormat;
-        // TODO: remove 'fConfig' and directly use 'fFormat' in GrGLCaps::isFormatTexturable
-        GrPixelConfig fConfig;
         SkColor4f     fColor;
     } combinations[] = {
-        { kRGBA_8888_SkColorType,           GR_GL_RGBA8,
-          kRGBA_8888_GrPixelConfig,         SkColors::kRed      },
-        { kRGBA_8888_SkColorType,           GR_GL_SRGB8_ALPHA8,
-          kSRGBA_8888_GrPixelConfig,        SkColors::kRed      },
+        { GrColorType::kRGBA_8888,           GR_GL_RGBA8,
+          /*kRGBA_8888_GrPixelConfig,*/         SkColors::kRed      },
+        { GrColorType::kRGBA_8888_SRGB,      GR_GL_SRGB8_ALPHA8,
+        /*kSRGBA_8888_GrPixelConfig,*/        SkColors::kRed      },
 
-        { kRGB_888x_SkColorType,            GR_GL_RGBA8,
-          kRGBA_8888_GrPixelConfig,         SkColors::kYellow   },
-        { kRGB_888x_SkColorType,            GR_GL_RGB8,
-          kRGB_888_GrPixelConfig,           SkColors::kCyan     },
+        { GrColorType::kRGB_888x,            GR_GL_RGBA8,
+          /*kRGBA_8888_GrPixelConfig,*/         SkColors::kYellow   },
+        { GrColorType::kRGB_888x,            GR_GL_RGB8,
+          /*kRGB_888_GrPixelConfig,*/           SkColors::kCyan     },
 
-        { kBGRA_8888_SkColorType,           GR_GL_RGBA8,
-          kRGBA_8888_GrPixelConfig,         SkColors::kBlue     },
-        { kBGRA_8888_SkColorType,           GR_GL_BGRA8,
-          kBGRA_8888_GrPixelConfig,         SkColors::kBlue     },
+        { GrColorType::kBGRA_8888,           GR_GL_RGBA8,
+          /*kRGBA_8888_GrPixelConfig,*/         SkColors::kBlue     },
+        { GrColorType::kBGRA_8888,           GR_GL_BGRA8,
+          /*kBGRA_8888_GrPixelConfig,*/         SkColors::kBlue     },
 
-        { kRGBA_1010102_SkColorType,        GR_GL_RGB10_A2,
+        { GrColorType::kRGBA_1010102,        GR_GL_RGB10_A2,
           // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
-          kRGBA_1010102_GrPixelConfig,      { 0.5f, 0, 0, 1.0f }},
-        { kRGB_565_SkColorType,             GR_GL_RGB565,
-          kRGB_565_GrPixelConfig,           SkColors::kRed      },
-        { kARGB_4444_SkColorType,           GR_GL_RGBA4,
-          kRGBA_4444_GrPixelConfig,         SkColors::kGreen    },
+          /*kRGBA_1010102_GrPixelConfig,*/      { 0.5f, 0, 0, 1.0f }},
+        { GrColorType::kBGR_565,             GR_GL_RGB565,
+          /*kRGB_565_GrPixelConfig,*/           SkColors::kRed      },
+        { GrColorType::kABGR_4444,           GR_GL_RGBA4,
+          /*kRGBA_4444_GrPixelConfig,*/         SkColors::kGreen    },
 
-        { kAlpha_8_SkColorType,             GR_GL_ALPHA8,
-          kAlpha_8_as_Alpha_GrPixelConfig,  kTransCol           },
-        { kAlpha_8_SkColorType,             GR_GL_R8,
-          kAlpha_8_as_Red_GrPixelConfig,    kTransCol           },
+        { GrColorType::kAlpha_8,             GR_GL_ALPHA8,
+          /*kAlpha_8_as_Alpha_GrPixelConfig,*/  kTransCol           },
+        { GrColorType::kAlpha_8,             GR_GL_R8,
+          /*kAlpha_8_as_Red_GrPixelConfig,*/    kTransCol           },
 
-        { kGray_8_SkColorType,              GR_GL_LUMINANCE8,
-          kGray_8_as_Lum_GrPixelConfig,     kGrayCol            },
-        { kGray_8_SkColorType,              GR_GL_R8,
-          kGray_8_as_Red_GrPixelConfig,     kGrayCol            },
+        { GrColorType::kGray_8,              GR_GL_LUMINANCE8,
+          /*kGray_8_as_Lum_GrPixelConfig,*/     kGrayCol            },
+        { GrColorType::kGray_8,              GR_GL_R8,
+          /*kGray_8_as_Red_GrPixelConfig,*/     kGrayCol            },
 
-        { kRGBA_F32_SkColorType,            GR_GL_RGBA32F,
-          kRGBA_float_GrPixelConfig,        SkColors::kRed      },
+        { GrColorType::kRGBA_F32,            GR_GL_RGBA32F,
+          /*kRGBA_float_GrPixelConfig,*/        SkColors::kRed      },
 
-        { kRGBA_F16Norm_SkColorType,        GR_GL_RGBA16F,
-          kRGBA_half_Clamped_GrPixelConfig, SkColors::kLtGray   },
-        { kRGBA_F16_SkColorType,            GR_GL_RGBA16F,
-          kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
+        { GrColorType::kRGBA_F16_Clamped,    GR_GL_RGBA16F,
+          /*kRGBA_half_Clamped_GrPixelConfig,*/ SkColors::kLtGray   },
+        { GrColorType::kRGBA_F16,            GR_GL_RGBA16F,
+          /*kRGBA_half_GrPixelConfig,*/         SkColors::kYellow   },
 
         // These backend formats don't have SkColorType equivalents
-        { kUnknown_SkColorType,             GR_GL_RG8,
-          kRG_88_GrPixelConfig,             { 0.5f, 0.5f, 0, 0 }},
-        { kUnknown_SkColorType,             GR_GL_R16F,
-          kAlpha_half_as_Red_GrPixelConfig, { 1.0f, 0, 0, 0.5f }},
-        { kUnknown_SkColorType,             GR_GL_LUMINANCE16F,
-          kAlpha_half_as_Lum_GrPixelConfig, kGrayCol            },
-        { kUnknown_SkColorType,             GR_GL_COMPRESSED_RGB8_ETC2,
-          kRGB_ETC1_GrPixelConfig,          SkColors::kRed      },
-        { kUnknown_SkColorType,             GR_GL_COMPRESSED_ETC1_RGB8,
-          kRGB_ETC1_GrPixelConfig,          SkColors::kRed      },
-        { kUnknown_SkColorType,             GR_GL_R16,
-          kR_16_GrPixelConfig,              SkColors::kRed      },
-        { kUnknown_SkColorType,             GR_GL_RG16,
-          kRG_1616_GrPixelConfig,           SkColors::kYellow   },
+        { GrColorType::kRG_88,               GR_GL_RG8,
+          /*kRG_88_GrPixelConfig,*/             { 0.5f, 0.5f, 0, 0 }},
+        { GrColorType::kAlpha_F16,           GR_GL_R16F,
+          /*kAlpha_half_as_Red_GrPixelConfig,*/ { 1.0f, 0, 0, 0.5f }},
+        { GrColorType::kAlpha_F16,           GR_GL_LUMINANCE16F,
+          /*kAlpha_half_as_Lum_GrPixelConfig,*/ kGrayCol            },
+#if 0
+        { GrColorType::kUnknown,             GR_GL_COMPRESSED_RGB8_ETC2,
+          /*kRGB_ETC1_GrPixelConfig,*/          SkColors::kRed      },
+        { GrColorType::kUnknown,             GR_GL_COMPRESSED_ETC1_RGB8,
+          /*kRGB_ETC1_GrPixelConfig,*/          SkColors::kRed      },
+#endif
+        { GrColorType::kR_16,                GR_GL_R16,
+          /*kR_16_GrPixelConfig,*/              SkColors::kRed      },
+        { GrColorType::kRG_1616,             GR_GL_RG16,
+          /*kRG_1616_GrPixelConfig,*/           SkColors::kYellow   },
 
         // Experimental (for Y416 and mutant P016/P010)
-        { kUnknown_SkColorType,             GR_GL_RGBA16,
-          kRGBA_16161616_GrPixelConfig,     SkColors::kLtGray   },
-        { kUnknown_SkColorType,             GR_GL_RG16F,
-          kRG_half_GrPixelConfig,           SkColors::kYellow   },
+        { GrColorType::kRGBA_16161616,       GR_GL_RGBA16,
+          /*kRGBA_16161616_GrPixelConfig,*/     SkColors::kLtGray   },
+        { GrColorType::kRG_F16,              GR_GL_RG16F,
+          /*kRG_half_GrPixelConfig,*/           SkColors::kYellow   },
     };
 
     for (auto combo : combinations) {
+#if 0
         if (kRGB_ETC1_GrPixelConfig == combo.fConfig) {
             // RGB8_ETC2/ETC1_RGB8 is an either/or situation
             GrGLenum supportedETC1Format = glCaps->configSizedInternalFormat(combo.fConfig);
@@ -584,6 +591,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                 continue;
             }
         }
+#endif
 
         GrBackendFormat format = GrBackendFormat::MakeGL(combo.fFormat, GR_GL_TEXTURE_2D);
 
@@ -593,16 +601,11 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             continue;
         }
 
-        GrColorType grCT = SkColorTypeAndFormatToGrColorType(glCaps, combo.fColorType, format);
-        if (GrColorType::kUnknown == grCT) {
+        if (!glCaps->isFormatTexturable(combo.fColorType1, format)) {
             continue;
         }
 
-        if (!glCaps->isFormatTexturable(grCT, format)) {
-            continue;
-        }
-
-        if (kBGRA_8888_SkColorType == combo.fColorType) {
+        if (GrColorType::kBGRA_8888 == combo.fColorType1) {
             if (GR_GL_RGBA8 == combo.fFormat && kGL_GrGLStandard != standard) {
                 continue;
             }
@@ -619,11 +622,11 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
 
                 if (GrRenderable::kYes == renderable) {
-                    if (kRGB_888x_SkColorType == combo.fColorType) {
+                    if (GrColorType::kRGB_888x == combo.fColorType1) {
                         // Ganesh can't perform the blends correctly when rendering this format
                         continue;
                     }
-                    if (!glCaps->isConfigRenderable(combo.fConfig)) {
+                    if (!glCaps->isFormatRenderable(combo.fColorType1, format)) {
                         continue;
                     }
                 }
@@ -638,12 +641,12 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                     };
 
                     test_wrapping(context, reporter, uninitCreateMtd,
-                                  combo.fColorType, mipMapped, renderable);
+                                  combo.fColorType1, mipMapped, renderable);
                 }
 
                 {
                     // GL has difficulties reading back from these combinations
-                    if (kAlpha_8_SkColorType == combo.fColorType) {
+                    if (GrColorType::kAlpha_8 == combo.fColorType1) {
                         continue;
                     }
                     if (GrRenderable::kYes != renderable) {
@@ -660,7 +663,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
-                                    combo.fColorType, combo.fColor, mipMapped, renderable);
+                                    combo.fColorType1, combo.fColor, mipMapped, renderable);
                 }
             }
         }
