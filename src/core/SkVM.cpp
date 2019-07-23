@@ -1085,20 +1085,22 @@ namespace skvm {
                 case Op::splat: if (!splats.find(imm)) { splats.set(imm, {}); }
                                 break;
 
-                case Op::bytes: if (!bytes_masks.find(imm)) { bytes_masks.set(imm, {}); }
-                                if (hoist) {
-                                    // vpshufb can always work with the mask from memory,
-                                    // but it helps to hoist the mask to a register for tbl.
-                                #if defined(__aarch64__)
-                                    LabelAndReg* entry = bytes_masks.find(imm);
-                                    if (int found = __builtin_ffs(avail)) {
-                                        entry->reg = (Reg)(found-1);
-                                        avail ^= 1 << entry->reg;
-                                        a->ldrq(entry->reg, &entry->label);
-                                    } else {
-                                        return false;
+                case Op::bytes: if (!bytes_masks.find(imm)) {
+                                    bytes_masks.set(imm, {});
+                                    if (hoist) {
+                                        // vpshufb can always work with the mask from memory,
+                                        // but it helps to hoist the mask to a register for tbl.
+                                    #if defined(__aarch64__)
+                                        LabelAndReg* entry = bytes_masks.find(imm);
+                                        if (int found = __builtin_ffs(avail)) {
+                                            entry->reg = (Reg)(found-1);
+                                            avail ^= 1 << entry->reg;
+                                            a->ldrq(entry->reg, &entry->label);
+                                        } else {
+                                            return false;
+                                        }
+                                    #endif
                                     }
-                                #endif
                                 }
                                 break;
             }
