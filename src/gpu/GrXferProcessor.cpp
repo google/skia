@@ -31,7 +31,8 @@ bool GrXferProcessor::hasSecondaryOutput() const {
 }
 
 void GrXferProcessor::getBlendInfo(BlendInfo* blendInfo) const {
-    blendInfo->reset();
+    // We expect the provided blendInfo to be initialized to default values.
+    SkASSERT(blendInfo->equals_debugOnly(BlendInfo()));
     if (!this->willReadDstColor()) {
         this->onGetBlendInfo(blendInfo);
     } else if (this->dstReadUsesMixedSamples()) {
@@ -157,6 +158,14 @@ SkString GrXferProcessor::BlendInfo::dump() const {
                fWriteColor, equation_string(fEquation), coeff_string(fSrcBlend),
                coeff_string(fDstBlend), fBlendConstant.toBytes_RGBA());
     return out;
+}
+
+bool GrXferProcessor::BlendInfo::equals_debugOnly(const BlendInfo& other) const {
+    return fEquation == other.fEquation &&
+           fSrcBlend == other.fSrcBlend &&
+           fDstBlend == other.fDstBlend &&
+           fBlendConstant == other.fBlendConstant &&
+           fWriteColor == other.fWriteColor;
 }
 #endif
 
