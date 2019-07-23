@@ -22,6 +22,30 @@
       "revId": "391a671a77f223bf95d210615f58d67c7ff9eebe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c82225f_af668e47",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-23T19:00:27Z",
+      "side": 1,
+      "message": "That bot doesn\u0027t exist. The only Metal perf bots were iPadPro, iPhone6, and RadeonHD8870M. This CL adds the HD615. Do we want to test perf on the HD6000 as well? (In which case I\u0027d add the check here to not do msaa).",
+      "parentUuid": "a8a2a7a0_e1587f9d",
+      "range": {
+        "startLine": 123,
+        "startChar": 6,
+        "endLine": 123,
+        "endChar": 10
+      },
+      "revId": "391a671a77f223bf95d210615f58d67c7ff9eebe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
