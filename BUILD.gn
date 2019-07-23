@@ -1182,16 +1182,6 @@ group("modules") {
   ]
 }
 
-executable("cpu_modules") {
-  sources = [
-    "tools/cpu_modules.cpp",
-  ]
-  deps = [
-    ":skia",
-    "modules/particles",
-  ]
-}
-
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
   skia_public_includes = [
@@ -2594,6 +2584,16 @@ if (skia_enable_tools) {
         "//third_party/opencl",
       ]
     }
+  }
+
+  executable("cpu_modules") {
+    sources = [
+      "tools/cpu_modules.cpp",
+    ]
+    deps = [
+      ":skia",
+      "modules/particles",
+    ]
   }
 
   test_app("editor") {
