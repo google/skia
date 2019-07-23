@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4db0ee93_829e9379",
+        "filename": "src/gpu/gl/GrGLGpuProgramCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T16:37:52Z",
+      "side": 1,
+      "message": "What you have is definitely an improvement, but it\u0027d be nice if we could do it in this Build for all backends. Right now GrPipeline doesn\u0027t know the dst origin, but perhaps it should.",
+      "range": {
+        "startLine": 89,
+        "startChar": 24,
+        "endLine": 89,
+        "endChar": 29
+      },
+      "revId": "cbfa8c892b5994c07d24445d1fe8a580c93d7e74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
