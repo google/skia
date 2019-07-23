@@ -68,15 +68,12 @@ public:
         }
     }
 
-    virtual ~TilingView() {
-    }
-
     SkBitmap    fTexture[SK_ARRAY_COUNT(gColorTypes)];
 
 protected:
-    virtual SkString name() { return SkString("Tiling"); }
+    SkString name() override { return SkString("Tiling"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkRect r = { 0, 0, SkIntToScalar(gWidth*2), SkIntToScalar(gHeight*2) };
 
         static const char* gConfigNames[] = { "8888", "565", "4444" };

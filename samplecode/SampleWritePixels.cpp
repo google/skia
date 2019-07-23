@@ -32,9 +32,9 @@ public:
     WritePixelsView() {}
 
 protected:
-    virtual SkString name() { return SkString("WritePixels"); }
+    SkString name() override { return SkString("WritePixels"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkBitmap bitmap;
         create_bitmap(&bitmap);
         int x = bitmap.width() / 2;

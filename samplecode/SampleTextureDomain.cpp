@@ -33,9 +33,9 @@ public:
     }
 
 protected:
-    virtual SkString name() { return SkString("Texture Domain"); }
+    SkString name() override { return SkString("Texture Domain"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkRect srcRect;
         SkRect dstRect;
         SkPaint paint;

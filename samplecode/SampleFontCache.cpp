@@ -99,7 +99,7 @@ public:
         this->setBGColor(0xFFDDDDDD);
     }
 
-    virtual ~FontCacheView() {
+    ~FontCacheView() override {
         gDone = true;
         for (int i = 0; i < N; i++) {
             void* ret;
@@ -113,7 +113,7 @@ public:
 protected:
     SkString name() override { return SkString("FontCache"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkScalar x = 0;
         SkScalar y = 0;
         for (int i = 0; i < N; i++) {
