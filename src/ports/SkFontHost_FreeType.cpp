@@ -7,6 +7,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkStream.h"
@@ -1772,6 +1773,30 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
     }
 
     return size;
+}
+
+sk_sp<SkData> SkTypeface_FreeType::onCopyTableData(SkFontTableTag tag) const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+
+    FT_ULong tableLength = 0;
+    FT_Error error;
+
+    // When 'length' is 0 it is overwritten with the full table length; 'offset' is ignored.
+    error = FT_Load_Sfnt_Table(face, tag, 0, nullptr, &tableLength);
+    if (error) {
+        return nullptr;
+    }
+
+    sk_sp<SkData> data = SkData::MakeUninitialized(tableLength);
+    if (data) {
+        error = FT_Load_Sfnt_Table(face, tag, 0,
+                                   reinterpret_cast<FT_Byte*>(data->writable_data()), &tableLength);
+        if (error) {
+            data.reset();
+        }
+    }
+    return data;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
