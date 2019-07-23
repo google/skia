@@ -8,7 +8,7 @@
 namespace skia {
 namespace textlayout {
 
-enum Affinity { kUpstream, kDownstream };
+enum class Affinity { kUpstream, kDownstream };
 
 enum class RectHeightStyle {
     // Provide tight bounding boxes that fit heights per run.
@@ -98,7 +98,6 @@ template <typename T> struct SkRange {
 };
 
 const SkRange<size_t> EMPTY_RANGE = SkRange<size_t>(EMPTY_INDEX, EMPTY_INDEX);
-
 
 enum class TextBaseline {
     kAlphabetic,

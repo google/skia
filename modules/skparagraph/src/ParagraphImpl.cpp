@@ -85,21 +85,19 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
-ParagraphCache ParagraphImpl::fParagraphCache;
-
-ParagraphImpl::ParagraphImpl(const SkString& text,
+ParagraphImpl::ParagraphImpl(SkString text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
                              sk_sp<FontCollection> fonts)
-        : Paragraph(std::move(style), std::move(fonts))
+        : Paragraph(std::move(style)
+        , std::move(fonts))
         , fTextStyles(std::move(blocks))
-        , fText(text)
+        , fText(std::move(text))
         , fTextSpan(fText.c_str(), fText.size())
-        , fState(kUnknown)
+        , fState(InternalState::kUnknown)
         , fPicture(nullptr)
         , fOldWidth(0)
-        , fOldHeight(0)
-        , fParagraphCacheOn(false) {
+        , fOldHeight(0) {
     // TODO: extractStyles();
 }
 
@@ -109,11 +107,10 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style), std::move(fonts))
         , fTextStyles(std::move(blocks))
-        , fState(kUnknown)
+        , fState(InternalState::kUnknown)
         , fPicture(nullptr)
         , fOldWidth(0)
-        , fOldHeight(0)
-        , fParagraphCacheOn(false) {
+        , fOldHeight(0) {
     icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
     std::string str;
     unicode.toUTF8String(str);
@@ -126,16 +123,16 @@ ParagraphImpl::~ParagraphImpl() = default;
 
 void ParagraphImpl::layout(SkScalar width) {
 
-    if (fState < kShaped) {
+    if (fState < InternalState::kShaped) {
         // Layout marked as dirty for performance/testing reasons
         this->fRuns.reset();
         this->fClusters.reset();
-    } else if (fState >= kLineBroken && (fOldWidth != width || fOldHeight != fHeight)) {
+    } else if (fState >= InternalState::kLineBroken && (fOldWidth != width || fOldHeight != fHeight)) {
         // We can use the results from SkShaper but have to break lines again
-        fState = kShaped;
+        fState = InternalState::kShaped;
     }
 
-    if (fState < kShaped) {
+    if (fState < InternalState::kShaped) {
         fClusters.reset();
 
         if (!this->shapeTextIntoEndlessLine()) {
@@ -149,48 +146,43 @@ void ParagraphImpl::layout(SkScalar width) {
             fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
             fIdeographicBaseline = lineMetrics.ideographicBaseline();
         }
-        if (fState < kShaped) {
-            fState = kShaped;
+        if (fState < InternalState::kShaped) {
+            fState = InternalState::kShaped;
         } else {
             layout(width);
             return;
         }
 
-        if (fState < kMarked) {
+        if (fState < InternalState::kMarked) {
             this->buildClusterTable();
-            fState = kClusterized;
+            fState = InternalState::kClusterized;
             this->markLineBreaks();
-            fState = kMarked;
+            fState = InternalState::kMarked;
+
             // Add the paragraph to the cache
-            if (fParagraphCacheOn) {
-                fParagraphCache.updateParagraph(this);
-            }
+            fFontCollection->updateParagraph(this);
         }
     }
 
-    if (fState >= kLineBroken)  {
+    if (fState >= InternalState::kLineBroken)  {
         if (fOldWidth != width || fOldHeight != fHeight) {
-            fState = kMarked;
+            fState = InternalState::kMarked;
         }
     }
 
-    if (fState < kLineBroken) {
+    if (fState < InternalState::kLineBroken) {
         this->resetContext();
         this->resolveStrut();
         this->fLines.reset();
         this->breakShapedTextIntoLines(width);
-        fState = kLineBroken;
+        fState = InternalState::kLineBroken;
 
     }
 
-    if (fState < kFormatted) {
+    if (fState < InternalState::kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
-        fState = kFormatted;
-        // Add the paragraph to the cache
-        if (fParagraphCacheOn) {
-            fParagraphCache.updateParagraph(this);
-        }
+        fState = InternalState::kFormatted;
     }
 
     this->fOldWidth = width;
@@ -199,13 +191,10 @@ void ParagraphImpl::layout(SkScalar width) {
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
-    if (fState < kDrawn) {
+    if (fState < InternalState::kDrawn) {
         // Record the picture anyway (but if we have some pieces in the cache they will be used)
         this->paintLinesIntoPicture();
-        fState = kDrawn;
-        if (fParagraphCacheOn) {
-            fParagraphCache.updateParagraph(this);
-        }
+        fState = InternalState::kDrawn;
     }
 
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
@@ -355,29 +344,27 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     }
 
     // This is a pretty big step - resolving all characters against all given fonts
-    fFontResolver.findAllFontsForAllStyledBlocks(fTextSpan, styles(), fFontCollection);
+    fFontResolver.findAllFontsForAllStyledBlocks(this);
 
     // Check the font-resolved text against the cache
-    if (fParagraphCacheOn && fParagraphCache.findParagraph(this)) {
-        return true;
+    if (!fFontCollection->findParagraph(this)) {
+        LangIterator lang(fTextSpan, styles(), paragraphStyle().getTextStyle());
+        FontIterator font(fTextSpan, &fFontResolver);
+        ShapeHandler handler(*this, &font);
+        std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
+        SkASSERT_RELEASE(shaper != nullptr);
+        auto bidi = SkShaper::MakeIcuBiDiRunIterator(
+                fTextSpan.begin(), fTextSpan.size(),
+                fParagraphStyle.getTextDirection() == TextDirection::kLtr ? (uint8_t)2
+                                                                          : (uint8_t)1);
+        if (bidi == nullptr) {
+            return false;
+        }
+        auto script = SkShaper::MakeHbIcuScriptRunIterator(fTextSpan.begin(), fTextSpan.size());
+
+        shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
+                      std::numeric_limits<SkScalar>::max(), &handler);
     }
-
-    LangIterator lang(fTextSpan, styles(), paragraphStyle().getTextStyle());
-    FontIterator font(fTextSpan, &fFontResolver);
-    ShapeHandler handler(*this, &font);
-    std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
-    SkASSERT_RELEASE(shaper != nullptr);
-    auto bidi = SkShaper::MakeIcuBiDiRunIterator(
-            fTextSpan.begin(), fTextSpan.size(),
-            fParagraphStyle.getTextDirection() == TextDirection::kLtr ? (uint8_t)2 : (uint8_t)1);
-    if (bidi == nullptr) {
-        return false;
-    }
-    auto script = SkShaper::MakeHbIcuScriptRunIterator(fTextSpan.begin(), fTextSpan.size());
-
-    shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
-                  std::numeric_limits<SkScalar>::max(), &handler);
-
     if (fParagraphStyle.getTextAlign() == TextAlign::kJustify) {
         fRunShifts.reset();
         fRunShifts.push_back_n(fRuns.size(), RunShifts());
@@ -438,7 +425,7 @@ void ParagraphImpl::paintLinesIntoPicture() {
 }
 
 void ParagraphImpl::resolveStrut() {
-    auto strutStyle = this->paragraphStyle().getStrutStyle();
+    auto& strutStyle = this->paragraphStyle().getStrutStyle();
     if (!strutStyle.getStrutEnabled()) {
         return;
     }
@@ -607,14 +594,14 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                               bool clippingNeeded) {
                     if (dx < clip.fLeft) {
                         // All the other runs are placed right of this one
-                        result = {SkToS32(run->fClusterIndexes[pos]), kDownstream};
+                        result = {SkToS32(run->fClusterIndexes[pos]), Affinity::kDownstream};
                         return false;
                     }
 
                     if (dx >= clip.fRight) {
                         // We have to keep looking but just in case keep the last one as the closes
                         // so far
-                        result = {SkToS32(run->fClusterIndexes[pos + size]), kUpstream};
+                        result = {SkToS32(run->fClusterIndexes[pos + size]), Affinity::kUpstream};
                         return true;
                     }
 
@@ -628,15 +615,15 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                     }
 
                     if (found == pos) {
-                        result = {SkToS32(run->fClusterIndexes[found]), kDownstream};
+                        result = {SkToS32(run->fClusterIndexes[found]), Affinity::kDownstream};
                     } else if (found == pos + size - 1) {
-                        result = {SkToS32(run->fClusterIndexes[found]), kUpstream};
+                        result = {SkToS32(run->fClusterIndexes[found]), Affinity::kUpstream};
                     } else {
                         auto center = (run->positionX(found + 1) + run->positionX(found)) / 2;
                         if ((dx <= center + shift) == run->leftToRight()) {
-                            result = {SkToS32(run->fClusterIndexes[found]), kDownstream};
+                            result = {SkToS32(run->fClusterIndexes[found]), Affinity::kDownstream};
                         } else {
-                            result = {SkToS32(run->fClusterIndexes[found + 1]), kUpstream};
+                            result = {SkToS32(run->fClusterIndexes[found + 1]), Affinity::kUpstream};
                         }
                     }
                     // No need to continue
@@ -731,20 +718,20 @@ void ParagraphImpl::setState(InternalState state) {
 
     fState = state;
     switch (fState) {
-        case kUnknown:
+        case InternalState::kUnknown:
             fRuns.reset();
-        case kShaped:
+        case InternalState::kShaped:
             fClusters.reset();
-        case kClusterized:
-        case kMarked:
-        case kLineBroken:
+        case InternalState::kClusterized:
+        case InternalState::kMarked:
+        case InternalState::kLineBroken:
             this->resetContext();
             this->resolveStrut();
             this->resetRunShifts();
             fLines.reset();
-        case kFormatted:
+        case InternalState::kFormatted:
             fPicture = nullptr;
-        case kDrawn:
+        case InternalState::kDrawn:
             break;
     default:
         break;
