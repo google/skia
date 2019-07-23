@@ -29,6 +29,11 @@ bool RenderNode::isVisible() const {
 }
 
 void RenderNode::setVisible(bool v) {
+    if (v == this->isVisible()) {
+        return;
+    }
+
+    this->invalidate();
     fNodeFlags = v ? (fNodeFlags & ~kInvisible_Flag)
                    : (fNodeFlags | kInvisible_Flag);
 }
