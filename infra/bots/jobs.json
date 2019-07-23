@@ -227,6 +227,7 @@
   "Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit",
   "Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM",
   "Perf-Debian9-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
+  "Perf-Debian9-EMCC-NUCDE3815TYKHE-GPU-IntelBayTrail-wasm-Release-All-SkottieWASM",
   "Perf-Debian9-EMCC-NUC7i5BNK-GPU-IntelIris640-wasm-Release-All-SkottieWASM",
   "Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-LottieWeb",
   "Perf-Debian9-none-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-LottieWeb",
