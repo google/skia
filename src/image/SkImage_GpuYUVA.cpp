@@ -354,15 +354,16 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     // Get lazy proxies
     sk_sp<GrTextureProxy> proxies[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
-        GrPixelConfig config =
-                context->priv().caps()->getYUVAConfigFromBackendFormat(yuvaFormats[texIdx]);
-        if (config == kUnknown_GrPixelConfig) {
+        GrColorType colorType = context->priv().caps()->getYUVAColorTypeFromBackendFormat(
+                                                                            yuvaFormats[texIdx]);
+        if (GrColorType::kUnknown == colorType) {
             return nullptr;
         }
+
         proxies[texIdx] = MakePromiseImageLazyProxy(
-                context, yuvaSizes[texIdx].width(), yuvaSizes[texIdx].height(), imageOrigin, config,
-                yuvaFormats[texIdx], GrMipMapped::kNo, textureFulfillProc, textureReleaseProc,
-                promiseDoneProc, textureContexts[texIdx], version);
+                context, yuvaSizes[texIdx].width(), yuvaSizes[texIdx].height(), imageOrigin,
+                colorType, yuvaFormats[texIdx], GrMipMapped::kNo, textureFulfillProc,
+                textureReleaseProc, promiseDoneProc, textureContexts[texIdx], version);
         ++proxiesCreated;
         if (!proxies[texIdx]) {
             return nullptr;
