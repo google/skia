@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "afba3ef8_6ce30ae9",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T13:41:53Z",
+      "side": 1,
+      "message": "This was:\n    if (fRenderTargetProxy-\u003ewrapsVkSecondaryCB()) {\n        return nullptr;\n    }",
+      "range": {
+        "startLine": 433,
+        "startChar": 0,
+        "endLine": 436,
+        "endChar": 5
+      },
+      "revId": "8990965a099e2368c52061fd12fe5f09752d3bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "156f7a92_983ee701",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T13:41:53Z",
+      "side": 1,
+      "message": "This was called currRTC in the previous code and was sk_sp\u003cGrRenderTargetContext\u003e, now sk_sp\u003cGrSurfaceContext\u003e.",
+      "range": {
+        "startLine": 474,
+        "startChar": 9,
+        "endLine": 474,
+        "endChar": 16
+      },
+      "revId": "8990965a099e2368c52061fd12fe5f09752d3bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc271a1c_527e1542",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T13:41:53Z",
+      "side": 1,
+      "message": "Having currRTC and currCtx is a consequence of the above change.",
+      "range": {
+        "startLine": 533,
+        "startChar": 0,
+        "endLine": 536,
+        "endChar": 26
+      },
+      "revId": "8990965a099e2368c52061fd12fe5f09752d3bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be6ad7fe_9b710d6a",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T13:41:53Z",
+      "side": 1,
+      "message": "Another consequence.... I believe when the callers are lifted up here then this can return a GrSurfaceContext and this won\u0027t be necessary.",
+      "range": {
+        "startLine": 581,
+        "startChar": 4,
+        "endLine": 581,
+        "endChar": 55
+      },
+      "revId": "8990965a099e2368c52061fd12fe5f09752d3bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
