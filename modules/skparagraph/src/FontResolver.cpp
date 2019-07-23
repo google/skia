@@ -54,19 +54,22 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
     fUnresolved = fCodepoints.size();
 
     // Walk through all available fonts to resolve the block
-    for (auto& fontFamily : style.getFontFamilies()) {
+    style.foreachFontFamily([this, &style](const SkString& fontFamily) {
+
         auto typeface = fFontCollection->matchTypeface(fontFamily.c_str(), style.getFontStyle());
         if (typeface.get() == nullptr) {
-            continue;
+            return true;
         }
 
         // Resolve all unresolved characters
         auto font = makeFont(typeface, style.getFontSize(), style.getHeight());
         resolveAllCharactersByFont(font);
         if (fUnresolved == 0) {
-            break;
+            return false;
         }
-    }
+
+        return true;
+    });
 
     if (fUnresolved > 0) {
         auto typeface = fFontCollection->matchDefaultTypeface(style.getFontStyle());
@@ -117,7 +120,7 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
     }
 }
 
-size_t FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
+bool FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
     // Consolidate all unresolved unicodes in one array to make a batch call
     SkTArray<SkGlyphID> glyphs(fUnresolved);
     glyphs.push_back_n(fUnresolved, SkGlyphID(0));

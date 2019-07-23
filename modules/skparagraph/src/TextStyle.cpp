@@ -1,14 +1,25 @@
 // Copyright 2019 Google LLC.
 #include "modules/skparagraph/include/TextStyle.h"
+#include <include/private/SkTHash.h>
 #include "include/core/SkColor.h"
 #include "include/core/SkFontStyle.h"
+
+namespace {
+    SkTHashMap<SkColor, SkPaint> fSimpleColorPaints;
+
+    const SkString fDefaultFamilyName = SkString(DEFAULT_FONT_FAMILY);
+    SkTArray<SkString> fFamilyNames;
+    SkTHashMap<SkString, size_t> fFamilyNamesReverted;
+}
 
 namespace skia {
 namespace textlayout {
 
 TextStyle::TextStyle() : fFontStyle() {
+
     fFontFamilies.reserve(1);
-    fFontFamilies.emplace_back(DEFAULT_FONT_FAMILY);
+    addFontFamily(fDefaultFamilyName);
+
     fColor = SK_ColorWHITE;
     fDecoration.fType = TextDecoration::kNoDecoration;
     // Does not make sense to draw a transparent object, so we use it as a default
@@ -21,8 +32,8 @@ TextStyle::TextStyle() : fFontStyle() {
     fLetterSpacing = 0.0;
     fWordSpacing = 0.0;
     fHeight = 1.0;
-    fHasBackground = false;
     fHasForeground = false;
+    fHasBackground = false;
     fTextBaseline = TextBaseline::kAlphabetic;
     fLocale = "";
 }
@@ -55,10 +66,15 @@ bool TextStyle::equals(const TextStyle& other) const {
     if (fLocale != other.fLocale) {
         return false;
     }
-    if (fHasForeground != other.fHasForeground || fForeground != other.fForeground) {
+    if (fHasForeground != other.fHasForeground) {
+        return false;
+    } else if (fHasForeground &&  fForeground != other.fForeground) {
         return false;
     }
-    if (fHasBackground != other.fHasBackground || fBackground != other.fBackground) {
+
+    if (fHasBackground != other.fHasBackground) {
+        return false;
+    } else if (fHasBackground && fBackground != other.fBackground) {
         return false;
     }
     if (fTextShadows.size() != other.fTextShadows.size()) {
@@ -84,7 +100,12 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             }
 
         case kBackground:
-            return (fHasBackground == other.fHasBackground && fBackground == other.fBackground);
+            if (fHasBackground) {
+                return other.fHasBackground && fBackground == other.fBackground;
+            } else {
+                return !other.fHasBackground;
+            }
+
 
         case kShadow:
             if (fTextShadows.size() != other.fTextShadows.size()) {
@@ -119,6 +140,62 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             SkASSERT(false);
             return false;
     }
+}
+
+const std::vector<SkString> TextStyle::getFontFamilies() const {
+
+    std::vector<SkString> result(fFontFamilies.size());
+    for (auto& fi : fFontFamilies) {
+        result.emplace_back(fFamilyNames[fi]);
+    }
+    return result;
+}
+
+const SkString& TextStyle::getFontFamilyName(size_t index) const {
+
+    SkASSERT(index < fFamilyNames.size());
+    return fFamilyNames[index];
+}
+
+bool TextStyle::getFontFamilyIndex(const SkString& name, size_t* index) const {
+    auto found = fFamilyNamesReverted.find(name);
+    if (found == nullptr) {
+        return false;
+    }
+    *index = *found;
+    return true;
+}
+
+void TextStyle::setFontFamilies(const std::vector<SkString>& families) {
+    fFontFamilies.reset();
+    fFontFamilies.reserve(families.size());
+    for (auto& family : families) {
+        addFontFamily(family);
+    }
+}
+
+size_t TextStyle::addFontFamily(const SkString& familyName) {
+    auto index = 0;
+    auto found = fFamilyNamesReverted.find(familyName);
+    if (found == nullptr) {
+        index = fFamilyNames.size();
+        fFamilyNames.emplace_back(familyName);
+        fFamilyNamesReverted.set(familyName, index);
+    } else {
+        index = *found;
+    }
+    fFontFamilies.emplace_back(index);
+    return index;
+}
+
+SkPaint* TextStyle::getPaint(SkColor color) {
+    auto found = fSimpleColorPaints.find(color);
+    if (found == nullptr) {
+        SkPaint paint;
+        paint.setColor(color);
+        found = fSimpleColorPaints.set(color, paint);
+    }
+    return found;
 }
 
 }  // namespace textlayout
