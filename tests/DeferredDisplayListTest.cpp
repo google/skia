@@ -836,8 +836,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
 
     GrBackendTexture backendTexture;
 
-    if (!create_backend_texture(context, &backendTexture, ii, GrMipMapped::kNo, SK_ColorCYAN,
-                                GrRenderable::kNo)) {
+    if (!create_backend_texture(context, &backendTexture, ii, SkColors::kCyan,
+                                GrMipMapped::kNo, GrRenderable::kNo)) {
         REPORTER_ASSERT(reporter, false);
         return;
     }

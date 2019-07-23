@@ -660,7 +660,7 @@ DEF_TEST(surface_raster_zeroinitialized, reporter) {
 }
 
 static sk_sp<SkSurface> create_gpu_surface_backend_texture(
-    GrContext* ctx, int sampleCnt, SkColor color, GrBackendTexture* outTexture) {
+    GrContext* ctx, int sampleCnt, const SkColor4f& color, GrBackendTexture* outTexture) {
 
     // On Pixel and Pixel2XL's with Adreno 530 and 540s, setting width and height to 10s reliably
     // triggers what appears to be a driver race condition where the 10x10 surface from the
@@ -688,7 +688,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
 
-    if (!create_backend_texture(ctx, outTexture, ii, GrMipMapped::kNo, color,
+    if (!create_backend_texture(ctx, outTexture, ii, color, GrMipMapped::kNo,
                                 GrRenderable::kYes)) {
         return nullptr;
     }
@@ -705,7 +705,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
 }
 
 static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
-    GrContext* ctx, int sampleCnt, SkColor color, GrBackendTexture* outTexture) {
+    GrContext* ctx, int sampleCnt, const SkColor4f& color, GrBackendTexture* outTexture) {
 
     const int kWidth = 10;
     const int kHeight = 10;
@@ -713,7 +713,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
 
-    if (!create_backend_texture(ctx, outTexture, ii, GrMipMapped::kNo, color,
+    if (!create_backend_texture(ctx, outTexture, ii, color, GrMipMapped::kNo,
                                 GrRenderable::kYes)) {
         return nullptr;
     }
@@ -793,12 +793,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             test_surface_clear(reporter, surface, grSurfaceGetter, 0x0);
         }
         // Wrapped RTs are *not* supposed to clear (to allow client to partially update a surface).
-        const SkColor kOrigColor = 0xABABABAB;
+        const SkColor4f kOrigColor { .67f, .67f, .67f, 1 };
         for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
                                   &create_gpu_surface_backend_texture_as_render_target}) {
             GrBackendTexture backendTex;
             auto surface = surfaceFunc(context, 1, kOrigColor, &backendTex);
-            test_surface_clear(reporter, surface, grSurfaceGetter, kOrigColor);
+            test_surface_clear(reporter, surface, grSurfaceGetter, kOrigColor.toSkColor());
             surface.reset();
             context->deleteBackendTexture(backendTex);
         }
@@ -820,18 +820,22 @@ static void test_surface_draw_partially(
     SkImageInfo readInfo = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkAssertResult(surface->readPixels(readInfo, pixels.get(), kW * sizeof(uint32_t), 0, 0));
     bool stop = false;
+
     SkPMColor origColorPM = SkPackARGB_as_RGBA((origColor >> 24 & 0xFF),
-                                               (origColor >>  0 & 0xFF),
-                                               (origColor >>  8 & 0xFF),
+                                               (origColor >> 0 & 0xFF),
+                                               (origColor >> 8 & 0xFF),
                                                (origColor >> 16 & 0xFF));
     SkPMColor rectColorPM = SkPackARGB_as_RGBA((kRectColor >> 24 & 0xFF),
                                                (kRectColor >> 16 & 0xFF),
-                                               (kRectColor >>  8 & 0xFF),
-                                               (kRectColor >>  0 & 0xFF));
+                                               (kRectColor >> 8 & 0xFF),
+                                               (kRectColor >> 0 & 0xFF));
+
     for (int y = 0; y < kH/2 && !stop; ++y) {
        for (int x = 0; x < kW && !stop; ++x) {
             REPORTER_ASSERT(reporter, rectColorPM == pixels[x + y * kW]);
             if (rectColorPM != pixels[x + y * kW]) {
+                SkDebugf("--- got [%x] expected [%x], x = %d, y = %d\n",
+                         pixels[x + y * kW], rectColorPM, x, y);
                 stop = true;
             }
         }
@@ -841,6 +845,8 @@ static void test_surface_draw_partially(
         for (int x = 0; x < kW && !stop; ++x) {
             REPORTER_ASSERT(reporter, origColorPM == pixels[x + y * kW]);
             if (origColorPM != pixels[x + y * kW]) {
+                SkDebugf("--- got [%x] expected [%x], x = %d, y = %d\n",
+                         pixels[x + y * kW], origColorPM, x, y);
                 stop = true;
             }
         }
@@ -850,7 +856,7 @@ static void test_surface_draw_partially(
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    static const SkColor kOrigColor = 0xFFAABBCC;
+    static const SkColor4f kOrigColor { 0.667f, 0.733f, 0.8f, 1 };
 
     for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
                               &create_gpu_surface_backend_texture_as_render_target}) {
@@ -860,7 +866,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
         GrBackendTexture backendTex;
         auto surface = surfaceFunc(context, 1, kOrigColor, &backendTex);
         if (surface) {
-            test_surface_draw_partially(reporter, surface, kOrigColor);
+            test_surface_draw_partially(reporter, surface, kOrigColor.toSkColor());
             surface.reset();
             context->deleteBackendTexture(backendTex);
         }
@@ -894,7 +900,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu, reporter, ctxI
         if (useTexture) {
             SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                                kPremul_SkAlphaType);
-            if (!create_backend_texture(ctx, &backendTex, ii, GrMipMapped::kNo, SK_ColorRED,
+            if (!create_backend_texture(ctx, &backendTex, ii, SkColors::kRed, GrMipMapped::kNo,
                                         GrRenderable::kYes)) {
                 continue;
             }
@@ -946,7 +952,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
         return;
     }
 
-    static const SkColor kOrigColor = 0xFFAABBCC;
+    static const SkColor4f kOrigColor { 0.667f, 0.733f, 0.8f, 1 };
 
     auto resourceProvider = context->priv().resourceProvider();
 
@@ -977,15 +983,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture, reporter, ctxIn
     for (int sampleCnt : {1, 2}) {
         GrBackendTexture backendTexture1;
         auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
-        if (!create_backend_texture(context, &backendTexture1, ii, GrMipMapped::kNo,
-                                    SK_ColorTRANSPARENT, GrRenderable::kYes)) {
+        if (!create_backend_texture(context, &backendTexture1, ii, SkColors::kTransparent,
+                                    GrMipMapped::kNo, GrRenderable::kYes)) {
             continue;
         }
         SkScopeExit delete1(
                 [context, &backendTexture1] { delete_backend_texture(context, backendTexture1); });
         GrBackendTexture backendTexture2;
-        if (!create_backend_texture(context, &backendTexture2, ii, GrMipMapped::kNo,
-                                    SK_ColorTRANSPARENT, GrRenderable::kYes)) {
+        if (!create_backend_texture(context, &backendTexture2, ii, SkColors::kTransparent,
+                                    GrMipMapped::kNo, GrRenderable::kYes)) {
             ERRORF(reporter, "Expected to be able to make second texture");
             continue;
         }
@@ -993,8 +999,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture, reporter, ctxIn
                 [context, &backendTexture2] { delete_backend_texture(context, backendTexture2); });
         auto ii2 = ii.makeWH(8, 8);
         GrBackendTexture backendTexture3;
-        if (!create_backend_texture(context, &backendTexture3, ii2, GrMipMapped::kNo,
-                                    SK_ColorTRANSPARENT, GrRenderable::kYes)) {
+        if (!create_backend_texture(context, &backendTexture3, ii2, SkColors::kTransparent,
+                                    GrMipMapped::kNo, GrRenderable::kYes)) {
             ERRORF(reporter, "Couldn't create different sized texture.");
             continue;
         }
