@@ -246,7 +246,7 @@ def dm_flags(api, bot):
 
     if 'Vulkan' in bot:
       configs = ['vk']
-      if 'Android' in bot or 'iOS' in bot:
+      if 'Android' in bot:
         configs.append('vkmsaa4')
       else:
         # skbug.com/9023
@@ -258,7 +258,9 @@ def dm_flags(api, bot):
       if 'iOS' in bot:
         configs.append('mtlmsaa4')
       else:
-        configs.append('mtlmsaa8')
+        # We don't want to test MSAA on older (pre-Gen9) Intel chipsets.
+        if 'IntelHD6000' not in bot:
+          configs.append('mtlmsaa8')
 
     # Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
     # on the GL bots.

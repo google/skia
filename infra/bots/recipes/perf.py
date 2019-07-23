@@ -106,11 +106,22 @@ def nanobench_flags(api, bot):
 
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
+
     if 'Vulkan' in bot:
       configs = ['vk']
+      if 'Android' in bot:
+        configs.append('vkmsaa4')
+      else:
+        # skbug.com/9023
+        if 'IntelHD405' not in bot:
+          configs.append('vkmsaa8')
 
     if 'Metal' in bot:
       configs = ['mtl']
+      if 'iOS' in bot:
+        configs.append('mtlmsaa4')
+      else:
+        configs.append('mtlmsaa8')
 
     if 'ANGLE' in bot:
       # Test only ANGLE configs.
@@ -353,6 +364,7 @@ TEST_BUILDERS = [
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),
   'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android',
+  'Perf-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
   'Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Debug-All',
   'Perf-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All',
@@ -373,6 +385,7 @@ TEST_BUILDERS = [
     'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
   'Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
+  'Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal',
 ]
 
 
