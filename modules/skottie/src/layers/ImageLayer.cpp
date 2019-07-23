@@ -12,8 +12,6 @@
 #include "modules/sksg/include/SkSGImage.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
-#include "src/core/SkMakeUnique.h"
-
 namespace skottie {
 namespace internal {
 
@@ -82,10 +80,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
                                   fTimeScale;
         };
 
-        ascope->push_back(skstd::make_unique<MultiFrameAnimator>(asset_info->fAsset,
-                                                                 image_node,
-                                                                 -layer_info->fInPoint,
-                                                                 1 / fFrameRate));
+        ascope->push_back(sk_make_sp<MultiFrameAnimator>(asset_info->fAsset,
+                                                         image_node,
+                                                         -layer_info->fInPoint,
+                                                         1 / fFrameRate));
     }
 
     const auto asset_size = SkISize::Make(

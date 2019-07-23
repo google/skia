@@ -18,7 +18,6 @@
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGText.h"
-#include "src/core/SkMakeUnique.h"
 
 #include <string.h>
 
