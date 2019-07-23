@@ -237,6 +237,10 @@ public:
     size_t getTableData(SkFontTableTag tag, size_t offset, size_t length,
                         void* data) const;
 
+    /** As in getTableData(), but allocating the data for you with malloc(). */
+    size_t copyTableData(SkFontTableTag tag, size_t offset, size_t length,
+                         void** data) const;
+
     /**
      *  Return an immutable copy of the requested font table, or nullptr if that table was
      *  not found. This can sometimes be faster than calling getTableData() twice: once to find
