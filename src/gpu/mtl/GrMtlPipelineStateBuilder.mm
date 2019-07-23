@@ -77,9 +77,6 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
     if (inputs.fRTHeight) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
-    if (inputs.fFlipY) {
-        desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(this->origin()));
-    }
     return shaderLibrary;
 }
 

@@ -90,12 +90,11 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
+    // If we knew the shader won't depend on origin, we could skip this (and use the same program
+    // for both origins). Instrumenting all fragment processors would be difficult and error prone.
+    desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
+
     std::unique_ptr<Entry>* entry = fMap.find(desc);
-    if (!entry) {
-        // Didn't find an origin-independent version, check with the specific origin
-        desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
-        entry = fMap.find(desc);
-    }
     if (!entry) {
         // We have a cache miss
 #ifdef PROGRAM_CACHE_STATS
