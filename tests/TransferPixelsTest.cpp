@@ -108,13 +108,26 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
         return;
     }
 
+    // We validate the results using GrGpu::readPixels, so exit if this is not supported.
+    // TODO: Do this through GrSurfaceContext once it works for all color types.
+    if (GrCaps::SurfaceReadPixelsSupport::kSupported != caps->surfaceSupportsReadPixels(tex.get())) {
+        return;
+    }
+    // GL requires a texture to be framebuffer bindable to call glReadPixels. However, we have not
+    // incorporated that test into surfaceSupportsReadPixels(). TODO: Remove this once we're using
+    // GrSurfaceConext for the read and it handles drawing to a bindable format.
+    if (!caps->isFormatRenderable(colorType, tex->backendFormat())) {
+        return;
+    }
+
     // The caps tell us what color type we are allowed to upload and read back from this texture,
     // either of which may differ from 'colorType'.
-    GrColorType allowedSrc = caps->supportedWritePixelsColorType(desc.fConfig, colorType);
-    size_t srcRowBytes = GrColorTypeBytesPerPixel(allowedSrc) * kTextureWidth;
+    GrCaps::SupportedWrite allowedSrc =
+            caps->supportedWritePixelsColorType(desc.fConfig, colorType);
+    size_t srcRowBytes = GrColorTypeBytesPerPixel(allowedSrc.fColorType) * kTextureWidth;
     std::unique_ptr<char[]> srcData(new char[kTextureWidth * srcRowBytes]);
 
-    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, srcBufferWidth, allowedSrc,
+    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, srcBufferWidth, allowedSrc.fColorType,
                        srcData.get());
 
     // create and fill transfer buffer
@@ -136,8 +149,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     // transfer full data
 
     bool result;
-    result = gpu->transferPixelsTo(tex.get(), 0, 0, kTextureWidth, kTextureHeight, allowedSrc,
-                                   buffer.get(), 0, srcRowBytes);
+    result = gpu->transferPixelsTo(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
+                                   allowedSrc.fColorType, buffer.get(), 0, srcRowBytes);
     REPORTER_ASSERT(reporter, result);
 
     size_t dstRowBytes = GrColorTypeBytesPerPixel(colorType) * kTextureWidth;
@@ -145,7 +158,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
 
     result = read_pixels_from_texture(tex.get(), colorType, dstBuffer.get());
     if (!result) {
-        ERRORF(reporter, "Could not read pixels from texture");
+        ERRORF(reporter,
+               "Could not read pixels from texture, color type: %d", static_cast<int>(colorType));
         return;
     }
 
@@ -154,7 +168,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
             [reporter, colorType](int x, int y, const float diffs[4]) {
                 ERRORF(reporter, "Error at (%d %d) in transfer, color type: %d", x, y, colorType);
             });
-    GrPixelInfo srcInfo(allowedSrc, kPremul_SkAlphaType, nullptr, tex->width(), tex->height());
+    GrPixelInfo srcInfo(allowedSrc.fColorType, kPremul_SkAlphaType, nullptr, tex->width(),
+                        tex->height());
     GrPixelInfo dstInfo(colorType, kPremul_SkAlphaType, nullptr, tex->width(), tex->height());
 
     compare_pixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes, kTol,
@@ -167,25 +182,38 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     if (!caps->writePixelsRowBytesSupport()) {
         return;
     }
-    const int kLeft = 2;
-    const int kTop = 10;
-    const int kWidth = 10;
-    const int kHeight = 2;
+    int left = 2;
+    const int top = 10;
+    const int width = 10;
+    const int height = 2;
+    size_t offset = top * srcRowBytes + left * GrColorTypeBytesPerPixel(allowedSrc.fColorType);
+    while (offset % allowedSrc.fTransferBufferOffsetAlignment) {
+        offset += GrColorTypeBytesPerPixel(allowedSrc.fColorType);
+        ++left;
+    }
+    SkASSERT(left + width <= tex->width());
 
     // change color of subrectangle
-    fill_transfer_data(kLeft, kTop, kWidth, kHeight, srcBufferWidth, allowedSrc, srcData.get());
+    fill_transfer_data(left, top, width, height, srcBufferWidth, allowedSrc.fColorType,
+                       srcData.get());
     data = buffer->map();
     memcpy(data, srcData.get(), size);
     buffer->unmap();
 
-    size_t offset = kTop * srcRowBytes + kLeft * GrColorTypeBytesPerPixel(allowedSrc);
-    result = gpu->transferPixelsTo(tex.get(), kLeft, kTop, kWidth, kHeight, allowedSrc,
+    result = gpu->transferPixelsTo(tex.get(), left, top, width, height, allowedSrc.fColorType,
                                    buffer.get(), offset, srcRowBytes);
-    REPORTER_ASSERT(reporter, result);
+    if (!result) {
+        gpu->transferPixelsTo(tex.get(), left, top, width, height, allowedSrc.fColorType,
+                              buffer.get(), offset, srcRowBytes);
+        ERRORF(reporter, "Could not transfer pixels to texture, color type: %d",
+               static_cast<int>(colorType));
+        return;
+    }
 
     result = read_pixels_from_texture(tex.get(), colorType, dstBuffer.get());
     if (!result) {
-        ERRORF(reporter, "Could not read pixels from texture");
+        ERRORF(reporter, "Could not read pixels from texture, color type: %d",
+               static_cast<int>(colorType));
         return;
     }
     compare_pixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes, kTol,
@@ -361,8 +389,26 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
         return;
     }
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-        for (auto colorType :
-             {GrColorType::kRGBA_8888, GrColorType::kRGBA_8888_SRGB, GrColorType::kBGRA_8888}) {
+        for (auto colorType : {
+                     GrColorType::kAlpha_8,
+                     GrColorType::kBGR_565,
+                     GrColorType::kABGR_4444,
+                     GrColorType::kRGBA_8888,
+                     GrColorType::kRGBA_8888_SRGB,
+                     //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
+                     GrColorType::kRG_88,
+                     GrColorType::kBGRA_8888,
+                     GrColorType::kRGBA_1010102,
+                     //  GrColorType::kGray_8, Reading back to kGray is busted.
+                     GrColorType::kAlpha_F16,
+                     GrColorType::kRGBA_F16,
+                     GrColorType::kRGBA_F16_Clamped,
+                     GrColorType::kRGBA_F32,
+                     GrColorType::kR_16,
+                     GrColorType::kRG_1616,
+                     GrColorType::kRGBA_16161616,
+                     GrColorType::kRG_F16,
+             }) {
             basic_transfer_to_test(reporter, ctxInfo.grContext(), colorType, renderable);
         }
     }
