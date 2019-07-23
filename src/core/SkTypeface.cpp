@@ -257,6 +257,20 @@ size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length
     return this->onGetTableData(tag, offset, length, data);
 }
 
+sk_sp<SkData> SkTypeface::copyTableData(SkFontTableTag tag) const {
+    return this->onCopyTableData(tag);
+}
+
+sk_sp<SkData> SkTypeface::onCopyTableData(SkFontTableTag tag) const {
+    size_t size = this->getTableSize(tag);
+    if (size) {
+        sk_sp<SkData> data = SkData::MakeUninitialized(size);
+        (void)this->getTableData(tag, 0, size, data->writable_data());
+        return data;
+    }
+    return nullptr;
+}
+
 std::unique_ptr<SkStreamAsset> SkTypeface::openStream(int* ttcIndex) const {
     int ttcIndexStorage;
     if (nullptr == ttcIndex) {
