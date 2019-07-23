@@ -326,6 +326,15 @@ static void inval_test3(skiatest::Reporter* reporter) {
                     &damage);
     }
 
+    {
+        // Visibility change -> full inval.
+        group->setVisible(false);
+        std::vector<SkRect> damage = { { 50, 75, 350, 175} };
+        check_inval(reporter, root,
+                    SkRect::MakeLTRB(50, 75, 350, 175),
+                    SkRect::MakeLTRB(50, 75, 350, 175),
+                    &damage);
+    }
 }
 
 static void inval_group_remove(skiatest::Reporter* reporter) {
