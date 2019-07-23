@@ -69,6 +69,12 @@ public:
         kDown,
         kHome,
         kEnd,
+        // kUpDisplayLine,
+        // kDownDisplayLine,
+        // kStartOfDisplayLine,
+        // kEndOfDisplayLine,
+        // kNextWord,
+        // kPreviousWord,
     };
     TextPosition move(Editor::Movement move, Editor::TextPosition pos) const;
     TextPosition getPosition(SkIPoint);

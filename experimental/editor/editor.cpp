@@ -176,28 +176,42 @@ void Editor::setFont(SkFont font) {
     }
 }
 
+static SkPoint to_point(SkIPoint p) { return {(float)p.x(), (float)p.y()}; }
+
 Editor::TextPosition Editor::getPosition(SkIPoint xy) {
+    Editor::TextPosition bad;
     this->reshapeAll();
     for (size_t j = 0; j < fLines.size(); ++j) {
         const TextLine& line = fLines[j];
-        if (!line.fBlob) {
-            continue;
-        }
-        SkIRect b = line.fBlob->bounds().roundOut().makeOffset(line.fOrigin.x(), line.fOrigin.y());
-        if (b.contains(xy.x(), xy.y())) {
-            xy -= line.fOrigin;
-            const std::vector<SkRect>& pos = line.fCursorPos;
-            for (size_t i = 0; i < pos.size(); ++i) {
-                if (pos[i] == kUnsetRect) {
-                    continue;
-                }
-                if (pos[i].contains((float)xy.x(), (float)xy.y())) {
-                    return Editor::TextPosition{i, j};
-                }
+        int top = line.fOrigin.y();
+        int bottom = j + 1 < fLines.size() ? fLines[j + 1].fOrigin.y() : INT_MAX;
+        if (line.fBlob) {
+            const SkRect& blobBounds = line.fBlob->bounds();
+            int blobTop    = SkScalarFloorToInt(blobBounds.top());
+            int blobBottom = SkScalarCeilToInt(blobBounds.bottom());
+            if (blobBottom + top > bottom) {
+                bottom = blobBottom + top;
+            }
+            if (blobTop < 0) {
+                top = top + blobTop;
             }
         }
+        if (xy.y() < top || xy.y() > bottom) {
+            continue;
+        }
+        SkPoint pt = to_point(xy - line.fOrigin);
+        const std::vector<SkRect>& pos = line.fCursorPos;
+        for (size_t i = 0; i < pos.size(); ++i) {
+            if (pos[i] == kUnsetRect) {
+                continue;
+            }
+            if (pos[i].contains(pt.x(), pt.y())) {
+                return Editor::TextPosition{i, j};
+            }
+        }
+        bad = Editor::TextPosition{line.fText.size(), j};
     }
-    return Editor::TextPosition();
+    return bad;
 }
 
 static inline bool is_utf8_continuation(char v) {
