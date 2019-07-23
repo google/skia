@@ -165,10 +165,6 @@ private:
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
         return true;
     }
-    size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override {
-        // arbitrary
-        return GrSizeAlignUp(GrColorTypeBytesPerPixel(bufferColorType), 4);
-    }
 
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                GrColorType) const override {
