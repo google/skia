@@ -85,6 +85,8 @@ static uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kTexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
+        case kSampler_GrSLType:
+        case kTexture2D_GrSLType:
             break;
     }
     SK_ABORT("Unexpected type");
@@ -166,6 +168,8 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kTexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
+        case kSampler_GrSLType:
+        case kTexture2D_GrSLType:
             break;
     }
     SK_ABORT("Unexpected type");
