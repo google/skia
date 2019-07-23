@@ -47,7 +47,7 @@ public:
         SkASSERT(fSlide);
     }
 
-    std::unique_ptr<sksg::Animator> makeForwardingAnimator() {
+    sk_sp<sksg::Animator> makeForwardingAnimator() {
         // Trivial sksg::Animator -> skottie::Animation tick adapter
         class ForwardingAnimator final : public sksg::Animator {
         public:
@@ -63,7 +63,7 @@ public:
             sk_sp<SlideAdapter> fAdapter;
         };
 
-        return skstd::make_unique<ForwardingAnimator>(sk_ref_sp(this));
+        return sk_make_sp<ForwardingAnimator>(sk_ref_sp(this));
     }
 
 protected:

@@ -16,7 +16,7 @@ namespace internal {
 
 class MotionBlurEffect final : public sksg::CustomRenderNode {
 public:
-    static sk_sp<MotionBlurEffect> Make(std::unique_ptr<sksg::Animator> animator,
+    static sk_sp<MotionBlurEffect> Make(sk_sp<sksg::Animator> animator,
                                         sk_sp<sksg::RenderNode> child,
                                         size_t samples_per_frame,
                                         float shutter_angle, float shutter_phase);
@@ -31,14 +31,14 @@ protected:
     void onRender(SkCanvas* canvas, const RenderContext* ctx) const override;
 
 private:
-    MotionBlurEffect(std::unique_ptr<sksg::Animator> animator,
+    MotionBlurEffect(sk_sp<sksg::Animator> animator,
                      sk_sp<sksg::RenderNode> child,
                      size_t sample_count, float phase, float dt);
 
-    const std::unique_ptr<sksg::Animator> fAnimator;
-    const size_t                          fSampleCount;
-    const float                           fPhase,
-                                          fDT;
+    const sk_sp<sksg::Animator> fAnimator;
+    const size_t                fSampleCount;
+    const float                 fPhase,
+                                fDT;
 
     float fT = 0;
 

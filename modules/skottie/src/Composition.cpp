@@ -12,8 +12,6 @@
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
-#include "src/core/SkMakeUnique.h"
-
 #include <algorithm>
 
 namespace skottie {
@@ -81,8 +79,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
         return nullptr;
     }
 
-    ascope->push_back(
-        skstd::make_unique<SkottieAnimatorAdapter>(animation, animation->duration() / fDuration));
+    ascope->push_back(sk_make_sp<SkottieAnimatorAdapter>(animation,
+                                                         animation->duration() / fDuration));
 
     return sk_make_sp<SkottieSGAdapter>(std::move(animation));
 }
