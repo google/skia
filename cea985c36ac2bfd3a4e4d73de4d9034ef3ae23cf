@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7e93d3d_ec295cba",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2725,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:57:25Z",
+      "side": 1,
+      "message": "Since we already have a flushColorWrite and this is also flushing the color write state, WDYT about renaming to flushBlendAndColorWrite()?",
+      "range": {
+        "startLine": 2725,
+        "startChar": 14,
+        "endLine": 2725,
+        "endChar": 24
+      },
+      "revId": "cea985c36ac2bfd3a4e4d73de4d9034ef3ae23cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3c7030c_0038fda9",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2730,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:57:25Z",
+      "side": 1,
+      "message": "Should we just change this struct to initialize itself by default?",
+      "range": {
+        "startLine": 2730,
+        "startChar": 25,
+        "endLine": 2730,
+        "endChar": 30
+      },
+      "revId": "cea985c36ac2bfd3a4e4d73de4d9034ef3ae23cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40a6aff8_0e48bc6b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2796,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T20:57:25Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 2796,
+        "startChar": 4,
+        "endLine": 2796,
+        "endChar": 19
+      },
+      "revId": "cea985c36ac2bfd3a4e4d73de4d9034ef3ae23cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
