@@ -3263,7 +3263,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // specific issues.
     if (kATI_GrGLVendor == ctxInfo.vendor() ||  // Radeon hts an internal compiler error.
         kQualcomm_GrGLVendor == ctxInfo.vendor() ||  // Pixel2 crashes in nanobench.
-        kImagination_GrGLVendor == ctxInfo.vendor()  /* PowerVR doesn't draw curves */) {
+        ) {
         fDriverBlacklistMSAACCPR = true;
     }
 
