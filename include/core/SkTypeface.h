@@ -215,6 +215,33 @@ public:
      */
     size_t getTableSize(SkFontTableTag) const;
 
+    struct TableDataDestination {
+        enum Type {
+            ALLOCATE,
+            IN_MEMORY,
+            QUERY_SIZE_ONLY,
+        };
+        union Buffer {
+            void* in_memory;
+            void** allocate;
+        };
+        Type type;
+        Buffer buffer;
+        TableDataDestination(void* data)
+                : type(data == nullptr ? QUERY_SIZE_ONLY : IN_MEMORY)
+                , buffer({.in_memory = data}) {}
+        TableDataDestination(Type arg_type, Buffer arg_buffer)
+                : type(arg_type), buffer(arg_buffer) {}
+        static TableDataDestination Allocate(void** outData) {
+            return TableDataDestination(ALLOCATE, {.allocate = outData});
+        }
+        static TableDataDestination InMemory(void* data) {
+            return TableDataDestination(IN_MEMORY, {.in_memory = data});
+        }
+        static TableDataDestination QuerySize() {
+            return TableDataDestination(QUERY_SIZE_ONLY, {.in_memory = nullptr});
+        }
+    };
     /** Copy the contents of a table into data (allocated by the caller). Note
      *  that the contents of the table will be in their native endian order
      *  (which for most truetype tables is big endian). If the table tag is
@@ -236,7 +263,7 @@ public:
      *  then 0 is returned.
      */
     size_t getTableData(SkFontTableTag tag, size_t offset, size_t length,
-                        void* data) const;
+                        TableDataDestination dest) const;
 
     /**
      *  Return the units-per-em value for this typeface, or zero if there is an
@@ -399,7 +426,7 @@ protected:
 
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
-                                  size_t length, void* data) const = 0;
+                                  size_t length, TableDataDestination dest) const = 0;
 
     virtual bool onComputeBounds(SkRect*) const;
 
