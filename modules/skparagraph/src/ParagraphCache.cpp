@@ -5,101 +5,18 @@
 namespace skia {
 namespace textlayout {
 
-// Just the flutter input for now
-// TODO: We don't really need to copy anything...
 ParagraphCacheKey::ParagraphCacheKey(ParagraphImpl* paragraph)
-        : fText(paragraph->fText)
+        : fText(paragraph->fText.c_str(), paragraph->fText.size())
         , fFontSwitches(paragraph->switches())
         , fTextStyles(paragraph->fTextStyles)
         , fParagraphStyle(paragraph->paragraphStyle()) { }
 
-// TODO: copying clusters and runs for now (there are minor things changed on formatting)
 ParagraphCacheValue::ParagraphCacheValue(ParagraphImpl* paragraph)
         : fKey(ParagraphCacheKey(paragraph))
         , fInternalState(paragraph->state())
         , fRuns(paragraph->fRuns)
         , fClusters(paragraph->fClusters)
-        , fMeasurement(paragraph->measurement())
-        , fPicture(paragraph->fPicture) { }
-
-bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
-
-    SkAutoMutexExclusive lock(fParagraphMutex);
-    if (this->count() == 0) {
-        return false;
-    }
-
-    ParagraphCacheKey key(paragraph);
-    auto found = this->find(key);
-    if (found == nullptr) {
-        fChecker(paragraph, "findParagraph", false);
-        return false;
-    }
-    paragraph->fRuns.reset();
-    paragraph->fRuns = found->fRuns;
-    for (auto& run : paragraph->fRuns) {
-        run.setMaster(paragraph);
-    }
-
-    paragraph->fClusters.reset();
-    paragraph->fClusters = found->fClusters;
-    for (auto& cluster : paragraph->fClusters) {
-        cluster.setMaster(paragraph);
-    }
-
-    paragraph->fLines.reset();
-    for (auto& line : found->fLines) {
-        paragraph->fLines.push_back(line);
-        paragraph->fLines.back().setMaster(paragraph);
-    }
-
-    paragraph->fState = found->fInternalState;
-    paragraph->setMeasurement(found->fMeasurement);
-
-    paragraph->fOldWidth = found->fMeasurement.fWidth;
-    paragraph->fOldHeight = found->fMeasurement.fHeight;
-
-    paragraph->fPicture = found->fPicture;
-
-    fChecker(paragraph, "findParagraph", true);
-    return true;
-}
-
-void ParagraphCache::addParagraph(ParagraphImpl* paragraph) {
-
-    SkAutoMutexExclusive lock(fParagraphMutex);
-    auto value = new ParagraphCacheValue(paragraph);
-    this->add(value);
-    fChecker(paragraph, "addParagraph1", true);
-}
-
-void ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
-
-    SkAutoMutexExclusive lock(fParagraphMutex);
-    ParagraphCacheKey key(paragraph);
-    auto found = this->find(key);
-    if (found != nullptr) {
-        found->fInternalState = paragraph->fState;
-        found->fMeasurement = paragraph->measurement();
-        found->fLines = paragraph->fLines;
-        for (size_t i = 0; i < paragraph->fRuns.size(); ++i) {
-            auto& run = paragraph->fRuns[i];
-            if (run.fSpaced) {
-                found->fRuns[i] = run;
-            }
-        }
-        found->fPicture = paragraph->fPicture;
-        fChecker(paragraph, "updateParagraph", true);
-    } else {
-        auto value = new ParagraphCacheValue(paragraph);
-        this->add(value);
-        fChecker(paragraph, "addParagraph2", true);
-    }
-}
-
-const ParagraphCacheKey& LookupTrait::GetKey(const ParagraphCacheValue& paragraph) {
-    return paragraph.fKey;
-}
+        , fRunShifts(paragraph->fRunShifts) { }
 
 bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     if (a.fText.size() != b.fText.size()) {
@@ -151,55 +68,125 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     return true;
 }
 
-uint32_t LookupTrait::mix(uint32_t hash, uint32_t data) {
-    hash += data;
-    hash += (hash << 10);
-    hash ^= (hash >> 6);
-    return hash;
-}
+struct ParagraphCache::Entry {
 
-uint32_t LookupTrait::Hash(const ParagraphCacheKey& key) {
-    uint32_t hash = 0;
-    for (auto& fd : key.fFontSwitches) {
-        hash = mix(hash, SkGoodHash()(fd.fStart));
-        hash = mix(hash, SkGoodHash()(fd.fFont.getSize()));
+    Entry(ParagraphCacheValue* value) : fValue(value) {}
 
-        if (fd.fFont.getTypeface() != nullptr) {
-            SkString name;
-            fd.fFont.getTypeface()->getFamilyName(&name);
-            hash = mix(hash, SkGoodHash()(name));
-            hash = mix(hash, SkGoodHash()(fd.fFont.getTypeface()->fontStyle()));
+    void updateFrom(ParagraphImpl* paragraph) {
+
+        this->fValue->fInternalState = paragraph->fState;
+        this->fValue->fRunShifts = paragraph->fRunShifts;
+        for (size_t i = 0; i < paragraph->fRuns.size(); ++i) {
+            auto& run = paragraph->fRuns[i];
+            if (run.fSpaced) {
+                this->fValue->fRuns[i] = run;
+            }
         }
     }
-    for (auto& ts : key.fTextStyles) {
-        hash = mix(hash, SkGoodHash()(ts.fStyle.getLetterSpacing()));
-        hash = mix(hash, SkGoodHash()(ts.fStyle.getWordSpacing()));
+
+    void updateTo(ParagraphImpl* paragraph) {
+        paragraph->fRuns.reset();
+        paragraph->fRuns = this->fValue->fRuns;
+        for (auto& run : paragraph->fRuns) {
+            run.setMaster(paragraph);
+        }
+
+        paragraph->fClusters.reset();
+        paragraph->fClusters = this->fValue->fClusters;
+        for (auto& cluster : paragraph->fClusters) {
+            cluster.setMaster(paragraph);
+        }
+
+        paragraph->fRunShifts.reset();
+        for (auto& runShift : this->fValue->fRunShifts) {
+            paragraph->fRunShifts.push_back(runShift);
+        }
+
+        paragraph->fState = this->fValue->fInternalState;
     }
-    hash = mix(hash, SkGoodHash()(key.fText));
-    return hash;
+
+    ParagraphCacheValue* fValue;
+};
+
+ParagraphCache::ParagraphCache()
+    : fChecker([](ParagraphImpl* impl, const char*, bool){ })
+    , fMap(kMaxEntries)
+#ifdef PARAGRAPH_CACHE_STATS
+    , fTotalRequests(0)
+    , fCacheMisses(0)
+    , fHashMisses(0)
+#endif
+{ }
+
+ParagraphCache::~ParagraphCache() {
+#ifdef PARAGRAPH_CACHE_STATS
+    printStatistics();
+#endif
 }
 
-void ParagraphCache::printCache(const char* title) {
+void ParagraphCache::printStatistics() {
+    SkDebugf("--- Paragraph Cache ---\n");
+    SkDebugf("Total requests: %d\n", fTotalRequests);
+    SkDebugf("Cache misses: %d\n", fCacheMisses);
+    SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ? 100.f * fCacheMisses / fTotalRequests : 0.f);
+    int cacheHits = fTotalRequests - fCacheMisses;
+    SkDebugf("Hash miss %%: %f\n", (cacheHits > 0) ? 100.f * fHashMisses / cacheHits : 0.f);
+    SkDebugf("---------------------\n");
+}
 
-    SkDebugf("\n\n%s\n", title);
-    SkTDynamicHash<ParagraphCacheValue, ParagraphCacheKey, LookupTrait>::Iter iter(this);
-    while (!iter.done()) {
-        ParagraphCacheValue* v = &*iter;
-        const ParagraphCacheKey& k = LookupTrait::GetKey(*v);
-        SkDebugf("key: '%s' runs(%d) clusters(%d)\n", k.fText.c_str(), v->fRuns.size(), v->fClusters.size());
-        ++iter;
+void ParagraphCache::abandon() {
+    fMap.foreach([](std::unique_ptr<Entry>* e) {
+    });
+
+    this->reset();
+}
+
+void ParagraphCache::reset() {
+#ifdef PARAGRAPH_CACHE_STATS
+    fTotalRequests = 0;
+    fCacheMisses = 0;
+    fHashMisses = 0;
+#endif
+    fMap.reset();
+}
+
+bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
+#ifdef PARAGRAPH_CACHE_STATS
+    ++fTotalRequests;
+#endif
+    SkAutoMutexExclusive lock(fParagraphMutex);
+    ParagraphCacheKey key(paragraph);
+    std::unique_ptr<Entry>* entry = fMap.find(key);
+    if (!entry) {
+        // We have a cache miss
+#ifdef PARAGRAPH_CACHE_STATS
+        ++fCacheMisses;
+#endif
+        fChecker(paragraph, "missingParagraph", true);
+        return false;
+    }
+    (*entry)->updateTo(paragraph);
+    fChecker(paragraph, "foundParagraph", true);
+    return true;
+}
+
+bool ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
+#ifdef PARAGRAPH_CACHE_STATS
+    ++fTotalRequests;
+#endif
+    SkAutoMutexExclusive lock(fParagraphMutex);
+    ParagraphCacheKey key(paragraph);
+    std::unique_ptr<Entry>* entry = fMap.find(key);
+    if (!entry) {
+        ParagraphCacheValue* value = new ParagraphCacheValue(paragraph);
+        fMap.insert(key, std::unique_ptr<Entry>(new Entry(value)));
+        fChecker(paragraph, "addedParagraph", true);
+        return true;
+    } else {
+        (*entry)->updateFrom(paragraph);
+        fChecker(paragraph, "updatedParagraph", true);
+        return false;
     }
 }
-
-void ParagraphCache::printKeyValue(const char* title, ParagraphImpl* paragraph, bool found) {
-    /*
-    SkDebugf("%s '%s' ", title, paragraph->text().data());
-    for (auto& fd : paragraph->switches()) {
-        SkDebugf("%d ", fd.fFont.getTypeface() != nullptr ? fd.fFont.getTypeface()->uniqueID(): 0);
-    };
-    SkDebugf("\n");
-     */
-}
-
 }
 }

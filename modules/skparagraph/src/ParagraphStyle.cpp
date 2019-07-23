@@ -15,7 +15,7 @@ StrutStyle::StrutStyle() {
     fStrutEnabled = false;
 }
 
-ParagraphStyle::ParagraphStyle() {
+ParagraphStyle::ParagraphStyle() : fDefaultTextStyle(), fEllipsis() {
     fTextAlign = TextAlign::kStart;
     fTextDirection = TextDirection::kLtr;
     fLinesLimit = std::numeric_limits<size_t>::max();

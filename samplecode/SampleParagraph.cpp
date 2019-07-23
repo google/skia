@@ -29,9 +29,16 @@ namespace {
 
 class ParagraphView_Base : public Sample {
 protected:
-    sk_sp<TestFontCollection> fFC;
     void onOnceBeforeDraw() override {
-        fFC = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
+    }
+    
+    sk_sp<TestFontCollection> getFontCollection() {
+        // If we reset font collection we need to reset paragraph cache
+        static sk_sp<TestFontCollection> fFC = nullptr;
+        if (fFC == nullptr) {
+            fFC = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
+        }
+        return fFC;
     }
 };
 
@@ -94,15 +101,15 @@ protected:
         blue.setColor(SK_ColorBLUE);
 
         TextStyle defaultStyle;
-        defaultStyle.setBackgroundColor(blue);
-        defaultStyle.setForegroundColor(paint);
+        defaultStyle.setBackground(blue);
+        defaultStyle.setForeground(paint);
         ParagraphStyle paraStyle;
 
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         for (auto i = 1; i < 5; ++i) {
             defaultStyle.setFontSize(24 * i);
             paraStyle.setTextStyle(defaultStyle);
-            auto fontCollection = sk_make_sp<FontCollection>();
-            fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
             ParagraphBuilderImpl builder(paraStyle, fontCollection);
             std::string name = "Paragraph: " + std::to_string(24 * i);
             builder.addText(name.c_str());
@@ -118,11 +125,11 @@ protected:
                 style.setFontSize(std::get<3>(para) * i);
                 SkPaint background;
                 background.setColor(std::get<4>(para));
-                style.setBackgroundColor(background);
+                style.setBackground(background);
                 SkPaint foreground;
                 foreground.setColor(std::get<5>(para));
                 foreground.setAntiAlias(true);
-                style.setForegroundColor(foreground);
+                style.setForeground(foreground);
                 if (std::get<6>(para)) {
                     style.addShadow(TextShadow(SK_ColorBLACK, SkPoint::Make(5, 5), 2));
                 }
@@ -193,8 +200,8 @@ protected:
         white.setColor(SK_ColorWHITE);
 
         TextStyle defaultStyle;
-        defaultStyle.setBackgroundColor(white);
-        defaultStyle.setForegroundColor(code);
+        defaultStyle.setBackground(white);
+        defaultStyle.setForeground(code);
         defaultStyle.setFontFamilies({SkString("monospace")});
         defaultStyle.setFontSize(30);
         ParagraphStyle paraStyle;
@@ -231,7 +238,7 @@ protected:
     TextStyle style(SkPaint paint) {
         TextStyle style;
         paint.setAntiAlias(true);
-        style.setForegroundColor(paint);
+        style.setForeground(paint);
         style.setFontFamilies({SkString("monospace")});
         style.setFontSize(30);
 
@@ -261,8 +268,8 @@ protected:
         background.setColor(bg);
 
         TextStyle style;
-        style.setBackgroundColor(blue);
-        style.setForegroundColor(paint);
+        style.setBackground(blue);
+        style.setForeground(paint);
         style.setFontFamilies({SkString(ff)});
         style.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight,
                                        SkFontStyle::kNormal_Width,
@@ -276,12 +283,12 @@ protected:
         TextStyle defaultStyle;
         defaultStyle.setFontSize(20);
         paraStyle.setTextStyle(defaultStyle);
-        ParagraphBuilderImpl builder(paraStyle, fFC);
+        ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
         SkPaint foreground;
         foreground.setColor(fg);
-        style.setForegroundColor(foreground);
-        style.setBackgroundColor(background);
+        style.setForeground(foreground);
+        style.setBackground(background);
 
         for (auto& part : text) {
             builder.pushStyle(style);
@@ -313,8 +320,8 @@ protected:
         gray.setColor(SK_ColorLTGRAY);
 
         TextStyle style;
-        style.setBackgroundColor(gray);
-        style.setForegroundColor(paint);
+        style.setBackground(gray);
+        style.setForeground(paint);
         style.setFontFamilies({SkString("Arial")});
         style.setFontSize(30);
         ParagraphStyle paraStyle;
@@ -434,8 +441,8 @@ protected:
         yellow.setColor(SK_ColorYELLOW);
 
         TextStyle style;
-        style.setBackgroundColor(gray);
-        style.setForegroundColor(paint);
+        style.setBackground(gray);
+        style.setForeground(paint);
         style.setFontFamilies({SkString("sans-serif")});
         style.setFontSize(30);
         ParagraphStyle paraStyle;
@@ -576,8 +583,8 @@ protected:
         style.setFontSize(fs);
 
         TextStyle style0;
-        style0.setForegroundColor(black);
-        style0.setBackgroundColor(gray);
+        style0.setForeground(black);
+        style0.setBackground(gray);
         style0.setFontFamilies({SkString(ff)});
         style0.setFontSize(fs);
         style0.setDecoration(TextDecoration::kUnderline);
@@ -585,8 +592,8 @@ protected:
         style0.setDecorationColor(SK_ColorBLACK);
 
         TextStyle style1;
-        style1.setForegroundColor(blue);
-        style1.setBackgroundColor(yellow);
+        style1.setForeground(blue);
+        style1.setBackground(yellow);
         style1.setFontFamilies({SkString(ff)});
         style1.setFontSize(fs);
         style1.setDecoration(TextDecoration::kOverline);
@@ -594,17 +601,17 @@ protected:
         style1.setDecorationColor(SK_ColorBLACK);
 
         TextStyle style2;
-        style2.setForegroundColor(red);
+        style2.setForeground(red);
         style2.setFontFamilies({SkString(ff)});
         style2.setFontSize(fs);
 
         TextStyle style3;
-        style3.setForegroundColor(green);
+        style3.setForeground(green);
         style3.setFontFamilies({SkString(ff)});
         style3.setFontSize(fs);
 
         TextStyle style4;
-        style4.setForegroundColor(magenta);
+        style4.setForeground(magenta);
         style4.setFontFamilies({SkString(ff)});
         style4.setFontSize(fs);
 
@@ -621,7 +628,7 @@ protected:
         const char* logo5 = "google_lo";
         const char* logo6 = "go";
         {
-            ParagraphBuilderImpl builder(paraStyle, fFC);
+            ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
             builder.pushStyle(style0);
             builder.addText(logo1);
@@ -687,19 +694,19 @@ protected:
         gray.setColor(SK_ColorLTGRAY);
 
         TextStyle style;
-        style.setForegroundColor(black);
+        style.setForeground(black);
         style.setFontFamilies({SkString(ff)});
         style.setFontSize(fs);
 
         TextStyle style0;
-        style0.setForegroundColor(black);
+        style0.setForeground(black);
         style0.setFontFamilies({SkString(ff)});
         style0.setFontSize(fs);
         style0.setFontStyle(SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
                                         SkFontStyle::kItalic_Slant));
 
         TextStyle style1;
-        style1.setForegroundColor(gray);
+        style1.setForeground(gray);
         style1.setFontFamilies({SkString(ff)});
         style1.setFontSize(fs);
         style1.setFontStyle(SkFontStyle(SkFontStyle::kBold_Weight, SkFontStyle::kNormal_Width,
@@ -711,7 +718,7 @@ protected:
 
         paraStyle.setEllipsis(ellipsis);
 
-        ParagraphBuilderImpl builder(paraStyle, fFC);
+        ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
         if (text.empty()) {
             const std::u16string text0 = u"\u202Dabc";
@@ -830,33 +837,33 @@ protected:
         style.setFontStyle(fontStyle);
 
         TextStyle style0;
-        style0.setForegroundColor(black);
-        style0.setBackgroundColor(gray);
+        style0.setForeground(black);
+        style0.setBackground(gray);
         style0.setFontFamilies({SkString(ff)});
         style0.setFontSize(fs);
         style0.setFontStyle(fontStyle);
 
         TextStyle style1;
-        style1.setForegroundColor(blue);
-        style1.setBackgroundColor(yellow);
+        style1.setForeground(blue);
+        style1.setBackground(yellow);
         style1.setFontFamilies({SkString(ff)});
         style1.setFontSize(fs);
         style1.setFontStyle(fontStyle);
 
         TextStyle style2;
-        style2.setForegroundColor(red);
+        style2.setForeground(red);
         style2.setFontFamilies({SkString(ff)});
         style2.setFontSize(fs);
         style2.setFontStyle(fontStyle);
 
         TextStyle style3;
-        style3.setForegroundColor(green);
+        style3.setForeground(green);
         style3.setFontFamilies({SkString(ff)});
         style3.setFontSize(fs);
         style3.setFontStyle(fontStyle);
 
         TextStyle style4;
-        style4.setForegroundColor(magenta);
+        style4.setForeground(magenta);
         style4.setFontFamilies({SkString(ff)});
         style4.setFontSize(fs);
         style4.setFontStyle(fontStyle);
@@ -871,7 +878,7 @@ protected:
         const char* logo5 = "Ski";
         const char* logo6 = "a";
         {
-            ParagraphBuilderImpl builder(paraStyle, fFC);
+            ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
             builder.pushStyle(style0);
             builder.addText(logo1);
@@ -911,7 +918,7 @@ protected:
         const char* logo15 = "S";
         const char* logo16 = "S";
         {
-            ParagraphBuilderImpl builder(paraStyle, fFC);
+            ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
             builder.pushStyle(style0);
             builder.addText(logo11);
@@ -982,7 +989,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        ParagraphBuilderImpl builder(paragraphStyle, fFC);
+        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
         builder.pushStyle(textStyle);
         builder.addText(line);
         builder.pop();
@@ -1052,7 +1059,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        ParagraphBuilderImpl builder(paragraphStyle, fFC);
+        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
         builder.pushStyle(textStyle);
         builder.addText(line);
         builder.pop();
@@ -1143,7 +1150,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        ParagraphBuilderImpl builder(paragraphStyle, fFC);
+        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
         builder.pushStyle(textStyle);
         builder.addText(text);
         builder.pop();
@@ -1202,7 +1209,7 @@ protected:
         const char* text = "English English 字典 字典 😀😃😄 😀😃😄";
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, fFC);
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
 
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto"),
@@ -1242,7 +1249,7 @@ protected:
 
         for (size_t i = 0; i < 10; i++) {
             ParagraphStyle paragraph_style;
-            ParagraphBuilderImpl builder(paragraph_style, fFC);
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
             TextStyle text_style;
             text_style.setFontFamilies({SkString("Roboto")});
             text_style.setColor(SK_ColorBLACK);
@@ -1270,7 +1277,7 @@ protected:
         paragraph_style.setMaxLines(14);
         paragraph_style.setTextAlign(TextAlign::kLeft);
         paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, fFC);
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
 
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto")});
@@ -1285,7 +1292,7 @@ protected:
 
         auto paragraph = builder.Build();
         auto impl = reinterpret_cast<ParagraphImpl*>(paragraph.get());
-        impl->turnOnCache(false);
+        impl->turnOnParagraphCache(false);
 
         for (auto i = 0; i < 1000; ++i) {
             impl->setState(kUnknown);
@@ -1323,7 +1330,43 @@ protected:
         for (auto i = 0; i < 1000; ++i) {
             canvas->drawPicture(picture, &matrix, nullptr);
         }
+        impl->printParagraphCacheStatistics();
+    }
 
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView13 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph13"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setMaxLines(14);
+        paragraph_style.setTextAlign(TextAlign::kLeft);
+        paragraph_style.turnHintingOff();
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(26);
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setHeight(1);
+        text_style.setDecoration(TextDecoration::kUnderline);
+        text_style.setDecorationColor(SK_ColorBLACK);
+        builder.pushStyle(text_style);
+        builder.addText(gText);
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        for (auto i = 0; i < 10000; ++i) {
+            paragraph->layout(1000);
+        }
+        paragraph->paint(canvas, 0, 0);
+        auto impl = reinterpret_cast<ParagraphImpl*>(paragraph.get());
+        impl->printParagraphCacheStatistics();
     }
 
 private:
@@ -1343,3 +1386,4 @@ DEF_SAMPLE(return new ParagraphView9();)
 DEF_SAMPLE(return new ParagraphView10();)
 DEF_SAMPLE(return new ParagraphView11();)
 DEF_SAMPLE(return new ParagraphView12();)
+DEF_SAMPLE(return new ParagraphView13();)

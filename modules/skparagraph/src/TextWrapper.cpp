@@ -132,7 +132,12 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                                      const AddLineToParagraph& addLine) {
     auto span = parent->clusters();
     auto maxLines = parent->paragraphStyle().getMaxLines();
-    auto ellipsisStr = parent->paragraphStyle().getEllipsis();
+    auto& ellipsisStr = parent->paragraphStyle().getEllipsis();
+
+    // TODO: isolate strut logic
+    auto strutEnabled = parent->strutEnabled();
+    auto strutMetrics = parent->strutMetrics();
+    auto strutHeight  = parent->strutForceHeight();
 
     fHeight = 0;
     fMinIntrinsicWidth = 0;
@@ -157,10 +162,9 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 maxWidth != std::numeric_limits<SkScalar>::max() &&
                 !ellipsisStr.isEmpty();
         // TODO: perform ellipsis work here
-        if (parent->strutEnabled()) {
+        if (strutEnabled) {
             // Make sure font metrics are not less than the strut
-            parent->strutMetrics().updateLineMetrics(fEndLine.metrics(),
-                                                     parent->strutForceHeight());
+            strutMetrics.updateLineMetrics(fEndLine.metrics(), strutHeight);
         }
         fMaxIntrinsicWidth = SkMaxScalar(fMaxIntrinsicWidth, fEndLine.width());
         // TODO: keep start/end/break info for text and runs but in a better way that below
@@ -188,10 +192,9 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
 
     if (fHardLineBreak) {
         // Last character is a line break
-        if (parent->strutEnabled()) {
+        if (strutEnabled) {
             // Make sure font metrics are not less than the strut
-            parent->strutMetrics().updateLineMetrics(fEndLine.metrics(),
-                                                     parent->strutForceHeight());
+            strutMetrics.updateLineMetrics(fEndLine.metrics(), strutHeight);
         }
         TextRange empty(fEndLine.breakCluster()->textRange().start, fEndLine.breakCluster()->textRange().start);
         ClusterRange clusters(fEndLine.breakCluster() - parent->clusters().begin(), fEndLine.breakCluster() - parent->clusters().begin());
