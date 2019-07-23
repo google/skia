@@ -256,8 +256,8 @@ public:
 
     /**
      * Reads the pixels from a rectangle of a surface into a buffer. Use
-     * GrCaps::transferFromOffsetAlignment to determine the requirements for the buffer offset
-     * alignment. If the surface is a MIP mapped texture, the base level is read.
+     * GrCaps::SupportedRead::fOffsetAlignmentForTransferBuffer to determine the requirements for
+     * the buffer offset alignment. If the surface is a MIP mapped texture, the base level is read.
      *
      * If successful the row bytes in the buffer is always:
      *   GrColorTypeBytesPerPixel(bufferColorType) * width
