@@ -55,11 +55,11 @@ static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
 }
 
 class AAClipView : public Sample {
-    SkString name() override { return SkString("AAClip"); }
+    SkString onShortName() override { return SkString("AAClip"); }
 
     void onOnceBeforeDraw() override { testop(); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
 #if 1
         SkAAClip aaclip;
         SkPath path;

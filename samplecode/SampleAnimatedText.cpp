@@ -43,7 +43,7 @@ class AnimatedTextView : public Sample {
     float fRotation = 0;
     int   fSizeScale = 1;
 
-    SkString name() override { return SkString("AnimatedText"); }
+    SkString onShortName() override { return SkString("AnimatedText"); }
 
     bool onChar(SkUnichar uni) override {
             if ('2' == uni) {
@@ -57,7 +57,7 @@ class AnimatedTextView : public Sample {
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkFont font(SkTypeface::MakeFromFile("/skimages/samplefont.ttf"));
 
         SkPaint paint;

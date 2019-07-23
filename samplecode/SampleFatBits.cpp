@@ -391,7 +391,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("FatBits"); }
+    SkString onShortName() override { return SkString("FatBits"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -443,7 +443,7 @@ protected:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         fFB.drawBG(canvas);
         if (fFB.getTriangle()) {
             fFB.drawTriangle(canvas, fPts);

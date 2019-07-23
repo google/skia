@@ -74,9 +74,9 @@ public:
     SkBitmap    fTexture[SK_ARRAY_COUNT(gColorTypes)];
 
 protected:
-    virtual SkString name() { return SkString("Tiling"); }
+    virtual SkString onShortName() { return SkString("Tiling"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) {
         SkRect r = { 0, 0, SkIntToScalar(gWidth*2), SkIntToScalar(gHeight*2) };
 
         static const char* gConfigNames[] = { "8888", "565", "4444" };

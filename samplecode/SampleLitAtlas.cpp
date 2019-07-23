@@ -446,7 +446,7 @@ public:
     DrawLitAtlasView() : fDrawable(new DrawLitAtlasDrawable(SkRect::MakeWH(640, 480))) {}
 
 protected:
-    SkString name() override { return SkString("DrawLitAtlas"); }
+    SkString onShortName() override { return SkString("DrawLitAtlas"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -471,7 +471,7 @@ protected:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawDrawable(fDrawable.get());
     }
 

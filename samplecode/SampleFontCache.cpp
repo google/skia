@@ -111,9 +111,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("FontCache"); }
+    SkString onShortName() override { return SkString("FontCache"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) {
         SkScalar x = 0;
         SkScalar y = 0;
         for (int i = 0; i < N; i++) {

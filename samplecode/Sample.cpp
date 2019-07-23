@@ -17,46 +17,27 @@ class GrContext;
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Sample::setSize(SkScalar width, SkScalar height) {
-    width = SkMaxScalar(0, width);
-    height = SkMaxScalar(0, height);
-
-    if (fWidth != width || fHeight != height)
-    {
-        fWidth = width;
-        fHeight = height;
+void Sample::setWindowSize(SkSize size) {
+    size = {SkMaxScalar(0, size.width()), SkMaxScalar(0, size.height())};
+    if (fWindowSize != size) {
+        fWindowSize = size;
         this->onSizeChange();
     }
 }
 
-void Sample::draw(SkCanvas* canvas) {
-    if (fWidth && fHeight) {
-        SkRect    r;
-        r.set(0, 0, fWidth, fHeight);
-        if (canvas->quickReject(r)) {
-            return;
-        }
-
-        SkAutoCanvasRestore    as(canvas, true);
-        int sc = canvas->save();
-
-        if (!fHaveCalledOnceBeforeDraw) {
-            fHaveCalledOnceBeforeDraw = true;
-            this->onOnceBeforeDraw();
-        }
-        this->onDrawBackground(canvas);
-
-        SkAutoCanvasRestore acr(canvas, true);
-        this->onDrawContent(canvas);
-#if SK_SUPPORT_GPU
-        // Ensure the GrContext doesn't combine GrDrawOps across draw loops.
-        if (GrContext* context = canvas->getGrContext()) {
-            context->flush();
-        }
-#endif
-
-        canvas->restoreToCount(sc);
+void Sample::drawSample(SkCanvas* canvas) {
+    if (fWindowSize.isEmpty() || canvas->quickReject(SkRect::MakeSize(fWindowSize))) {
+        return;
     }
+
+    SkAutoCanvasRestore as(canvas, true);
+    this->skiagm::GM::draw(canvas);
+#if SK_SUPPORT_GPU
+    // Ensure the GrContext doesn't combine GrDrawOps across draw loops.
+    if (GrContext* context = canvas->getGrContext()) {
+        context->flush();
+    }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -65,7 +46,7 @@ bool Sample::mouse(SkPoint point, InputState clickState, ModifierKey modifierKey
     switch (clickState) {
         case InputState::kDown:
             fClick = nullptr;
-            if (point.x() < 0 || point.y() < 0 || point.x() >= fWidth || point.y() >= fHeight) {
+            if (!SkRect::MakeSize(fWindowSize).contains(point.x(), point.y())) {
                 return false;
             }
             fClick.reset(this->onFindClickHandler(point.x(), point.y(), modifierKeys));
@@ -106,17 +87,9 @@ bool Sample::mouse(SkPoint point, InputState clickState, ModifierKey modifierKey
 
 void Sample::onSizeChange() {}
 
-Sample::Click* Sample::onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) {
-    return nullptr;
-}
+Sample::Click* Sample::onFindClickHandler(SkScalar, SkScalar, ModifierKey) { return nullptr; }
 
-bool Sample::onClick(Click*) {
-    return false;
-}
-
-void Sample::onDrawBackground(SkCanvas* canvas) {
-    canvas->drawColor(fBGColor);
-}
+bool Sample::onClick(Click*) { return false; }
 
 // need to explicitly declare this, or we get some weird infinite loop llist
 template SampleRegistry* SampleRegistry::gHead;

@@ -53,7 +53,7 @@ public:
     }
     void onSizeChange() final { this->INHERITED::onSizeChange(); this->reset(); }
 
-    SkString name() override { return SkString(this->getName()); }
+    SkString onShortName() override { return SkString(this->getName()); }
 
     bool onChar(SkUnichar unichar) override {
             if (unichar == 'X') {
@@ -63,7 +63,7 @@ public:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (fDoClip) {
             SkPath deviceSpaceClipPath = fClipPath;
             deviceSpaceClipPath.transform(SkMatrix::MakeScale(this->width(), this->height()));

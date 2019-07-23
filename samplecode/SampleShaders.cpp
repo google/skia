@@ -58,9 +58,9 @@ struct ShaderView : public Sample {
         fShaderFade = make_bitmapfade(fBitmap);
     }
 
-    SkString name() override { return SkString("Shaders"); }
+    SkString onShortName() override { return SkString("Shaders"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawBitmap(fBitmap, 0, 0);
         canvas->translate(20, 120);
 

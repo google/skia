@@ -130,7 +130,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Paths"); }
+    SkString onShortName() override { return SkString("Paths"); }
 
     void drawPath(SkCanvas* canvas, const SkPath& path, SkPaint::Join j) {
         SkPaint paint;
@@ -155,7 +155,7 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         this->init();
         canvas->translate(50, 50);
 
@@ -244,7 +244,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("ArcTo"); }
+    SkString onShortName() override { return SkString("ArcTo"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -266,7 +266,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
 
         SkPath path;
@@ -356,7 +356,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("FatStroke"); }
+    SkString onShortName() override { return SkString("FatStroke"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -383,7 +383,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFEEEEEE);
 
         SkPath path;
@@ -472,9 +472,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("CubicCurve"); }
+    SkString onShortName() override { return SkString("CubicCurve"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -595,7 +595,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("CubicCurve2"); }
+    SkString onShortName() override { return SkString("CubicCurve2"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -672,7 +672,7 @@ protected:
         // not sure we can get here
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
 

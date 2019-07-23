@@ -42,9 +42,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("DegenerateTwoPtRadials"); }
+    SkString onShortName() override { return SkString("DegenerateTwoPtRadials"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar delta = fTime / 15.f;
         int intPart = SkScalarFloorToInt(delta);
         delta = delta - SK_Scalar1 * intPart;

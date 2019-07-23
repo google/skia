@@ -72,7 +72,7 @@ protected:
         fConcavePaths.back().cubicTo(0, -25, 40, -50, 50, 0);
     }
 
-    SkString name() override { return SkString("ShadowUtils"); }
+    SkString onShortName() override { return SkString("ShadowUtils"); }
 
     bool onChar(SkUnichar uni) override {
             bool handled = false;
@@ -155,7 +155,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         this->drawBG(canvas);
 
         static constexpr int kW = 800;

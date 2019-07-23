@@ -45,7 +45,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (fDom) {
             fDom->render(canvas);
         }
@@ -59,7 +59,7 @@ protected:
         this->INHERITED::onSizeChange();
     }
 
-    SkString name() override { return fLabel; }
+    SkString onShortName() override { return fLabel; }
 
 private:
     sk_sp<SkSVGDOM> fDom;

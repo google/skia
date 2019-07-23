@@ -105,7 +105,11 @@ void GM::drawBackground(SkCanvas* canvas) {
         this->onOnceBeforeDraw();
     }
     SkAutoCanvasRestore acr(canvas, true);
-    canvas->drawColor(fBGColor, SkBlendMode::kSrc);
+    this->onDrawBackground(canvas);
+}
+
+void GM::onDrawBackground(SkCanvas* canvas) {
+    canvas->drawColor(this->getBGColor(), SkBlendMode::kSrc);
 }
 
 DrawResult GM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
@@ -128,11 +132,11 @@ DrawResult SimpleGpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCan
     return fDrawProc(ctx, rtc, canvas, errorMsg);
 }
 
-const char* GM::getName() {
+const SkString& GM::name() {
     if (fShortName.size() == 0) {
         fShortName = this->onShortName();
     }
-    return fShortName.c_str();
+    return fShortName;
 }
 
 void GM::setBGColor(SkColor color) {

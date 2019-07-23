@@ -117,7 +117,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Text Effects"); }
+    SkString onShortName() override { return SkString("Text Effects"); }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
@@ -139,7 +139,7 @@ protected:
         canvas->drawPoints(SkCanvas::kPoints_PointMode, pts.count(), pts.begin(), paint);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         this->drawBG(canvas);
 
         SkScalar x = SkIntToScalar(20);

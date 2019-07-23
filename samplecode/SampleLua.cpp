@@ -68,7 +68,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Lua"); }
+    SkString onShortName() override { return SkString("Lua"); }
 
     bool onChar(SkUnichar uni) override {
             lua_State* L = this->ensureLua();
@@ -88,7 +88,7 @@ protected:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         lua_State* L = this->ensureLua();
 
         lua_getglobal(L, gDrawName);

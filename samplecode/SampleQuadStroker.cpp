@@ -209,7 +209,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("QuadStroker"); }
+    SkString onShortName() override { return SkString("QuadStroker"); }
 
     bool onChar(SkUnichar uni) override {
         if (fTextButton.fEnabled) {
@@ -592,7 +592,7 @@ protected:
                 && SkScalarNearlyEqual(beforeCCW.fY, afterCW.fY);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPath path;
         SkScalar width = fWidth;
 

@@ -46,7 +46,7 @@ class SampleAnimatedImage : public Sample {
         fYOffset *= 2;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (!fImage) {
             return;
         }
@@ -97,7 +97,7 @@ class SampleAnimatedImage : public Sample {
         fDrawable = recorder.finishRecordingAsDrawable();
     }
 
-    SkString name() override { return SkString("AnimatedImage"); }
+    SkString onShortName() override { return SkString("AnimatedImage"); }
 
     bool onChar(SkUnichar uni) override {
         if (fImage) {

@@ -64,7 +64,7 @@ const char* gText =
 
 class ParagraphView1 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph1"); }
+    SkString onShortName() override { return SkString("Paragraph1"); }
 
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
         const std::vector<
@@ -160,7 +160,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         drawTest(canvas, this->width(), this->height(), SK_ColorRED, SK_ColorWHITE);
     }
 
@@ -171,7 +171,7 @@ private:
 
 class ParagraphView2 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph2"); }
+    SkString onShortName() override { return SkString("Paragraph2"); }
 
     void drawCode(SkCanvas* canvas, SkScalar w, SkScalar h) {
         SkPaint comment;
@@ -334,7 +334,7 @@ protected:
         canvas->translate(0, paragraph->getHeight() + margin);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         std::vector<const char*> cupertino = {
                 "google_logogoogle_gsuper_g_logo 1 "
                 "google_logogoogle_gsuper_g_logo 12 "
@@ -410,7 +410,7 @@ private:
 
 class ParagraphView3 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph3"); }
+    SkString onShortName() override { return SkString("Paragraph3"); }
 
     void drawLine(SkCanvas* canvas, SkScalar w, SkScalar h, const std::string& text,
                   TextAlign align, size_t lineLimit = std::numeric_limits<size_t>::max(),
@@ -492,7 +492,7 @@ protected:
         return result;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         const std::string options =  // { "open-source open-source open-source open-source" };
                 {"Flutter is an open-source project to help developers "
                  "build high-performance, high-fidelity, mobile apps for "
@@ -533,7 +533,7 @@ private:
 
 class ParagraphView4 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph4"); }
+    SkString onShortName() override { return SkString("Paragraph4"); }
 
     void drawFlutter(SkCanvas* canvas, SkScalar w, SkScalar h,
                      const char* ff = "Google Sans", SkScalar fs = 30,
@@ -655,7 +655,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         SkScalar width = this->width();
         SkScalar height = this->height();
@@ -669,7 +669,7 @@ private:
 
 class ParagraphView5 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph5"); }
+    SkString onShortName() override { return SkString("Paragraph5"); }
 
     void bidi(SkCanvas* canvas, SkScalar w, SkScalar h, const std::u16string& text,
               const std::u16string& expected, size_t lineLimit = std::numeric_limits<size_t>::max(),
@@ -747,7 +747,7 @@ protected:
         paragraph->paint(canvas, margin, margin);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         SkScalar width = this->width();
         SkScalar height = this->height() / 8;
@@ -788,7 +788,7 @@ private:
 
 class ParagraphView6 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph6"); }
+    SkString onShortName() override { return SkString("Paragraph6"); }
 
     void hangingS(SkCanvas* canvas, SkScalar w, SkScalar h, SkScalar fs = 60.0) {
         auto ff = "HangingS";
@@ -945,7 +945,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         SkScalar width = this->width();
         SkScalar height = this->height() / 4;
@@ -959,7 +959,7 @@ private:
 
 class ParagraphView7 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph7"); }
+    SkString onShortName() override { return SkString("Paragraph7"); }
 
     void drawText(SkCanvas* canvas, SkColor background, SkScalar letterSpace, SkScalar w,
                   SkScalar h) {
@@ -992,7 +992,7 @@ protected:
         paragraph->paint(canvas, 10, 10);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto h = this->height() / 4;
@@ -1029,7 +1029,7 @@ private:
 
 class ParagraphView8 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph7"); }
+    SkString onShortName() override { return SkString("Paragraph7"); }
 
     void drawText(SkCanvas* canvas, SkColor background, SkScalar wordSpace, SkScalar w,
                   SkScalar h) {
@@ -1062,7 +1062,7 @@ protected:
         paragraph->paint(canvas, 10, 10);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto h = this->height() / 4;
@@ -1099,7 +1099,7 @@ private:
 
 class ParagraphView9 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph9"); }
+    SkString onShortName() override { return SkString("Paragraph9"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -1177,7 +1177,7 @@ protected:
         paragraph->paint(canvas, 0, 0);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto h = this->height();
@@ -1194,9 +1194,9 @@ private:
 
 class ParagraphView10 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph10"); }
+    SkString onShortName() override { return SkString("Paragraph10"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         const char* text = "English English 字典 字典 😀😃😄 😀😃😄";
@@ -1234,9 +1234,9 @@ private:
 
 class ParagraphView11 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph11"); }
+    SkString onShortName() override { return SkString("Paragraph11"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         const char* text = "The same text many times";
 
@@ -1263,9 +1263,9 @@ private:
 // Measure different stages of layout/paint
 class ParagraphView12 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph12"); }
+    SkString onShortName() override { return SkString("Paragraph12"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         ParagraphStyle paragraph_style;
         paragraph_style.setMaxLines(14);
         paragraph_style.setTextAlign(TextAlign::kLeft);

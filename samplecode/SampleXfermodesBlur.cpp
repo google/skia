@@ -73,9 +73,9 @@ public:
     }
 
 protected:
-    virtual SkString name() { return SkString("XfermodesBlur"); }
+    virtual SkString onShortName() { return SkString("XfermodesBlur"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const SkBlendMode gModes[] = {

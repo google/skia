@@ -26,7 +26,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("MegaStroke"); }
+    SkString onShortName() override { return SkString("MegaStroke"); }
 
     bool onChar(SkUnichar uni) override {
         fClip.set(0, 0, 950, 600);
@@ -36,7 +36,7 @@ protected:
     void onDrawBackground(SkCanvas* canvas) override {
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setARGB(255,255,153,0);

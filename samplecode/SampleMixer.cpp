@@ -35,7 +35,7 @@ public:
     MixerView() {}
 
 protected:
-    SkString name() override { return SkString("Mixer"); }
+    SkString onShortName() override { return SkString("Mixer"); }
 
     void dodraw(SkCanvas* canvas, sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float gap) {
         SkPaint paint;
@@ -49,7 +49,7 @@ protected:
         canvas->drawImage(fImg, 2*fImg->width() + gap, 0, &paint);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (!fImg) {
             fImg = GetResourceAsImage("images/mandrill_256.png");
             fCF0 = SkColorFilters::Matrix(gMat);
@@ -125,9 +125,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("ShaderMixer"); }
+    SkString onShortName() override { return SkString("ShaderMixer"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (!fSurface) {
             fSurface = canvas->makeSurface(SkImageInfo::MakeN32Premul(SIZE, SIZE));
         }

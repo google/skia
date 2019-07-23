@@ -963,7 +963,7 @@ public:
 
     #undef SET_BUTTON
 
-    SkString name() override { return SkString("AAGeometry"); }
+    SkString onShortName() override { return SkString("AAGeometry"); }
 
     bool onChar(SkUnichar) override;
 
@@ -1507,7 +1507,7 @@ public:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
 #if 0
         SkDEBUGCODE(SkDebugStrokeGlobals debugGlobals);
         SkOpAA aaResult(fPath, fWidthControl.fValLo, fResControl.fValLo

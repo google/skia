@@ -23,7 +23,7 @@ class CameraView : public Sample {
     SkScalar fRX = 0;
     SkScalar fRY = 0;
 
-    SkString name() override { return SkString("Camera"); }
+    SkString onShortName() override { return SkString("Camera"); }
 
     void onOnceBeforeDraw() override {
         for (const char* resource : {
@@ -43,7 +43,7 @@ class CameraView : public Sample {
         this->setBGColor(0xFFDDDDDD);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         if (fShaders.count() > 0) {
             canvas->translate(this->width()/2, this->height()/2);
 

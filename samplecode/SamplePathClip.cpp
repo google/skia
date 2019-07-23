@@ -29,9 +29,9 @@ public:
     PathClipView() : fOval(SkRect::MakeWH(200, 50)), fCenter(SkPoint::Make(250, 250)) {}
 
 protected:
-    SkString name() override { return SkString("PathClip"); }
+    SkString onShortName() override { return SkString("PathClip"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         const SkRect oval = fOval.makeOffset(fCenter.fX - fOval.centerX(),
                                              fCenter.fY - fOval.centerY());
 
@@ -165,7 +165,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("EdgeClip"); }
+    SkString onShortName() override { return SkString("EdgeClip"); }
 
     static SkScalar snap(SkScalar x) {
         return SkScalarRoundToScalar(x * 0.5f) * 2;
@@ -179,7 +179,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPath path;
         path.addPoly(fPoly, N, true);
 

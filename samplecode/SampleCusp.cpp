@@ -103,9 +103,9 @@ class CuspView : public Sample {
 public:
     CuspView() {}
 protected:
-    SkString name() override { return SkString("Cusp"); }
+    SkString onShortName() override { return SkString("Cusp"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setAntiAlias(true);
         p.setStyle(SkPaint::kStroke_Style);

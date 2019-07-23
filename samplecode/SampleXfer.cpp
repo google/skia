@@ -136,9 +136,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("XferDemo"); }
+    SkString onShortName() override { return SkString("XferDemo"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         for (int i = 0; i < N_Modes; ++i) {
             fModeButtons[i].draw(canvas);
         }

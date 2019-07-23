@@ -66,9 +66,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("SceneGraph"); }
+    SkString onShortName() override { return SkString("SceneGraph"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         fScene->render(canvas);
     }
 

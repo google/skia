@@ -32,7 +32,7 @@ class OverstrokeView : public Sample {
     }
 
    protected:
-    SkString name() override { return SkString("PathOverstroke"); }
+    SkString onShortName() override { return SkString("PathOverstroke"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -117,7 +117,7 @@ class OverstrokeView : public Sample {
         return path;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         const float SCALE = 1;
 
         canvas->translate(30, 40);

@@ -482,7 +482,7 @@ class ImageFilterDAGSample : public Sample {
 public:
     ImageFilterDAGSample() {}
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         static const SkRect kFilterRect = SkRect::MakeXYWH(20.f, 20.f, 60.f, 60.f);
         static const SkISize kFilterSurfaceSize = SkISize::Make(
                 2 * (kFilterRect.fRight + kFilterRect.fLeft),
@@ -512,7 +512,7 @@ public:
         draw_dag(canvas, std::move(merge0), kFilterRect, kFilterSurfaceSize);
     }
 
-    SkString name() override { return SkString("ImageFilterDAG"); }
+    SkString onShortName() override { return SkString("ImageFilterDAG"); }
 
 private:
 

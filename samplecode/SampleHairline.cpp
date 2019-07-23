@@ -178,7 +178,7 @@ public:
     }
 
 protected:
-    SkString name() override { return SkStringPrintf("Hair-%s", gProcs[fProcIndex].fName); }
+    SkString onShortName() override { return SkStringPrintf("Hair-%s", gProcs[fProcIndex].fName); }
 
     void show_bitmaps(SkCanvas* canvas, const SkBitmap& b0, const SkBitmap& b1,
                       const SkIRect& inset) {
@@ -186,7 +186,7 @@ protected:
         canvas->drawBitmap(b1, SkIntToScalar(b0.width()), 0, nullptr);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         gRand.setSeed(fNow);
 
         SkBitmap bm, bm2;

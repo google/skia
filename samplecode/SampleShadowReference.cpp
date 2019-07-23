@@ -38,7 +38,7 @@ protected:
         fReferenceImage = GetResourceAsImage("images/shadowreference.png");
     }
 
-    SkString name() override { return SkString("ShadowReference"); }
+    SkString onShortName() override { return SkString("ShadowReference"); }
 
     bool onChar(SkUnichar uni) override {
             bool handled = false;
@@ -106,7 +106,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         this->drawBG(canvas);
         const SkScalar kDP = 4;  // the reference image is 4x bigger than it is displayed on
                                  // on the web page, so we need to reflect that here and

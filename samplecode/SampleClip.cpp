@@ -101,9 +101,9 @@ static void show_thick(SkCanvas* canvas, bool doAA) {
 typedef void (*CanvasProc)(SkCanvas*, bool);
 
 class ClipView : public Sample {
-    SkString name() override { return SkString("Clip"); }
+    SkString onShortName() override { return SkString("Clip"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 

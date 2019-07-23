@@ -436,9 +436,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("Slides"); }
+    SkString onShortName() override { return SkString("Slides"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         this->init();
         gProc[fIndex](canvas);
     }

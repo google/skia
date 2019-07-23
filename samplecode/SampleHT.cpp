@@ -142,9 +142,9 @@ public:
     }
 
 protected:
-    SkString name() override { return SkString("HT"); }
+    SkString onShortName() override { return SkString("HT"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawDrawable(fRoot.get());
     }
 

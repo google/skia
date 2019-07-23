@@ -121,7 +121,8 @@ namespace skiagm {
         DrawResult drawContent(SkCanvas*, SkString* errorMsg);
 
         SkISize getISize() { return this->onISize(); }
-        const char* getName();
+        const SkString& name();
+        const char* getName() { return this->name().c_str(); }
 
         virtual bool runAsBench() const;
 
@@ -162,6 +163,8 @@ namespace skiagm {
         virtual bool onAnimate(double /*nanos*/);
         virtual bool onGetControls(SkMetaData*);
         virtual void onSetControls(const SkMetaData&);
+
+        virtual void onDrawBackground(SkCanvas*);
 
     private:
         Mode     fMode;

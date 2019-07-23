@@ -33,9 +33,9 @@ public:
 protected:
     SkBitmap fBM;
 
-    SkString name() override { return SkString("IdentityScale"); }
+    SkString onShortName() override { return SkString("IdentityScale"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
 
         SkFont font(nullptr, 48);
         SkPaint paint;

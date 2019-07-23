@@ -88,9 +88,9 @@ class ChartView : public Sample {
     SkISize             fSize = {-1, -1};
     SkTDArray<SkScalar> fData[kNumGraphs];
 
-    SkString name() override { return SkString("Chart"); }
+    SkString onShortName() override { return SkString("Chart"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         bool sizeChanged = false;
         if (canvas->getBaseLayerSize() != fSize) {
             fSize = canvas->getBaseLayerSize();

@@ -69,7 +69,7 @@ public:
     }
 
 protected:
-    virtual SkString name() { return SkString("PolyToPolyView"); }
+    virtual SkString onShortName() { return SkString("PolyToPolyView"); }
 
     static void doDraw(SkCanvas* canvas, SkPaint* paint, const SkFont& font, const int isrc[],
                        const int idst[], int count) {
@@ -105,7 +105,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(4));

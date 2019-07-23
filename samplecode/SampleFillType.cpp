@@ -25,7 +25,7 @@ public:
     }
 
 protected:
-    virtual SkString name() { return SkString("FillType"); }
+    virtual SkString onShortName() { return SkString("FillType"); }
 
     void showPath(SkCanvas* canvas, int x, int y, SkPath::FillType ft,
                   SkScalar scale, const SkPaint& paint) {
@@ -55,7 +55,7 @@ protected:
                  scale, paint);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         SkPaint paint;

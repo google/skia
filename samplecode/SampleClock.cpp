@@ -18,9 +18,9 @@
 #define USE_PATH 1
 
 class ClockView : public Sample {
-    SkString name() override { return SkString("Clock"); }
+    SkString onShortName() override { return SkString("Clock"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paintFill;
         SkPaint paintStroke;
         SkPath  path;
