@@ -3262,8 +3262,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Temporarily disable the MSAA implementation of CCPR on various platforms while we work out
     // specific issues.
     if (kATI_GrGLVendor == ctxInfo.vendor() ||  // Radeon hts an internal compiler error.
-        kQualcomm_GrGLVendor == ctxInfo.vendor() ||  // Pixel2 crashes in nanobench.
-        kImagination_GrGLVendor == ctxInfo.vendor()  /* PowerVR doesn't draw curves */) {
+        kQualcomm_GrGLVendor == ctxInfo.vendor()) {
         fDriverBlacklistMSAACCPR = true;
     }
 
