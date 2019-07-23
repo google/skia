@@ -114,7 +114,7 @@ protected:
                                        int parameterCount) const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset,
-                          size_t length, void* data) const override;
+                          size_t length, TableDataDestination data) const override;
 
 private:
     mutable SkMutex fC2GCacheMutex;

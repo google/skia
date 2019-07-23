@@ -98,7 +98,7 @@ protected:
         SK_ABORT("Should never be called.");
         return 0;
     }
-    size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override {
+    size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, TableDataDestination data) const override {
         SK_ABORT("Should never be called.");
         return 0;
     }

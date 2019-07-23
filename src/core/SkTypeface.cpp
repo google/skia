@@ -85,7 +85,7 @@ protected:
         return 0;
     }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
-    size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
+    size_t onGetTableData(SkFontTableTag, size_t, size_t, TableDataDestination) const override {
         return 0;
     }
 };
@@ -253,8 +253,8 @@ size_t SkTypeface::getTableSize(SkFontTableTag tag) const {
 }
 
 size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length,
-                                void* data) const {
-    return this->onGetTableData(tag, offset, length, data);
+                                TableDataDestination dest) const {
+    return this->onGetTableData(tag, offset, length, dest);
 }
 
 std::unique_ptr<SkStreamAsset> SkTypeface::openStream(int* ttcIndex) const {
