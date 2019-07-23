@@ -29,6 +29,10 @@
 namespace skiagm {
 
 class RectsGM : public GM {
+    sk_sp<SkDrawLooper> fLooper;
+    enum {
+        kLooperColorSentinel = 0x01020304
+    };
 public:
     RectsGM() {
         this->setBGColor(0xFF000000);
@@ -106,6 +110,14 @@ protected:
             p.setLooper(SkBlurDrawLooper::Make(SK_ColorWHITE,
                                          SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
                                          SkIntToScalar(5), SkIntToScalar(10)));
+            fPaints.push_back(p);
+        }
+#else
+        fLooper = SkBlurDrawLooper::Make(SK_ColorWHITE, SkBlurMask::ConvertRadiusToSigma(10),5,10);
+        {
+            SkPaint p;
+            p.setColor(kLooperColorSentinel);
+            p.setAntiAlias(true);
             fPaints.push_back(p);
         }
 #endif
@@ -262,7 +274,16 @@ protected:
             for (int j = 0; j < fRects.count(); ++j, ++testCount) {
                 canvas->save();
                 this->position(canvas, testCount);
-                canvas->drawRect(fRects[j], fPaints[i]);
+                SkPaint p = fPaints[i];
+                if (p.getColor() == kLooperColorSentinel) {
+                    p.setColor(SK_ColorWHITE);
+                    SkRect r = fRects[j];
+                    fLooper->apply(canvas, p, [r](SkCanvas* c, const SkPaint& p) {
+                        c->drawRect(r, p);
+                    });
+                } else {
+                    canvas->drawRect(fRects[j], p);
+                }
                 canvas->restore();
             }
         }
