@@ -27,6 +27,14 @@
 using namespace skia::textlayout;
 namespace {
 
+class ParagraphView_Base : public Sample {
+protected:
+    sk_sp<TestFontCollection> fFC;
+    void onOnceBeforeDraw() override {
+        fFC = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
+    }
+};
+
 sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
     SkColor colors[] = {c0, c1};
     SkPoint pts[] = {{r.fLeft, r.fTop}, {r.fRight, r.fTop}};
@@ -54,7 +62,7 @@ const char* gText =
 
 }  // namespace
 
-class ParagraphView1 : public Sample {
+class ParagraphView1 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph1"); }
 
@@ -161,7 +169,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView2 : public Sample {
+class ParagraphView2 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph2"); }
 
@@ -268,9 +276,7 @@ protected:
         TextStyle defaultStyle;
         defaultStyle.setFontSize(20);
         paraStyle.setTextStyle(defaultStyle);
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-        SkASSERT(fontCollection->fontsFound() != 0);
-        ParagraphBuilderImpl builder(paraStyle, fontCollection);
+        ParagraphBuilderImpl builder(paraStyle, fFC);
 
         SkPaint foreground;
         foreground.setColor(fg);
@@ -402,7 +408,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView3 : public Sample {
+class ParagraphView3 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph3"); }
 
@@ -525,7 +531,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView4 : public Sample {
+class ParagraphView4 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph4"); }
 
@@ -615,9 +621,7 @@ protected:
         const char* logo5 = "google_lo";
         const char* logo6 = "go";
         {
-            auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-            SkASSERT(fontCollection->fontsFound() != 0);
-            ParagraphBuilderImpl builder(paraStyle, fontCollection);
+            ParagraphBuilderImpl builder(paraStyle, fFC);
 
             builder.pushStyle(style0);
             builder.addText(logo1);
@@ -663,7 +667,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView5 : public Sample {
+class ParagraphView5 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph5"); }
 
@@ -707,9 +711,7 @@ protected:
 
         paraStyle.setEllipsis(ellipsis);
 
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-        SkASSERT(fontCollection->fontsFound() != 0);
-        ParagraphBuilderImpl builder(paraStyle, fontCollection);
+        ParagraphBuilderImpl builder(paraStyle, fFC);
 
         if (text.empty()) {
             const std::u16string text0 = u"\u202Dabc";
@@ -784,7 +786,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView6 : public Sample {
+class ParagraphView6 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph6"); }
 
@@ -869,9 +871,7 @@ protected:
         const char* logo5 = "Ski";
         const char* logo6 = "a";
         {
-            auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-            SkASSERT(fontCollection->fontsFound() != 0);
-            ParagraphBuilderImpl builder(paraStyle, fontCollection);
+            ParagraphBuilderImpl builder(paraStyle, fFC);
 
             builder.pushStyle(style0);
             builder.addText(logo1);
@@ -911,9 +911,7 @@ protected:
         const char* logo15 = "S";
         const char* logo16 = "S";
         {
-            auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-            SkASSERT(fontCollection->fontsFound() != 0);
-            ParagraphBuilderImpl builder(paraStyle, fontCollection);
+            ParagraphBuilderImpl builder(paraStyle, fFC);
 
             builder.pushStyle(style0);
             builder.addText(logo11);
@@ -959,7 +957,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView7 : public Sample {
+class ParagraphView7 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph7"); }
 
@@ -984,9 +982,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-        SkASSERT(fontCollection->fontsFound() != 0);
-        ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+        ParagraphBuilderImpl builder(paragraphStyle, fFC);
         builder.pushStyle(textStyle);
         builder.addText(line);
         builder.pop();
@@ -1031,7 +1027,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView8 : public Sample {
+class ParagraphView8 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph7"); }
 
@@ -1056,9 +1052,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-        SkASSERT(fontCollection->fontsFound() != 0);
-        ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+        ParagraphBuilderImpl builder(paragraphStyle, fFC);
         builder.pushStyle(textStyle);
         builder.addText(line);
         builder.pop();
@@ -1103,7 +1097,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView9 : public Sample {
+class ParagraphView9 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph9"); }
 
@@ -1149,9 +1143,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-        SkASSERT(fontCollection->fontsFound() != 0);
-        ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+        ParagraphBuilderImpl builder(paragraphStyle, fFC);
         builder.pushStyle(textStyle);
         builder.addText(text);
         builder.pop();
@@ -1200,7 +1192,7 @@ private:
     SkScalar wordSpacing;
 };
 
-class ParagraphView10 : public Sample {
+class ParagraphView10 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph10"); }
 
@@ -1210,9 +1202,7 @@ protected:
         const char* text = "English English 字典 字典 😀😃😄 😀😃😄";
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-        SkASSERT(fontCollection->fontsFound() != 0);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fFC);
 
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto"),
@@ -1242,7 +1232,7 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView11 : public Sample {
+class ParagraphView11 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph11"); }
 
@@ -1252,7 +1242,7 @@ protected:
 
         for (size_t i = 0; i < 10; i++) {
             ParagraphStyle paragraph_style;
-            ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str()));
+            ParagraphBuilderImpl builder(paragraph_style, fFC);
             TextStyle text_style;
             text_style.setFontFamilies({SkString("Roboto")});
             text_style.setColor(SK_ColorBLACK);
@@ -1262,7 +1252,7 @@ protected:
             builder.pop();
             auto paragraph = builder.Build();
             paragraph->layout(500);
-            paragraph->paint(canvas, 0, 100 * (i % 10));
+            paragraph->paint(canvas, 0, 40 * (i % 10));
         }
     }
 
@@ -1271,19 +1261,16 @@ private:
 };
 
 // Measure different stages of layout/paint
-class ParagraphView12 : public Sample {
+class ParagraphView12 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph12"); }
 
     void onDrawContent(SkCanvas* canvas) override {
-        sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-        if (!fontCollection->fontsFound()) return;
-
         ParagraphStyle paragraph_style;
         paragraph_style.setMaxLines(14);
         paragraph_style.setTextAlign(TextAlign::kLeft);
         paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fFC);
 
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto")});
