@@ -2,6 +2,7 @@
 #ifndef TextLine_DEFINED
 #define TextLine_DEFINED
 
+#include <include/private/SkMutex.h>
 #include "include/core/SkCanvas.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
@@ -111,9 +112,6 @@ private:
     bool fHasBackground;
     bool fHasShadows;
     bool fHasDecorations;
-
-    // TODO: use for ellipsis the common cache
-    static SkTHashMap<SkFont, Run> fEllipsisCache;  // All found so far shapes of ellipsis
 };
 }  // namespace textlayout
 }  // namespace skia

@@ -23,7 +23,6 @@ public:
 
     void consume() override {
       SkASSERT(fCurrentChar < fText.end());
-      SkString locale;
       auto found = fFontResolver->findNext(fCurrentChar, &fFont, &fLineHeight);
       SkASSERT(found);
 
@@ -31,7 +30,6 @@ public:
       while (++fCurrentChar != fText.end()) {
           SkFont font;
           SkScalar height;
-          SkString locale;
           found = fFontResolver->findNext(fCurrentChar, &font, &height);
           if (found) {
               if (fFont == font && fLineHeight == height) {
