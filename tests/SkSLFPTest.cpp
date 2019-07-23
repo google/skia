@@ -467,9 +467,9 @@ DEF_TEST(SkSLFPChildProcessors, r) {
          },
          {
             "SkString _child0(\"_child0\");",
-            "this->emitChild(_outer.child1_index, &_child0, args);",
+            "this->invokeChild(_outer.child1_index, &_child0, args);",
             "SkString _child1(\"_child1\");",
-            "this->emitChild(_outer.child2_index, &_child1, args);",
+            "this->invokeChild(_outer.child2_index, &_child1, args);",
             "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
             "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
          });
@@ -493,10 +493,10 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
          {
             "SkString _input0(\"childIn\");",
             "SkString _child0(\"_child0\");",
-            "this->emitChild(_outer.child1_index, _input0.c_str(), &_child0, args);",
+            "this->invokeChild(_outer.child1_index, _input0.c_str(), &_child0, args);",
             "SkString _input1(\"childOut1\");",
             "SkString _child1(\"_child1\");",
-            "this->emitChild(_outer.child2_index, _input1.c_str(), &_child1, args);",
+            "this->invokeChild(_outer.child2_index, _input1.c_str(), &_child1, args);",
             "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
             "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
          });
@@ -515,7 +515,7 @@ DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
          {
             "SkString _input0 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
             "SkString _child0(\"_child0\");",
-            "this->emitChild(_outer.child_index, _input0.c_str(), &_child0, args);",
+            "this->invokeChild(_outer.child_index, _input0.c_str(), &_child0, args);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());",
          });
 }
@@ -535,10 +535,10 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
          {
             "SkString _input0 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
             "SkString _child0(\"_child0\");",
-            "this->emitChild(_outer.child1_index, _input0.c_str(), &_child0, args);",
+            "this->invokeChild(_outer.child1_index, _input0.c_str(), &_child0, args);",
             "SkString _input1 = SkStringPrintf(\"%s * %s\", args.fInputColor, _child0.c_str());",
             "SkString _child1(\"_child1\");",
-            "this->emitChild(_outer.child2_index, _input1.c_str(), &_child1, args);",
+            "this->invokeChild(_outer.child2_index, _input1.c_str(), &_child1, args);",
             "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
             "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
          });
@@ -565,7 +565,7 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
                     "(hasCap ? \"true\" : \"false\"));",
             "SkString _input0 = SkStringPrintf(\"%s\", args.fInputColor);",
             "SkString _child0(\"_child0\");",
-            "this->emitChild(_outer.child_index, _input0.c_str(), &_child0, args);",
+            "this->invokeChild(_outer.child_index, _input0.c_str(), &_child0, args);",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}"
                     "\\n\", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());"
@@ -592,7 +592,7 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
                     "\"true\" : \"false\"));",
             "SkString _input0 = SkStringPrintf(\"%s\", args.fInputColor);",
             "SkString _child0(\"_child0\");",
-            "this->emitChild(_outer.child_index, _input0.c_str(), &_child0, args);",
+            "this->invokeChild(_outer.child_index, _input0.c_str(), &_child0, args);",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}\\n\""
                     ", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());"
@@ -619,7 +619,7 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
             "fragBuilder->codeAppendf(\"bool opaque = %s;\\nif (opaque) {\", "
                     "(opaque ? \"true\" : \"false\"));",
             "SkString _child0(\"_child0\");",
-            "this->emitChild(_outer.child_index, &_child0, args);",
+            "this->invokeChild(_outer.child_index, &_child0, args);",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(0.5);\\n}\\n\""
                     ", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());"
@@ -641,7 +641,7 @@ DEF_TEST(SkSLFPNullableChildProcessor, r) {
          {
             "SkString _child0(\"_child0\");",
             "if (_outer.child_index >= 0) {",
-                "this->emitChild(_outer.child_index, &_child0, args);",
+                "this->invokeChild(_outer.child_index, &_child0, args);",
             "} else {",
                 "fragBuilder->codeAppendf(\"half4 %s;\", _child0.c_str());",
             "}",
