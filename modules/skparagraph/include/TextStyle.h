@@ -68,25 +68,22 @@ public:
     bool matchOneAttribute(StyleType styleType, const TextStyle& other) const;
     bool operator==(const TextStyle& rhs) const { return this->equals(rhs); }
 
-    // Colors
     SkColor getColor() const { return fColor; }
     void setColor(SkColor color) { fColor = color; }
 
+    const SkPaint* getForeground() const { return  fHasForeground ? &fForeground : nullptr; }
     bool hasForeground() const { return fHasForeground; }
-    SkPaint getForeground() const { return fForeground; }
-    void setForegroundColor(SkPaint paint) {
+    void setForeground(SkPaint paint) {
+        fForeground = paint;
         fHasForeground = true;
-        fForeground = std::move(paint);
     }
-    void clearForegroundColor() { fHasForeground = false; }
 
+    const SkPaint* getBackground() const { return fHasBackground ? &fBackground : nullptr; }
     bool hasBackground() const { return fHasBackground; }
-    SkPaint getBackground() const { return fBackground; }
-    void setBackgroundColor(SkPaint paint) {
+    void setBackground(SkPaint paint) {
+        fBackground = paint;
         fHasBackground = true;
-        fBackground = std::move(paint);
     }
-    void clearBackgroundColor() { fHasBackground = false; }
 
     // Decorations
     Decoration getDecoration() const { return fDecoration; }
@@ -163,9 +160,9 @@ private:
     TextBaseline fTextBaseline;
 
     SkColor fColor;
+    bool fHasForeground;
     bool fHasBackground;
     SkPaint fBackground;
-    bool fHasForeground;
     SkPaint fForeground;
 
     std::vector<TextShadow> fTextShadows;

@@ -94,8 +94,8 @@ protected:
         blue.setColor(SK_ColorBLUE);
 
         TextStyle defaultStyle;
-        defaultStyle.setBackgroundColor(blue);
-        defaultStyle.setForegroundColor(paint);
+        defaultStyle.setBackground(blue);
+        defaultStyle.setForeground(paint);
         ParagraphStyle paraStyle;
 
         for (auto i = 1; i < 5; ++i) {
@@ -118,11 +118,11 @@ protected:
                 style.setFontSize(std::get<3>(para) * i);
                 SkPaint background;
                 background.setColor(std::get<4>(para));
-                style.setBackgroundColor(background);
+                style.setBackground(background);
                 SkPaint foreground;
                 foreground.setColor(std::get<5>(para));
                 foreground.setAntiAlias(true);
-                style.setForegroundColor(foreground);
+                style.setForeground(foreground);
                 if (std::get<6>(para)) {
                     style.addShadow(TextShadow(SK_ColorBLACK, SkPoint::Make(5, 5), 2));
                 }
@@ -193,8 +193,8 @@ protected:
         white.setColor(SK_ColorWHITE);
 
         TextStyle defaultStyle;
-        defaultStyle.setBackgroundColor(white);
-        defaultStyle.setForegroundColor(code);
+        defaultStyle.setBackground(white);
+        defaultStyle.setForeground(code);
         defaultStyle.setFontFamilies({SkString("monospace")});
         defaultStyle.setFontSize(30);
         ParagraphStyle paraStyle;
@@ -231,7 +231,7 @@ protected:
     TextStyle style(SkPaint paint) {
         TextStyle style;
         paint.setAntiAlias(true);
-        style.setForegroundColor(paint);
+        style.setForeground(paint);
         style.setFontFamilies({SkString("monospace")});
         style.setFontSize(30);
 
@@ -261,8 +261,8 @@ protected:
         background.setColor(bg);
 
         TextStyle style;
-        style.setBackgroundColor(blue);
-        style.setForegroundColor(paint);
+        style.setBackground(blue);
+        style.setForeground(paint);
         style.setFontFamilies({SkString(ff)});
         style.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight,
                                        SkFontStyle::kNormal_Width,
@@ -280,8 +280,8 @@ protected:
 
         SkPaint foreground;
         foreground.setColor(fg);
-        style.setForegroundColor(foreground);
-        style.setBackgroundColor(background);
+        style.setForeground(foreground);
+        style.setBackground(background);
 
         for (auto& part : text) {
             builder.pushStyle(style);
@@ -313,8 +313,8 @@ protected:
         gray.setColor(SK_ColorLTGRAY);
 
         TextStyle style;
-        style.setBackgroundColor(gray);
-        style.setForegroundColor(paint);
+        style.setBackground(gray);
+        style.setForeground(paint);
         style.setFontFamilies({SkString("Arial")});
         style.setFontSize(30);
         ParagraphStyle paraStyle;
@@ -434,8 +434,8 @@ protected:
         yellow.setColor(SK_ColorYELLOW);
 
         TextStyle style;
-        style.setBackgroundColor(gray);
-        style.setForegroundColor(paint);
+        style.setBackground(gray);
+        style.setForeground(paint);
         style.setFontFamilies({SkString("sans-serif")});
         style.setFontSize(30);
         ParagraphStyle paraStyle;
@@ -576,8 +576,8 @@ protected:
         style.setFontSize(fs);
 
         TextStyle style0;
-        style0.setForegroundColor(black);
-        style0.setBackgroundColor(gray);
+        style0.setForeground(black);
+        style0.setBackground(gray);
         style0.setFontFamilies({SkString(ff)});
         style0.setFontSize(fs);
         style0.setDecoration(TextDecoration::kUnderline);
@@ -585,8 +585,8 @@ protected:
         style0.setDecorationColor(SK_ColorBLACK);
 
         TextStyle style1;
-        style1.setForegroundColor(blue);
-        style1.setBackgroundColor(yellow);
+        style1.setForeground(blue);
+        style1.setBackground(yellow);
         style1.setFontFamilies({SkString(ff)});
         style1.setFontSize(fs);
         style1.setDecoration(TextDecoration::kOverline);
@@ -594,17 +594,17 @@ protected:
         style1.setDecorationColor(SK_ColorBLACK);
 
         TextStyle style2;
-        style2.setForegroundColor(red);
+        style2.setForeground(red);
         style2.setFontFamilies({SkString(ff)});
         style2.setFontSize(fs);
 
         TextStyle style3;
-        style3.setForegroundColor(green);
+        style3.setForeground(green);
         style3.setFontFamilies({SkString(ff)});
         style3.setFontSize(fs);
 
         TextStyle style4;
-        style4.setForegroundColor(magenta);
+        style4.setForeground(magenta);
         style4.setFontFamilies({SkString(ff)});
         style4.setFontSize(fs);
 
@@ -687,19 +687,19 @@ protected:
         gray.setColor(SK_ColorLTGRAY);
 
         TextStyle style;
-        style.setForegroundColor(black);
+        style.setForeground(black);
         style.setFontFamilies({SkString(ff)});
         style.setFontSize(fs);
 
         TextStyle style0;
-        style0.setForegroundColor(black);
+        style0.setForeground(black);
         style0.setFontFamilies({SkString(ff)});
         style0.setFontSize(fs);
         style0.setFontStyle(SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
                                         SkFontStyle::kItalic_Slant));
 
         TextStyle style1;
-        style1.setForegroundColor(gray);
+        style1.setForeground(gray);
         style1.setFontFamilies({SkString(ff)});
         style1.setFontSize(fs);
         style1.setFontStyle(SkFontStyle(SkFontStyle::kBold_Weight, SkFontStyle::kNormal_Width,
@@ -830,33 +830,33 @@ protected:
         style.setFontStyle(fontStyle);
 
         TextStyle style0;
-        style0.setForegroundColor(black);
-        style0.setBackgroundColor(gray);
+        style0.setForeground(black);
+        style0.setBackground(gray);
         style0.setFontFamilies({SkString(ff)});
         style0.setFontSize(fs);
         style0.setFontStyle(fontStyle);
 
         TextStyle style1;
-        style1.setForegroundColor(blue);
-        style1.setBackgroundColor(yellow);
+        style1.setForeground(blue);
+        style1.setBackground(yellow);
         style1.setFontFamilies({SkString(ff)});
         style1.setFontSize(fs);
         style1.setFontStyle(fontStyle);
 
         TextStyle style2;
-        style2.setForegroundColor(red);
+        style2.setForeground(red);
         style2.setFontFamilies({SkString(ff)});
         style2.setFontSize(fs);
         style2.setFontStyle(fontStyle);
 
         TextStyle style3;
-        style3.setForegroundColor(green);
+        style3.setForeground(green);
         style3.setFontFamilies({SkString(ff)});
         style3.setFontSize(fs);
         style3.setFontStyle(fontStyle);
 
         TextStyle style4;
-        style4.setForegroundColor(magenta);
+        style4.setForeground(magenta);
         style4.setFontFamilies({SkString(ff)});
         style4.setFontSize(fs);
         style4.setFontStyle(fontStyle);

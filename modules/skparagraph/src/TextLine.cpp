@@ -27,7 +27,7 @@ TextRange intersected(const TextRange& a, const TextRange& b) {
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
-SkTHashMap<SkFont, Run> TextLine::fEllipsisCache;
+SkTHashMap<SkColor, SkPaint> TextLine::fSimpleColorPaints;
 
 TextLine::TextLine(ParagraphImpl* master,
                    SkVector offset,
@@ -58,7 +58,7 @@ TextLine::TextLine(ParagraphImpl* master,
 
     for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
         auto b = fMaster->styles().begin() + index;
-        if (b->fStyle.hasBackground()) {
+        if (b->fStyle.getBackground()) {
             fHasBackground = true;
         }
         if (b->fStyle.getDecorationType() != TextDecoration::kNoDecoration) {
@@ -166,13 +166,7 @@ void TextLine::scanRuns(const RunVisitor& visitor) {
 
 SkScalar TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style,
                              SkScalar offsetX) const {
-    SkPaint paint;
-    if (style.hasForeground()) {
-        paint = style.getForeground();
-    } else {
-        paint.setColor(style.getColor());
-    }
-
+    const SkPaint* paint = !style.hasForeground() ? getPaint(style.getColor()) : style.getForeground();
     auto shiftDown =  this->baseline();
     return this->iterateThroughRuns(
         textRange, offsetX, false,
@@ -184,7 +178,7 @@ SkScalar TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextSt
                 canvas->clipRect(clip);
             }
             canvas->translate(shift, 0);
-            canvas->drawTextBlob(builder.make(), 0, 0, paint);
+            canvas->drawTextBlob(builder.make(), 0, 0, *paint);
             canvas->restore();
             return true;
         });
@@ -195,8 +189,8 @@ SkScalar TextLine::paintBackground(SkCanvas* canvas, TextRange textRange,
     return this->iterateThroughRuns(textRange, offsetX, false,
         [canvas, &style](Run* run, int32_t pos, size_t size, SkRect clip,
                         SkScalar shift, bool clippingNeeded) {
-            if (style.hasBackground()) {
-                canvas->drawRect(clip, style.getBackground());
+            if (style.getBackground()) {
+                canvas->drawRect(clip, *style.getBackground());
             }
             return true;
         });
@@ -439,12 +433,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
                 }
 
                 // Shape the ellipsis
-                Run* cached = fEllipsisCache.find(cluster->font());
-                if (cached == nullptr) {
-                    cached = shapeEllipsis(ellipsis, cluster->run());
-                } else {
-                    cached->setMaster(fMaster);
-                }
+                Run* cached = shapeEllipsis(ellipsis, cluster->run());
                 fEllipsis = std::make_shared<Run>(*cached);
 
                 // See if it fits
@@ -476,8 +465,7 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
         void commitRunInfo() override {}
 
         Buffer runBuffer(const RunInfo& info) override {
-            fRun = fEllipsisCache.set(info.fFont,
-                                      Run(nullptr, info, fLineHeight, 0, 0));
+            fRun = new Run(nullptr, info, fLineHeight, 0, 0);
             return fRun->newRunBuffer();
         }
 

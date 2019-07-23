@@ -2,6 +2,7 @@
 #ifndef TextLine_DEFINED
 #define TextLine_DEFINED
 
+#include <include/private/SkMutex.h>
 #include "include/core/SkCanvas.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
@@ -96,6 +97,16 @@ private:
         return fTextRange.contains(cluster->textRange());
     }
 
+    SkPaint* getPaint(SkColor color) const {
+        auto found = fSimpleColorPaints.find(color);
+        if (found == nullptr) {
+            SkPaint paint;
+            paint.setColor(color);
+            found = fSimpleColorPaints.set(color, paint);
+        }
+        return found;
+    }
+
     ParagraphImpl* fMaster;
     BlockRange fBlockRange;
     TextRange fTextRange;
@@ -112,8 +123,7 @@ private:
     bool fHasShadows;
     bool fHasDecorations;
 
-    // TODO: use for ellipsis the common cache
-    static SkTHashMap<SkFont, Run> fEllipsisCache;  // All found so far shapes of ellipsis
+    static SkTHashMap<SkColor, SkPaint> fSimpleColorPaints;
 };
 }  // namespace textlayout
 }  // namespace skia

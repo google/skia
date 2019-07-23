@@ -21,8 +21,8 @@ TextStyle::TextStyle() : fFontStyle() {
     fLetterSpacing = 0.0;
     fWordSpacing = 0.0;
     fHeight = 1.0;
-    fHasBackground = false;
     fHasForeground = false;
+    fHasBackground = false;
     fTextBaseline = TextBaseline::kAlphabetic;
     fLocale = "";
 }
@@ -55,10 +55,15 @@ bool TextStyle::equals(const TextStyle& other) const {
     if (fLocale != other.fLocale) {
         return false;
     }
-    if (fHasForeground != other.fHasForeground || fForeground != other.fForeground) {
+    if (fHasForeground != other.fHasForeground) {
+        return false;
+    } else if (fHasForeground &&  fForeground != other.fForeground) {
         return false;
     }
-    if (fHasBackground != other.fHasBackground || fBackground != other.fBackground) {
+
+    if (fHasBackground != other.fHasBackground) {
+        return false;
+    } else if (fHasBackground && fBackground != other.fBackground) {
         return false;
     }
     if (fTextShadows.size() != other.fTextShadows.size()) {
@@ -84,7 +89,12 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             }
 
         case kBackground:
-            return (fHasBackground == other.fHasBackground && fBackground == other.fBackground);
+            if (fHasBackground) {
+                return other.fHasBackground && fBackground == other.fBackground;
+            } else {
+                return !other.fHasBackground;
+            }
+
 
         case kShadow:
             if (fTextShadows.size() != other.fTextShadows.size()) {
