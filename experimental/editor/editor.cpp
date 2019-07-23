@@ -176,28 +176,35 @@ void Editor::setFont(SkFont font) {
     }
 }
 
+static SkPoint to_point(SkIPoint p) { return {(float)p.x(), (float)p.y()}; }
+
 Editor::TextPosition Editor::getPosition(SkIPoint xy) {
+    Editor::TextPosition approximatePosition;
     this->reshapeAll();
     for (size_t j = 0; j < fLines.size(); ++j) {
         const TextLine& line = fLines[j];
-        if (!line.fBlob) {
+        SkIRect lineRect = {0,
+                            line.fOrigin.y(),
+                            fWidth,
+                            j + 1 < fLines.size() ? fLines[j + 1].fOrigin.y() : INT_MAX};
+        if (const SkTextBlob* b = line.fBlob.get()) {
+            SkIRect r = b->bounds().roundOut();
+            r.offset(line.fOrigin);
+            lineRect.join(r);
+        }
+        if (!lineRect.contains(xy.x(), xy.y())) {
             continue;
         }
-        SkIRect b = line.fBlob->bounds().roundOut().makeOffset(line.fOrigin.x(), line.fOrigin.y());
-        if (b.contains(xy.x(), xy.y())) {
-            xy -= line.fOrigin;
-            const std::vector<SkRect>& pos = line.fCursorPos;
-            for (size_t i = 0; i < pos.size(); ++i) {
-                if (pos[i] == kUnsetRect) {
-                    continue;
-                }
-                if (pos[i].contains((float)xy.x(), (float)xy.y())) {
-                    return Editor::TextPosition{i, j};
-                }
+        SkPoint pt = to_point(xy - line.fOrigin);
+        const std::vector<SkRect>& pos = line.fCursorPos;
+        for (size_t i = 0; i < pos.size(); ++i) {
+            if (pos[i] != kUnsetRect && pos[i].contains(pt.x(), pt.y())) {
+                return Editor::TextPosition{i, j};
             }
         }
+        approximatePosition = {xy.x() <= line.fOrigin.x() ? 0 : line.fText.size(), j};
     }
-    return Editor::TextPosition();
+    return approximatePosition;
 }
 
 static inline bool is_utf8_continuation(char v) {
