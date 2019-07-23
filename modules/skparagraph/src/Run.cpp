@@ -273,7 +273,7 @@ Cluster::Cluster(ParagraphImpl* master,
         , fSpacing(0)
         , fHeight(height)
         , fWhiteSpaces(false)
-        , fBreakType(None) {
+        , fBreakType(BreakType::None) {
 }
 
 }  // namespace textlayout
