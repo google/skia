@@ -276,7 +276,7 @@ private:
     friend class GrMtlGpu;
     friend class PromiseImageHelper;
 
-    GrPixelConfig config() const { return fConfig; }
+    GrPixelConfig config1() const { return fConfig; }
 
 #ifdef SK_GL
     friend class GrGLTexture;
@@ -433,7 +433,7 @@ private:
     friend class GrProxyProvider;
     friend class GrVkGpu;
     friend class GrMtlGpu;
-    GrPixelConfig config() const { return fConfig; }
+    GrPixelConfig config1() const { return fConfig; }
 
     // Requires friending of GrVkGpu (done above already)
     sk_sp<GrVkImageLayout> getGrVkImageLayout() const;
