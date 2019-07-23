@@ -22,6 +22,30 @@
       "revId": "91412fcd267d929f6389dba90176cbab22808d5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cd75e71_f19c0593",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3282,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-23T13:56:17Z",
+      "side": 1,
+      "message": "Hm, I thought I had pushed that change already, but it was stuck on the command line.... Done.",
+      "parentUuid": "97128101_de95a246",
+      "range": {
+        "startLine": 3282,
+        "startChar": 57,
+        "endLine": 3282,
+        "endChar": 58
+      },
+      "revId": "91412fcd267d929f6389dba90176cbab22808d5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
