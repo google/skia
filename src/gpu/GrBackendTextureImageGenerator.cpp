@@ -146,7 +146,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
     SkASSERT(fRefHelper->fBorrowingContextID == context->priv().contextID());
 
-
     GrBackendFormat backendFormat = fBackendTexture.getBackendFormat();
     SkASSERT(backendFormat.isValid());
 
@@ -157,9 +156,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         return nullptr;
     }
 
-    SkASSERT(GrCaps::AreConfigsCompatible(fBackendTexture.config(),
-                                          caps->getConfigFromBackendFormat(backendFormat,
-                                                                           grColorType)));
+    SkASSERT(GrCaps::AreConfigsCompatible(fBackendTexture.config(), config));
 
     GrSurfaceDesc desc;
     desc.fWidth = fBackendTexture.width();
