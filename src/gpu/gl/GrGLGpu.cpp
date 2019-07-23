@@ -684,8 +684,8 @@ static bool check_backend_texture(const GrBackendTexture& backendTex, const GrGL
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                               GrWrapOwnership ownership, GrWrapCacheable cacheable,
-                                               GrIOType ioType) {
+                                               GrColorType grColorType, GrWrapOwnership ownership,
+                                               GrWrapCacheable cacheable, GrIOType ioType) {
     GrGLTexture::IDDesc idDesc;
     if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
         return nullptr;
@@ -699,10 +699,14 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     }
 
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
+                                                                    grColorType);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+
     GrSurfaceDesc surfDesc;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
-    surfDesc.fConfig = backendTex.config();
+    surfDesc.fConfig = config;
 
     GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kValid
                                                             : GrMipMapsStatus::kNotAllocated;
@@ -740,10 +744,14 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
 
     const GrCaps* caps = this->caps();
 
+    GrPixelConfig config = caps->getConfigFromBackendFormat(backendTex.getBackendFormat(),
+                                                            colorType);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+
     GrSurfaceDesc surfDesc;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
-    surfDesc.fConfig = backendTex.config();
+    surfDesc.fConfig = config;
 
     sampleCnt =
             caps->getRenderTargetSampleCount(sampleCnt, colorType, backendTex.getBackendFormat());
@@ -768,7 +776,8 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     return std::move(texRT);
 }
 
-sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
+sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
+                                                         GrColorType grColorType) {
     GrGLFramebufferInfo info;
     if (!backendRT.getGLFramebufferInfo(&info)) {
         return nullptr;
@@ -785,19 +794,25 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
 
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendRT.getBackendFormat(),
+                                                                    grColorType);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+
     GrSurfaceDesc desc;
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
-    desc.fConfig = backendRT.config();
+    desc.fConfig = config;
     int sampleCount =
-            this->caps()->getRenderTargetSampleCount(backendRT.sampleCnt(), backendRT.config());
+        this->caps()->getRenderTargetSampleCount(backendRT.sampleCnt(), grColorType,
+                                                 backendRT.getBackendFormat());
 
     return GrGLRenderTarget::MakeWrapped(this, desc, sampleCount, info.fFormat, idDesc,
                                          backendRT.stencilBits());
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                  int sampleCnt) {
+                                                                  int sampleCnt,
+                                                                  GrColorType grColorType) {
     GrGLTextureInfo info;
     if (!tex.getGLTextureInfo(&info) || !info.fID) {
         return nullptr;
@@ -811,11 +826,16 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
         return nullptr;
     }
 
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(tex.getBackendFormat(),
+                                                                    grColorType);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+
     GrSurfaceDesc surfDesc;
     surfDesc.fWidth = tex.width();
     surfDesc.fHeight = tex.height();
-    surfDesc.fConfig = tex.config();
-    int sampleCount = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
+    surfDesc.fConfig = config;
+    int sampleCount = this->caps()->getRenderTargetSampleCount(sampleCnt, grColorType,
+                                                               tex.getBackendFormat());
 
     GrGLRenderTarget::IDDesc rtIDDesc;
     if (!this->createRenderTargetObjects(surfDesc, sampleCount, info, &rtIDDesc)) {
