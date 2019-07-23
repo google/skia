@@ -85,21 +85,19 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
-ParagraphCache ParagraphImpl::fParagraphCache;
-
-ParagraphImpl::ParagraphImpl(const SkString& text,
+ParagraphImpl::ParagraphImpl(SkString text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
                              sk_sp<FontCollection> fonts)
-        : Paragraph(std::move(style), std::move(fonts))
+        : Paragraph(std::move(style)
+        , std::move(fonts))
         , fTextStyles(std::move(blocks))
-        , fText(text)
+        , fText(std::move(text))
         , fTextSpan(fText.c_str(), fText.size())
         , fState(kUnknown)
         , fPicture(nullptr)
         , fOldWidth(0)
-        , fOldHeight(0)
-        , fParagraphCacheOn(false) {
+        , fOldHeight(0) {
     // TODO: extractStyles();
 }
 
@@ -112,8 +110,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
         , fState(kUnknown)
         , fPicture(nullptr)
         , fOldWidth(0)
-        , fOldHeight(0)
-        , fParagraphCacheOn(false) {
+        , fOldHeight(0) {
     icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
     std::string str;
     unicode.toUTF8String(str);
@@ -161,10 +158,9 @@ void ParagraphImpl::layout(SkScalar width) {
             fState = kClusterized;
             this->markLineBreaks();
             fState = kMarked;
+
             // Add the paragraph to the cache
-            if (fParagraphCacheOn) {
-                fParagraphCache.updateParagraph(this);
-            }
+            fFontCollection->updateParagraph(this);
         }
     }
 
@@ -187,10 +183,6 @@ void ParagraphImpl::layout(SkScalar width) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
         fState = kFormatted;
-        // Add the paragraph to the cache
-        if (fParagraphCacheOn) {
-            fParagraphCache.updateParagraph(this);
-        }
     }
 
     this->fOldWidth = width;
@@ -203,9 +195,6 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
         // Record the picture anyway (but if we have some pieces in the cache they will be used)
         this->paintLinesIntoPicture();
         fState = kDrawn;
-        if (fParagraphCacheOn) {
-            fParagraphCache.updateParagraph(this);
-        }
     }
 
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
@@ -355,10 +344,10 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     }
 
     // This is a pretty big step - resolving all characters against all given fonts
-    fFontResolver.findAllFontsForAllStyledBlocks(fTextSpan, styles(), fFontCollection);
+    fFontResolver.findAllFontsForAllStyledBlocks(this);
 
     // Check the font-resolved text against the cache
-    if (fParagraphCacheOn && fParagraphCache.findParagraph(this)) {
+    if (fFontCollection->findParagraph(this)) {
         return true;
     }
 
@@ -438,7 +427,7 @@ void ParagraphImpl::paintLinesIntoPicture() {
 }
 
 void ParagraphImpl::resolveStrut() {
-    auto strutStyle = this->paragraphStyle().getStrutStyle();
+    auto& strutStyle = this->paragraphStyle().getStrutStyle();
     if (!strutStyle.getStrutEnabled()) {
         return;
     }
