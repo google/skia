@@ -1501,7 +1501,7 @@ namespace skvm {
 
 #if defined(SKVM_PERF_DUMPS)
     void Program::dumpJIT(const char* debug_name, size_t size) const {
-    #if defined(__aarch64__)
+    #if 0 && defined(__aarch64__)
         if (debug_name) {
             SkDebugf("\n%s:", debug_name);
         }

@@ -7,6 +7,8 @@
 
 #include "src/core/SkCpu.h"
 #include "src/core/SkVM.h"
+#include "tools/SkVMBuilders.h"
+#include <chrono>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -21,45 +23,83 @@ void SkDebugf(const char* fmt, ...) {
     va_end(args);
 }
 
-using namespace skvm;
+static skvm::Program plus_one() {
+    skvm::Builder b;
 
-static Program build() {
-    Builder b;
+    skvm::Arg ptr = b.arg<int>();
+    skvm::I32 v = b.load32(ptr);
+    b.store32(ptr, b.add(v, b.splat(1)));
 
-    Arg ptr = b.arg(0);
-    I32 v = b.load32(ptr);
+    return b.done("plus_one");
+}
+
+static skvm::Program square() {
+    skvm::Builder b;
+
+    skvm::Arg ptr = b.arg<int>();
+    skvm::I32 v = b.load32(ptr);
     b.store32(ptr, b.mul(v,v));
 
-    return b.done();
+    return b.done("square");
+}
+
+static void print(double val, const char* units) {
+    const char* scales[] = { "", "K", "M", "G", "T" };
+    const char** scale = scales;
+
+    while (val > 10000.0) {
+        val *= 1/1000.0;
+        scale++;
+    }
+
+    printf("%4d %s%s", (int)val, *scale, units);
+}
+
+template <typename Fn>
+static double measure(Fn&& fn) {
+    using clock = std::chrono::steady_clock;
+
+    int loops = 0;
+    auto start = clock::now();
+    std::chrono::duration<double> elapsed;
+    do {
+        fn();
+        loops++;
+        elapsed = clock::now() - start;
+    } while (elapsed < std::chrono::milliseconds(100));
+
+    return loops / elapsed.count();
+}
+
+template <typename... Args>
+static void time(const char* name, const skvm::Program& program, Args... args) {
+    printf("%20s", name);
+
+    for (int N : { 15, 255, 4095 }) {
+        double loops_per_sec = measure([&]{
+            program.eval(N, args...);
+        });
+
+        printf("\t");
+        print(N*loops_per_sec, "px/s");
+    }
+    printf("\n");
 }
 
 int main(int argc, char** argv) {
 #if defined(__x86_64__)
     SkCpu::CacheRuntimeFeatures();
 #endif
-    int loops = argc > 1 ? atoi(argv[1])
-                         : 1;
 
-    if (loops < 0) {
-        // Benchmark program build and JIT.
-        loops = -loops;
-        while (loops --> 0) {
-            Program program = build();
-            int x = 4;
-            program.eval(0, &x);
-        }
-    } else {
-        // Benchmark JIT code.
-        Program program = build();
+    int src[4096],
+        dst[4096];
+    time("plus_one", plus_one(), dst);
+    time(  "square",   square(), dst);
 
-        int buf[4096];
-        for (int i = 0; i < 4096; i++) {
-            buf[i] = 1;
-        }
+    time("srcover_f32"      , SrcoverBuilder_F32      ().done("srcover_f32"      ), src, dst);
+    time("srcover_i32"      , SrcoverBuilder_I32      ().done("srcover_i32"      ), src, dst);
+    time("srcover_i32_naive", SrcoverBuilder_I32_Naive().done("srcover_i32_naive"), src, dst);
+    time("srcover_i32_SWAR" , SrcoverBuilder_I32_SWAR ().done("srcover_i32_SWAR" ), src, dst);
 
-        while (loops --> 0) {
-            program.eval(4096, buf);
-        }
-    }
     return 0;
 }
