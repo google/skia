@@ -355,7 +355,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                                                                GrRenderable::kYes,
                                                                GrProtected::kNo);
 
-        auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
+        auto proxy = proxyProvider->wrapBackendTexture(backendTex, GrColorType::kRGBA_8888,
+                                                       kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
         auto surfContext = context->priv().makeWrappedSurfaceContext(proxy, GrColorType::kRGBA_8888,
@@ -404,7 +405,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                     kSize, kSize, kRGBA_8888_SkColorType,
                     SkColors::kTransparent, GrMipMapped::kYes, GrRenderable::kYes,
                     GrProtected::kNo);
-            proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
+            proxy = proxyProvider->wrapBackendTexture(backendTex, GrColorType::kRGBA_8888,
+                                                      kTopLeft_GrSurfaceOrigin,
                                                       kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                                       ioType);
             context->flush();
@@ -430,7 +432,8 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable re
                 GrWrapCacheable::kNo);
     } else {
         texture = context->priv().resourceProvider()->wrapBackendTexture(
-                backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
+                backendTexture, GrColorType::kRGBA_8888, kBorrow_GrWrapOwnership,
+                GrWrapCacheable::kNo, kRW_GrIOType);
     }
     // Add a release proc that deletes the GrBackendTexture.
     struct ReleaseContext {

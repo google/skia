@@ -95,8 +95,9 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
                                                                              fBufferFormat,
                                                                              false);
 
-    GrPixelConfig pixelConfig = context->priv().caps()->getConfigFromBackendFormat(
-            backendFormat, SkColorTypeToGrColorType(this->getInfo().colorType()));
+    GrColorType grColorType = SkColorTypeToGrColorType(this->getInfo().colorType());
+    GrPixelConfig pixelConfig = context->priv().caps()->getConfigFromBackendFormat(backendFormat,
+                                                                                   grColorType);
 
     if (pixelConfig == kUnknown_GrPixelConfig) {
         return nullptr;
@@ -150,7 +151,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
 
     sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
             [direct, buffer = AutoAHBRelease(hardwareBuffer), width, height, pixelConfig,
-             isProtectedContent, backendFormat](GrResourceProvider* resourceProvider)
+             isProtectedContent, backendFormat, grColorType](GrResourceProvider* resourceProvider)
                     -> GrSurfaceProxy::LazyInstantiationResult {
                 GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
                 GrAHardwareBufferUtils::DeleteImageCtx deleteImageCtx = nullptr;
@@ -173,7 +174,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
                 // is invoked. We know the owning SkIamge will send an invalidation message when the
                 // image is destroyed, so the texture will be removed at that time.
                 sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(
-                        backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes, kRead_GrIOType);
+                        backendTex, grColorType, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes,
+                        kRead_GrIOType);
                 if (!tex) {
                     deleteImageProc(deleteImageCtx);
                     return {};

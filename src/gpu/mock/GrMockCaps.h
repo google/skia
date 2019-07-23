@@ -134,6 +134,14 @@ public:
         return GrColorTypeToPixelConfig(*format.getMockColorType());
     }
 
+    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const override {
+        if (!format.getMockColorType()) {
+            return GrColorType::kUnknown;
+        }
+
+        return *format.getMockColorType();
+    }
+
     GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override {
         return GrBackendFormat::MakeMock(ct);
     }
