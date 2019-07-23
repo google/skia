@@ -2625,6 +2625,7 @@ if (skia_enable_tools) {
         "src/core/SkSpinlock.cpp",
         "src/core/SkThreadID.cpp",
         "src/core/SkVM.cpp",
+        "tools/SkVMBuilders.cpp",
         "tools/SkVMTool.cpp",
       ]
       if (target_cpu == "x64") {
