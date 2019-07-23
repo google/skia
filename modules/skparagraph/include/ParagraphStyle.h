@@ -57,7 +57,7 @@ struct ParagraphStyle {
     void setStrutStyle(StrutStyle strutStyle) { fStrutStyle = std::move(strutStyle); }
 
     const TextStyle& getTextStyle() const { return fDefaultTextStyle; }
-    void setTextStyle(const TextStyle& textStyle) { fDefaultTextStyle = textStyle; }
+    void setTextStyle(const TextStyle& textStyle) { fDefaultTextStyle = std::move(textStyle); }
 
     TextDirection getTextDirection() const { return fTextDirection; }
     void setTextDirection(TextDirection direction) { fTextDirection = direction; }

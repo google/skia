@@ -87,13 +87,14 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
 
 ParagraphCache ParagraphImpl::fParagraphCache;
 
-ParagraphImpl::ParagraphImpl(const SkString& text,
+ParagraphImpl::ParagraphImpl(SkString text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
                              sk_sp<FontCollection> fonts)
-        : Paragraph(std::move(style), std::move(fonts))
+        : Paragraph(std::move(style)
+        , std::move(fonts))
         , fTextStyles(std::move(blocks))
-        , fText(text)
+        , fText(std::move(text))
         , fTextSpan(fText.c_str(), fText.size())
         , fState(kUnknown)
         , fPicture(nullptr)
@@ -161,6 +162,7 @@ void ParagraphImpl::layout(SkScalar width) {
             fState = kClusterized;
             this->markLineBreaks();
             fState = kMarked;
+
             // Add the paragraph to the cache
             if (fParagraphCacheOn) {
                 fParagraphCache.updateParagraph(this);
@@ -187,10 +189,6 @@ void ParagraphImpl::layout(SkScalar width) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
         fState = kFormatted;
-        // Add the paragraph to the cache
-        if (fParagraphCacheOn) {
-            fParagraphCache.updateParagraph(this);
-        }
     }
 
     this->fOldWidth = width;
@@ -203,9 +201,6 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
         // Record the picture anyway (but if we have some pieces in the cache they will be used)
         this->paintLinesIntoPicture();
         fState = kDrawn;
-        if (fParagraphCacheOn) {
-            fParagraphCache.updateParagraph(this);
-        }
     }
 
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
@@ -438,7 +433,7 @@ void ParagraphImpl::paintLinesIntoPicture() {
 }
 
 void ParagraphImpl::resolveStrut() {
-    auto strutStyle = this->paragraphStyle().getStrutStyle();
+    auto& strutStyle = this->paragraphStyle().getStrutStyle();
     if (!strutStyle.getStrutEnabled()) {
         return;
     }

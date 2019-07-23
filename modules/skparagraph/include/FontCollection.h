@@ -4,14 +4,19 @@
 
 #include <memory>
 #include <set>
+#include <vector>
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTHash.h"
-#include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skparagraph/include/StringCache.h"
+
+// TODO: Make it external so the other platforms (Android) could use it
+#define DEFAULT_FONT_FAMILY "sans-serif"
 
 namespace skia {
 namespace textlayout {
 
+class TextStyle;
 class FontCollection : public SkRefCnt {
 public:
     FontCollection();
@@ -28,24 +33,25 @@ public:
 
     sk_sp<SkFontMgr> geFallbackManager() const { return fDefaultFontManager; }
 
-    sk_sp<SkTypeface> matchTypeface(const char familyName[], SkFontStyle fontStyle);
+    sk_sp<SkTypeface> matchTypeface(const char* familyName, SkFontStyle fontStyle);
     sk_sp<SkTypeface> matchDefaultTypeface(SkFontStyle fontStyle);
-    sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const SkString& locale);
+    sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const char* locale);
 
     void disableFontFallback();
     bool fontFallbackEnabled() { return fEnableFontFallback; }
 
 private:
+
     std::vector<sk_sp<SkFontMgr>> getFontManagerOrder() const;
 
+    typedef size_t FamilyNameIndex;
+    typedef size_t LocaleIndex;
     struct FamilyKey {
-        FamilyKey(const char family[], const char loc[], SkFontStyle style)
-                : fFontFamily(family), fLocale(loc), fFontStyle(style) {}
-
+        FamilyKey(const char* family, const char* locale, SkFontStyle style);
         FamilyKey() {}
 
-        SkString fFontFamily;
-        SkString fLocale;
+        CachedString fFontFamily;
+        CachedString fLocale;
         SkFontStyle fFontStyle;
 
         bool operator==(const FamilyKey& other) const;
@@ -61,7 +67,7 @@ private:
     sk_sp<SkFontMgr> fAssetFontManager;
     sk_sp<SkFontMgr> fDynamicFontManager;
     sk_sp<SkFontMgr> fTestFontManager;
-    SkString fDefaultFamilyName;
+    const char* fDefaultFamilyName;
 };
 }  // namespace textlayout
 }  // namespace skia
