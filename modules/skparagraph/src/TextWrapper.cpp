@@ -132,7 +132,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                                      const AddLineToParagraph& addLine) {
     auto span = parent->clusters();
     auto maxLines = parent->paragraphStyle().getMaxLines();
-    auto ellipsisStr = parent->paragraphStyle().getEllipsis();
+    auto& ellipsisStr = parent->paragraphStyle().getEllipsis();
 
     fHeight = 0;
     fMinIntrinsicWidth = 0;

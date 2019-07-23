@@ -42,7 +42,7 @@ struct StyleBlock {
 class ParagraphImpl final : public Paragraph {
 public:
 
-    ParagraphImpl(const SkString& text,
+    ParagraphImpl(SkString text,
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   sk_sp<FontCollection> fonts);
@@ -78,7 +78,7 @@ public:
         return SkSpan<Block>(fTextStyles.data(), fTextStyles.size());
     }
     SkSpan<TextLine> lines() { return SkSpan<TextLine>(fLines.data(), fLines.size()); }
-    ParagraphStyle paragraphStyle() const { return fParagraphStyle; }
+    const ParagraphStyle& paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     void formatLines(SkScalar maxWidth);
 

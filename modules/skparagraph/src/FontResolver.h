@@ -43,7 +43,7 @@ public:
 private:
     void findAllFontsForStyledBlock(const TextStyle& style, TextRange textRange);
     FontDescr makeFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar height);
-    size_t resolveAllCharactersByFont(const FontDescr& fontDescr);
+    bool resolveAllCharactersByFont(const FontDescr& fontDescr);
     void addResolvedWhitespacesToMapping();
 
     struct Hash {
