@@ -1,6 +1,15 @@
 // Copyright 2019 Google LLC.
 #include "modules/skparagraph/include/FontCollection.h"
+#include "include/core/SkTypeface.h"
 
+namespace {
+
+    const SkString fDefaultFamilyName = SkString(DEFAULT_FONT_FAMILY);
+    SkTArray<SkString> fFamilyNames;
+    SkTHashMap<SkString, size_t> fFamilyNamesReverted;
+    SkTArray<SkString> fLocales;
+
+}
 namespace skia {
 namespace textlayout {
 
@@ -10,10 +19,10 @@ bool FontCollection::FamilyKey::operator==(const FontCollection::FamilyKey& othe
 }
 
 size_t FontCollection::FamilyKey::Hasher::operator()(const FontCollection::FamilyKey& key) const {
-    return std::hash<std::string>()(key.fFontFamily.c_str()) ^
-           std::hash<std::string>()(key.fLocale.c_str()) ^
-           std::hash<uint32_t>()(key.fFontStyle.weight()) ^
-           std::hash<uint32_t>()(key.fFontStyle.slant());
+    return SkGoodHash()(key.fFontFamily) ^
+           SkGoodHash()(key.fLocale) ^
+           SkGoodHash()(key.fFontStyle.weight()) ^
+           SkGoodHash()(key.fFontStyle.slant());
 }
 
 FontCollection::FontCollection()
@@ -62,7 +71,7 @@ std::vector<sk_sp<SkFontMgr>> FontCollection::getFontManagerOrder() const {
     return order;
 }
 
-sk_sp<SkTypeface> FontCollection::matchTypeface(const char familyName[], SkFontStyle fontStyle) {
+sk_sp<SkTypeface> FontCollection::matchTypeface(const SkString& familyName, SkFontStyle fontStyle) {
     // Look inside the font collections cache first
     FamilyKey familyKey(familyName, "en", fontStyle);
     auto found = fTypefaces.find(familyKey);
@@ -72,7 +81,7 @@ sk_sp<SkTypeface> FontCollection::matchTypeface(const char familyName[], SkFontS
 
     sk_sp<SkTypeface> typeface = nullptr;
     for (const auto& manager : this->getFontManagerOrder()) {
-        SkFontStyleSet* set = manager->matchFamily(familyName);
+        SkFontStyleSet* set = manager->matchFamily(familyName.c_str());
         if (nullptr == set || set->count() == 0) {
             continue;
         }
@@ -93,7 +102,7 @@ sk_sp<SkTypeface> FontCollection::matchTypeface(const char familyName[], SkFontS
 
 sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle) {
     // Look inside the font collections cache first
-    FamilyKey familyKey(fDefaultFamilyName.c_str(), "en", fontStyle);
+    FamilyKey familyKey(fDefaultFamilyName, "en", fontStyle);
     auto found = fTypefaces.find(familyKey);
     if (found) {
         return *found;
@@ -142,6 +151,49 @@ sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle
 }
 
 void FontCollection::disableFontFallback() { fEnableFontFallback = false; }
+
+const SkString& FontCollection::getFontFamilyName(size_t index) {
+
+    SkASSERT(index < fFamilyNames.size());
+    return fFamilyNames[index];
+}
+
+bool FontCollection::getFontFamilyIndex(const SkString& name, size_t* index) {
+    auto found = fFamilyNamesReverted.find(name);
+    if (found == nullptr) {
+        return false;
+    }
+    *index = *found;
+    return true;
+}
+
+size_t FontCollection::addFontFamily(const SkString& familyName) {
+    auto index = 0;
+    auto found = fFamilyNamesReverted.find(familyName);
+    if (found == nullptr) {
+        index = fFamilyNames.size();
+        fFamilyNames.emplace_back(familyName);
+        fFamilyNamesReverted.set(familyName, index);
+    } else {
+        index = *found;
+    }
+    return index;
+}
+
+size_t FontCollection::addLocale(const SkString& locale) {
+    auto index = fLocales.size();
+    for (size_t i = 0; i < fLocales.size(); ++i) {
+        if (fLocales[i] == locale) {
+            index = i;
+            break;
+        }
+    }
+    if (index == fLocales.size()) {
+        fLocales.emplace_back(locale);
+    }
+    return index;
+}
+
 
 }  // namespace textlayout
 }  // namespace skia

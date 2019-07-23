@@ -10,9 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextShadow.h"
-
-// TODO: Make it external so the other platforms (Android) could use it
-#define DEFAULT_FONT_FAMILY "sans-serif"
+#include "modules/skparagraph/include/FontCollection.h"
 
 namespace skia {
 namespace textlayout {
@@ -68,25 +66,22 @@ public:
     bool matchOneAttribute(StyleType styleType, const TextStyle& other) const;
     bool operator==(const TextStyle& rhs) const { return this->equals(rhs); }
 
-    // Colors
     SkColor getColor() const { return fColor; }
     void setColor(SkColor color) { fColor = color; }
 
+    const SkPaint* getForeground() const { return  fHasForeground ? &fForeground : nullptr; }
     bool hasForeground() const { return fHasForeground; }
-    SkPaint getForeground() const { return fForeground; }
-    void setForegroundColor(SkPaint paint) {
+    void setForeground(SkPaint paint) {
+        fForeground = paint;
         fHasForeground = true;
-        fForeground = std::move(paint);
     }
-    void clearForegroundColor() { fHasForeground = false; }
 
+    const SkPaint* getBackground() const { return fHasBackground ? &fBackground : nullptr; }
     bool hasBackground() const { return fHasBackground; }
-    SkPaint getBackground() const { return fBackground; }
-    void setBackgroundColor(SkPaint paint) {
+    void setBackground(SkPaint paint) {
+        fBackground = paint;
         fHasBackground = true;
-        fBackground = std::move(paint);
     }
-    void clearBackgroundColor() { fHasBackground = false; }
 
     // Decorations
     Decoration getDecoration() const { return fDecoration; }
@@ -114,9 +109,23 @@ public:
     SkScalar getFontSize() const { return fFontSize; }
     void setFontSize(SkScalar size) { fFontSize = size; }
 
-    const std::vector<SkString>& getFontFamilies() const { return fFontFamilies; }
-    void setFontFamilies(std::vector<SkString> families) {
-        fFontFamilies = std::move(families);
+    const std::vector<SkString> getFontFamilies() const;
+    void setFontFamilies(const std::vector<SkString>& families);
+    template <typename Fn>
+    void foreachFontFamilyName(Fn&& fn) const {
+        for (auto& fi : fFontFamilies) {
+            if (!fn(FontCollection::getFontFamilyName(fi))) {
+                break;
+            }
+        }
+    }
+    template <typename Fn>
+    void foreachFontFamilyIndex(Fn&& fn) const {
+        for (auto& fi : fFontFamilies) {
+            if (!fn(fi)) {
+                break;
+            }
+        }
     }
 
     void setHeight(SkScalar height) { fHeight = height; }
@@ -128,32 +137,21 @@ public:
     void setWordSpacing(SkScalar wordSpacing) { fWordSpacing = wordSpacing; }
     SkScalar getWordSpacing() const { return fWordSpacing; }
 
-    SkTypeface* getTypeface() const { return fTypeface.get(); }
-    sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
-    void setTypeface(sk_sp<SkTypeface> typeface) { fTypeface = std::move(typeface); }
-
     SkString getLocale() const { return fLocale; }
     void setLocale(const SkString& locale) { fLocale = locale; }
 
     TextBaseline getTextBaseline() const { return fTextBaseline; }
     void setTextBaseline(TextBaseline baseline) { fTextBaseline = baseline; }
 
-    // TODO: Not to use SkFontMetrics class (it has different purpose and meaning)
-    void getFontMetrics(SkFontMetrics* metrics) const {
-        SkFont font(fTypeface, fFontSize);
-        font.getMetrics(metrics);
-        metrics->fAscent =
-                (metrics->fAscent - metrics->fLeading / 2) * (fHeight == 0 ? 1 : fHeight);
-        metrics->fDescent =
-                (metrics->fDescent + metrics->fLeading / 2) * (fHeight == 0 ? 1 : fHeight);
-    }
+    static SkPaint* getPaint(SkColor color);
 
 private:
     Decoration fDecoration;
 
     SkFontStyle fFontStyle;
 
-    std::vector<SkString> fFontFamilies;
+    SkTArray<size_t> fFontFamilies;
+
     SkScalar fFontSize;
     SkScalar fHeight;
     SkString fLocale;
@@ -163,20 +161,17 @@ private:
     TextBaseline fTextBaseline;
 
     SkColor fColor;
+    bool fHasForeground;
     bool fHasBackground;
     SkPaint fBackground;
-    bool fHasForeground;
     SkPaint fForeground;
 
     std::vector<TextShadow> fTextShadows;
-
-    sk_sp<SkTypeface> fTypeface;
 };
 
 typedef size_t TextIndex;
 typedef SkRange<size_t> TextRange;
 const SkRange<size_t> EMPTY_TEXT = EMPTY_RANGE;
-
 
 struct Block {
     Block() : fRange(EMPTY_RANGE), fStyle() { }
@@ -185,10 +180,6 @@ struct Block {
     Block(TextRange textRange, const TextStyle& style)
         : fRange(textRange), fStyle(style) {}
 
-    void add(TextRange tail) {
-        SkASSERT(fRange.end == tail.start);
-        fRange = TextRange(fRange.start, fRange.start + fRange.width() + tail.width());
-    }
     TextRange fRange;
     TextStyle fStyle;
 };

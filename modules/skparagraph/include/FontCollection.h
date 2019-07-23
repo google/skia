@@ -4,14 +4,18 @@
 
 #include <memory>
 #include <set>
+#include <vector>
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTHash.h"
-#include "modules/skparagraph/include/TextStyle.h"
+
+// TODO: Make it external so the other platforms (Android) could use it
+#define DEFAULT_FONT_FAMILY "sans-serif"
 
 namespace skia {
 namespace textlayout {
 
+class TextStyle;
 class FontCollection : public SkRefCnt {
 public:
     FontCollection();
@@ -28,7 +32,7 @@ public:
 
     sk_sp<SkFontMgr> geFallbackManager() const { return fDefaultFontManager; }
 
-    sk_sp<SkTypeface> matchTypeface(const char familyName[], SkFontStyle fontStyle);
+    sk_sp<SkTypeface> matchTypeface(const SkString& familyName, SkFontStyle fontStyle);
     sk_sp<SkTypeface> matchDefaultTypeface(SkFontStyle fontStyle);
     sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const SkString& locale);
 
@@ -36,16 +40,29 @@ public:
     bool fontFallbackEnabled() { return fEnableFontFallback; }
 
 private:
+
+    friend TextStyle;
+
+    static const SkString& getFontFamilyName(size_t index);
+    static bool getFontFamilyIndex(const SkString& name, size_t* index);
+    static size_t addFontFamily(const SkString& familyName);
+    static size_t addLocale(const SkString& locale);
+
     std::vector<sk_sp<SkFontMgr>> getFontManagerOrder() const;
 
+    typedef size_t FamilyNameIndex;
+    typedef size_t LocaleIndex;
     struct FamilyKey {
-        FamilyKey(const char family[], const char loc[], SkFontStyle style)
-                : fFontFamily(family), fLocale(loc), fFontStyle(style) {}
+        FamilyKey(const SkString& family, const char* locale, SkFontStyle style)
+                : fFontStyle(style) {
+            fFontFamily = addFontFamily(family);
+            fLocale = addLocale(SkString(locale));
+        }
 
         FamilyKey() {}
 
-        SkString fFontFamily;
-        SkString fLocale;
+        FamilyNameIndex fFontFamily;
+        LocaleIndex fLocale;
         SkFontStyle fFontStyle;
 
         bool operator==(const FamilyKey& other) const;
