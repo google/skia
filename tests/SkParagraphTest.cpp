@@ -2377,9 +2377,9 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
 
-    const char* text1 = "Roboto 字典 ";
-    const char* text2 = "Homemade Apple 字典";
-    const char* text3 = "Chinese 字典";
+    const char* text1 = "Roboto 字典 "; // Roboto + unresolved
+    const char* text2 = "Homemade Apple 字典"; // Homemade Apple + Noto Sans...
+    const char* text3 = "Chinese 字典"; // Homemade Apple + Source Han
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
