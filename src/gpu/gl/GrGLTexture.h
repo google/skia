@@ -42,6 +42,8 @@ public:
 
     GrGLenum target() const;
 
+    GrGLFormat texFormat() const { return GrGLFormatFromGLEnum(fFormat); }
+
     bool hasBaseLevelBeenBoundToFBO() const { return fBaseLevelHasBeenBoundToFBO; }
     void baseLevelWasBoundToFBO() { fBaseLevelHasBeenBoundToFBO = true; }
 
