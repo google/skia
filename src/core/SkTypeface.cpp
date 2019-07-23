@@ -253,8 +253,8 @@ size_t SkTypeface::getTableSize(SkFontTableTag tag) const {
 }
 
 size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length,
-                                void* data) const {
-    return this->onGetTableData(tag, offset, length, data);
+                                TableDataDestination dest) const {
+    return this->onGetTableData(tag, offset, length, dest);
 }
 
 std::unique_ptr<SkStreamAsset> SkTypeface::openStream(int* ttcIndex) const {

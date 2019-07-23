@@ -1745,9 +1745,8 @@ int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {
     return tableCount;
 }
 
-size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
-                                           size_t length, void* data) const
-{
+size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset, size_t length,
+                                           TableDataDestination data) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
 
@@ -1764,8 +1763,20 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
         return 0;
     }
     FT_ULong size = SkTMin((FT_ULong)length, tableLength - (FT_ULong)offset);
-    if (data) {
-        error = FT_Load_Sfnt_Table(face, tag, offset, reinterpret_cast<FT_Byte*>(data), &size);
+    FT_Byte* buffer;
+    switch (data.type) {
+        case TableDataDestination::ALLOCATE:
+            *data.buffer.allocate = sk_malloc_throw(size);
+            buffer = reinterpret_cast<FT_Byte*>(*data.buffer.allocate);
+            break;
+        case TableDataDestination::IN_MEMORY:
+            buffer = reinterpret_cast<FT_Byte*>(data.buffer.in_memory);
+            break;
+        case TableDataDestination::QUERY_SIZE_ONLY:
+            return size;
+    }
+    if (buffer) {
+        error = FT_Load_Sfnt_Table(face, tag, offset, buffer, &size);
         if (error) {
             return 0;
         }
