@@ -3274,6 +3274,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     fDontSetBaseOrMaxLevelForExternalTextures = true;
 #endif
 
+    // It appears that Qualcomm drivers don't actually support
+    // GL_NV_shader_noperspective_interpolation in ES 3.00 or 3.10 shaders, only 3.20.
+    // https://crbug.com/986581
+    if (kQualcomm_GrGLVendor == ctxInfo.vendor() &&
+        k320es_GrGLSLGeneration != ctxInfo.glslGeneration()) {
+        shaderCaps->fNoPerspectiveInterpolationSupport = false;
+    }
+
     // We disable srgb write control for Adreno4xx devices.
     // see: https://bug.skia.org/5329
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
