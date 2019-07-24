@@ -162,7 +162,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderabl
 
     if (renderable == GrRenderable::kYes) {
         renderTargetSampleCnt =
-                this->caps()->getRenderTargetSampleCount(renderTargetSampleCnt, desc.fConfig);
+                this->caps()->getRenderTargetSampleCount1(renderTargetSampleCnt, desc.fConfig);
     }
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(renderTargetSampleCnt > 0 && renderTargetSampleCnt <= 64);

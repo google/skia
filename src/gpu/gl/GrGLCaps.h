@@ -123,7 +123,7 @@ public:
         return this->getRenderTargetSampleCount(requestedCount, ct,
                                                 GrGLBackendFormatToGLFormat(format));
     }
-    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override {
+    int getRenderTargetSampleCount1(int requestedCount, GrPixelConfig config) const override {
         GrColorType ct = GrPixelConfigToColorType(config);
         auto format = this->pixelConfigToFormat(config);
         return this->getRenderTargetSampleCount(requestedCount, ct, format);
@@ -133,7 +133,7 @@ public:
     int maxRenderTargetSampleCount(GrColorType ct, const GrBackendFormat& format) const override {
         return this->maxRenderTargetSampleCount(ct, GrGLBackendFormatToGLFormat(format));
     }
-    int maxRenderTargetSampleCount(GrPixelConfig config) const override {
+    int maxRenderTargetSampleCount1(GrPixelConfig config) const override {
         GrColorType ct = GrPixelConfigToColorType(config);
         auto format = this->pixelConfigToFormat(config);
         return this->maxRenderTargetSampleCount(ct, format);

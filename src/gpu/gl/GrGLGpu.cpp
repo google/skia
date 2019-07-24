@@ -3936,10 +3936,14 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     }
     this->handleDirtyContext();
     auto config = GrColorTypeToPixelConfig(colorType);
-    if (!this->glCaps().isConfigRenderable(config)) {
+    if (!this->glCaps().isConfigRenderable1(config)) {
         return {};
     }
-    auto format = this->glCaps().getFormatFromColorType(colorType);
+    GrGLFormat format = this->glCaps().getFormatFromColorType(colorType);
+    GrBackendFormat beFormat; // = GrBackendFormat::MakeGL(format, 0);
+    if (!this->glCaps().isFormatRenderable(colorType, beFormat)) {
+        return {};
+    }
     bool useTexture = false;
     GrGLenum colorBufferFormat;
     GrGLenum externalFormat = 0, externalType = 0;

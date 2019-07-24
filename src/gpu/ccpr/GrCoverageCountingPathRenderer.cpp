@@ -24,14 +24,14 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         !caps.instanceAttribSupport() || !shaderCaps.floatIs32Bits() ||
         GrCaps::kNone_MapFlags == caps.mapBufferFlags() ||
         !caps.isConfigTexturable(kAlpha_8_GrPixelConfig) ||
-        !caps.isConfigRenderable(kAlpha_8_GrPixelConfig) ||
+        !caps.isConfigRenderable1(kAlpha_8_GrPixelConfig) ||
         !caps.halfFloatVertexAttributeSupport()) {
         return false;
     }
 
     if (caps.allowCoverageCounting() &&
         caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
-        caps.isConfigRenderable(kAlpha_half_GrPixelConfig)) {
+        caps.isConfigRenderable1(kAlpha_half_GrPixelConfig)) {
         if (coverageType) {
             *coverageType = CoverageType::kFP16_CoverageCount;
         }

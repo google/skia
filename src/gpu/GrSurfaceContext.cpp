@@ -118,7 +118,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
                             SkToBool(srcProxy->asTextureProxy()) &&
                             (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
                              srcProxy->config() == kBGRA_8888_GrPixelConfig) &&
-                            caps->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
+                            caps->isConfigRenderable1(kRGBA_8888_GrPixelConfig) &&
                             direct->priv().validPMUPMConversionExists();
 
     auto readFlag = caps->surfaceSupportsReadPixels(srcSurface);

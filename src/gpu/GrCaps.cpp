@@ -265,7 +265,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                          kBlendEquationSupportNames[fBlendEquationSupport]);
     writer->appendString("Map Buffer Support", map_flags_to_string(fMapBufferFlags).c_str());
 
-    SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig));
+    SkASSERT(!this->isConfigRenderable1(kUnknown_GrPixelConfig));
     SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
 
     writer->beginArray("configs");
@@ -274,7 +274,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         writer->beginObject(nullptr, false);
         writer->appendString("name", pixel_config_name(config));
-        writer->appendS32("max sample count", this->maxRenderTargetSampleCount(config));
+        writer->appendS32("max sample count", this->maxRenderTargetSampleCount1(config));
         writer->appendBool("texturable", this->isConfigTexturable(config));
         writer->endObject();
     }
@@ -355,7 +355,7 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable rendera
     }
 
     if (renderable == GrRenderable::kYes) {
-        if (0 == this->getRenderTargetSampleCount(renderTargetSampleCnt, desc.fConfig)) {
+        if (0 == this->getRenderTargetSampleCount1(renderTargetSampleCnt, desc.fConfig)) {
             return false;
         }
         int maxRTSize = this->maxRenderTargetSize();

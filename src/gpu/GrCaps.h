@@ -167,16 +167,16 @@ public:
     // Returns the maximum supported sample count for a config. 0 means the config is not renderable
     // 1 means the config is renderable but doesn't support MSAA.
     virtual int maxRenderTargetSampleCount(GrColorType, const GrBackendFormat&) const = 0;
-    virtual int maxRenderTargetSampleCount(GrPixelConfig) const = 0;
+    virtual int maxRenderTargetSampleCount1(GrPixelConfig) const = 0;
 
     // Returns the number of samples to use when performing internal draws to the given config with
     // MSAA or mixed samples. If 0, Ganesh should not attempt to use internal multisampling.
     int internalMultisampleCount(GrPixelConfig config) const {
-        return SkTMin(fInternalMultisampleCount, this->maxRenderTargetSampleCount(config));
+        return SkTMin(fInternalMultisampleCount, this->maxRenderTargetSampleCount1(config));
     }
 
-    bool isConfigRenderable(GrPixelConfig config) const {
-        return this->maxRenderTargetSampleCount(config) > 0;
+    bool isConfigRenderable1(GrPixelConfig config) const {
+        return this->maxRenderTargetSampleCount1(config) > 0;
     }
 
     bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format) const {
@@ -189,7 +189,7 @@ public:
     // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
     virtual int getRenderTargetSampleCount(int requestedCount,
                                            GrColorType, const GrBackendFormat&) const = 0;
-    virtual int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const = 0;
+    virtual int getRenderTargetSampleCount1(int requestedCount, GrPixelConfig) const = 0;
 
     /**
      * Backends may have restrictions on what types of surfaces support GrGpu::writePixels().
