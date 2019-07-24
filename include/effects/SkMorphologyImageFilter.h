@@ -42,7 +42,7 @@ protected:
                             sk_sp<SkImageFilter> input,
                             const CropRect* cropRect);
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source,
-                                        const Context&,
+                                        const SkFilterContext&,
                                         SkIPoint* offset) const override;
     void flatten(SkWriteBuffer&) const override;
 

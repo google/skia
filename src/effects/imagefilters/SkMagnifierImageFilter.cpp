@@ -72,7 +72,7 @@ void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* source,
-                                                            const Context& ctx,
+                                                            const SkFilterContext& ctx,
                                                             SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
@@ -120,8 +120,8 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, ctx.outputProperties(),
-                          isProtected ? GrProtected::kYes : GrProtected::kNo);
+        return SkImageFilterPriv::DrawWithFP(context, std::move(fp), bounds, ctx.outputProperties(),
+                                             isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif
 

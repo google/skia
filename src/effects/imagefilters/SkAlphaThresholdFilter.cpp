@@ -38,7 +38,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const SkFilterContext&,
                                         SkIPoint* offset) const override;
 
 #if SK_SUPPORT_GPU
@@ -141,7 +141,7 @@ void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                                const Context& ctx,
+                                                                const SkFilterContext& ctx,
                                                                 SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
@@ -178,7 +178,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
             return nullptr;
         }
 
-        const OutputProperties& outProps = ctx.outputProperties();
+        const SkFilterOutputProperties& outProps = ctx.outputProperties();
         auto textureFP = GrSimpleTextureEffect::Make(std::move(inputProxy),
                                                      SkMatrix::MakeTrans(input->subset().x(),
                                                                          input->subset().y()));
@@ -200,8 +200,8 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
                                                             std::move(thresholdFP) };
         auto fp = GrFragmentProcessor::RunInSeries(fpSeries, 2);
 
-        return DrawWithFP(context, std::move(fp), bounds, outProps,
-                          isProtected ? GrProtected::kYes : GrProtected::kNo);
+        return SkImageFilterPriv::DrawWithFP(context, std::move(fp), bounds, outProps,
+                                             isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif
 

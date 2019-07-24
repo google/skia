@@ -39,7 +39,7 @@ public:
                                MapDirection, const SkIRect* inputRect) const override;
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const SkFilterContext&,
                                         SkIPoint* offset) const override;
 
     SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,

@@ -600,7 +600,8 @@ public:
     static sk_sp<SkImageFilter> Make() { return sk_sp<SkImageFilter>(new ZeroBoundsImageFilter); }
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage*, const Context&, SkIPoint*) const override {
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage*, const SkFilterContext&,
+                                        SkIPoint*) const override {
         return nullptr;
     }
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&,

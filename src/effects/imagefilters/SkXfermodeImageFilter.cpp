@@ -36,7 +36,7 @@ public:
                                const CropRect* cropRect);
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const SkFilterContext&,
                                         SkIPoint* offset) const override;
 
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
@@ -49,7 +49,7 @@ protected:
                                          sk_sp<SkSpecialImage> foreground,
                                          const SkIPoint& foregroundOffset,
                                          const SkIRect& bounds,
-                                         const OutputProperties& outputProperties) const;
+                                         const SkFilterOutputProperties& outputProperties) const;
 #endif
 
     void flatten(SkWriteBuffer&) const override;
@@ -109,7 +109,7 @@ void SkXfermodeImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* source,
-                                                                const Context& ctx,
+                                                                const SkFilterContext& ctx,
                                                                 SkIPoint* offset) const {
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> background(this->filterInput(0, source, ctx, &backgroundOffset));
@@ -239,13 +239,9 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
-                                                   SkSpecialImage* source,
-                                                   sk_sp<SkSpecialImage> background,
-                                                   const SkIPoint& backgroundOffset,
-                                                   sk_sp<SkSpecialImage> foreground,
-                                                   const SkIPoint& foregroundOffset,
-                                                   const SkIRect& bounds,
-                                                   const OutputProperties& outputProperties) const {
+        SkSpecialImage* source, sk_sp<SkSpecialImage> background, const SkIPoint& backgroundOffset,
+        sk_sp<SkSpecialImage> foreground, const SkIPoint& foregroundOffset, const SkIRect& bounds,
+        const SkFilterOutputProperties& outputProperties) const {
     SkASSERT(source->isTextureBacked());
 
     auto context = source->getContext();

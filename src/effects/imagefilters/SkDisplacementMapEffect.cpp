@@ -213,7 +213,7 @@ private:
 #endif
 
 sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* source,
-                                                             const Context& ctx,
+                                                             const SkFilterContext& ctx,
                                                              SkIPoint* offset) const {
     SkIPoint colorOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> color(this->filterInput(1, source, ctx, &colorOffset));
@@ -232,8 +232,8 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
     // With a more complex DAG attached to this input, it's not clear that working in ANY specific
     // color space makes sense, so we ignore color spaces (and gamma) entirely. This may not be
     // ideal, but it's at least consistent and predictable.
-    Context displContext(ctx.ctm(), ctx.clipBounds(), ctx.cache(),
-                         OutputProperties(kN32_SkColorType, nullptr));
+    SkFilterContext displContext(ctx.ctm(), ctx.clipBounds(), ctx.cache(),
+                         SkFilterOutputProperties(kN32_SkColorType, nullptr));
     sk_sp<SkSpecialImage> displ(this->filterInput(0, source, displContext, &displOffset));
     if (!displ) {
         return nullptr;

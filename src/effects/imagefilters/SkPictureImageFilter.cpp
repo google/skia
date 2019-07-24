@@ -9,6 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkImageSource.h"
+#include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -79,7 +80,7 @@ void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source,
-                                                          const Context& ctx,
+                                                          const SkFilterContext& ctx,
                                                           SkIPoint* offset) const {
     if (!fPicture) {
         return nullptr;

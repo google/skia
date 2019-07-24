@@ -58,7 +58,7 @@ void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* source,
-                                                              const Context& ctx,
+                                                              const SkFilterContext& ctx,
                                                               SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));

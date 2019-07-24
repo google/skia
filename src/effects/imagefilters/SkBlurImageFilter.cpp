@@ -42,7 +42,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const SkFilterContext&,
                                         SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
@@ -57,7 +57,7 @@ private:
     sk_sp<SkSpecialImage> gpuFilter(
             SkSpecialImage *source, SkVector sigma, const sk_sp<SkSpecialImage> &input,
             SkIRect inputBounds, SkIRect dstBounds, SkIPoint inputOffset,
-            const OutputProperties& outProps, SkIPoint* offset) const;
+            const SkFilterOutputProperties& outProps, SkIPoint* offset) const;
 #endif
 
     SkSize                      fSigma;
@@ -560,7 +560,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
 }
 
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                           const Context& ctx,
+                                                           const SkFilterContext& ctx,
                                                            SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
 
@@ -598,7 +598,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     if (source->isTextureBacked()) {
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.outputProperties());
+        input = SkImageFilterPriv::ImageToColorSpace(input.get(), ctx.outputProperties());
         result = this->gpuFilter(source, sigma, input, inputBounds, dstBounds, inputOffset,
                                  ctx.outputProperties(), &resultOffset);
     } else
@@ -618,7 +618,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
         SkSpecialImage *source, SkVector sigma, const sk_sp<SkSpecialImage> &input,
         SkIRect inputBounds, SkIRect dstBounds, SkIPoint inputOffset,
-        const OutputProperties& outProps, SkIPoint* offset) const
+        const SkFilterOutputProperties& outProps, SkIPoint* offset) const
 {
     if (0 == sigma.x() && 0 == sigma.y()) {
         offset->fX = inputBounds.x() + inputOffset.fX;

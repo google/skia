@@ -36,7 +36,7 @@ void SkPaintImageFilter::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkSpecialImage> SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
-                                                        const Context& ctx,
+                                                        const SkFilterContext& ctx,
                                                         SkIPoint* offset) const {
     SkIRect bounds;
     const SkIRect srcBounds = SkIRect::MakeWH(source->width(), source->height());

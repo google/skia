@@ -468,7 +468,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                                           const SkIRect& rect,
                                           GrMorphologyEffect::Type morphType,
                                           SkISize radius,
-                                          const SkImageFilter::OutputProperties& outputProperties) {
+                                          const SkFilterOutputProperties& outputProperties) {
     sk_sp<GrTextureProxy> srcTexture(input->asTextureProxyRef(context));
     SkASSERT(srcTexture);
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
@@ -659,7 +659,7 @@ namespace {
 }  // namespace
 
 sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* source,
-                                                             const Context& ctx,
+                                                             const SkFilterContext& ctx,
                                                              SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
@@ -700,7 +700,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
         // called pad_image to account for our dilation of bounds, so the result will already be
         // moved to the destination color space. If a filter DAG avoids that, then we use this
         // fall-back, which saves us from having to do the xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.outputProperties());
+        input = SkImageFilterPriv::ImageToColorSpace(input.get(), ctx.outputProperties());
 
         auto type = (kDilate_Op == this->op()) ? GrMorphologyEffect::Type::kDilate
                                                : GrMorphologyEffect::Type::kErode;

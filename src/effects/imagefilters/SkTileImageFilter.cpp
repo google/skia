@@ -40,7 +40,7 @@ sk_sp<SkImageFilter> SkTileImageFilter::Make(const SkRect& srcRect, const SkRect
 }
 
 sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
-                                                       const Context& ctx,
+                                                       const SkFilterContext& ctx,
                                                        SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));

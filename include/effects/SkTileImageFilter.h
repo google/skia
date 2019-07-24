@@ -31,7 +31,7 @@ public:
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const SkFilterContext&,
                                         SkIPoint* offset) const override;
 
 private:

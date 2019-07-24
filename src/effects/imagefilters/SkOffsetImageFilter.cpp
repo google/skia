@@ -32,7 +32,7 @@ sk_sp<SkImageFilter> SkOffsetImageFilter::Make(SkScalar dx, SkScalar dy,
 }
 
 sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
-                                                         const Context& ctx,
+                                                         const SkFilterContext& ctx,
                                                          SkIPoint* offset) const {
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &srcOffset));

@@ -125,9 +125,8 @@ private:
 
             // For isolated forward filtering, it uses the same input but should not be propagated
             // to the inputs, so get the filter node bounds directly.
-            fForwardIsolatedBounds = SkFilterNodeBounds(
-                    fFilter.get(), srcRect, fLocalCTM,
-                    SkImageFilter::kForward_MapDirection, nullptr);
+            fForwardIsolatedBounds = fFilter->priv().filterNodeBounds(
+                    srcRect, fLocalCTM, SkImageFilter::kForward_MapDirection, nullptr);
         } else {
             fForwardBounds = srcRect;
             fForwardIsolatedBounds = srcRect;
@@ -141,9 +140,8 @@ private:
 
     void computeReverseLocalIsolatedBounds(const SkIRect& srcRect) {
         if (fFilter) {
-            fReverseLocalIsolatedBounds = SkFilterNodeBounds(
-                    fFilter.get(), srcRect, fLocalCTM,
-                    SkImageFilter::kReverse_MapDirection, &srcRect);
+            fReverseLocalIsolatedBounds = fFilter->priv().filterNodeBounds(
+                    srcRect, fLocalCTM, SkImageFilter::kReverse_MapDirection, &srcRect);
         } else {
             fReverseLocalIsolatedBounds = srcRect;
         }
@@ -185,9 +183,8 @@ private:
                 // To calculate the appropriate intermediate reverse bounds for the children, we
                 // need this node's onFilterNodeBounds() results based on its parents' bounds (the
                 // current 'srcRect').
-                nextSrcRect = SkFilterNodeBounds(
-                    fFilter.get(), srcRect, fLocalCTM,
-                    SkImageFilter::kReverse_MapDirection, &srcRect);
+                nextSrcRect = fFilter->priv().filterNodeBounds(
+                    srcRect, fLocalCTM, SkImageFilter::kReverse_MapDirection, &srcRect);
             }
 
             // Fill in the children. The union of these bounds should equal the value calculated

@@ -8,6 +8,7 @@
 #include "include/effects/SkMergeImageFilter.h"
 
 #include "include/core/SkCanvas.h"
+#include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -27,7 +28,8 @@ SkMergeImageFilter::SkMergeImageFilter(sk_sp<SkImageFilter>* const filters, int 
     SkASSERT(count >= 0);
 }
 
-sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
+sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source,
+                                                        const SkFilterContext& ctx,
                                                         SkIPoint* offset) const {
     int inputCount = this->countInputs();
     if (inputCount < 1) {

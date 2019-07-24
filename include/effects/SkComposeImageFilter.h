@@ -22,7 +22,7 @@ protected:
         SkASSERT(inputs[0].get());
         SkASSERT(inputs[1].get());
     }
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const SkFilterContext&,
                                         SkIPoint* offset) const override;
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
                            MapDirection, const SkIRect* inputRect) const override;

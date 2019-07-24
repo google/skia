@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "src/core/SkBitmapCache.h"
+#include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkSurfacePriv.h"
@@ -57,7 +58,7 @@ public:
     // from the content rect by the non-virtual makeSubset().
     virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
 
-    virtual sk_sp<SkSpecialSurface> onMakeSurface(const SkImageFilter::OutputProperties& outProps,
+    virtual sk_sp<SkSpecialSurface> onMakeSurface(const SkFilterOutputProperties& outProps,
                                                   const SkISize& size, SkAlphaType at,
                                                   const SkSurfaceProps* = nullptr) const = 0;
 
@@ -65,7 +66,7 @@ public:
     // already been mapped from the content rect by the non-virtual asImage().
     virtual sk_sp<SkImage> onAsImage(const SkIRect* subset) const = 0;
 
-    virtual sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
+    virtual sk_sp<SkSurface> onMakeTightSurface(const SkFilterOutputProperties& outProps,
                                                 const SkISize& size, SkAlphaType at) const = 0;
 
 private:
@@ -157,13 +158,13 @@ sk_sp<GrTextureProxy> SkSpecialImage::asTextureProxyRef(GrRecordingContext* cont
 }
 #endif
 
-sk_sp<SkSpecialSurface> SkSpecialImage::makeSurface(const SkImageFilter::OutputProperties& outProps,
+sk_sp<SkSpecialSurface> SkSpecialImage::makeSurface(const SkFilterOutputProperties& outProps,
                                                     const SkISize& size, SkAlphaType at,
                                                     const SkSurfaceProps* props) const {
     return as_SIB(this)->onMakeSurface(outProps, size, at, props);
 }
 
-sk_sp<SkSurface> SkSpecialImage::makeTightSurface(const SkImageFilter::OutputProperties& outProps,
+sk_sp<SkSurface> SkSpecialImage::makeTightSurface(const SkFilterOutputProperties& outProps,
                                                   const SkISize& size, SkAlphaType at) const {
     return as_SIB(this)->onMakeTightSurface(outProps, size, at);
 }
@@ -263,7 +264,7 @@ public:
     }
 #endif
 
-    sk_sp<SkSpecialSurface> onMakeSurface(const SkImageFilter::OutputProperties& outProps,
+    sk_sp<SkSpecialSurface> onMakeSurface(const SkFilterOutputProperties& outProps,
                                           const SkISize& size, SkAlphaType at,
                                           const SkSurfaceProps* props) const override {
         SkColorSpace* colorSpace = outProps.colorSpace();
@@ -292,7 +293,7 @@ public:
         return SkImage::MakeFromBitmap(fBitmap);
     }
 
-    sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
+    sk_sp<SkSurface> onMakeTightSurface(const SkFilterOutputProperties& outProps,
                                         const SkISize& size, SkAlphaType at) const override {
         SkColorSpace* colorSpace = outProps.colorSpace();
         SkColorType colorType = kN32_SkColorType;   // TODO: find ways to allow f16
@@ -453,7 +454,7 @@ public:
         return fColorSpace.get();
     }
 
-    sk_sp<SkSpecialSurface> onMakeSurface(const SkImageFilter::OutputProperties& outProps,
+    sk_sp<SkSpecialSurface> onMakeSurface(const SkFilterOutputProperties& outProps,
                                           const SkISize& size, SkAlphaType at,
                                           const SkSurfaceProps* props) const override {
         if (!fContext) {
@@ -507,7 +508,7 @@ public:
         return wrap_proxy_in_image(fContext, fTextureProxy, fAlphaType, fColorSpace);
     }
 
-    sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
+    sk_sp<SkSurface> onMakeTightSurface(const SkFilterOutputProperties& outProps,
                                         const SkISize& size, SkAlphaType at) const override {
         SkColorSpace* colorSpace = outProps.colorSpace();
         SkColorType colorType = colorSpace && colorSpace->gammaIsLinear()

@@ -46,7 +46,7 @@ void SkMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
-                                                         const Context& ctx,
+                                                         const SkFilterContext& ctx,
                                                          SkIPoint* offset) const {
 
     SkIPoint inputOffset = SkIPoint::Make(0, 0);

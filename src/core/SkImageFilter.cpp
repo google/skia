@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkImageFilter.h"
+#include "src/core/SkImageFilterPriv.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRect.h"
@@ -162,16 +163,18 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fCropRect.flags());
 }
 
-sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Context& context,
-                                                 SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkImageFilterPriv::filterImage(SkSpecialImage* src, const
+                                                     SkFilterContext& context,
+                                                     SkIPoint* offset) const {
     SkASSERT(src && offset);
     if (!context.isValid()) {
         return nullptr;
     }
 
-    uint32_t srcGenID = fUsesSrcInput ? src->uniqueID() : 0;
-    const SkIRect srcSubset = fUsesSrcInput ? src->subset() : SkIRect::MakeWH(0, 0);
-    SkImageFilterCacheKey key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID, srcSubset);
+    uint32_t srcGenID = fFilter->fUsesSrcInput ? src->uniqueID() : 0;
+    const SkIRect srcSubset = fFilter->fUsesSrcInput ? src->subset() : SkIRect::MakeWH(0, 0);
+    SkImageFilterCacheKey key(fFilter->fUniqueID, context.ctm(), context.clipBounds(), srcGenID,
+                              srcSubset);
     if (context.cache()) {
         sk_sp<SkSpecialImage> result = context.cache()->get(key, offset);
         if (result) {
@@ -179,7 +182,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
         }
     }
 
-    sk_sp<SkSpecialImage> result(this->onFilterImage(src, context, offset));
+    sk_sp<SkSpecialImage> result(fFilter->onFilterImage(src, context, offset));
 
 #if SK_SUPPORT_GPU
     if (src->isTextureBacked() && result && !result->isTextureBacked()) {
@@ -191,7 +194,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
 #endif
 
     if (result && context.cache()) {
-        context.cache()->set(key, result.get(), *offset, this);
+        context.cache()->set(key, result.get(), *offset, fFilter);
     }
 
     return result;
@@ -241,12 +244,53 @@ bool SkImageFilter::canComputeFastBounds() const {
     return true;
 }
 
+bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
+    SkASSERT(nullptr != filterPtr);
+    if (!this->isColorFilterNode(filterPtr)) {
+        return false;
+    }
+    if (nullptr != this->getInput(0) || (*filterPtr)->affectsTransparentBlack()) {
+        (*filterPtr)->unref();
+        return false;
+    }
+    return true;
+}
+
+bool SkImageFilter::canHandleComplexCTM() const {
+    // CropRects need to apply in the source coordinate system, but are not aware of complex CTMs
+    // when performing clipping. For a simple fix, any filter with a crop rect set cannot support
+    // complex CTMs until that's updated.
+    if (this->cropRectIsSet() || !this->onCanHandleComplexCTM()) {
+        return false;
+    }
+    const int count = this->countInputs();
+    for (int i = 0; i < count; ++i) {
+        SkImageFilter* input = this->getInput(i);
+        if (input && !input->canHandleComplexCTM()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool SkImageFilter::applyCropRect(const SkFilterContext& ctx, const SkIRect& srcBounds,
+                                  SkIRect* dstBounds) const {
+    SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection, nullptr);
+    fCropRect.applyTo(tmpDst, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
+    // Intersect against the clip bounds, in case the crop rect has
+    // grown the bounds beyond the original clip. This can happen for
+    // example in tiling, where the clip is much smaller than the filtered
+    // primitive. If we didn't do this, we would be processing the filter
+    // at the full crop rect size in every tile.
+    return dstBounds->intersect(ctx.clipBounds());
+}
+
 #if SK_SUPPORT_GPU
-sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrRecordingContext* context,
-                                                std::unique_ptr<GrFragmentProcessor> fp,
-                                                const SkIRect& bounds,
-                                                const OutputProperties& outputProperties,
-                                                GrProtected isProtected) {
+sk_sp<SkSpecialImage> SkImageFilterPriv::DrawWithFP(GrRecordingContext* context,
+                                                   std::unique_ptr<GrFragmentProcessor> fp,
+                                                   const SkIRect& bounds,
+                                                   const SkFilterOutputProperties& outputProperties,
+                                                   GrProtected isProtected) {
     GrPaint paint;
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -282,52 +326,9 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrRecordingContext* context,
             renderTargetContext->asTextureProxyRef(),
             renderTargetContext->colorSpaceInfo().refColorSpace());
 }
-#endif
 
-bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
-    SkASSERT(nullptr != filterPtr);
-    if (!this->isColorFilterNode(filterPtr)) {
-        return false;
-    }
-    if (nullptr != this->getInput(0) || (*filterPtr)->affectsTransparentBlack()) {
-        (*filterPtr)->unref();
-        return false;
-    }
-    return true;
-}
-
-bool SkImageFilter::canHandleComplexCTM() const {
-    // CropRects need to apply in the source coordinate system, but are not aware of complex CTMs
-    // when performing clipping. For a simple fix, any filter with a crop rect set cannot support
-    // complex CTMs until that's updated.
-    if (this->cropRectIsSet() || !this->onCanHandleComplexCTM()) {
-        return false;
-    }
-    const int count = this->countInputs();
-    for (int i = 0; i < count; ++i) {
-        SkImageFilter* input = this->getInput(i);
-        if (input && !input->canHandleComplexCTM()) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
-                                  SkIRect* dstBounds) const {
-    SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection, nullptr);
-    fCropRect.applyTo(tmpDst, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
-    // Intersect against the clip bounds, in case the crop rect has
-    // grown the bounds beyond the original clip. This can happen for
-    // example in tiling, where the clip is much smaller than the filtered
-    // primitive. If we didn't do this, we would be processing the filter
-    // at the full crop rect size in every tile.
-    return dstBounds->intersect(ctx.clipBounds());
-}
-
-#if SK_SUPPORT_GPU
-sk_sp<SkSpecialImage> SkImageFilter::ImageToColorSpace(SkSpecialImage* src,
-                                                       const OutputProperties& outProps) {
+sk_sp<SkSpecialImage> SkImageFilterPriv::ImageToColorSpace(
+        SkSpecialImage* src, const SkFilterOutputProperties& outProps) {
     // There are several conditions that determine if we actually need to convert the source to the
     // destination's color space. Rather than duplicate that logic here, just try to make an xform
     // object. If that produces something, then both are tagged, and the source is in a different
@@ -359,7 +360,7 @@ sk_sp<SkSpecialImage> SkImageFilter::ImageToColorSpace(SkSpecialImage* src,
 // Return a larger (newWidth x newHeight) copy of 'src' with black padding
 // around it.
 static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
-                                       const SkImageFilter::OutputProperties& outProps,
+                                       const SkFilterOutputProperties& outProps,
                                        int newWidth, int newHeight, int offX, int offY) {
     // We would like to operate in the source's color space (so that we return an "identical"
     // image, other than the padding. To achieve that, we'd create new output properties:
@@ -392,7 +393,7 @@ static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkSpecialImage> SkImageFilter::applyCropRectAndPad(const Context& ctx,
+sk_sp<SkSpecialImage> SkImageFilter::applyCropRectAndPad(const SkFilterContext& ctx,
                                                          SkSpecialImage* src,
                                                          SkIPoint* srcOffset,
                                                          SkIRect* bounds) const {
@@ -441,11 +442,11 @@ SkIRect SkImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
 }
 
 
-SkImageFilter::Context SkImageFilter::mapContext(const Context& ctx) const {
+SkFilterContext SkImageFilter::mapContext(const SkFilterContext& ctx) const {
     SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(),
                                                   MapDirection::kReverse_MapDirection,
                                                   &ctx.clipBounds());
-    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.outputProperties());
+    return SkFilterContext(ctx.ctm(), clipBounds, ctx.cache(), ctx.outputProperties());
 }
 
 sk_sp<SkImageFilter> SkImageFilter::MakeMatrixFilter(const SkMatrix& matrix,
@@ -460,14 +461,14 @@ sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) 
 
 sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
                                                  SkSpecialImage* src,
-                                                 const Context& ctx,
+                                                 const SkFilterContext& ctx,
                                                  SkIPoint* offset) const {
     SkImageFilter* input = this->getInput(index);
     if (!input) {
         return sk_sp<SkSpecialImage>(SkRef(src));
     }
 
-    sk_sp<SkSpecialImage> result(input->filterImage(src, this->mapContext(ctx), offset));
+    sk_sp<SkSpecialImage> result(input->priv().filterImage(src, this->mapContext(ctx), offset));
 
     SkASSERT(!result || src->isTextureBacked() == result->isTextureBacked());
 
@@ -576,9 +577,4 @@ bool SkIsSameFilter(const SkImageFilter* a, const SkImageFilter* b) {
     } else {
         return a->fUniqueID == b->fUniqueID;
     }
-}
-
-SkIRect SkFilterNodeBounds(const SkImageFilter* filter, const SkIRect& srcRect, const SkMatrix& ctm,
-                           SkImageFilter::MapDirection dir, const SkIRect* inputRect) {
-    return filter->onFilterNodeBounds(srcRect, ctm, dir, inputRect);
 }

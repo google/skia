@@ -254,7 +254,7 @@ public:
     bool visited() const { return fVisited; }
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const SkFilterContext&,
                                         SkIPoint* offset) const override {
         fVisited = true;
         offset->fX = offset->fY = 0;

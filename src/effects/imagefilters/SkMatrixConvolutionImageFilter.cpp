@@ -305,7 +305,7 @@ static GrTextureDomain::Mode convert_tilemodes(SkMatrixConvolutionImageFilter::T
 #endif
 
 sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialImage* source,
-                                                                    const Context& ctx,
+                                                                    const SkFilterContext& ctx,
                                                                     SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
@@ -344,7 +344,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         // called pad_image to account for our dilation of bounds, so the result will already be
         // moved to the destination color space. If a filter DAG avoids that, then we use this
         // fall-back, which saves us from having to do the xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.outputProperties());
+        input = SkImageFilterPriv::ImageToColorSpace(input.get(), ctx.outputProperties());
 
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
@@ -371,8 +371,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), dstBounds, ctx.outputProperties(),
-                          isProtected ? GrProtected::kYes : GrProtected::kNo);
+        return SkImageFilterPriv::DrawWithFP(context, std::move(fp), dstBounds, ctx.outputProperties(),
+                                             isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif
 

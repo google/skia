@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkString.h"
+#include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -77,7 +78,8 @@ void SkImageSource::flatten(SkWriteBuffer& buffer) const {
     buffer.writeImage(fImage.get());
 }
 
-sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const Context& ctx,
+sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source,
+                                                   const SkFilterContext& ctx,
                                                    SkIPoint* offset) const {
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);

@@ -52,7 +52,7 @@ public:
             : INHERITED(inputs, 2, cropRect), fK{k1, k2, k3, k4}, fEnforcePMColor(enforcePMColor) {}
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const SkFilterContext&,
                                         SkIPoint* offset) const override;
 
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
@@ -65,7 +65,7 @@ protected:
                                          sk_sp<SkSpecialImage> foreground,
                                          const SkIPoint& foregroundOffset,
                                          const SkIRect& bounds,
-                                         const OutputProperties& outputProperties) const;
+                                         const SkFilterOutputProperties& outputProperties) const;
 #endif
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -161,7 +161,7 @@ static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
 }
 
 sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                               const Context& ctx,
+                                                               const SkFilterContext& ctx,
                                                                SkIPoint* offset) const {
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> background(this->filterInput(0, source, ctx, &backgroundOffset));
@@ -287,7 +287,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         sk_sp<SkSpecialImage> foreground,
         const SkIPoint& foregroundOffset,
         const SkIRect& bounds,
-        const OutputProperties& outputProperties) const {
+        const SkFilterOutputProperties& outputProperties) const {
     SkASSERT(source->isTextureBacked());
 
     auto context = source->getContext();
