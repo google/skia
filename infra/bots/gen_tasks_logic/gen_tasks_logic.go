@@ -228,11 +228,14 @@ var (
 // Config contains general configuration information.
 type Config struct {
 	// Directory containing assets. Assumed to be relative to the directory
-	// which contains the calling gen_tasks.go file.
+	// which contains the calling gen_tasks.go file. If not specified, uses
+	// the infra/bots/assets from this repo.
 	AssetsDir string `json:"assets_dir"`
 
 	// Path to the builder name schema JSON file. Assumed to be relative to
-	// the directory which contains the calling gen_tasks.go file.
+	// the directory which contains the calling gen_tasks.go file. If not
+	// specified, uses infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json
+	// from this repo.
 	BuilderNameSchemaFile string `json:"builder_name_schema"`
 
 	// URL of the Skia Gold known hashes endpoint.
@@ -381,7 +384,6 @@ func getCallingDirName() string {
 // builder is a wrapper for specs.TasksCfgBuilder.
 type builder struct {
 	*specs.TasksCfgBuilder
-	callingFileName  string
 	cfg              *Config
 	jobNameSchema    *JobNameSchema
 	jobs             []string
@@ -1222,7 +1224,7 @@ func (b *builder) buildstats(name string, parts map[string]string, compileTaskNa
 	return name
 }
 
-// getParentRevision name returns the name of a compile task which builds
+// getParentRevisionName returns the name of a compile task which builds
 // against a "parent" revision.
 func getParentRevisionName(compileTaskName string, parts map[string]string) string {
 	if parts["extra_config"] == "" {
