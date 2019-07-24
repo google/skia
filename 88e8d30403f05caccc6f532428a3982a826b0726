@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ea3920e_fbe2bf10",
+        "filename": "infra/bots/recipes/perf_skottiewasm_lottieweb.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-07-24T20:02:35Z",
+      "side": 1,
+      "message": "Maybe these fail because of missing features.",
+      "revId": "88e8d30403f05caccc6f532428a3982a826b0726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3d874a8_50ac232c",
+        "filename": "tools/lottie-web-perf/lottie-web-canvas-perf.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-07-24T20:02:35Z",
+      "side": 1,
+      "message": "Seemed much simpler to create a new file instead of adding various if stmts in the existing lottie-web-perf.html",
+      "revId": "88e8d30403f05caccc6f532428a3982a826b0726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
