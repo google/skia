@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9cca70ab_bbc3751a",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-24T20:21:24Z",
+      "side": 1,
+      "message": "Yeah, after re-reading this I think I overlooked something. I think this path works fine. But doesn\u0027t the other version of invokeChild end up producing:\n\n\"outputColor \u003d func(inputColor);\"\n\ntwice on the first call?",
+      "parentUuid": "b34069ae_2fb3dcce",
+      "revId": "ec16b225159b94d12adf4b7bfb1e0615157f81ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "43934b76_86c05b7c",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 3
