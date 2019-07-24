@@ -37,9 +37,7 @@ public:
 protected:
 
     SkString onShortName() {
-        SkString str;
-        str.printf("complexclip3_%s", fDoSimpleClipFirst ? "simple" : "complex");
-        return str;
+        return SkStringPrintf("complexclip3_%s", fDoSimpleClipFirst ? "simple" : "complex");
     }
 
     SkISize onISize() { return SkISize::Make(1000, 950); }

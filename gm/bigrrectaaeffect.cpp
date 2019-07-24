@@ -59,11 +59,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        SkString name;
-        name.printf("big_rrect_%s_aa_effect", fName);
-        return name;
-    }
+    SkString onShortName() override { return SkStringPrintf("big_rrect_%s_aa_effect", fName); }
 
     SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
 

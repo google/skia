@@ -113,12 +113,7 @@ public:
     ShowMipLevels(int N) : fN(N) { }
 
 protected:
-
-    SkString onShortName() override {
-        SkString str;
-        str.printf("showmiplevels_%d", fN);
-        return str;
-    }
+    SkString onShortName() override { return SkStringPrintf("showmiplevels_%d", fN); }
 
     SkISize onISize() override { return { 150, 862 }; }
 
@@ -226,12 +221,7 @@ public:
     ShowMipLevels2(int w, int h) : fW(w), fH(h) { }
 
 protected:
-
-    SkString onShortName() override {
-        SkString str;
-        str.printf("showmiplevels2_%dx%d", fW, fH);
-        return str;
-    }
+    SkString onShortName() override { return SkStringPrintf("showmiplevels2_%dx%d", fW, fH); }
 
     SkISize onISize() override {
         return { 824, 862 };

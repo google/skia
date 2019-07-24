@@ -45,10 +45,7 @@ public:
 
 protected:
     SkString onShortName() override {
-        SkString name;
-        name.printf("persp_shaders_%s",
-                     fDoAA ? "aa" : "bw");
-        return name;
+        return SkStringPrintf("persp_shaders_%s", fDoAA ? "aa" : "bw");
     }
 
     SkISize onISize() override {

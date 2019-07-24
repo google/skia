@@ -42,9 +42,7 @@ public:
 
 protected:
     SkString onShortName() override {
-        SkString str;
-        str.printf("bitmaprect_%s", fUseIRect ? "i" : "s");
-        return str;
+        return SkStringPrintf("bitmaprect_%s", fUseIRect ? "i" : "s");
     }
 
     SkISize onISize() override {
@@ -131,11 +129,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        SkString str;
-        str.printf("3x3bitmaprect");
-        return str;
-    }
+    SkString onShortName() override { return SkStringPrintf("3x3bitmaprect"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);
@@ -191,9 +185,7 @@ public:
 
 protected:
     SkString onShortName() override {
-        SkString str;
-        str.printf("bigbitmaprect_%s", fUseIRect ? "i" : "s");
-        return str;
+        return SkStringPrintf("bigbitmaprect_%s", fUseIRect ? "i" : "s");
     }
 
     SkISize onISize() override {
@@ -237,11 +229,7 @@ public:
     BitmapRectRounding() {}
 
 protected:
-    SkString onShortName() override {
-        SkString str;
-        str.printf("bitmaprect_rounding");
-        return str;
-    }
+    SkString onShortName() override { return SkStringPrintf("bitmaprect_rounding"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);

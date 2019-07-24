@@ -28,14 +28,7 @@ public:
     }
 
 protected:
-
-
-    SkString onShortName() {
-        SkString str;
-        str.printf("complexclip4_%s",
-                   fDoAAClip ? "aa" : "bw");
-        return str;
-    }
+    SkString onShortName() { return SkStringPrintf("complexclip4_%s", fDoAAClip ? "aa" : "bw"); }
 
     SkISize onISize() { return SkISize::Make(970, 780); }
 
