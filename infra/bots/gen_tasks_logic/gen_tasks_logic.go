@@ -41,7 +41,7 @@ const (
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
 	DEFAULT_OS_MAC       = "Mac-10.13.6"
-	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
+	DEFAULT_OS_WIN       = "Windows-Server-14393"
 
 	// Small is a 2-core machine.
 	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
@@ -593,7 +593,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			"Mac10.14":   "Mac-10.14.3",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-17763.557",
+			"Win10":      "Windows-10-18362",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
@@ -603,8 +603,8 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
 		if os == "Win10" && parts["model"] == "Golo" {
-			// ChOps-owned machines have Windows 10 v1709, but a slightly different version than Skolo.
-			d["os"] = "Windows-10-16299.309"
+			// ChOps-owned machines have Windows 10 v1709.
+			d["os"] = "Windows-10-16299"
 		}
 		if os == "Mac10.14" && parts["model"] == "VMware7.1" {
 			// ChOps VMs are at a newer version of MacOS.
