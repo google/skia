@@ -112,8 +112,8 @@ def nanobench_flags(api, bot):
       if 'Android' in bot:
         configs.append('vkmsaa4')
       else:
-        # skbug.com/9023
-        if 'IntelHD405' not in bot:
+        # skia:9023, skia:8523
+        if 'IntelHD405' not in bot and 'GTX660' not in bot:
           configs.append('vkmsaa8')
 
     if 'Metal' in bot:
