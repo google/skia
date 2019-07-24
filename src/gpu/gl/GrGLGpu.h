@@ -289,7 +289,7 @@ private:
                        int baseInstance,
                        GrPrimitiveRestart);
 
-    void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
+    void flushBlendAndColorWrite(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
     void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo&, const GrPrepareForExternalIORequests&) override;

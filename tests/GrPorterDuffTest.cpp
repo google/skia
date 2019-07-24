@@ -20,6 +20,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+using BlendInfo = GrXferProcessor::BlendInfo;
+
 static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_color_not_opaque_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
@@ -101,6 +103,7 @@ public:
             // should always go hand in hand for Porter Duff modes.
             TEST_ASSERT(analysis.requiresDstTexture() == analysis.requiresNonOverlappingDraws());
             GetXPOutputTypes(xp.get(), &fPrimaryOutputType, &fSecondaryOutputType);
+            fBlendInfo = BlendInfo();
             xp->getBlendInfo(&fBlendInfo);
             TEST_ASSERT(!xp->willReadDstColor() ||
                         (isLCD && (SkBlendMode::kSrcOver != xfermode ||
@@ -112,7 +115,7 @@ public:
         bool fIgnoresInputColor;
         int fPrimaryOutputType;
         int fSecondaryOutputType;
-        GrXferProcessor::BlendInfo fBlendInfo;
+        BlendInfo fBlendInfo;
     };
 
     static void GetXPOutputTypes(const GrXferProcessor* xp, int* outPrimary, int* outSecondary) {
@@ -960,7 +963,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         return;
     }
 
-    GrXferProcessor::BlendInfo blendInfo;
+    BlendInfo blendInfo;
     xp_opaque->getBlendInfo(&blendInfo);
     TEST_ASSERT(blendInfo.fWriteColor);
 
@@ -976,6 +979,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         return;
     }
 
+    blendInfo = BlendInfo();
     xp->getBlendInfo(&blendInfo);
     TEST_ASSERT(blendInfo.fWriteColor);
 }
