@@ -37,6 +37,11 @@ const opts = [
     type: String,
   },
   {
+    name: 'backend',
+    description: 'Which lottie-web backend to use. Options: canvas or svg.',
+    type: String,
+  },
+  {
     name: 'help',
     alias: 'h',
     type: Boolean,
@@ -57,6 +62,12 @@ const usage = [
 
 // Parse and validate flags.
 const options = commandLineArgs(opts);
+
+if (options.backend != 'canvas' && options.backend != 'svg') {
+  console.error('You must supply a lottie-web backend (canvas, svg).');
+  console.log(commandLineUsage(usage));
+  process.exit(1);
+}
 
 if (!options.output) {
   options.output = 'perf.json';
@@ -81,8 +92,15 @@ if (!options.input) {
 
 // Start up a web server to serve the three files we need.
 let lottieJS = fs.readFileSync(options.lottie_player, 'utf8');
-let driverHTML = fs.readFileSync('lottie-web-perf.html', 'utf8');
 let lottieJSON = fs.readFileSync(options.input, 'utf8');
+let driverHTML;
+if (options.backend == 'svg') {
+  console.log('Using lottie-web-perf.html');
+  driverHTML = fs.readFileSync('lottie-web-perf.html', 'utf8');
+} else {
+  console.log('Using lottie-web-canvas-perf.html');
+  driverHTML = fs.readFileSync('lottie-web-canvas-perf.html', 'utf8');
+}
 
 // Find number of frames from the lottie JSON.
 let lottieJSONContent = JSON.parse(lottieJSON);
