@@ -28,9 +28,9 @@ public:
     // Actually instantiate the backing rendertarget, if necessary.
     bool instantiate(GrResourceProvider*) override;
 
-    bool canUseMixedSamples(const GrCaps& caps) const {
+    bool canUseMixedSamples1(const GrCaps& caps) const {
         return caps.mixedSamplesSupport() && !this->glRTFBOIDIs0() &&
-               caps.internalMultisampleCount(this->config()) > 0 &&
+               caps.internalMultisampleCount1(this->config()) > 0 &&
                this->canChangeStencilAttachment();
     }
 

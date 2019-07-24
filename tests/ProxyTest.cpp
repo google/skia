@@ -162,7 +162,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                     check_surface(reporter, proxy.get(), origin,
                                                   widthHeight, widthHeight, config, budgeted);
                                     int supportedSamples =
-                                            caps.getRenderTargetSampleCount(numSamples, config);
+                                            caps.getRenderTargetSampleCount1(numSamples, config);
                                     check_rendertarget(reporter, caps, resourceProvider,
                                                        proxy->asRenderTargetProxy(),
                                                        supportedSamples,
@@ -248,7 +248,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             }
 
             for (auto numSamples : {1, 4}) {
-                int supportedNumSamples = caps.getRenderTargetSampleCount(numSamples, config);
+                int supportedNumSamples = caps.getRenderTargetSampleCount1(numSamples, config);
 
                 if (!supportedNumSamples) {
                     continue;

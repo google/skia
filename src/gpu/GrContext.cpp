@@ -239,7 +239,7 @@ bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return this->caps()->maxRenderTargetSampleCount(config);
+    return this->caps()->maxRenderTargetSampleCount1(config);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

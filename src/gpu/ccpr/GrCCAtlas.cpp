@@ -63,11 +63,11 @@ sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(
             sampleCount = 1;
             break;
         case CoverageType::kA8_Multisample:
-            SkASSERT(caps.internalMultisampleCount(kAlpha_8_GrPixelConfig) > 1);
+            SkASSERT(caps.internalMultisampleCount1(kAlpha_8_GrPixelConfig) > 1);
             colorType = GrColorType::kAlpha_8;
             pixelConfig = kAlpha_8_GrPixelConfig;
             sampleCount = (caps.mixedSamplesSupport())
-                    ? 1 : caps.internalMultisampleCount(pixelConfig);
+                    ? 1 : caps.internalMultisampleCount1(pixelConfig);
             break;
         case CoverageType::kA8_LiteralCoverage:
             colorType = GrColorType::kAlpha_8;
