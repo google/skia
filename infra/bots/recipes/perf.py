@@ -207,6 +207,9 @@ def nanobench_flags(api, bot):
     match.append('~top25desk_ebay_com.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1_mpd')
+  if 'Vulkan' in bot and ('Nexus5x' in bot or 'GTX660' in bot):
+    # skia:8523 skia:9271
+    match.append('~compositing_images')
   if 'MacBook10.1' in bot and 'CommandBuffer' in bot:
     match.append('~^desk_micrographygirlsvg.skp_1.1$')
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
@@ -363,6 +366,7 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),
+  'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_Vulkan',
   'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android',
   'Perf-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
