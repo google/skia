@@ -58,28 +58,6 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
     return kUnknown_GrPixelConfig;
 }
 
-GrPixelConfig GrDawnCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& backendFormat)
-        const {
-    const dawn::TextureFormat* format = backendFormat.getDawnFormat();
-    if (!format) {
-        return kUnknown_GrPixelConfig;
-    }
-    switch (*format) {
-        case dawn::TextureFormat::R8Unorm:
-            return kAlpha_8_as_Red_GrPixelConfig;
-            break;
-        case dawn::TextureFormat::RGBA8Unorm:
-            return kRGBA_8888_GrPixelConfig;
-            break;
-        case dawn::TextureFormat::BGRA8Unorm:
-            return kBGRA_8888_GrPixelConfig;
-            break;
-        default:
-            return kUnknown_GrPixelConfig;
-            break;
-    }
-}
-
 size_t GrDawnCaps::onTransferFromOffsetAlignment(GrColorType bufferColorType) const {
     if (bufferColorType == GrColorType::kRGB_888x) {
         return false;

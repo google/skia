@@ -523,7 +523,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
     return proxy;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture& backendTex,
+sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture1(const GrBackendTexture& backendTex,
                                                           GrColorType grColorType,
                                                           GrSurfaceOrigin origin,
                                                           GrWrapOwnership ownership,
@@ -544,10 +544,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
 
     const GrCaps* caps = this->caps();
 
+#if 0
     SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      grColorType)));
+#endif
 
     SkASSERT(validate_backend_format_and_colortype(caps, grColorType,
                                                    backendTex.getBackendFormat()));
@@ -574,7 +576,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
     return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex), origin, texSwizzle));
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
+sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture1(
         const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt,
         GrColorType colorType, GrWrapOwnership ownership, GrWrapCacheable cacheable,
         ReleaseProc releaseProc, ReleaseContext releaseCtx) {
@@ -590,10 +592,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
     const GrCaps* caps = this->caps();
 
+#if 0
     SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      colorType)));
+#endif
+
     SkASSERT(validate_backend_format_and_colortype(caps, colorType, backendTex.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
@@ -626,7 +631,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
                                                                 outSwizzle));
 }
 
-sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
+sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget1(
         const GrBackendRenderTarget& backendRT, GrColorType grColorType,
         GrSurfaceOrigin origin, ReleaseProc releaseProc, ReleaseContext releaseCtx) {
     if (this->isAbandoned()) {
@@ -639,11 +644,8 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         return nullptr;
     }
 
-#ifdef SK_DEBUG
-    GrPixelConfig testConfig =
-            this->caps()->validateBackendRenderTarget(backendRT, grColorType);
-    SkASSERT(testConfig != kUnknown_GrPixelConfig);
-#endif
+    SkASSERT(this->caps()->areColorTypeAndFormatCompatible(grColorType,
+                                                           backendRT.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -668,7 +670,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
                                                               outSwizzle));
 }
 
-sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
+sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget1(
         const GrBackendTexture& backendTex, GrColorType grColorType,
         GrSurfaceOrigin origin, int sampleCnt) {
     if (this->isAbandoned()) {
@@ -683,10 +685,12 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
 
     const GrCaps* caps = this->caps();
 
+#if 0
     SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
                                           caps->getConfigFromBackendFormat(
                                                                      backendTex.getBackendFormat(),
                                                                      grColorType)));
+#endif
 
     SkASSERT(validate_backend_format_and_colortype(caps, grColorType,
                                                    backendTex.getBackendFormat()));

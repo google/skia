@@ -64,11 +64,11 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
 
     sk_sp<GrTextureProxy> wrappedProxy;
     if (GrRenderable::kYes == renderable) {
-        wrappedProxy = context->priv().proxyProvider()->wrapRenderableBackendTexture(
+        wrappedProxy = context->priv().proxyProvider()->wrapRenderableBackendTexture1(
                 backendTex, kTopLeft_GrSurfaceOrigin, 1, grCT, kAdopt_GrWrapOwnership,
                 GrWrapCacheable::kNo);
     } else {
-        wrappedProxy = context->priv().proxyProvider()->wrapBackendTexture(
+        wrappedProxy = context->priv().proxyProvider()->wrapBackendTexture1(
                 backendTex, grCT, kTopLeft_GrSurfaceOrigin, kAdopt_GrWrapOwnership,
                 GrWrapCacheable::kNo, GrIOType::kRW_GrIOType);
     }

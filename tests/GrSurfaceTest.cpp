@@ -356,7 +356,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                                                                GrRenderable::kYes,
                                                                GrProtected::kNo);
 
-        auto proxy = proxyProvider->wrapBackendTexture(backendTex, GrColorType::kRGBA_8888,
+        auto proxy = proxyProvider->wrapBackendTexture1(backendTex, GrColorType::kRGBA_8888,
                                                        kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
@@ -409,7 +409,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                     kSize, kSize, kRGBA_8888_SkColorType,
                     SkColors::kTransparent, GrMipMapped::kYes, GrRenderable::kYes,
                     GrProtected::kNo);
-            proxy = proxyProvider->wrapBackendTexture(backendTex, GrColorType::kRGBA_8888,
+            proxy = proxyProvider->wrapBackendTexture1(backendTex, GrColorType::kRGBA_8888,
                                                       kTopLeft_GrSurfaceOrigin,
                                                       kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                                       ioType);
