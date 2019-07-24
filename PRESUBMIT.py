@@ -226,6 +226,24 @@ class _WarningsAsErrors():
     self.output_api.PresubmitPromptWarning = self.old_warning
 
 
+def _CheckDEPSValid(input_api, output_api):
+  """Ensure that DEPS contains valid entries."""
+  results = []
+  script = os.path.join('infra', 'bots', 'check_deps.py')
+  relevant_files = ('DEPS', script)
+  for f in input_api.AffectedFiles():
+    if f.LocalPath() in relevant_files:
+      break
+  else:
+    return results
+  cmd = ['python', script]
+  try:
+    subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+  except subprocess.CalledProcessError as e:
+    results.append(output_api.PresubmitError(e.output))
+  return results
+
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -251,6 +269,7 @@ def _CommonChecks(input_api, output_api):
                                   source_file_filter=sources))
   results.extend(_ToolFlags(input_api, output_api))
   results.extend(_CheckCompileIsolate(input_api, output_api))
+  results.extend(_CheckDEPSValid(input_api, output_api))
   return results
 
 
