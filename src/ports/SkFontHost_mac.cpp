@@ -725,6 +725,7 @@ protected:
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
+    sk_sp<SkData> onCopyTableData(SkFontTableTag) const override;
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
@@ -2273,6 +2274,17 @@ size_t SkTypeface_Mac::onGetTableData(SkFontTableTag tag, size_t offset,
         memcpy(dstData, CFDataGetBytePtr(srcData.get()) + offset, length);
     }
     return length;
+}
+
+sk_sp<SkData> SkTypeface_Mac::onCopyTableData(SkFontTableTag tag) const {
+    SkUniqueCFRef<CFDataRef> srcData = copy_table_from_font(fFontRef.get(), tag);
+    if (!srcData) {
+        return nullptr;
+    }
+    return SkData::MakeWithProc(CFDataGetBytePtr(srcData.get()), CFDataGetLength(srcData.get()),
+                                [](const void*, void* ctx) {
+                                    CFRelease((CFDataRef)ctx);
+                                }, (void*)srcData.release());
 }
 
 SkScalerContext* SkTypeface_Mac::onCreateScalerContext(const SkScalerContextEffects& effects,

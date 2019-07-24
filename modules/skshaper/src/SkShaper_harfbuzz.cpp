@@ -251,24 +251,15 @@ hb_font_funcs_t* skhb_get_font_funcs() {
 hb_blob_t* skhb_get_table(hb_face_t* face, hb_tag_t tag, void* user_data) {
     SkTypeface& typeface = *reinterpret_cast<SkTypeface*>(user_data);
 
-    const size_t tableSize = typeface.getTableSize(tag);
-    if (!tableSize) {
+    auto data = typeface.copyTableData(tag);
+    if (!data) {
         return nullptr;
     }
-
-    void* buffer = sk_malloc_throw(tableSize);
-    if (!buffer) {
-        return nullptr;
-    }
-
-    size_t actualSize = typeface.getTableData(tag, 0, tableSize, buffer);
-    if (tableSize != actualSize) {
-        sk_free(buffer);
-        return nullptr;
-    }
-
-    return hb_blob_create(reinterpret_cast<char*>(buffer), tableSize,
-                          HB_MEMORY_MODE_WRITABLE, buffer, sk_free);
+    SkData* rawData = data.release();
+    return hb_blob_create(reinterpret_cast<char*>(rawData->writable_data()), rawData->size(),
+                          HB_MEMORY_MODE_WRITABLE, rawData, [](void* ctx) {
+                              ((SkData*)ctx)->unref();
+                          });
 }
 
 HBFont create_hb_font(const SkFont& font) {

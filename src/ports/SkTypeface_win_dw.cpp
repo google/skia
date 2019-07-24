@@ -16,6 +16,7 @@
 #undef GetGlyphIndices
 
 #include "include/private/SkTo.h"
+#include "include/core/SkData.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontStream.h"
 #include "src/core/SkScalerContext.h"
@@ -253,6 +254,14 @@ size_t DWriteFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
     }
 
     return size;
+}
+
+sk_sp<SkData> DWriteFontTypeface::onCopyTableData(SkFontTableTag tag) const {
+    AutoDWriteTable table(fDWriteFontFace.get(), SkEndian_SwapBE32(tag));
+    if (!table.fExists) {
+        return nullptr;
+    }
+    return SkData::MakeWithCopy(table.fData, table.fSize);
 }
 
 sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) const {

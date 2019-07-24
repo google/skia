@@ -128,6 +128,7 @@ protected:
                                        int parameterCount) const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
+    sk_sp<SkData> onCopyTableData(SkFontTableTag) const override;
 
 private:
     typedef SkTypeface INHERITED;
