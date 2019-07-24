@@ -126,7 +126,7 @@ public:
     explicit    SkString(size_t len);
     explicit    SkString(const char text[]);
                 SkString(const char text[], size_t len);
-                SkString(const SkString&);
+                SkString(const SkString&) = default;
                 SkString(SkString&&);
                 ~SkString();
 
@@ -173,7 +173,7 @@ public:
 
     // these methods edit the string
 
-    SkString& operator=(const SkString&);
+    SkString& operator=(const SkString&) = default;
     SkString& operator=(SkString&&);
     SkString& operator=(const char text[]);
 
