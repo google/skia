@@ -370,14 +370,6 @@ public:
     bool validateSurfaceDesc(const GrSurfaceDesc&, GrRenderable renderable,
                              int renderTargetSampleCnt, GrMipMapped) const;
 
-    /**
-     * If the GrBackendRenderTarget can be used with the supplied SkColorType the return will be
-     * the config that matches the backend format and requested SkColorType. Otherwise, kUnknown is
-     * returned.
-     */
-    virtual GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
-                                                      GrColorType) const = 0;
-
     bool areColorTypeAndFormatCompatible(GrColorType grCT,
                                          const GrBackendFormat& format) const {
         if (GrColorType::kUnknown == grCT) {
@@ -387,7 +379,6 @@ public:
         return this->onAreColorTypeAndFormatCompatible(grCT, format);
     }
 
-    // TODO: replace validateBackendRenderTarget with calls to getConfigFromBackendFormat?
     // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
     // Returns kUnknown if a valid config could not be determined.
     GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
@@ -403,7 +394,6 @@ public:
      * Special method only for YUVA images. Returns a config that matches the backend format or
      * kUnknown if a config could not be determined.
      */
-    virtual GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const = 0;
     virtual GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const = 0;
 
     /** These are used when creating a new texture internally. */

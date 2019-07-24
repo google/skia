@@ -265,7 +265,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     static constexpr int kStencilBits = 8;
                     GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples,
                                                     kStencilBits, fboInfo);
-                    backendRT.setPixelConfig(config);
                     sk_sp<GrSurfaceProxy> sProxy(
                             proxyProvider->wrapBackendRenderTarget(backendRT, grColorType,
                                                                    origin, nullptr, nullptr));

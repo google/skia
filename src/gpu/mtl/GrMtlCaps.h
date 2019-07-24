@@ -64,10 +64,6 @@ public:
     bool canCopyAsResolve(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const;
 
-    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
-                                              GrColorType) const override;
-
-    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
 
     GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override;
