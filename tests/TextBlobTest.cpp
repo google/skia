@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPaint.h"
+#include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkTypeface.h"
@@ -369,14 +370,18 @@ static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, S
     (void)font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, buffer.glyphs, glyphCount);
 }
 
+static void draw(SkCanvas* canvas, const SkTextBlob* blob) {
+    canvas->clear(SK_ColorWHITE);
+    canvas->drawTextBlob(blob, -blob->bounds().left(), -blob->bounds().top(), SkPaint());
+}
+
 static sk_sp<SkImage> render(const SkTextBlob* blob) {
     auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(blob->bounds().width()),
                                                SkScalarRoundToInt(blob->bounds().height()));
     if (!surf) {
         return nullptr; // bounds are empty?
     }
-    surf->getCanvas()->clear(SK_ColorWHITE);
-    surf->getCanvas()->drawTextBlob(blob, -blob->bounds().left(), -blob->bounds().top(), SkPaint());
+    draw(surf->getCanvas(), blob);
     return surf->makeImageSnapshot();
 }
 
@@ -431,6 +436,59 @@ DEF_TEST(TextBlob_serialize, reporter) {
 
     sk_sp<SkImage> img0 = render(blob0.get());
     sk_sp<SkImage> img1 = render(blob1.get());
+    if (img0 && img1) {
+        REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img1.get()));
+    }
+}
+
+static sk_sp<SkImage> render(const SkPicture* pic) {
+    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(pic->cullRect().width()),
+                                               SkScalarRoundToInt(pic->cullRect().height()));
+    if (!surf) {
+        return nullptr; // bounds are empty?
+    }
+    surf->getCanvas()->drawPicture(pic);
+    return surf->makeImageSnapshot();
+}
+
+/*
+ *  Build a picture with more than one typeface, then serialize and deserialize,
+ *  draw the new instance, and assert it draws the same as the original.
+ */
+DEF_TEST(TextBlob_serialize_pic, reporter) {
+    sk_sp<SkTextBlob> blob0 = []() {
+        sk_sp<SkTypeface> tf = SkTypeface::MakeFromName(nullptr, SkFontStyle::BoldItalic());
+
+        SkTextBlobBuilder builder;
+        add_run(&builder, "Hello", 10, 20, nullptr);    // don't flatten a typeface
+        add_run(&builder, "World", 10, 40, tf);         // do flatten this typeface
+        return builder.make();
+    }();
+
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(blob0->bounds().width(),
+                                               blob0->bounds().height(),
+                                               nullptr, 0);
+    draw(canvas, blob0.get());
+    canvas->drawColor(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setColor(SK_ColorGRAY);
+    canvas->drawTextBlob(blob0, 24, 32, paint);
+    auto picture0 = recorder.finishRecordingAsPicture();
+
+    SkTArray<sk_sp<SkTypeface>> array;
+    SkSerialProcs serializeProcs;
+    serializeProcs.fTypefaceProc = &SerializeTypeface;
+    serializeProcs.fTypefaceCtx = (void*) &array;
+    sk_sp<SkData> data = picture0->serialize(&serializeProcs);
+    REPORTER_ASSERT(reporter, array.count() == 1);
+    SkDeserialProcs deserializeProcs;
+    deserializeProcs.fTypefaceProc = &DeserializeTypeface;
+    deserializeProcs.fTypefaceCtx = (void*) &array;
+    auto picture1 = SkPicture::MakeFromData(data.get(), &deserializeProcs);
+
+    sk_sp<SkImage> img0 = render(picture0.get());
+    sk_sp<SkImage> img1 = render(picture1.get());
     if (img0 && img1) {
         REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img1.get()));
     }
