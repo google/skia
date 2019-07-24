@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b34069ae_2fb3dcce",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-07-24T20:14:10Z",
+      "side": 1,
+      "message": "This specific CL was intended purely as \"do child calls as separate functions\". It shouldn\u0027t break anything that works today, but also doesn\u0027t add any new features. Since multiple calls to the same child don\u0027t work today, I don\u0027t have them completely working in this CL either.\n\nThe ability to make multiple invocations and pass in coords is coming in the next CL.",
+      "parentUuid": "e8bb1f45_d6fce443",
+      "revId": "ec16b225159b94d12adf4b7bfb1e0615157f81ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "43934b76_86c05b7c",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "b7e635c2_ea156556",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-07-24T20:14:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43934b76_86c05b7c",
+      "revId": "ec16b225159b94d12adf4b7bfb1e0615157f81ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67319c00_4eeada52",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 3
@@ -47,6 +83,30 @@
       "writtenOn": "2019-07-24T19:20:53Z",
       "side": 1,
       "message": "Just to be clear: This is some kind of special keyword that the compiler is going to use to name the arguments? I couldn\u0027t find anything other than some code in SkSLCPPCodeGenerator.cpp when handling process(), but that appears to always append an argument index to \"_input\"?",
+      "range": {
+        "startLine": 72,
+        "startChar": 22,
+        "endLine": 72,
+        "endChar": 32
+      },
+      "revId": "ec16b225159b94d12adf4b7bfb1e0615157f81ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "924dce6c_1860a94f",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-07-24T20:14:10Z",
+      "side": 1,
+      "message": "It becomes the name for the function parameter in writeProcessorFunction - e.g. stage_Stage1_c0(half4 _input). Since the fragment processor code and the function header have to agree on what the input is called, it was natural to just have writeProcessorFunction refer to the same field when outputting the function header.",
+      "parentUuid": "67319c00_4eeada52",
       "range": {
         "startLine": 72,
         "startChar": 22,
