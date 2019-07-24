@@ -23,7 +23,7 @@ class AnimationBuilder;
 class RangeSelector;
 class TextAdapter;
 
-class TextAnimator final : public SkNVRefCnt<TextAnimator> {
+class TextAnimator final : public SkRefCnt {
 public:
     static sk_sp<TextAnimator> Make(const skjson::ObjectValue*,
                                     const AnimationBuilder*,
