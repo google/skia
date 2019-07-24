@@ -244,6 +244,11 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->write("_globals");
         separator = ", ";
     }
+    if (this->requirements(c.fFunction) & kFragCoord_Requirement) {
+        this->write(separator);
+        this->write("_fragCoord");
+        separator = ", ";
+    }
     for (size_t i = 0; i < c.fArguments.size(); ++i) {
         const Expression& arg = *c.fArguments[i];
         this->write(separator);
@@ -499,8 +504,8 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
 
 void MetalCodeGenerator::writeFragCoord() {
     if (fProgram.fInputs.fRTHeight) {
-        this->write("float4(_fragCoord.x, _anonInterface0.u_skRTHeight - _fragCoord.y, 0.0, "
-                    "_fragCoord.w)");
+        this->write("float4(_fragCoord.x, _globals->_anonInterface0->u_skRTHeight - "
+                    "_fragCoord.y, 0.0, _fragCoord.w)");
     } else {
         this->write("float4(_fragCoord.x, _fragCoord.y, 0.0, _fragCoord.w)");
     }
@@ -853,23 +858,29 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->write(" ");
         this->writeName(f.fDeclaration.fName);
         this->write("(");
-        if (this->requirements(f.fDeclaration) & kInputs_Requirement) {
+        Requirements requirements = this->requirements(f.fDeclaration);
+        if (requirements & kInputs_Requirement) {
             this->write("Inputs _in");
             separator = ", ";
         }
-        if (this->requirements(f.fDeclaration) & kOutputs_Requirement) {
+        if (requirements & kOutputs_Requirement) {
             this->write(separator);
             this->write("thread Outputs* _out");
             separator = ", ";
         }
-        if (this->requirements(f.fDeclaration) & kUniforms_Requirement) {
+        if (requirements & kUniforms_Requirement) {
             this->write(separator);
             this->write("Uniforms _uniforms");
             separator = ", ";
         }
-        if (this->requirements(f.fDeclaration) & kGlobals_Requirement) {
+        if (requirements & kGlobals_Requirement) {
             this->write(separator);
             this->write("thread Globals* _globals");
+            separator = ", ";
+        }
+        if (requirements & kFragCoord_Requirement) {
+            this->write(separator);
+            this->write("float4 _fragCoord");
             separator = ", ";
         }
     }
@@ -1543,7 +1554,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             const VariableReference& v = (const VariableReference&) e;
             Requirements result = kNo_Requirements;
             if (v.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
-                result = kInputs_Requirement;
+                result = kGlobals_Requirement | kFragCoord_Requirement;
             } else if (Variable::kGlobal_Storage == v.fVariable.fStorage) {
                 if (v.fVariable.fModifiers.fFlags & Modifiers::kIn_Flag) {
                     result = kInputs_Requirement;

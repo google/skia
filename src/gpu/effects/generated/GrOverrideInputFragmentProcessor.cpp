@@ -44,7 +44,7 @@ public:
                 _outer.literalColor.fA);
         SkString _input0("constColor");
         SkString _child0("_child0");
-        this->emitChild(_outer.fp_index, _input0.c_str(), &_child0, args);
+        this->invokeChild(_outer.fp_index, _input0.c_str(), &_child0, args);
         fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _child0.c_str());
     }
 
