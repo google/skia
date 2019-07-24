@@ -19,7 +19,7 @@ namespace  {
 
 // Transform effects can operate in either uniform or anisotropic mode, with each
 // component (including mode) animated separately.
-class ScaleAdapter final : public SkNVRefCnt<ScaleAdapter> {
+class ScaleAdapter final : public SkRefCnt {
 public:
     explicit ScaleAdapter(sk_sp<TransformAdapter2D> tadapter)
         : fTransformAdapter(std::move(tadapter)) {}
@@ -62,46 +62,48 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachTransformEffect(const skjson::Array
     auto t_adapter = sk_make_sp<TransformAdapter2D>(matrix);
     auto s_adapter = sk_make_sp<ScaleAdapter>(t_adapter);
 
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kAnchorPoint_Index), fScope,
-        [t_adapter](const VectorValue& ap) {
-            t_adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(ap));
+    fBuilder->bindProp<VectorValue>(GetPropValue(jprops, kAnchorPoint_Index), fScope, t_adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& ap) {
+            cap.as<decltype(t_adapter)::element_type>()
+                    ->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(ap));
         });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kPosition_Index), fScope,
-        [t_adapter](const VectorValue& p) {
-            t_adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+    fBuilder->bindProp<VectorValue>(GetPropValue(jprops, kPosition_Index), fScope, t_adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& p) {
+            cap.as<decltype(t_adapter)::element_type>()
+                    ->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRotation_Index), fScope,
-        [t_adapter](const ScalarValue& r) {
-            t_adapter->setRotation(r);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kRotation_Index), fScope, t_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& r) {
+            cap.as<decltype(t_adapter)::element_type>()->setRotation(r);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kSkew_Index), fScope,
-        [t_adapter](const ScalarValue& s) {
-            t_adapter->setSkew(s);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kSkew_Index), fScope, t_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& s) {
+            cap.as<decltype(t_adapter)::element_type>()->setSkew(s);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kSkewAxis_Index), fScope,
-        [t_adapter](const ScalarValue& sa) {
-            t_adapter->setSkewAxis(sa);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kSkewAxis_Index), fScope, t_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& sa) {
+            cap.as<decltype(t_adapter)::element_type>()->setSkewAxis(sa);
         });
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kUniformScale_Index), fScope,
-        [s_adapter](const ScalarValue& u) {
-            s_adapter->setIsUniform(SkScalarRoundToInt(u));
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kUniformScale_Index), fScope, s_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& u) {
+             cap.as<decltype(s_adapter)::element_type>()->setIsUniform(SkScalarRoundToInt(u));
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kScaleHeight_Index), fScope,
-        [s_adapter](const ScalarValue& sh) {
-            s_adapter->setScaleHeight(sh);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kScaleHeight_Index), fScope, s_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& sh) {
+            cap.as<decltype(s_adapter)::element_type>()->setScaleHeight(sh);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kScaleWidth_Index), fScope,
-        [s_adapter](const ScalarValue& sw) {
-            s_adapter->setScaleWidth(sw);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kScaleWidth_Index), fScope, s_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& sw) {
+            cap.as<decltype(s_adapter)::element_type>()->setScaleWidth(sw);
         });
 
     auto opacity_node = sksg::OpacityEffect::Make(sksg::TransformEffect::Make(std::move(layer),
                                                                               std::move(matrix)));
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOpacity_Index), fScope,
-        [opacity_node](const ScalarValue& o) {
-            opacity_node->setOpacity(o * 0.01f);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kOpacity_Index), fScope, opacity_node,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& o) {
+            cap.as<decltype(opacity_node)::element_type>()->setOpacity(o * 0.01f);
         });
 
     return std::move(opacity_node);

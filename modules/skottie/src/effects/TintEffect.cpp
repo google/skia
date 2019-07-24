@@ -46,9 +46,9 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachTintEffect(const skjson::ArrayValue
         return nullptr;
     }
 
-    fBuilder->bindProperty<ScalarValue>((*amount_prop)["v"], fScope,
-        [tint_node](const ScalarValue& w) {
-            tint_node->setWeight(w / 100); // 100-based
+    fBuilder->bindProp<ScalarValue>((*amount_prop)["v"], fScope, tint_node,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& w) {
+            cap.as<decltype(tint_node)::element_type>()->setWeight(w / 100); // 100-based
         });
 
     return std::move(tint_node);

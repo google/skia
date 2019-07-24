@@ -33,7 +33,7 @@ namespace internal {
 
 namespace  {
 
-class LevelsEffectAdapter final : public SkNVRefCnt<LevelsEffectAdapter> {
+class LevelsEffectAdapter final : public SkRefCnt {
 public:
     explicit LevelsEffectAdapter(sk_sp<sksg::RenderNode> child)
         : fEffect(sksg::ExternalColorFilter::Make(std::move(child))) {
@@ -150,38 +150,38 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachLevelsEffect(const skjson::ArrayVal
 
     auto adapter = sk_make_sp<LevelsEffectAdapter>(std::move(layer));
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kChannel_Index), fScope,
-        [adapter](const ScalarValue& channel) {
-            adapter->setChannel(channel);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kChannel_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& channel) {
+            cap.as<decltype(adapter)::element_type>()->setChannel(channel);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kInputBlack_Index), fScope,
-        [adapter](const ScalarValue& ib) {
-            adapter->setInBlack(ib);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kInputBlack_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& ib) {
+            cap.as<decltype(adapter)::element_type>()->setInBlack(ib);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kInputWhite_Index), fScope,
-        [adapter](const ScalarValue& iw) {
-            adapter->setInWhite(iw);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kInputWhite_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& iw) {
+            cap.as<decltype(adapter)::element_type>()->setInWhite(iw);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOutputBlack_Index), fScope,
-        [adapter](const ScalarValue& ob) {
-            adapter->setOutBlack(ob);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kOutputBlack_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& ob) {
+            cap.as<decltype(adapter)::element_type>()->setOutBlack(ob);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOutputWhite_Index), fScope,
-        [adapter](const ScalarValue& ow) {
-            adapter->setOutWhite(ow);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kOutputWhite_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& ow) {
+            cap.as<decltype(adapter)::element_type>()->setOutWhite(ow);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kGamma_Index), fScope,
-        [adapter](const ScalarValue& g) {
-            adapter->setGamma(g);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kGamma_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& g) {
+            cap.as<decltype(adapter)::element_type>()->setGamma(g);
         });
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kClipToOutBlack_Index), fScope,
-        [adapter](const ScalarValue& cb) {
-            adapter->setClipBlack(cb);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kClipToOutBlack_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& cb) {
+            cap.as<decltype(adapter)::element_type>()->setClipBlack(cb);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kClipToOutWhite_Index), fScope,
-        [adapter](const ScalarValue& cw) {
-            adapter->setClipWhite(cw);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kClipToOutWhite_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& cw) {
+            cap.as<decltype(adapter)::element_type>()->setClipWhite(cw);
         });
 
     return adapter->root();
