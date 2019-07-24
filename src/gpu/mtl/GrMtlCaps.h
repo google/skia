@@ -35,6 +35,8 @@ public:
     bool isFormatCopyable(GrColorType, const GrBackendFormat&) const override { return true; }
     bool isConfigCopyable(GrPixelConfig) const override { return true; }
 
+    bool isFormatRenderable(MTLPixelFormat) const;
+
     int getRenderTargetSampleCount(int requestedCount,
                                    GrColorType, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
@@ -64,10 +66,6 @@ public:
     bool canCopyAsResolve(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const;
 
-    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
-                                              GrColorType) const override;
-
-    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
 
     GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override;
