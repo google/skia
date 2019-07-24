@@ -22,6 +22,30 @@
       "revId": "86d99de826b56a7a96b0d0ce70ecb606e779063b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "751b8377_b8550ebf",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-24T18:51:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c02d973_5b460009",
+      "range": {
+        "startLine": 240,
+        "startChar": 0,
+        "endLine": 240,
+        "endChar": 58
+      },
+      "revId": "86d99de826b56a7a96b0d0ce70ecb606e779063b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
