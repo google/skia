@@ -17,14 +17,15 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     , fContext(*context)
     , fOutput(output)
     , fIntrinsics {
-         { "cos",     ByteCodeInstruction::kCos },
-         { "cross",   ByteCodeInstruction::kCross },
-         { "dot",     SpecialIntrinsic::kDot },
-         { "inverse", ByteCodeInstruction::kInverse2x2 },
-         { "sin",     ByteCodeInstruction::kSin },
-         { "sqrt",    ByteCodeInstruction::kSqrt },
-         { "tan",     ByteCodeInstruction::kTan },
-         { "mix",     ByteCodeInstruction::kMix },
+        { "cos",     ByteCodeInstruction::kCos },
+        { "cross",   ByteCodeInstruction::kCross },
+        { "dot",     SpecialIntrinsic::kDot },
+        { "inverse", ByteCodeInstruction::kInverse2x2 },
+        { "radians", SpecialIntrinsic::kRadians },
+        { "sin",     ByteCodeInstruction::kSin },
+        { "sqrt",    ByteCodeInstruction::kSqrt },
+        { "tan",     ByteCodeInstruction::kTan },
+        { "mix",     ByteCodeInstruction::kMix },
       } {}
 
 
@@ -879,12 +880,28 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     }
     int count = SlotCount(c.fArguments[0]->fType);
     if (found->second.fIsSpecial) {
-        SkASSERT(found->second.fValue.fSpecial == SpecialIntrinsic::kDot);
-        SkASSERT(c.fArguments.size() == 2);
-        SkASSERT(count == SlotCount(c.fArguments[1]->fType));
-        this->write((ByteCodeInstruction)((int)ByteCodeInstruction::kMultiplyF + count - 1));
-        for (int i = count; i > 1; --i) {
-            this->write(ByteCodeInstruction::kAddF);
+        SpecialIntrinsic special = found->second.fValue.fSpecial;
+        switch (special) {
+            case SpecialIntrinsic::kDot: {
+                SkASSERT(c.fArguments.size() == 2);
+                SkASSERT(count == SlotCount(c.fArguments[1]->fType));
+                this->write((ByteCodeInstruction)((int)ByteCodeInstruction::kMultiplyF + count-1));
+                for (int i = count; i > 1; --i) {
+                    this->write(ByteCodeInstruction::kAddF);
+                }
+                break;
+            }
+            case SpecialIntrinsic::kRadians: {
+                this->write(ByteCodeInstruction::kPushImmediate);
+                this->write32(float_to_bits(SK_FloatPI / 180));
+                for (int i = count; i > 1; --i) {
+                    this->write(ByteCodeInstruction::kDup);
+                }
+                this->write((ByteCodeInstruction)((int)ByteCodeInstruction::kMultiplyF + count-1));
+                break;
+            }
+            default:
+                SkASSERT(false);
         }
     } else {
         switch (found->second.fValue.fInstruction) {
@@ -910,7 +927,8 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                     default: SkASSERT(false);
                 }
                 this->write(op);
-            } break;
+                break;
+            }
             default:
                 SkASSERT(false);
         }

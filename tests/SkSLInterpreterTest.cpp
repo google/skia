@@ -741,6 +741,9 @@ DEF_TEST(SkSLInterpreterMathFunctions, r) {
 
     value = 25.0f; expected = 5.0f;
     test(r, "float main(float x) { return sqrt(x); }", &value, 1, &expected);
+
+    value = 90.0f; expected = sk_float_degrees_to_radians(value);
+    test(r, "float main(float x) { return radians(x); }", &value, 1, &expected);
 }
 
 DEF_TEST(SkSLInterpreterVoidFunction, r) {
