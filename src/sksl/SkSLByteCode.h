@@ -83,6 +83,7 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kMix),
     VECTOR_MATRIX(kMultiplyF),
     VECTOR(kMultiplyI),
+    VECTOR(kNormalize),
     kNotB,
     kOrB,
     VECTOR_MATRIX(kPop),

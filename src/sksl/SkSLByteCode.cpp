@@ -137,6 +137,7 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
         VECTOR_MATRIX_DISASSEMBLE(kNegateF, "negatef")
         VECTOR_DISASSEMBLE(kNegateI, "negatei")
+        VECTOR_DISASSEMBLE(kNormalize, "normalize")
         case ByteCodeInstruction::kNotB: printf("notb"); break;
         case ByteCodeInstruction::kOrB: printf("orb"); break;
         VECTOR_MATRIX_DISASSEMBLE(kPop, "pop")
@@ -785,6 +786,22 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             case ByteCodeInstruction::kNegateI2: sp[-1] = -sp[-1].fSigned;
             case ByteCodeInstruction::kNegateI : sp[ 0] = -sp[ 0].fSigned;
                                                  break;
+
+            case ByteCodeInstruction::kNormalize:
+            case ByteCodeInstruction::kNormalize2:
+            case ByteCodeInstruction::kNormalize3:
+            case ByteCodeInstruction::kNormalize4: {
+                int count = (int)inst - (int)ByteCodeInstruction::kNormalize + 1;
+                F32 len = sp[0].fFloat * sp[0].fFloat;
+                for (int i = 1; i < count; ++i) {
+                    len = skvx::mad(sp[-i].fFloat, sp[-i].fFloat, len);
+                }
+                F32 invLen = 1.0f / skvx::sqrt(len);
+                for (int i = 0; i < count; ++i) {
+                    sp[-i].fFloat *= invLen;
+                }
+                break;
+            }
 
             case ByteCodeInstruction::kPop4: POP();
             case ByteCodeInstruction::kPop3: POP();
