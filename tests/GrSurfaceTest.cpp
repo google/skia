@@ -169,7 +169,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             tex = resourceProvider->createTexture(desc, GrRenderable::kYes, 1, SkBudgeted::kNo,
                                                   GrProtected::kNo,
                                                   GrResourceProvider::Flags::kNoPendingIO);
-            bool isRenderable = caps->isConfigRenderable(config);
+            bool isRenderable = caps->isFormatRenderable(colorType, format);
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "config:%d, tex:%d, isRenderable:%d", config, SkToBool(tex),
                             isRenderable);
