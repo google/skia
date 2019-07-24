@@ -39,6 +39,13 @@ LOTTIE_WEB_BLACKLIST = [
   'lottiefiles.com - Retweet.json',
 ]
 
+# These files work in SVG but not in Canvas.
+LOTTIE_WEB_CANVAS_BLACKLIST = LOTTIE_WEB_BLACKLIST + [
+  'Hello World.json',
+  'interactive_menu.json',
+  'Name.json',
+]
+
 
 def RunSteps(api):
   api.vars.setup()
@@ -67,12 +74,22 @@ def RunSteps(api):
   elif 'LottieWeb' in buildername:
     source_type = 'lottie-web'
     renderer = 'lottie-web'
+    if 'Canvas' in buildername:
+      backend = 'canvas'
+      lottie_files = [
+          x for x in lottie_files
+          if api.path.basename(x) not in LOTTIE_WEB_CANVAS_BLACKLIST]
+    else:
+      backend = 'svg'
+      lottie_files = [x for x in lottie_files
+                      if api.path.basename(x) not in LOTTIE_WEB_BLACKLIST]
 
     perf_app_dir = checkout_root.join('skia', 'tools', 'lottie-web-perf')
     lottie_web_js_path = perf_app_dir.join('lottie-web-perf.js')
-    perf_app_cmd = [node_path, lottie_web_js_path]
-    lottie_files = [x for x in lottie_files
-                    if api.path.basename(x) not in LOTTIE_WEB_BLACKLIST]
+    perf_app_cmd = [
+        node_path, lottie_web_js_path,
+        '--backend', backend,
+    ]
   else:
     raise Exception('Could not recognize the buildername %s' % buildername)
 
@@ -352,6 +369,46 @@ def GenTests(api):
   yield (
       api.test('lottie_web_perf_trybot') +
       api.properties(buildername=lottieweb_cpu_buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     trace_test_data=trace_output,
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     patch_ref='89/456789/12',
+                     patch_repo='https://skia.googlesource.com/skia.git',
+                     patch_storage='gerrit',
+                     patch_set=7,
+                     patch_issue=1234,
+                     gerrit_project='skia',
+                     gerrit_url='https://skia-review.googlesource.com/') +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie3.json trace',
+                    api.json.output(parse_trace_json))
+  )
+
+  lottieweb_canvas_cpu_buildername = (
+      'Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-LottieWeb_Canvas')
+  yield (
+      api.test('lottie_web_canvas_perf') +
+      api.properties(buildername=lottieweb_canvas_cpu_buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     trace_test_data=trace_output,
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie3.json trace',
+                    api.json.output(parse_trace_json))
+  )
+  yield (
+      api.test('lottie_web_canvas_perf_trybot') +
+      api.properties(buildername=lottieweb_canvas_cpu_buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
