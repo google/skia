@@ -44,8 +44,6 @@
       "[CLEANUP]/bot_update",
       "--output_json",
       "/path/to/tmp/json",
-      "--patch_ref",
-      "https://skia.googlesource.com/skia.git@abc123:89/456789/12",
       "--revision",
       "skia@abc123"
     ],
@@ -133,7 +131,7 @@
       "[START_DIR]/node/node/bin/node",
       "[START_DIR]/cache/work/skia/tools/lottie-web-perf/lottie-web-perf.js",
       "--backend",
-      "svg",
+      "canvas",
       "--input",
       "[START_DIR]/lottie-samples/lottie1.json",
       "--output",
@@ -262,7 +260,7 @@
       "[START_DIR]/node/node/bin/node",
       "[START_DIR]/cache/work/skia/tools/lottie-web-perf/lottie-web-perf.js",
       "--backend",
-      "svg",
+      "canvas",
       "--input",
       "[START_DIR]/lottie-samples/lottie2.json",
       "--output",
@@ -391,7 +389,7 @@
       "[START_DIR]/node/node/bin/node",
       "[START_DIR]/cache/work/skia/tools/lottie-web-perf/lottie-web-perf.js",
       "--backend",
-      "svg",
+      "canvas",
       "--input",
       "[START_DIR]/lottie-samples/lottie3.json",
       "--output",
@@ -573,7 +571,7 @@
     "cmd": [
       "python",
       "-u",
-      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie2.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'patch_storage': 'gerrit', 'swarming_task_id': '', 'renderer': 'lottie-web', 'key': {'extra_config': 'LottieWeb', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'x86_64', 'source_type': 'lottie-web', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'none'}, 'swarming_bot_id': '', 'patchset': 7, 'issue': 1234}, fp=outfile, indent=4)\n"
+      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie2.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'lottie-web', 'key': {'extra_config': 'LottieWeb_Canvas', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'x86_64', 'source_type': 'lottie-web', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'none'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)\n"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -583,7 +581,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import json@@@",
       "@@@STEP_LOG_LINE@python.inline@with open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie2.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'patch_storage': 'gerrit', 'swarming_task_id': '', 'renderer': 'lottie-web', 'key': {'extra_config': 'LottieWeb', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'x86_64', 'source_type': 'lottie-web', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'none'}, 'swarming_bot_id': '', 'patchset': 7, 'issue': 1234}, fp=outfile, indent=4)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie2.json': {'gl': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'lottie-web', 'key': {'extra_config': 'LottieWeb_Canvas', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'x86_64', 'source_type': 'lottie-web', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'none'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },

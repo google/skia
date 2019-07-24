@@ -130,6 +130,8 @@
     "cmd": [
       "[START_DIR]/node/node/bin/node",
       "[START_DIR]/cache/work/skia/tools/lottie-web-perf/lottie-web-perf.js",
+      "--backend",
+      "svg",
       "--input",
       "[START_DIR]/lottie-samples/lottie1.json",
       "--output",
@@ -257,6 +259,8 @@
     "cmd": [
       "[START_DIR]/node/node/bin/node",
       "[START_DIR]/cache/work/skia/tools/lottie-web-perf/lottie-web-perf.js",
+      "--backend",
+      "svg",
       "--input",
       "[START_DIR]/lottie-samples/lottie2.json",
       "--output",
@@ -384,6 +388,8 @@
     "cmd": [
       "[START_DIR]/node/node/bin/node",
       "[START_DIR]/cache/work/skia/tools/lottie-web-perf/lottie-web-perf.js",
+      "--backend",
+      "svg",
       "--input",
       "[START_DIR]/lottie-samples/lottie3.json",
       "--output",
