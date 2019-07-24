@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8bb1f45_d6fce443",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-24T19:20:53Z",
+      "side": 1,
+      "message": "Doesn\u0027t this need more changes to avoid duplicate declarations and the return value to be available to the caller? Something like:\nif (fFunctionNames[childIndex].size() \u003d\u003d 0) {\n  // internalInvoke\n}\nargs.fFragBuilder-\u003ecodeAppendf(\"%s(%s)\", ffunctionNames[childIndex].c_str(),\n                               inputColor ? inputColor ? \"half4(1)\");\n\n... at which point, I think the version that takes outputColor could call this one to remove redundant logic?",
+      "revId": "ec16b225159b94d12adf4b7bfb1e0615157f81ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43934b76_86c05b7c",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-24T19:20:53Z",
+      "side": 1,
+      "message": "Remove outdated comment?",
+      "revId": "ec16b225159b94d12adf4b7bfb1e0615157f81ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67319c00_4eeada52",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-24T19:20:53Z",
+      "side": 1,
+      "message": "Just to be clear: This is some kind of special keyword that the compiler is going to use to name the arguments? I couldn\u0027t find anything other than some code in SkSLCPPCodeGenerator.cpp when handling process(), but that appears to always append an argument index to \"_input\"?",
+      "range": {
+        "startLine": 72,
+        "startChar": 22,
+        "endLine": 72,
+        "endChar": 32
+      },
+      "revId": "ec16b225159b94d12adf4b7bfb1e0615157f81ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
