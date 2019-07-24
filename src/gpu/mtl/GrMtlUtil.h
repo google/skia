@@ -94,4 +94,6 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
  */
 id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface);
 
+size_t GrMtlBytesPerFormat(MTLPixelFormat);
+
 #endif

@@ -629,7 +629,7 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     return true;
 }
 
-bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFormat format,
+bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
                                                int w, int h, bool texturable,
                                                bool renderable, GrMipMapped mipMapped,
                                                const void* srcData, size_t srcRowBytes,
@@ -640,10 +640,10 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
         SkASSERT(!srcData);
     }
 
-    if (texturable && !fMtlCaps->isConfigTexturable(config)) {
+    if (texturable && !fMtlCaps->isFormatTexturable(format)) {
         return false;
     }
-    if (renderable && !fMtlCaps->isConfigRenderable(config)) {
+    if (renderable && !fMtlCaps->isFormatRenderable(format)) {
         return false;
     }
     // Currently we don't support uploading pixel data when mipped.
@@ -666,7 +666,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
     desc.usage |= renderable ? MTLTextureUsageRenderTarget : 0;
     id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
 
-    size_t bpp = GrBytesPerPixel(config);
+    size_t bpp = GrMtlBytesPerFormat(format);
     if (!srcRowBytes) {
         srcRowBytes = w * bpp;
 #ifdef SK_BUILD_FOR_MAC
@@ -814,14 +814,8 @@ GrBackendTexture GrMtlGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();
     }
 
-    GrPixelConfig config;
-
-    if (!mtl_format_to_pixel_config(static_cast<MTLPixelFormat>(*mtlFormat), &config)) {
-        return GrBackendTexture();
-    }
-
     GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(config, static_cast<MTLPixelFormat>(*mtlFormat),
+    if (!this->createTestingOnlyMtlTextureInfo(static_cast<MTLPixelFormat>(*mtlFormat),
                                                w, h, true,
                                                GrRenderable::kYes == renderable, mipMapped,
                                                pixels, rowBytes, &info)) {
@@ -829,12 +823,11 @@ GrBackendTexture GrMtlGpu::createBackendTexture(int w, int h,
     }
 
     GrBackendTexture backendTex(w, h, mipMapped, info);
-    backendTex.fConfig = config;
     return backendTex;
 }
 
 void GrMtlGpu::deleteBackendTexture(const GrBackendTexture& tex) {
-    SkASSERT(GrBackendApi::kMetal == tex.fBackend);
+    SkASSERT(GrBackendApi::kMetal == tex.backend());
     // Nothing to do here, will get cleaned up when the GrBackendTexture object goes away
 }
 
@@ -866,18 +859,17 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
     }
 
     GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(config, format, w, h, false, true,
+    if (!this->createTestingOnlyMtlTextureInfo(format, w, h, false, true,
                                                GrMipMapped::kNo, nullptr, 0, &info)) {
         return {};
     }
 
     GrBackendRenderTarget backendRT(w, h, 1, info);
-    backendRT.fConfig = config;
     return backendRT;
 }
 
 void GrMtlGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {
-    SkASSERT(GrBackendApi::kMetal == rt.fBackend);
+    SkASSERT(GrBackendApi::kMetal == rt.backend());
 
     GrMtlTextureInfo info;
     if (rt.getMtlTextureInfo(&info)) {

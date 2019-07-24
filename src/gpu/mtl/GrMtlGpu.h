@@ -218,7 +218,7 @@ private:
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
 
-    bool createTestingOnlyMtlTextureInfo(GrPixelConfig, MTLPixelFormat,
+    bool createTestingOnlyMtlTextureInfo(MTLPixelFormat,
                                          int w, int h, bool texturable,
                                          bool renderable, GrMipMapped mipMapped,
                                          const void* srcData, size_t rowBytes,

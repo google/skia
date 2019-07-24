@@ -249,37 +249,14 @@ public:
     bool isSameTexture(const GrBackendTexture&);
 
 #if GR_TEST_UTILS
-    // We can remove the pixelConfig setter once we remove the GrPixelConfig from the
-    // GrBackendTexture and plumb the GrPixelConfig manually throughout our code (or remove all use
-    // of GrPixelConfig in general).
-    void setPixelConfig(GrPixelConfig config) { fConfig = config; }
-
     static bool TestingOnly_Equals(const GrBackendTexture& , const GrBackendTexture&);
 #endif
 
 private:
-    // Friending for access to the GrPixelConfig
-    friend class SkImage;
-    friend class SkImage_Gpu;
-    friend class SkImage_GpuBase;
-    friend class SkImage_GpuYUVA;
-    friend class SkPromiseImageHelper;
-    friend class SkSurface;
-    friend class SkSurface_Gpu;
-    friend class GrAHardwareBufferImageGenerator;
-    friend class GrBackendTextureImageGenerator;
-    friend class GrProxyProvider;
-    friend class GrGpu;
-    friend class GrGLGpu;
-    friend class GrDawnGpu;
-    friend class GrVkGpu;
-    friend class GrMtlGpu;
-    friend class PromiseImageHelper;
-
-    GrPixelConfig config() const { return fConfig; }
 
 #ifdef SK_GL
     friend class GrGLTexture;
+    friend class GrGLGpu;    // for getGLTextureParams
     GrBackendTexture(int width,
                      int height,
                      GrMipMapped,
@@ -290,6 +267,7 @@ private:
 
 #ifdef SK_VULKAN
     friend class GrVkTexture;
+    friend class GrVkGpu;    // for getGrVkImageLayout
     GrBackendTexture(int width,
                      int height,
                      const GrVkImageInfo& vkInfo,
@@ -303,7 +281,6 @@ private:
     bool fIsValid;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
-    GrPixelConfig fConfig;
     GrMipMapped fMipMapped;
     GrBackendApi fBackend;
 
@@ -414,28 +391,11 @@ public:
 
 
 #if GR_TEST_UTILS
-    // We can remove the pixelConfig setter once we remove the pixel config from the
-    // GrBackendRenderTarget and plumb the pixel config manually throughout our code (or remove all
-    // use of GrPixelConfig in general).
-    void setPixelConfig(GrPixelConfig config) { fConfig = config; }
-
     static bool TestingOnly_Equals(const GrBackendRenderTarget&, const GrBackendRenderTarget&);
 #endif
 
 private:
-    // Friending for access to the GrPixelConfig
-    friend class SkSurface;
-    friend class SkSurface_Gpu;
-    friend class SkImage_Gpu;
-    friend class GrGpu;
-    friend class GrGLGpu;
-    friend class GrDawnGpu;
-    friend class GrProxyProvider;
-    friend class GrVkGpu;
-    friend class GrMtlGpu;
-    GrPixelConfig config() const { return fConfig; }
-
-    // Requires friending of GrVkGpu (done above already)
+    friend class GrVkGpu; // for getGrVkImageLayout
     sk_sp<GrVkImageLayout> getGrVkImageLayout() const;
 
     friend class GrVkRenderTarget;
@@ -451,7 +411,6 @@ private:
 
     int fSampleCnt;
     int fStencilBits;
-    GrPixelConfig fConfig;
 
     GrBackendApi fBackend;
 
