@@ -162,7 +162,7 @@ public:
         std::vector<SkString> childNames;
         for (int i = 0; i < this->numChildProcessors(); ++i) {
             childNames.push_back(SkStringPrintf("_child%d", i));
-            this->emitChild(i, &childNames[i], args);
+            this->invokeChild(i, &childNames[i], args);
         }
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         int substringStartIndex = 0;
