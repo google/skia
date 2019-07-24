@@ -25,18 +25,18 @@ public:
         (void)_outer;
         SkString _child0("_child0");
         if (_outer.child1_index >= 0) {
-            this->emitChild(_outer.child1_index, &_child0, args);
+            this->invokeChild(_outer.child1_index, &_child0, args);
         } else {
             fragBuilder->codeAppendf("half4 %s;", _child0.c_str());
         }
         SkString _child1("_child1");
         if (_outer.child2_index >= 0) {
-            this->emitChild(_outer.child2_index, &_child1, args);
+            this->invokeChild(_outer.child2_index, &_child1, args);
         } else {
             fragBuilder->codeAppendf("half4 %s;", _child1.c_str());
         }
         SkString _child2("_child2");
-        this->emitChild(_outer.lerp_index, &_child2, args);
+        this->invokeChild(_outer.lerp_index, &_child2, args);
         fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, %s.x);\n", args.fOutputColor,
                                  _outer.child1_index >= 0 ? "true" : "false", _child0.c_str(),
                                  args.fInputColor, _outer.child2_index >= 0 ? "true" : "false",
