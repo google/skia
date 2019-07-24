@@ -233,7 +233,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             public:
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-                    this->emitChild(0, args);
+                    this->invokeChild(0, args);
                     fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
                                                                 args.fInputColor);
                     fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
@@ -310,15 +310,15 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
                 void emitCode(EmitArgs& args) override {
                     // First guy's input might be nil.
                     SkString temp("out0");
-                    this->emitChild(0, args.fInputColor, &temp, args);
+                    this->invokeChild(0, args.fInputColor, &temp, args);
                     SkString input = temp;
                     for (int i = 1; i < this->numChildProcessors() - 1; ++i) {
                         temp.printf("out%d", i);
-                        this->emitChild(i, input.c_str(), &temp, args);
+                        this->invokeChild(i, input.c_str(), &temp, args);
                         input = temp;
                     }
                     // Last guy writes to our output variable.
-                    this->emitChild(this->numChildProcessors() - 1, input.c_str(), args);
+                    this->invokeChild(this->numChildProcessors() - 1, input.c_str(), args);
                 }
             };
             return new GLFP;

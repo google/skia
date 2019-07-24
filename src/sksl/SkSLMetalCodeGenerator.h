@@ -90,11 +90,12 @@ public:
 
 protected:
     typedef int Requirements;
-    static constexpr Requirements kNo_Requirements      = 0;
-    static constexpr Requirements kInputs_Requirement   = 1 << 0;
-    static constexpr Requirements kOutputs_Requirement  = 1 << 1;
-    static constexpr Requirements kUniforms_Requirement = 1 << 2;
-    static constexpr Requirements kGlobals_Requirement  = 1 << 3;
+    static constexpr Requirements kNo_Requirements       = 0;
+    static constexpr Requirements kInputs_Requirement    = 1 << 0;
+    static constexpr Requirements kOutputs_Requirement   = 1 << 1;
+    static constexpr Requirements kUniforms_Requirement  = 1 << 2;
+    static constexpr Requirements kGlobals_Requirement   = 1 << 3;
+    static constexpr Requirements kFragCoord_Requirement = 1 << 4;
 
     enum IntrinsicKind {
         kSpecial_IntrinsicKind,

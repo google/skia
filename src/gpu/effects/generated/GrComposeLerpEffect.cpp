@@ -29,13 +29,13 @@ public:
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType, "weight");
         SkString _child0("_child0");
         if (_outer.child1_index >= 0) {
-            this->emitChild(_outer.child1_index, &_child0, args);
+            this->invokeChild(_outer.child1_index, &_child0, args);
         } else {
             fragBuilder->codeAppendf("half4 %s;", _child0.c_str());
         }
         SkString _child1("_child1");
         if (_outer.child2_index >= 0) {
-            this->emitChild(_outer.child2_index, &_child1, args);
+            this->invokeChild(_outer.child2_index, &_child1, args);
         } else {
             fragBuilder->codeAppendf("half4 %s;", _child1.c_str());
         }

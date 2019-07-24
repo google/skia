@@ -16,21 +16,33 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
     this->onSetData(pdman, processor);
 }
 
-void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor, EmitArgs& args) {
-    this->internalEmitChild(childIndex, inputColor, args.fOutputColor, args);
+void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor, EmitArgs& args) {
+    while (childIndex >= (int) fFunctionNames.size()) {
+        fFunctionNames.emplace_back();
+    }
+    this->internalInvokeChild(childIndex, inputColor, args.fOutputColor, args);
 }
 
-void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
-                                        SkString* outputColor, EmitArgs& args) {
+void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
+                                          SkString* outputColor, EmitArgs& args) {
     SkASSERT(outputColor);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     outputColor->append(fragBuilder->getMangleString());
     fragBuilder->codeAppendf("half4 %s;", outputColor->c_str());
-    this->internalEmitChild(childIndex, inputColor, outputColor->c_str(), args);
+    while (childIndex >= (int) fFunctionNames.size()) {
+        fFunctionNames.emplace_back();
+    }
+    if (fFunctionNames[childIndex].size() == 0) {
+        this->internalInvokeChild(childIndex, inputColor, outputColor->c_str(), args);
+    } else {
+        fragBuilder->codeAppendf("%s = %s(%s);", outputColor->c_str(),
+                                 fFunctionNames[childIndex].c_str(),
+                                 inputColor ? inputColor : "half4(1)");
+    }
 }
 
-void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
-                                                const char* outputColor, EmitArgs& args) {
+void GrGLSLFragmentProcessor::internalInvokeChild(int childIndex, const char* inputColor,
+                                                  const char* outputColor, EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
     fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
@@ -48,24 +60,24 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
 
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
 
-    // emit the code for the child in its own scope
-    fragBuilder->codeAppend("{\n");
-    fragBuilder->codeAppendf("// Child Index %d (mangle: %s): %s\n", childIndex,
-                             fragBuilder->getMangleString().c_str(), childProc.name());
     TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
     TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
 
-    // EmitArgs properly updates inputColor to half4(1) if it was null
     EmitArgs childArgs(fragBuilder,
                        args.fUniformHandler,
                        args.fShaderCaps,
                        childProc,
                        outputColor,
-                       inputName.size() > 0 ? inputName.c_str() : nullptr,
+                       "_input",
                        coordVars,
                        textureSamplers);
-    this->childProcessor(childIndex)->emitCode(childArgs);
-    fragBuilder->codeAppend("}\n");
+    fFunctionNames[childIndex] = fragBuilder->writeProcessorFunction(
+                                                               this->childProcessor(childIndex),
+                                                               childArgs);
+    fragBuilder->codeAppendf("%s = %s(%s);\n", outputColor,
+                                               fFunctionNames[childIndex].c_str(),
+                                               inputName.size() > 0 ? inputName.c_str()
+                                                                    : "half4(1)");
 
     fragBuilder->onAfterChildProcEmitCode();
 }

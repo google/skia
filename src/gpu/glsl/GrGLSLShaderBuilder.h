@@ -198,6 +198,11 @@ protected:
         fCodeIndex++;
     }
 
+    void deleteStage() {
+        fShaderStrings.pop_back();
+        fCodeIndex--;
+    }
+
     SkString& extensions() { return fShaderStrings[kExtensions]; }
     SkString& definitions() { return fShaderStrings[kDefinitions]; }
     SkString& precisionQualifier() { return fShaderStrings[kPrecisionQualifier]; }
