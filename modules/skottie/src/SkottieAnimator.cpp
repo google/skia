@@ -462,5 +462,16 @@ bool AnimationBuilder::bindProperty(const skjson::Value& jv,
     return BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
 }
 
+template <>
+bool AnimationBuilder::bindProp(const skjson::Value& jv,
+                                AnimatorScope* ascope,
+                                const Capture& cap,
+                                PropertyCallback<ScalarValue> cb) const {
+    // TODO
+    cb(cap, 0.0f);
+
+    return false;
+}
+
 } // namespace internal
 } // namespace skottie
