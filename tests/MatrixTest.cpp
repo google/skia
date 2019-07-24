@@ -960,6 +960,9 @@ DEF_TEST(Matrix, reporter) {
     mat.setScaleTranslate(2, 3, 1, 4);
     mat2.setScale(2, 3).postTranslate(1, 4);
     REPORTER_ASSERT(reporter, mat == mat2);
+
+    mat.setRotate(180);
+    REPORTER_ASSERT(reporter, (SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask) == mat.getType());
 }
 
 DEF_TEST(Matrix_Concat, r) {

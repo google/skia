@@ -431,9 +431,9 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     SkScalar yScale = matrix.getScaleY();
 
     // There is a rotation of 90 (Clockwise 90) or 270 (Counter clockwise 90).
-    // 180 degrees rotations are simply flipX with a flipY and would come under
+    // 180 degree rotations are simply flipX with a flipY and are implemented as
     // a scale transform.
-    if (!matrix.isScaleTranslate()) {
+    if (!matrix.isScaleTranslate() && matrix.getSkewX() != 0) {
         const bool isClockwise = matrix.getSkewX() < 0;
 
         // The matrix location for scale changes if there is a rotation.

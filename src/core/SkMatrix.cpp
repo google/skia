@@ -152,15 +152,19 @@ uint8_t SkMatrix::computeTypeMask() const {
 
         mask |= (dp0 & ds1) << kRectStaysRect_Shift;
     } else {
-        // Only test for scale explicitly if not affine, since affine sets the
-        // scale bit.
+        // Test for scale explicitly if upper 2x2 is diagonal matrix
         if ((m00 ^ kScalar1Int) | (m11 ^ kScalar1Int)) {
             mask |= kScale_Mask;
         }
 
-        // Not affine, therefore we already know secondary diagonal is
-        // all zeros, so we just need to check that primary diagonal is
-        // all non-zero.
+        // If either diagonal element is negative then there is a reflection
+        // or a rotation.
+        if ((m00 & 0x80000000) | (m11 & 0x80000000)) {
+            mask |= kAffine_Mask;
+        }
+
+        // We already know secondary diagonal is all zeros, so we just need to
+        // check that primary diagonal is all non-zero.
 
         // map non-zero to 1
         m00 = m00 != 0;
