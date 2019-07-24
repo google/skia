@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9f2d315_4adf5012",
+        "filename": "tools/sk_app/mac/DawnGLWindowContext_mac.mm",
+        "patchSetId": 12
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-07-24T19:16:16Z",
+      "side": 1,
+      "message": "You can remove this, and just use fMainView as the GL view.",
+      "range": {
+        "startLine": 97,
+        "startChar": 1,
+        "endLine": 124,
+        "endChar": 0
+      },
+      "revId": "fa69c286bcf09d2039173e3536106840ed84cd77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a21db6ce_495d645c",
+        "filename": "tools/sk_app/mac/DawnGLWindowContext_mac.mm",
+        "patchSetId": 12
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-07-24T19:16:16Z",
+      "side": 1,
+      "message": "Remove this, too.",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 0
+      },
+      "revId": "fa69c286bcf09d2039173e3536106840ed84cd77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
