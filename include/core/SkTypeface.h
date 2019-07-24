@@ -222,7 +222,6 @@ public:
      *  If this happens, it is possible that some or all of the memory pointed
      *  to by data may have been written to, even though an error has occured.
      *
-     *  @param fontID the font to copy the table from
      *  @param tag  The table tag whose contents are to be copied
      *  @param offset The offset in bytes into the table's contents where the
      *  copy should start from.
@@ -237,6 +236,16 @@ public:
      */
     size_t getTableData(SkFontTableTag tag, size_t offset, size_t length,
                         void* data) const;
+
+    /**
+     *  Return an immutable copy of the requested font table, or nullptr if that table was
+     *  not found. This can sometimes be faster than calling getTableData() twice: once to find
+     *  the length, and then again to copy the data.
+     *
+     *  @param tag  The table tag whose contents are to be copied
+     *  @return an immutable copy of the table's data, or nullptr.
+     */
+    sk_sp<SkData> copyTableData(SkFontTableTag tag) const;
 
     /**
      *  Return the units-per-em value for this typeface, or zero if there is an
@@ -400,6 +409,7 @@ protected:
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const = 0;
+    virtual sk_sp<SkData> onCopyTableData(SkFontTableTag) const;
 
     virtual bool onComputeBounds(SkRect*) const;
 

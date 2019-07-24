@@ -286,6 +286,7 @@ protected:
     }
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
+    sk_sp<SkData> onCopyTableData(SkFontTableTag) const override;
 };
 
 class FontMemResourceTypeface : public LogFontTypeface {
@@ -2077,6 +2078,35 @@ size_t LogFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
     DeleteDC(hdc);
 
     return bufferSize == GDI_ERROR ? 0 : bufferSize;
+}
+
+sk_sp<SkData> LogFontTypeface::onCopyTableData(SkFontTableTag tag) const {
+    LOGFONT lf = fLogFont;
+
+    HDC hdc = ::CreateCompatibleDC(nullptr);
+    HFONT font = CreateFontIndirect(&lf);
+    HFONT savefont = (HFONT)SelectObject(hdc, font);
+
+    tag = SkEndian_SwapBE32(tag);
+    DWORD size = GetFontData(hdc, tag, 0, nullptr, 0);
+    if (size == GDI_ERROR) {
+        call_ensure_accessible(lf);
+        size = GetFontData(hdc, tag, 0, nullptr, 0);
+    }
+
+    sk_sp<SkData> data;
+    if (size != GDI_ERROR) {
+        data = SkData::MakeUninitialized(size);
+        if (GetFontData(hdc, tag, 0, data->writable_data(), size) == GDI_ERROR) {
+            data.reset();
+        }
+    }
+
+    SelectObject(hdc, savefont);
+    DeleteObject(font);
+    DeleteDC(hdc);
+
+    return data;
 }
 
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
