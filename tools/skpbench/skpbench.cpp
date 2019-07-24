@@ -19,6 +19,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/SkGr.h"
+#include "src/utils/SkMultiPictureDocument.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
@@ -28,6 +29,7 @@
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/GpuTimer.h"
 #include "tools/gpu/GrContextFactory.h"
+#include "tools/SkSharingProc.h"
 
 #ifdef SK_XML
 #include "experimental/svg/model/SkSVGDOM.h"
@@ -111,6 +113,54 @@ enum class ExitErr {
     kUnavailable  = 69,
     kIO           = 74,
     kSoftware     = 70
+};
+
+// A multi frame SKP file can also be played back.
+// the recorded frames are looped over repeatedly.
+// This type of benchmark probably has a much higher std dev in frame times.
+class MultiFrameSkp {
+public:
+    MultiFrameSkp(const std::vector<SkDocumentPage>& frames) : fFrames(frames){}
+
+    static std::unique_ptr<MultiFrameSkp> MakeFromFile(const SkString& path) {
+        // Load the multi frame skp at the given filename.
+        std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path.c_str());
+        if (!stream) { return nullptr; }
+
+        // Attempt to deserialize with an image sharing serial proc.
+        auto deserialContext = std::make_unique<SkSharingDeserialContext>();
+        SkDeserialProcs procs;
+        procs.fImageProc = SkSharingDeserialContext::deserializeImage;
+        procs.fImageCtx = deserialContext.get();
+
+        // The outer format of multi-frame skps is the multi-picture document, which is a
+        // skp file containing subpictures separated by annotations.
+        int page_count = SkMultiPictureDocumentReadPageCount(stream.get());
+        if (!page_count) { return nullptr; }
+        std::vector<SkDocumentPage> frames(page_count); // can't call reserve, why?
+        if (!SkMultiPictureDocumentRead(stream.get(), frames.data(), page_count, &procs)) {
+            return nullptr;
+        }
+
+        return std::make_unique<MultiFrameSkp>(frames);
+    }
+
+    // Return the current frame and advance by one, looping back to the start if necessary.
+    sk_sp<SkPicture> frame() {
+        int fi = fFrameIndex;
+        fFrameIndex++;
+        if (fFrameIndex == (int)fFrames.size()){
+            fFrameIndex = 0;
+            fPlays++;
+        }
+        return fFrames[fi].fPicture;
+    }
+    // Return the number of times the animation has been played through.
+    int plays() { return fPlays; }
+private:
+    int fFrameIndex = 0;
+    int fPlays = 0;
+    std::vector<SkDocumentPage> fFrames;
 };
 
 static void draw_skp_and_flush(SkSurface*, const SkPicture*);
@@ -291,6 +341,70 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
     gpuTimer->deleteQuery(previousTime);
 }
 
+static void run_mskp_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
+                                   const sk_gpu_test::FenceSync* fenceSync, SkSurface* surface,
+                                   MultiFrameSkp* mskp, std::vector<Sample>* samples) {
+    using sk_gpu_test::PlatformTimerQuery;
+    using clock = std::chrono::steady_clock;
+    const clock::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
+    const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
+
+    if (!gpuTimer->disjointSupport()) {
+        fprintf(stderr, "WARNING: GPU timer cannot detect disjoint operations; "
+                        "results may be unreliable\n");
+    }
+
+    draw_skp_and_flush(surface, mskp->frame().get());
+    GpuSync gpuSync(fenceSync);
+
+    PlatformTimerQuery previousTime = 0;
+    for (int i = 1; i < kNumFlushesToPrimeCache; ++i) {
+        gpuTimer->queueStart();
+        draw_skp_and_flush(surface, mskp->frame().get());
+        previousTime = gpuTimer->queueStop();
+        gpuSync.syncToPreviousFrame();
+    }
+
+    clock::time_point now = clock::now();
+    const clock::time_point endTime = now + benchDuration;
+
+    do {
+        const clock::time_point sampleEndTime = now + sampleDuration;
+        samples->emplace_back();
+        Sample& sample = samples->back();
+
+        do {
+            gpuTimer->queueStart();
+            draw_skp_and_flush(surface, mskp->frame().get());
+            PlatformTimerQuery time = gpuTimer->queueStop();
+            gpuSync.syncToPreviousFrame();
+
+            switch (gpuTimer->checkQueryStatus(previousTime)) {
+                using QueryStatus = sk_gpu_test::GpuTimer::QueryStatus;
+                case QueryStatus::kInvalid:
+                    exitf(ExitErr::kUnavailable, "GPU timer failed");
+                case QueryStatus::kPending:
+                    exitf(ExitErr::kUnavailable, "timer query still not ready after fence sync");
+                case QueryStatus::kDisjoint:
+                    if (FLAGS_verbosity >= 4) {
+                        fprintf(stderr, "discarding timer query due to disjoint operations.\n");
+                    }
+                    break;
+                case QueryStatus::kAccurate:
+                    sample.fDuration += gpuTimer->getTimeElapsed(previousTime);
+                    ++sample.fFrames;
+                    break;
+            }
+            gpuTimer->deleteQuery(previousTime);
+            previousTime = time;
+            now = clock::now();
+        } while (now < sampleEndTime || 0 == sample.fFrames);
+        // With multi-frame skp's always run at least until all the recorded frames have been drawn
+    } while ((now < endTime || 0 == samples->size() % 2) && mskp->plays() > 1);
+
+    gpuTimer->deleteQuery(previousTime);
+}
+
 void print_result(const std::vector<Sample>& samples, const char* config, const char* bench)  {
     if (0 == (samples.size() % 2)) {
         exitf(ExitErr::kSoftware, "attempted to gather stats on even number of samples");
@@ -355,6 +469,7 @@ int main(int argc, char** argv) {
     SkGraphics::Init();
 
     sk_sp<SkPicture> skp;
+    std::unique_ptr<MultiFrameSkp> mskp; // populated if the file is multi frame.
     SkString srcname;
     if (0 == strcmp(FLAGS_src[0], "warmup")) {
         skp = create_warmup_skp();
@@ -367,6 +482,10 @@ int main(int argc, char** argv) {
         }
         if (srcfile.endsWith(".svg")) {
             skp = create_skp_from_svg(srcstream.get(), srcfile.c_str());
+        } else if (srcfile.endsWith(".mskp")) {
+            mskp = MultiFrameSkp::MakeFromFile(srcfile);
+            // populate skp with it's first frame, for width height determination.
+            skp = mskp->frame();
         } else {
             skp = SkPicture::MakeFromStream(srcstream.get());
         }
@@ -459,8 +578,13 @@ int main(int argc, char** argv) {
         if (!testCtx->gpuTimingSupport()) {
             exitf(ExitErr::kUnavailable, "GPU does not support timing");
         }
-        run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), surface.get(), skp.get(),
-                               &samples);
+        if (!mskp) {
+            run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), surface.get(),
+                                   skp.get(), &samples);
+        } else {
+            run_mskp_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), surface.get(),
+                                   mskp.get(), &samples);
+        }
     }
     print_result(samples, config->getTag().c_str(), srcname.c_str());
 
