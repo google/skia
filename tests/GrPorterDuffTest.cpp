@@ -101,7 +101,7 @@ public:
             // should always go hand in hand for Porter Duff modes.
             TEST_ASSERT(analysis.requiresDstTexture() == analysis.requiresNonOverlappingDraws());
             GetXPOutputTypes(xp.get(), &fPrimaryOutputType, &fSecondaryOutputType);
-            xp->getBlendInfo(&fBlendInfo);
+            fBlendInfo = xp->getBlendInfo();
             TEST_ASSERT(!xp->willReadDstColor() ||
                         (isLCD && (SkBlendMode::kSrcOver != xfermode ||
                                    !inputColor.isOpaque())));
@@ -960,8 +960,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         return;
     }
 
-    GrXferProcessor::BlendInfo blendInfo;
-    xp_opaque->getBlendInfo(&blendInfo);
+    GrXferProcessor::BlendInfo blendInfo = xp_opaque->getBlendInfo();
     TEST_ASSERT(blendInfo.fWriteColor);
 
     // Test with non-opaque alpha
@@ -976,7 +975,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         return;
     }
 
-    xp->getBlendInfo(&blendInfo);
+    blendInfo = xp->getBlendInfo();
     TEST_ASSERT(blendInfo.fWriteColor);
 }
 

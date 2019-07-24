@@ -1948,15 +1948,11 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     this->resolveAndGenerateMipMapsForProcessorTextures(
             primProc, pipeline, primProcProxiesForMipRegen, numPrimProcTextureSets);
 
-    GrXferProcessor::BlendInfo blendInfo;
-    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
-
-    this->flushColorWrite(blendInfo.fWriteColor);
-
     this->flushProgram(std::move(program));
 
     // Swizzle the blend to match what the shader will output.
-    this->flushBlend(blendInfo, pipeline.outputSwizzle());
+    this->flushBlendAndColorWrite(
+            pipeline.getXferProcessor().getBlendInfo(), pipeline.outputSwizzle());
 
     fHWProgram->updateUniformsAndTextureBindings(renderTarget, origin,
                                                  primProc, pipeline, primProcProxiesToBind);
@@ -2719,17 +2715,29 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
     }
 }
 
-void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle& swizzle) {
-    // Any optimization to disable blending should have already been applied and
-    // tweaked the equation to "add" or "subtract", and the coeffs to (1, 0).
+void GrGLGpu::flushBlendAndColorWrite(
+        const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle& swizzle) {
+    if (this->glCaps().neverDisableColorWrites() && !blendInfo.fWriteColor) {
+        // We need to work around a driver bug by using a blend state that preserves the dst color,
+        // rather than disabling color writes.
+        GrXferProcessor::BlendInfo preserveDstBlend;
+        preserveDstBlend.fSrcBlend = kZero_GrBlendCoeff;
+        preserveDstBlend.fDstBlend = kOne_GrBlendCoeff;
+        this->flushBlendAndColorWrite(preserveDstBlend, swizzle);
+        return;
+    }
 
     GrBlendEquation equation = blendInfo.fEquation;
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
+
+    // Any optimization to disable blending should have already been applied and
+    // tweaked the equation to "add" or "subtract", and the coeffs to (1, 0).
     bool blendOff =
         ((kAdd_GrBlendEquation == equation || kSubtract_GrBlendEquation == equation) &&
         kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff) ||
         !blendInfo.fWriteColor;
+
     if (blendOff) {
         if (kNo_TriState != fHWBlendState.fEnabled) {
             GL_CALL(Disable(GR_GL_BLEND));
@@ -2747,41 +2755,42 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
 
             fHWBlendState.fEnabled = kNo_TriState;
         }
-        return;
-    }
+    } else {
+        if (kYes_TriState != fHWBlendState.fEnabled) {
+            GL_CALL(Enable(GR_GL_BLEND));
 
-    if (kYes_TriState != fHWBlendState.fEnabled) {
-        GL_CALL(Enable(GR_GL_BLEND));
+            fHWBlendState.fEnabled = kYes_TriState;
+        }
 
-        fHWBlendState.fEnabled = kYes_TriState;
-    }
+        if (fHWBlendState.fEquation != equation) {
+            GL_CALL(BlendEquation(gXfermodeEquation2Blend[equation]));
+            fHWBlendState.fEquation = equation;
+        }
 
-    if (fHWBlendState.fEquation != equation) {
-        GL_CALL(BlendEquation(gXfermodeEquation2Blend[equation]));
-        fHWBlendState.fEquation = equation;
-    }
+        if (GrBlendEquationIsAdvanced(equation)) {
+            SkASSERT(this->caps()->advancedBlendEquationSupport());
+            // Advanced equations have no other blend state.
+            return;
+        }
 
-    if (GrBlendEquationIsAdvanced(equation)) {
-        SkASSERT(this->caps()->advancedBlendEquationSupport());
-        // Advanced equations have no other blend state.
-        return;
-    }
+        if (fHWBlendState.fSrcCoeff != srcCoeff || fHWBlendState.fDstCoeff != dstCoeff) {
+            GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
+                              gXfermodeCoeff2Blend[dstCoeff]));
+            fHWBlendState.fSrcCoeff = srcCoeff;
+            fHWBlendState.fDstCoeff = dstCoeff;
+        }
 
-    if (fHWBlendState.fSrcCoeff != srcCoeff || fHWBlendState.fDstCoeff != dstCoeff) {
-        GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
-                          gXfermodeCoeff2Blend[dstCoeff]));
-        fHWBlendState.fSrcCoeff = srcCoeff;
-        fHWBlendState.fDstCoeff = dstCoeff;
-    }
-
-    if ((BlendCoeffReferencesConstant(srcCoeff) || BlendCoeffReferencesConstant(dstCoeff))) {
-        SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
-        if (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst) {
-            GL_CALL(BlendColor(blendConst.fR, blendConst.fG, blendConst.fB, blendConst.fA));
-            fHWBlendState.fConstColor = blendConst;
-            fHWBlendState.fConstColorValid = true;
+        if ((BlendCoeffReferencesConstant(srcCoeff) || BlendCoeffReferencesConstant(dstCoeff))) {
+            SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
+            if (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst) {
+                GL_CALL(BlendColor(blendConst.fR, blendConst.fG, blendConst.fB, blendConst.fA));
+                fHWBlendState.fConstColor = blendConst;
+                fHWBlendState.fConstColorValid = true;
+            }
         }
     }
+
+    this->flushColorWrite(blendInfo.fWriteColor);
 }
 
 static void get_gl_swizzle_values(const GrSwizzle& swizzle, GrGLenum glValues[4]) {
@@ -3514,10 +3523,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     GL_CALL(Uniform4f(fCopyPrograms[progIdx].fTexCoordXformUniform,
                       sx1 - sx0, sy1 - sy0, sx0, sy0));
     GL_CALL(Uniform1i(fCopyPrograms[progIdx].fTextureUniform, 0));
-    GrXferProcessor::BlendInfo blendInfo;
-    blendInfo.reset();
-    this->flushBlend(blendInfo, GrSwizzle::RGBA());
-    this->flushColorWrite(true);
+    this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), GrSwizzle::RGBA());
     this->flushHWAAState(nullptr, false);
     this->disableScissor();
     this->disableWindowRectangles();
@@ -3651,10 +3657,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
                  kFloat2_GrSLType, 2 * sizeof(GrGLfloat), 0);
 
     // Set "simple" state once:
-    GrXferProcessor::BlendInfo blendInfo;
-    blendInfo.reset();
-    this->flushBlend(blendInfo, GrSwizzle::RGBA());
-    this->flushColorWrite(true);
+    this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), GrSwizzle::RGBA());
     this->flushHWAAState(nullptr, false);
     this->disableScissor();
     this->disableWindowRectangles();
