@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "114908b6_05cd63cb",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-24T20:50:14Z",
+      "side": 0,
+      "message": "Like removeKey(), this doesn\u0027t appear to be referenced anywhere so I\u0027ll just remove it.",
+      "range": {
+        "startLine": 125,
+        "startChar": 9,
+        "endLine": 125,
+        "endChar": 18
+      },
+      "revId": "0c9ac58b37753035cd0176cd6c2b7d66a6e08db4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4128be8b_1a91edac",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-24T20:50:14Z",
+      "side": 0,
+      "message": "Currently this is just in SkImageFilterPriv as a static function, but I\u0027d like to see if it can be subsumed by the pending FilteredImage\u0027s utilities for building GrFragmentProcessors.",
+      "range": {
+        "startLine": 172,
+        "startChar": 33,
+        "endLine": 172,
+        "endChar": 43
+      },
+      "revId": "0c9ac58b37753035cd0176cd6c2b7d66a6e08db4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c42af64_91143ffb",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-24T20:50:14Z",
+      "side": 0,
+      "message": "This doesn\u0027t seem to have an implementation or be referenced anywhere.",
+      "range": {
+        "startLine": 196,
+        "startChar": 9,
+        "endLine": 196,
+        "endChar": 18
+      },
+      "revId": "0c9ac58b37753035cd0176cd6c2b7d66a6e08db4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8e7634f_73c7555a",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-24T20:50:14Z",
+      "side": 0,
+      "message": "I moved this to SkImageFilterPriv to stay with the static GPU utility function, but this could just be a protected static function in SkImageFilter. Or it could be handled automatically by just having the filter report a virtual hint that it evaluates multiple samples, so it would be best for the inputs to match the output space. (I believe that the common case this will be a noop since the layer\u0027s content will be the destination space, but for filters that use existing images as sources they will inherit that image\u0027s color space. Perhaps instead, ImageToColorSpace should always be applied as the last step of filtering?)",
+      "range": {
+        "startLine": 437,
+        "startChar": 33,
+        "endLine": 437,
+        "endChar": 50
+      },
+      "revId": "0c9ac58b37753035cd0176cd6c2b7d66a6e08db4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

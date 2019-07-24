@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "747ca784_3962bd4e",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-24T20:50:14Z",
+      "side": 1,
+      "message": "We could move this into SkImageFilterPriv, but it\u0027s only used by SkCanvas with SkApplyCTMToFilter, which will be going away soon(tm). So it\u0027s not worth it IMO.",
+      "range": {
+        "startLine": 367,
+        "startChar": 16,
+        "endLine": 367,
+        "endChar": 30
+      },
+      "revId": "421aa29abdb31a9fe01d40f73b3fd7376886b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20dff580_3fdbf54a",
+        "filename": "src/core/SkImageFilterPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-24T20:50:14Z",
+      "side": 1,
+      "message": "SkFilterOutputProperties and SkFilterContext are used instead of SkImageFilterPriv::OutputProperties/Context so that they can be forward declared easily.\n\nMaybe it\u0027s worth merging output properties and filter context together?",
+      "range": {
+        "startLine": 54,
+        "startChar": 6,
+        "endLine": 54,
+        "endChar": 30
+      },
+      "revId": "421aa29abdb31a9fe01d40f73b3fd7376886b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49db31b0_f157d1aa",
+        "filename": "src/core/SkSpecialImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-24T20:50:14Z",
+      "side": 1,
+      "message": "While special images are mostly intended to be used in image filtering, it feels weird to have this part of image filters so coupled to the special image API. All it needs is color type and color space here, so it\u0027s probably better to just have makeSurface/makeTightSurface accept those arguments directly.",
+      "range": {
+        "startLine": 95,
+        "startChar": 46,
+        "endLine": 95,
+        "endChar": 70
+      },
+      "revId": "421aa29abdb31a9fe01d40f73b3fd7376886b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
