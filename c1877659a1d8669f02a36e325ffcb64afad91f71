@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f39d6527_95c5dd48",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-24T19:46:19Z",
+      "side": 1,
+      "message": "Is this used somewhere?",
+      "revId": "c1877659a1d8669f02a36e325ffcb64afad91f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a9f03b3_56b18fc1",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-24T19:46:19Z",
+      "side": 1,
+      "message": "I think our style guide is to always put the body of the \u0027if\u0027 on a new line.",
+      "revId": "c1877659a1d8669f02a36e325ffcb64afad91f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4167cec_f4d1790b",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-24T19:46:19Z",
+      "side": 1,
+      "message": "If an animation is fairly short, then the sample might not last as long as sampleDuration. I think we need to keep looping in that case until we have exceeded a duration of sampleDuration.\n\nHow would you feel about replacing the \"draw_skp_and_flush/gpySync.sync\" lines with a virtual method? Then it would look like:\n\n\nint StaticSkp::drawAndFlushAndSync(surface, GpuSync\u0026 gpuSync) {\n    draw_skp_and_flush(...);\n    gpuSync.syncToPreviousFrame();\n    return 1;\n}\n\nAnimatedSkp::drawAndFlushAndSync(surface, GpuSync\u0026 sync) {\n    for (;;) {\n        draw_skp_and_flush(...);\n        gpuSync.syncToPreviousFrame();\n    }\n    return mskp-\u003ecount();\n}\n\n\n... run_benchmark() {\n...\n            do {\n                sample.fFrames +\u003d skpThingy-\u003edrawAndFlushAndSync(surface, gpuSync);\n                now \u003d clock::now();\n                sample.fDuration \u003d now - sampleStart;\n            } while (sample.fDuration \u003c sampleDuration);",
+      "revId": "c1877659a1d8669f02a36e325ffcb64afad91f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
