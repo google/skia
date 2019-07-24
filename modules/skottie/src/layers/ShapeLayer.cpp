@@ -49,17 +49,19 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const skjson::ObjectValue& jrect,
 
     auto adapter = sk_make_sp<RRectAdapter>(rect_node);
 
-    auto p_attached = abuilder->bindProperty<VectorValue>(jrect["p"], ascope,
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+    auto p_attached = abuilder->bindProp<VectorValue>(jrect["p"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& p) {
+            cap.as<decltype(adapter)::element_type>()
+                    ->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
         });
-    auto s_attached = abuilder->bindProperty<VectorValue>(jrect["s"], ascope,
-        [adapter](const VectorValue& s) {
-            adapter->setSize(ValueTraits<VectorValue>::As<SkSize>(s));
+    auto s_attached = abuilder->bindProp<VectorValue>(jrect["s"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& s) {
+            cap.as<decltype(adapter)::element_type>()
+                    ->setSize(ValueTraits<VectorValue>::As<SkSize>(s));
         });
-    auto r_attached = abuilder->bindProperty<ScalarValue>(jrect["r"], ascope,
-        [adapter](const ScalarValue& r) {
-            adapter->setRadius(SkSize::Make(r, r));
+    auto r_attached = abuilder->bindProp<ScalarValue>(jrect["r"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& r) {
+            cap.as<decltype(adapter)::element_type>()->setRadius(SkSize::Make(r, r));
         });
 
     if (!p_attached && !s_attached && !r_attached) {
@@ -79,15 +81,17 @@ sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const skjson::ObjectValue& jelli
 
     auto adapter = sk_make_sp<RRectAdapter>(rect_node);
 
-    auto p_attached = abuilder->bindProperty<VectorValue>(jellipse["p"], ascope,
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+    auto p_attached = abuilder->bindProp<VectorValue>(jellipse["p"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& p) {
+            cap.as<decltype(adapter)::element_type>()
+                    ->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
         });
-    auto s_attached = abuilder->bindProperty<VectorValue>(jellipse["s"], ascope,
-        [adapter](const VectorValue& s) {
+    auto s_attached = abuilder->bindProp<VectorValue>(jellipse["s"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& s) {
             const auto sz = ValueTraits<VectorValue>::As<SkSize>(s);
-            adapter->setSize(sz);
-            adapter->setRadius(SkSize::Make(sz.width() / 2, sz.height() / 2));
+            auto* adptr = cap.as<decltype(adapter)::element_type>();
+            adptr->setSize(sz);
+            adptr->setRadius(SkSize::Make(sz.width() / 2, sz.height() / 2));
         });
 
     if (!p_attached && !s_attached) {
@@ -114,33 +118,34 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jsta
     auto path_node = sksg::Path::Make();
     auto adapter = sk_make_sp<PolyStarAdapter>(path_node, gTypes[type]);
 
-    abuilder->bindProperty<VectorValue>(jstar["p"], ascope,
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+    abuilder->bindProp<VectorValue>(jstar["p"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& p) {
+            cap.as<decltype(adapter)::element_type>()
+                    ->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
         });
-    abuilder->bindProperty<ScalarValue>(jstar["pt"], ascope,
-        [adapter](const ScalarValue& pt) {
-            adapter->setPointCount(pt);
+    abuilder->bindProp<ScalarValue>(jstar["pt"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& pt) {
+            cap.as<decltype(adapter)::element_type>()->setPointCount(pt);
         });
-    abuilder->bindProperty<ScalarValue>(jstar["ir"], ascope,
-        [adapter](const ScalarValue& ir) {
-            adapter->setInnerRadius(ir);
+    abuilder->bindProp<ScalarValue>(jstar["ir"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& ir) {
+            cap.as<decltype(adapter)::element_type>()->setInnerRadius(ir);
         });
-    abuilder->bindProperty<ScalarValue>(jstar["or"], ascope,
-        [adapter](const ScalarValue& otr) {
-            adapter->setOuterRadius(otr);
+    abuilder->bindProp<ScalarValue>(jstar["or"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& otr) {
+            cap.as<decltype(adapter)::element_type>()->setOuterRadius(otr);
         });
-    abuilder->bindProperty<ScalarValue>(jstar["is"], ascope,
-        [adapter](const ScalarValue& is) {
-            adapter->setInnerRoundness(is);
+    abuilder->bindProp<ScalarValue>(jstar["is"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& is) {
+            cap.as<decltype(adapter)::element_type>()->setInnerRoundness(is);
         });
-    abuilder->bindProperty<ScalarValue>(jstar["os"], ascope,
-        [adapter](const ScalarValue& os) {
-            adapter->setOuterRoundness(os);
+    abuilder->bindProp<ScalarValue>(jstar["os"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& os) {
+            cap.as<decltype(adapter)::element_type>()->setOuterRoundness(os);
         });
-    abuilder->bindProperty<ScalarValue>(jstar["r"], ascope,
-        [adapter](const ScalarValue& r) {
-            adapter->setRotation(r);
+    abuilder->bindProp<ScalarValue>(jstar["r"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& r) {
+            cap.as<decltype(adapter)::element_type>()->setRotation(r);
         });
 
     return std::move(path_node);
@@ -171,17 +176,19 @@ sk_sp<sksg::ShaderPaint> AttachGradient(const skjson::ObjectValue& jgrad,
         gradient_node = std::move(radial_node);
     }
 
-    abuilder->bindProperty<VectorValue>((*stops)["k"], ascope,
-        [adapter](const VectorValue& stops) {
-            adapter->setColorStops(stops);
+    abuilder->bindProp<VectorValue>((*stops)["k"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& stops) {
+            cap.as<decltype(adapter)::element_type>()->setColorStops(stops);
         });
-    abuilder->bindProperty<VectorValue>(jgrad["s"], ascope,
-        [adapter](const VectorValue& s) {
-            adapter->setStartPoint(ValueTraits<VectorValue>::As<SkPoint>(s));
+    abuilder->bindProp<VectorValue>(jgrad["s"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& s) {
+            cap.as<decltype(adapter)::element_type>()
+                    ->setStartPoint(ValueTraits<VectorValue>::As<SkPoint>(s));
         });
-    abuilder->bindProperty<VectorValue>(jgrad["e"], ascope,
-        [adapter](const VectorValue& e) {
-            adapter->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(e));
+    abuilder->bindProp<VectorValue>(jgrad["e"], ascope, adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& e) {
+            cap.as<decltype(adapter)::element_type>()
+                    ->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(e));
         });
 
     return sksg::ShaderPaint::Make(std::move(gradient_node));
@@ -193,10 +200,10 @@ sk_sp<sksg::PaintNode> AttachPaint(const skjson::ObjectValue& jpaint,
     if (paint_node) {
         paint_node->setAntiAlias(true);
 
-        abuilder->bindProperty<ScalarValue>(jpaint["o"], ascope,
-            [paint_node](const ScalarValue& o) {
+        abuilder->bindProp<ScalarValue>(jpaint["o"], ascope, paint_node,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& o) {
                 // BM opacity is [0..100]
-                paint_node->setOpacity(o * 0.01f);
+                cap.as<decltype(paint_node)::element_type>()->setOpacity(o * 0.01f);
         });
     }
 
@@ -211,9 +218,9 @@ sk_sp<sksg::PaintNode> AttachStroke(const skjson::ObjectValue& jstroke,
 
     stroke_node->setStyle(SkPaint::kStroke_Style);
 
-    abuilder->bindProperty<ScalarValue>(jstroke["w"], ascope,
-        [stroke_node](const ScalarValue& w) {
-            stroke_node->setStrokeWidth(w);
+    abuilder->bindProp<ScalarValue>(jstroke["w"], ascope, stroke_node,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& w) {
+            cap.as<decltype(stroke_node)::element_type>()->setStrokeWidth(w);
         });
 
     stroke_node->setStrokeMiter(ParseDefault<SkScalar>(jstroke["ml"], 4.0f));
@@ -321,17 +328,17 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
         trimmed.push_back(trimEffect);
 
         const auto adapter = sk_make_sp<TrimEffectAdapter>(std::move(trimEffect));
-        abuilder->bindProperty<ScalarValue>(jtrim["s"], ascope,
-            [adapter](const ScalarValue& s) {
-                adapter->setStart(s);
+        abuilder->bindProp<ScalarValue>(jtrim["s"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& s) {
+                cap.as<decltype(adapter)::element_type>()->setStart(s);
             });
-        abuilder->bindProperty<ScalarValue>(jtrim["e"], ascope,
-            [adapter](const ScalarValue& e) {
-                adapter->setEnd(e);
+        abuilder->bindProp<ScalarValue>(jtrim["e"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& e) {
+                cap.as<decltype(adapter)::element_type>()->setEnd(e);
             });
-        abuilder->bindProperty<ScalarValue>(jtrim["o"], ascope,
-            [adapter](const ScalarValue& o) {
-                adapter->setOffset(o);
+        abuilder->bindProp<ScalarValue>(jtrim["o"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& o) {
+                cap.as<decltype(adapter)::element_type>()->setOffset(o);
             });
     }
 
@@ -349,9 +356,9 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachRoundGeometryEffect(
         const auto roundEffect = sksg::RoundEffect::Make(std::move(g));
         rounded.push_back(roundEffect);
 
-        abuilder->bindProperty<ScalarValue>(jtrim["r"], ascope,
-            [roundEffect](const ScalarValue& r) {
-                roundEffect->setRadius(r);
+        abuilder->bindProp<ScalarValue>(jtrim["r"], ascope, roundEffect,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& r) {
+                cap.as<decltype(roundEffect)::element_type>()->setRadius(r);
             });
     }
 
@@ -381,37 +388,40 @@ std::vector<sk_sp<sksg::RenderNode>> AttachRepeaterDrawEffect(
         auto adapter = sk_make_sp<RepeaterAdapter>(std::move(repeater_node),
                                                    repeater_composite);
 
-        abuilder->bindProperty<ScalarValue>(jrepeater["c"], ascope,
-            [adapter](const ScalarValue& c) {
-                adapter->setCount(c);
+        abuilder->bindProp<ScalarValue>(jrepeater["c"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& c) {
+                cap.as<decltype(adapter)::element_type>()->setCount(c);
             });
-        abuilder->bindProperty<ScalarValue>(jrepeater["o"], ascope,
-            [adapter](const ScalarValue& o) {
-                adapter->setOffset(o);
+        abuilder->bindProp<ScalarValue>(jrepeater["o"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& o) {
+                cap.as<decltype(adapter)::element_type>()->setOffset(o);
             });
-        abuilder->bindProperty<VectorValue>((*jtransform)["a"], ascope,
-            [adapter](const VectorValue& a) {
-                adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
+        abuilder->bindProp<VectorValue>((*jtransform)["a"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const VectorValue& a) {
+                cap.as<decltype(adapter)::element_type>()
+                        ->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
             });
-        abuilder->bindProperty<VectorValue>((*jtransform)["p"], ascope,
-            [adapter](const VectorValue& p) {
-                adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+        abuilder->bindProp<VectorValue>((*jtransform)["p"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const VectorValue& p) {
+                cap.as<decltype(adapter)::element_type>()
+                        ->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
             });
-        abuilder->bindProperty<VectorValue>((*jtransform)["s"], ascope,
-            [adapter](const VectorValue& s) {
-                adapter->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
+        abuilder->bindProp<VectorValue>((*jtransform)["s"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const VectorValue& s) {
+                cap.as<decltype(adapter)::element_type>()
+                        ->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
             });
-        abuilder->bindProperty<ScalarValue>((*jtransform)["r"], ascope,
-            [adapter](const ScalarValue& r) {
-                adapter->setRotation(r);
+        abuilder->bindProp<ScalarValue>((*jtransform)["r"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& r) {
+                cap.as<decltype(adapter)::element_type>()->setRotation(r);
             });
-        abuilder->bindProperty<ScalarValue>((*jtransform)["so"], ascope,
-            [adapter](const ScalarValue& so) {
-                adapter->setStartOpacity(so);
+        abuilder->bindProp<ScalarValue>((*jtransform)["so"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& so) {
+                cap.as<decltype(adapter)::element_type>()->setStartOpacity(so);
             });
-        abuilder->bindProperty<ScalarValue>((*jtransform)["eo"], ascope,
-            [adapter](const ScalarValue& eo) {
-                adapter->setEndOpacity(eo);
+        abuilder->bindProp<ScalarValue>((*jtransform)["eo"], ascope, adapter,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& eo) {
+                cap.as<decltype(adapter)::element_type>()->setEndOpacity(eo);
             });
 
         repeater_draws.reserve(1);

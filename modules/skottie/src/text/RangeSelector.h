@@ -18,7 +18,7 @@
 namespace skottie {
 namespace internal {
 
-class RangeSelector final : public SkNVRefCnt<RangeSelector> {
+class RangeSelector final : public SkRefCnt {
 public:
     static sk_sp<RangeSelector> Make(const skjson::ObjectValue*,
                                      const AnimationBuilder*,

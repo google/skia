@@ -18,7 +18,7 @@
 namespace skottie {
 namespace internal {
 
-class TextAdapter final : public SkNVRefCnt<TextAdapter> {
+class TextAdapter final : public SkRefCnt {
 public:
     TextAdapter(sk_sp<sksg::Group> root, bool hasAnimators);
     ~TextAdapter();

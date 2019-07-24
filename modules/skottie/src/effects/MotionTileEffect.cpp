@@ -183,37 +183,39 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachMotionTileEffect(const skjson::Arra
 
     auto tiler = sk_make_sp<TileRenderNode>(fLayerSize, std::move(layer));
 
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kTileCenter_Index), fScope,
-        [tiler](const VectorValue& tc) {
-            tiler->setTileCenter(ValueTraits<VectorValue>::As<SkPoint>(tc));
+    fBuilder->bindProp<VectorValue>(GetPropValue(jprops, kTileCenter_Index), fScope, tiler,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& tc) {
+            cap.as<decltype(tiler)::element_type>()
+                    ->setTileCenter(ValueTraits<VectorValue>::As<SkPoint>(tc));
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kTileWidth_Index), fScope,
-        [tiler](const ScalarValue& tw) {
-            tiler->setTileWidth(tw);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kTileWidth_Index), fScope, tiler,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& tw) {
+            cap.as<decltype(tiler)::element_type>()->setTileWidth(tw);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kTileHeight_Index), fScope,
-        [tiler](const ScalarValue& th) {
-            tiler->setTileHeight(th);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kTileHeight_Index), fScope, tiler,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& th) {
+            cap.as<decltype(tiler)::element_type>()->setTileHeight(th);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOutputWidth_Index), fScope,
-        [tiler](const ScalarValue& ow) {
-            tiler->setOutputWidth(ow);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kOutputWidth_Index), fScope, tiler,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& ow) {
+            cap.as<decltype(tiler)::element_type>()->setOutputWidth(ow);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOutputHeight_Index), fScope,
-        [tiler](const ScalarValue& oh) {
-            tiler->setOutputHeight(oh);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kOutputHeight_Index), fScope, tiler,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& oh) {
+            cap.as<decltype(tiler)::element_type>()->setOutputHeight(oh);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kMirrorEdges_Index), fScope,
-        [tiler](const ScalarValue& me) {
-            tiler->setMirrorEdges(SkScalarRoundToInt(me));
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kMirrorEdges_Index), fScope, tiler,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& me) {
+            cap.as<decltype(tiler)::element_type>()->setMirrorEdges(SkScalarRoundToInt(me));
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kPhase_Index), fScope,
-        [tiler](const ScalarValue& ph) {
-            tiler->setPhase(ph);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kPhase_Index), fScope, tiler,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& ph) {
+            cap.as<decltype(tiler)::element_type>()->setPhase(ph);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kHorizontalPhaseShift_Index), fScope,
-        [tiler](const ScalarValue& hp) {
-            tiler->setHorizontalPhase(SkScalarRoundToInt(hp));
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kHorizontalPhaseShift_Index), fScope,
+                                    tiler,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& hp) {
+            cap.as<decltype(tiler)::element_type>()->setHorizontalPhase(SkScalarRoundToInt(hp));
         });
 
     return std::move(tiler);

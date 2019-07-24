@@ -43,10 +43,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
     // Applies a bias/scale/remap t-adjustment to child animators.
     class CompTimeMapper final : public sksg::GroupAnimator {
     public:
-        CompTimeMapper(sksg::AnimatorList&& layer_animators, float time_bias, float time_scale)
+        CompTimeMapper(sksg::AnimatorList&& layer_animators, float time_bias, float time_scale,
+                       float fps)
             : INHERITED(std::move(layer_animators))
             , fTimeBias(time_bias)
-            , fTimeScale(time_scale) {}
+            , fTimeScale(time_scale)
+            , fFps(fps) {}
 
         void onTick(float t) override {
             // When time remapping is active, |t| is driven externally.
@@ -57,11 +59,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
             this->INHERITED::onTick((t + fTimeBias) * fTimeScale);
         }
 
-        void remapTime(float t) { fRemappedTime.set(t); }
+        void remapTime(float t) { fRemappedTime.set(t * fFps); }
 
     private:
         const float    fTimeBias,
-                       fTimeScale;
+                       fTimeScale,
+                       fFps;
         SkTLazy<float> fRemappedTime;
 
         using INHERITED = sksg::GroupAnimator;
@@ -71,13 +74,13 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
         const auto t_bias  = -start_time,
                    t_scale = sk_ieee_float_divide(1, stretch_time);
         auto time_mapper = sk_make_sp<CompTimeMapper>(std::move(local_animators), t_bias,
-                                                      sk_float_isfinite(t_scale) ? t_scale : 0);
+                                                      sk_float_isfinite(t_scale) ? t_scale : 0,
+                                                      fFrameRate);
         if (time_remap) {
-            auto  frame_rate = fFrameRate;
-            this->bindProperty<ScalarValue>(*time_remap, ascope,
-                    [time_mapper, frame_rate](const ScalarValue& t) {
-                        time_mapper->remapTime(t * frame_rate);
-                    });
+            this->bindProp<ScalarValue>(*time_remap, ascope, time_mapper,
+                [](const AnimationBuilder::Capture& cap, const ScalarValue& t) {
+                    cap.as<decltype(time_mapper)::element_type>()->remapTime(t);
+                });
         }
         ascope->push_back(std::move(time_mapper));
     }

@@ -55,7 +55,7 @@ namespace skottie {
     p_type f##p_name = p_default;                   \
   public:
 
-class RRectAdapter final : public SkNVRefCnt<RRectAdapter> {
+class RRectAdapter final : public SkRefCnt {
 public:
     explicit RRectAdapter(sk_sp<sksg::RRect>);
     ~RRectAdapter();
@@ -70,7 +70,7 @@ private:
     sk_sp<sksg::RRect> fRRectNode;
 };
 
-class PolyStarAdapter final : public SkNVRefCnt<PolyStarAdapter> {
+class PolyStarAdapter final : public SkRefCnt {
 public:
     enum class Type {
         kStar, kPoly,
@@ -94,7 +94,7 @@ private:
     Type              fType;
 };
 
-class TransformAdapter2D final : public SkNVRefCnt<TransformAdapter2D> {
+class TransformAdapter2D final : public SkRefCnt {
 public:
     explicit TransformAdapter2D(sk_sp<sksg::Matrix<SkMatrix>>);
     ~TransformAdapter2D();
@@ -163,7 +163,7 @@ private:
     using INHERITED = TransformAdapter3D;
 };
 
-class RepeaterAdapter final : public SkNVRefCnt<RepeaterAdapter> {
+class RepeaterAdapter final : public SkRefCnt {
 public:
     enum class Composite { kAbove, kBelow };
 
@@ -234,7 +234,7 @@ private:
     using INHERITED = GradientAdapter;
 };
 
-class TrimEffectAdapter final : public SkNVRefCnt<TrimEffectAdapter> {
+class TrimEffectAdapter final : public SkRefCnt {
 public:
     explicit TrimEffectAdapter(sk_sp<sksg::TrimEffect>);
     ~TrimEffectAdapter();

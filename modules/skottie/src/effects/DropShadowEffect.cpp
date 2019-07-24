@@ -17,7 +17,7 @@ namespace internal {
 
 namespace  {
 
-class DropShadowAdapter final : public SkNVRefCnt<DropShadowAdapter> {
+class DropShadowAdapter final : public SkRefCnt {
 public:
     explicit DropShadowAdapter(sk_sp<sksg::DropShadowImageFilter> dropShadow)
         : fDropShadow(std::move(dropShadow)) {
@@ -69,29 +69,31 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachDropShadowEffect(const skjson::Arra
     auto shadow_effect  = sksg::DropShadowImageFilter::Make();
     auto shadow_adapter = sk_make_sp<DropShadowAdapter>(shadow_effect);
 
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kShadowColor_Index), fScope,
-        [shadow_adapter](const VectorValue& c) {
-            shadow_adapter->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
+    fBuilder->bindProp<VectorValue>(GetPropValue(jprops, kShadowColor_Index), fScope,
+                                    shadow_adapter,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& c) {
+            cap.as<decltype(shadow_adapter)::element_type>()
+                    ->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOpacity_Index), fScope,
-        [shadow_adapter](const ScalarValue& o) {
-            shadow_adapter->setOpacity(o);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kOpacity_Index), fScope, shadow_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& o) {
+            cap.as<decltype(shadow_adapter)::element_type>()->setOpacity(o);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDirection_Index), fScope,
-        [shadow_adapter](const ScalarValue& d) {
-            shadow_adapter->setDirection(d);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kDirection_Index), fScope, shadow_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& d) {
+            cap.as<decltype(shadow_adapter)::element_type>()->setDirection(d);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDistance_Index), fScope,
-        [shadow_adapter](const ScalarValue& d) {
-            shadow_adapter->setDistance(d);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kDistance_Index), fScope, shadow_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& d) {
+            cap.as<decltype(shadow_adapter)::element_type>()->setDistance(d);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kSoftness_Index), fScope,
-        [shadow_adapter](const ScalarValue& s) {
-            shadow_adapter->setSoftness(s);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kSoftness_Index), fScope, shadow_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& s) {
+            cap.as<decltype(shadow_adapter)::element_type>()->setSoftness(s);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kShadowOnly_Index), fScope,
-        [shadow_adapter](const ScalarValue& s) {
-            shadow_adapter->setShadowOnly(SkToBool(s));
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kShadowOnly_Index), fScope, shadow_adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& s) {
+            cap.as<decltype(shadow_adapter)::element_type>()->setShadowOnly(SkToBool(s));
         });
 
     return sksg::ImageFilterEffect::Make(std::move(layer), std::move(shadow_effect));

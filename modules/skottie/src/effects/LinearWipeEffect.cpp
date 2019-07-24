@@ -104,17 +104,17 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachLinearWipeEffect(const skjson::Arra
 
     auto adapter = sk_make_sp<LinearWipeAdapter>(std::move(layer), fLayerSize);
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index), fScope,
-        [adapter](const ScalarValue& c) {
-            adapter->setCompletion(c);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kCompletion_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& c) {
+            cap.as<decltype(adapter)::element_type>()->setCompletion(c);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kAngle_Index), fScope,
-        [adapter](const ScalarValue& a) {
-            adapter->setAngle(a);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kAngle_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& a) {
+            cap.as<decltype(adapter)::element_type>()->setAngle(a);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index), fScope,
-        [adapter](const ScalarValue& f) {
-            adapter->setFeather(f);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kFeather_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& f) {
+            cap.as<decltype(adapter)::element_type>()->setFeather(f);
         });
 
     return adapter->root();

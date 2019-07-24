@@ -294,9 +294,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
     auto text_root = sksg::Group::Make();
     auto adapter   = sk_make_sp<TextAdapter>(text_root, has_animators);
 
-    this->bindProperty<TextValue>(*jd, ascope, [adapter] (const TextValue& txt) {
-        adapter->setText(txt);
-    });
+    this->bindProp<TextValue>(*jd, ascope, adapter,
+        [] (const AnimationBuilder::Capture& cap, const TextValue& txt) {
+            cap.as<decltype(adapter)::element_type>()->setText(txt);
+        });
 
     if (has_animators) {
         if (auto alist = TextAnimatorList::Make(*animated_props, this, adapter)) {
