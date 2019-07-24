@@ -121,6 +121,12 @@ public:
         return SurfaceReadPixelsSupport::kSupported;
     }
 
+    SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType, const GrBackendFormat&,
+                                                 GrColorType) const override {
+        return SupportedRead{GrSwizzle::RGBA(), srcColorType, 1};
+
+    }
+
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                               GrColorType) const override {
         return kUnknown_GrPixelConfig;
@@ -164,10 +170,6 @@ private:
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
         return true;
-    }
-    size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override {
-        // arbitrary
-        return GrSizeAlignUp(GrColorTypeBytesPerPixel(bufferColorType), 4);
     }
 
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,

@@ -248,7 +248,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     size_t bpp = GrColorTypeBytesPerPixel(allowedRead.fColorType);
     size_t fullBufferRowBytes = kTextureWidth * bpp;
     size_t partialBufferRowBytes = kPartialWidth * bpp;
-    size_t offsetAlignment = caps->transferFromOffsetAlignment(allowedRead.fColorType);
+    size_t offsetAlignment = allowedRead.fOffsetAlignmentForTransferBuffer;
     SkASSERT(offsetAlignment);
 
     size_t bufferSize = fullBufferRowBytes * kTextureHeight;
@@ -375,7 +375,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
     }
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
         for (auto colorType :
-             {GrColorType::kRGBA_8888, GrColorType::kRGBA_8888_SRGB, GrColorType::kBGRA_8888}) {
+             {/*GrColorType::kRGBA_8888, GrColorType::kRGBA_8888_SRGB,*/ GrColorType::kBGRA_8888}) {
             basic_transfer_from_test(reporter, ctxInfo, colorType, renderable);
         }
     }
