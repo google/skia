@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f493fdf6_207af417",
+        "filename": "experimental/editor/editor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-24T14:22:56Z",
+      "side": 1,
+      "message": "bad doesn\u0027t seem like a good description for this.  Something like approximatePosition would at least better describe the intent.",
+      "range": {
+        "startLine": 182,
+        "startChar": 25,
+        "endLine": 182,
+        "endChar": 28
+      },
+      "revId": "d8a6e7db27ecbab551b595a7d9c9e824d5a55d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
