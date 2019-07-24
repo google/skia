@@ -730,17 +730,24 @@ DEF_TEST(SkSLInterpreterOutParams, r) {
 }
 
 DEF_TEST(SkSLInterpreterMathFunctions, r) {
-    float value, expected;
+    float value[4], expected[4];
 
-    value = 0.0f; expected = 0.0f;
-    test(r, "float main(float x) { return sin(x); }", &value, 1, &expected);
-    test(r, "float main(float x) { return tan(x); }", &value, 1, &expected);
+    value[0] = 0.0f; expected[0] = 0.0f;
+    test(r, "float main(float x) { return sin(x); }", value, 1, expected);
+    test(r, "float main(float x) { return tan(x); }", value, 1, expected);
 
-    value = 0.0f; expected = 1.0f;
-    test(r, "float main(float x) { return cos(x); }", &value, 1, &expected);
+    value[0] = 0.0f; expected[0] = 1.0f;
+    test(r, "float main(float x) { return cos(x); }", value, 1, expected);
 
-    value = 25.0f; expected = 5.0f;
-    test(r, "float main(float x) { return sqrt(x); }", &value, 1, &expected);
+    value[0] = 25.0f; expected[0] = 5.0f;
+    test(r, "float main(float x) { return sqrt(x); }", value, 1, expected);
+
+    value[0] = 90.0f; expected[0] = sk_float_degrees_to_radians(value[0]);
+    test(r, "float main(float x) { return radians(x); }", value, 1, expected);
+
+    value[0] = 1.0f; value[1] = -1.0f;
+    expected[0] = 1.0f / SK_FloatSqrt2; expected[1] = -1.0f / SK_FloatSqrt2;
+    test(r, "float2 main(float2 x) { return normalize(x); }", value, 2, expected);
 }
 
 DEF_TEST(SkSLInterpreterVoidFunction, r) {
