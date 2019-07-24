@@ -150,7 +150,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         rectangleInfo.fFormat = GR_GL_RGBA8;
 
         GrBackendTexture rectangleTex(kWidth, kHeight, GrMipMapped::kNo, rectangleInfo);
-        rectangleTex.setPixelConfig(kRGBA_8888_GrPixelConfig);
 
         GrColor refPixels[kWidth * kHeight];
         for (int y = 0; y < kHeight; ++y) {

@@ -3668,15 +3668,6 @@ static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGL
     return kUnknown_GrPixelConfig;
 }
 
-GrPixelConfig GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                    GrColorType ct) const {
-    GrGLFramebufferInfo fbInfo;
-    if (!rt.getGLFramebufferInfo(&fbInfo)) {
-        return kUnknown_GrPixelConfig;
-    }
-    return validate_sized_format(fbInfo.fFormat, ct, fStandard);
-}
-
 bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                  const GrBackendFormat& format) const {
     const GrGLenum* glFormat = format.getGLFormat();
@@ -3694,63 +3685,6 @@ GrPixelConfig GrGLCaps::onGetConfigFromBackendFormat(const GrBackendFormat& form
         return kUnknown_GrPixelConfig;
     }
     return validate_sized_format(*glFormat, ct, fStandard);
-}
-
-static GrPixelConfig get_yuva_config(GrGLenum format) {
-    GrPixelConfig config = kUnknown_GrPixelConfig;
-
-    switch (format) {
-        case GR_GL_ALPHA8:
-            config = kAlpha_8_as_Alpha_GrPixelConfig;
-            break;
-        case GR_GL_R8:
-            config = kAlpha_8_as_Red_GrPixelConfig;
-            break;
-        case GR_GL_RG8:
-            config = kRG_88_GrPixelConfig;
-            break;
-        case GR_GL_RGBA8:
-            config = kRGBA_8888_GrPixelConfig;
-            break;
-        case GR_GL_RGB8:
-            config = kRGB_888_GrPixelConfig;
-            break;
-        case GR_GL_BGRA8:
-            config = kBGRA_8888_GrPixelConfig;
-            break;
-        case GR_GL_RGB10_A2:
-            config = kRGBA_1010102_GrPixelConfig;
-            break;
-        case GR_GL_LUMINANCE16F:
-            config = kAlpha_half_as_Lum_GrPixelConfig;
-            break;
-        case GR_GL_R16F:
-            config = kAlpha_half_as_Red_GrPixelConfig;
-            break;
-        case GR_GL_R16:
-            config = kR_16_GrPixelConfig;
-            break;
-        case GR_GL_RG16:
-            config = kRG_1616_GrPixelConfig;
-            break;
-        // Experimental (for Y416 and mutant P016/P010)
-        case GR_GL_RGBA16:
-            config = kRGBA_16161616_GrPixelConfig;
-            break;
-        case GR_GL_RG16F:
-            config = kRG_half_GrPixelConfig;
-            break;
-    }
-
-    return config;
-}
-
-GrPixelConfig GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const {
-    const GrGLenum* glFormat = format.getGLFormat();
-    if (!glFormat) {
-        return kUnknown_GrPixelConfig;
-    }
-    return get_yuva_config(*glFormat);
 }
 
 GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const {

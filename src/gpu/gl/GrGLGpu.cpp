@@ -3895,13 +3895,8 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
     auto parameters = sk_make_sp<GrGLTextureParameters>();
     parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                     fResetTimestampForTextureParameters);
-    GrBackendTexture beTex = GrBackendTexture(w, h, mipMapped, info, std::move(parameters));
-#if GR_TEST_UTILS
-    // Lots of tests don't go through Skia's public interface, which will set the config, so for
-    // testing we make sure we set a config here.
-    beTex.setPixelConfig(config);
-#endif
-    return beTex;
+
+    return GrBackendTexture(w, h, mipMapped, info, std::move(parameters));
 }
 
 void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {
@@ -4032,11 +4027,9 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
         return {};
     }
     auto stencilBits = SkToInt(this->glCaps().stencilFormats()[sFormatIdx].fStencilBits);
+
     GrBackendRenderTarget beRT = GrBackendRenderTarget(w, h, 1, stencilBits, info);
-    // Lots of tests don't go through Skia's public interface which will set the config so for
-    // testing we make sure we set a config here.
-    beRT.setPixelConfig(config);
-    SkASSERT(kUnknown_GrPixelConfig != this->caps()->validateBackendRenderTarget(beRT, colorType));
+    SkASSERT(this->caps()->areColorTypeAndFormatCompatible(colorType, beRT.getBackendFormat()));
     return beRT;
 }
 

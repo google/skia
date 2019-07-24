@@ -160,10 +160,6 @@ public:
     bool canCopyAsResolve(GrPixelConfig dstConfig, int dstSampleCnt, bool dstHasYcbcr,
                           GrPixelConfig srcConfig, int srcSamplecnt, bool srcHasYcbcr) const;
 
-    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
-                                              GrColorType) const override;
-
-    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
 
     GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override;

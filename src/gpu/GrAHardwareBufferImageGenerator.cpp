@@ -150,7 +150,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
     };
 
     sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
-            [direct, buffer = AutoAHBRelease(hardwareBuffer), width, height, pixelConfig,
+            [direct, buffer = AutoAHBRelease(hardwareBuffer), width, height,
              isProtectedContent, backendFormat, grColorType](GrResourceProvider* resourceProvider)
                     -> GrSurfaceProxy::LazyInstantiationResult {
                 GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
@@ -169,7 +169,6 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
                 }
                 SkASSERT(deleteImageProc && deleteImageCtx);
 
-                backendTex.fConfig = pixelConfig;
                 // We make this texture cacheable to avoid recreating a GrTexture every time this
                 // is invoked. We know the owning SkIamge will send an invalidation message when the
                 // image is destroyed, so the texture will be removed at that time.

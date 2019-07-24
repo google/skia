@@ -286,3 +286,47 @@ GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& i
     id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture.get());
     return static_cast<GrMTLPixelFormat>(mtlTexture.pixelFormat);
 }
+
+size_t GrMtlBytesPerFormat(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatR8Unorm:
+            return 1;
+
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatB5G6R5Unorm:
+        case MTLPixelFormatABGR4Unorm:
+#endif
+        case MTLPixelFormatRG8Unorm:
+        case MTLPixelFormatR16Float:
+        case MTLPixelFormatR16Unorm:
+            return 2;
+
+        case MTLPixelFormatRGBA8Unorm:
+        case MTLPixelFormatBGRA8Unorm:
+        case MTLPixelFormatRGBA8Unorm_sRGB:
+        case MTLPixelFormatRGB10A2Unorm:
+        case MTLPixelFormatRG16Unorm:
+        case MTLPixelFormatRG16Float:
+            return 4;
+
+        case MTLPixelFormatRGBA16Float:
+        case MTLPixelFormatRGBA16Unorm:
+            return 8;
+
+        case MTLPixelFormatRGBA32Float:
+            return 16;
+
+#ifdef SK_BUILD_FOR_IOS
+        case  MTLPixelFormatETC2_RGB8:
+            return 0;
+#endif
+        default:
+            SK_ABORT("Invalid Mtl format");
+            return 0;
+    }
+
+    SK_ABORT("Invalid Mtl format");
+    return 0;
+}
+
+

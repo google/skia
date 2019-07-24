@@ -121,19 +121,6 @@ public:
         return SurfaceReadPixelsSupport::kSupported;
     }
 
-    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
-                                              GrColorType) const override {
-        return kUnknown_GrPixelConfig;
-    }
-
-    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const override {
-        if (!format.getMockColorType()) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        return GrColorTypeToPixelConfig(*format.getMockColorType());
-    }
-
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const override {
         if (!format.getMockColorType()) {
             return GrColorType::kUnknown;

@@ -428,12 +428,6 @@ static bool validate_backend_format_and_config(const GrCaps* caps,
 
     return caps->areColorTypeAndFormatCompatible(grCT, format);
 }
-
-static bool validate_backend_format_and_colortype(const GrCaps* caps,
-                                                  GrColorType colorType,
-                                                  const GrBackendFormat& format) {
-    return caps->areColorTypeAndFormatCompatible(colorType, format);
-}
 #endif
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format,
@@ -456,7 +450,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 
     SkASSERT(GrCaps::AreConfigsCompatible(desc.fConfig,
                                           caps->getConfigFromBackendFormat(format, colorType)));
-    SkASSERT(validate_backend_format_and_colortype(caps, colorType, format));
+    SkASSERT(caps->areColorTypeAndFormatCompatible(colorType, format));
+
     if (GrMipMapped::kYes == mipMapped) {
         // SkMipMap doesn't include the base level in the level count so we have to add 1
         int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
@@ -544,13 +539,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendTex.getBackendFormat(),
-                                                                     grColorType)));
-
-    SkASSERT(validate_backend_format_and_colortype(caps, grColorType,
-                                                   backendTex.getBackendFormat()));
+    SkASSERT(caps->areColorTypeAndFormatCompatible(grColorType, backendTex.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -590,11 +579,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendTex.getBackendFormat(),
-                                                                     colorType)));
-    SkASSERT(validate_backend_format_and_colortype(caps, colorType, backendTex.getBackendFormat()));
+    SkASSERT(caps->areColorTypeAndFormatCompatible(colorType, backendTex.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -639,11 +624,9 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         return nullptr;
     }
 
-#ifdef SK_DEBUG
-    GrPixelConfig testConfig =
-            this->caps()->validateBackendRenderTarget(backendRT, grColorType);
-    SkASSERT(testConfig != kUnknown_GrPixelConfig);
-#endif
+    const GrCaps* caps = this->caps();
+
+    SkASSERT(caps->areColorTypeAndFormatCompatible(grColorType, backendRT.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -661,8 +644,8 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
     // Make sure we match how we created the proxy with SkBudgeted::kNo
     SkASSERT(GrBudgetedType::kBudgeted != rt->resourcePriv().budgetedType());
 
-    GrSwizzle texSwizzle = this->caps()->getTextureSwizzle(rt->backendFormat(), grColorType);
-    GrSwizzle outSwizzle = this->caps()->getOutputSwizzle(rt->backendFormat(), grColorType);
+    GrSwizzle texSwizzle = caps->getTextureSwizzle(rt->backendFormat(), grColorType);
+    GrSwizzle outSwizzle = caps->getOutputSwizzle(rt->backendFormat(), grColorType);
 
     return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(std::move(rt), origin, texSwizzle,
                                                               outSwizzle));
@@ -683,13 +666,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendTex.getBackendFormat(),
-                                                                     grColorType)));
-
-    SkASSERT(validate_backend_format_and_colortype(caps, grColorType,
-                                                   backendTex.getBackendFormat()));
+    SkASSERT(caps->areColorTypeAndFormatCompatible(grColorType, backendTex.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 

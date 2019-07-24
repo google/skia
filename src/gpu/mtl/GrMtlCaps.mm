@@ -296,6 +296,10 @@ bool GrMtlCaps::isFormatTexturable(MTLPixelFormat format) const {
     return SkToBool(FormatInfo::kTextureable_Flag && formatInfo.fFlags);
 }
 
+bool GrMtlCaps::isFormatRenderable(MTLPixelFormat format) const {
+    return this->maxRenderTargetSampleCount(format) > 0;
+}
+
 int GrMtlCaps::maxRenderTargetSampleCount(GrColorType grColorType,
                                           const GrBackendFormat& format) const {
     if (!format.getMtlFormat()) {
@@ -685,17 +689,6 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, GrColorType ct) {
     return kUnknown_GrPixelConfig;
 }
 
-GrPixelConfig GrMtlCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                     GrColorType ct) const {
-    GrMtlTextureInfo fbInfo;
-    if (!rt.getMtlTextureInfo(&fbInfo)) {
-        return kUnknown_GrPixelConfig;
-    }
-
-    id<MTLTexture> texture = (__bridge id<MTLTexture>) fbInfo.fTexture.get();
-    return validate_sized_format(texture.pixelFormat, ct);
-}
-
 bool GrMtlCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                   const GrBackendFormat& format) const {
     const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
@@ -714,55 +707,6 @@ GrPixelConfig GrMtlCaps::onGetConfigFromBackendFormat(const GrBackendFormat& for
         return kUnknown_GrPixelConfig;
     }
     return validate_sized_format(*mtlFormat, ct);
-}
-
-static GrPixelConfig get_yuva_config(GrMTLPixelFormat grFormat) {
-    MTLPixelFormat format = static_cast<MTLPixelFormat>(grFormat);
-
-    switch (format) {
-        case MTLPixelFormatA8Unorm:
-            return kAlpha_8_as_Alpha_GrPixelConfig;
-            break;
-        case MTLPixelFormatR8Unorm:
-            return kAlpha_8_as_Red_GrPixelConfig;
-            break;
-        case MTLPixelFormatRG8Unorm:
-            return kRG_88_GrPixelConfig;
-            break;
-        case MTLPixelFormatRGBA8Unorm:
-            return kRGBA_8888_GrPixelConfig;
-            break;
-        case MTLPixelFormatBGRA8Unorm:
-            return kBGRA_8888_GrPixelConfig;
-            break;
-        case MTLPixelFormatRGB10A2Unorm:
-            return kRGBA_1010102_GrPixelConfig;
-            break;
-        case MTLPixelFormatR16Unorm:
-            return kR_16_GrPixelConfig;
-            break;
-        case MTLPixelFormatRG16Unorm:
-            return kRG_1616_GrPixelConfig;
-            break;
-        // Experimental (for Y416 and mutant P016/P010)
-        case MTLPixelFormatRGBA16Unorm:
-            return kRGBA_16161616_GrPixelConfig;
-            break;
-        case MTLPixelFormatRG16Float:
-            return kRG_half_GrPixelConfig;
-            break;
-        default:
-            return kUnknown_GrPixelConfig;
-            break;
-    }
-}
-
-GrPixelConfig GrMtlCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const {
-    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
-    if (!mtlFormat) {
-        return kUnknown_GrPixelConfig;
-    }
-    return get_yuva_config(*mtlFormat);
 }
 
 GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const {

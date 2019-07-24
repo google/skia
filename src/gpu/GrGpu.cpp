@@ -243,11 +243,6 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
         return nullptr;
     }
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendTex.getBackendFormat(),
-                                                                     colorType)));
-
     return this->onWrapBackendTexture(backendTex, colorType, ownership, cacheable, ioType);
 }
 
@@ -261,11 +256,6 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
     }
 
     const GrCaps* caps = this->caps();
-
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendTex.getBackendFormat(),
-                                                                     colorType)));
 
     if (!caps->isFormatTexturable(colorType, backendTex.getBackendFormat()) ||
         !caps->getRenderTargetSampleCount(sampleCnt, colorType, backendTex.getBackendFormat())) {
@@ -288,11 +278,6 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(GrCaps::AreConfigsCompatible(backendRT.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendRT.getBackendFormat(),
-                                                                     colorType)));
-
     if (0 == caps->getRenderTargetSampleCount(backendRT.sampleCnt(), colorType,
                                               backendRT.getBackendFormat())) {
         return nullptr;
@@ -312,11 +297,6 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTex
     if (backendTex.width() > maxSize || backendTex.height() > maxSize) {
         return nullptr;
     }
-
-    SkASSERT(GrCaps::AreConfigsCompatible(backendTex.config(),
-                                          caps->getConfigFromBackendFormat(
-                                                                     backendTex.getBackendFormat(),
-                                                                     colorType)));
 
     if (0 == caps->getRenderTargetSampleCount(sampleCnt, colorType,
                                               backendTex.getBackendFormat())) {

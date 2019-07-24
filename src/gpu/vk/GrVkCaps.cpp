@@ -1042,15 +1042,6 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
     return kUnknown_GrPixelConfig;
 }
 
-GrPixelConfig GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                    GrColorType ct) const {
-    GrVkImageInfo imageInfo;
-    if (!rt.getVkImageInfo(&imageInfo)) {
-        return kUnknown_GrPixelConfig;
-    }
-    return validate_image_info(imageInfo.fFormat, ct, imageInfo.fYcbcrConversionInfo.isValid());
-}
-
 bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                  const GrBackendFormat& format) const {
     const VkFormat* vkFormat = format.getVkFormat();
@@ -1071,42 +1062,6 @@ GrPixelConfig GrVkCaps::onGetConfigFromBackendFormat(const GrBackendFormat& form
         return kUnknown_GrPixelConfig;
     }
     return validate_image_info(*vkFormat, ct, ycbcrInfo->isValid());
-}
-
-static GrPixelConfig get_yuva_config(VkFormat vkFormat) {
-    switch (vkFormat) {
-        case VK_FORMAT_R8_UNORM:
-            return kAlpha_8_as_Red_GrPixelConfig;
-        case VK_FORMAT_R8G8B8A8_UNORM:
-            return kRGBA_8888_GrPixelConfig;
-        case VK_FORMAT_R8G8B8_UNORM:
-            return kRGB_888_GrPixelConfig;
-        case VK_FORMAT_R8G8_UNORM:
-            return kRG_88_GrPixelConfig;
-        case VK_FORMAT_B8G8R8A8_UNORM:
-            return kBGRA_8888_GrPixelConfig;
-        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
-            return kRGBA_1010102_GrPixelConfig;
-        case VK_FORMAT_R16_UNORM:
-            return kR_16_GrPixelConfig;
-        case VK_FORMAT_R16G16_UNORM:
-            return kRG_1616_GrPixelConfig;
-        // Experimental (for Y416 and mutant P016/P010)
-        case VK_FORMAT_R16G16B16A16_UNORM:
-            return kRGBA_16161616_GrPixelConfig;
-        case VK_FORMAT_R16G16_SFLOAT:
-            return kRG_half_GrPixelConfig;
-        default:
-            return kUnknown_GrPixelConfig;
-    }
-}
-
-GrPixelConfig GrVkCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const {
-    const VkFormat* vkFormat = format.getVkFormat();
-    if (!vkFormat) {
-        return kUnknown_GrPixelConfig;
-    }
-    return get_yuva_config(*vkFormat);
 }
 
 GrColorType GrVkCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const {
