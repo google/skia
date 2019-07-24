@@ -50,7 +50,7 @@ private:
                                                    "Xform", &xformUniName);
 
             SkString dstNormalColorName("dstNormalColor");
-            this->emitChild(0, &dstNormalColorName, args);
+            this->invokeChild(0, &dstNormalColorName, args);
             fragBuilder->codeAppendf("float3 normal = normalize(%s.rgb - float3(0.5));",
                                      dstNormalColorName.c_str());
 
