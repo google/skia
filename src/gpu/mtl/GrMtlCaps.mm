@@ -33,6 +33,17 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
 
+    fCanOptimizeTextures = false;
+#if defined(SK_BUILD_FOR_MAC)
+    if (featureSet >= MTLFeatureSet_macOS_GPUFamily1_v4) {
+        fCanOptimizeTextures = true;
+    }
+#elif defined(SK_BUILD_FOR_IOS)
+    if (featureSet >= MTLFeatureSet_iOS_GPUFamily1_v5){
+        fCanOptimizeTextures = true;
+    }
+#endif
+
     // The following are disabled due to the unfinished Metal backend, not because Metal itself
     // doesn't support it.
     fFenceSyncSupport = false;           // Fences are not implemented yet
