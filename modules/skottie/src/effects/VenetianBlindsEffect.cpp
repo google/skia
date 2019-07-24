@@ -158,9 +158,9 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachVenetianBlindsEffect(
         [adapter](const ScalarValue& w) {
             adapter->setWidth(w);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index), fScope,
-        [adapter](const ScalarValue& f) {
-            adapter->setFeather(f);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kFeather_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& f) {
+            cap.as<decltype(adapter)::element_type>()->setFeather(f);
         });
 
     return adapter->root();

@@ -79,6 +79,44 @@ public:
         return this->bindProperty(jv, ascope, std::move(apply), &default_ignore);
     }
 
+    // Used for passing pointer + base class info to property animators/callbacks.
+    // Can capture raw pointers, or SkRefCnt-derived sk_sps.
+    // Does *not* take ownership when used with smart pointers.
+    class Capture {
+    public:
+        template <typename T>
+        Capture(T* raw) : fPtr(raw), fType(Type::kRaw) {}
+
+        template <typename T,
+                  typename = typename std::enable_if<std::is_base_of<SkRefCnt, T>::value>::type>
+        Capture(const sk_sp<T>& ref) : fPtr(ref.get()), fType(Type::kRef) {}
+
+        template <typename T>
+        T* as() const { return static_cast<T*>(fPtr); }
+
+    private:
+        friend class StoredCapture;
+
+        enum class Type {
+            kRaw,
+            kRef,
+        };
+
+        Capture(void* ptr, Type type) : fPtr(ptr), fType(type) {}
+
+        void* const fPtr;
+        const Type  fType;
+    };
+
+    template <typename T>
+    using PropertyCallback = void(*)(const Capture&, const T&);
+
+    template <typename T>
+    bool bindProp(const skjson::Value& jv,
+                  AnimatorScope* ascope,
+                  const Capture& cap,
+                  PropertyCallback<T>) const;
+
     void log(Logger::Level, const skjson::Value*, const char fmt[], ...) const;
 
     sk_sp<sksg::Color> attachColor(const skjson::ObjectValue&, AnimatorScope*,
