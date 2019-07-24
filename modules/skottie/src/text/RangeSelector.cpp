@@ -210,21 +210,21 @@ sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
                               ParseEnum<Mode>  (gModeMap  , (*jrange)["m" ], abuilder, "mode"  ),
                               ParseEnum<Shape> (gShapeMap , (*jrange)["sh"], abuilder, "shape" )));
 
-    abuilder->bindProperty<ScalarValue>((*jrange)["s"], ascope,
-        [selector](const ScalarValue& s) {
-            selector->fStart = s;
+    abuilder->bindProp<ScalarValue>((*jrange)["s"], ascope, selector,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& s) {
+            cap.as<decltype(selector)::element_type>()->fStart = s;
         });
-    abuilder->bindProperty<ScalarValue>((*jrange)["e"], ascope,
-        [selector](const ScalarValue& e) {
-            selector->fEnd = e;
+    abuilder->bindProp<ScalarValue>((*jrange)["e"], ascope, selector,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& e) {
+            cap.as<decltype(selector)::element_type>()->fEnd = e;
         });
-    abuilder->bindProperty<ScalarValue>((*jrange)["o"], ascope,
-        [selector](const ScalarValue& o) {
-            selector->fOffset = o;
+    abuilder->bindProp<ScalarValue>((*jrange)["o"], ascope, selector,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& o) {
+            cap.as<decltype(selector)::element_type>()->fOffset = o;
         });
-    abuilder->bindProperty<ScalarValue>((*jrange)["a"], ascope,
-        [selector](const ScalarValue& a) {
-            selector->fAmount = a;
+    abuilder->bindProp<ScalarValue>((*jrange)["a"], ascope, selector,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& a) {
+            cap.as<decltype(selector)::element_type>()->fAmount = a;
         });
 
     return selector;

@@ -146,20 +146,21 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachVenetianBlindsEffect(
 
     auto adapter = sk_make_sp<VenetialBlindsAdapter>(std::move(layer), fLayerSize);
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index), fScope,
-        [adapter](const ScalarValue& c) {
-            adapter->setCompletion(c);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kCompletion_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& c) {
+            cap.as<decltype(adapter)::element_type>()->setCompletion(c);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDirection_Index), fScope,
-        [adapter](const ScalarValue& d) {
-            adapter->setDirection(d);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kDirection_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& d) {
+            cap.as<decltype(adapter)::element_type>()->setDirection(d);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kWidth_Index), fScope,
-        [adapter](const ScalarValue& w) {
-            adapter->setWidth(w);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kWidth_Index), fScope, adapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& w) {
+            cap.as<decltype(adapter)::element_type>()->setWidth(w);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index), fScope,
-        [adapter](const ScalarValue& f) {
+
+    BIND_PROP(ScalarValue, fBuilder, GetPropValue(jprops, kFeather_Index), fScope, adapter,
+        [](VenetialBlindsAdapter* adapter, const ScalarValue& f){
             adapter->setFeather(f);
         });
 

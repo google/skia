@@ -117,19 +117,19 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         mask_paint->setBlendMode(mask_stack.empty() ? SkBlendMode::kSrc
                                                     : mask_info->fBlendMode);
 
-        has_effect |= abuilder->bindProperty<ScalarValue>((*m)["o"], ascope,
-            [mask_paint](const ScalarValue& o) {
-                mask_paint->setOpacity(o * 0.01f);
+        has_effect |= abuilder->bindProp<ScalarValue>((*m)["o"], ascope, mask_paint,
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& o) {
+                cap.as<decltype(mask_paint)::element_type>()->setOpacity(o * 0.01f);
         }, 100.0f);
 
         static const VectorValue default_feather = { 0, 0 };
-        if (abuilder->bindProperty<VectorValue>((*m)["f"], ascope,
-            [blur_effect](const VectorValue& feather) {
+        if (abuilder->bindProp<VectorValue>((*m)["f"], ascope, blur_effect,
+            [](const AnimationBuilder::Capture& cap, const VectorValue& feather) {
                 // Close enough to AE.
                 static constexpr SkScalar kFeatherToSigma = 0.38f;
                 auto sX = feather.size() > 0 ? feather[0] * kFeatherToSigma : 0,
                      sY = feather.size() > 1 ? feather[1] * kFeatherToSigma : 0;
-                blur_effect->setSigma({ sX, sY });
+                cap.as<decltype(blur_effect)::element_type>()->setSigma({ sX, sY });
             }, default_feather)) {
 
             has_effect = true;
@@ -322,10 +322,10 @@ AnimationBuilder::AttachLayerContext::attachTransformNode(const skjson::ObjectVa
     if (type == TransformType::kCamera) {
         auto camera_adapter = sk_make_sp<CameraAdapter>(abuilder->fSize);
 
-        abuilder->bindProperty<ScalarValue>(jlayer["pe"], ascope,
-            [camera_adapter] (const ScalarValue& pe) {
+        abuilder->bindProp<ScalarValue>(jlayer["pe"], ascope, camera_adapter,
+            [] (const AnimationBuilder::Capture& cap, const ScalarValue& pe) {
                 // 'pe' (perspective?) corresponds to AE's "zoom" camera property.
-                camera_adapter->setZoom(pe);
+                cap.as<decltype(camera_adapter)::element_type>()->setZoom(pe);
             });
 
         // parent_transform applies to the camera itself => it pre-composes inverted to the

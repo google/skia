@@ -145,35 +145,39 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
     // owning us. But for peace of mind (and future-proofing) let's grab a ref.
     auto animator = sk_ref_sp(this);
 
-    abuilder->bindProperty<VectorValue>(jprops["p"], ascope,
-        [animator](const VectorValue& p) {
-            animator->fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
+    abuilder->bindProp<VectorValue>(jprops["p"], ascope, animator,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& p) {
+            cap.as<decltype(animator)::element_type>()
+                    ->fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
         });
-    abuilder->bindProperty<ScalarValue>(jprops["s"], ascope,
-        [animator](const ScalarValue& s) {
+    abuilder->bindProp<ScalarValue>(jprops["s"], ascope, animator,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& s) {
             // Scale is 100-based.
-            animator->fTextProps.scale = s * 0.01f;
+            cap.as<decltype(animator)::element_type>()->fTextProps.scale = s * 0.01f;
         });
-    abuilder->bindProperty<ScalarValue>(jprops["r"], ascope,
-        [animator](const ScalarValue& r) {
-            animator->fTextProps.rotation = r;
+    abuilder->bindProp<ScalarValue>(jprops["r"], ascope, animator,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& r) {
+            cap.as<decltype(animator)::element_type>()->fTextProps.rotation = r;
         });
-    fHasFillColor   = abuilder->bindProperty<VectorValue>(jprops["fc"], ascope,
-        [animator](const VectorValue& fc) {
-            animator->fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor>(fc);
+    fHasFillColor   = abuilder->bindProp<VectorValue>(jprops["fc"], ascope, animator,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& fc) {
+            cap.as<decltype(animator)::element_type>()->fTextProps.fill_color =
+                    ValueTraits<VectorValue>::As<SkColor>(fc);
         });
-    fHasStrokeColor = abuilder->bindProperty<VectorValue>(jprops["sc"], ascope,
-        [animator](const VectorValue& sc) {
-            animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
+    fHasStrokeColor = abuilder->bindProp<VectorValue>(jprops["sc"], ascope, animator,
+        [](const AnimationBuilder::Capture& cap, const VectorValue& sc) {
+            cap.as<decltype(animator)::element_type>()->fTextProps.stroke_color =
+                    ValueTraits<VectorValue>::As<SkColor>(sc);
     });
-    abuilder->bindProperty<ScalarValue>(jprops["o"], ascope,
-        [animator](const ScalarValue& o) {
+    abuilder->bindProp<ScalarValue>(jprops["o"], ascope, animator,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& o) {
             // Opacity is 100-based.
-            animator->fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
+            cap.as<decltype(animator)::element_type>()->fTextProps.opacity =
+                    SkTPin<float>(o * 0.01f, 0, 1);
         });
-    abuilder->bindProperty<ScalarValue>(jprops["t"], ascope,
-        [animator](const ScalarValue& t) {
-            animator->fTextProps.tracking = t;
+    abuilder->bindProp<ScalarValue>(jprops["t"], ascope, animator,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& t) {
+            cap.as<decltype(animator)::element_type>()->fTextProps.tracking = t;
         });
 }
 

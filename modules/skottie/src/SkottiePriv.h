@@ -63,21 +63,62 @@ public:
     };
     const FontInfo* findFont(const SkString& name) const;
 
+    // Captures SkRefCnts in either raw or sk_sp form.
+    // Does *not* take ownership when used with smart pointers (but StoredCapture does).
+    class Capture {
+    public:
+        template <typename T,
+                  typename = typename std::enable_if<std::is_base_of<SkRefCnt, T>::value>::type>
+        Capture(T* raw) : fPtr(raw), fType(Type::kRaw) {}
+
+        template <typename T,
+                  typename = typename std::enable_if<std::is_base_of<SkRefCnt, T>::value>::type>
+        Capture(const sk_sp<T>& ref) : fPtr(ref.get()), fType(Type::kRef) {}
+
+        template <typename T>
+        T* as() const { return static_cast<T*>(fPtr); }
+
+    private:
+        friend class StoredCapture;
+
+        enum class Type {
+            kRaw, // stored values don't take ownership
+            kRef, // stored values take ownership
+        };
+
+        Capture(SkRefCnt* ptr, Type type) : fPtr(ptr), fType(type) {}
+
+        SkRefCnt* const fPtr;
+        const Type      fType;
+    };
+
+    template <typename T>
+    using PropertyCallback = void(*)(const Capture&, const T&);
+
     // This is the workhorse for property binding: depending on whether the property is animated,
     // it will either apply immediately or instantiate and attach a keyframe animator.
     template <typename T>
-    bool bindProperty(const skjson::Value&,
-                      AnimatorScope*,
-                      std::function<void(const T&)>&&,
-                      const T* default_igore = nullptr) const;
+    bool bindProp(const skjson::Value& jv,
+                  AnimatorScope* ascope,
+                  const Capture& cap,
+                  PropertyCallback<T>,
+                  const T* default_igore = nullptr) const;
 
     template <typename T>
-    bool bindProperty(const skjson::Value& jv,
-                      AnimatorScope* ascope,
-                      std::function<void(const T&)>&& apply,
-                      const T& default_ignore) const {
-        return this->bindProperty(jv, ascope, std::move(apply), &default_ignore);
+    bool bindProp(const skjson::Value& jv,
+                  AnimatorScope* ascope,
+                  const Capture& cap,
+                  PropertyCallback<T> cb,
+                  const T& default_igore) const {
+        return this->bindProp(jv, ascope, cap, cb, &default_igore);
     }
+
+    #define BIND_PROP(TYPE, ABUILDER, JV, ASCOPE, CAP, FUNC) \
+        ABUILDER->bindProp<TYPE>(JV, ASCOPE, CAP,                    \
+            [](const AnimationBuilder::Capture& cap, const TYPE& v) { \
+                auto* typed_cap = cap.as<decltype(CAP)::element_type>(); \
+                FUNC(typed_cap, v); \
+            })
 
     void log(Logger::Level, const skjson::Value*, const char fmt[], ...) const;
 

@@ -18,7 +18,7 @@ namespace internal {
 
 namespace  {
 
-class GaussianBlurEffectAdapter final : public SkNVRefCnt<GaussianBlurEffectAdapter> {
+class GaussianBlurEffectAdapter final : public SkRefCnt {
 public:
     explicit GaussianBlurEffectAdapter(sk_sp<sksg::BlurImageFilter> blur)
         : fBlur(std::move(blur)) {
@@ -90,17 +90,17 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachGaussianBlurEffect(
     auto blur_effect   = sksg::BlurImageFilter::Make();
     auto blur_addapter = sk_make_sp<GaussianBlurEffectAdapter>(blur_effect);
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kBlurriness_Index), fScope,
-        [blur_addapter](const ScalarValue& b) {
-            blur_addapter->setBlurriness(b);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kBlurriness_Index), fScope, blur_addapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& b) {
+            cap.as<decltype(blur_addapter)::element_type>()->setBlurriness(b);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDimensions_Index), fScope,
-        [blur_addapter](const ScalarValue& d) {
-            blur_addapter->setDimensions(d);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kDimensions_Index), fScope, blur_addapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& d) {
+            cap.as<decltype(blur_addapter)::element_type>()->setDimensions(d);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRepeatEdge_Index), fScope,
-        [blur_addapter](const ScalarValue& r) {
-            blur_addapter->setRepeatEdge(r);
+    fBuilder->bindProp<ScalarValue>(GetPropValue(jprops, kRepeatEdge_Index), fScope, blur_addapter,
+        [](const AnimationBuilder::Capture& cap, const ScalarValue& r) {
+            cap.as<decltype(blur_addapter)::element_type>()->setRepeatEdge(r);
         });
 
     return sksg::ImageFilterEffect::Make(std::move(layer), std::move(blur_effect));
