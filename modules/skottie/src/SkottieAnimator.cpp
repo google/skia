@@ -19,6 +19,27 @@
 namespace skottie {
 namespace internal {
 
+class StoredCapture final : public AnimationBuilder::Capture {
+public:
+    explicit StoredCapture(const AnimationBuilder::Capture& cap)
+        : INHERITED(cap.fPtr, cap.fType) {
+        switch (fType) {
+        case Type::kRaw: break;
+        case Type::kRef: SkSafeRef(this->as<SkRefCnt>()); break;
+        }
+    }
+
+    ~StoredCapture() {
+        switch (fType) {
+        case Type::kRaw: break;
+        case Type::kRef: SkSafeUnref(this->as<SkRefCnt>()); break;
+        }
+    }
+
+private:
+    using INHERITED = AnimationBuilder::Capture;
+};
+
 namespace {
 
 class KeyframeAnimatorBase : public sksg::Animator {
@@ -234,24 +255,28 @@ class KeyframeAnimator final : public KeyframeAnimatorBase {
 public:
     static sk_sp<KeyframeAnimator> Make(const skjson::ArrayValue* jv,
                                         const AnimationBuilder* abuilder,
-                                        std::function<void(const T&)>&& apply) {
+                                        const AnimationBuilder::Capture& cap,
+                                        AnimationBuilder::PropertyCallback<T> cb) {
         if (!jv) return nullptr;
 
-        sk_sp<KeyframeAnimator> animator(new KeyframeAnimator(*jv, abuilder, std::move(apply)));
+        sk_sp<KeyframeAnimator> animator(new KeyframeAnimator(*jv, abuilder, cap, cb));
 
         return animator->count() ? animator : nullptr;
     }
 
 protected:
     void onTick(float t) override {
-        fApplyFunc(*this->eval(this->frame(t), t, &fScratch));
+        const auto& val = *this->eval(this->frame(t), t, &fScratch);
+        fApplyFunc(fCapture, val);
     }
 
 private:
     KeyframeAnimator(const skjson::ArrayValue& jframes,
                      const AnimationBuilder* abuilder,
-                     std::function<void(const T&)>&& apply)
-        : fApplyFunc(std::move(apply)) {
+                     const AnimationBuilder::Capture& cap,
+                     AnimationBuilder::PropertyCallback<T> cb)
+        : fCapture(cap)
+        , fApplyFunc(cb) {
         // Generally, each keyframe holds two values (start, end) and a cubic mapper. Except
         // the last frame, which only holds a marker timestamp.  Then, the values series is
         // contiguous (keyframe[i].end == keyframe[i + 1].start), and we dedupe them.
@@ -294,8 +319,9 @@ private:
         return v;
     }
 
-    const std::function<void(const T&)> fApplyFunc;
-    std::vector<T>                      fVs;
+    const StoredCapture                         fCapture;
+    const AnimationBuilder::PropertyCallback<T> fApplyFunc;
+    std::vector<T>                              fVs;
 
     // LERP storage: we use this to temporarily store interpolation results.
     // Alternatively, the temp result could live on the stack -- but for vector values that would
@@ -310,7 +336,8 @@ template <typename T>
 static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
                                     const AnimationBuilder* abuilder,
                                     AnimatorScope* ascope,
-                                    std::function<void(const T&)>&& apply,
+                                    const AnimationBuilder::Capture& cap,
+                                    AnimationBuilder::PropertyCallback<T> apply,
                                     const T* noop = nullptr) {
     if (!jprop) return false;
 
@@ -330,7 +357,7 @@ static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
             if (noop && val == *noop)
                 return false;
 
-            apply(val);
+            apply(cap, val);
             return true;
         }
 
@@ -342,7 +369,7 @@ static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
     }
 
     // Keyframe property.
-    auto animator = KeyframeAnimator<T>::Make(jpropK, abuilder, std::move(apply));
+    auto animator = KeyframeAnimator<T>::Make(jpropK, abuilder, cap, apply);
 
     if (!animator) {
         abuilder->log(Logger::Level::kError, jprop, "Could not parse keyframed property.");
@@ -358,20 +385,27 @@ class SplitPointAnimator final : public sksg::Animator {
 public:
     static sk_sp<SplitPointAnimator> Make(const skjson::ObjectValue* jprop,
                                           const AnimationBuilder* abuilder,
-                                          std::function<void(const VectorValue&)>&& apply,
+                                          const AnimationBuilder::Capture& cap,
+                                          AnimationBuilder::PropertyCallback<VectorValue> cb,
                                           const VectorValue*) {
         if (!jprop) return nullptr;
 
-        sk_sp<SplitPointAnimator> split_animator(new SplitPointAnimator(std::move(apply)));
+        sk_sp<SplitPointAnimator> split_animator(new SplitPointAnimator(cap, cb));
 
         // This raw pointer is captured in lambdas below. But the lambdas are owned by
         // the object itself, so the scope is bound to the life time of the object.
         auto* split_animator_ptr = split_animator.get();
 
         if (!BindPropertyImpl<ScalarValue>((*jprop)["x"], abuilder, &split_animator->fAnimators,
-                [split_animator_ptr](const ScalarValue& x) { split_animator_ptr->setX(x); }) ||
+                                           split_animator_ptr,
+                [](const AnimationBuilder::Capture& cap, const ScalarValue& x) {
+                    cap.as<decltype(split_animator)::element_type>()->setX(x);
+                }) ||
             !BindPropertyImpl<ScalarValue>((*jprop)["y"], abuilder, &split_animator->fAnimators,
-                [split_animator_ptr](const ScalarValue& y) { split_animator_ptr->setY(y); })) {
+                                           split_animator_ptr,
+                [](const AnimationBuilder::Capture& cap, const ScalarValue& y) {
+                    cap.as<decltype(split_animator)::element_type>()->setY(y);
+                })) {
             abuilder->log(Logger::Level::kError, jprop, "Could not parse split property.");
             return nullptr;
         }
@@ -391,21 +425,24 @@ public:
         }
 
         const VectorValue vec = { fX, fY };
-        fApplyFunc(vec);
+        fApplyFunc(fCapture, vec);
     }
 
     void setX(const ScalarValue& x) { fX = x; }
     void setY(const ScalarValue& y) { fY = y; }
 
 private:
-    explicit SplitPointAnimator(std::function<void(const VectorValue&)>&& apply)
-        : fApplyFunc(std::move(apply)) {}
+    explicit SplitPointAnimator(const AnimationBuilder::Capture& cap,
+                                AnimationBuilder::PropertyCallback<VectorValue> apply)
+        : fCapture(cap)
+        , fApplyFunc(apply) {}
 
-    const std::function<void(const VectorValue&)> fApplyFunc;
-    sksg::AnimatorList                            fAnimators;
+    const StoredCapture fCapture;
+    const AnimationBuilder::PropertyCallback<VectorValue> fApplyFunc;
+    sksg::AnimatorList                                    fAnimators;
 
-    ScalarValue                                   fX = 0,
-                                                  fY = 0;
+    ScalarValue                                           fX = 0,
+                                                          fY = 0;
 
     using INHERITED = sksg::Animator;
 };
@@ -413,15 +450,24 @@ private:
 bool BindSplitPositionProperty(const skjson::Value& jv,
                                const AnimationBuilder* abuilder,
                                AnimatorScope* ascope,
-                               std::function<void(const VectorValue&)>&& apply,
+                               const AnimationBuilder::Capture& cap,
+                               AnimationBuilder::PropertyCallback<VectorValue> apply,
                                const VectorValue* noop) {
-    if (auto split_animator = SplitPointAnimator::Make(jv, abuilder, std::move(apply), noop)) {
+    if (auto split_animator = SplitPointAnimator::Make(jv, abuilder, cap, apply, noop)) {
         ascope->push_back(std::move(split_animator));
         return true;
     }
 
     return false;
 }
+
+template <typename T>
+class FuncAdapter final : public SkRefCnt {
+public:
+    FuncAdapter(std::function<void(const T&)>&& func) : fFunc(std::move(func)) {}
+
+    const std::function<void(const T&)> fFunc;
+};
 
 } // namespace
 
@@ -430,7 +476,14 @@ bool AnimationBuilder::bindProperty(const skjson::Value& jv,
                   AnimatorScope* ascope,
                   std::function<void(const ScalarValue&)>&& apply,
                   const ScalarValue* noop) const {
-    return BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
+    auto adapter = sk_make_sp<FuncAdapter<ScalarValue>>(std::move(apply));
+
+    AnimationBuilder::PropertyCallback<ScalarValue> cb =
+            [](const AnimationBuilder::Capture& cap, const ScalarValue& v) {
+                cap.as<decltype(adapter)::element_type>()->fFunc(v);
+            };
+
+    return BindPropertyImpl(jv, this, ascope, adapter, cb, noop);
 }
 
 template <>
@@ -441,9 +494,16 @@ bool AnimationBuilder::bindProperty(const skjson::Value& jv,
     if (!jv.is<skjson::ObjectValue>())
         return false;
 
+    auto adapter = sk_make_sp<FuncAdapter<VectorValue>>(std::move(apply));
+
+    AnimationBuilder::PropertyCallback<VectorValue> cb =
+            [](const AnimationBuilder::Capture& cap, const VectorValue& v) {
+                cap.as<decltype(adapter)::element_type>()->fFunc(v);
+            };
+
     return ParseDefault<bool>(jv.as<skjson::ObjectValue>()["s"], false)
-        ? BindSplitPositionProperty(jv, this, ascope, std::move(apply), noop)
-        : BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
+        ? BindSplitPositionProperty(jv, this, ascope, adapter, cb, noop)
+        : BindPropertyImpl(jv, this, ascope, adapter, cb, noop);
 }
 
 template <>
@@ -451,7 +511,13 @@ bool AnimationBuilder::bindProperty(const skjson::Value& jv,
                   AnimatorScope* ascope,
                   std::function<void(const ShapeValue&)>&& apply,
                   const ShapeValue* noop) const {
-    return BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
+    auto adapter = sk_make_sp<FuncAdapter<ShapeValue>>(std::move(apply));
+
+    AnimationBuilder::PropertyCallback<ShapeValue> cb =
+            [](const AnimationBuilder::Capture& cap, const ShapeValue& v) {
+                cap.as<decltype(adapter)::element_type>()->fFunc(v);
+            };
+    return BindPropertyImpl(jv, this, ascope, adapter, cb, noop);
 }
 
 template <>
@@ -459,7 +525,55 @@ bool AnimationBuilder::bindProperty(const skjson::Value& jv,
                   AnimatorScope* ascope,
                   std::function<void(const TextValue&)>&& apply,
                   const TextValue* noop) const {
-    return BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
+    auto adapter = sk_make_sp<FuncAdapter<TextValue>>(std::move(apply));
+
+    AnimationBuilder::PropertyCallback<TextValue> cb =
+            [](const AnimationBuilder::Capture& cap, const TextValue& v) {
+                cap.as<decltype(adapter)::element_type>()->fFunc(v);
+            };
+
+    return BindPropertyImpl(jv, this, ascope, adapter, cb, noop);
+}
+
+template <>
+bool AnimationBuilder::bindProp(const skjson::Value& jv,
+                                AnimatorScope* ascope,
+                                const Capture& cap,
+                                PropertyCallback<ScalarValue> cb,
+                                const ScalarValue* noop) const {
+    return BindPropertyImpl(jv, this, ascope, cap, cb, noop);
+}
+
+template <>
+bool AnimationBuilder::bindProp(const skjson::Value& jv,
+                                AnimatorScope* ascope,
+                                const Capture& cap,
+                                PropertyCallback<VectorValue> cb,
+                                const VectorValue* noop) const {
+    if (!jv.is<skjson::ObjectValue>())
+        return false;
+
+    return ParseDefault<bool>(jv.as<skjson::ObjectValue>()["s"], false)
+        ? BindSplitPositionProperty(jv, this, ascope, cap, cb, noop)
+        : BindPropertyImpl(jv, this, ascope, cap, cb, noop);
+}
+
+template <>
+bool AnimationBuilder::bindProp(const skjson::Value& jv,
+                                AnimatorScope* ascope,
+                                const Capture& cap,
+                                PropertyCallback<ShapeValue> cb,
+                                const ShapeValue* noop) const {
+    return BindPropertyImpl(jv, this, ascope, cap, cb, noop);
+}
+
+template <>
+bool AnimationBuilder::bindProp(const skjson::Value& jv,
+                                AnimatorScope* ascope,
+                                const Capture& cap,
+                                PropertyCallback<TextValue> cb,
+                                const TextValue* noop) const {
+    return BindPropertyImpl(jv, this, ascope, cap, cb, noop);
 }
 
 } // namespace internal

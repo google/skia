@@ -79,6 +79,45 @@ public:
         return this->bindProperty(jv, ascope, std::move(apply), &default_ignore);
     }
 
+    // Captures SkRefCnts in either raw or sk_sp form.
+    // Does *not* take ownership when used with smart pointers (but StoredCapture does).
+    class Capture {
+    public:
+        template <typename T,
+                  typename = typename std::enable_if<std::is_base_of<SkRefCnt, T>::value>::type>
+        Capture(T* raw) : fPtr(raw), fType(Type::kRaw) {}
+
+        template <typename T,
+                  typename = typename std::enable_if<std::is_base_of<SkRefCnt, T>::value>::type>
+        Capture(const sk_sp<T>& ref) : fPtr(ref.get()), fType(Type::kRef) {}
+
+        template <typename T>
+        T* as() const { return static_cast<T*>(fPtr); }
+
+    private:
+        friend class StoredCapture;
+
+        enum class Type {
+            kRaw, // stored values don't take ownership
+            kRef, // stored values take ownership
+        };
+
+        Capture(SkRefCnt* ptr, Type type) : fPtr(ptr), fType(type) {}
+
+        SkRefCnt* const fPtr;
+        const Type      fType;
+    };
+
+    template <typename T>
+    using PropertyCallback = void(*)(const Capture&, const T&);
+
+    template <typename T>
+    bool bindProp(const skjson::Value& jv,
+                  AnimatorScope* ascope,
+                  const Capture& cap,
+                  PropertyCallback<T>,
+                  const T* default_igore = nullptr) const;
+
     void log(Logger::Level, const skjson::Value*, const char fmt[], ...) const;
 
     sk_sp<sksg::Color> attachColor(const skjson::ObjectValue&, AnimatorScope*,
