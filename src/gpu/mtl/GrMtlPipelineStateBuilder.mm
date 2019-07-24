@@ -278,8 +278,7 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
     mtlColorAttachment.pixelFormat = format;
 
     // blending
-    GrXferProcessor::BlendInfo blendInfo;
-    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
+    const GrXferProcessor::BlendInfo& blendInfo = pipeline.getXferProcessor().getBlendInfo();
 
     GrBlendEquation equation = blendInfo.fEquation;
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;

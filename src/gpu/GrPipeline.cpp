@@ -114,8 +114,7 @@ GrPipeline::GrPipeline(GrScissorTest scissorTest, sk_sp<const GrXferProcessor> x
 }
 
 uint32_t GrPipeline::getBlendInfoKey() const {
-    GrXferProcessor::BlendInfo blendInfo;
-    this->getXferProcessor().getBlendInfo(&blendInfo);
+    const GrXferProcessor::BlendInfo& blendInfo = this->getXferProcessor().getBlendInfo();
 
     static const uint32_t kBlendWriteShift = 1;
     static const uint32_t kBlendCoeffShift = 5;

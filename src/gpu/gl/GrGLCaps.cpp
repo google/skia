@@ -57,6 +57,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fDontSetBaseOrMaxLevelForExternalTextures = false;
+    fNeverDisableColorWrites = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -3261,9 +3262,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // Temporarily disable the MSAA implementation of CCPR on various platforms while we work out
     // specific issues.
-    if (kATI_GrGLVendor == ctxInfo.vendor() ||  // Radeon hts an internal compiler error.
-        kQualcomm_GrGLVendor == ctxInfo.vendor() ||  // Pixel2 crashes in nanobench.
-        kImagination_GrGLVendor == ctxInfo.vendor()  /* PowerVR doesn't draw curves */) {
+    if (kATI_GrGLVendor == ctxInfo.vendor() ||  // Radeon drops stencil draws that use sample mask.
+        kQualcomm_GrGLVendor == ctxInfo.vendor() /* Pixel2 crashes in nanobench. */) {
         fDriverBlacklistMSAACCPR = true;
     }
 
@@ -3273,6 +3273,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // the client never changes them either.
     fDontSetBaseOrMaxLevelForExternalTextures = true;
 #endif
+
+    // PowerVRGX6250 drops every pixel if we modify the sample mask while color writes are disabled.
+    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+        fNeverDisableColorWrites = true;
+        shaderCaps->fMustWriteToFragColor = true;
+    }
 
     // It appears that Qualcomm drivers don't actually support
     // GL_NV_shader_noperspective_interpolation in ES 3.00 or 3.10 shaders, only 3.20.
@@ -3336,6 +3342,8 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fUseDrawInsteadOfAllRenderTargetWrites);
         SkASSERT(!fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines);
         SkASSERT(!fDetachStencilFromMSAABuffersBeforeReadPixels);
+        SkASSERT(!fDontSetBaseOrMaxLevelForExternalTextures);
+        SkASSERT(!fNeverDisableColorWrites);
     }
     if (options.fDoManualMipmapping) {
         fDoManualMipmapping = true;

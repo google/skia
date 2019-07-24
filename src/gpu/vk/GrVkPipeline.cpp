@@ -431,8 +431,7 @@ static bool blend_coeff_refs_constant(GrBlendCoeff coeff) {
 static void setup_color_blend_state(const GrPipeline& pipeline,
                                     VkPipelineColorBlendStateCreateInfo* colorBlendInfo,
                                     VkPipelineColorBlendAttachmentState* attachmentState) {
-    GrXferProcessor::BlendInfo blendInfo;
-    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
+    const GrXferProcessor::BlendInfo& blendInfo = pipeline.getXferProcessor().getBlendInfo();
 
     GrBlendEquation equation = blendInfo.fEquation;
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
@@ -628,8 +627,7 @@ void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
                                                 GrVkCommandBuffer* cmdBuffer,
                                                 const GrSwizzle& swizzle,
                                                 const GrXferProcessor& xferProcessor) {
-    GrXferProcessor::BlendInfo blendInfo;
-    xferProcessor.getBlendInfo(&blendInfo);
+    const GrXferProcessor::BlendInfo& blendInfo = xferProcessor.getBlendInfo();
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     float floatColors[4];
