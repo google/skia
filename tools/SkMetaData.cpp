@@ -7,7 +7,6 @@
 
 #include "tools/SkMetaData.h"
 
-#include "include/core/SkRefCnt.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
 
@@ -15,32 +14,6 @@ struct PtrPair {
     void*               fPtr;
     SkMetaData::PtrProc fProc;
 };
-
-void* SkMetaData::RefCntProc(void* ptr, bool doRef) {
-    SkASSERT(ptr);
-    SkRefCnt* refcnt = reinterpret_cast<SkRefCnt*>(ptr);
-
-    if (doRef) {
-        refcnt->ref();
-    } else {
-        refcnt->unref();
-    }
-    return ptr;
-}
-
-SkMetaData::SkMetaData() : fRec(nullptr)
-{
-}
-
-SkMetaData::SkMetaData(const SkMetaData& src) : fRec(nullptr)
-{
-    *this = src;
-}
-
-SkMetaData::~SkMetaData()
-{
-    this->reset();
-}
 
 void SkMetaData::reset()
 {
@@ -57,19 +30,6 @@ void SkMetaData::reset()
         rec = next;
     }
     fRec = nullptr;
-}
-
-SkMetaData& SkMetaData::operator=(const SkMetaData& src)
-{
-    this->reset();
-
-    const Rec* rec = src.fRec;
-    while (rec)
-    {
-        this->set(rec->name(), rec->data(), rec->fDataLen, (Type)rec->fType, rec->fDataCount);
-        rec = rec->fNext;
-    }
-    return *this;
 }
 
 void SkMetaData::setS32(const char name[], int32_t value)
@@ -90,11 +50,6 @@ SkScalar* SkMetaData::setScalars(const char name[], int count, const SkScalar va
     return nullptr;
 }
 
-void SkMetaData::setString(const char name[], const char value[])
-{
-    (void)this->set(name, value, sizeof(char), kString_Type, SkToInt(strlen(value) + 1));
-}
-
 void SkMetaData::setPtr(const char name[], void* ptr, PtrProc proc) {
     PtrPair pair = { ptr, proc };
     (void)this->set(name, &pair, sizeof(PtrPair), kPtr_Type, 1);
@@ -103,10 +58,6 @@ void SkMetaData::setPtr(const char name[], void* ptr, PtrProc proc) {
 void SkMetaData::setBool(const char name[], bool value)
 {
     (void)this->set(name, &value, sizeof(bool), kBool_Type, 1);
-}
-
-void SkMetaData::setData(const char name[], const void* data, size_t byteCount) {
-    (void)this->set(name, data, sizeof(char), kData_Type, SkToInt(byteCount));
 }
 
 void* SkMetaData::set(const char name[], const void* data, size_t dataSize, Type type, int count)
@@ -199,13 +150,6 @@ bool SkMetaData::findPtr(const char name[], void** ptr, PtrProc* proc) const {
     return false;
 }
 
-const char* SkMetaData::findString(const char name[]) const
-{
-    const Rec* rec = this->find(name, kString_Type);
-    SkASSERT(rec == nullptr || rec->fDataLen == sizeof(char));
-    return rec ? (const char*)rec->data() : nullptr;
-}
-
 bool SkMetaData::findBool(const char name[], bool* value) const
 {
     const Rec* rec = this->find(name, kBool_Type);
@@ -217,18 +161,6 @@ bool SkMetaData::findBool(const char name[], bool* value) const
         return true;
     }
     return false;
-}
-
-const void* SkMetaData::findData(const char name[], size_t* length) const {
-    const Rec* rec = this->find(name, kData_Type);
-    if (rec) {
-        SkASSERT(rec->fDataLen == sizeof(char));
-        if (length) {
-            *length = rec->fDataCount;
-        }
-        return rec->data();
-    }
-    return nullptr;
 }
 
 const SkMetaData::Rec* SkMetaData::find(const char name[], Type type) const
@@ -280,11 +212,6 @@ bool SkMetaData::removeScalar(const char name[])
     return this->remove(name, kScalar_Type);
 }
 
-bool SkMetaData::removeString(const char name[])
-{
-    return this->remove(name, kString_Type);
-}
-
 bool SkMetaData::removePtr(const char name[])
 {
     return this->remove(name, kPtr_Type);
@@ -293,10 +220,6 @@ bool SkMetaData::removePtr(const char name[])
 bool SkMetaData::removeBool(const char name[])
 {
     return this->remove(name, kBool_Type);
-}
-
-bool SkMetaData::removeData(const char name[]) {
-    return this->remove(name, kData_Type);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
