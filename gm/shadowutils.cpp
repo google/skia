@@ -96,6 +96,7 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
     m->postScale(1.2f, 0.8f, 25.f, 25.f);
     for (auto& m : matrices) {
         for (int flags : { kNone_ShadowFlag, kTransparentOccluder_ShadowFlag }) {
+            int pathCounter = 0;
             for (const auto& path : paths) {
                 SkRect postMBounds = path.getBounds();
                 m.mapRect(&postMBounds);
@@ -112,6 +113,11 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
                 canvas->save();
                 canvas->concat(m);
 
+                // flip a couple of paths to test 180° rotation
+                if (kTransparentOccluder_ShadowFlag == flags && 0 == pathCounter % 3) {
+                    canvas->save();
+                    canvas->rotate(180, 25, 25);
+                }
                 if (kDebugColorNoOccluders == mode || kDebugColorOccluders == mode) {
                     draw_shadow(canvas, path, kHeight, SK_ColorRED, lightPos, kLightR,
                                 true, flags);
@@ -143,11 +149,15 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
                     paint.setStyle(SkPaint::kFill_Style);
                 }
                 canvas->drawPath(path, paint);
+                if (kTransparentOccluder_ShadowFlag == flags && 0 == pathCounter % 3) {
+                    canvas->restore();
+                }
                 canvas->restore();
 
                 canvas->translate(dx, 0);
                 x += dx;
                 dy = SkTMax(dy, postMBounds.height() + kPad + kHeight);
+                ++pathCounter;
             }
         }
     }

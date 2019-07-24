@@ -1139,7 +1139,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
 
     // 1/scale
     SkScalar devToSrcScale = viewMatrix.isScaleTranslate() ?
-        SkScalarInvert(viewMatrix[SkMatrix::kMScaleX]) :
+        SkScalarInvert(SkScalarAbs(viewMatrix[SkMatrix::kMScaleX])) :
         sk_float_rsqrt(viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
                        viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
 
