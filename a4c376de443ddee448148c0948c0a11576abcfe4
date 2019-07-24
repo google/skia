@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8588e6f_3eb0f830",
+        "filename": "modules/skottie/src/SkottiePriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-24T15:09:44Z",
+      "side": 1,
+      "message": "Note:\n\nCapture is only used for passing info around and should never be stored. The plan is to have a different StoredCapture type for storage (which does take ownership).\n\nThis distinction is interesting because it allows avoiding refcount churn: most properties are not animated - then we immediately invoke the callback and never store/realize the capture.",
+      "range": {
+        "startLine": 84,
+        "startChar": 7,
+        "endLine": 84,
+        "endChar": 63
+      },
+      "revId": "a4c376de443ddee448148c0948c0a11576abcfe4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
