@@ -844,7 +844,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
 
     GrSurfaceOrigin readBackOrigin;
     GrBackendTexture readBackBackendTex = refImg->getBackendTexture(false, &readBackOrigin);
-    readBackBackendTex.setPixelConfig(kRGBA_8888_GrPixelConfig);
     if (!GrBackendTexture::TestingOnly_Equals(readBackBackendTex, backendTex)) {
         ERRORF(reporter, "backend mismatch\n");
     }

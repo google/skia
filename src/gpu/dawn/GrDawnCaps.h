@@ -32,14 +32,7 @@ public:
         return true;
     }
 
-    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&, GrColorType) const
-                                                                                         override {
-        return GrPixelConfig::kUnknown_GrPixelConfig;
-    }
-
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
-
-    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
         return SurfaceReadPixelsSupport::kSupported;
