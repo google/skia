@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d5ad6bf_95d5a4e7",
+        "filename": "infra/bots/recipes/perf_skottiewasm_lottieweb.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-07-24T20:00:12Z",
+      "side": 1,
+      "message": "I was not sure what to do with these files other than skip them.",
+      "revId": "110cb41b1a91fea8f740f9adf0a6c0b74054093d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
