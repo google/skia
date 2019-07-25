@@ -17,6 +17,8 @@ std::unique_ptr<GrOp> GrTransferFromOp::Make(GrRecordingContext* context,
                                              GrColorType dstColorType,
                                              sk_sp<GrGpuBuffer> dstBuffer,
                                              size_t dstOffset) {
+    SkASSERT(context->priv().caps()->transferFromOffsetAlignment(dstColorType));
+    SkASSERT(dstOffset % context->priv().caps()->transferFromOffsetAlignment(dstColorType) == 0);
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
     return pool->allocate<GrTransferFromOp>(srcRect, dstColorType, std::move(dstBuffer), dstOffset);
 }

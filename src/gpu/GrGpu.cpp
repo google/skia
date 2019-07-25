@@ -465,14 +465,8 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width,
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(transferBuffer);
-#ifdef SK_DEBUG
-    GrColorType surfCT = GrPixelConfigToColorType(surface->config());
-    auto supportedRead = this->caps()->supportedReadPixelsColorType(surfCT,
-                                                                    surface->backendFormat(),
-                                                                     bufferColorType);
-    SkASSERT(supportedRead.fOffsetAlignmentForTransferBuffer);
-    SkASSERT(offset % supportedRead.fOffsetAlignmentForTransferBuffer == 0);
-#endif
+    SkASSERT(this->caps()->transferFromOffsetAlignment(bufferColorType));
+    SkASSERT(offset % this->caps()->transferFromOffsetAlignment(bufferColorType) == 0);
 
     // We require that the write region is contained in the texture
     SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
