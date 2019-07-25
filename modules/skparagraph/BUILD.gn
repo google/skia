@@ -9,9 +9,11 @@ declare_args() {
 }
 
 if (skia_enable_skparagraph) {
-
   config("public_config") {
-    include_dirs = [ "include", "utils" ]
+    include_dirs = [
+      "include",
+      "utils",
+    ]
   }
 
   component("skparagraph") {
@@ -35,7 +37,6 @@ if (skia_enable_skparagraph) {
   }
 
   if (defined(is_skia_standalone) && skia_enable_tools) {
-
     source_set("utils") {
       import("skparagraph.gni")
       public_configs = [ ":utils_config" ]
@@ -56,12 +57,12 @@ if (skia_enable_skparagraph) {
       if (skia_use_icu && skia_use_harfbuzz && paragraph_tests_enabled) {
         testonly = true
         sources = [
-          "//tests/SkParagraphTest.cpp"
+          "//tests/SkParagraphTest.cpp",
         ]
         deps = [
-          "../..:skia",
-          "../..:gpu_tool_utils",
           ":skparagraph",
+          "../..:gpu_tool_utils",
+          "../..:skia",
           "../skshaper",
           "//third_party/icu",
         ]
@@ -72,11 +73,11 @@ if (skia_enable_skparagraph) {
       if (skia_use_icu && skia_use_harfbuzz && paragraph_bench_enabled) {
         testonly = true
         sources = [
-          "//bench/ParagraphBench.cpp"
+          "//bench/ParagraphBench.cpp",
         ]
         deps = [
-          "../..:skia",
           ":skparagraph",
+          "../..:skia",
           "../skshaper",
           "//third_party/icu",
         ]
@@ -90,9 +91,9 @@ if (skia_enable_skparagraph) {
           "//samplecode/SampleParagraph.cpp",
         ]
         deps = [
-          "../..:skia",
           ":skparagraph",
           ":utils",
+          "../..:skia",
           "../skshaper",
           "//third_party/icu",
         ]
