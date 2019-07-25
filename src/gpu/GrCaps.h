@@ -222,18 +222,25 @@ public:
      */
     virtual SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const = 0;
 
+    struct SupportedWrite {
+        GrColorType fColorType;
+        // If the write is occurring using GrGpu::transferPixelsTo then this provides the
+        // minimum alignment of the offset into the transfer buffer.
+        size_t fOffsetAlignmentForTransferBuffer;
+    };
+
     /**
      * Given a dst pixel config and a src color type what color type must the caller coax the
      * the data into in order to use GrGpu::writePixels().
      */
-    virtual GrColorType supportedWritePixelsColorType(GrPixelConfig config,
-                                                      GrColorType srcColorType) const {
-        return GrPixelConfigToColorType(config);
-    }
+    virtual SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+                                                         GrColorType srcColorType) const = 0;
 
     struct SupportedRead {
         GrSwizzle fSwizzle;
         GrColorType fColorType;
+        // If the read is occurring using GrGpu::transferPixelsFrom then this provides the
+        // minimum alignment of the offset into the transfer buffer.
         size_t fOffsetAlignmentForTransferBuffer;
     };
 
