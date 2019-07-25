@@ -16003,7 +16003,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16139,7 +16139,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16275,7 +16275,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16411,7 +16411,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16547,7 +16547,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16683,7 +16683,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16824,7 +16824,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16960,7 +16960,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17096,7 +17096,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17232,7 +17232,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17368,7 +17368,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17504,7 +17504,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17640,7 +17640,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17776,7 +17776,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17912,7 +17912,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18043,7 +18043,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18174,7 +18174,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18305,7 +18305,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18436,7 +18436,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18567,7 +18567,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18698,7 +18698,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18829,7 +18829,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18960,7 +18960,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -19091,7 +19091,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -19222,7 +19222,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -19353,7 +19353,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -19484,7 +19484,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35861,7 +35861,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35977,7 +35977,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36093,7 +36093,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36209,7 +36209,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36325,7 +36325,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36441,7 +36441,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36557,7 +36557,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-23.21.13.9101",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36673,7 +36673,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-23.21.13.9101",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36789,7 +36789,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-23.21.13.9101",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36905,7 +36905,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-23.21.13.9101",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37021,7 +37021,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37137,7 +37137,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37253,7 +37253,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37369,7 +37369,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37485,7 +37485,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37601,7 +37601,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37703,7 +37703,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37805,7 +37805,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37907,7 +37907,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38023,7 +38023,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38139,7 +38139,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38255,7 +38255,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38371,7 +38371,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38487,7 +38487,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38603,7 +38603,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38719,7 +38719,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38835,7 +38835,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38951,7 +38951,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39067,7 +39067,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39183,7 +39183,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39299,7 +39299,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39415,7 +39415,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39531,7 +39531,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39647,7 +39647,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39763,7 +39763,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39879,7 +39879,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39995,7 +39995,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40111,7 +40111,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40227,7 +40227,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40343,7 +40343,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40459,7 +40459,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40575,7 +40575,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40691,7 +40691,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40807,7 +40807,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40923,7 +40923,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41039,7 +41039,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41155,7 +41155,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41271,7 +41271,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41387,7 +41387,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41503,7 +41503,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41619,7 +41619,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41735,7 +41735,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41851,7 +41851,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41967,7 +41967,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42083,7 +42083,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42199,7 +42199,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42315,7 +42315,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42431,7 +42431,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42547,7 +42547,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42663,7 +42663,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42779,7 +42779,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42897,7 +42897,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43015,7 +43015,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43133,7 +43133,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43251,7 +43251,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43369,7 +43369,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43487,7 +43487,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43605,7 +43605,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -65933,7 +65933,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66049,7 +66049,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66165,7 +66165,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66281,7 +66281,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66397,7 +66397,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66513,7 +66513,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66629,7 +66629,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-23.21.13.9101",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66745,7 +66745,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-23.21.13.9101",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66861,7 +66861,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-23.21.13.9101",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66977,7 +66977,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-23.21.13.9101",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67093,7 +67093,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67209,7 +67209,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67325,7 +67325,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67441,7 +67441,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67562,7 +67562,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67678,7 +67678,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67794,7 +67794,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67910,7 +67910,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68026,7 +68026,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68142,7 +68142,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68263,7 +68263,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68379,7 +68379,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-i7-5557U",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68495,7 +68495,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68611,7 +68611,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68727,7 +68727,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68843,7 +68843,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68959,7 +68959,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69075,7 +69075,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69191,7 +69191,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69307,7 +69307,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69423,7 +69423,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69539,7 +69539,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69655,7 +69655,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69771,7 +69771,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69887,7 +69887,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70003,7 +70003,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70119,7 +70119,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70235,7 +70235,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70351,7 +70351,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70467,7 +70467,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70583,7 +70583,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6519",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70699,7 +70699,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70815,7 +70815,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70931,7 +70931,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71047,7 +71047,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71163,7 +71163,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71279,7 +71279,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71395,7 +71395,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71511,7 +71511,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71627,7 +71627,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71743,7 +71743,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71859,7 +71859,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71975,7 +71975,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72091,7 +72091,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72207,7 +72207,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72323,7 +72323,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72439,7 +72439,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72555,7 +72555,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72671,7 +72671,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72787,7 +72787,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72903,7 +72903,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -73019,7 +73019,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -73135,7 +73135,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.557",
+        "os:Windows-10-18362",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -73251,7 +73251,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -73367,7 +73367,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -73483,7 +73483,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -73599,7 +73599,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -73715,7 +73715,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -73831,7 +73831,7 @@
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
-        "os:Windows-10-16299.309",
+        "os:Windows-10-16299",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -73949,7 +73949,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -74067,7 +74067,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -74185,7 +74185,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -74303,7 +74303,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -74421,7 +74421,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -74539,7 +74539,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -74657,7 +74657,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -74775,7 +74775,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -74893,7 +74893,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75011,7 +75011,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75129,7 +75129,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75247,7 +75247,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75365,7 +75365,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75483,7 +75483,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75601,7 +75601,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server-14393",
+        "os:Windows-Server-14393",
         "pool:Skia"
       ],
       "env_prefixes": {
