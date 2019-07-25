@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a208bc0c_e07bd6f4",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-07-25T18:07:03Z",
+      "side": 1,
+      "message": "otherwise they are going to need to make a whitespace change to RELEASE_NOTES.txt to pass the presubmit?",
+      "revId": "5773516f6610b7484cd68f53211f590f31f3cd85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
