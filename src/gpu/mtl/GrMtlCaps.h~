@@ -35,8 +35,6 @@ public:
     bool isFormatCopyable(GrColorType, const GrBackendFormat&) const override { return true; }
     bool isConfigCopyable(GrPixelConfig) const override { return true; }
 
-    bool isFormatRenderable(MTLPixelFormat) const;
-
     int getRenderTargetSampleCount(int requestedCount,
                                    GrColorType, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
@@ -66,6 +64,10 @@ public:
     bool canCopyAsResolve(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const;
 
+    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
+                                              GrColorType) const override;
+
+    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
 
     GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override;
@@ -111,9 +113,9 @@ private:
         uint16_t fFlags;
     };
 #ifdef SK_BUILD_FOR_IOS
-    static constexpr size_t kNumMtlFormats = 18;
+    static constexpr size_t kNumMtlFormats = 17;
 #else
-    static constexpr size_t kNumMtlFormats = 15;
+    static constexpr size_t kNumMtlFormats = 14;
 #endif
     static size_t GetFormatIndex(MTLPixelFormat);
     FormatInfo fFormatTable[kNumMtlFormats];

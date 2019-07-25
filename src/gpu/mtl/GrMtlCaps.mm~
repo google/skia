@@ -297,7 +297,11 @@ bool GrMtlCaps::isFormatTexturable(MTLPixelFormat format) const {
 }
 
 bool GrMtlCaps::isFormatRenderable(MTLPixelFormat format) const {
+<<<<<<< HEAD
     return this->maxRenderTargetSampleCount(format) > 0;
+=======
+  return this->maxRenderTargetSampleCount(format) > 0;
+>>>>>>> git squash commit for fix-mtl-test.
 }
 
 int GrMtlCaps::maxRenderTargetSampleCount(GrColorType grColorType,
