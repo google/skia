@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c9e599b_36f5fef7",
+        "filename": "modules/particles/include/SkParticleSerialization.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-25T20:32:30Z",
+      "side": 1,
+      "message": "Think you could just always do append(line); append(\"\\n\")?",
+      "range": {
+        "startLine": 110,
+        "startChar": 20,
+        "endLine": 110,
+        "endChar": 58
+      },
+      "revId": "7808925e26e977c45e1fd55d3ef6ac1e2d09a571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
