@@ -45,6 +45,26 @@ void fill_transfer_data(int left, int top, int width, int height, int bufferWidt
     }
 }
 
+void determine_tolerances(GrColorType a, GrColorType b, float tolerances[4]) {
+    if (a == b) {
+        std::fill_n(tolerances, 4, 0);
+    }
+    auto descA = GrGetColorTypeDesc(a);
+    auto descB = GrGetColorTypeDesc(b);
+    if (descA.r() != descB.r()) {
+        tolerances[0] = 1.f / static_cast<float>((1 << std::min(descA.r(), descB.r())) - 1);
+    }
+    if (descA.g() != descB.g()) {
+        tolerances[1] = 1.f / static_cast<float>((1 << std::min(descA.g(), descB.g())) - 1);
+    }
+    if (descA.b() != descB.b()) {
+        tolerances[2] = 1.f / static_cast<float>((1 << std::min(descA.b(), descB.b())) - 1);
+    }
+    if (descA.a() != descB.a()) {
+        tolerances[3] = 1.f / static_cast<float>((1 << std::min(descA.a(), descB.a())) - 1);
+    }
+}
+
 bool read_pixels_from_texture(GrTexture* texture, GrColorType dstColorType, char* dst,
                               float tolerances[4]) {
     auto* context = texture->getContext();
@@ -69,22 +89,7 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType dstColorType, char
         }
         GrPixelInfo tmpInfo(supportedRead.fColorType, kUnpremul_SkAlphaType, nullptr, w, h);
         GrPixelInfo dstInfo(dstColorType,             kUnpremul_SkAlphaType, nullptr, w, h);
-        if (supportedRead.fColorType != dstColorType) {
-            auto descA = GrGetColorTypeDesc(supportedRead.fColorType);
-            auto descB = GrGetColorTypeDesc(dstColorType);
-            if (descA.r() != descB.r()) {
-                tolerances[0] = 1.f / ((1 << std::min(descA.r(), descB.r())) - 1);
-            }
-            if (descA.g() != descB.g()) {
-                tolerances[1] = 1.f / ((1 << std::min(descA.g(), descB.g())) - 1);
-            }
-            if (descA.b() != descB.b()) {
-                tolerances[2] = 1.f / ((1 << std::min(descA.b(), descB.b())) - 1);
-            }
-            if (descA.a() != descB.a()) {
-                tolerances[3] = 1.f / ((1 << std::min(descA.a(), descB.a())) - 1);
-            }
-        }
+        determine_tolerances(tmpInfo.colorType(), dstInfo.colorType(), tolerances);
         return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, tmpPixels.get(), tmpRowBytes, false,
                                supportedRead.fSwizzle);
     }
@@ -360,7 +365,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
                         transferData.get(), fullBufferRowBytes, false, allowedRead.fSwizzle);
     }
 
-    static constexpr float kTol[4] = {};
+    float tol[4];
+    determine_tolerances(allowedRead.fColorType, colorType, tol);
     auto error = std::function<ComparePixmapsErrorReporter>(
             [reporter, colorType](int x, int y, const float diffs[4]) {
                 ERRORF(reporter,
@@ -370,7 +376,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     GrPixelInfo textureDataInfo(colorType, kUnpremul_SkAlphaType, nullptr, kTextureWidth,
                                 kTextureHeight);
     compare_pixels(textureDataInfo, textureData.get(), textureDataRowBytes, transferInfo,
-                   transferData.get(), fullBufferRowBytes, kTol, error);
+                   transferData.get(), fullBufferRowBytes, tol, error);
 
     ///////////////////////
     // Now test a partial read at an offset into the buffer.
@@ -408,7 +414,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
             textureData.get() + textureDataRowBytes * kPartialTop + textureDataBpp * kPartialLeft;
     textureDataInfo = textureDataInfo.makeWH(kPartialWidth, kPartialHeight);
     compare_pixels(textureDataInfo, textureDataStart, textureDataRowBytes, transferInfo,
-                   transferData.get(), partialBufferRowBytes, kTol, error);
+                   transferData.get(), partialBufferRowBytes, tol, error);
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->transfersFromSurface() == expectedTransferCnt);
 #else
@@ -452,8 +458,26 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
         return;
     }
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-        for (auto colorType :
-             {GrColorType::kRGBA_8888, GrColorType::kRGBA_8888_SRGB, GrColorType::kBGRA_8888}) {
+        for (auto colorType : {
+                GrColorType::kAlpha_8,
+                GrColorType::kBGR_565,
+                GrColorType::kABGR_4444,
+                GrColorType::kRGBA_8888,
+                GrColorType::kRGBA_8888_SRGB,
+                //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
+                GrColorType::kRG_88,
+                GrColorType::kBGRA_8888,
+                GrColorType::kRGBA_1010102,
+                //  GrColorType::kGray_8, Reading back to kGray is busted.
+                GrColorType::kAlpha_F16,
+                GrColorType::kRGBA_F16,
+                GrColorType::kRGBA_F16_Clamped,
+                GrColorType::kRGBA_F32,
+                GrColorType::kR_16,
+                GrColorType::kRG_1616,
+                GrColorType::kRGBA_16161616,
+                GrColorType::kRG_F16,
+        }) {
             basic_transfer_from_test(reporter, ctxInfo, colorType, renderable);
         }
     }
