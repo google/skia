@@ -49,16 +49,13 @@ namespace internal { class AnimationBuilder; }
 template <typename ValueT, typename NodeT>
 class SK_API PropertyHandle final {
 public:
+    explicit PropertyHandle(sk_sp<NodeT> node) : fNode(std::move(node)) {}
     ~PropertyHandle();
 
     ValueT get() const;
     void set(const ValueT&);
 
 private:
-    explicit PropertyHandle(sk_sp<NodeT> node) : fNode(std::move(node)) {}
-
-    friend class skottie::internal::AnimationBuilder;
-
     const sk_sp<NodeT> fNode;
 };
 
