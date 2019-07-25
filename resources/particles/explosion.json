@@ -8,7 +8,7 @@
       "Columns": 4,
       "Rows": 4
    },
-   "Spawn": [
+   "Code": [
       "// float rand; Every read returns a random float [0 .. 1)",
       "layout(ctype=float) in uniform float dt;",
       "layout(ctype=float) in uniform float effectAge;",
@@ -35,31 +35,13 @@
       "  return float2(x, y);",
       "}",
       "",
-      "void main(inout Particle p) {",
+      "void spawn(inout Particle p) {",
       "  p.lifetime = 1.0 + rand * 2.0;",
       "  p.pos = circle() * 60;",
       "  p.vel = p.pos / 3;",
       "}",
-      ""
-   ],
-   "Update": [
-      "// float rand; Every read returns a random float [0 .. 1)",
-      "layout(ctype=float) in uniform float dt;",
-      "layout(ctype=float) in uniform float effectAge;",
       "",
-      "struct Particle {",
-      "  float  age;",
-      "  float  lifetime;",
-      "  float2 pos;",
-      "  float2 dir;",
-      "  float  scale;",
-      "  float2 vel;",
-      "  float  spin;",
-      "  float4 color;",
-      "  float  frame;",
-      "};",
-      "",
-      "void main(inout Particle p) {",
+      "void update(inout Particle p) {",
       "  p.frame = p.age;",
       "}",
       ""
