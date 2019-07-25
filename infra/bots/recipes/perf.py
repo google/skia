@@ -110,7 +110,9 @@ def nanobench_flags(api, bot):
     if 'Vulkan' in bot:
       configs = ['vk']
       if 'Android' in bot:
-        configs.append('vkmsaa4')
+        # skbug.com/9274
+        if 'Pixel2XL' not in bot:
+          configs.append('vkmsaa4')
       else:
         # skbug.com/9023
         if 'IntelHD405' not in bot:
