@@ -38,6 +38,7 @@ PUBLIC_API_OWNERS = (
 )
 
 AUTHORS_FILE_NAME = 'AUTHORS'
+RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.txt'
 
 DOCS_PREVIEW_URL = 'https://skia.org/?cl='
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
@@ -286,6 +287,7 @@ def CheckChangeOnUpload(input_api, output_api):
   results.extend(_InfraTests(input_api, output_api))
 
   results.extend(_CheckGNFormatted(input_api, output_api))
+  results.extend(_CheckReleaseNotesForPublicAPI(input_api, output_api))
   return results
 
 
@@ -397,6 +399,31 @@ def _CheckOwnerIsInAuthorsFile(input_api, output_api):
       input_api.logging.error('AUTHORS file not found!')
 
   return results
+
+
+def _CheckReleaseNotesForPublicAPI(input_api, output_api):
+  """Checks to see if release notes file is updated with public API changes."""
+  results = []
+  public_api_changed = False
+  release_file_changed = False
+  for affected_file in input_api.AffectedFiles():
+    affected_file_path = affected_file.LocalPath()
+    file_path, file_ext = os.path.splitext(affected_file_path)
+    # We only care about files that end in .h and are under the top-level
+    # include dir, but not include/private.
+    if (file_ext == '.h' and
+        file_path.split(os.path.sep)[0] == 'include' and
+        'private' not in file_path):
+      public_api_changed = True
+    elif affected_file_path == RELEASE_NOTES_FILE_NAME:
+      release_file_changed = True
+
+  if public_api_changed and not release_file_changed:
+    results.append(output_api.PresubmitPromptWarning(
+        'If this change affects a client API, please add a summary line '
+        'to the %s file.' % RELEASE_NOTES_FILE_NAME))
+  return results
+
 
 
 def _CheckLGTMsForPublicAPI(input_api, output_api):
