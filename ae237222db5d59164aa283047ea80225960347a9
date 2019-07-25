@@ -94,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "151d9c45_7ca84f7a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-25T01:14:29Z",
+      "side": 1,
+      "message": "Hmmm interesting. My guess is that my desktop and non of the CQ bots run an old enough GL/ES version that has luminance, so we actually end with 0 for fColorTypeInfoCount.",
+      "parentUuid": "25fa888d_34ce1bca",
+      "range": {
+        "startLine": 1738,
+        "startChar": 38,
+        "endLine": 1738,
+        "endChar": 40
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15e26cc2_658d4bb1",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 7
@@ -105,6 +129,30 @@
       "writtenOn": "2019-07-25T00:54:40Z",
       "side": 1,
       "message": "When the first template argument to class std::unique_ptr is an array type then the class defines an operator[] and you don\u0027t need all these get()s.\n\nhttps://en.cppreference.com/w/cpp/memory/unique_ptr/operator_at",
+      "range": {
+        "startLine": 627,
+        "startChar": 38,
+        "endLine": 627,
+        "endChar": 44
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f17d65a_77639cd2",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-25T01:14:29Z",
+      "side": 1,
+      "message": "Last time I trust the internet instead of just looking at the ref docs directly. I specifically searched to see if the [] was defined and everyone kept saying you need the get!!",
+      "parentUuid": "15e26cc2_658d4bb1",
       "range": {
         "startLine": 627,
         "startChar": 38,
