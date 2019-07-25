@@ -42,8 +42,7 @@ SkLayerDrawLooper::~SkLayerDrawLooper() {
 }
 
 SkLayerDrawLooper::Context*
-SkLayerDrawLooper::makeContext(SkCanvas* canvas, SkArenaAlloc* alloc) const {
-    canvas->save();
+SkLayerDrawLooper::makeContext(SkArenaAlloc* alloc) const {
     return alloc->make<LayerDrawLooperContext>(this);
 }
 
@@ -130,35 +129,21 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
 #endif
 }
 
-// Should we add this to canvas?
-static void postTranslate(SkCanvas* canvas, SkScalar dx, SkScalar dy) {
-    SkMatrix m = canvas->getTotalMatrix();
-    m.postTranslate(dx, dy);
-    canvas->setMatrix(m);
-}
-
 SkLayerDrawLooper::LayerDrawLooperContext::LayerDrawLooperContext(
         const SkLayerDrawLooper* looper) : fCurrRec(looper->fRecs) {}
 
-bool SkLayerDrawLooper::LayerDrawLooperContext::next(SkCanvas* canvas,
-                                                     SkPaint* paint) {
-    canvas->restore();
+bool SkLayerDrawLooper::LayerDrawLooperContext::next(Info* info, SkPaint* paint) {
     if (nullptr == fCurrRec) {
         return false;
     }
 
     ApplyInfo(paint, fCurrRec->fPaint, fCurrRec->fInfo);
 
-    canvas->save();
-    if (fCurrRec->fInfo.fPostTranslate) {
-        postTranslate(canvas, fCurrRec->fInfo.fOffset.fX,
-                      fCurrRec->fInfo.fOffset.fY);
-    } else {
-        canvas->translate(fCurrRec->fInfo.fOffset.fX,
-                          fCurrRec->fInfo.fOffset.fY);
+    if (info) {
+        info->fTranslate = fCurrRec->fInfo.fOffset;
+        info->fApplyPostCTM = fCurrRec->fInfo.fPostTranslate;
     }
     fCurrRec = fCurrRec->fNext;
-
     return true;
 }
 
