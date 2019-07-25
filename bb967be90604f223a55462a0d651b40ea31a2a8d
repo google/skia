@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48d1b969_318aba5f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-25T14:13:38Z",
+      "side": 1,
+      "message": "Ok but... why?  I\u0027m kind of getting tired of this sort of CL.  Of course we understand mechanically what you\u0027re doing... I want to know why we should care.  You\u0027re making things more complex and that needs to be balanced by some merit.",
+      "revId": "bb967be90604f223a55462a0d651b40ea31a2a8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
