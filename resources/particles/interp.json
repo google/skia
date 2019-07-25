@@ -2,40 +2,11 @@
    "MaxCount": 6000,
    "Duration": 5,
    "Rate": 2000,
-   "Life": {
-      "Input": {
-         "Source": "Age",
-         "TileMode": "Repeat",
-         "Left": 0,
-         "Right": 1
-      },
-      "XValues": [],
-      "Segments": [
-         {
-            "Type": "Constant",
-            "Ranged": true,
-            "Bidirectional": false,
-            "A0": 2,
-            "A1": 4
-         }
-      ]
-   },
    "Drawable": {
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
-   "Spawn": [
-      {
-         "Type": "SkInterpreterAffector",
-         "Enabled": true,
-         "Code": "// float rand;\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nvoid main(in    float age,\n          in    float invLifetime,\n          inout float2 pos,\n          inout float2 dir,\n          inout float  scale,\n          inout float2 vel,\n          inout float  spin,\n          inout float4 color) {\n  vel.x = 50 + (30 * rand);\n  vel.y = (rand * 20) - 10;\n}\n"
-      }
-   ],
-   "Update": [
-      {
-         "Type": "SkInterpreterAffector",
-         "Enabled": true,
-         "Code": "// float rand;\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nvoid main(in    float age,\n          in    float invLifetime,\n          inout float2 pos,\n          inout float2 dir,\n          inout float  scale,\n          inout float2 vel,\n          inout float  spin,\n          inout float4 color) {\n  color.r = age;\n  color.g = 1 - age;\n\n  float s1 = 0.5 + (1.5 * age);\n  float s2 = 1.0 + (-0.75 * age);\n  scale = s1 + (s2 - s1) * rand;\n\n  vel.y += 20.0 * dt;\n}\n"
-      }
-   ]
+   "Spawn": "// float rand; Every read returns a random float [0 .. 1)\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nstruct Particle {\n  float  age;\n  float  lifetime;\n  float2 pos;\n  float2 dir;\n  float  scale;\n  float2 vel;\n  float  spin;\n  float4 color;\n  float  frame;\n};\n\nvoid main(inout Particle p) {\n  p.lifetime = 2 + (rand * 2);\n  p.vel.x = (30 * rand) + 50;\n  p.vel.y = (20 * rand) - 10;\n}\n",
+   "Update": "// float rand; Every read returns a random float [0 .. 1)\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nstruct Particle {\n  float  age;\n  float  lifetime;\n  float2 pos;\n  float2 dir;\n  float  scale;\n  float2 vel;\n  float  spin;\n  float4 color;\n  float  frame;\n};\n\nvoid main(inout Particle p) {\n  p.color.r = p.age;\n  p.color.g = 1 - p.age;\n  float s1 = 0.5 + (1.5 * p.age);\n  float s2 = 1.0 + (-0.75 * p.age);\n  p.scale = s1 + (s2 - s1) * rand;\n  p.vel.y += 20.0 * dt;\n}\n",
+   "Bindings": []
 }
