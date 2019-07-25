@@ -42,8 +42,7 @@ AnimationBuilder::loadImageAsset(const skjson::ObjectValue& jimage) const {
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectValue& jimage,
-                                                           LayerInfo* layer_info,
-                                                           AnimatorScope* ascope) const {
+                                                           LayerInfo* layer_info) const {
     const auto* asset_info = this->loadImageAsset(jimage);
     if (!asset_info) {
         return nullptr;
@@ -80,10 +79,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
                                   fTimeScale;
         };
 
-        ascope->push_back(sk_make_sp<MultiFrameAnimator>(asset_info->fAsset,
-                                                         image_node,
-                                                         -layer_info->fInPoint,
-                                                         1 / fFrameRate));
+        fCurrentAnimatorScope->push_back(sk_make_sp<MultiFrameAnimator>(asset_info->fAsset,
+                                                                        image_node,
+                                                                        -layer_info->fInPoint,
+                                                                        1 / fFrameRate));
     }
 
     const auto asset_size = SkISize::Make(
@@ -105,11 +104,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageLayer(const skjson::ObjectValue& jlayer,
-                                                           LayerInfo* layer_info,
-                                                           AnimatorScope* ascope) const {
-    return this->attachAssetRef(jlayer, ascope,
-        [this, &layer_info] (const skjson::ObjectValue& jimage, AnimatorScope* ascope) {
-            return this->attachImageAsset(jimage, layer_info, ascope);
+                                                           LayerInfo* layer_info) const {
+    return this->attachAssetRef(jlayer,
+        [this, &layer_info] (const skjson::ObjectValue& jimage) {
+            return this->attachImageAsset(jimage, layer_info);
         });
 }
 
