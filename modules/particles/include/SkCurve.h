@@ -10,9 +10,9 @@
 
 #include "include/core/SkColor.h"
 #include "include/private/SkTArray.h"
-#include "modules/particles/include/SkParticleData.h"
 
 class SkFieldVisitor;
+class SkRandom;
 
 /**
  * SkCurve implements a keyframed 1D function, useful for animating values over time. This pattern
@@ -71,11 +71,8 @@ struct SkCurve {
         fSegments.push_back().setConstant(c);
     }
 
-    float eval(const SkParticleUpdateParams& params, SkParticleState& ps) const;
+    float eval(float x, SkRandom& random) const;
     void visitFields(SkFieldVisitor* v);
-
-    // Parameters that determine our x-value during evaluation
-    SkParticleValue                fInput;
 
     // It should always be true that (fXValues.count() + 1) == fSegments.count()
     SkTArray<float, true>          fXValues;
@@ -117,10 +114,9 @@ struct SkColorCurve {
         fSegments.push_back().setConstant(c);
     }
 
-    SkColor4f eval(const SkParticleUpdateParams& params, SkParticleState& ps) const;
+    SkColor4f eval(float x, SkRandom& random) const;
     void visitFields(SkFieldVisitor* v);
 
-    SkParticleValue                     fInput;
     SkTArray<float, true>               fXValues;
     SkTArray<SkColorCurveSegment, true> fSegments;
 };
