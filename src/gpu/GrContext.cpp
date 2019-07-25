@@ -319,6 +319,32 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+GrBackendFormat GrContext::defaultBackendFormat(SkColorType skColorType,
+                                                GrRenderable renderable) const {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+    if (this->abandoned()) {
+        return GrBackendFormat();
+    }
+
+    const GrCaps* caps = this->caps();
+
+    GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
+
+    GrBackendFormat format = caps->getBackendFormatFromColorType(grColorType);
+    if (!caps->isFormatCopyable(grColorType, format)) {
+        return GrBackendFormat();
+    }
+
+    if (renderable == GrRenderable::kYes) {
+        if (!caps->isFormatRenderable(grColorType, format)) {
+            return GrBackendFormat();
+        }
+    }
+
+    return format;
+}
+
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const GrBackendFormat& backendFormat,
                                                  GrMipMapped mipMapped,
@@ -343,7 +369,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
-                                                 SkColorType colorType,
+                                                 SkColorType skColorType,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable,
                                                  GrProtected isProtected) {
@@ -355,8 +381,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    GrBackendFormat format =
-            this->caps()->getBackendFormatFromColorType(SkColorTypeToGrColorType(colorType));
+    const GrBackendFormat format = this->defaultBackendFormat(skColorType, renderable);
     if (!format.isValid()) {
         return GrBackendTexture();
     }
@@ -384,8 +409,7 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return {};
     }
 
-    const GrBackendFormat format =
-            caps->getBackendFormatFromColorType(SkColorTypeToGrColorType(c.colorType()));
+    const GrBackendFormat format = this->defaultBackendFormat(c.colorType(), GrRenderable::kYes);
     if (!format.isValid()) {
         return GrBackendTexture();
     }
@@ -404,8 +428,6 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
 
 GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c,
                                                  const SkColor4f& color) {
-    const GrCaps* caps = this->caps();
-
     if (!this->asDirectContext() || !c.isValid()) {
         return GrBackendTexture();
     }
@@ -423,13 +445,12 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return {};
     }
 
-    const GrBackendFormat format =
-            caps->getBackendFormatFromColorType(SkColorTypeToGrColorType(c.colorType()));
+    const GrBackendFormat format = this->defaultBackendFormat(c.colorType(), GrRenderable::kYes);
     if (!format.isValid()) {
         return GrBackendTexture();
     }
 
-    if (!SkSurface_Gpu::Valid(caps, format)) {
+    if (!SkSurface_Gpu::Valid(this->caps(), format)) {
         return GrBackendTexture();
     }
 
@@ -466,7 +487,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
-                                                 SkColorType colorType,
+                                                 SkColorType skColorType,
                                                  const SkColor4f& color,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable,
@@ -479,12 +500,13 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    GrColorType ct = SkColorTypeToGrColorType(colorType);
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(ct);
+    GrBackendFormat format = this->defaultBackendFormat(skColorType, renderable);
     if (!format.isValid()) {
         return GrBackendTexture();
     }
-    SkColor4f swizzledColor = this->caps()->getOutputSwizzle(format, ct).applyTo(color);
+
+    GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
+    SkColor4f swizzledColor = this->caps()->getOutputSwizzle(format, grColorType).applyTo(color);
 
     return this->createBackendTexture(width, height, format, swizzledColor, mipMapped, renderable,
                                       isProtected);
