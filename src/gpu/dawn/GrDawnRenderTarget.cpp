@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrDawnRenderTarget.h"
+#include "src/gpu/dawn/GrDawnRenderTarget.h"
 
 #include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/dawn/GrDawnGpu.h"

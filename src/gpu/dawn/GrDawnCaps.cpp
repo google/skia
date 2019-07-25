@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrDawnCaps.h"
+#include "src/gpu/dawn/GrDawnCaps.h"
 
 GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(contextOptions) {
     fBufferMapThreshold = SK_MaxS32;  // FIXME: get this from Dawn?
