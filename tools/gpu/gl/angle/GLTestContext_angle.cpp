@@ -500,6 +500,14 @@ sk_sp<const GrGLInterface> CreateANGLEGLInterface() {
 
 std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLEContextVersion version,
                                                     GLTestContext* shareContext, void* display){
+#if defined(SK_BUILD_FOR_WIN) && defined(_M_ARM64)
+    // Windows-on-ARM only has D3D11. This will fail correctly, but it produces huge amounts of
+    // debug output for every unit test from both ANGLE and our context factory.
+    if (ANGLEBackend::kD3D11 != type) {
+        return nullptr;
+    }
+#endif
+
     ANGLEGLContext* angleShareContext = reinterpret_cast<ANGLEGLContext*>(shareContext);
     std::unique_ptr<GLTestContext> ctx(new ANGLEGLContext(type, version,
                                                           angleShareContext, display));
