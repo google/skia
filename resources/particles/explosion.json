@@ -2,117 +2,13 @@
    "MaxCount": 32,
    "Duration": 1,
    "Rate": 8,
-   "Life": {
-      "Input": {
-         "Source": "Age",
-         "TileMode": "Repeat",
-         "Left": 0,
-         "Right": 1
-      },
-      "XValues": [],
-      "Segments": [
-         {
-            "Type": "Constant",
-            "Ranged": true,
-            "Bidirectional": false,
-            "A0": 1,
-            "A1": 3
-         }
-      ]
-   },
    "Drawable": {
       "Type": "SkImageDrawable",
       "Path": "resources/images/explosion_sprites.png",
       "Columns": 4,
       "Rows": 4
    },
-   "Spawn": [
-      {
-         "Type": "SkPositionInCircleAffector",
-         "Enabled": true,
-         "SetHeading": true,
-         "X": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 0
-               }
-            ]
-         },
-         "Y": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 0
-               }
-            ]
-         },
-         "Radius": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 60
-               }
-            ]
-         }
-      }
-   ],
-   "Update": [
-      {
-         "Type": "SkPointForceAffector",
-         "Enabled": true,
-         "Point": { "x": 200, "y": 200 },
-         "Constant": 0,
-         "InvSquare": -50
-      },
-      {
-         "Type": "SkFrameAffector",
-         "Enabled": true,
-         "Curve": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Linear",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 0,
-                  "D0": 1
-               }
-            ]
-         }
-      }
-   ]
+   "Spawn": "// float rand; Every read returns a random float [0 .. 1)\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nstruct Particle {\n  float  age;\n  float  lifetime;\n  float2 pos;\n  float2 dir;\n  float  scale;\n  float2 vel;\n  float  spin;\n  float4 color;\n  float  frame;\n};\n\nfloat2 circle() {\n  float x;\n  float y;\n  do {\n    x = rand * 2 - 1;\n    y = rand * 2 - 1;\n  } while (x*x + y*y > 1);\n  return float2(x, y);\n}\n\nvoid main(inout Particle p) {\n  p.lifetime = 1.0 + rand * 2.0;\n  p.pos = circle() * 60;\n  p.vel = p.pos / 3;\n}\n",
+   "Update": "// float rand; Every read returns a random float [0 .. 1)\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nstruct Particle {\n  float  age;\n  float  lifetime;\n  float2 pos;\n  float2 dir;\n  float  scale;\n  float2 vel;\n  float  spin;\n  float4 color;\n  float  frame;\n};\n\nvoid main(inout Particle p) {\n  p.frame = p.age;\n}\n",
+   "Bindings": []
 }

@@ -27,14 +27,40 @@ static sk_sp<SkImage> make_circle_image(int radius) {
     return surface->makeImageSnapshot();
 }
 
+static inline SkRSXform make_rsxform(SkPoint ofs,
+                                     float posX, float posY, float dirX, float dirY, float scale) {
+    const float s = dirX * scale;
+    const float c = -dirY * scale;
+    return SkRSXform::Make(c, s,
+                           posX + -c * ofs.fX + s * ofs.fY,
+                           posY + -s * ofs.fX + -c * ofs.fY);
+}
+
 struct DrawAtlasArrays {
-    DrawAtlasArrays(const SkParticleState particles[], int count, SkPoint center)
+    DrawAtlasArrays(const SkParticles& particles, int count, SkPoint center)
             : fXforms(count)
             , fRects(count)
             , fColors(count) {
+        float* c[] = {
+            particles.fData[SkParticles::kColorR].get(),
+            particles.fData[SkParticles::kColorG].get(),
+            particles.fData[SkParticles::kColorB].get(),
+            particles.fData[SkParticles::kColorA].get(),
+        };
+
+        float* pos[] = {
+            particles.fData[SkParticles::kPositionX].get(),
+            particles.fData[SkParticles::kPositionY].get(),
+        };
+        float* dir[] = {
+            particles.fData[SkParticles::kHeadingX].get(),
+            particles.fData[SkParticles::kHeadingY].get(),
+        };
+        float* scale = particles.fData[SkParticles::kScale].get();
+
         for (int i = 0; i < count; ++i) {
-            fXforms[i] = particles[i].fPose.asRSXform(center);
-            fColors[i] = particles[i].fColor.toSkColor();
+            fXforms[i] = make_rsxform(center, pos[0][i], pos[1][i], dir[0][i], dir[1][i], scale[i]);
+            fColors[i] = SkColor4f{ c[0][i], c[1][i], c[2][i], c[3][i] }.toSkColor();
         }
     }
 
@@ -52,7 +78,7 @@ public:
 
     REFLECTED(SkCircleDrawable, SkParticleDrawable)
 
-    void draw(SkCanvas* canvas, const SkParticleState particles[], int count,
+    void draw(SkCanvas* canvas, const SkParticles& particles, int count,
               const SkPaint* paint) override {
         SkPoint center = { SkIntToScalar(fRadius), SkIntToScalar(fRadius) };
         DrawAtlasArrays arrays(particles, count, center);
@@ -93,15 +119,16 @@ public:
 
     REFLECTED(SkImageDrawable, SkParticleDrawable)
 
-    void draw(SkCanvas* canvas, const SkParticleState particles[], int count,
+    void draw(SkCanvas* canvas, const SkParticles& particles, int count,
               const SkPaint* paint) override {
         SkRect baseRect = getBaseRect();
         SkPoint center = { baseRect.width() * 0.5f, baseRect.height() * 0.5f };
         DrawAtlasArrays arrays(particles, count, center);
 
         int frameCount = fCols * fRows;
+        float* spriteFrames = particles.fData[SkParticles::kSpriteFrame].get();
         for (int i = 0; i < count; ++i) {
-            int frame = static_cast<int>(particles[i].fFrame * frameCount + 0.5f);
+            int frame = static_cast<int>(spriteFrames[i] * frameCount + 0.5f);
             frame = SkTPin(frame, 0, frameCount - 1);
             int row = frame / fCols;
             int col = frame % fCols;

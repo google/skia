@@ -8,23 +8,390 @@
 #include "modules/particles/include/SkParticleEffect.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkContourMeasure.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkRSXform.h"
 #include "include/private/SkColorData.h"
-#include "modules/particles/include/SkParticleAffector.h"
+#include "include/utils/SkParsePath.h"
+#include "include/utils/SkTextUtils.h"
+#include "modules/particles/include/SkCurve.h"
 #include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkReflected.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLExternalValue.h"
+
+void SkParticleBinding::visitFields(SkFieldVisitor* v) {
+    v->visit("Name", fName);
+}
+
+class SkParticleExternalValue : public SkSL::ExternalValue {
+public:
+    SkParticleExternalValue(const char* name, SkSL::Compiler& compiler, const SkSL::Type& type)
+        : INHERITED(name, type)
+        , fCompiler(compiler)
+        , fRandom(nullptr) {
+    }
+
+    void setRandom(SkRandom* random) { fRandom = random; }
+
+protected:
+    SkSL::Compiler& fCompiler;
+    SkRandom* fRandom;
+    typedef SkSL::ExternalValue INHERITED;
+};
+
+// Exposes an SkCurve as an external, callable value. c(x) returns a float.
+class SkCurveExternalValue : public SkParticleExternalValue {
+public:
+    SkCurveExternalValue(const char* name, SkSL::Compiler& compiler, const SkCurve& curve)
+        : INHERITED(name, compiler, *compiler.context().fFloat_Type)
+        , fCurve(curve) { }
+
+    bool canCall() const override { return true; }
+    int callParameterCount() const override { return 1; }
+    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
+        outTypes[0] = fCompiler.context().fFloat_Type.get();
+    }
+
+    void call(int index, float* arguments, float* outReturn) override {
+        *outReturn = fCurve.eval(*arguments, fRandom[index]);
+    }
+
+private:
+    SkCurve fCurve;
+    typedef SkParticleExternalValue INHERITED;
+};
+
+class SkCurveBinding : public SkParticleBinding {
+public:
+    SkCurveBinding(const char* name = "", const SkCurve& curve = 0.0f)
+        : SkParticleBinding(name)
+        , fCurve(curve) {}
+
+    REFLECTED(SkCurveBinding, SkParticleBinding)
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkParticleBinding::visitFields(v);
+        v->visit("Curve", fCurve);
+    }
+
+    std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
+        return std::unique_ptr<SkParticleExternalValue>(
+                new SkCurveExternalValue(fName.c_str(), compiler, fCurve));
+    }
+
+private:
+    SkCurve fCurve;
+};
+
+// Exposes an SkColorCurve as an external, callable value. c(x) returns a float4.
+class SkColorCurveExternalValue : public SkParticleExternalValue {
+public:
+    SkColorCurveExternalValue(const char* name, SkSL::Compiler& compiler, const SkColorCurve& curve)
+        : INHERITED(name, compiler, *compiler.context().fFloat4_Type)
+        , fCurve(curve) {
+    }
+
+    bool canCall() const override { return true; }
+    int callParameterCount() const override { return 1; }
+    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
+        outTypes[0] = fCompiler.context().fFloat_Type.get();
+    }
+
+    void call(int index, float* arguments, float* outReturn) override {
+        SkColor4f color = fCurve.eval(*arguments, fRandom[index]);
+        memcpy(outReturn, color.vec(), 4 * sizeof(float));
+    }
+
+private:
+    SkColorCurve fCurve;
+    typedef SkParticleExternalValue INHERITED;
+};
+
+class SkColorCurveBinding : public SkParticleBinding {
+public:
+    SkColorCurveBinding(const char* name = "",
+                        const SkColorCurve& curve = SkColor4f{ 1.0f, 1.0f, 1.0f, 1.0f })
+        : SkParticleBinding(name)
+        , fCurve(curve) {
+    }
+
+    REFLECTED(SkColorCurveBinding, SkParticleBinding)
+
+        void visitFields(SkFieldVisitor* v) override {
+        SkParticleBinding::visitFields(v);
+        v->visit("Curve", fCurve);
+    }
+
+    std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
+        return std::unique_ptr<SkParticleExternalValue>(
+            new SkColorCurveExternalValue(fName.c_str(), compiler, fCurve));
+    }
+
+private:
+    SkColorCurve fCurve;
+};
+
+struct SkPathContours {
+    SkScalar fTotalLength;
+    SkTArray<sk_sp<SkContourMeasure>> fContours;
+
+    void reset() {
+        fTotalLength = 0;
+        fContours.reset();
+    }
+};
+
+// Exposes an SkPath as an external, callable value. p(x) returns a float4 { pos.xy, normal.xy }
+class SkPathExternalValue : public SkParticleExternalValue {
+public:
+    SkPathExternalValue(const char* name, SkSL::Compiler& compiler, const SkPathContours* path)
+        : INHERITED(name, compiler, *compiler.context().fFloat4_Type)
+        , fPath(path) { }
+
+    bool canCall() const override { return true; }
+    int callParameterCount() const override { return 1; }
+    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
+        outTypes[0] = fCompiler.context().fFloat_Type.get();
+    }
+
+    void call(int index, float* arguments, float* outReturn) override {
+        SkScalar len = fPath->fTotalLength * arguments[0];
+        int idx = 0;
+        while (idx < fPath->fContours.count() && len > fPath->fContours[idx]->length()) {
+            len -= fPath->fContours[idx++]->length();
+        }
+        SkVector localXAxis;
+        if (!fPath->fContours[idx]->getPosTan(len, (SkPoint*)outReturn, &localXAxis)) {
+            outReturn[0] = outReturn[1] = 0.0f;
+            localXAxis = { 1, 0 };
+        }
+        outReturn[2] = localXAxis.fY;
+        outReturn[3] = -localXAxis.fX;
+    }
+
+private:
+    const SkPathContours* fPath;
+    typedef SkParticleExternalValue INHERITED;
+};
+
+class SkPathBinding : public SkParticleBinding {
+public:
+    SkPathBinding(const char* name = "", const char* path = "")
+            : SkParticleBinding(name)
+            , fPath(path) {
+        this->rebuild();
+    }
+
+    REFLECTED(SkPathBinding, SkParticleBinding)
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkString oldPath = fPath;
+
+        SkParticleBinding::visitFields(v);
+        v->visit("Path", fPath);
+
+        if (fPath != oldPath) {
+            this->rebuild();
+        }
+    }
+
+    std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
+        return std::unique_ptr<SkParticleExternalValue>(
+            new SkPathExternalValue(fName.c_str(), compiler, &fContours));
+    }
+
+private:
+    SkString fPath;
+    void rebuild() {
+        SkPath path;
+        if (!SkParsePath::FromSVGString(fPath.c_str(), &path)) {
+            return;
+        }
+
+        fContours.reset();
+
+        SkContourMeasureIter iter(path, false);
+        while (auto contour = iter.next()) {
+            fContours.fContours.push_back(contour);
+            fContours.fTotalLength += contour->length();
+        }
+    }
+
+    // Cached
+    SkPathContours fContours;
+};
+
+class SkTextBinding : public SkParticleBinding {
+public:
+    SkTextBinding(const char* name = "", const char* text = "", SkScalar fontSize = 96)
+            : SkParticleBinding(name)
+            , fText(text)
+            , fFontSize(fontSize) {
+        this->rebuild();
+    }
+
+    REFLECTED(SkTextBinding, SkParticleBinding)
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkString oldText = fText;
+        SkScalar oldSize = fFontSize;
+
+        SkParticleBinding::visitFields(v);
+        v->visit("Text", fText);
+        v->visit("FontSize", fFontSize);
+
+        if (fText != oldText || fFontSize != oldSize) {
+            this->rebuild();
+        }
+    }
+
+    std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
+        return std::unique_ptr<SkParticleExternalValue>(
+            new SkPathExternalValue(fName.c_str(), compiler, &fContours));
+    }
+
+private:
+    SkString fText;
+    SkScalar fFontSize;
+    void rebuild() {
+        if (fText.isEmpty()) {
+            return;
+        }
+
+        fContours.reset();
+
+        SkFont font(nullptr, fFontSize);
+        SkPath path;
+        SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8, 0, 0, font, &path);
+        SkContourMeasureIter iter(path, false);
+        while (auto contour = iter.next()) {
+            fContours.fContours.push_back(contour);
+            fContours.fTotalLength += contour->length();
+        }
+    }
+
+    // Cached
+    SkPathContours fContours;
+};
+
+void SkParticleBinding::RegisterBindingTypes() {
+    REGISTER_REFLECTED(SkParticleBinding);
+    REGISTER_REFLECTED(SkCurveBinding);
+    REGISTER_REFLECTED(SkColorCurveBinding);
+    REGISTER_REFLECTED(SkPathBinding);
+    REGISTER_REFLECTED(SkTextBinding);
+}
+
+// Exposes a particle's random generator as an external, readable value. read returns a float [0, 1)
+class SkRandomExternalValue : public SkParticleExternalValue {
+public:
+    SkRandomExternalValue(const char* name, SkSL::Compiler& compiler)
+        : INHERITED(name, compiler, *compiler.context().fFloat_Type) {}
+
+    bool canRead() const override { return true; }
+    void read(int index, float* target) override {
+        *target = fRandom[index].nextF();
+    }
+
+private:
+    typedef SkParticleExternalValue INHERITED;
+};
+
+static const char* kDefaultCode =
+R"(
+// float rand; Every read returns a random float [0 .. 1)
+layout(ctype=float) in uniform float dt;
+layout(ctype=float) in uniform float effectAge;
+
+struct Particle {
+  float  age;
+  float  lifetime;
+  float2 pos;
+  float2 dir;
+  float  scale;
+  float2 vel;
+  float  spin;
+  float4 color;
+  float  frame;
+};
+
+void main(inout Particle p) {
+}
+)";
+
+SkParticleEffectParams::SkParticleEffectParams()
+        : fMaxCount(128)
+        , fEffectDuration(1.0f)
+        , fRate(8.0f)
+        , fDrawable(nullptr)
+        , fSpawnCode(kDefaultCode)
+        , fUpdateCode(kDefaultCode) {
+    this->rebuild();
+}
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
+    SkString oldSpawnCode = fSpawnCode;
+    SkString oldUpdateCode = fUpdateCode;
+
     v->visit("MaxCount", fMaxCount);
     v->visit("Duration", fEffectDuration);
     v->visit("Rate", fRate);
-    v->visit("Life", fLifetime);
 
     v->visit("Drawable", fDrawable);
 
-    v->visit("Spawn", fSpawnAffectors);
-    v->visit("Update", fUpdateAffectors);
+    v->visit("Spawn", fSpawnCode);
+    v->visit("Update", fUpdateCode);
+
+    v->visit("Bindings", fBindings);
+
+    // TODO: Or, if any change to binding metadata?
+    if (fSpawnCode != oldSpawnCode || fUpdateCode != oldUpdateCode) {
+        this->rebuild();
+    }
+}
+
+void SkParticleEffectParams::rebuild() {
+    auto buildProgram = [this](Program* p, const SkString& code) {
+        SkSL::Compiler compiler;
+        SkSL::Program::Settings settings;
+
+        SkTArray<std::unique_ptr<SkParticleExternalValue>> externalValues;
+
+        auto rand = skstd::make_unique<SkRandomExternalValue>("rand", compiler);
+        compiler.registerExternalValue(rand.get());
+        externalValues.push_back(std::move(rand));
+
+        for (const auto& binding : fBindings) {
+            if (binding) {
+                auto value = binding->toValue(compiler);
+                compiler.registerExternalValue(value.get());
+                externalValues.push_back(std::move(value));
+            }
+        }
+
+        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                               SkSL::String(code.c_str()), settings);
+        if (!program) {
+            SkDebugf("%s\n", compiler.errorText().c_str());
+            return;
+        }
+
+        auto byteCode = compiler.toByteCode(*program);
+        if (!byteCode) {
+            SkDebugf("%s\n", compiler.errorText().c_str());
+            return;
+        }
+
+        p->fByteCode = std::move(byteCode);
+        p->fExternalValues.swap(externalValues);
+    };
+
+    buildProgram(&fSpawnProgram, fSpawnCode);
+    buildProgram(&fUpdateProgram, fUpdateCode);
 }
 
 SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random)
@@ -64,24 +431,39 @@ void SkParticleEffect::update(double now) {
     float effectAge = static_cast<float>((now - fSpawnTime) / fParams->fEffectDuration);
     effectAge = fLooping ? fmodf(effectAge, 1.0f) : SkTPin(effectAge, 0.0f, 1.0f);
 
-    SkParticleUpdateParams updateParams;
-    updateParams.fDeltaTime = deltaTime;
-    updateParams.fEffectAge = effectAge;
-
-    // During spawn, values that refer to kAge_Source get the *effect* age
-    updateParams.fAgeSource = SkParticleValue::kEffectAge_Source;
+    float updateParams[2] = { deltaTime, effectAge };
 
     // Advance age for existing particles, and remove any that have reached their end of life
     for (int i = 0; i < fCount; ++i) {
-        fParticles[i].fAge += fParticles[i].fInvLifetime * deltaTime;
-        if (fParticles[i].fAge > 1.0f) {
+        fParticles.fData[SkParticles::kAge][i] +=
+                fParticles.fData[SkParticles::kLifetime][i] * deltaTime;
+        if (fParticles.fData[SkParticles::kAge][i] > 1.0f) {
             // NOTE: This is fast, but doesn't preserve drawing order. Could be a problem...
-            fParticles[i]     = fParticles[fCount - 1];
+            for (int j = 0; j < SkParticles::kNumChannels; ++j) {
+                fParticles.fData[j][i] = fParticles.fData[j][fCount - 1];
+            }
             fStableRandoms[i] = fStableRandoms[fCount - 1];
             --i;
             --fCount;
         }
     }
+
+    auto runProgram = [](SkParticleEffectParams::Program& program, SkParticles& particles,
+                         float updateParams[], int start, int count) {
+        if (const auto& byteCode = program.fByteCode) {
+            float* args[SkParticles::kNumChannels];
+            for (int i = 0; i < SkParticles::kNumChannels; ++i) {
+                args[i] = particles.fData[i].get() + start;
+            }
+            SkRandom* randomBase = particles.fRandom.get() + start;
+            for (const auto& value : program.fExternalValues) {
+                value->setRandom(randomBase);
+            }
+            SkAssertResult(byteCode->runStriped(byteCode->getFunction("main"),
+                                                args, SkParticles::kNumChannels, count,
+                                                updateParams, 2, nullptr, 0));
+        }
+    };
 
     // Spawn new particles
     float desired = fParams->fRate * deltaTime + fSpawnRemainder;
@@ -94,58 +476,58 @@ void SkParticleEffect::update(double now) {
         for (int i = 0; i < numToSpawn; ++i) {
             // Mutate our SkRandom so each particle definitely gets a different generator
             fRandom.nextU();
-            fParticles[fCount].fAge = 0.0f;
-            fParticles[fCount].fPose.fPosition = { 0.0f, 0.0f };
-            fParticles[fCount].fPose.fHeading = { 0.0f, -1.0f };
-            fParticles[fCount].fPose.fScale = 1.0f;
-            fParticles[fCount].fVelocity.fLinear = { 0.0f, 0.0f };
-            fParticles[fCount].fVelocity.fAngular = 0.0f;
-            fParticles[fCount].fColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-            fParticles[fCount].fFrame = 0.0f;
-            fParticles[fCount].fRandom = fRandom;
+            fParticles.fData[SkParticles::kAge            ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kLifetime       ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kPositionX      ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kPositionY      ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kHeadingX       ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kHeadingY       ][fCount] = -1.0f;
+            fParticles.fData[SkParticles::kScale          ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kVelocityX      ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kVelocityY      ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kVelocityAngular][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kColorR         ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kColorG         ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kColorB         ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kColorA         ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kSpriteFrame    ][fCount] = 0.0f;
+            fParticles.fRandom[fCount] = fRandom;
             fCount++;
         }
 
-        // Apply spawn affectors
-        for (auto affector : fParams->fSpawnAffectors) {
-            if (affector) {
-                affector->apply(updateParams, fParticles + spawnBase, numToSpawn);
-            }
-        }
+        // Run the spawn script
+        runProgram(fParams->fSpawnProgram, fParticles, updateParams, spawnBase, numToSpawn);
 
-        // Now stash copies of the random generators and compute particle lifetimes
-        // (so the curve can refer to spawn-computed source values)
+        // Now stash copies of the random generators and compute inverse particle lifetimes
+        // (so that subsequent updates are faster)
         for (int i = spawnBase; i < fCount; ++i) {
-            fParticles[i].fInvLifetime =
-                sk_ieee_float_divide(1.0f, fParams->fLifetime.eval(updateParams, fParticles[i]));
-            fStableRandoms[i] = fParticles[i].fRandom;
+            fParticles.fData[SkParticles::kLifetime][i] =
+                    sk_ieee_float_divide(1.0f, fParticles.fData[SkParticles::kLifetime][i]);
+            fStableRandoms[i] = fParticles.fRandom[i];
         }
     }
 
     // Restore all stable random generators so update affectors get consistent behavior each frame
     for (int i = 0; i < fCount; ++i) {
-        fParticles[i].fRandom = fStableRandoms[i];
+        fParticles.fRandom[i] = fStableRandoms[i];
     }
 
-    // During update, values that refer to kAge_Source get the *particle* age
-    updateParams.fAgeSource = SkParticleValue::kParticleAge_Source;
-
-    // Apply update rules
-    for (auto affector : fParams->fUpdateAffectors) {
-        if (affector) {
-            affector->apply(updateParams, fParticles, fCount);
-        }
-    }
+    // Run the update script
+    runProgram(fParams->fUpdateProgram, fParticles, updateParams, 0, fCount);
 
     // Do fixed-function update work (integration of position and orientation)
     for (int i = 0; i < fCount; ++i) {
-        fParticles[i].fPose.fPosition += fParticles[i].fVelocity.fLinear * deltaTime;
+        fParticles.fData[SkParticles::kPositionX][i] +=
+                fParticles.fData[SkParticles::kVelocityX][i] * deltaTime;
+        fParticles.fData[SkParticles::kPositionY][i] +=
+                fParticles.fData[SkParticles::kVelocityY][i] * deltaTime;
 
-        SkScalar s = SkScalarSin(fParticles[i].fVelocity.fAngular * deltaTime),
-                 c = SkScalarCos(fParticles[i].fVelocity.fAngular * deltaTime);
-        SkVector oldHeading = fParticles[i].fPose.fHeading;
-        fParticles[i].fPose.fHeading = { oldHeading.fX * c - oldHeading.fY * s,
-                                         oldHeading.fX * s + oldHeading.fY * c };
+        SkScalar s = SkScalarSin(fParticles.fData[SkParticles::kVelocityAngular][i] * deltaTime),
+                 c = SkScalarCos(fParticles.fData[SkParticles::kVelocityAngular][i] * deltaTime);
+        float oldHeadingX = fParticles.fData[SkParticles::kHeadingX][i],
+              oldHeadingY = fParticles.fData[SkParticles::kHeadingY][i];
+        fParticles.fData[SkParticles::kHeadingX][i] = oldHeadingX * c - oldHeadingY * s;
+        fParticles.fData[SkParticles::kHeadingY][i] = oldHeadingX * s + oldHeadingY * c;
     }
 
     // Mark effect as dead if we've reached the end (and are not looping)
@@ -158,127 +540,17 @@ void SkParticleEffect::draw(SkCanvas* canvas) {
     if (this->isAlive() && fParams->fDrawable) {
         SkPaint paint;
         paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
-        fParams->fDrawable->draw(canvas, fParticles.get(), fCount, &paint);
+        fParams->fDrawable->draw(canvas, fParticles, fCount, &paint);
     }
 }
 
 void SkParticleEffect::setCapacity(int capacity) {
-    fParticles.realloc(capacity);
+    for (int i = 0; i < SkParticles::kNumChannels; ++i) {
+        fParticles.fData[i].realloc(capacity);
+    }
+    fParticles.fRandom.realloc(capacity);
     fStableRandoms.realloc(capacity);
 
     fCapacity = capacity;
     fCount = SkTMin(fCount, fCapacity);
-}
-
-constexpr SkFieldVisitor::EnumStringMapping gValueSourceMapping[] = {
-    { SkParticleValue::kAge_Source,          "Age" },
-    { SkParticleValue::kRandom_Source,       "Random" },
-    { SkParticleValue::kParticleAge_Source,  "ParticleAge" },
-    { SkParticleValue::kEffectAge_Source,    "EffectAge" },
-    { SkParticleValue::kPositionX_Source,    "PositionX" },
-    { SkParticleValue::kPositionY_Source,    "PositionY" },
-    { SkParticleValue::kHeadingX_Source,     "HeadingX" },
-    { SkParticleValue::kHeadingY_Source,     "HeadingY" },
-    { SkParticleValue::kScale_Source,        "Scale" },
-    { SkParticleValue::kVelocityX_Source,    "VelocityX" },
-    { SkParticleValue::kVelocityY_Source,    "VelocityY" },
-    { SkParticleValue::kRotation_Source,     "Rotation" },
-    { SkParticleValue::kColorR_Source,       "ColorR" },
-    { SkParticleValue::kColorG_Source,       "ColorG" },
-    { SkParticleValue::kColorB_Source,       "ColorB" },
-    { SkParticleValue::kColorA_Source,       "ColorA" },
-    { SkParticleValue::kSpriteFrame_Source,  "SpriteFrame" },
-};
-
-constexpr SkFieldVisitor::EnumStringMapping gValueTileModeMapping[] = {
-    { SkParticleValue::kClamp_TileMode,  "Clamp" },
-    { SkParticleValue::kRepeat_TileMode, "Repeat" },
-    { SkParticleValue::kMirror_TileMode, "Mirror" },
-};
-
-static bool source_needs_frame(int source) {
-    switch (source) {
-        case SkParticleValue::kHeadingX_Source:
-        case SkParticleValue::kHeadingY_Source:
-        case SkParticleValue::kVelocityX_Source:
-        case SkParticleValue::kVelocityY_Source:
-            return true;
-        default:
-            return false;
-    }
-}
-
-void SkParticleValue::visitFields(SkFieldVisitor* v) {
-    v->visit("Source", fSource, gValueSourceMapping, SK_ARRAY_COUNT(gValueSourceMapping));
-    if (source_needs_frame(fSource)) {
-        v->visit("Frame", fFrame, gParticleFrameMapping, SK_ARRAY_COUNT(gParticleFrameMapping));
-    }
-    v->visit("TileMode", fTileMode, gValueTileModeMapping, SK_ARRAY_COUNT(gValueTileModeMapping));
-    v->visit("Left", fLeft);
-    v->visit("Right", fRight);
-
-    // Re-compute cached evaluation parameters
-    fScale = sk_float_isfinite(1.0f / (fRight - fLeft)) ? 1.0f / (fRight - fLeft) : 0;
-    fBias = -fLeft * fScale;
-}
-
-float SkParticleValue::getSourceValue(const SkParticleUpdateParams& params,
-                                      SkParticleState& ps) const {
-    switch ((kAge_Source == fSource) ? params.fAgeSource : fSource) {
-        // Do all the simple (non-frame-dependent) sources first:
-        case kRandom_Source:      return ps.fRandom.nextF();
-        case kParticleAge_Source: return ps.fAge;
-        case kEffectAge_Source:   return params.fEffectAge;
-
-        case kPositionX_Source:   return ps.fPose.fPosition.fX;
-        case kPositionY_Source:   return ps.fPose.fPosition.fY;
-        case kScale_Source:       return ps.fPose.fScale;
-        case kRotation_Source:    return ps.fVelocity.fAngular;
-
-        case kColorR_Source:      return ps.fColor.fR;
-        case kColorG_Source:      return ps.fColor.fG;
-        case kColorB_Source:      return ps.fColor.fB;
-        case kColorA_Source:      return ps.fColor.fA;
-        case kSpriteFrame_Source: return ps.fFrame;
-    }
-
-    SkASSERT(source_needs_frame(fSource));
-    SkVector frameUp = ps.getFrameHeading(static_cast<SkParticleFrame>(fFrame));
-    SkVector frameRight = { -frameUp.fY, frameUp.fX };
-
-    switch (fSource) {
-        case kHeadingX_Source:  return ps.fPose.fHeading.dot(frameRight);
-        case kHeadingY_Source:  return ps.fPose.fHeading.dot(frameUp);
-        case kVelocityX_Source: return ps.fVelocity.fLinear.dot(frameRight);
-        case kVelocityY_Source: return ps.fVelocity.fLinear.dot(frameUp);
-    }
-
-    SkDEBUGFAIL("Unreachable");
-    return 0.0f;
-}
-
-float SkParticleValue::eval(const SkParticleUpdateParams& params, SkParticleState& ps) const {
-    float v = this->getSourceValue(params, ps);
-    v = (v * fScale) + fBias;
-
-    switch (fTileMode) {
-        case kClamp_TileMode:
-            v = SkTPin(v, 0.0f, 1.0f);
-            break;
-        case kRepeat_TileMode:
-            v = sk_float_mod(v, 1.0f);
-            if (v < 0) {
-                v += 1.0f;
-            }
-            break;
-        case kMirror_TileMode:
-            v = sk_float_mod(v, 2.0f);
-            if (v < 0) {
-                v += 2.0f;
-            }
-            v = 1.0f - sk_float_abs(v - 1.0f);
-            break;
-    }
-
-    return v;
 }

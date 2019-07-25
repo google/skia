@@ -2,135 +2,13 @@
    "MaxCount": 32,
    "Duration": 1,
    "Rate": 0.5,
-   "Life": {
-      "Input": {
-         "Source": "Age",
-         "TileMode": "Repeat",
-         "Left": 0,
-         "Right": 1
-      },
-      "XValues": [],
-      "Segments": [
-         {
-            "Type": "Constant",
-            "Ranged": false,
-            "Bidirectional": false,
-            "A0": 20
-         }
-      ]
-   },
    "Drawable": {
       "Type": "SkImageDrawable",
       "Path": "resources/images/baby_tux.png",
       "Columns": 1,
       "Rows": 1
    },
-   "Spawn": [
-      {
-         "Type": "SkLinearVelocityAffector",
-         "Enabled": true,
-         "Force": false,
-         "Frame": "World",
-         "Angle": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 10,
-                  "A1": 70
-               }
-            ]
-         },
-         "Strength": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 140,
-                  "A1": 200
-               }
-            ]
-         }
-      }
-   ],
-   "Update": [
-      {
-         "Type": "SkLinearVelocityAffector",
-         "Enabled": true,
-         "Force": true,
-         "Frame": "World",
-         "Angle": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 180
-               }
-            ]
-         },
-         "Strength": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 50
-               }
-            ]
-         }
-      },
-      {
-         "Type": "SkOrientationAffector",
-         "Enabled": true,
-         "Frame": "Velocity",
-         "Angle": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 0
-               }
-            ]
-         }
-      }
-   ]
+   "Spawn": "// float rand; Every read returns a random float [0 .. 1)\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nstruct Particle {\n  float  age;\n  float  lifetime;\n  float2 pos;\n  float2 dir;\n  float  scale;\n  float2 vel;\n  float  spin;\n  float4 color;\n  float  frame;\n};\n\nvoid main(inout Particle p) {\n  p.lifetime = 20;\n  float a = radians(10 + 60 * rand);\n  float s = 140 + rand * 60;\n  p.vel.x = cos(a) * s;\n  p.vel.y = -sin(a) * s;\n}\n",
+   "Update": "// float rand; Every read returns a random float [0 .. 1)\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nstruct Particle {\n  float  age;\n  float  lifetime;\n  float2 pos;\n  float2 dir;\n  float  scale;\n  float2 vel;\n  float  spin;\n  float4 color;\n  float  frame;\n};\n\nvoid main(inout Particle p) {\n  p.vel.y += 50 * dt;\n  p.dir = normalize(p.vel);\n}\n",
+   "Bindings": []
 }

@@ -7,7 +7,6 @@
 
 #include "tools/viewer/ParticlesSlide.h"
 
-#include "modules/particles/include/SkParticleAffector.h"
 #include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
@@ -205,7 +204,7 @@ private:
 ParticlesSlide::ParticlesSlide() {
     // Register types for serialization
     REGISTER_REFLECTED(SkReflected);
-    SkParticleAffector::RegisterAffectorTypes();
+    SkParticleBinding::RegisterBindingTypes();
     SkParticleDrawable::RegisterDrawableTypes();
     fName = "Particles";
     fPlayPosition.set(200.0f, 200.0f);

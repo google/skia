@@ -2,114 +2,11 @@
    "MaxCount": 4096,
    "Duration": 1,
    "Rate": 90,
-   "Life": {
-      "Input": {
-         "Source": "Age",
-         "TileMode": "Repeat",
-         "Left": 0,
-         "Right": 1
-      },
-      "XValues": [],
-      "Segments": [
-         {
-            "Type": "Constant",
-            "Ranged": false,
-            "Bidirectional": false,
-            "A0": 30
-         }
-      ]
-   },
    "Drawable": {
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
-   "Spawn": [
-      {
-         "Type": "SkPositionInCircleAffector",
-         "Enabled": true,
-         "SetHeading": true,
-         "X": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 0
-               }
-            ]
-         },
-         "Y": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 0
-               }
-            ]
-         },
-         "Radius": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 40
-               }
-            ]
-         }
-      }
-   ],
-   "Update": [
-      {
-         "Type": "SkPointForceAffector",
-         "Enabled": true,
-         "Point": { "x": 0, "y": 0 },
-         "Constant": -10,
-         "InvSquare": 0
-      },
-      {
-         "Type": "SkSizeAffector",
-         "Enabled": true,
-         "Curve": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Linear",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 0.25,
-                  "D0": 3
-               }
-            ]
-         }
-      }
-   ]
+   "Spawn": "\n// float rand; Every read returns a random float [0 .. 1)\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nstruct Particle {\n  float  age;\n  float  lifetime;\n  float2 pos;\n  float2 dir;\n  float  scale;\n  float2 vel;\n  float  spin;\n  float4 color;\n  float  frame;\n};\n\nfloat2 circle() {\n  float x;\n  float y;\n  do {\n    x = rand * 2 - 1;\n    y = rand * 2 - 1;\n  } while (x*x + y*y > 1);\n  return float2(x, y);\n}\n\nvoid main(inout Particle p) {\n  p.lifetime = 30;\n  p.pos = circle() * 40;\n}\n",
+   "Update": "\n// float rand; Every read returns a random float [0 .. 1)\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nstruct Particle {\n  float  age;\n  float  lifetime;\n  float2 pos;\n  float2 dir;\n  float  scale;\n  float2 vel;\n  float  spin;\n  float4 color;\n  float  frame;\n};\n\nvoid main(inout Particle p) {\n  p.vel += normalize(p.pos) * dt * 10;\n  p.scale = mix(0.25, 3, p.age);\n}\n",
+   "Bindings": []
 }
