@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d3eeb7b_6a6dd163",
+        "filename": "tools/SkMetaData.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-25T01:07:16Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem sound.  Why can\u0027t you include SkScalar.h?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 23
+      },
+      "revId": "15239e445499763a845e4b3d16e2d7b5e9cbdf29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
