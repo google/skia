@@ -22,6 +22,30 @@
       "revId": "66431fac48ee3d562ae23054594e17bc3e8f294f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96be56b7_af981b19",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-07-25T15:26:41Z",
+      "side": 1,
+      "message": "\u003e Found trailing space\n\nPlease Fix",
+      "parentUuid": "c1fb9771_6d5b20f9",
+      "range": {
+        "startLine": 10,
+        "startChar": 2,
+        "endLine": 10,
+        "endChar": 2
+      },
+      "revId": "66431fac48ee3d562ae23054594e17bc3e8f294f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
