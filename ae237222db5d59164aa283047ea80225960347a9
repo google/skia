@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3fca112_f5ed3b8c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1480,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T00:54:40Z",
+      "side": 1,
+      "message": "This reads much better than the previous emplace_back/constructor version.",
+      "range": {
+        "startLine": 1476,
+        "startChar": 0,
+        "endLine": 1480,
+        "endChar": 58
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63fd5d4e_2b3c3cda",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1485,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T00:54:40Z",
+      "side": 1,
+      "message": "to keep all the stuff in here at the same indent level as the other CTs you could put the if here and omit the simple non-flow-control block",
+      "range": {
+        "startLine": 1485,
+        "startChar": 8,
+        "endLine": 1485,
+        "endChar": 9
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f01a1afb_ad107959",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1683,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T00:54:40Z",
+      "side": 1,
+      "message": "Feel free to ignore, but would it be easier to keep track of where we were in the stack of arrays if the comments were something like:\n\n// Format: ALPHA8\n{\n    ...\n    // Format: ALPHA8, Surface: kAlpha_8\n    ...\n    {\n        // Format: ALPHA8, Surface: kAlpha_8, Data: kRGBA_8888\n        {",
+      "range": {
+        "startLine": 1683,
+        "startChar": 20,
+        "endLine": 1683,
+        "endChar": 31
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25fa888d_34ce1bca",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T00:54:40Z",
+      "side": 1,
+      "message": "Is this supposed to be 1?\n\nIf so how come your checks at the bottom didn\u0027t catch it?",
+      "range": {
+        "startLine": 1738,
+        "startChar": 38,
+        "endLine": 1738,
+        "endChar": 40
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15e26cc2_658d4bb1",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T00:54:40Z",
+      "side": 1,
+      "message": "When the first template argument to class std::unique_ptr is an array type then the class defines an operator[] and you don\u0027t need all these get()s.\n\nhttps://en.cppreference.com/w/cpp/memory/unique_ptr/operator_at",
+      "range": {
+        "startLine": 627,
+        "startChar": 38,
+        "endLine": 627,
+        "endChar": 44
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25f220e4_da2c378a",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 1002,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T00:54:40Z",
+      "side": 1,
+      "message": ".",
+      "range": {
+        "startLine": 1002,
+        "startChar": 18,
+        "endLine": 1002,
+        "endChar": 19
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ae40dfb_65df62da",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 1003,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T00:54:40Z",
+      "side": 1,
+      "message": "I just got bit by this, too. This returns int but here we need a size_t. I was going to change the function to return size_t, but in the mean time static_cast\u003cint\u003e(...)",
+      "range": {
+        "startLine": 1003,
+        "startChar": 39,
+        "endLine": 1003,
+        "endChar": 71
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "815f671d_5458078a",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T00:54:40Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 378,
+        "startChar": 14,
+        "endLine": 378,
+        "endChar": 73
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
