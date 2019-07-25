@@ -22,6 +22,30 @@
       "revId": "229dc03a00c6eea6aa779b931851a337b434f0cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cdf9563_f15aae5b",
+        "filename": "modules/skottie/src/effects/DropShadowEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-25T03:03:39Z",
+      "side": 1,
+      "message": "I actually find that this sort of type safety is only very rarely useful.  I think I can count on one hand the number of times I\u0027ve cast a T* to a void* then back to a U* of the wrong type.  If your code is orderly it just doesn\u0027t really come up all that often.\n\nThe more I write code the more I want this sort of code to stay high on information density, low on gunk, and I\u0027m willing to write tests to fill in any is-this-all-safe gaps that prove tricky.",
+      "parentUuid": "b7819838_53e0a673",
+      "range": {
+        "startLine": 75,
+        "startChar": 12,
+        "endLine": 75,
+        "endChar": 60
+      },
+      "revId": "229dc03a00c6eea6aa779b931851a337b434f0cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
