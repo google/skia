@@ -169,6 +169,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             tex = resourceProvider->createTexture(desc, GrRenderable::kYes, 1, SkBudgeted::kNo,
                                                   GrProtected::kNo,
                                                   GrResourceProvider::Flags::kNoPendingIO);
+            // In order to remove this GrPixelConfig usage, this test will need to be rewritten
+            // w/ true backend formats. Otherwise the compressed formats get elided.
             bool isRenderable = caps->isConfigRenderable(config);
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "config:%d, tex:%d, isRenderable:%d", config, SkToBool(tex),
