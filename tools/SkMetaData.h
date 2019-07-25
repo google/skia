@@ -14,11 +14,6 @@
 */
 class SkMetaData {
 public:
-    /** Used to manage the life-cycle of a ptr in the metadata. This is option
-        in setPtr, and is invoked when the metadata is destroyed.
-    */
-    typedef void* (*PtrProc)(void* ptr, bool doRef);
-
     SkMetaData() {}
     ~SkMetaData() { if (fRec) { this->reset(); } }
     void reset();
@@ -27,7 +22,7 @@ public:
     bool findScalar(const char name[], SkScalar* value = nullptr) const;
     const SkScalar* findScalars(const char name[], int* count,
                                 SkScalar values[] = nullptr) const;
-    bool findPtr(const char name[], void** value = nullptr, PtrProc* = nullptr) const;
+    bool findPtr(const char name[], void** value = nullptr) const;
     bool findBool(const char name[], bool* value = nullptr) const;
 
     bool hasS32(const char name[], int32_t value) const {
@@ -50,7 +45,7 @@ public:
     void setS32(const char name[], int32_t value);
     void setScalar(const char name[], SkScalar value);
     SkScalar* setScalars(const char name[], int count, const SkScalar values[] = nullptr);
-    void setPtr(const char name[], void* value, PtrProc proc = nullptr);
+    void setPtr(const char name[], void* value);
     void setBool(const char name[], bool value);
 
     bool removeS32(const char name[]);

@@ -10,21 +10,10 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
 
-struct PtrPair {
-    void*               fPtr;
-    SkMetaData::PtrProc fProc;
-};
-
 void SkMetaData::reset()
 {
     Rec* rec = fRec;
     while (rec) {
-        if (kPtr_Type == rec->fType) {
-            PtrPair* pair = (PtrPair*)rec->data();
-            if (pair->fProc && pair->fPtr) {
-                pair->fPtr = pair->fProc(pair->fPtr, false);
-            }
-        }
         Rec* next = rec->fNext;
         Rec::Free(rec);
         rec = next;
@@ -50,9 +39,8 @@ SkScalar* SkMetaData::setScalars(const char name[], int count, const SkScalar va
     return nullptr;
 }
 
-void SkMetaData::setPtr(const char name[], void* ptr, PtrProc proc) {
-    PtrPair pair = { ptr, proc };
-    (void)this->set(name, &pair, sizeof(PtrPair), kPtr_Type, 1);
+void SkMetaData::setPtr(const char name[], void* ptr) {
+    (void)this->set(name, &ptr, sizeof(void*), kPtr_Type, 1);
 }
 
 void SkMetaData::setBool(const char name[], bool value)
@@ -81,13 +69,6 @@ void* SkMetaData::set(const char name[], const void* data, size_t dataSize, Type
     if (data)
         memcpy(rec->data(), data, dataSize * count);
     memcpy(rec->name(), name, len + 1);
-
-    if (kPtr_Type == type) {
-        PtrPair* pair = (PtrPair*)rec->data();
-        if (pair->fProc && pair->fPtr) {
-            pair->fPtr = pair->fProc(pair->fPtr, true);
-        }
-    }
 
     rec->fNext = fRec;
     fRec = rec;
@@ -134,16 +115,13 @@ const SkScalar* SkMetaData::findScalars(const char name[], int* count, SkScalar 
     return nullptr;
 }
 
-bool SkMetaData::findPtr(const char name[], void** ptr, PtrProc* proc) const {
+bool SkMetaData::findPtr(const char name[], void** ptr) const {
     const Rec* rec = this->find(name, kPtr_Type);
     if (rec) {
         SkASSERT(rec->fDataCount == 1);
-        const PtrPair* pair = (const PtrPair*)rec->data();
+        void** found = (void**)rec->data();
         if (ptr) {
-            *ptr = pair->fPtr;
-        }
-        if (proc) {
-            *proc = pair->fProc;
+            *ptr = *found;
         }
         return true;
     }
@@ -185,13 +163,6 @@ bool SkMetaData::remove(const char name[], Type type) {
                 prev->fNext = next;
             } else {
                 fRec = next;
-            }
-
-            if (kPtr_Type == type) {
-                PtrPair* pair = (PtrPair*)rec->data();
-                if (pair->fProc && pair->fPtr) {
-                    (void)pair->fProc(pair->fPtr, false);
-                }
             }
             Rec::Free(rec);
             return true;
