@@ -3645,6 +3645,11 @@ bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     return true;
 }
 
+GrCaps::SupportedWrite GrGLCaps::supportedWritePixelsColorType(GrPixelConfig config,
+                                                               GrColorType srcColorType) const {
+    return {GrPixelConfigToColorType(config), 1};
+}
+
 GrCaps::SurfaceReadPixelsSupport GrGLCaps::surfaceSupportsReadPixels(
         const GrSurface* surface) const {
     if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {

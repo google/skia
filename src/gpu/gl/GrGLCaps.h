@@ -348,6 +348,9 @@ public:
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
+    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+                                                 GrColorType srcColorType) const override;
+
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
