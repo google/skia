@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "021fcb0a_08d0ccc6",
+        "filename": "infra/bots/recipes/perf_skottiewasm_lottieweb.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2019-07-25T18:02:45Z",
+      "side": 1,
+      "message": "Broken in Skottie due to unidentified missing feature.",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 37
+      },
+      "revId": "fd2c9414409dcd1ffdcbbff75b323306e6ead79f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4465f7d_db2ea35b",
+        "filename": "infra/bots/recipes/perf_skottiewasm_lottieweb.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2019-07-25T18:02:45Z",
+      "side": 1,
+      "message": "Very short transition, mostly static.",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 66,
+        "endChar": 20
+      },
+      "revId": "fd2c9414409dcd1ffdcbbff75b323306e6ead79f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1d8bca3_5266805b",
+        "filename": "infra/bots/recipes/perf_skottiewasm_lottieweb.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2019-07-25T18:02:45Z",
+      "side": 1,
+      "message": "Broken in Skottie due to unidentified missing feature.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 31
+      },
+      "revId": "fd2c9414409dcd1ffdcbbff75b323306e6ead79f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
