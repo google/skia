@@ -45,6 +45,17 @@ def RunSteps(api):
       api.step('generate gl interfaces',
                cmd=['make', '-C', 'tools/gpu/gl/interface', 'generate'])
 
+    # Reformat all tracked .gn files.
+    api.run(api.python, 'fetch-gn',
+            script='bin/fetch-gn',
+            infra_step=True)
+    api.run(api.step, 'format .gn files',
+            cmd=['sh', '-c', '"git ls-files \\*.gn | xargs -n 1 bin/gn format"'])
+
+    # Rewrite #includes.
+    api.run(api.python, 'rewrite #includes',
+            script='tools/rewrite_includes.py')
+
     # Touch all .fp files so that the generated files are rebuilt.
     api.run(
         api.python.inline,
@@ -60,7 +71,7 @@ for r, d, files in os.walk('%s'):
       subprocess.check_call(['touch', path])
 """ % cwd)
 
-    # Regenerate the SKSL files.
+    # Run GN, regenerate the SKSL files, and make sure rewritten #includes work.
     api.build(checkout_root=checkout_root,
               out_dir=api.vars.build_dir.join('out', 'Release'))
 
