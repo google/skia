@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34a96ccf_df4f13ae",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-07-25T15:25:00Z",
+      "side": 1,
+      "message": "nit: Doesn\u0027t actually match file name.",
+      "range": {
+        "startLine": 9,
+        "startChar": 9,
+        "endLine": 9,
+        "endChar": 22
+      },
+      "revId": "66431fac48ee3d562ae23054594e17bc3e8f294f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
