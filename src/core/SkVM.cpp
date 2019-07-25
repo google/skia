@@ -40,8 +40,8 @@ namespace skvm {
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
             Builder::Instruction& inst = fProgram[id];
 
-            // Loads and stores cannot be hoisted out of the loop.
-            if (inst.op <= Op::load32) {
+            // Varying loads (and gathers) and stores cannot be hoisted out of the loop.
+            if (inst.op <= Op::gather32) {
                 inst.hoist = false;
             }
 
@@ -94,10 +94,22 @@ namespace skvm {
     }
 
     void Builder::store8 (Arg ptr, I32 val) { (void)this->push(Op::store8 , val.id,NA,NA, ptr.ix); }
+    void Builder::store16(Arg ptr, I32 val) { (void)this->push(Op::store16, val.id,NA,NA, ptr.ix); }
     void Builder::store32(Arg ptr, I32 val) { (void)this->push(Op::store32, val.id,NA,NA, ptr.ix); }
 
     I32 Builder::load8 (Arg ptr) { return {this->push(Op::load8 , NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load16(Arg ptr) { return {this->push(Op::load16, NA,NA,NA, ptr.ix) }; }
     I32 Builder::load32(Arg ptr) { return {this->push(Op::load32, NA,NA,NA, ptr.ix) }; }
+
+    I32 Builder::uniform8(Arg ptr, int offset) {
+        return {this->push(Op::uniform8, NA,NA,NA, ptr.ix | (offset<<16))};
+    }
+    I32 Builder::uniform16(Arg ptr, int offset) {
+        return {this->push(Op::uniform16, NA,NA,NA, ptr.ix | (offset<<16))};
+    }
+    I32 Builder::uniform32(Arg ptr, int offset) {
+        return {this->push(Op::uniform32, NA,NA,NA, ptr.ix | (offset<<16))};
+    }
 
     // The two splat() functions are just syntax sugar over splatting a 4-byte bit pattern.
     I32 Builder::splat(int   n) { return {this->push(Op::splat, NA,NA,NA, n) }; }
@@ -131,9 +143,9 @@ namespace skvm {
     I32 Builder::bit_xor  (I32 x, I32 y) { return {this->push(Op::bit_xor  , x.id, y.id)}; }
     I32 Builder::bit_clear(I32 x, I32 y) { return {this->push(Op::bit_clear, x.id, y.id)}; }
 
-    I32 Builder::shl(I32 x, int bits) { return {this->push(Op::shl, x.id,NA,NA, bits)}; }
-    I32 Builder::shr(I32 x, int bits) { return {this->push(Op::shr, x.id,NA,NA, bits)}; }
-    I32 Builder::sra(I32 x, int bits) { return {this->push(Op::sra, x.id,NA,NA, bits)}; }
+    I32 Builder::shl(I32 x, int bits) { return {this->push(Op::shl_i32, x.id,NA,NA, bits)}; }
+    I32 Builder::shr(I32 x, int bits) { return {this->push(Op::shr_i32, x.id,NA,NA, bits)}; }
+    I32 Builder::sra(I32 x, int bits) { return {this->push(Op::sra_i32, x.id,NA,NA, bits)}; }
 
     I32 Builder::extract(I32 x, int bits, I32 y) {
         return {this->push(Op::extract, x.id,y.id,NA, bits)};
@@ -215,8 +227,7 @@ namespace skvm {
                 case 0x3a0f: return 0b00011;
                 // Several more cases only used by XOP / TBM.
             }
-            SkASSERT(false);
-            return 0b00000;
+            SkUNREACHABLE;
         }();
 
         // Pack  mandatory SSE opcode prefix byte to 2-bit VEX encoding.
@@ -707,6 +718,7 @@ namespace skvm {
         using I32 = skvx::Vec<K, int>;
         using F32 = skvx::Vec<K, float>;
         using U32 = skvx::Vec<K, uint32_t>;
+        using U16 = skvx::Vec<K, uint16_t>;
         using  U8 = skvx::Vec<K, uint8_t>;
 
         using I16x2 = skvx::Vec<2*K,  int16_t>;
@@ -777,25 +789,41 @@ namespace skvm {
                 // Ops that interact with memory need to know whether we're stride=1 or K,
                 // but all non-memory ops can run the same code no matter the stride.
                 switch (2*(int)inst.op + (stride == K ? 1 : 0)) {
+                    default: SkUNREACHABLE;  // TODO: many new ops
 
                 #define STRIDE_1(op) case 2*(int)op
                 #define STRIDE_K(op) case 2*(int)op + 1
                     STRIDE_1(Op::store8 ): memcpy(arg(imm), &r(x).i32, 1); break;
+                    STRIDE_1(Op::store16): memcpy(arg(imm), &r(x).i32, 2); break;
                     STRIDE_1(Op::store32): memcpy(arg(imm), &r(x).i32, 4); break;
 
-                    STRIDE_K(Op::store8 ): skvx::cast<uint8_t>(r(x).i32).store(arg(imm)); break;
-                    STRIDE_K(Op::store32):                    (r(x).i32).store(arg(imm)); break;
+                    STRIDE_K(Op::store8 ): skvx::cast<uint8_t> (r(x).i32).store(arg(imm)); break;
+                    STRIDE_K(Op::store16): skvx::cast<uint16_t>(r(x).i32).store(arg(imm)); break;
+                    STRIDE_K(Op::store32):                     (r(x).i32).store(arg(imm)); break;
 
                     STRIDE_1(Op::load8 ): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 1); break;
+                    STRIDE_1(Op::load16): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 2); break;
                     STRIDE_1(Op::load32): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 4); break;
 
                     STRIDE_K(Op::load8 ): r(d).i32= skvx::cast<int>(U8 ::Load(arg(imm))); break;
+                    STRIDE_K(Op::load16): r(d).i32= skvx::cast<int>(U16::Load(arg(imm))); break;
                     STRIDE_K(Op::load32): r(d).i32=                 I32::Load(arg(imm)) ; break;
                 #undef STRIDE_1
                 #undef STRIDE_K
 
                     // Ops that don't interact with memory should never care about the stride.
                 #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
+
+                    CASE(Op::uniform8):
+                        r(d).i32 = *(const uint8_t* )( (const char*)arg(imm&0xffff) + (imm>>16) );
+                        break;
+                    CASE(Op::uniform16):
+                        r(d).i32 = *(const uint16_t*)( (const char*)arg(imm&0xffff) + (imm>>16) );
+                        break;
+                    CASE(Op::uniform32):
+                        r(d).i32 = *(const int*     )( (const char*)arg(imm&0xffff) + (imm>>16) );
+                        break;
+
                     CASE(Op::splat): r(d).i32 = imm; break;
 
                     CASE(Op::add_f32): r(d).f32 = r(x).f32 + r(y).f32; break;
@@ -819,14 +847,14 @@ namespace skvm {
                         r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<U16x2>(r(x).i32) >> imm);
                         break;
 
-                    CASE(Op::bit_and):   r(d).i32 = r(x).i32 &  r(y).i32; break;
-                    CASE(Op::bit_or ):   r(d).i32 = r(x).i32 |  r(y).i32; break;
-                    CASE(Op::bit_xor):   r(d).i32 = r(x).i32 ^  r(y).i32; break;
+                    CASE(Op::bit_and  ): r(d).i32 = r(x).i32 &  r(y).i32; break;
+                    CASE(Op::bit_or   ): r(d).i32 = r(x).i32 |  r(y).i32; break;
+                    CASE(Op::bit_xor  ): r(d).i32 = r(x).i32 ^  r(y).i32; break;
                     CASE(Op::bit_clear): r(d).i32 = r(x).i32 & ~r(y).i32; break;
 
-                    CASE(Op::shl): r(d).i32 = r(x).i32 << imm; break;
-                    CASE(Op::sra): r(d).i32 = r(x).i32 >> imm; break;
-                    CASE(Op::shr): r(d).u32 = r(x).u32 >> imm; break;
+                    CASE(Op::shl_i32): r(d).i32 = r(x).i32 << imm; break;
+                    CASE(Op::sra_i32): r(d).i32 = r(x).i32 >> imm; break;
+                    CASE(Op::shr_i32): r(d).u32 = r(x).u32 >> imm; break;
 
                     CASE(Op::extract): r(d).u32 = (r(x).u32 >> imm) & r(y).u32; break;
                     CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y).u32 << imm); break;
@@ -1198,6 +1226,8 @@ namespace skvm {
             //
             // Now let's actually assemble the instruction!
             switch (op) {
+                default:  return false;  // TODO: many new ops
+
             #if defined(__x86_64__)
                 case Op::store8: if (scalar) { a->vpextrb  (arg[imm], (A::Xmm)r[x], 0); }
                                  else        { a->vpackusdw(tmp(), r[x], r[x]);
@@ -1256,14 +1286,14 @@ namespace skvm {
                 case Op::mul_i16x2: a->vpmullw(dst(), r[x], r[y]); break;
                 case Op::shr_i16x2: a->vpsrlw (dst(), r[x],  imm); break;
 
-                case Op::bit_and:   a->vpand (dst(), r[x], r[y]); break;
-                case Op::bit_or :   a->vpor  (dst(), r[x], r[y]); break;
-                case Op::bit_xor:   a->vpxor (dst(), r[x], r[y]); break;
+                case Op::bit_and  : a->vpand (dst(), r[x], r[y]); break;
+                case Op::bit_or   : a->vpor  (dst(), r[x], r[y]); break;
+                case Op::bit_xor  : a->vpxor (dst(), r[x], r[y]); break;
                 case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // N.B. Y then X.
 
-                case Op::shl: a->vpslld(dst(), r[x], imm); break;
-                case Op::shr: a->vpsrld(dst(), r[x], imm); break;
-                case Op::sra: a->vpsrad(dst(), r[x], imm); break;
+                case Op::shl_i32: a->vpslld(dst(), r[x], imm); break;
+                case Op::shr_i32: a->vpsrld(dst(), r[x], imm); break;
+                case Op::sra_i32: a->vpsrad(dst(), r[x], imm); break;
 
                 case Op::extract: if (imm == 0) { a->vpand (dst(),  r[x], r[y]); }
                                   else          { a->vpsrld(tmp(),  r[x], imm);
@@ -1329,14 +1359,14 @@ namespace skvm {
                 case Op::mul_i16x2: a->mul8h (dst(), r[x], r[y]); break;
                 case Op::shr_i16x2: a->ushr8h(dst(), r[x],  imm); break;
 
-                case Op::bit_and:   a->and16b(dst(), r[x], r[y]); break;
-                case Op::bit_or :   a->orr16b(dst(), r[x], r[y]); break;
-                case Op::bit_xor:   a->eor16b(dst(), r[x], r[y]); break;
+                case Op::bit_and  : a->and16b(dst(), r[x], r[y]); break;
+                case Op::bit_or   : a->orr16b(dst(), r[x], r[y]); break;
+                case Op::bit_xor  : a->eor16b(dst(), r[x], r[y]); break;
                 case Op::bit_clear: a->bic16b(dst(), r[x], r[y]); break;
 
-                case Op::shl: a-> shl4s(dst(), r[x], imm); break;
-                case Op::shr: a->ushr4s(dst(), r[x], imm); break;
-                case Op::sra: a->sshr4s(dst(), r[x], imm); break;
+                case Op::shl_i32: a-> shl4s(dst(), r[x], imm); break;
+                case Op::shr_i32: a->ushr4s(dst(), r[x], imm); break;
+                case Op::sra_i32: a->sshr4s(dst(), r[x], imm); break;
 
                 case Op::extract: if (imm) { a->ushr4s(tmp(), r[x], imm);
                                              a->and16b(dst(), tmp(), r[y]); }
