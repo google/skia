@@ -421,7 +421,8 @@ public:
 
 #ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         if (SkDrawLooper* looper = paint.getLooper()) {
-            fLooperContext = looper->makeContext(canvas, &fAlloc);
+            fLooperContext = looper->makeContext(&fAlloc);
+            fCanvas->save();
             fIsSimple = false;
         } else
 #endif
@@ -491,9 +492,15 @@ bool AutoDrawLooper::doNext() {
         paint->setBlendMode(SkBlendMode::kSrcOver);
     }
 
-    if (fLooperContext && !fLooperContext->next(fCanvas, paint)) {
-        fDone = true;
-        return false;
+    if (fLooperContext) {
+        fCanvas->restore();
+        SkDrawLooper::Context::Info info;
+        if (!fLooperContext->next(&info, paint)) {
+            fDone = true;
+            return false;
+        }
+        fCanvas->save();
+        info.applyToCanvas(fCanvas);
     }
     fPaint = paint;
 
