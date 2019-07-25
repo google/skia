@@ -15873,7 +15873,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16008,7 +16008,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16143,7 +16143,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16278,7 +16278,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16413,7 +16413,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16548,7 +16548,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16688,7 +16688,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16823,7 +16823,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -16958,7 +16958,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17093,7 +17093,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17228,7 +17228,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17363,7 +17363,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17498,7 +17498,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17633,7 +17633,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17763,7 +17763,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -17893,7 +17893,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18023,7 +18023,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18153,7 +18153,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18283,7 +18283,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18413,7 +18413,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18543,7 +18543,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18673,7 +18673,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18803,7 +18803,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18933,7 +18933,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -19063,7 +19063,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41629,7 +41629,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41746,7 +41746,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41863,7 +41863,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41980,7 +41980,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42097,7 +42097,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42214,7 +42214,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -42331,7 +42331,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70804,7 +70804,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70921,7 +70921,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71038,7 +71038,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71155,7 +71155,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71272,7 +71272,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71389,7 +71389,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71506,7 +71506,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71623,7 +71623,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71740,7 +71740,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71857,7 +71857,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71974,7 +71974,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72091,7 +72091,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72208,7 +72208,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72325,7 +72325,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72442,7 +72442,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72559,7 +72559,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -72676,7 +72676,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Windows-2016Server",
+        "os:Windows-Server",
         "pool:Skia"
       ],
       "env_prefixes": {

@@ -43,7 +43,7 @@ const (
 	DEFAULT_OS_DEBIAN    = "Debian"
 	DEFAULT_OS_LINUX_GCE = "Debian"
 	DEFAULT_OS_MAC       = "Mac"
-	DEFAULT_OS_WIN       = "Windows-2016Server"
+	DEFAULT_OS_WIN       = "Windows-Server"
 
 	DEFAULT_PROJECT = "skia"
 
