@@ -6,11 +6,11 @@
  */
 
 #include "include/core/SkData.h"
-#include "src/shaders/SkRTShader.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkRTShader.h"
 
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -23,8 +23,8 @@
 #include "src/gpu/SkGr.h"
 
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrMixerEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/effects/generated/GrMixerEffect.h"
 
 static inline uint32_t new_sksl_unique_id() {
     return GrSkSLFP::NewIndex();

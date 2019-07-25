@@ -9,8 +9,8 @@
 #define SKPAnimationBench_DEFINED
 
 #include "bench/SKPBench.h"
-#include "tools/timer/Timer.h"
 #include "include/utils/SkRandom.h"
+#include "tools/timer/Timer.h"
 
 /**
  * Runs an SkPicture as a benchmark by repeatedly drawing it, first centering the picture and

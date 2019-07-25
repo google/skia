@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrDawnGpuCommandBuffer.h"
+#include "src/gpu/dawn/GrDawnGpuCommandBuffer.h"
 
+#include "include/core/SkRect.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -15,7 +16,6 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
-#include "include/core/SkRect.h"
 
 void GrDawnGpuTextureCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
                                          const SkIPoint& dstPoint) {

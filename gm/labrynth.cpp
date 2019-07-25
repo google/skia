@@ -8,8 +8,8 @@
 #include "gm/gm.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkPath.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 
 /**
  * Repro case for https://bugs.chromium.org/p/chromium/issues/detail?id=913223

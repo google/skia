@@ -7,7 +7,7 @@
 
 #include "dawn/dawncpp.h"
 #include "dawn_native/DawnNative.h"
-#include "DawnTestContext.h"
+#include "tools/gpu/dawn/DawnTestContext.h"
 
 #ifdef SK_BUILD_FOR_UNIX
 #include "GL/glx.h"

@@ -9,7 +9,6 @@
 
 #include "include/core/SkTypes.h"
 
-#include "TestUtils.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrContextPriv.h"
@@ -18,6 +17,7 @@
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
+#include "tests/TestUtils.h"
 #include "tools/gpu/GrContextFactory.h"
 
 using sk_gpu_test::GrContextFactory;

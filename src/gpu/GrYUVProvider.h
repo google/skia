@@ -8,11 +8,11 @@
 #ifndef GrYUVProvider_DEFINED
 #define GrYUVProvider_DEFINED
 
-#include <include/private/GrTypesPriv.h>
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrBackendFormat;
 class GrRecordingContext;

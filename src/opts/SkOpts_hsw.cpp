@@ -8,10 +8,10 @@
 #include "src/core/SkOpts.h"
 
 #define SK_OPTS_NS hsw
+#include "src/core/SkCubicSolver.h"
 #include "src/opts/SkBlitRow_opts.h"
 #include "src/opts/SkRasterPipeline_opts.h"
 #include "src/opts/SkUtils_opts.h"
-#include "src/core/SkCubicSolver.h"
 
 namespace SkOpts {
     void Init_hsw() {

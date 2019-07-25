@@ -9,8 +9,8 @@
 #ifndef GrDawnRenderTarget_DEFINED
 #define GrDawnRenderTarget_DEFINED
 
-#include "include/gpu/dawn/GrDawnTypes.h"
 #include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/dawn/GrDawnTypes.h"
 
 class GrDawnGpu;
 

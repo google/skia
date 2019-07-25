@@ -10,9 +10,9 @@
 
 #include "src/gpu/GrGpuCommandBuffer.h"
 
+#include "include/gpu/GrTypes.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrMesh.h"
-#include "include/gpu/GrTypes.h"
 #include "dawn/dawncpp.h"
 
 class GrDawnGpu;

@@ -8,16 +8,16 @@
  */
 
 #include "include/core/SkDocument.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkSurface.h"
-#include "include/core/SkString.h"
-#include "include/core/SkTextBlob.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecorder.h"
 #include "src/utils/SkMultiPictureDocument.h"
-#include "tools/SkSharingProc.h"
 #include "tests/Test.h"
+#include "tools/SkSharingProc.h"
 
 namespace {
 

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrDataUtils.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/GrDataUtils.h"
 
 struct ETC1Block {
     uint32_t fHigh;
