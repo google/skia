@@ -296,32 +296,6 @@ bool GrCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
     return surface->readOnly() ? false : this->onSurfaceSupportsWritePixels(surface);
 }
 
-size_t GrCaps::transferFromOffsetAlignment(GrColorType bufferColorType) const {
-    if (!this->transferBufferSupport()) {
-        return 0;
-    }
-    size_t result = this->onTransferFromOffsetAlignment(bufferColorType);
-    if (!result) {
-        return 0;
-    }
-    // It's very convenient to access 1 byte-per-channel 32 bitvRGB/RGBA color types as uint32_t.
-    // Make those aligned reads out of the buffer even if the underlying API doesn't require it.
-    auto componentFlags = GrColorTypeComponentFlags(bufferColorType);
-    if ((componentFlags == kRGBA_SkColorTypeComponentFlags ||
-         componentFlags == kRGB_SkColorTypeComponentFlags) &&
-        GrColorTypeBytesPerPixel(bufferColorType) == 4) {
-        switch (result & 0b11) {
-            // offset alignment already a multiple of 4
-            case 0:     return result;
-            // offset alignment is a multiple of 2 but not 4.
-            case 2:     return 2 * result;
-            // offset alignment is not a multiple of 2.
-            default:    return 4 * result;
-        }
-    }
-    return result;
-}
-
 bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                             const SkIRect& srcRect, const SkIPoint& dstPoint) const {
     if (dst->readOnly()) {
@@ -377,9 +351,35 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable rendera
 }
 
 GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrColorType srcColorType,
-                                                           const GrBackendFormat&,
+                                                           const GrBackendFormat& srcFormat,
                                                            GrColorType dstColorType) const {
-    return SupportedRead{GrSwizzle::RGBA(), srcColorType};
+    SupportedRead read = this->onSupportedReadPixelsColorType(srcColorType, srcFormat,
+                                                              dstColorType);
+
+    // There are known problems with 24 vs 32 bit BPP with this color type. Just fail for now if
+    // using a transfer buffer.
+    if (GrColorType::kRGB_888x == read.fColorType) {
+        read.fOffsetAlignmentForTransferBuffer = 0;
+    }
+    // It's very convenient to access 1 byte-per-channel 32 bitvRGB/RGBA color types as uint32_t.
+    // Make those aligned reads out of the buffer even if the underlying API doesn't require it.
+    auto componentFlags = GrColorTypeComponentFlags(read.fColorType);
+    if ((componentFlags == kRGBA_SkColorTypeComponentFlags ||
+         componentFlags == kRGB_SkColorTypeComponentFlags) &&
+        GrColorTypeBytesPerPixel(read.fColorType) == 4) {
+        switch (read.fOffsetAlignmentForTransferBuffer & 0b11) {
+            // offset alignment already a multiple of 4
+            case 0:
+                break;
+            // offset alignment is a multiple of 2 but not 4.
+            case 2:
+                read.fOffsetAlignmentForTransferBuffer *= 2;
+            // offset alignment is not a multiple of 2.
+            default:
+                read.fOffsetAlignmentForTransferBuffer *= 4;
+        }
+    }
+    return read;
 }
 
 #ifdef SK_DEBUG

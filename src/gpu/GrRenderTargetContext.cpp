@@ -1688,7 +1688,7 @@ GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels
     }
 
     if (!this->caps()->transferBufferSupport() ||
-        !this->caps()->transferFromOffsetAlignment(supportedRead.fColorType)) {
+        !supportedRead.fOffsetAlignmentForTransferBuffer) {
         return {};
     }
 
