@@ -166,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "8d8fb82d_3f155e28",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-25T02:50:28Z",
+      "side": 1,
+      "message": "Do ya want to add some pseudo-bots that group up all these other bots, either hardcoded or according to these regexes?  They could show up as trybots and such as, \"Test-Debug-AllOpenGL\", \"Test-Debug-AllGPU\", whatever you want?  Might be easier than passing around the arcane knowledge of the regex.\n\nThat\u0027s how we run the CQ for skcms... there\u0027s a single \"skcms\" pseudo bot that doesn\u0027t do anything but depend on the results of \"skcms-Mac\", \"skcms-Win\", \"skcms-Linux\", so when you trigger \"skcms\" they all run, and we can easily mess around with what goes in or out of that \"skcms\" umbrella without really changing any infrastructure CQ stuff.\n\nI think they can even be set up in pretty arbitrary DAGs, e.g. a canary-then-bulk situation where you run one fast smoketest job, then when if it passes, kick off all the others?\n\n(As far as I know the psuedo-bots don\u0027t show up on status.skia.org.  Only \"skcms-{Mac,Win,Linux}\" are there, not \"skcms\".)",
+      "parentUuid": "a34ab640_68629ab5",
+      "range": {
+        "startLine": 1738,
+        "startChar": 38,
+        "endLine": 1738,
+        "endChar": 40
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15e26cc2_658d4bb1",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 7
