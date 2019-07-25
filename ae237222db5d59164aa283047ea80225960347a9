@@ -118,6 +118,30 @@
     },
     {
       "key": {
+        "uuid": "a49d9a17_8addea55",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T01:44:27Z",
+      "side": 1,
+      "message": "Here is what I use for changes that I think are really device/caps sensitive:\n\nalias tgd\u003d\u0027bin/try \u0027\\\u0027\u0027Test.*GPU.*Debug-All([-_]Android)?([-_](Vulkan|ANGLE|Metal))?$\u0027\\\u0027\u0027\u0027",
+      "parentUuid": "151d9c45_7ca84f7a",
+      "range": {
+        "startLine": 1738,
+        "startChar": 38,
+        "endLine": 1738,
+        "endChar": 40
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15e26cc2_658d4bb1",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 7
