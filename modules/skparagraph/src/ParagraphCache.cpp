@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/ParagraphCache.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 
 namespace skia {
 namespace textlayout {

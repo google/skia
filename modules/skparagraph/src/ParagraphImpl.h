@@ -2,13 +2,13 @@
 #ifndef ParagraphImpl_DEFINED
 #define ParagraphImpl_DEFINED
 
-#include <include/private/SkMutex.h>
-#include "FontResolver.h"
 #include "include/core/SkPicture.h"
+#include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skparagraph/src/FontResolver.h"
 #include "modules/skparagraph/src/ParagraphCache.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"

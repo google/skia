@@ -12,8 +12,8 @@
 #include "tools/Resources.h"
 
 #include <cfloat>
-#include "modules/skparagraph/utils/TestFontCollection.h"
 #include "include/core/SkPictureRecorder.h"
+#include "modules/skparagraph/utils/TestFontCollection.h"
 
 using namespace skia::textlayout;
 namespace {

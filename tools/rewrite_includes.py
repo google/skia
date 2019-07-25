@@ -26,6 +26,9 @@ roots = [
     'tools'
   ]
 
+# Don't want to always force our local Vulkan headers.
+angle_bracket_whitelist = ['vulkan/']
+
 # Map short name -> absolute path for all Skia headers.
 headers = {}
 for root in roots:
@@ -60,12 +63,14 @@ for root in roots:
           includes = []
 
           for line in lines:
-            parts = line.split('"')
+            rewritten = line
+            if not any(token in line for token in angle_bracket_whitelist):
+              rewritten = rewritten.replace('<', '"').replace('>', '"')
+            parts = rewritten.split('"')
             if (len(parts) == 3
                 and '#' in parts[0]
                 and 'include' in parts[0]
                 and os.path.basename(parts[1]) in headers):
-
               header = headers[os.path.basename(parts[1])]
               includes.append(parts[0] +
                               '"%s"' % os.path.relpath(header, '.') +

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrDawnUtil.h"
+#include "src/gpu/dawn/GrDawnUtil.h"
 
 GrPixelConfig GrDawnFormatToPixelConfig(dawn::TextureFormat format) {
     switch (format) {
