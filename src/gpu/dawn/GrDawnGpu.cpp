@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrDawnGpu.h"
+#include "src/gpu/dawn/GrDawnGpu.h"
 
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -13,13 +13,13 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrMesh.h"
-#include "src/gpu/dawn/GrDawnCaps.h"
-#include "src/gpu/dawn/GrDawnRenderTarget.h"
-#include "src/gpu/dawn/GrDawnGpuCommandBuffer.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/dawn/GrDawnCaps.h"
+#include "src/gpu/dawn/GrDawnGpuCommandBuffer.h"
+#include "src/gpu/dawn/GrDawnRenderTarget.h"
 
 #include "src/sksl/SkSLCompiler.h"
 

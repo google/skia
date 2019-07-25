@@ -9,8 +9,8 @@
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
 #include "samplecode/DecodeFile.h"
-#include "tools/Resources.h"
 #include "samplecode/Sample.h"
+#include "tools/Resources.h"
 
 namespace {
 static sk_sp<SkShader> make_bitmapfade(const SkBitmap& bm) {
