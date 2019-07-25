@@ -123,7 +123,7 @@ struct GrVkYcbcrConversionInfo {
     // The external format should be compatible to be used in a VkExternalFormatANDROID struct
     uint64_t                         fExternalFormat;
     // The format features here should be those returned by a call to
-    // vkAndroidHardwareBufferFormatPropertiesANDROID
+    // vkAndroidHardwareBufferFormatPropertiesANDROID)
     VkFormatFeatureFlags             fExternalFormatFeatures;
 };
 
@@ -155,8 +155,8 @@ struct GrVkImageInfo {
                   VkImageLayout layout,
                   VkFormat format,
                   uint32_t levelCount,
-                  uint32_t currentQueueFamily,
-                  GrProtected isProtected,
+                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+                  GrProtected isProtected = GrProtected::kNo,
                   GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo())
             : fImage(image)
             , fAlloc(alloc)
@@ -167,18 +167,6 @@ struct GrVkImageInfo {
             , fCurrentQueueFamily(currentQueueFamily)
             , fProtected(isProtected)
             , fYcbcrConversionInfo(ycbcrConversionInfo) {}
-
-    // Temporary until Chrome is updated to use above constructor
-    GrVkImageInfo(VkImage image, GrVkAlloc alloc,
-                  VkImageTiling imageTiling,
-                  VkImageLayout layout,
-                  VkFormat format,
-                  uint32_t levelCount,
-                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-                  GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo(),
-                  GrProtected isProtected = GrProtected::kNo)
-            : GrVkImageInfo(image, alloc, imageTiling, layout, format, levelCount,
-                            currentQueueFamily, isProtected, ycbcrConversionInfo) {}
 
     GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
             : fImage(info.fImage)
