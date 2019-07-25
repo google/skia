@@ -17,6 +17,24 @@
       "revId": "108fc4d581ac8c9dab1480c64bf1dc189ff3e21a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16484276_0272b695",
+        "filename": "tools/skottie-wasm-perf/parse_perf_csvs.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-07-25T17:49:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0de2ced_13b56b70",
+      "revId": "108fc4d581ac8c9dab1480c64bf1dc189ff3e21a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
