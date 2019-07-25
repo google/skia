@@ -22,6 +22,30 @@
       "revId": "7808925e26e977c45e1fd55d3ef6ac1e2d09a571",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85ffc0d7_139085df",
+        "filename": "modules/particles/include/SkParticleSerialization.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-25T20:33:47Z",
+      "side": 1,
+      "message": "I had that locally, but every load basically appended another blank line to every string (which would then get saved when saving the files back out).",
+      "parentUuid": "5c9e599b_36f5fef7",
+      "range": {
+        "startLine": 110,
+        "startChar": 20,
+        "endLine": 110,
+        "endChar": 58
+      },
+      "revId": "7808925e26e977c45e1fd55d3ef6ac1e2d09a571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
