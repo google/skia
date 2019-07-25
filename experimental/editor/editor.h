@@ -92,10 +92,12 @@ public:
     void paint(SkCanvas* canvas, PaintOpts);
 
 private:
+    // TODO: rename this to TextParagraph. fLines to fParas.
     struct TextLine {
         StringSlice fText;
         sk_sp<const SkTextBlob> fBlob;
         std::vector<SkRect> fCursorPos;
+        std::vector<unsigned> fLineEndOffsets;
         SkIPoint fOrigin = {0, 0};
         int fHeight = 0;
         bool fShaped = false;
