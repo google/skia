@@ -22,6 +22,30 @@
       "revId": "9ee173d4f4aad83f9b0aa907d9dc8f7bfc48be1b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "172de522_50c4a4e2",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-25T19:03:57Z",
+      "side": 1,
+      "message": "This is actually testing the GrContext entry points that use SkColorTypes.",
+      "parentUuid": "ec9afdae_46803629",
+      "range": {
+        "startLine": 396,
+        "startChar": 8,
+        "endLine": 396,
+        "endChar": 19
+      },
+      "revId": "9ee173d4f4aad83f9b0aa907d9dc8f7bfc48be1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
