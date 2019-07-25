@@ -22,7 +22,7 @@ namespace internal {
 
 class EffectBuilder final : public SkNoncopyable {
 public:
-    EffectBuilder(const AnimationBuilder*, const SkSize&, AnimatorScope*);
+    EffectBuilder(const AnimationBuilder*, const SkSize&);
 
     sk_sp<sksg::RenderNode> attachEffects(const skjson::ArrayValue&,
                                           sk_sp<sksg::RenderNode>) const;
@@ -62,7 +62,6 @@ private:
 
     const AnimationBuilder*   fBuilder;
     const SkSize              fLayerSize;
-    AnimatorScope*            fScope;
 };
 
 

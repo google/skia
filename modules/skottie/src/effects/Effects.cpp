@@ -14,11 +14,9 @@
 namespace skottie {
 namespace internal {
 
-EffectBuilder::EffectBuilder(const AnimationBuilder* abuilder, const SkSize& layer_size,
-                             AnimatorScope* ascope)
+EffectBuilder::EffectBuilder(const AnimationBuilder* abuilder, const SkSize& layer_size)
     : fBuilder(abuilder)
-    , fLayerSize(layer_size)
-    , fScope(ascope) {}
+    , fLayerSize(layer_size) {}
 
 EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectValue& jeffect) const {
     // First, try assigned types.
