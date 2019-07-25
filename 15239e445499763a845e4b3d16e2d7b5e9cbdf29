@@ -22,6 +22,30 @@
       "revId": "15239e445499763a845e4b3d16e2d7b5e9cbdf29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2050041_7762752e",
+        "filename": "tools/SkMetaData.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-25T14:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d3eeb7b_6a6dd163",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 23
+      },
+      "revId": "15239e445499763a845e4b3d16e2d7b5e9cbdf29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
