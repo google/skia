@@ -92,7 +92,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
 
     const int kTextureWidth = 16;
     const int kTextureHeight = 16;
-    int srcBufferWidth = caps->writePixelsRowBytesSupport() ? 16 : 20;
+    int srcBufferWidth = caps->writePixelsRowBytesSupport() ? 20 : 16;
     const int kBufferHeight = 16;
 
     GrSurfaceDesc desc;
@@ -111,8 +111,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     // The caps tell us what color type we are allowed to upload and read back from this texture,
     // either of which may differ from 'colorType'.
     GrColorType allowedSrc = caps->supportedWritePixelsColorType(desc.fConfig, colorType);
-    size_t srcRowBytes = GrColorTypeBytesPerPixel(allowedSrc) * kTextureWidth;
-    std::unique_ptr<char[]> srcData(new char[kTextureWidth * srcRowBytes]);
+    size_t srcRowBytes = GrColorTypeBytesPerPixel(allowedSrc) * srcBufferWidth;
+    std::unique_ptr<char[]> srcData(new char[kTextureHeight * srcRowBytes]);
 
     fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, srcBufferWidth, allowedSrc,
                        srcData.get());
