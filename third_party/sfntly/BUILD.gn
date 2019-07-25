@@ -19,7 +19,7 @@ if (skia_use_icu) {
     ]
     deps = []
     if (is_win) {
-      defines += [ "WIN32", ]
+      defines += [ "WIN32" ]
     }
     sources = [
       "$_src/sample/chromium/font_subsetter.cc",
