@@ -10,6 +10,8 @@
 #include "include/core/SkTypes.h"
 #include "modules/skshaper/include/SkShaper.h"
 
+#include <vector>
+
 class SkFont;
 
 namespace editor {
@@ -41,13 +43,17 @@ public:
     void commitRunBuffer(const RunInfo&) override;
     void commitLine() override;
 
+    const std::vector<unsigned>& lineEndOffsets() const { return fLineEndOffsets; }
+
 private:
     SkTextBlobBuilder fBuilder;
+    std::vector<unsigned> fLineEndOffsets;
     const SkGlyphID* fCurrentGlyphs = nullptr;
     const SkPoint* fCurrentPoints = nullptr;
     void* fCallbackContext = nullptr;
     RunCallback fCallbackFunction = nullptr;
     char const * const fUtf8Text;
+    unsigned fTextOffset = 0;
     uint32_t* fClusters = nullptr;
     int fClusterOffset = 0;
     int fGlyphCount = 0;

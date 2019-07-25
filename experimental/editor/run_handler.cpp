@@ -79,12 +79,19 @@ void RunHandler::commitRunBuffer(const RunInfo& info) {
         fClusters[i] -= fClusterOffset;
     }
     fCurrentPosition += info.fAdvance;
+    fTextOffset = SkTMax(fTextOffset, SkToUInt(info.utf8Range.end()));
 }
 
 void RunHandler::commitLine() {
+    if (fLineEndOffsets.empty() || fTextOffset > fLineEndOffsets.back()) {
+        // Ensure that fLineEndOffsets is monotonic.
+        fLineEndOffsets.push_back(fTextOffset);
+    }
     fOffset += { 0, fMaxRunDescent + fMaxRunLeading - fMaxRunAscent };
 }
 
 sk_sp<SkTextBlob> RunHandler::makeBlob() {
     return fBuilder.make();
 }
+
+
