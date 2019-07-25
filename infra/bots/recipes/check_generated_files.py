@@ -64,6 +64,13 @@ for r, d, files in os.walk('%s'):
     api.build(checkout_root=checkout_root,
               out_dir=api.vars.build_dir.join('out', 'Release'))
 
+    # Rewrite #includes.
+    api.run(api.python, 'tools/rewrite_includes.py',
+            script='tools/rewrite_includes.py')
+
+    # Reformat .gn files.
+    # TODO
+
     # Get a second diff. If this doesn't match the first, then there have been
     # modifications to the generated files.
     diff2 = api.run(
