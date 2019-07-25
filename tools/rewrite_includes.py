@@ -26,19 +26,21 @@ roots = [
     'tools'
   ]
 
-# Don't want to always force our local Vulkan headers.
-angle_bracket_whitelist = ['vulkan/']
+# Don't count our local Vulkan headers as Skia headers;
+# we don't want #include <vulkan/vulkan_foo.h> rewritten to point to them.
+blacklist = ['include/third_party/vulkan']
 
 # Map short name -> absolute path for all Skia headers.
 headers = {}
 for root in roots:
   for path, _, files in os.walk(root):
-    for file_name in files:
-      if file_name.endswith('.h'):
-        if file_name in headers:
-          print path, file_name, headers[file_name]
-        assert file_name not in headers
-        headers[file_name] = os.path.abspath(os.path.join(path, file_name))
+    if not any(snippet in path for snippet in blacklist):
+      for file_name in files:
+        if file_name.endswith('.h'):
+          if file_name in headers:
+            print path, file_name, headers[file_name]
+          assert file_name not in headers
+          headers[file_name] = os.path.abspath(os.path.join(path, file_name))
 
 # Rewrite any #includes relative to Skia's top-level directory.
 for root in roots:
@@ -63,10 +65,7 @@ for root in roots:
           includes = []
 
           for line in lines:
-            rewritten = line
-            if not any(token in line for token in angle_bracket_whitelist):
-              rewritten = rewritten.replace('<', '"').replace('>', '"')
-            parts = rewritten.split('"')
+            parts = line.replace('<', '"').replace('>', '"').split('"')
             if (len(parts) == 3
                 and '#' in parts[0]
                 and 'include' in parts[0]
