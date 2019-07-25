@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7819838_53e0a673",
+        "filename": "modules/skottie/src/effects/DropShadowEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-25T02:54:05Z",
+      "side": 1,
+      "message": "WDYT of this gunk? The motivation is slightly-better type safety (\"OMG don\u0027t make me spell the type because it\u0027s fragile\") - but it is totally mind-numbing.",
+      "range": {
+        "startLine": 75,
+        "startChar": 12,
+        "endLine": 75,
+        "endChar": 60
+      },
+      "revId": "229dc03a00c6eea6aa779b931851a337b434f0cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
