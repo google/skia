@@ -118,6 +118,9 @@ void Editor::Shape(TextLine* line, SkShaper* shaper, float width, const SkFont& 
     runHandler.setRunCallback(callback_fn, line->fCursorPos.data());
     if (line->fText.size()) {
         shaper->shape(line->fText.begin(), line->fText.size(), font, true, width, &runHandler);
+        line->fLineEndOffsets = runHandler.lineEndOffsets();
+        SkASSERT(line->fLineEndOffsets.size() > 0);
+        line->fLineEndOffsets.pop_back();
     }
     SkRect& last = line->fCursorPos[line->fText.size()];
     last = space;
@@ -341,6 +344,18 @@ static size_t align_column(const StringSlice& str, size_t p) {
     return align_utf8(begin(str) + p, begin(str)) - begin(str);
 }
 
+// returns smallest i such that list[i] > value.  value > list[i-1]
+template <typename T>
+static size_t find_first_larger(const std::vector<T>& list, T value) {
+    // todo: make this a binary search.
+    for (size_t i = 0; i < list.size(); ++i) {
+        if (value < list[i]) {
+            return i;
+        }
+    }
+    return list.size();
+}
+
 Editor::TextPosition Editor::move(Editor::Movement move, Editor::TextPosition pos) const {
     // First thing: fix possible bad values.
     if (pos.fParagraphIndex >= fLines.size()) {
@@ -380,12 +395,28 @@ Editor::TextPosition Editor::move(Editor::Movement move, Editor::TextPosition po
             }
             break;
         case Editor::Movement::kHome:
-            pos.fTextByteIndex = 0;
+            if (pos.fParagraphIndex < fLines.size()) {
+                const std::vector<unsigned>& list = fLines[pos.fParagraphIndex].fLineEndOffsets;
+                size_t f = find_first_larger(list, SkToUInt(pos.fTextByteIndex));
+                pos.fTextByteIndex = f > 0 ? list[f - 1] : 0;
+            }
             break;
         case Editor::Movement::kEnd:
-            pos.fTextByteIndex = fLines[pos.fParagraphIndex].fText.size();
+            if (pos.fParagraphIndex < fLines.size()) {
+                const std::vector<unsigned>& list = fLines[pos.fParagraphIndex].fLineEndOffsets;
+                size_t f = find_first_larger(list, SkToUInt(pos.fTextByteIndex));
+                if (f < list.size()) {
+                    pos.fTextByteIndex = list[f] > 0 ? list[f] - 1 : 0;
+                } else {
+                    pos.fTextByteIndex = fLines[pos.fParagraphIndex].fText.size();
+                }
+            }
             break;
         case Editor::Movement::kUp:
+            if (pos.fParagraphIndex < fLines.size() &&
+                fLines[pos.fParagraphIndex].fLineEndOffsets.size() > 0) {
+                //FIXME
+            }
             if (pos.fParagraphIndex > 0) {
                 --pos.fParagraphIndex;
                 pos.fTextByteIndex =
