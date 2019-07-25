@@ -55,30 +55,27 @@ static void test_frontToBack(skiatest::Reporter* reporter) {
     SkPaint* layerPaint = looperBuilder.addLayer(layerInfo);
     layerPaint->setBlendMode(SkBlendMode::kSrc);
 
-    FakeDevice device;
-    SkCanvas canvas(sk_ref_sp(&device));
     SkPaint paint;
     auto looper(looperBuilder.detach());
     SkArenaAlloc alloc{48};
-    SkDrawLooper::Context* context = looper->makeContext(&canvas, &alloc);
+    SkDrawLooper::Context* context = looper->makeContext(&alloc);
+    SkDrawLooper::Context::Info info;
 
     // The back layer should come first.
-    REPORTER_ASSERT(reporter, context->next(&canvas, &paint));
+    REPORTER_ASSERT(reporter, context->next(&info, &paint));
     REPORTER_ASSERT(reporter, paint.getBlendMode() == SkBlendMode::kSrc);
-    canvas.drawRect(SkRect::MakeWH(50.0f, 50.0f), paint);
-    REPORTER_ASSERT(reporter, 10.0f == device.fLastMatrix.getTranslateX());
-    REPORTER_ASSERT(reporter, 20.0f == device.fLastMatrix.getTranslateY());
+    REPORTER_ASSERT(reporter, 10.0f == info.fTranslate.fX);
+    REPORTER_ASSERT(reporter, 20.0f == info.fTranslate.fY);
     paint.reset();
 
     // Then the front layer.
-    REPORTER_ASSERT(reporter, context->next(&canvas, &paint));
+    REPORTER_ASSERT(reporter, context->next(&info, &paint));
     REPORTER_ASSERT(reporter, paint.getBlendMode() == SkBlendMode::kSrcOver);
-    canvas.drawRect(SkRect::MakeWH(50.0f, 50.0f), paint);
-    REPORTER_ASSERT(reporter, 0.0f == device.fLastMatrix.getTranslateX());
-    REPORTER_ASSERT(reporter, 0.0f == device.fLastMatrix.getTranslateY());
+    REPORTER_ASSERT(reporter, 0.0f == info.fTranslate.fX);
+    REPORTER_ASSERT(reporter, 0.0f == info.fTranslate.fY);
 
     // Only two layers were added, so that should be the end.
-    REPORTER_ASSERT(reporter, !context->next(&canvas, &paint));
+    REPORTER_ASSERT(reporter, !context->next(&info, &paint));
 }
 
 static void test_backToFront(skiatest::Reporter* reporter) {
@@ -94,30 +91,27 @@ static void test_backToFront(skiatest::Reporter* reporter) {
     SkPaint* layerPaint = looperBuilder.addLayerOnTop(layerInfo);
     layerPaint->setBlendMode(SkBlendMode::kSrc);
 
-    FakeDevice device;
-    SkCanvas canvas(sk_ref_sp(&device));
     SkPaint paint;
     auto looper(looperBuilder.detach());
     SkArenaAlloc alloc{48};
-    SkDrawLooper::Context* context = looper->makeContext(&canvas, &alloc);
+    SkDrawLooper::Context* context = looper->makeContext(&alloc);
+    SkDrawLooper::Context::Info info;
 
     // The back layer should come first.
-    REPORTER_ASSERT(reporter, context->next(&canvas, &paint));
+    REPORTER_ASSERT(reporter, context->next(&info, &paint));
     REPORTER_ASSERT(reporter, paint.getBlendMode() == SkBlendMode::kSrcOver);
-    canvas.drawRect(SkRect::MakeWH(50.0f, 50.0f), paint);
-    REPORTER_ASSERT(reporter, 0.0f == device.fLastMatrix.getTranslateX());
-    REPORTER_ASSERT(reporter, 0.0f == device.fLastMatrix.getTranslateY());
+    REPORTER_ASSERT(reporter, 0.0f == info.fTranslate.fX);
+    REPORTER_ASSERT(reporter, 0.0f == info.fTranslate.fY);
     paint.reset();
 
     // Then the front layer.
-    REPORTER_ASSERT(reporter, context->next(&canvas, &paint));
+    REPORTER_ASSERT(reporter, context->next(&info, &paint));
     REPORTER_ASSERT(reporter, paint.getBlendMode() == SkBlendMode::kSrc);
-    canvas.drawRect(SkRect::MakeWH(50.0f, 50.0f), paint);
-    REPORTER_ASSERT(reporter, 10.0f == device.fLastMatrix.getTranslateX());
-    REPORTER_ASSERT(reporter, 20.0f == device.fLastMatrix.getTranslateY());
+    REPORTER_ASSERT(reporter, 10.0f == info.fTranslate.fX);
+    REPORTER_ASSERT(reporter, 20.0f == info.fTranslate.fY);
 
     // Only two layers were added, so that should be the end.
-    REPORTER_ASSERT(reporter, !context->next(&canvas, &paint));
+    REPORTER_ASSERT(reporter, !context->next(&info, &paint));
 }
 
 static void test_mixed(skiatest::Reporter* reporter) {
@@ -133,30 +127,27 @@ static void test_mixed(skiatest::Reporter* reporter) {
     SkPaint* layerPaint = looperBuilder.addLayerOnTop(layerInfo);
     layerPaint->setBlendMode(SkBlendMode::kSrc);
 
-    FakeDevice device;
-    SkCanvas canvas(sk_ref_sp(&device));
     SkPaint paint;
     sk_sp<SkDrawLooper> looper(looperBuilder.detach());
     SkArenaAlloc alloc{48};
-    SkDrawLooper::Context* context = looper->makeContext(&canvas, &alloc);
+    SkDrawLooper::Context* context = looper->makeContext(&alloc);
+    SkDrawLooper::Context::Info info;
 
     // The back layer should come first.
-    REPORTER_ASSERT(reporter, context->next(&canvas, &paint));
+    REPORTER_ASSERT(reporter, context->next(&info, &paint));
     REPORTER_ASSERT(reporter, paint.getBlendMode() == SkBlendMode::kSrcOver);
-    canvas.drawRect(SkRect::MakeWH(50.0f, 50.0f), paint);
-    REPORTER_ASSERT(reporter, 0.0f == device.fLastMatrix.getTranslateX());
-    REPORTER_ASSERT(reporter, 0.0f == device.fLastMatrix.getTranslateY());
+    REPORTER_ASSERT(reporter, 0.0f == info.fTranslate.fX);
+    REPORTER_ASSERT(reporter, 0.0f == info.fTranslate.fY);
     paint.reset();
 
     // Then the front layer.
-    REPORTER_ASSERT(reporter, context->next(&canvas, &paint));
+    REPORTER_ASSERT(reporter, context->next(&info, &paint));
     REPORTER_ASSERT(reporter, paint.getBlendMode() == SkBlendMode::kSrc);
-    canvas.drawRect(SkRect::MakeWH(50.0f, 50.0f), paint);
-    REPORTER_ASSERT(reporter, 10.0f == device.fLastMatrix.getTranslateX());
-    REPORTER_ASSERT(reporter, 20.0f == device.fLastMatrix.getTranslateY());
+    REPORTER_ASSERT(reporter, 10.0f == info.fTranslate.fX);
+    REPORTER_ASSERT(reporter, 20.0f == info.fTranslate.fY);
 
     // Only two layers were added, so that should be the end.
-    REPORTER_ASSERT(reporter, !context->next(&canvas, &paint));
+    REPORTER_ASSERT(reporter, !context->next(&info, &paint));
 }
 
 DEF_TEST(LayerDrawLooper, reporter) {

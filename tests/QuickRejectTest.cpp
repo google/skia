@@ -20,7 +20,7 @@
 class TestLooper : public SkDrawLooper {
 public:
 
-    SkDrawLooper::Context* makeContext(SkCanvas*, SkArenaAlloc* alloc) const override {
+    SkDrawLooper::Context* makeContext(SkArenaAlloc* alloc) const override {
         return alloc->make<TestDrawLooperContext>();
     }
 
@@ -32,10 +32,11 @@ private:
         TestDrawLooperContext() : fOnce(true) {}
         ~TestDrawLooperContext() override {}
 
-        bool next(SkCanvas* canvas, SkPaint*) override {
+        bool next(Info* info, SkPaint*) override {
             if (fOnce) {
                 fOnce = false;
-                canvas->translate(SkIntToScalar(10), 0);
+                info->fTranslate = {10, 0};
+                info->fApplyPostCTM = false;
                 return true;
             }
             return false;
