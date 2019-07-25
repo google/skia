@@ -24,7 +24,7 @@
 #include "src/gpu/vk/GrVkGpu.h"
 #endif
 #ifdef SK_DAWN
-#include "dawn/GrDawnGpu.h"
+#include "src/gpu/dawn/GrDawnGpu.h"
 #endif
 
 #ifdef SK_DISABLE_REDUCE_OPLIST_SPLITTING

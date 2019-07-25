@@ -2,14 +2,15 @@
 #ifndef ParagraphCache_DEFINED
 #define ParagraphCache_DEFINED
 
-#include <src/core/SkSpan.h>
-#include <src/core/SkTDynamicHash.h>
-#include "src/core/SkLRUCache.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkPicture.h"
+#include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/src/FontResolver.h"
-#include "include/core/SkPicture.h"
+#include "src/core/SkLRUCache.h"
+#include "src/core/SkSpan.h"
+#include "src/core/SkTDynamicHash.h"
 
 // TODO: we can cache shaped results or line broken results or formatted results or recorded picture...
 // TODO: let's start from the first: the shaped results
