@@ -223,18 +223,41 @@ namespace skvm {
     };
 
     enum class Op : uint8_t {
-        store8, store32,
-        load8,  load32,
+          store8,   store16,   store32,
+    // ↑ side effects / no side effects ↓
+
+           load8,    load16,    load32,
+         gather8,  gather16,  gather32,
+    // ↑ always varying / uniforms, constants, Just Math ↓
+
+        uniform8, uniform16, uniform32,
         splat,
-        add_f32, sub_f32, mul_f32, div_f32, mad_f32,
-        add_i32, sub_i32, mul_i32,
-        sub_i16x2, mul_i16x2, shr_i16x2,
-        bit_and, bit_or, bit_xor, bit_clear,
-        shl, shr, sra,
-        extract,
-        pack,
-        bytes,
-        to_f32, to_i32,
+
+        add_f32, add_i32, add_i16x2,
+        sub_f32, sub_i32, sub_i16x2,
+        mul_f32, mul_i32, mul_i16x2,
+        div_f32,
+        mad_f32,
+                 shl_i32, shl_i16x2,
+                 shr_i32, shr_i16x2,
+                 sra_i32, sra_i16x2,
+
+         to_i32,  to_f32,
+
+         eq_f32,  eq_i32,  eq_i16x2,
+        neq_f32, neq_i32, neq_i16x2,
+         lt_f32,  lt_i32,  lt_i16x2,
+        lte_f32, lte_i32, lte_i16x2,
+         gt_f32,  gt_i32,  gt_i16x2,
+        gte_f32, gte_i32, gte_i16x2,
+
+        bit_and,
+        bit_or,
+        bit_xor,
+        bit_clear,
+        select,
+
+        bytes, extract, pack,
     };
 
     using Val = int;
@@ -261,48 +284,113 @@ namespace skvm {
 
         Program done(const char* debug_name = nullptr);
 
-        // Declare a varying argument with given stride.
+        // Mostly for debugging, tests, etc.
+        std::vector<Instruction> program() const { return fProgram; }
+
+
+        // Declare an argument with given stride (use stride=0 for uniforms).
         Arg arg(int stride);
 
-        // Convenience arg() wrapper for most common stride, sizeof(T).
+        // Convenience arg() wrapper for most common strides, sizeof(T) and 0.
         template <typename T>
         Arg arg() { return this->arg(sizeof(T)); }
 
+        Arg uniform() { return this->arg(0); }
+
+        // TODO: allow uniform (i.e. Arg) offsets to store* and load*?
+        // TODO: sign extension (signed types) for <32-bit loads?
+        // TODO: unsigned integer operations where relevant (just comparisons?)?
+
+        // Store {8,16,32}-bit varying.
         void store8 (Arg ptr, I32 val);
+        void store16(Arg ptr, I32 val);
         void store32(Arg ptr, I32 val);
 
+        // Load u8,u16,i32 varying.
         I32 load8 (Arg ptr);
+        I32 load16(Arg ptr);
         I32 load32(Arg ptr);
 
+        // Gather u8,u16,i32 with varying element-count offset.
+        I32 gather8 (Arg ptr, I32 offset);
+        I32 gather16(Arg ptr, I32 offset);
+        I32 gather32(Arg ptr, I32 offset);
+
+        // Load u8,u16,i32 uniform with optional byte-count offset.
+        I32 uniform8 (Arg ptr, int offset=0);
+        I32 uniform16(Arg ptr, int offset=0);
+        I32 uniform32(Arg ptr, int offset=0);
+
+        // Load an immediate constant.
         I32 splat(int      n);
         I32 splat(unsigned u) { return this->splat((int)u); }
         F32 splat(float    f);
 
+        // float math, comparisons, etc.
         F32 add(F32 x, F32 y);
         F32 sub(F32 x, F32 y);
         F32 mul(F32 x, F32 y);
         F32 div(F32 x, F32 y);
-        F32 mad(F32 x, F32 y, F32 z);
+        F32 mad(F32 x, F32 y, F32 z);  //  x*y+z, often an FMA
 
+        I32 eq (F32 x, F32 y);
+        I32 neq(F32 x, F32 y);
+        I32 lt (F32 x, F32 y);
+        I32 lte(F32 x, F32 y);
+        I32 gt (F32 x, F32 y);
+        I32 gte(F32 x, F32 y);
+
+        I32 to_i32(F32 x);
+        I32 bit_cast(F32 x) { return {x.id}; }
+
+        // int math, comparisons, etc.
         I32 add(I32 x, I32 y);
         I32 sub(I32 x, I32 y);
         I32 mul(I32 x, I32 y);
-
-        I32 sub_16x2(I32 x, I32 y);
-        I32 mul_16x2(I32 x, I32 y);
-        I32 shr_16x2(I32 x, int bits);
-
-        I32 bit_and  (I32 x, I32 y);
-        I32 bit_or   (I32 x, I32 y);
-        I32 bit_xor  (I32 x, I32 y);
-        I32 bit_clear(I32 x, I32 y);   // x & ~y
 
         I32 shl(I32 x, int bits);
         I32 shr(I32 x, int bits);
         I32 sra(I32 x, int bits);
 
-        I32 extract(I32 x, int bits, I32 y);   // (x >> bits) & y
-        I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
+        I32 eq (I32 x, I32 y);
+        I32 neq(I32 x, I32 y);
+        I32 lt (I32 x, I32 y);
+        I32 lte(I32 x, I32 y);
+        I32 gt (I32 x, I32 y);
+        I32 gte(I32 x, I32 y);
+
+        F32 to_f32(I32 x);
+        F32 bit_cast(I32 x) { return {x.id}; }
+
+        // Treat each 32-bit lane as a pair of 16-bit ints.
+        I32 add_16x2(I32 x, I32 y);
+        I32 sub_16x2(I32 x, I32 y);
+        I32 mul_16x2(I32 x, I32 y);
+
+        I32 shl_16x2(I32 x, int bits);
+        I32 shr_16x2(I32 x, int bits);
+        I32 sra_16x2(I32 x, int bits);
+
+        I32     eq_16x2(I32 x, I32 y);
+        I32    neq_16x2(I32 x, I32 y);
+        I32     lt_16x2(I32 x, I32 y);
+        I32    lte_16x2(I32 x, I32 y);
+        I32     gt_16x2(I32 x, I32 y);
+        I32    gte_16x2(I32 x, I32 y);
+
+        // Bitwise operations.
+        I32 bit_and  (I32 x, I32 y);
+        I32 bit_or   (I32 x, I32 y);
+        I32 bit_xor  (I32 x, I32 y);
+        I32 bit_clear(I32 x, I32 y);   // x & ~y
+
+        I32 select(I32 cond, I32 t, I32 f);  // cond ? t : f
+        F32 select(I32 cond, F32 t, F32 f) {
+            return this->bit_cast(this->select(cond, this->bit_cast(t)
+                                                   , this->bit_cast(f)));
+        }
+
+        // More complex operations...
 
         // Shuffle the bytes in x according to each nibble of control, as if
         //
@@ -323,13 +411,10 @@ namespace skvm {
         //    - bytes(x, 0x4321) is x, an identity
         //    - bytes(x, 0x0000) is 0
         //    - bytes(x, 0x0404) transforms an RGBA pixel into an A0A0 bit pattern.
-        //
-        I32 bytes(I32 x, int control);
+        I32 bytes  (I32 x, int control);
 
-        F32 to_f32(I32 x);
-        I32 to_i32(F32 x);
-
-        std::vector<Instruction> program() const { return fProgram; }
+        I32 extract(I32 x, int bits, I32 y);   // (x >> bits) & y
+        I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
 
     private:
         struct InstructionHash {
@@ -412,18 +497,10 @@ namespace skvm {
         size_t fJITSize = 0;
     };
 
-
-    // TODO: comparison operations, if_then_else
-    // TODO: learn how to do control flow
-    // TODO: gather, load_uniform
-    // TODO: 16- and 64-bit loads and stores
-    // TODO: 16- and 64-bit values?
-    // TODO: x86-64 SSE2 / SSE4.1 / AVX2 / AVX-512F JIT
-    // TODO: ARMv8 JIT
-    // TODO: ARMv8.2+FP16 JIT
-    // TODO: ARMv7 NEON JIT?
-    // TODO: lower to LLVM?
-    // TODO: lower to WebASM?
+    // TODO: control flow
+    // TODO: 64-bit values?
+    // TODO: SSE2/SSE4.1, AVX-512F, ARMv8.2 JITs?
+    // TODO: lower to LLVM or WebASM for comparison?
 }
 
 #endif//SkVM_DEFINED
