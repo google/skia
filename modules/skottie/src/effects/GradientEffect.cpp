@@ -110,31 +110,31 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachGradientEffect(const skjson::ArrayV
 
     auto adapter = sk_make_sp<GradientRampEffectAdapter>(std::move(layer));
 
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kStartPoint_Index), fScope,
+    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kStartPoint_Index),
         [adapter](const VectorValue& p0) {
             adapter->setStartPoint(ValueTraits<VectorValue>::As<SkPoint>(p0));
         });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kEndPoint_Index), fScope,
+    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kEndPoint_Index),
         [adapter](const VectorValue& p1) {
             adapter->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(p1));
         });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kStartColor_Index), fScope,
+    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kStartColor_Index),
         [adapter](const VectorValue& c0) {
             adapter->setStartColor(ValueTraits<VectorValue>::As<SkColor>(c0));
         });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kEndColor_Index), fScope,
+    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kEndColor_Index),
         [adapter](const VectorValue& c1) {
             adapter->setEndColor(ValueTraits<VectorValue>::As<SkColor>(c1));
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRampShape_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRampShape_Index),
         [adapter](const ScalarValue& shape) {
             adapter->setShape(shape);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kBlendRatio_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kBlendRatio_Index),
         [adapter](const ScalarValue& blend) {
             adapter->setBlend(blend);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRampScatter_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRampScatter_Index),
         [adapter](const ScalarValue& scatter) {
             adapter->setScatter(scatter);
         });

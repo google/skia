@@ -427,39 +427,35 @@ bool BindSplitPositionProperty(const skjson::Value& jv,
 
 template <>
 bool AnimationBuilder::bindProperty(const skjson::Value& jv,
-                  AnimatorScope* ascope,
                   std::function<void(const ScalarValue&)>&& apply,
                   const ScalarValue* noop) const {
-    return BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
+    return BindPropertyImpl(jv, this, fCurrentAnimatorScope, std::move(apply), noop);
 }
 
 template <>
 bool AnimationBuilder::bindProperty(const skjson::Value& jv,
-                  AnimatorScope* ascope,
                   std::function<void(const VectorValue&)>&& apply,
                   const VectorValue* noop) const {
     if (!jv.is<skjson::ObjectValue>())
         return false;
 
     return ParseDefault<bool>(jv.as<skjson::ObjectValue>()["s"], false)
-        ? BindSplitPositionProperty(jv, this, ascope, std::move(apply), noop)
-        : BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
+        ? BindSplitPositionProperty(jv, this, fCurrentAnimatorScope, std::move(apply), noop)
+        : BindPropertyImpl(jv, this, fCurrentAnimatorScope, std::move(apply), noop);
 }
 
 template <>
 bool AnimationBuilder::bindProperty(const skjson::Value& jv,
-                  AnimatorScope* ascope,
                   std::function<void(const ShapeValue&)>&& apply,
                   const ShapeValue* noop) const {
-    return BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
+    return BindPropertyImpl(jv, this, fCurrentAnimatorScope, std::move(apply), noop);
 }
 
 template <>
 bool AnimationBuilder::bindProperty(const skjson::Value& jv,
-                  AnimatorScope* ascope,
                   std::function<void(const TextValue&)>&& apply,
                   const TextValue* noop) const {
-    return BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
+    return BindPropertyImpl(jv, this, fCurrentAnimatorScope, std::move(apply), noop);
 }
 
 } // namespace internal
