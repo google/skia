@@ -1,0 +1,9 @@
+Skia Graphics Release Notes
+
+This file includes a list of high level updates for each milestone release.
+
+-----
+
+Milestone 78
+
+ * Added RELEASE_NOTES.txt file
