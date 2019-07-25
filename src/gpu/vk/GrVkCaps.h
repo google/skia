@@ -53,8 +53,8 @@ public:
     int maxRenderTargetSampleCount(VkFormat format) const;
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
-    SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
-                                                 GrColorType) const override;
+    SupportedRead supportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
+                                               GrColorType) const override;
 
     bool isVkFormatTexturableLinearly(VkFormat format) const {
         return SkToBool(FormatInfo::kTextureable_Flag & this->getFormatInfo(format).fLinearFlags);
@@ -201,6 +201,7 @@ private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+    size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override;
 
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;

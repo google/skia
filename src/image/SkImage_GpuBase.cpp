@@ -87,14 +87,9 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
         }
     }
 
-    sk_sp<GrTextureProxy> texProxy = this->asTextureProxyRef(direct);
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(fContext->priv().caps(),
-                                                                this->colorType(),
-                                                                texProxy->backendFormat());
-
     sk_sp<GrSurfaceContext> sContext =
-            direct->priv().makeWrappedSurfaceContext(std::move(texProxy),
-                                                     grColorType,
+            direct->priv().makeWrappedSurfaceContext(this->asTextureProxyRef(direct),
+                                                     SkColorTypeToGrColorType(this->colorType()),
                                                      this->alphaType(),
                                                      this->refColorSpace());
     if (!sContext) {
@@ -145,13 +140,9 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
         return false;
     }
 
-    sk_sp<GrTextureProxy> texProxy = this->asTextureProxyRef(direct);
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(fContext->priv().caps(),
-                                                                this->colorType(),
-                                                                texProxy->backendFormat());
-
     sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
-            std::move(texProxy), grColorType, this->alphaType(), this->refColorSpace());
+            this->asTextureProxyRef(direct), SkColorTypeToGrColorType(this->colorType()),
+            this->alphaType(), this->refColorSpace());
     if (!sContext) {
         return false;
     }

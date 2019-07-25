@@ -49,8 +49,8 @@ public:
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
         return SurfaceReadPixelsSupport::kSupported;
     }
-    SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
-                                                 GrColorType) const override;
+    SupportedRead supportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
+                                               GrColorType) const override;
 
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
@@ -89,6 +89,10 @@ private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+    size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override {
+        // Transfer buffers not yet supported.
+        return 0;
+    }
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
