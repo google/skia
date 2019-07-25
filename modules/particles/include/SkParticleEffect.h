@@ -53,11 +53,8 @@ public:
     // Drawable (image, sprite sheet, etc.)
     sk_sp<SkParticleDrawable> fDrawable;
 
-    // Code to configure particles at spawn time
-    SkString fSpawnCode;
-
-    // Code to update existing particles over their lifetime
-    SkString fUpdateCode;
+    // Code with spawn() and update() functions
+    SkString fCode;
 
     SkTArray<sk_sp<SkParticleBinding>> fBindings;
 
@@ -67,12 +64,8 @@ private:
     friend class SkParticleEffect;
 
     // Cached
-    struct Program {
-        std::unique_ptr<SkSL::ByteCode> fByteCode;
-        SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
-    };
-    Program fSpawnProgram;
-    Program fUpdateProgram;
+    std::unique_ptr<SkSL::ByteCode> fByteCode;
+    SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
 
     void rebuild();
 };

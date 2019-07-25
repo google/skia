@@ -302,8 +302,7 @@ private:
 };
 
 static const char* kDefaultCode =
-R"(
-// float rand; Every read returns a random float [0 .. 1)
+R"(// float rand; Every read returns a random float [0 .. 1)
 layout(ctype=float) in uniform float dt;
 layout(ctype=float) in uniform float effectAge;
 
@@ -319,7 +318,10 @@ struct Particle {
   float  frame;
 };
 
-void main(inout Particle p) {
+void spawn(inout Particle p) {
+}
+
+void update(inout Particle p) {
 }
 )";
 
@@ -328,14 +330,12 @@ SkParticleEffectParams::SkParticleEffectParams()
         , fEffectDuration(1.0f)
         , fRate(8.0f)
         , fDrawable(nullptr)
-        , fSpawnCode(kDefaultCode)
-        , fUpdateCode(kDefaultCode) {
+        , fCode(kDefaultCode) {
     this->rebuild();
 }
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
-    SkString oldSpawnCode = fSpawnCode;
-    SkString oldUpdateCode = fUpdateCode;
+    SkString oldCode = fCode;
 
     v->visit("MaxCount", fMaxCount);
     v->visit("Duration", fEffectDuration);
@@ -343,55 +343,49 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
 
     v->visit("Drawable", fDrawable);
 
-    v->visit("Spawn", fSpawnCode);
-    v->visit("Update", fUpdateCode);
+    v->visit("Code", fCode);
 
     v->visit("Bindings", fBindings);
 
     // TODO: Or, if any change to binding metadata?
-    if (fSpawnCode != oldSpawnCode || fUpdateCode != oldUpdateCode) {
+    if (fCode != oldCode) {
         this->rebuild();
     }
 }
 
 void SkParticleEffectParams::rebuild() {
-    auto buildProgram = [this](Program* p, const SkString& code) {
-        SkSL::Compiler compiler;
-        SkSL::Program::Settings settings;
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
 
-        SkTArray<std::unique_ptr<SkParticleExternalValue>> externalValues;
+    SkTArray<std::unique_ptr<SkParticleExternalValue>> externalValues;
 
-        auto rand = skstd::make_unique<SkRandomExternalValue>("rand", compiler);
-        compiler.registerExternalValue(rand.get());
-        externalValues.push_back(std::move(rand));
+    auto rand = skstd::make_unique<SkRandomExternalValue>("rand", compiler);
+    compiler.registerExternalValue(rand.get());
+    externalValues.push_back(std::move(rand));
 
-        for (const auto& binding : fBindings) {
-            if (binding) {
-                auto value = binding->toValue(compiler);
-                compiler.registerExternalValue(value.get());
-                externalValues.push_back(std::move(value));
-            }
+    for (const auto& binding : fBindings) {
+        if (binding) {
+            auto value = binding->toValue(compiler);
+            compiler.registerExternalValue(value.get());
+            externalValues.push_back(std::move(value));
         }
+    }
 
-        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                               SkSL::String(code.c_str()), settings);
-        if (!program) {
-            SkDebugf("%s\n", compiler.errorText().c_str());
-            return;
-        }
+    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                            SkSL::String(fCode.c_str()), settings);
+    if (!program) {
+        SkDebugf("%s\n", compiler.errorText().c_str());
+        return;
+    }
 
-        auto byteCode = compiler.toByteCode(*program);
-        if (!byteCode) {
-            SkDebugf("%s\n", compiler.errorText().c_str());
-            return;
-        }
+    auto byteCode = compiler.toByteCode(*program);
+    if (!byteCode) {
+        SkDebugf("%s\n", compiler.errorText().c_str());
+        return;
+    }
 
-        p->fByteCode = std::move(byteCode);
-        p->fExternalValues.swap(externalValues);
-    };
-
-    buildProgram(&fSpawnProgram, fSpawnCode);
-    buildProgram(&fUpdateProgram, fUpdateCode);
+    fByteCode = std::move(byteCode);
+    fExternalValues.swap(externalValues);
 }
 
 SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random)
@@ -448,18 +442,18 @@ void SkParticleEffect::update(double now) {
         }
     }
 
-    auto runProgram = [](SkParticleEffectParams::Program& program, SkParticles& particles,
-                         float updateParams[], int start, int count) {
-        if (const auto& byteCode = program.fByteCode) {
+    auto runProgram = [](const SkParticleEffectParams* params, const char* entry,
+                         SkParticles& particles, float updateParams[], int start, int count) {
+        if (const auto& byteCode = params->fByteCode) {
             float* args[SkParticles::kNumChannels];
             for (int i = 0; i < SkParticles::kNumChannels; ++i) {
                 args[i] = particles.fData[i].get() + start;
             }
             SkRandom* randomBase = particles.fRandom.get() + start;
-            for (const auto& value : program.fExternalValues) {
+            for (const auto& value : params->fExternalValues) {
                 value->setRandom(randomBase);
             }
-            SkAssertResult(byteCode->runStriped(byteCode->getFunction("main"),
+            SkAssertResult(byteCode->runStriped(byteCode->getFunction(entry),
                                                 args, SkParticles::kNumChannels, count,
                                                 updateParams, 2, nullptr, 0));
         }
@@ -496,7 +490,7 @@ void SkParticleEffect::update(double now) {
         }
 
         // Run the spawn script
-        runProgram(fParams->fSpawnProgram, fParticles, updateParams, spawnBase, numToSpawn);
+        runProgram(fParams.get(), "spawn", fParticles, updateParams, spawnBase, numToSpawn);
 
         // Now stash copies of the random generators and compute inverse particle lifetimes
         // (so that subsequent updates are faster)
@@ -513,7 +507,7 @@ void SkParticleEffect::update(double now) {
     }
 
     // Run the update script
-    runProgram(fParams->fUpdateProgram, fParticles, updateParams, 0, fCount);
+    runProgram(fParams.get(), "update", fParticles, updateParams, 0, fCount);
 
     // Do fixed-function update work (integration of position and orientation)
     for (int i = 0; i < fCount; ++i) {
