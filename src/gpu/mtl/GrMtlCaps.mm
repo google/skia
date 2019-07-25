@@ -438,6 +438,7 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
 
     MTLPixelFormatRGBA8Unorm,
     MTLPixelFormatR8Unorm,
+    MTLPixelFormatA8Unorm,
     MTLPixelFormatBGRA8Unorm,
 #ifdef SK_BUILD_FOR_IOS
     MTLPixelFormatB5G6R5Unorm,
@@ -480,6 +481,10 @@ void GrMtlCaps::initFormatTable() {
     // R8Unorm
     info = &fFormatTable[GetFormatIndex(MTLPixelFormatR8Unorm)];
     info->fFlags = FormatInfo::kAllFlags;
+
+    // A8Unorm
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatA8Unorm)];
+    info->fFlags = FormatInfo::kTextureable_Flag;
 
 #ifdef SK_BUILD_FOR_IOS
     // B5G6R5Unorm
@@ -888,6 +893,10 @@ GrCaps::SupportedRead GrMtlCaps::supportedReadPixelsColorType(
             } else if (srcColorType == GrColorType::kGray_8) {
                 return {GrSwizzle::RGBA(), GrColorType::kGray_8};
             }
+            break;
+        case MTLPixelFormatA8Unorm:
+            readCT = GrColorType::kAlpha_8;
+            break;
         case MTLPixelFormatBGRA8Unorm:
             return {GrSwizzle::RGBA(), GrColorType::kBGRA_8888};
 #ifdef SK_BIULD_FOR_IOS
