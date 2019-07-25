@@ -36,6 +36,10 @@ public:
     // generation later.
     GrMipMapped mipMapped() const;
 
+    bool mipMapsAreDirty() const {
+        return GrMipMapped::kYes == fMipMapped && GrMipMapsStatus::kValid != fMipMapsStatus;
+    }
+
     // Returns the GrMipMapped value of the proxy from creation time regardless of whether it has
     // been instantiated or not.
     GrMipMapped proxyMipMapped() const { return fMipMapped; }
@@ -93,8 +97,8 @@ protected:
 
     // Deferred version - no data.
     GrTextureProxy(const GrBackendFormat&, const GrSurfaceDesc& srcDesc, GrSurfaceOrigin,
-                   GrMipMapped, const GrSwizzle& textureSwizzle, SkBackingFit, SkBudgeted,
-                   GrProtected, GrInternalSurfaceFlags);
+                   GrMipMapped, GrMipMapsStatus, const GrSwizzle& textureSwizzle, SkBackingFit,
+                   SkBudgeted, GrProtected, GrInternalSurfaceFlags);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -107,8 +111,8 @@ protected:
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
     GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrBackendFormat&,
-                   const GrSurfaceDesc& desc, GrSurfaceOrigin, GrMipMapped, const GrSwizzle&,
-                   SkBackingFit, SkBudgeted, GrProtected, GrInternalSurfaceFlags);
+                   const GrSurfaceDesc& desc, GrSurfaceOrigin, GrMipMapped, GrMipMapsStatus,
+                   const GrSwizzle&, SkBackingFit, SkBudgeted, GrProtected, GrInternalSurfaceFlags);
 
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle&);
@@ -129,6 +133,7 @@ private:
     // address of other types, leading to this problem.
 
     GrMipMapped      fMipMapped;
+    GrMipMapsStatus  fMipMapsStatus;
     bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
 
     GrUniqueKey      fUniqueKey;
