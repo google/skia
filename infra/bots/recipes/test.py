@@ -192,13 +192,13 @@ def dm_flags(api, bot):
                  'angle_d3d9_es2',
                  'angle_gl_es2',
                  'angle_d3d11_es3']
-      if 'LenovoYogaC630' in bot:
-        # LenovoYogaC630 only supports D3D11, not GL.
-        configs = ['angle_d3d11_es2',
-                   'angle_d3d11_es3']
       if sample_count:
         configs.append('angle_d3d11_es2_msaa' + sample_count)
         configs.append('angle_d3d11_es3_msaa' + sample_count)
+      if 'LenovoYogaC630' in bot:
+        # LenovoYogaC630 only supports D3D11, and to save time, we only test ES3
+        configs = ['angle_d3d11_es3',
+                   'angle_d3d11_es3_msaa' + sample_count]
       if 'GTX' in bot or 'Quadro' in bot:
         # See skia:7823 and chromium:693090.
         configs.append('angle_gl_es3')
@@ -785,6 +785,8 @@ def dm_flags(api, bot):
     match.append('~^GrMeshTest$')
 
   if 'LenovoYogaC630' in bot and 'ANGLE' in api.vars.extra_tokens:
+    # skia:9275
+    blacklist(['_', 'tests', '_', 'GLPrograms'])
     # skia:8976
     blacklist(['_', 'tests', '_', 'GrDefaultPathRendererTest'])
     # https://bugs.chromium.org/p/angleproject/issues/detail?id=3414
