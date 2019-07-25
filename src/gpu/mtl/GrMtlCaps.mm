@@ -890,7 +890,7 @@ GrCaps::SupportedRead GrMtlCaps::supportedReadPixelsColorType(
             }
         case MTLPixelFormatBGRA8Unorm:
             return {GrSwizzle::RGBA(), GrColorType::kBGRA_8888};
-#ifdef SK_BIULD_FOR_IOS
+#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatB5G6R5Unorm:
             return {GrSwizzle::RGBA(), GrColorType::kBGR_565};
 #endif
@@ -906,7 +906,7 @@ GrCaps::SupportedRead GrMtlCaps::supportedReadPixelsColorType(
             return {GrSwizzle::RGBA(), GrColorType::kRG_88};
         case MTLPixelFormatRGB10A2Unorm:
             return {GrSwizzle::RGBA(), GrColorType::kRGBA_1010102};
-#ifdef SK_BIULD_FOR_IOS
+#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatABGR4Unorm:
             return {GrSwizzle::RGBA(), GrColorType::kABGR_4444};
 #endif
