@@ -104,15 +104,15 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachLinearWipeEffect(const skjson::Arra
 
     auto adapter = sk_make_sp<LinearWipeAdapter>(std::move(layer), fLayerSize);
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index),
         [adapter](const ScalarValue& c) {
             adapter->setCompletion(c);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kAngle_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kAngle_Index),
         [adapter](const ScalarValue& a) {
             adapter->setAngle(a);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index),
         [adapter](const ScalarValue& f) {
             adapter->setFeather(f);
         });

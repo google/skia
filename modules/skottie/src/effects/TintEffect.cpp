@@ -40,13 +40,13 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachTintEffect(const skjson::ArrayValue
 
     auto tint_node =
             sksg::GradientColorFilter::Make(std::move(layer),
-                                            fBuilder->attachColor(*color0_prop, fScope, "v"),
-                                            fBuilder->attachColor(*color1_prop, fScope, "v"));
+                                            fBuilder->attachColor(*color0_prop, "v"),
+                                            fBuilder->attachColor(*color1_prop, "v"));
     if (!tint_node) {
         return nullptr;
     }
 
-    fBuilder->bindProperty<ScalarValue>((*amount_prop)["v"], fScope,
+    fBuilder->bindProperty<ScalarValue>((*amount_prop)["v"],
         [tint_node](const ScalarValue& w) {
             tint_node->setWeight(w / 100); // 100-based
         });

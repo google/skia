@@ -58,8 +58,7 @@ namespace internal {
  * }
  */
 sk_sp<TextAnimator> TextAnimator::Make(const skjson::ObjectValue* janimator,
-                                       const AnimationBuilder* abuilder,
-                                       AnimatorScope* ascope) {
+                                       const AnimationBuilder* abuilder) {
     if (!janimator) {
         return nullptr;
     }
@@ -67,7 +66,7 @@ sk_sp<TextAnimator> TextAnimator::Make(const skjson::ObjectValue* janimator,
     std::vector<sk_sp<RangeSelector>> selectors;
     if (const skjson::ObjectValue* jselector = (*janimator)["s"]) {
         // Single range selector for now.
-        if (auto sel = RangeSelector::Make(jselector, abuilder, ascope)) {
+        if (auto sel = RangeSelector::Make(jselector, abuilder)) {
             selectors.reserve(1);
             selectors.push_back(std::move(sel));
         }
@@ -76,7 +75,7 @@ sk_sp<TextAnimator> TextAnimator::Make(const skjson::ObjectValue* janimator,
     const skjson::ObjectValue* jprops = (*janimator)["a"];
 
     return jprops
-        ? sk_sp<TextAnimator>(new TextAnimator(std::move(selectors), *jprops, abuilder, ascope))
+        ? sk_sp<TextAnimator>(new TextAnimator(std::move(selectors), *jprops, abuilder))
         : nullptr;
 }
 
@@ -136,8 +135,7 @@ TextAnimator::AnimatedProps TextAnimator::modulateProps(const AnimatedProps& pro
 
 TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
                            const skjson::ObjectValue& jprops,
-                           const AnimationBuilder* abuilder,
-                           AnimatorScope* ascope)
+                           const AnimationBuilder* abuilder)
     : fSelectors(std::move(selectors)) {
 
     // It's *probably* OK to capture a raw pointer to this animator, because the lambda
@@ -145,33 +143,33 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
     // owning us. But for peace of mind (and future-proofing) let's grab a ref.
     auto animator = sk_ref_sp(this);
 
-    abuilder->bindProperty<VectorValue>(jprops["p"], ascope,
+    abuilder->bindProperty<VectorValue>(jprops["p"],
         [animator](const VectorValue& p) {
             animator->fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
         });
-    abuilder->bindProperty<ScalarValue>(jprops["s"], ascope,
+    abuilder->bindProperty<ScalarValue>(jprops["s"],
         [animator](const ScalarValue& s) {
             // Scale is 100-based.
             animator->fTextProps.scale = s * 0.01f;
         });
-    abuilder->bindProperty<ScalarValue>(jprops["r"], ascope,
+    abuilder->bindProperty<ScalarValue>(jprops["r"],
         [animator](const ScalarValue& r) {
             animator->fTextProps.rotation = r;
         });
-    fHasFillColor   = abuilder->bindProperty<VectorValue>(jprops["fc"], ascope,
+    fHasFillColor   = abuilder->bindProperty<VectorValue>(jprops["fc"],
         [animator](const VectorValue& fc) {
             animator->fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor>(fc);
         });
-    fHasStrokeColor = abuilder->bindProperty<VectorValue>(jprops["sc"], ascope,
+    fHasStrokeColor = abuilder->bindProperty<VectorValue>(jprops["sc"],
         [animator](const VectorValue& sc) {
             animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
-    });
-    abuilder->bindProperty<ScalarValue>(jprops["o"], ascope,
+        });
+    abuilder->bindProperty<ScalarValue>(jprops["o"],
         [animator](const ScalarValue& o) {
             // Opacity is 100-based.
             animator->fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
         });
-    abuilder->bindProperty<ScalarValue>(jprops["t"], ascope,
+    abuilder->bindProperty<ScalarValue>(jprops["t"],
         [animator](const ScalarValue& t) {
             animator->fTextProps.tracking = t;
         });
@@ -180,15 +178,17 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
 sk_sp<TextAnimatorList> TextAnimatorList::Make(const skjson::ArrayValue& janimators,
                                                const AnimationBuilder* abuilder,
                                                sk_sp<TextAdapter> adapter) {
-    AnimatorScope local_animator_scope;
+    AnimationBuilder::AutoScope ascope(abuilder);
     std::vector<sk_sp<TextAnimator>> animators;
     animators.reserve(janimators.size());
 
     for (const skjson::ObjectValue* janimator : janimators) {
-        if (auto animator = TextAnimator::Make(janimator, abuilder, &local_animator_scope)) {
+        if (auto animator = TextAnimator::Make(janimator, abuilder)) {
             animators.push_back(std::move(animator));
         }
     }
+
+    auto local_animator_scope = ascope.release();
 
     if (animators.empty()) {
         return nullptr;

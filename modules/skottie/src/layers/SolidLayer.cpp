@@ -18,8 +18,7 @@ namespace skottie {
 namespace internal {
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachSolidLayer(const skjson::ObjectValue& jlayer,
-                                                           LayerInfo* layer_info,
-                                                           AnimatorScope*) const {
+                                                           LayerInfo* layer_info) const {
     layer_info->fSize = SkSize::Make(ParseDefault<float>(jlayer["sw"], 0.0f),
                                      ParseDefault<float>(jlayer["sh"], 0.0f));
     const skjson::StringValue* hex_str = jlayer["sc"];

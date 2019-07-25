@@ -146,19 +146,19 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachVenetianBlindsEffect(
 
     auto adapter = sk_make_sp<VenetialBlindsAdapter>(std::move(layer), fLayerSize);
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index),
         [adapter](const ScalarValue& c) {
             adapter->setCompletion(c);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDirection_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDirection_Index),
         [adapter](const ScalarValue& d) {
             adapter->setDirection(d);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kWidth_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kWidth_Index),
         [adapter](const ScalarValue& w) {
             adapter->setWidth(w);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index),
         [adapter](const ScalarValue& f) {
             adapter->setFeather(f);
         });

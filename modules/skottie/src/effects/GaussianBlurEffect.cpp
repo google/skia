@@ -90,15 +90,15 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachGaussianBlurEffect(
     auto blur_effect   = sksg::BlurImageFilter::Make();
     auto blur_addapter = sk_make_sp<GaussianBlurEffectAdapter>(blur_effect);
 
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kBlurriness_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kBlurriness_Index),
         [blur_addapter](const ScalarValue& b) {
             blur_addapter->setBlurriness(b);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDimensions_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDimensions_Index),
         [blur_addapter](const ScalarValue& d) {
             blur_addapter->setDimensions(d);
         });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRepeatEdge_Index), fScope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRepeatEdge_Index),
         [blur_addapter](const ScalarValue& r) {
             blur_addapter->setRepeatEdge(r);
         });

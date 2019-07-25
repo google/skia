@@ -67,7 +67,6 @@ void AnimationBuilder::log(Logger::Level lvl, const skjson::Value* json,
 }
 
 sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValue& t,
-                                                        AnimatorScope* ascope,
                                                         sk_sp<sksg::Transform> parent) const {
     static const VectorValue g_default_vec_0   = {  0,   0},
                              g_default_vec_100 = {100, 100};
@@ -75,15 +74,15 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValu
     auto matrix = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
     auto adapter = sk_make_sp<TransformAdapter2D>(matrix);
 
-    auto bound = this->bindProperty<VectorValue>(t["a"], ascope,
+    auto bound = this->bindProperty<VectorValue>(t["a"],
             [adapter](const VectorValue& a) {
                 adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
             }, g_default_vec_0);
-    bound |= this->bindProperty<VectorValue>(t["p"], ascope,
+    bound |= this->bindProperty<VectorValue>(t["p"],
             [adapter](const VectorValue& p) {
                 adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
             }, g_default_vec_0);
-    bound |= this->bindProperty<VectorValue>(t["s"], ascope,
+    bound |= this->bindProperty<VectorValue>(t["s"],
             [adapter](const VectorValue& s) {
                 adapter->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
             }, g_default_vec_100);
@@ -94,15 +93,15 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValu
         // we can still make use of rz.
         jrotation = &t["rz"];
     }
-    bound |= this->bindProperty<ScalarValue>(*jrotation, ascope,
+    bound |= this->bindProperty<ScalarValue>(*jrotation,
             [adapter](const ScalarValue& r) {
                 adapter->setRotation(r);
             }, 0.0f);
-    bound |= this->bindProperty<ScalarValue>(t["sk"], ascope,
+    bound |= this->bindProperty<ScalarValue>(t["sk"],
             [adapter](const ScalarValue& sk) {
                 adapter->setSkew(sk);
             }, 0.0f);
-    bound |= this->bindProperty<ScalarValue>(t["sa"], ascope,
+    bound |= this->bindProperty<ScalarValue>(t["sa"],
             [adapter](const ScalarValue& sa) {
                 adapter->setSkewAxis(sa);
             }, 0.0f);
@@ -115,7 +114,6 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValu
 }
 
 sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValue& t,
-                                                        AnimatorScope* ascope,
                                                         sk_sp<sksg::Transform> parent,
                                                         sk_sp<TransformAdapter3D> adapter,
                                                         bool precompose_parent) const {
@@ -127,39 +125,39 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValu
         adapter = sk_make_sp<TransformAdapter3D>();
     }
 
-    auto bound = this->bindProperty<VectorValue>(t["a"], ascope,
+    auto bound = this->bindProperty<VectorValue>(t["a"],
             [adapter](const VectorValue& a) {
                 adapter->setAnchorPoint(TransformAdapter3D::Vec3(a));
             }, g_default_vec_0);
-    bound |= this->bindProperty<VectorValue>(t["p"], ascope,
+    bound |= this->bindProperty<VectorValue>(t["p"],
             [adapter](const VectorValue& p) {
                 adapter->setPosition(TransformAdapter3D::Vec3(p));
             }, g_default_vec_0);
-    bound |= this->bindProperty<VectorValue>(t["s"], ascope,
+    bound |= this->bindProperty<VectorValue>(t["s"],
             [adapter](const VectorValue& s) {
                 adapter->setScale(TransformAdapter3D::Vec3(s));
             }, g_default_vec_100);
 
     // Orientation and rx/ry/rz are mapped to the same rotation property -- the difference is
     // in how they get interpolated (vector vs. scalar/decomposed interpolation).
-    bound |= this->bindProperty<VectorValue>(t["or"], ascope,
+    bound |= this->bindProperty<VectorValue>(t["or"],
             [adapter](const VectorValue& o) {
                 adapter->setRotation(TransformAdapter3D::Vec3(o));
             }, g_default_vec_0);
 
-    bound |= this->bindProperty<ScalarValue>(t["rx"], ascope,
+    bound |= this->bindProperty<ScalarValue>(t["rx"],
             [adapter](const ScalarValue& rx) {
                 const auto& r = adapter->getRotation();
                 adapter->setRotation(TransformAdapter3D::Vec3({rx, r.fY, r.fZ}));
             }, 0.0f);
 
-    bound |= this->bindProperty<ScalarValue>(t["ry"], ascope,
+    bound |= this->bindProperty<ScalarValue>(t["ry"],
             [adapter](const ScalarValue& ry) {
                 const auto& r = adapter->getRotation();
                 adapter->setRotation(TransformAdapter3D::Vec3({r.fX, ry, r.fZ}));
             }, 0.0f);
 
-    bound |= this->bindProperty<ScalarValue>(t["rz"], ascope,
+    bound |= this->bindProperty<ScalarValue>(t["rz"],
             [adapter](const ScalarValue& rz) {
                 const auto& r = adapter->getRotation();
                 adapter->setRotation(TransformAdapter3D::Vec3({r.fX, r.fY, rz}));
@@ -177,14 +175,13 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValu
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jtransform,
-                                                        AnimatorScope* ascope,
                                                         sk_sp<sksg::RenderNode> childNode) const {
     if (!childNode)
         return nullptr;
 
     auto opacityNode = sksg::OpacityEffect::Make(childNode);
 
-    const auto bound = this->bindProperty<ScalarValue>(jtransform["o"], ascope,
+    const auto bound = this->bindProperty<ScalarValue>(jtransform["o"],
         [opacityNode](const ScalarValue& o) {
             // BM opacity is [0..100]
             opacityNode->setOpacity(o * 0.01f);
@@ -242,10 +239,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachBlendMode(const skjson::ObjectVa
     return child;
 }
 
-sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath,
-                                               AnimatorScope* ascope) const {
+sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath) const {
     auto path_node = sksg::Path::Make();
-    return this->bindProperty<ShapeValue>(jpath, ascope,
+    return this->bindProperty<ShapeValue>(jpath,
         [path_node](const ShapeValue& p) {
             // FillType is tracked in the SG node, not in keyframes -- make sure we preserve it.
             auto path = ValueTraits<ShapeValue>::As<SkPath>(p);
@@ -257,11 +253,10 @@ sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath,
 }
 
 sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcolor,
-                                                 AnimatorScope* ascope,
                                                  const char prop_name[]) const {
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
 
-    this->bindProperty<VectorValue>(jcolor[prop_name], ascope,
+    this->bindProperty<VectorValue>(jcolor[prop_name],
         [color_node](const VectorValue& c) {
             color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
         });
@@ -292,9 +287,10 @@ std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& 
     this->parseAssets(jroot["assets"]);
     this->parseFonts(jroot["fonts"], jroot["chars"]);
 
-    AnimatorScope animators;
-    auto root = this->attachComposition(jroot, &animators);
+    AutoScope ascope(this);
+    auto root = this->attachComposition(jroot);
 
+    auto animators = ascope.release();
     fStats->fAnimatorCount = animators.size();
 
     return sksg::Scene::Make(std::move(root), std::move(animators));

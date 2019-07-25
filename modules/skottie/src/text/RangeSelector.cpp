@@ -173,8 +173,7 @@ float Lerp(float a, float b, float t) { return a + (b - a) * t; }
 } // namespace
 
 sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
-                                         const AnimationBuilder* abuilder,
-                                         AnimatorScope *ascope) {
+                                         const AnimationBuilder* abuilder) {
     if (!jrange) {
         return nullptr;
     }
@@ -210,19 +209,19 @@ sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
                               ParseEnum<Mode>  (gModeMap  , (*jrange)["m" ], abuilder, "mode"  ),
                               ParseEnum<Shape> (gShapeMap , (*jrange)["sh"], abuilder, "shape" )));
 
-    abuilder->bindProperty<ScalarValue>((*jrange)["s"], ascope,
+    abuilder->bindProperty<ScalarValue>((*jrange)["s"],
         [selector](const ScalarValue& s) {
             selector->fStart = s;
         });
-    abuilder->bindProperty<ScalarValue>((*jrange)["e"], ascope,
+    abuilder->bindProperty<ScalarValue>((*jrange)["e"],
         [selector](const ScalarValue& e) {
             selector->fEnd = e;
         });
-    abuilder->bindProperty<ScalarValue>((*jrange)["o"], ascope,
+    abuilder->bindProperty<ScalarValue>((*jrange)["o"],
         [selector](const ScalarValue& o) {
             selector->fOffset = o;
         });
-    abuilder->bindProperty<ScalarValue>((*jrange)["a"], ascope,
+    abuilder->bindProperty<ScalarValue>((*jrange)["a"],
         [selector](const ScalarValue& a) {
             selector->fAmount = a;
         });

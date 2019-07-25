@@ -21,8 +21,7 @@ namespace internal {
 class RangeSelector final : public SkNVRefCnt<RangeSelector> {
 public:
     static sk_sp<RangeSelector> Make(const skjson::ObjectValue*,
-                                     const AnimationBuilder*,
-                                     AnimatorScope* ascope);
+                                     const AnimationBuilder*);
 
     enum class Units : uint8_t {
         kPercentage,  // values are percentages of domain size

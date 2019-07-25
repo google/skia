@@ -26,8 +26,7 @@ class TextAdapter;
 class TextAnimator final : public SkNVRefCnt<TextAnimator> {
 public:
     static sk_sp<TextAnimator> Make(const skjson::ObjectValue*,
-                                    const AnimationBuilder*,
-                                    AnimatorScope*);
+                                    const AnimationBuilder*);
 
     struct AnimatedProps {
         SkPoint   position = { 0, 0 };
@@ -66,8 +65,7 @@ public:
 private:
     TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
                  const skjson::ObjectValue& jprops,
-                 const AnimationBuilder* abuilder,
-                 AnimatorScope* ascope);
+                 const AnimationBuilder* abuilder);
 
     AnimatedProps modulateProps(const AnimatedProps&, float amount) const;
 
