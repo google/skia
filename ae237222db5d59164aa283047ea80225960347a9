@@ -142,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "a34ab640_68629ab5",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-25T01:50:30Z",
+      "side": 1,
+      "message": "Actually in this case I\u0027d use the GL-only version:\n\nalias tgdg\u003d\u0027bin/try \u0027\\\u0027\u0027Test.*GPU.*Debug-All([-_]Android)?$\u0027\\\u0027\u0027\u0027",
+      "parentUuid": "a49d9a17_8addea55",
+      "range": {
+        "startLine": 1738,
+        "startChar": 38,
+        "endLine": 1738,
+        "endChar": 40
+      },
+      "revId": "ae237222db5d59164aa283047ea80225960347a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15e26cc2_658d4bb1",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 7
