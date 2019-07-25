@@ -37,6 +37,38 @@ LOTTIE_WEB_BLACKLIST = [
   'obama_caricature.json',
   'lottiefiles.com - Nudge.json',
   'lottiefiles.com - Retweet.json',
+  # Trace file has majority main_frame_aborted terminations in it and < 25
+  # occurrences of submitted_frame + missed_frame.
+  # Static scenes (nothing animating)
+  'mask1.json',
+  'mask2.json',
+  'stacking.json',
+]
+
+SKOTTIE_WASM_BLACKLIST = [
+  # Trace file has majority main_frame_aborted terminations in it and < 25
+  # occurrences of submitted_frame + missed_frame.
+  # Below descriptions are added from fmalita@'s comments in
+  # https://skia-review.googlesource.com/c/skia/+/229419
+
+  # Static scenes (nothing animating)
+  'mask1.json',
+  'mask2.json',
+  'stacking.json',
+  # Static in Skottie only due to unsupported feature (expressions).
+  'dna.json',
+  'elephant_trunk_swing.json',
+  # Looks all static in both skottie/lottie, not sure why lottie doesn't abort
+  # as many frames.
+  'hexadots.json',
+  # Very short transition, mostly static.
+  'screenhole.json',
+  # Broken in Skottie due to unidentified missing feature.
+  'interleague_golf_logo.json',
+  'loading.json',
+  'lottiefiles.com - Loading 2.json',
+  'streetby_loading.json',
+  'streetby_test_loading.json',
 ]
 
 # These files work in SVG but not in Canvas.
@@ -71,6 +103,8 @@ def RunSteps(api):
         '--canvaskit_js', canvaskit_js_path,
         '--canvaskit_wasm', canvaskit_wasm_path,
     ]
+    lottie_files = [x for x in lottie_files
+                    if api.path.basename(x) not in SKOTTIE_WASM_BLACKLIST]
   elif 'LottieWeb' in buildername:
     source_type = 'lottie-web'
     renderer = 'lottie-web'
@@ -214,8 +248,10 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
   current_frame_duration = 0
   total_frames = 0
   frame_id_to_start_ts = {}
-  # Will contain tuples of frame_ids and their duration.
-  completed_frame_id_and_duration = []
+  # Will contain tuples of frame_ids and their duration and status.
+  completed_frame_id_and_duration_status = []
+  # Will contain tuples of drawn frame_ids and their duration.
+  drawn_frame_id_and_duration = []
   for trace in trace_json['traceEvents']:
     if 'PipelineReporter' in trace['name']:
       frame_id = trace['id']
@@ -229,8 +265,12 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
           continue
         current_frame_duration = trace['ts'] - frame_id_to_start_ts[frame_id]
         total_frames += 1
-        completed_frame_id_and_duration.append(
-            (frame_id, current_frame_duration))
+        completed_frame_id_and_duration_status.append(
+            (frame_id, current_frame_duration, args['termination_status']))
+        if(args['termination_status'] == 'missed_frame' or
+         args['termination_status'] == 'submitted_frame'):
+          drawn_frame_id_and_duration.append((frame_id, current_frame_duration))
+
         # We are done with this frame_id so remove it from the dict.
         frame_id_to_start_ts.pop(frame_id)
         print '%d (%s with %s): %d' % (
@@ -244,28 +284,56 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
               frame_id, args['termination_status'])
           frame_id_to_start_ts.pop(frame_id)
 
-  total_completed_frames = len(completed_frame_id_and_duration)
+  # Calculate metrics for total completed frames.
+  total_completed_frames = len(completed_frame_id_and_duration_status)
   if total_completed_frames < 25:
-    raise Exception('Even with 2 loops found only %d frames' %
+    raise Exception('Even with 3 loops found only %d frames' %
                     total_completed_frames)
-
   # Get frame avg/min/max for the middle 25 frames.
   start = (total_completed_frames - 25)/2
-  print 'Got %d total completed frames. Using start_index of %d.' % (
-      total_completed_frames, start)
+  print 'Got %d total completed frames. Using indexes [%d, %d).' % (
+      total_completed_frames, start, start+25)
   frame_max = 0
   frame_min = 0
   frame_cumulative = 0
-  for frame_id, duration in completed_frame_id_and_duration[start:start+25]:
+  aborted_frames = 0
+  for frame_id, duration, status in (
+      completed_frame_id_and_duration_status[start:start+25]):
     frame_max = max(frame_max, duration)
     frame_min = min(frame_min, duration) if frame_min else duration
     frame_cumulative += duration
+    if status == 'main_frame_aborted':
+      aborted_frames += 1
 
   perf_results = {}
   perf_results['frame_max_us'] = frame_max
   perf_results['frame_min_us'] = frame_min
   perf_results['frame_avg_us'] = frame_cumulative/25
-  print 'For 25 frames got: %s' % perf_results
+  perf_results['aborted_frames'] = aborted_frames
+
+  # Now calculate metrics for only drawn frames.
+  drawn_frame_max = 0
+  drawn_frame_min = 0
+  drawn_frame_cumulative = 0
+  total_drawn_frames = len(drawn_frame_id_and_duration)
+  if total_drawn_frames < 25:
+    raise Exception('Even with 3 loops found only %d drawn frames' %
+                    total_drawn_frames)
+  # Get drawn frame avg/min/max from the middle 25 frames.
+  start = (total_drawn_frames - 25)/2
+  print 'Got %d total drawn frames. Using indexes [%d-%d).' % (
+        total_drawn_frames, start, start+25)
+  for frame_id, duration in drawn_frame_id_and_duration[start:start+25]:
+    drawn_frame_max = max(drawn_frame_max, duration)
+    drawn_frame_min = (min(drawn_frame_min, duration)
+                       if drawn_frame_min else duration)
+    drawn_frame_cumulative += duration
+  # Add metrics to perf_results.
+  perf_results['drawn_frame_max_us'] = drawn_frame_max
+  perf_results['drawn_frame_min_us'] = drawn_frame_min
+  perf_results['drawn_frame_avg_us'] = drawn_frame_cumulative/25
+
+  print 'Final perf_results dict: %s' % perf_results
 
   # Write perf_results to the output json.
   with open(output_json_file, 'w') as f:
