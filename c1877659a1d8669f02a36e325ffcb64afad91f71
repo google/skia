@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "5f95b926_48afb5ba",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-25T13:57:05Z",
+      "side": 1,
+      "message": "(The real important thing is to always have braces.  But in cases like this where there\u0027s nothing particularly interesting going on vertically, I agree it\u0027s more normal to put things on a new line.  Just wouldn\u0027t say always.)",
+      "parentUuid": "735708e4_0e5c62b7",
+      "revId": "c1877659a1d8669f02a36e325ffcb64afad91f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4167cec_f4d1790b",
         "filename": "tools/skpbench/skpbench.cpp",
         "patchSetId": 3
