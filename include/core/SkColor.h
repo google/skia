@@ -218,6 +218,18 @@ SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 */
 SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 
+/** \enum SkColorChannel
+    Describes different color channels one can manipulate
+*/
+enum class SkColorChannel {
+    kR,  // the red channel
+    kG,  // the green channel
+    kB,  // the blue channel
+    kA,  // the alpha channel
+
+    kLastEnum = kA,
+};
+
 /** \struct SkRGBA4f
     RGBA color value, holding four floating point components. Color components are always in
     a known order. kAT determines if the SkRGBA4f's R, G, and B components are premultiplied
