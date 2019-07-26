@@ -18,6 +18,7 @@
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/ops/GrCopySurfaceOp.h"
+#include "src/gpu/ops/GrTransferFromOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -159,6 +160,15 @@ bool GrTextureOpList::copySurface(GrRecordingContext* context,
 
     this->recordOp(std::move(op));
     return true;
+}
+
+void GrTextureOpList::transferFrom(GrRecordingContext* context,
+                                   const SkIRect& srcRect,
+                                   GrColorType dstColorType,
+                                   sk_sp<GrGpuBuffer> dst,
+                                   size_t dstOffset) {
+    auto op = GrTransferFromOp::Make(context, srcRect, dstColorType, std::move(dst), dstOffset);
+    this->recordOp(std::move(op));
 }
 
 void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {

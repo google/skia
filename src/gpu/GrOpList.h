@@ -23,6 +23,7 @@ class GrResourceAllocator;
 class GrResourceProvider;
 class GrSurfaceProxy;
 class GrTextureOpList;
+class GrGpuBuffer;
 
 struct SkIPoint;
 struct SkIRect;
@@ -41,6 +42,12 @@ public:
                              GrSurfaceProxy* src,
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) = 0;
+
+    virtual void transferFrom(GrRecordingContext*,
+                              const SkIRect& srcRect,
+                              GrColorType dstColorType,
+                              sk_sp<GrGpuBuffer> dst,
+                              size_t dstOffset) = 0;
 
     virtual void makeClosed(const GrCaps&) {
         if (!this->isClosed()) {
