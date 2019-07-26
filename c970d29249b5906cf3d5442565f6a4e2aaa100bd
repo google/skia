@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79dc2c38_1ecc8259",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:46:46Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "c970d29249b5906cf3d5442565f6a4e2aaa100bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1864b040_3a382bb7",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:46:46Z",
+      "side": 1,
+      "message": "This is an odd check to have - I guess it is from fuzzing ?",
+      "revId": "c970d29249b5906cf3d5442565f6a4e2aaa100bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dd5247c_16529fbb",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:46:46Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "c970d29249b5906cf3d5442565f6a4e2aaa100bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51a51b80_b77067ad",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:46:46Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "c970d29249b5906cf3d5442565f6a4e2aaa100bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3681146_ec468f04",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:46:46Z",
+      "side": 1,
+      "message": "line up with others ?",
+      "range": {
+        "startLine": 230,
+        "startChar": 19,
+        "endLine": 230,
+        "endChar": 20
+      },
+      "revId": "c970d29249b5906cf3d5442565f6a4e2aaa100bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc468c3b_1cd28d9c",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:46:46Z",
+      "side": 1,
+      "message": "What\u0027s up with these tabs ?",
+      "revId": "c970d29249b5906cf3d5442565f6a4e2aaa100bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dccc2e28_8adbad7c",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:46:46Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "c970d29249b5906cf3d5442565f6a4e2aaa100bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

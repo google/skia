@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02bf447d_9dc4cf65",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:46:46Z",
+      "side": 0,
+      "message": "So, why did kUnknown_ChannelSelectorType exist?",
+      "revId": "a7bc0028f6374784f57259d071e09d770d51f138",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
