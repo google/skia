@@ -92,8 +92,12 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
                                                      GrColorType srcColorType, const void* buffer,
                                                      size_t rowBytes) {
         GrSurface* dstSurface = dstProxy->peekSurface();
-        if (!fGpu->caps()->surfaceSupportsWritePixels(dstSurface) &&
-            fGpu->caps()->supportedWritePixelsColorType(dstSurface->config(), srcColorType) != srcColorType) {
+        if (!fGpu->caps()->surfaceSupportsWritePixels(dstSurface)) {
+            return false;
+        }
+        GrCaps::SupportedWrite supportedWrite =
+                fGpu->caps()->supportedWritePixelsColorType(dstSurface->config(), srcColorType);
+        if (supportedWrite.fColorType != srcColorType) {
             return false;
         }
         size_t tightRB = width * GrColorTypeToSkColorType(srcColorType);
