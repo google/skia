@@ -1486,6 +1486,11 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
     } else if (thetaArc > 0 && arcSweep) {  // arcSweep flipped from the original implementation
         thetaArc -= SK_ScalarPI * 2;
     }
+
+    if (SkScalarAbs(thetaArc) < (SK_ScalarPI / (1000 * 1000))) {
+        return this->lineTo(x, y);
+    }
+
     pointTransform.setRotate(angle);
     pointTransform.preScale(rx, ry);
 
