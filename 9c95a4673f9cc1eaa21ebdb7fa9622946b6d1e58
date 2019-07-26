@@ -45,6 +45,30 @@
       "revId": "9c95a4673f9cc1eaa21ebdb7fa9622946b6d1e58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "048f0ee3_4546136c",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-26T14:47:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35d733e6_8ad74281",
+      "range": {
+        "startLine": 218,
+        "startChar": 4,
+        "endLine": 218,
+        "endChar": 42
+      },
+      "revId": "9c95a4673f9cc1eaa21ebdb7fa9622946b6d1e58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
