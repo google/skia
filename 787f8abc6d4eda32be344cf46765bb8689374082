@@ -70,6 +70,30 @@
       "revId": "787f8abc6d4eda32be344cf46765bb8689374082",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f267d69d_58596dc7",
+        "filename": "modules/skottie/src/text/SkottieShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-26T18:32:38Z",
+      "side": 1,
+      "message": "There is (temporary) ownership transfer in SkShaper, so that precludes the non-sk_sp approach.\n\nI lean toward const sk_sp\u003c\u003e\u0026 just because at the SkottieShaper interface level there is no semantic ownership transfer: users are simply calling a static function, and SkShaper grabbing a ref under the hood feels like an implementation detail (we may refactor SkShaper to never grab a ref at some point, in which case prematurely grabbing one upstack is counterproductive).\n\n(note that we use the same pattern for other interfaces, e.g. SkCanvas::{drawTextBlob,drawPicture})\n\nI don\u0027t feel strongly about it though, going to refactor as soon as I get the darn test passing on nativefont bots :)",
+      "parentUuid": "d3814ed9_1bd5ebf3",
+      "range": {
+        "startLine": 88,
+        "startChar": 24,
+        "endLine": 88,
+        "endChar": 47
+      },
+      "revId": "787f8abc6d4eda32be344cf46765bb8689374082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
