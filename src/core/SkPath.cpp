@@ -1486,6 +1486,15 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
     } else if (thetaArc > 0 && arcSweep) {  // arcSweep flipped from the original implementation
         thetaArc -= SK_ScalarPI * 2;
     }
+
+    // Very tiny angles cause our subsequent math to go wonky (skbug.com/9272)
+    // so we do a quick check here. The precise tolerance amount is just made up.
+    // PI/million happens to fix the bug in 9272, but a larger value is probably
+    // ok too.
+    if (SkScalarAbs(thetaArc) < (SK_ScalarPI / (1000 * 1000))) {
+        return this->lineTo(x, y);
+    }
+
     pointTransform.setRotate(angle);
     pointTransform.preScale(rx, ry);
 
