@@ -46,6 +46,30 @@
       "revId": "787f8abc6d4eda32be344cf46765bb8689374082",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3814ed9_1bd5ebf3",
+        "filename": "modules/skottie/src/text/SkottieShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-26T17:50:32Z",
+      "side": 1,
+      "message": "If there\u0027s no ownership transfer, use \"const SkFontMgr\u0026\" (or if it needs to be nullable, \"const SkFontMgr*\").",
+      "parentUuid": "67cf57f1_74f879ea",
+      "range": {
+        "startLine": 88,
+        "startChar": 24,
+        "endLine": 88,
+        "endChar": 47
+      },
+      "revId": "787f8abc6d4eda32be344cf46765bb8689374082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
