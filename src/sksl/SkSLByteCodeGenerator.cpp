@@ -750,7 +750,9 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
                 break;
 
             default:
-                SkASSERT(false);
+                fErrors.error(b.fOffset, SkSL::String::printf("Unsupported binary operator '%s'",
+                                                              Compiler::OperatorName(op)));
+                break;
         }
     }
     if (lvalue) {
