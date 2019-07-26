@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a01356c3_aa91311a",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T11:47:11Z",
+      "side": 1,
+      "message": "Although this method is in src/core I think this should still be \"skia.gpu\" since it will only ever be used by Ganesh. (It is in src/core bc it is also used for mask blur filters - which are considered core to Skia).",
+      "range": {
+        "startLine": 492,
+        "startChar": 17,
+        "endLine": 492,
+        "endChar": 23
+      },
+      "revId": "664cc66be0f5e43d3302998b32c6fde46d789711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
