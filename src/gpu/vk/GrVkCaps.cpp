@@ -887,6 +887,23 @@ int GrVkCaps::maxRenderTargetSampleCount(VkFormat format) const {
     return table[table.count() - 1];
 }
 
+static inline size_t align_to_4(size_t v) {
+    switch (v & 0b11) {
+        // v is already a multiple of 4.
+        case 0:     return v;
+        // v is a multiple of 2 but not 4.
+        case 2:     return 2 * v;
+        // v is not a multiple of 2.
+        default:    return 4 * v;
+    }
+}
+
+GrCaps::SupportedWrite GrVkCaps::supportedWritePixelsColorType(GrPixelConfig config,
+                                                               GrColorType srcColorType) const {
+    GrColorType ct = GrPixelConfigToColorType(config);
+    return {ct, align_to_4(GrColorTypeBytesPerPixel(ct))};
+}
+
 GrCaps::SurfaceReadPixelsSupport GrVkCaps::surfaceSupportsReadPixels(
         const GrSurface* surface) const {
     if (surface->isProtected()) {
@@ -1215,20 +1232,7 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
     }
 
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
-    size_t offsetAlignment = GrVkBytesPerFormat(*vkFormat);
-    switch (offsetAlignment & 0b11) {
-        // bpp is already a multiple of 4.
-        case 0:
-            break;
-        // bpp is a multiple of 2 but not 4.
-        case 2:
-            offsetAlignment *= 2;
-            break;
-        // bpp is not a multiple of 2.
-        default:
-            offsetAlignment *= 4;
-            break;
-    }
+    size_t offsetAlignment = align_to_4(GrVkBytesPerFormat(*vkFormat));
 
     switch (*vkFormat) {
         case VK_FORMAT_R8G8B8A8_UNORM:
