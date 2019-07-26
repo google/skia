@@ -16,6 +16,24 @@
       "revId": "a7bc0028f6374784f57259d071e09d770d51f138",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "743a398d_2860271a",
+        "filename": "include/core/SkYUVAIndex.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-26T15:15:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11670c5c_6a697fb6",
+      "revId": "a7bc0028f6374784f57259d071e09d770d51f138",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
