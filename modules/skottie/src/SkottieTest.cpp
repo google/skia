@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTextBlob.h"
@@ -300,7 +301,8 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
                 Shaper::Flags::kNone
             };
 
-            const auto shape_result = skottie::Shaper::Shape(text, desc, text_point);
+            const auto shape_result = skottie::Shaper::Shape(text, desc, text_point,
+                                                             SkFontMgr::RefDefault());
             REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
             REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
 
@@ -364,7 +366,8 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                 Shaper::Flags::kNone
             };
 
-            const auto shape_result = skottie::Shaper::Shape(text, desc, text_box);
+            const auto shape_result = skottie::Shaper::Shape(text, desc, text_box,
+                                                             SkFontMgr::RefDefault());
             REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
             REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
 
@@ -403,7 +406,8 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
     const auto text_box = SkRect::MakeWH(100, 100);
 
     {
-        const auto shape_result = skottie::Shaper::Shape(text, desc, text_box);
+        const auto shape_result = skottie::Shaper::Shape(text, desc, text_box,
+                                                         SkFontMgr::RefDefault());
         // Default/consolidated mode => single blob result.
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
         REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
@@ -411,7 +415,8 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
 
     {
         desc.fFlags = Shaper::Flags::kFragmentGlyphs;
-        const auto shape_result = skottie::Shaper::Shape(text, desc, text_box);
+        const auto shape_result = skottie::Shaper::Shape(text, desc, text_box,
+                                                         SkFontMgr::RefDefault());
         // Fragmented mode => one blob per glyph.
         const size_t expectedSize = text.size();
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == expectedSize);

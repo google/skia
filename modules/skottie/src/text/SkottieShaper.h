@@ -8,6 +8,7 @@
 #ifndef SkottieShaper_DEFINED
 #define SkottieShaper_DEFINED
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkPoint.h"
 #include "include/utils/SkTextUtils.h"
 
@@ -83,12 +84,14 @@ public:
 
     // Performs text layout along an infinite horizontal line, starting at |textPoint|.
     // Only explicit line breaks (\r) are observed.
-    static Result Shape(const SkString& text, const TextDesc& desc, const SkPoint& textPoint);
+    static Result Shape(const SkString& text, const TextDesc& desc, const SkPoint& textPoint,
+                        const sk_sp<SkFontMgr>&);
 
     // Performs text layout within |textBox|, injecting line breaks as needed to ensure
     // horizontal fitting.  The result is *not* guaranteed to fit vertically (it may extend
     // below the box bottom).
-    static Result Shape(const SkString& text, const TextDesc& desc, const SkRect& textBox);
+    static Result Shape(const SkString& text, const TextDesc& desc, const SkRect& textBox,
+                        const sk_sp<SkFontMgr>&);
 
 private:
     Shaper() = delete;
