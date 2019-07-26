@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7da27db3_1eb12534",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-26T13:51:55Z",
+      "side": 1,
+      "message": "Made everything kUnpremul since I\u0027m making non-premul colors above and otherwise some of the pixel conversions will perform clamping of r,g,b to a.",
+      "range": {
+        "startLine": 41,
+        "startChar": 57,
+        "endLine": 41,
+        "endChar": 78
+      },
+      "revId": "9c95a4673f9cc1eaa21ebdb7fa9622946b6d1e58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
