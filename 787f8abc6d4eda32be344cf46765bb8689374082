@@ -22,6 +22,30 @@
       "revId": "787f8abc6d4eda32be344cf46765bb8689374082",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67cf57f1_74f879ea",
+        "filename": "modules/skottie/src/text/SkottieShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-26T17:11:25Z",
+      "side": 1,
+      "message": "I\u0027m kinda torn on this because there is no obvious ownership transfer at this level - the fact that the implementation grabs a ref temporarily is incidental (we could use the fontmgr without reffing in a different impl).\n\nOTOH passing a value allows us to make the parameter optional, which seems nice.\n\nOh, I was in the middle of making the change when I realized ShapeToFit calls ShapeImpl repeatedly in a loop - so passing by value would either force copies or yield some awkward workarounds.  I guess I\u0027m leaning toward deferred ownership transfer after all...",
+      "parentUuid": "0f82a82a_2f6bf197",
+      "range": {
+        "startLine": 88,
+        "startChar": 24,
+        "endLine": 88,
+        "endChar": 47
+      },
+      "revId": "787f8abc6d4eda32be344cf46765bb8689374082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
