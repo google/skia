@@ -291,6 +291,7 @@ GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& i
 
 size_t GrMtlBytesPerFormat(MTLPixelFormat format) {
     switch (format) {
+        case MTLPixelFormatA8Unorm:
         case MTLPixelFormatR8Unorm:
             return 1;
 
