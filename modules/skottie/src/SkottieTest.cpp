@@ -506,6 +506,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
         REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
         REPORTER_ASSERT(reporter, fontmgr->fallbackCount() == 0ul);
+        REPORTER_ASSERT(reporter, shape_result.fMissingGlyphCount == 0);
     }
 
     {
@@ -516,6 +517,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
         REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
         REPORTER_ASSERT(reporter, fontmgr->fallbackCount() == 1ul);
+        REPORTER_ASSERT(reporter, shape_result.fMissingGlyphCount == 1ul);
     }
 }
 
