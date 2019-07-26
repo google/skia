@@ -882,7 +882,7 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
         GrColorType dstColorType) const {
     const GrMTLPixelFormat* grMtlFormat = srcBackendFormat.getMtlFormat();
     if (!grMtlFormat) {
-        return {GrSwizzle(), GrColorType::kUnknown, 0};
+        return {GrColorType::kUnknown, 0};
     }
 
     GrColorType readCT = GrColorType::kUnknown;
@@ -951,6 +951,6 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
     }
     // Metal requires the destination offset for copyFromTexture to be a multiple of the textures
     // pixels size.
-    return {GrSwizzle::RGBA(), readCT, GrColorTypeBytesPerPixel(readCT)};
+    return {readCT, GrColorTypeBytesPerPixel(readCT)};
 }
 
