@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2af61415_6cf5df0f",
+        "filename": "src/gpu/GrTextureProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-26T20:01:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7d7465d_e9fde9fc",
+      "range": {
+        "startLine": 145,
+        "startChar": 33,
+        "endLine": 145,
+        "endChar": 43
+      },
+      "revId": "6a5a277dc3a8184d09fafe40d343bf70d9398dfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

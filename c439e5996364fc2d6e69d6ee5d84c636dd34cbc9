@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cdd96f9a_584f6fc8",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-26T20:01:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8df235a_8d439477",
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "93257bc6_09846d47",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "4f82b404_7495518d",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-26T20:01:38Z",
+      "side": 1,
+      "message": "As discussed offline, it seems they will be kDirty in this case.",
+      "parentUuid": "93257bc6_09846d47",
+      "range": {
+        "startLine": 468,
+        "startChar": 31,
+        "endLine": 468,
+        "endChar": 37
+      },
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3913cc1_6a7bd1a8",
         "filename": "src/gpu/GrProxyProvider.h",
         "patchSetId": 2
@@ -56,6 +98,24 @@
       "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96f5c4a7_abcd312c",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-26T20:01:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3913cc1_6a7bd1a8",
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "f0ccabc0_67f6dab4",
+        "filename": "src/gpu/GrTextureProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-26T20:01:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eeafd154_7ed64acd",
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ba999aa_c47dc75b",
         "filename": "src/gpu/GrTextureProxy.h",
         "patchSetId": 2
@@ -90,6 +168,24 @@
       "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "affe84cc_1fb1d78d",
+        "filename": "src/gpu/GrTextureProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-26T20:01:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ba999aa_c47dc75b",
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -116,6 +212,30 @@
     },
     {
       "key": {
+        "uuid": "923d6a82_ba612a3e",
+        "filename": "src/gpu/GrTextureRenderTargetProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-26T20:01:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56a239f1_1f54eb04",
+      "range": {
+        "startLine": 37,
+        "startChar": 81,
+        "endLine": 37,
+        "endChar": 86
+      },
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b52f1a7_88a9eac7",
         "filename": "src/gpu/GrTextureRenderTargetProxy.h",
         "patchSetId": 2
@@ -139,6 +259,30 @@
     },
     {
       "key": {
+        "uuid": "d7e94594_65dc268f",
+        "filename": "src/gpu/GrTextureRenderTargetProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-26T20:01:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b52f1a7_88a9eac7",
+      "range": {
+        "startLine": 39,
+        "startChar": 78,
+        "endLine": 39,
+        "endChar": 94
+      },
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c8ad55e_5a3957d9",
         "filename": "src/image/SkImage_GpuBase.cpp",
         "patchSetId": 2
@@ -159,6 +303,30 @@
       "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "394e1f64_5974eff7",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-07-26T20:01:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c8ad55e_5a3957d9",
+      "range": {
+        "startLine": 486,
+        "startChar": 31,
+        "endLine": 486,
+        "endChar": 37
+      },
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
