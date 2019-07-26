@@ -22,6 +22,29 @@
       "revId": "9c95a4673f9cc1eaa21ebdb7fa9622946b6d1e58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35d733e6_8ad74281",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-26T14:30:56Z",
+      "side": 1,
+      "message": "As talked offline, maybe move this inside the loop and have a comment that describes for the currently use case we never expect to have to move left more than 3 pixels (for single channel textures) and the common case is that the bytes per pixels is 4 byte aligned already (which is currently the only extra requirement, etc.",
+      "range": {
+        "startLine": 218,
+        "startChar": 4,
+        "endLine": 218,
+        "endChar": 42
+      },
+      "revId": "9c95a4673f9cc1eaa21ebdb7fa9622946b6d1e58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
