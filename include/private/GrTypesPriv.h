@@ -1396,7 +1396,7 @@ static constexpr bool GrColorTypeHasAlpha(GrColorType ct) {
     return kAlpha_SkColorTypeComponentFlag & GrColorTypeComponentFlags(ct);
 }
 
-static constexpr int GrColorTypeBytesPerPixel(GrColorType ct) {
+static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
     switch (ct) {
         case GrColorType::kUnknown:          return 0;
         case GrColorType::kAlpha_8:          return 1;
