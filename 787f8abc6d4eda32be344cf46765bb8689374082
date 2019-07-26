@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f82a82a_2f6bf197",
+        "filename": "modules/skottie/src/text/SkottieShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-26T15:23:22Z",
+      "side": 1,
+      "message": "nit: I think it\u0027s better to pass sk_sp\u003cSkFontMgr\u003e here and use std::move to avoid the copy.",
+      "range": {
+        "startLine": 88,
+        "startChar": 24,
+        "endLine": 88,
+        "endChar": 47
+      },
+      "revId": "787f8abc6d4eda32be344cf46765bb8689374082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
