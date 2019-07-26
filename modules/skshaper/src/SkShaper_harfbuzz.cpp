@@ -618,7 +618,8 @@ struct ShapedRunGlyphIterator {
 
 class ShaperHarfBuzz : public SkShaper {
 public:
-    ShaperHarfBuzz(HBBuffer, ICUBrk line, ICUBrk grapheme);
+    ShaperHarfBuzz(HBBuffer, ICUBrk line, ICUBrk grapheme, sk_sp<SkFontMgr>);
+
 protected:
     ICUBrk fLineBreakIterator;
     ICUBrk fGraphemeBreakIterator;
@@ -631,7 +632,8 @@ protected:
                     const ScriptRunIterator&,
                     const FontRunIterator&) const;
 private:
-    HBBuffer fBuffer;
+    const sk_sp<SkFontMgr> fFontMgr;
+    HBBuffer               fBuffer;
 
     void shape(const char* utf8, size_t utf8Bytes,
                const SkFont&,
@@ -699,7 +701,7 @@ private:
               RunHandler*) const override;
 };
 
-static std::unique_ptr<SkShaper> MakeHarfBuzz(bool correct) {
+static std::unique_ptr<SkShaper> MakeHarfBuzz(sk_sp<SkFontMgr> fontmgr, bool correct) {
     #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {
         SkDEBUGF("SkLoadICU() failed!\n");
@@ -726,17 +728,23 @@ static std::unique_ptr<SkShaper> MakeHarfBuzz(bool correct) {
     }
 
     if (correct) {
-        return skstd::make_unique<ShaperDrivenWrapper>(
-            std::move(buffer), std::move(lineBreakIterator), std::move(graphemeBreakIterator));
+        return skstd::make_unique<ShaperDrivenWrapper>(std::move(buffer),
+                                                       std::move(lineBreakIterator),
+                                                       std::move(graphemeBreakIterator),
+                                                       std::move(fontmgr));
     } else {
-        return skstd::make_unique<ShapeThenWrap>(
-            std::move(buffer), std::move(lineBreakIterator), std::move(graphemeBreakIterator));
+        return skstd::make_unique<ShapeThenWrap>(std::move(buffer),
+                                                 std::move(lineBreakIterator),
+                                                 std::move(graphemeBreakIterator),
+                                                 std::move(fontmgr));
     }
 }
 
-ShaperHarfBuzz::ShaperHarfBuzz(HBBuffer buffer, ICUBrk line, ICUBrk grapheme)
+ShaperHarfBuzz::ShaperHarfBuzz(HBBuffer buffer, ICUBrk line, ICUBrk grapheme,
+                               sk_sp<SkFontMgr> fontmgr)
     : fLineBreakIterator(std::move(line))
     , fGraphemeBreakIterator(std::move(grapheme))
+    , fFontMgr(std::move(fontmgr))
     , fBuffer(std::move(buffer))
 {}
 
@@ -747,7 +755,6 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
                            RunHandler* handler) const
 {
     SkASSERT(handler);
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
     UBiDiLevel defaultLevel = leftToRight ? UBIDI_DEFAULT_LTR : UBIDI_DEFAULT_RTL;
 
     std::unique_ptr<BiDiRunIterator> bidi(MakeIcuBiDiRunIterator(utf8, utf8Bytes, defaultLevel));
@@ -765,8 +772,9 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
         return;
     }
 
-    std::unique_ptr<FontRunIterator> font(MakeFontMgrRunIterator(utf8, utf8Bytes,
-                                                                 srcFont, std::move(fontMgr)));
+    std::unique_ptr<FontRunIterator> font(
+                MakeFontMgrRunIterator(utf8, utf8Bytes, srcFont,
+                                       fFontMgr ? fFontMgr : SkFontMgr::RefDefault()));
     if (!font) {
         return;
     }
@@ -1354,13 +1362,13 @@ SkShaper::MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes) {
     return skstd::make_unique<HbIcuScriptRunIterator>(utf8, utf8Bytes);
 }
 
-std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper() {
-    return MakeHarfBuzz(true);
+std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper(sk_sp<SkFontMgr> fontmgr) {
+    return MakeHarfBuzz(std::move(fontmgr), true);
 }
-std::unique_ptr<SkShaper> SkShaper::MakeShapeThenWrap() {
-    return MakeHarfBuzz(false);
+std::unique_ptr<SkShaper> SkShaper::MakeShapeThenWrap(sk_sp<SkFontMgr> fontmgr) {
+    return MakeHarfBuzz(std::move(fontmgr), false);
 }
-std::unique_ptr<SkShaper> SkShaper::MakeShapeDontWrapOrReorder() {
+std::unique_ptr<SkShaper> SkShaper::MakeShapeDontWrapOrReorder(sk_sp<SkFontMgr> fontmgr) {
     #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {
         SkDEBUGF("SkLoadICU() failed!\n");
@@ -1373,5 +1381,6 @@ std::unique_ptr<SkShaper> SkShaper::MakeShapeDontWrapOrReorder() {
         return nullptr;
     }
 
-    return skstd::make_unique<ShapeDontWrapOrReorder>(std::move(buffer), nullptr, nullptr);
+    return skstd::make_unique<ShapeDontWrapOrReorder>(std::move(buffer), nullptr, nullptr,
+                                                      std::move(fontmgr));
 }

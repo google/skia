@@ -22,9 +22,9 @@
 #include <string>
 #include <utility>
 
-std::unique_ptr<SkShaper> SkShaper::Make() {
+std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fontmgr) {
 #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
-    std::unique_ptr<SkShaper> shaper = SkShaper::MakeShaperDrivenWrapper();
+    std::unique_ptr<SkShaper> shaper = SkShaper::MakeShaperDrivenWrapper(std::move(fontmgr));
     if (shaper) {
         return shaper;
     }

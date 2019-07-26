@@ -7,6 +7,7 @@
 
 #include "modules/skottie/src/text/TextAdapter.h"
 
+#include "include/core/SkFontMgr.h"
 #include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
@@ -18,8 +19,9 @@
 namespace skottie {
 namespace internal {
 
-TextAdapter::TextAdapter(sk_sp<sksg::Group> root, bool hasAnimators)
+TextAdapter::TextAdapter(sk_sp<sksg::Group> root, sk_sp<SkFontMgr> fontmgr, bool hasAnimators)
     : fRoot(std::move(root))
+    , fFontMgr(std::move(fontmgr))
     , fHasAnimators(hasAnimators) {}
 
 TextAdapter::~TextAdapter() = default;
@@ -128,7 +130,7 @@ void TextAdapter::apply() {
         fText.fVAlign,
         fHasAnimators ? Shaper::Flags::kFragmentGlyphs : Shaper::Flags::kNone,
     };
-    const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox);
+    const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox, fFontMgr);
 
     // Rebuild all fragments.
     // TODO: we can be smarter here and try to reuse the existing SG structure if needed.

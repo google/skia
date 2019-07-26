@@ -8,6 +8,7 @@
 #include "modules/skottie/src/text/SkottieShaper.h"
 
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkTextBlob.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
@@ -48,12 +49,12 @@ SkRect ComputeBlobBounds(const sk_sp<SkTextBlob>& blob) {
 // per-line position adjustments (for external line breaking, horizontal alignment, etc).
 class BlobMaker final : public SkShaper::RunHandler {
 public:
-    BlobMaker(const Shaper::TextDesc& desc, const SkRect& box)
+    BlobMaker(const Shaper::TextDesc& desc, const SkRect& box, const sk_sp<SkFontMgr>& fontmgr)
         : fDesc(desc)
         , fBox(box)
         , fHAlignFactor(HAlignFactor(fDesc.fHAlign))
         , fFont(fDesc.fTypeface, fDesc.fTextSize)
-        , fShaper(SkShaper::Make()) {
+        , fShaper(SkShaper::Make(fontmgr)) {
         fFont.setHinting(SkFontHinting::kNone);
         fFont.setSubpixel(true);
         fFont.setLinearMetrics(true);
@@ -314,7 +315,8 @@ private:
 };
 
 Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
-                         const SkRect& box, float* shaped_height = nullptr) {
+                         const SkRect& box, const sk_sp<SkFontMgr>& fontmgr,
+                         float* shaped_height = nullptr) {
     SkASSERT(desc.fVAlign != Shaper::VAlign::kVisualResizeToFit);
 
     const auto& is_line_break = [](SkUnichar uch) {
@@ -326,7 +328,7 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
     const char* line_start = ptr;
     const char* end        = ptr + txt.size();
 
-    BlobMaker blobMaker(desc, box);
+    BlobMaker blobMaker(desc, box, fontmgr);
     while (ptr < end) {
         if (is_line_break(SkUTF::NextUTF8(&ptr, end))) {
             blobMaker.shapeLine(line_start, ptr - 1);
@@ -339,7 +341,7 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
 }
 
 Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
-                          const SkRect& box) {
+                          const SkRect& box, const sk_sp<SkFontMgr>& fontmgr) {
     SkASSERT(orig_desc.fVAlign == Shaper::VAlign::kVisualResizeToFit);
 
     Shaper::Result best_result;
@@ -368,7 +370,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         desc.fAscent     = try_scale * orig_desc.fAscent;
 
         float res_height = 0;
-        auto res = ShapeImpl(txt, desc, box, &res_height);
+        auto res = ShapeImpl(txt, desc, box, fontmgr, &res_height);
 
         if (res_height > box.height()) {
             out_scale = try_scale;
@@ -396,16 +398,18 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
 
 } // namespace
 
-Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point) {
+Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point,
+                             const sk_sp<SkFontMgr>& fontmgr) {
     return (desc.fVAlign == VAlign::kVisualResizeToFit) // makes no sense in point mode
             ? Result()
-            : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()));
+            : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()), fontmgr);
 }
 
-Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkRect& box) {
+Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkRect& box,
+                             const sk_sp<SkFontMgr>& fontmgr) {
     return (desc.fVAlign == VAlign::kVisualResizeToFit)
-            ? ShapeToFit(txt, desc, box)
-            : ShapeImpl(txt, desc, box);
+            ? ShapeToFit(txt, desc, box, fontmgr)
+            : ShapeImpl(txt, desc, box, fontmgr);
 }
 
 SkRect Shaper::Result::computeVisualBounds() const {

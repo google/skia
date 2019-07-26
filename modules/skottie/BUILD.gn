@@ -65,6 +65,7 @@ if (skia_enable_skottie) {
           ":skottie",
           "../..:gpu_tool_utils",
           "../..:skia",
+          "../skshaper",
         ]
       }
 
