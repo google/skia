@@ -117,13 +117,13 @@ public:
         return this->maxRenderTargetSampleCount(ct);
     }
 
-    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
-        return SurfaceReadPixelsSupport::kSupported;
+    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+                                                 GrColorType srcColorType) const override {
+        return {GrPixelConfigToColorType(config), 1};
     }
 
-    SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType, const GrBackendFormat&,
-                                                 GrColorType) const override {
-        return SupportedRead{GrSwizzle::RGBA(), srcColorType, 1};
+    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
+        return SurfaceReadPixelsSupport::kSupported;
     }
 
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const override {
@@ -180,6 +180,11 @@ private:
         }
 
         return ct == *mockColorType;
+    }
+
+    SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType, const GrBackendFormat&,
+                                                 GrColorType) const override {
+        return SupportedRead{GrSwizzle::RGBA(), srcColorType, 1};
     }
 
     static const int kMaxSampleCnt = 16;
