@@ -192,6 +192,14 @@ def _CheckGNFormatted(input_api, output_api):
           '`%s` failed, try\n\t%s' % (' '.join(cmd), fix)))
   return results
 
+def _CheckIncludesFormatted(input_api, output_api):
+  """Make sure #includes in files we're changing have been formatted."""
+  cmd = ['python',
+         'tools/rewrite_includes.py',
+         '--dry-run'] + map(str, input_api.AffectedFiles())
+  if 0 != subprocess.call(cmd):
+    return [output_api.PresubmitError('`%s` failed' % ' '.join(cmd))]
+  return []
 
 def _CheckCompileIsolate(input_api, output_api):
   """Ensure that gen_compile_isolate.py does not change compile.isolate."""
@@ -287,6 +295,7 @@ def CheckChangeOnUpload(input_api, output_api):
   results.extend(_InfraTests(input_api, output_api))
 
   results.extend(_CheckGNFormatted(input_api, output_api))
+  results.extend(_CheckIncludesFormatted(input_api, output_api))
   results.extend(_CheckReleaseNotesForPublicAPI(input_api, output_api))
   return results
 
