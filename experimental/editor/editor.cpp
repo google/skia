@@ -410,15 +410,44 @@ Editor::TextPosition Editor::move(Editor::Movement move, Editor::TextPosition po
             }
             break;
         case Editor::Movement::kUp:
-            if (pos.fParagraphIndex > 0) {
-                --pos.fParagraphIndex;
+            if (pos.fParagraphIndex < fLines.size()) {
+                const std::vector<unsigned>& list = fLines[pos.fParagraphIndex].fLineEndOffsets;
+                size_t f = find_first_larger(list, SkToUInt(pos.fTextByteIndex));
+                // list[f] > value.  value > list[f-1]
+                if (f > 0) {
+                    // not the first line in paragraph.
+                    pos.fTextByteIndex -= list[f-1];
+                    if (f > 1) {
+                        pos.fTextByteIndex += list[f-2];
+                    }
+                } else {
+                    if (pos.fParagraphIndex > 0) {
+                        --pos.fParagraphIndex;
+                        size_t r = fLines[pos.fParagraphIndex].fLineEndOffsets.size();
+                        if (r > 0) {
+                            pos.fTextByteIndex +=
+                                fLines[pos.fParagraphIndex].fLineEndOffsets[r - 1];
+                        }
+                    }
+                }
                 pos.fTextByteIndex =
                     align_column(fLines[pos.fParagraphIndex].fText, pos.fTextByteIndex);
             }
             break;
         case Editor::Movement::kDown:
-            if (pos.fParagraphIndex + 1 < fLines.size()) {
-                ++pos.fParagraphIndex;
+            if (pos.fParagraphIndex < fLines.size()) {
+                const std::vector<unsigned>& list = fLines[pos.fParagraphIndex].fLineEndOffsets;
+                size_t f = find_first_larger(list, SkToUInt(pos.fTextByteIndex));
+                if (f > 0) {
+                    pos.fTextByteIndex -= list[f - 1];
+                }
+                if (f < list.size()) {
+                    pos.fTextByteIndex += list[f];
+                } else if (pos.fParagraphIndex + 1 < fLines.size()) {
+                    ++pos.fParagraphIndex;
+                } else {
+                    pos.fTextByteIndex = fLines[pos.fParagraphIndex].fText.size();
+                }
                 pos.fTextByteIndex =
                     align_column(fLines[pos.fParagraphIndex].fText, pos.fTextByteIndex);
             }
