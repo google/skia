@@ -8,6 +8,7 @@
 #ifndef SkShaper_DEFINED
 #define SkShaper_DEFINED
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -29,12 +30,12 @@ class SkShaper {
 public:
     static std::unique_ptr<SkShaper> MakePrimitive();
     #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
-    static std::unique_ptr<SkShaper> MakeShaperDrivenWrapper();
-    static std::unique_ptr<SkShaper> MakeShapeThenWrap();
-    static std::unique_ptr<SkShaper> MakeShapeDontWrapOrReorder();
+    static std::unique_ptr<SkShaper> MakeShaperDrivenWrapper(sk_sp<SkFontMgr> = nullptr);
+    static std::unique_ptr<SkShaper> MakeShapeThenWrap(sk_sp<SkFontMgr> = nullptr);
+    static std::unique_ptr<SkShaper> MakeShapeDontWrapOrReorder(sk_sp<SkFontMgr> = nullptr);
     #endif
 
-    static std::unique_ptr<SkShaper> Make();
+    static std::unique_ptr<SkShaper> Make(sk_sp<SkFontMgr> = nullptr);
 
     SkShaper();
     virtual ~SkShaper();
