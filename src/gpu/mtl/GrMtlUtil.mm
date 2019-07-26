@@ -190,7 +190,8 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                                                  options: defaultOptions
                                                                    error: &error];
     if (error) {
-        SkDebugf("Error compiling MSL shader: %s\n",
+        SkDebugf("Error compiling MSL shader: %s\n%s\n",
+                 code.c_str(),
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
         return nil;
     }
@@ -209,7 +210,8 @@ id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode
                completionHandler:
         ^(id<MTLLibrary> library, NSError* error) {
             if (error) {
-                SkDebugf("Error compiling MSL shader: %s\n",
+                SkDebugf("Error compiling MSL shader: %s\n%s\n",
+                    mslCode,
                     [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
             }
             compiledLibrary = library;

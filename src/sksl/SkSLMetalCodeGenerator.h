@@ -278,6 +278,7 @@ protected:
     bool fSetupFragPositionLocal = false;
     std::unordered_map<String, String> fHelpers;
     int fUniformBuffer = -1;
+    String fRTHeightName;
 
     typedef CodeGenerator INHERITED;
 };
