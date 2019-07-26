@@ -47,6 +47,7 @@ public:
         kSaveBehind_Version                = 66,
         kSerializeFonts_Version            = 67,
         kPaintDoesntSerializeFonts_Version = 68,
+        kCleanupImageFilterEnums_Version   = 69
     };
 
     /**
@@ -256,6 +257,7 @@ public:
         kSaveBehind_Version                = 66,
         kSerializeFonts_Version            = 67,
         kPaintDoesntSerializeFonts_Version = 68,
+        kCleanupImageFilterEnums_Version   = 69
     };
 
     bool isVersionLT(Version) const { return false; }
