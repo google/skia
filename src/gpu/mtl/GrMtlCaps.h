@@ -76,6 +76,8 @@ public:
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
+    bool canOptimizeTextures() const { return fCanOptimizeTextures; }
+
 private:
     void initFeatureSet(MTLFeatureSet featureSet);
 
@@ -95,6 +97,8 @@ private:
     }
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
+
+    bool fCanOptimizeTextures : 1;
 
     struct FormatInfo {
         FormatInfo() : fFlags(0) {}
