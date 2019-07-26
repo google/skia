@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0da1a478_6b1bbbce",
+        "filename": "src/gpu/vk/GrVkCommandPool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-26T18:43:46Z",
+      "side": 0,
+      "message": "These are already freed and available secondary buffers. There is no reason to even be trying to release their things.",
+      "range": {
+        "startLine": 69,
+        "startChar": 46,
+        "endLine": 69,
+        "endChar": 72
+      },
+      "revId": "bb413430e43fe4bdc2678b283f694ef09a29e61f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
