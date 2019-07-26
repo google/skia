@@ -486,7 +486,7 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
         SkIRect bounds = SkIRect::MakeWH(texture->width(), texture->height());
         SkASSERT(bounds.contains(subRect));
     )
-    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
 
     // Set up copy region
     VkBufferImageCopy region;
@@ -646,7 +646,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
         SkIRect bounds = SkIRect::MakeWH(tex->width(), tex->height());
         SkASSERT(bounds.contains(subRect));
     )
-    int bpp = GrColorTypeBytesPerPixel(dataColorType);
+    size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
     size_t trimRowBytes = width * bpp;
 
     SkASSERT(VK_IMAGE_LAYOUT_PREINITIALIZED == tex->currentLayout() ||
@@ -721,7 +721,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     }
 
     SkASSERT(this->vkCaps().isVkFormatTexturable(tex->imageFormat()));
-    int bpp = GrColorTypeBytesPerPixel(dataColorType);
+    size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     // texels is const.
     // But we may need to adjust the fPixels ptr based on the copyRect, or fRowBytes.
@@ -2366,7 +2366,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
                           VK_PIPELINE_STAGE_TRANSFER_BIT,
                           false);
 
-    int bpp = GrColorTypeBytesPerPixel(dstColorType);
+    size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
     size_t tightRowBytes = bpp * width;
 
     VkBufferImageCopy region;
