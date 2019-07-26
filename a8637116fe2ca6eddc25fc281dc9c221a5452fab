@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "e1d68ce5_5b25d8da",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-26T13:39:23Z",
+      "side": 1,
+      "message": "It doesn\u0027t have to be done now but it seems like this should take GrRenderable and then we don\u0027t need the check below. I\u0027m thinking of unextended ES2 where in the future we would choose A8 if not renderable and RGBA8 if renderable.",
+      "range": {
+        "startLine": 334,
+        "startChar": 35,
+        "endLine": 334,
+        "endChar": 64
+      },
+      "revId": "a8637116fe2ca6eddc25fc281dc9c221a5452fab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5ab6d58c_718d443f",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 5
