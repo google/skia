@@ -17,16 +17,12 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     , fContext(*context)
     , fOutput(output)
     , fIntrinsics {
-        { "cos",       ByteCodeInstruction::kCos },
-        { "cross",     ByteCodeInstruction::kCross },
-        { "dot",       SpecialIntrinsic::kDot },
-        { "inverse",   ByteCodeInstruction::kInverse2x2 },
-        { "normalize", ByteCodeInstruction::kNormalize },
-        { "radians",   SpecialIntrinsic::kRadians },
-        { "sin",       ByteCodeInstruction::kSin },
-        { "sqrt",      ByteCodeInstruction::kSqrt },
-        { "tan",       ByteCodeInstruction::kTan },
-        { "mix",       ByteCodeInstruction::kMix },
+        { "cos",     ByteCodeInstruction::kCos },
+        { "dot",     SpecialIntrinsic::kDot },
+        { "inverse", ByteCodeInstruction::kInverse2x2 },
+        { "sin",     ByteCodeInstruction::kSin },
+        { "sqrt",    ByteCodeInstruction::kSqrt },
+        { "tan",     ByteCodeInstruction::kTan },
       } {}
 
 
@@ -199,7 +195,6 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VECTOR_UNARY_OP(kConvertUtoF)
 
         VECTOR_UNARY_OP(kCos)
-        VECTOR_UNARY_OP(kNormalize)
         VECTOR_UNARY_OP(kSin)
         VECTOR_UNARY_OP(kSqrt)
         VECTOR_UNARY_OP(kTan)
@@ -265,14 +260,6 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
 
 #undef VECTOR_BINARY_OP
 #undef VECTOR_MATRIX_BINARY_OP
-
-        // Strange math operations with other behavior:
-        case ByteCodeInstruction::kCross: return -3;
-        // Binary, but also consumes T:
-        case ByteCodeInstruction::kMix:  return -2;
-        case ByteCodeInstruction::kMix2: return -3;
-        case ByteCodeInstruction::kMix3: return -4;
-        case ByteCodeInstruction::kMix4: return -5;
 
         // Ops that push or load data to grow the stack:
         case ByteCodeInstruction::kDup:
@@ -895,32 +882,18 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                 }
                 break;
             }
-            case SpecialIntrinsic::kRadians: {
-                this->write(ByteCodeInstruction::kPushImmediate);
-                this->write32(float_to_bits(0.0174532925f)); // π/180
-                for (int i = count; i > 1; --i) {
-                    this->write(ByteCodeInstruction::kDup);
-                }
-                this->write((ByteCodeInstruction)((int)ByteCodeInstruction::kMultiplyF + count-1));
-                break;
-            }
             default:
                 SkASSERT(false);
         }
     } else {
         switch (found->second.fValue.fInstruction) {
             case ByteCodeInstruction::kCos:
-            case ByteCodeInstruction::kMix:
-            case ByteCodeInstruction::kNormalize:
             case ByteCodeInstruction::kSin:
             case ByteCodeInstruction::kSqrt:
             case ByteCodeInstruction::kTan:
                 SkASSERT(c.fArguments.size() > 0);
                 this->write((ByteCodeInstruction) ((int) found->second.fValue.fInstruction +
                             count - 1));
-                break;
-            case ByteCodeInstruction::kCross:
-                this->write(found->second.fValue.fInstruction);
                 break;
             case ByteCodeInstruction::kInverse2x2: {
                 SkASSERT(c.fArguments.size() > 0);

@@ -110,11 +110,15 @@ void SymbolTable::markAllFunctionsBuiltin() {
     for (const auto& pair : fSymbols) {
         switch (pair.second->fKind) {
             case Symbol::kFunctionDeclaration_Kind:
-                ((FunctionDeclaration&) *pair.second).fBuiltin = true;
+                if (!((FunctionDeclaration&)*pair.second).fDefined) {
+                    ((FunctionDeclaration&)*pair.second).fBuiltin = true;
+                }
                 break;
             case Symbol::kUnresolvedFunction_Kind:
                 for (auto& f : ((UnresolvedFunction&) *pair.second).fFunctions) {
-                    ((FunctionDeclaration*) f)->fBuiltin = true;
+                    if (!((FunctionDeclaration*)f)->fDefined) {
+                        ((FunctionDeclaration*)f)->fBuiltin = true;
+                    }
                 }
                 break;
             default:

@@ -139,7 +139,6 @@ private:
     // Intrinsics which do not simply map to a single opcode
     enum class SpecialIntrinsic {
         kDot,
-        kRadians,
     };
 
     struct Intrinsic {
