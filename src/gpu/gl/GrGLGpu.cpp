@@ -952,7 +952,7 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
         SkASSERT(bounds.contains(subRect));
     )
 
-    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
     const size_t trimRowBytes = width * bpp;
     const void* pixels = (void*)offset;
     if (width < 0 || height < 0) {
@@ -2289,7 +2289,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
                            GrColorType dstColorType, void* buffer, size_t rowBytes) {
     SkASSERT(surface);
 
-    int bytesPerPixel = GrColorTypeBytesPerPixel(dstColorType);
+    size_t bytesPerPixel = GrColorTypeBytesPerPixel(dstColorType);
 
     // GL_PACK_ROW_LENGTH is in terms of pixels not bytes.
     int rowPixelWidth;
