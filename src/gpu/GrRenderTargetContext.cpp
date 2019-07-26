@@ -1709,7 +1709,7 @@ GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels
     this->getRTOpList()->addOp(std::move(op), *this->caps());
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);
-    if (supportedRead.fColorType != dstCT || supportedRead.fSwizzle != GrSwizzle("rgba") || flip) {
+    if (supportedRead.fColorType != dstCT || flip) {
         result.fPixelConverter = [w = rect.width(), h = rect.height(), dstCT, supportedRead](
                                          void* dst, const void* src) {
             // We're using kPremul here for src and dst simply because we don't want any alpha type
@@ -1718,7 +1718,7 @@ GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels
             GrPixelInfo dstInfo(dstCT,                    kPremul_SkAlphaType, nullptr, w, h);
             GrConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
                             srcInfo, src, srcInfo.minRowBytes(),
-                            /* flipY = */ false, supportedRead.fSwizzle);
+                            /* flipY = */ false);
         };
     }
     return result;

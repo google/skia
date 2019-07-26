@@ -178,8 +178,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     bool makeTight = !caps->readPixelsRowBytesSupport() && tightRowBytes != rowBytes;
 
     bool convert = unpremul || premul || needColorConversion || flip || makeTight ||
-                   (dstInfo.colorType() != supportedRead.fColorType) ||
-                   supportedRead.fSwizzle != GrSwizzle::RGBA();
+                   (dstInfo.colorType() != supportedRead.fColorType);
 
     std::unique_ptr<char[]> tmpPixels;
     GrPixelInfo tmpInfo;
@@ -207,8 +206,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     }
 
     if (convert) {
-        return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, readDst, readRB, flip,
-                               supportedRead.fSwizzle);
+        return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, readDst, readRB, flip);
     }
     return true;
 }

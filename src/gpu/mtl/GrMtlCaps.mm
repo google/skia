@@ -580,7 +580,7 @@ bool GrMtlCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
 }
 
 // A near clone of format_color_type_valid_pair
-GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, GrColorType ct) {
+static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, GrColorType ct) {
     MTLPixelFormat format = static_cast<MTLPixelFormat>(grFormat);
     switch (ct) {
         case GrColorType::kUnknown:
@@ -684,9 +684,12 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, GrColorType ct) {
                 return kRG_half_GrPixelConfig;
             }
             break;
+        case GrColorType::kAlpha_8xxx:
+        case GrColorType::kAlpha_F32xxx:
+        case GrColorType::kGray_8xxx:
+            return kUnknown_GrPixelConfig;
     }
-
-    return kUnknown_GrPixelConfig;
+    SkUNREACHABLE;
 }
 
 bool GrMtlCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
@@ -762,7 +765,7 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
 }
 
 #ifdef SK_DEBUG
-static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colorType) {
+static constexpr bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colorType) {
     switch (colorType) {
         case GrColorType::kUnknown:
             return false;
@@ -817,9 +820,12 @@ static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colo
             return MTLPixelFormatRGBA16Unorm == format;
         case GrColorType::kRG_F16:
             return MTLPixelFormatRG16Float == format;
+        case GrColorType::kAlpha_8xxx:
+        case GrColorType::kAlpha_F32xxx:
+        case GrColorType::kGray_8xxx:
+            return false;
     }
-    SK_ABORT("Unknown color type");
-    return false;
+    SkUNREACHABLE:
 }
 #endif
 
@@ -882,7 +888,7 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
         GrColorType dstColorType) const {
     const GrMTLPixelFormat* grMtlFormat = srcBackendFormat.getMtlFormat();
     if (!grMtlFormat) {
-        return {GrSwizzle(), GrColorType::kUnknown, 0};
+        return {GrColorType::kUnknown, 0};
     }
 
     GrColorType readCT = GrColorType::kUnknown;
@@ -951,6 +957,6 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
     }
     // Metal requires the destination offset for copyFromTexture to be a multiple of the textures
     // pixels size.
-    return {GrSwizzle::RGBA(), readCT, GrColorTypeBytesPerPixel(readCT)};
+    return {readCT, GrColorTypeBytesPerPixel(readCT)};
 }
 
