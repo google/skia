@@ -503,9 +503,10 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
 }
 
 void MetalCodeGenerator::writeFragCoord() {
-    if (fProgram.fInputs.fRTHeight) {
-        this->write("float4(_fragCoord.x, _globals->_anonInterface0->u_skRTHeight - "
-                    "_fragCoord.y, 0.0, _fragCoord.w)");
+    if (fRTHeightName.length()) {
+        this->write("float4(_fragCoord.x, ");
+        this->write(fRTHeightName.c_str());
+        this->write(" - _fragCoord.y, 0.0, _fragCoord.w)");
     } else {
         this->write("float4(_fragCoord.x, _fragCoord.y, 0.0, _fragCoord.w)");
     }
@@ -774,6 +775,7 @@ void MetalCodeGenerator::writeSetting(const Setting& s) {
 }
 
 void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals->_anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
     if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
@@ -846,6 +848,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
 #else
                 this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]]");
 #endif
+                fRTHeightName = "_anonInterface0.u_skRTHeight";
             }
             this->write(", bool _frontFacing [[front_facing]]");
             this->write(", float4 _fragCoord [[position]]");
@@ -1612,7 +1615,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
             const IfStatement& i = (const IfStatement&) s;
             return this->requirements(*i.fTest) |
                    this->requirements(*i.fIfTrue) |
-                   (i.fIfFalse && this->requirements(*i.fIfFalse));
+                   (i.fIfFalse ? this->requirements(*i.fIfFalse) : 0);
         }
         case Statement::kFor_Kind: {
             const ForStatement& f = (const ForStatement&) s;
