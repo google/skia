@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4cb3be9c_704b9ccc",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2746,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-26T21:44:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90a9ef22_d4a345e3",
+      "range": {
+        "startLine": 2746,
+        "startChar": 12,
+        "endLine": 2746,
+        "endChar": 153
+      },
+      "revId": "c0da4df9da8218d4a0a6659373f7801052102774",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab37357a_f5ff6c28",
         "filename": "src/sksl/ir/SkSLType.h",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "c0da4df9da8218d4a0a6659373f7801052102774",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4716e916_6474b59d",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-26T21:44:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab37357a_f5ff6c28",
+      "range": {
+        "startLine": 52,
+        "startChar": 8,
+        "endLine": 52,
+        "endChar": 102
+      },
+      "revId": "c0da4df9da8218d4a0a6659373f7801052102774",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
