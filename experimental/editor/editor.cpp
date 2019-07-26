@@ -450,6 +450,7 @@ void Editor::paint(SkCanvas* c, PaintOpts options) {
 void Editor::markAllDirty() {
     for (TextLine& line : fLines) {
         line.fBlob = nullptr;
+        line.fShaped = false;
     }
     fNeedsReshape = true;
 };
