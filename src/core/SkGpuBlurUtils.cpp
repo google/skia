@@ -489,6 +489,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                           SkBackingFit fit) {
     SkASSERT(context);
 
+    TRACE_EVENT2("skia.gpu", "GaussianBlur", "sigmaX", sigmaX, "sigmaY", sigmaY);
+
     int finalW = dstBounds.width();
     int finalH = dstBounds.height();
 
