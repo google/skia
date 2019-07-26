@@ -19,6 +19,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/SkGr.h"
+#include "src/utils/SkMultiPictureDocument.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
@@ -28,6 +29,7 @@
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/GpuTimer.h"
 #include "tools/gpu/GrContextFactory.h"
+#include "tools/SkSharingProc.h"
 
 #ifdef SK_XML
 #include "experimental/svg/model/SkSVGDOM.h"
@@ -49,6 +51,9 @@
  *
  * No tiling, looping, or other fanciness is used; it just draws the skp whole into a size-matched
  * render target and syncs the GPU after each draw.
+ *
+ * Well, maybe a little fanciness, MSKP's can be loaded and played. The animation is played as many
+ * times as necessary to reach the target sample duration and FPS is reported.
  *
  * Currently, only GPU configs are supported.
  */
@@ -119,6 +124,77 @@ static sk_sp<SkPicture> create_skp_from_svg(SkStream*, const char* filename);
 static bool mkdir_p(const SkString& name);
 static SkString         join(const CommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
+
+// An interface used by both static SKPs and animated SKPs
+class SkpProducer {
+ public:
+  virtual ~SkpProducer() {}
+  // Draw an SkPicture to the provided surface, flush the surface, and sync the GPU.
+  // You may use the static draw_skp_and_flush declared above.
+  // returned int tells how many draw/flush/sync were done.
+  virtual int drawAndFlushAndSync(SkSurface* surface, GpuSync& gpuSync) = 0;
+};
+
+class StaticSkp : public SkpProducer {
+ public:
+  StaticSkp(sk_sp<SkPicture> skp) : fSkp(skp) {}
+
+    int drawAndFlushAndSync(SkSurface* surface, GpuSync& gpuSync) override {
+        draw_skp_and_flush(surface, fSkp.get());
+        gpuSync.syncToPreviousFrame();
+        return 1;
+    }
+ private:
+  sk_sp<SkPicture> fSkp;
+};
+
+// A class for playing/benchmarking a multi frame SKP file.
+// the recorded frames are looped over repeatedly.
+// This type of benchmark may have a much higher std dev in frame times.
+class MultiFrameSkp : public SkpProducer {
+public:
+    MultiFrameSkp(const std::vector<SkDocumentPage>& frames) : fFrames(frames){}
+
+    static std::unique_ptr<MultiFrameSkp> MakeFromFile(const SkString& path) {
+        // Load the multi frame skp at the given filename.
+        std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path.c_str());
+        if (!stream) { return nullptr; }
+
+        // Attempt to deserialize with an image sharing serial proc.
+        auto deserialContext = std::make_unique<SkSharingDeserialContext>();
+        SkDeserialProcs procs;
+        procs.fImageProc = SkSharingDeserialContext::deserializeImage;
+        procs.fImageCtx = deserialContext.get();
+
+        // The outer format of multi-frame skps is the multi-picture document, which is a
+        // skp file containing subpictures separated by annotations.
+        int page_count = SkMultiPictureDocumentReadPageCount(stream.get());
+        if (!page_count) {
+            return nullptr;
+        }
+        std::vector<SkDocumentPage> frames(page_count); // can't call reserve, why?
+        if (!SkMultiPictureDocumentRead(stream.get(), frames.data(), page_count, &procs)) {
+            return nullptr;
+        }
+
+        return std::make_unique<MultiFrameSkp>(frames);
+    }
+
+    // Draw the whole animation once.
+    int drawAndFlushAndSync(SkSurface* surface, GpuSync& gpuSync) override {
+        for (int i=0; i<this->count(); i++){
+            draw_skp_and_flush(surface, this->frame(i).get());
+            gpuSync.syncToPreviousFrame();
+        }
+        return this->count();
+    }
+    // Return the requested frame.
+    sk_sp<SkPicture> frame(int n) const { return fFrames[n].fPicture; }
+    // Return the number of frames in the recording.
+    int count() const { return fFrames.size(); }
+private:
+    std::vector<SkDocumentPage> fFrames;
+};
 
 static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync* gpuSync, Sample* sample,
                        std::chrono::high_resolution_clock::time_point* startStopTime) {
@@ -195,19 +271,16 @@ static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
 }
 
 static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkSurface* surface,
-                          const SkPicture* skp, std::vector<Sample>* samples) {
+                          SkpProducer* skpp, std::vector<Sample>* samples) {
     using clock = std::chrono::high_resolution_clock;
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
-    draw_skp_and_flush(surface, skp); // draw 1
     GpuSync gpuSync(fenceSync);
-
-    for (int i = 1; i < kNumFlushesToPrimeCache; ++i) {
-        draw_skp_and_flush(surface, skp); // draw N
-        // Waits for draw N-1 to finish (after draw N's cpu work is done).
-        gpuSync.syncToPreviousFrame();
-    }
+    int i = 0;
+    do {
+        i += skpp->drawAndFlushAndSync(surface, gpuSync);
+    } while(i < kNumFlushesToPrimeCache);
 
     clock::time_point now = clock::now();
     const clock::time_point endTime = now + benchDuration;
@@ -218,12 +291,9 @@ static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkSurface* su
         Sample& sample = samples->back();
 
         do {
-            draw_skp_and_flush(surface, skp);
-            gpuSync.syncToPreviousFrame();
-
-            now = clock::now();
-            sample.fDuration = now - sampleStart;
-            ++sample.fFrames;
+          sample.fFrames += skpp->drawAndFlushAndSync(surface, gpuSync);
+          now = clock::now();
+          sample.fDuration = now - sampleStart;
         } while (sample.fDuration < sampleDuration);
     } while (now < endTime || 0 == samples->size() % 2);
 }
@@ -355,6 +425,7 @@ int main(int argc, char** argv) {
     SkGraphics::Init();
 
     sk_sp<SkPicture> skp;
+    std::unique_ptr<MultiFrameSkp> mskp; // populated if the file is multi frame.
     SkString srcname;
     if (0 == strcmp(FLAGS_src[0], "warmup")) {
         skp = create_warmup_skp();
@@ -367,6 +438,10 @@ int main(int argc, char** argv) {
         }
         if (srcfile.endsWith(".svg")) {
             skp = create_skp_from_svg(srcstream.get(), srcfile.c_str());
+        } else if (srcfile.endsWith(".mskp")) {
+            mskp = MultiFrameSkp::MakeFromFile(srcfile);
+            // populate skp with it's first frame, for width height determination.
+            skp = mskp->frame(0);
         } else {
             skp = SkPicture::MakeFromStream(srcstream.get());
         }
@@ -449,8 +524,11 @@ int main(int argc, char** argv) {
     if (!FLAGS_gpuClock) {
         if (FLAGS_ddl) {
             run_ddl_benchmark(testCtx->fenceSync(), ctx, canvas, skp.get(), &samples);
+        } else if (!mskp) {
+            auto s = std::make_unique<StaticSkp>(skp);
+            run_benchmark(testCtx->fenceSync(), surface.get(), s.get(), &samples);
         } else {
-            run_benchmark(testCtx->fenceSync(), surface.get(), skp.get(), &samples);
+            run_benchmark(testCtx->fenceSync(), surface.get(), mskp.get(), &samples);
         }
     } else {
         if (FLAGS_ddl) {
@@ -459,8 +537,8 @@ int main(int argc, char** argv) {
         if (!testCtx->gpuTimingSupport()) {
             exitf(ExitErr::kUnavailable, "GPU does not support timing");
         }
-        run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), surface.get(), skp.get(),
-                               &samples);
+        run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), surface.get(),
+                               skp.get(), &samples);
     }
     print_result(samples, config->getTag().c_str(), srcname.c_str());
 
