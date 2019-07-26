@@ -7,6 +7,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/effects/SkMatrixConvolutionImageFilter.h"
 #include "include/private/SkColorData.h"
@@ -30,7 +31,7 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(const SkISize& ke
                                                                SkScalar gain,
                                                                SkScalar bias,
                                                                const SkIPoint& kernelOffset,
-                                                               TileMode tileMode,
+                                                               SkTileMode tileMode,
                                                                bool convolveAlpha,
                                                                sk_sp<SkImageFilter> input,
                                                                const CropRect* cropRect)
@@ -55,6 +56,33 @@ sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelS
                                                           SkScalar bias,
                                                           const SkIPoint& kernelOffset,
                                                           TileMode tileMode,
+                                                          bool convolveAlpha,
+                                                          sk_sp<SkImageFilter> input,
+                                                          const CropRect* cropRect) {
+    SkTileMode skTileMode;
+    switch(tileMode) {
+        case kClamp_TileMode:
+            skTileMode = SkTileMode::kClamp;
+            break;
+        case kRepeat_TileMode:
+            skTileMode = SkTileMode::kRepeat;
+            break;
+        case kClampToBlack_TileMode:
+            // Fall through
+        default:
+            skTileMode = SkTileMode::kDecal;
+            break;
+    }
+    return Make(kernelSize, kernel, gain, bias, kernelOffset, skTileMode, convolveAlpha,
+                std::move(input), cropRect);
+}
+
+sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelSize,
+                                                          const SkScalar* kernel,
+                                                          SkScalar gain,
+                                                          SkScalar bias,
+                                                          const SkIPoint& kernelOffset,
+                                                          SkTileMode tileMode,
                                                           bool convolveAlpha,
                                                           sk_sp<SkImageFilter> input,
                                                           const CropRect* cropRect) {
@@ -121,7 +149,26 @@ void SkMatrixConvolutionImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fBias);
     buffer.writeInt(fKernelOffset.fX);
     buffer.writeInt(fKernelOffset.fY);
-    buffer.writeInt((int) fTileMode);
+    // CreateProc only knows how to deserialize the old TileMode enum, so temporarily convert
+    // SkTileMode back to the old one, treating kMirror as kRepeat.
+    // TODO (michaelludwig) - Remove once CreateProc can deserialize SkTileMode directly, which will
+    // require a new SkPicture version number.
+    TileMode backwardsCompatibleMode;
+    switch(fTileMode) {
+        case SkTileMode::kClamp:
+            backwardsCompatibleMode = kClamp_TileMode;
+            break;
+        case SkTileMode::kMirror:
+            // Treat as repeat for now
+        case SkTileMode::kRepeat:
+            backwardsCompatibleMode = kRepeat_TileMode;
+            break;
+        case SkTileMode::kDecal:
+        default:
+            backwardsCompatibleMode = kClampToBlack_TileMode;
+            break;
+    }
+    buffer.writeInt((int) backwardsCompatibleMode);
     buffer.writeBool(fConvolveAlpha);
 }
 
@@ -235,12 +282,15 @@ void SkMatrixConvolutionImageFilter::filterInteriorPixels(const SkBitmap& src,
                                                           const SkIRect& rect,
                                                           const SkIRect& bounds) const {
     switch (fTileMode) {
-        case kRepeat_TileMode:
+        case SkTileMode::kMirror:
+            // TODO (michaelludwig) - Implement mirror tiling, treat as repeat for now.
+        case SkTileMode::kRepeat:
             // In repeat mode, we still need to wrap the samples around the src
             filterPixels<RepeatPixelFetcher>(src, result, offset, rect, bounds);
             break;
-        case kClamp_TileMode:
-        case kClampToBlack_TileMode:
+        case SkTileMode::kClamp:
+            // Fall through
+        case SkTileMode::kDecal:
             filterPixels<UncheckedPixelFetcher>(src, result, offset, rect, bounds);
             break;
     }
@@ -252,13 +302,15 @@ void SkMatrixConvolutionImageFilter::filterBorderPixels(const SkBitmap& src,
                                                         const SkIRect& rect,
                                                         const SkIRect& srcBounds) const {
     switch (fTileMode) {
-        case kClamp_TileMode:
+        case SkTileMode::kClamp:
             filterPixels<ClampPixelFetcher>(src, result, offset, rect, srcBounds);
             break;
-        case kRepeat_TileMode:
+        case SkTileMode::kMirror:
+            // TODO (michaelludwig) - Implement mirror tiling, treat as repeat for now.
+        case SkTileMode::kRepeat:
             filterPixels<RepeatPixelFetcher>(src, result, offset, rect, srcBounds);
             break;
-        case kClampToBlack_TileMode:
+        case SkTileMode::kDecal:
             filterPixels<ClampToBlackPixelFetcher>(src, result, offset, rect, srcBounds);
             break;
     }
@@ -289,13 +341,15 @@ static SkBitmap unpremultiply_bitmap(const SkBitmap& src) {
 
 #if SK_SUPPORT_GPU
 
-static GrTextureDomain::Mode convert_tilemodes(SkMatrixConvolutionImageFilter::TileMode tileMode) {
+static GrTextureDomain::Mode convert_tilemodes(SkTileMode tileMode) {
     switch (tileMode) {
-    case SkMatrixConvolutionImageFilter::kClamp_TileMode:
+    case SkTileMode::kClamp:
         return GrTextureDomain::kClamp_Mode;
-    case SkMatrixConvolutionImageFilter::kRepeat_TileMode:
+    case SkTileMode::kMirror:
+        // TODO (michaelludwig) - Implement mirror tiling, treat as repeat for now.
+    case SkTileMode::kRepeat:
         return GrTextureDomain::kRepeat_Mode;
-    case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode:
+    case SkTileMode::kDecal:
         return GrTextureDomain::kDecal_Mode;
     default:
         SkASSERT(false);
@@ -325,7 +379,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
     SkIRect srcBounds = this->onFilterNodeBounds(dstBounds, ctx.ctm(), kReverse_MapDirection,
                                                  &originalSrcBounds);
 
-    if (kRepeat_TileMode == fTileMode) {
+    if (SkTileMode::kRepeat == fTileMode || SkTileMode::kMirror == fTileMode) {
         srcBounds = DetermineRepeatedSrcBound(srcBounds, fKernelOffset,
                                               fKernelSize, originalSrcBounds);
     } else {
@@ -407,7 +461,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
     srcBounds.offset(-inputOffset);
 
     SkIRect interior;
-    if (kRepeat_TileMode == fTileMode) {
+    if (SkTileMode::kRepeat == fTileMode || SkTileMode::kMirror == fTileMode) {
         // In repeat mode, the filterPixels calls will wrap around
         // so we just need to render 'dstBounds'
         interior = dstBounds;
@@ -442,7 +496,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
 SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                                            MapDirection dir,
                                                            const SkIRect* inputRect) const {
-    if (kReverse_MapDirection == dir && kRepeat_TileMode == fTileMode && inputRect) {
+    if (kReverse_MapDirection == dir && inputRect &&
+        (SkTileMode::kRepeat == fTileMode || SkTileMode::kMirror == fTileMode)) {
         SkASSERT(inputRect);
         return DetermineRepeatedSrcBound(src, fKernelOffset, fKernelSize, *inputRect);
     }
@@ -467,5 +522,5 @@ bool SkMatrixConvolutionImageFilter::affectsTransparentBlack() const {
 
     // For the other modes, because the kernel is applied in device-space, we have no idea what
     // pixels it will affect in object-space.
-    return kRepeat_TileMode != fTileMode;
+    return SkTileMode::kRepeat != fTileMode && SkTileMode::kMirror != fTileMode;
 }
