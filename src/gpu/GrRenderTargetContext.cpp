@@ -1665,65 +1665,6 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
                                 info.colorType(), callback, context);
 }
 
-GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels(
-        GrColorType dstCT, const SkIRect& rect) {
-    SkASSERT(rect.fLeft >= 0 && rect.fRight <= this->width());
-    SkASSERT(rect.fTop >= 0 && rect.fBottom <= this->height());
-    auto direct = fContext->priv().asDirectContext();
-    if (!direct) {
-        return {};
-    }
-    if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
-        return {};
-    }
-    auto supportedRead = this->caps()->supportedReadPixelsColorType(
-            this->colorSpaceInfo().colorType(), fRenderTargetProxy->backendFormat(), dstCT);
-    // Fail if read color type does not have all of dstCT's color channels and those missing color
-    // channels are in the src.
-    uint32_t dstComponents = GrColorTypeComponentFlags(dstCT);
-    uint32_t legalReadComponents = GrColorTypeComponentFlags(supportedRead.fColorType);
-    uint32_t srcComponents = GrColorTypeComponentFlags(this->colorSpaceInfo().colorType());
-    if ((~legalReadComponents & dstComponents) & srcComponents) {
-        return {};
-    }
-
-    if (!this->caps()->transferBufferSupport() ||
-        !supportedRead.fOffsetAlignmentForTransferBuffer) {
-        return {};
-    }
-
-    size_t rowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * rect.width();
-    size_t size = rowBytes * rect.height();
-    auto buffer = direct->priv().resourceProvider()->createBuffer(
-            size, GrGpuBufferType::kXferGpuToCpu, GrAccessPattern::kStream_GrAccessPattern);
-    if (!buffer) {
-        return {};
-    }
-    auto srcRect = rect;
-    bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
-    if (flip) {
-        srcRect = SkIRect::MakeLTRB(rect.fLeft, this->height() - rect.fBottom, rect.fRight,
-                                    this->height() - rect.fTop);
-    }
-    auto op = GrTransferFromOp::Make(fContext, srcRect, supportedRead.fColorType, buffer, 0);
-    this->getRTOpList()->addOp(std::move(op), *this->caps());
-    PixelTransferResult result;
-    result.fTransferBuffer = std::move(buffer);
-    if (supportedRead.fColorType != dstCT || supportedRead.fSwizzle != GrSwizzle("rgba") || flip) {
-        result.fPixelConverter = [w = rect.width(), h = rect.height(), dstCT, supportedRead](
-                                         void* dst, const void* src) {
-            // We're using kPremul here for src and dst simply because we don't want any alpha type
-            // conversions.
-            GrPixelInfo srcInfo(supportedRead.fColorType, kPremul_SkAlphaType, nullptr, w, h);
-            GrPixelInfo dstInfo(dstCT,                    kPremul_SkAlphaType, nullptr, w, h);
-            GrConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
-                            srcInfo, src, srcInfo.minRowBytes(),
-                            /* flipY = */ false, supportedRead.fSwizzle);
-        };
-    }
-    return result;
-}
-
 void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType colorType,
                                             ReadPixelsCallback callback,
                                             ReadPixelsContext context) {
@@ -2079,10 +2020,6 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
 void GrRenderTargetContext::insertEventMarker(const SkString& str) {
     std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fContext, fRenderTargetProxy.get(), str));
     this->getRTOpList()->addOp(std::move(op), *this->caps());
-}
-
-const GrCaps* GrRenderTargetContext::caps() const {
-    return fContext->priv().caps();
 }
 
 void GrRenderTargetContext::drawPath(const GrClip& clip,

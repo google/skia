@@ -54,6 +54,12 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint) override;
 
+    void transferFrom(GrRecordingContext*,
+                      const SkIRect& srcRect,
+                      GrColorType dstColorType,
+                      sk_sp<GrGpuBuffer> dst,
+                      size_t dstOffset) override;
+
     GrTextureOpList* asTextureOpList() override { return this; }
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)

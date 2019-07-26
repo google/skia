@@ -38,6 +38,8 @@ GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
                                    sk_sp<SkColorSpace> colorSpace)
         : fContext(context), fColorSpaceInfo(colorType, alphaType, std::move(colorSpace)) {}
 
+const GrCaps* GrSurfaceContext::caps() const { return fContext->priv().caps(); }
+
 GrAuditTrail* GrSurfaceContext::auditTrail() {
     return fContext->priv().auditTrail();
 }
@@ -578,4 +580,64 @@ sk_sp<GrRenderTargetContext> GrSurfaceContext::rescale(const SkImageInfo& info,
     }
     SkASSERT(currCtx);
     return sk_ref_sp(currCtx->asRenderTargetContext());
+}
+
+GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorType dstCT,
+                                                                       const SkIRect& rect) {
+    SkASSERT(rect.fLeft >= 0 && rect.fRight <= this->width());
+    SkASSERT(rect.fTop >= 0 && rect.fBottom <= this->height());
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return {};
+    }
+    auto rtProxy = this->asRenderTargetProxy();
+    if (rtProxy && rtProxy->wrapsVkSecondaryCB()) {
+        return {};
+    }
+
+    auto proxy = this->asSurfaceProxy();
+    auto supportedRead = this->caps()->supportedReadPixelsColorType(
+            this->colorSpaceInfo().colorType(), proxy->backendFormat(), dstCT);
+    // Fail if read color type does not have all of dstCT's color channels and those missing color
+    // channels are in the src.
+    uint32_t dstComponents = GrColorTypeComponentFlags(dstCT);
+    uint32_t legalReadComponents = GrColorTypeComponentFlags(supportedRead.fColorType);
+    uint32_t srcComponents = GrColorTypeComponentFlags(this->colorSpaceInfo().colorType());
+    if ((~legalReadComponents & dstComponents) & srcComponents) {
+        return {};
+    }
+
+    if (!this->caps()->transferBufferSupport() ||
+        !supportedRead.fOffsetAlignmentForTransferBuffer) {
+        return {};
+    }
+
+    size_t rowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * rect.width();
+    size_t size = rowBytes * rect.height();
+    auto buffer = direct->priv().resourceProvider()->createBuffer(
+            size, GrGpuBufferType::kXferGpuToCpu, GrAccessPattern::kStream_GrAccessPattern);
+    if (!buffer) {
+        return {};
+    }
+    auto srcRect = rect;
+    bool flip = proxy->origin() == kBottomLeft_GrSurfaceOrigin;
+    if (flip) {
+        srcRect = SkIRect::MakeLTRB(rect.fLeft, this->height() - rect.fBottom, rect.fRight,
+                                    this->height() - rect.fTop);
+    }
+    this->getOpList()->transferFrom(fContext, srcRect, supportedRead.fColorType, buffer, 0);
+    PixelTransferResult result;
+    result.fTransferBuffer = std::move(buffer);
+    auto at = this->colorSpaceInfo().alphaType();
+    if (supportedRead.fColorType != dstCT || supportedRead.fSwizzle != GrSwizzle("rgba") || flip) {
+        result.fPixelConverter = [w = rect.width(), h = rect.height(), dstCT, supportedRead, at](
+                void* dst, const void* src) {
+              GrPixelInfo srcInfo(supportedRead.fColorType, at, nullptr, w, h);
+              GrPixelInfo dstInfo(dstCT,                    at, nullptr, w, h);
+              GrConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
+                              srcInfo, src, srcInfo.minRowBytes(),
+                              /* flipY = */ false, supportedRead.fSwizzle);
+        };
+    }
+    return result;
 }
