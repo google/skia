@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8df235a_8d439477",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:33:04Z",
+      "side": 1,
+      "message": "// Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its mipmaps are fully fleshed out",
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93257bc6_09846d47",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:33:04Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be kValid ?",
+      "range": {
+        "startLine": 468,
+        "startChar": 31,
+        "endLine": 468,
+        "endChar": 37
+      },
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3913cc1_6a7bd1a8",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:33:04Z",
+      "side": 1,
+      "message": ".                         :(",
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeafd154_7ed64acd",
+        "filename": "src/gpu/GrTextureProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:33:04Z",
+      "side": 1,
+      "message": "SkASSERT(GrMipMapped::kNo \u003d\u003d fMipMapped || GrMipMapsStatus::kNotAllocated !\u003d fMipMapsStatus);\n\nSigh - why can we add emojis in PolyGerrit 😮",
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ba999aa_c47dc75b",
+        "filename": "src/gpu/GrTextureProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:33:04Z",
+      "side": 1,
+      "message": "// This tracks the mipmap status at the proxy level and is thus somewhat distinct from the backing GrTextures mipmap status. In particular, this status is used to determine when mipmap levels need to be explicitly regenerated during the execution of a DAG of opLists.\n\n?",
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56a239f1_1f54eb04",
+        "filename": "src/gpu/GrTextureRenderTargetProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:33:04Z",
+      "side": 1,
+      "message": "orphan",
+      "range": {
+        "startLine": 37,
+        "startChar": 81,
+        "endLine": 37,
+        "endChar": 86
+      },
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b52f1a7_88a9eac7",
+        "filename": "src/gpu/GrTextureRenderTargetProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:33:04Z",
+      "side": 1,
+      "message": "another orphan",
+      "range": {
+        "startLine": 39,
+        "startChar": 78,
+        "endLine": 39,
+        "endChar": 94
+      },
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c8ad55e_5a3957d9",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-26T14:33:04Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be kValid with a comment like // When wrapping an external backend texture Ganesh assumes that the mipmaps are fleshed out\n\n?",
+      "range": {
+        "startLine": 486,
+        "startChar": 31,
+        "endLine": 486,
+        "endChar": 37
+      },
+      "revId": "c439e5996364fc2d6e69d6ee5d84c636dd34cbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
