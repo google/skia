@@ -10,8 +10,12 @@
 
 #include "include/core/SkImageFilter.h"
 
+enum class SkColorChannel;
+
 class SK_API SkDisplacementMapEffect : public SkImageFilter {
 public:
+
+    // DEPRECATED - Use SkColorChannel instead.
     enum ChannelSelectorType {
         kUnknown_ChannelSelectorType,
         kR_ChannelSelectorType,
@@ -30,6 +34,12 @@ public:
                                      sk_sp<SkImageFilter> displacement,
                                      sk_sp<SkImageFilter> color,
                                      const CropRect* cropRect = nullptr);
+    static sk_sp<SkImageFilter> Make(SkColorChannel xChannelSelector,
+                                     SkColorChannel yChannelSelector,
+                                     SkScalar scale,
+                                     sk_sp<SkImageFilter> displacement,
+                                     sk_sp<SkImageFilter> color,
+                                     const CropRect* cropRect = nullptr);
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
@@ -42,8 +52,8 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
 
-    SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
-                            ChannelSelectorType yChannelSelector,
+    SkDisplacementMapEffect(SkColorChannel xChannelSelector,
+                            SkColorChannel yChannelSelector,
                             SkScalar scale, sk_sp<SkImageFilter> inputs[2],
                             const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
@@ -51,8 +61,8 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkDisplacementMapEffect)
 
-    ChannelSelectorType fXChannelSelector;
-    ChannelSelectorType fYChannelSelector;
+    SkColorChannel fXChannelSelector;
+    SkColorChannel fYChannelSelector;
     SkScalar fScale;
     typedef SkImageFilter INHERITED;
     const SkImageFilter* getDisplacementInput() const { return getInput(0); }
