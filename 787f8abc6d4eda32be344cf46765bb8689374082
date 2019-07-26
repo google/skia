@@ -94,6 +94,30 @@
       "revId": "787f8abc6d4eda32be344cf46765bb8689374082",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66714337_a4eee52f",
+        "filename": "modules/skottie/src/text/SkottieShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-26T18:38:06Z",
+      "side": 1,
+      "message": "Fine to leave as-is or could use sk_ref_sp at the lower level, if that\u0027s not too icky.",
+      "parentUuid": "f267d69d_58596dc7",
+      "range": {
+        "startLine": 88,
+        "startChar": 24,
+        "endLine": 88,
+        "endChar": 47
+      },
+      "revId": "787f8abc6d4eda32be344cf46765bb8689374082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
