@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrRenderTargetOpList.h"
+
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkExchange.h"
 #include "src/core/SkRectPriv.h"
@@ -16,11 +18,11 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrCopySurfaceOp.h"
+#include "src/gpu/ops/GrTransferFromOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -585,6 +587,15 @@ bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
 
     this->addOp(std::move(op), *context->priv().caps());
     return true;
+}
+
+void GrRenderTargetOpList::transferFrom(GrRecordingContext* context,
+                                        const SkIRect& srcRect,
+                                        GrColorType dstColorType,
+                                        sk_sp<GrGpuBuffer> dst,
+                                        size_t dstOffset) {
+    auto op = GrTransferFromOp::Make(context, srcRect, dstColorType, std::move(dst), dstOffset);
+    this->addOp(std::move(op), *context->priv().caps());
 }
 
 void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
