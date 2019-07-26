@@ -139,9 +139,15 @@ struct SkPathContours {
     SkScalar fTotalLength;
     SkTArray<sk_sp<SkContourMeasure>> fContours;
 
-    void reset() {
+    void rebuild(const SkPath& path) {
         fTotalLength = 0;
         fContours.reset();
+
+        SkContourMeasureIter iter(path, false);
+        while (auto contour = iter.next()) {
+            fContours.push_back(contour);
+            fTotalLength += contour->length();
+        }
     }
 };
 
@@ -206,18 +212,11 @@ public:
 
 private:
     SkString fPath;
+
     void rebuild() {
         SkPath path;
-        if (!SkParsePath::FromSVGString(fPath.c_str(), &path)) {
-            return;
-        }
-
-        fContours.reset();
-
-        SkContourMeasureIter iter(path, false);
-        while (auto contour = iter.next()) {
-            fContours.fContours.push_back(contour);
-            fContours.fTotalLength += contour->length();
+        if (SkParsePath::FromSVGString(fPath.c_str(), &path)) {
+            fContours.rebuild(path);
         }
     }
 
@@ -257,26 +256,34 @@ public:
 private:
     SkString fText;
     SkScalar fFontSize;
+
     void rebuild() {
         if (fText.isEmpty()) {
             return;
         }
 
-        fContours.reset();
-
         SkFont font(nullptr, fFontSize);
         SkPath path;
         SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8, 0, 0, font, &path);
-        SkContourMeasureIter iter(path, false);
-        while (auto contour = iter.next()) {
-            fContours.fContours.push_back(contour);
-            fContours.fTotalLength += contour->length();
-        }
+        fContours.rebuild(path);
     }
 
     // Cached
     SkPathContours fContours;
 };
+
+sk_sp<SkParticleBinding> SkParticleBinding::MakeCurve(const char* name, const SkCurve& curve) {
+    return sk_sp<SkParticleBinding>(new SkCurveBinding(name, curve));
+}
+
+sk_sp<SkParticleBinding> SkParticleBinding::MakeColorCurve(const char* name,
+                                                           const SkColorCurve& curve) {
+    return sk_sp<SkParticleBinding>(new SkColorCurveBinding(name, curve));
+}
+
+sk_sp<SkParticleBinding> SkParticleBinding::MakePathBinding(const char* name, const char* path) {
+    return sk_sp<SkParticleBinding>(new SkPathBinding(name, path));
+}
 
 void SkParticleBinding::RegisterBindingTypes() {
     REGISTER_REFLECTED(SkParticleBinding);
