@@ -399,7 +399,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
         return false;
     }
 
-    int bpp = GrColorTypeBytesPerPixel(srcColorType);
+    size_t bpp = GrColorTypeBytesPerPixel(srcColorType);
     if (!validate_levels(width, height, texels, mipLevelCount, bpp, this->caps())) {
         return false;
     }
@@ -433,7 +433,7 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
         return false;
     }
 
-    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
     if (this->caps()->writePixelsRowBytesSupport()) {
         if (rowBytes < SkToSizeT(bpp * width)) {
             return false;
