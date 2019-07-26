@@ -46,6 +46,30 @@
       "revId": "fb3fa5df223e2616ba8308138b5c888822fde6b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b47cfe96_78f99be3",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-26T17:49:43Z",
+      "side": 1,
+      "message": "Ok, just thinking that if most devs upload with --bypass-hooks, and the bot runs the commit checks, this may end up getting skipped.",
+      "parentUuid": "a4196563_902e08d1",
+      "range": {
+        "startLine": 298,
+        "startChar": 2,
+        "endLine": 298,
+        "endChar": 64
+      },
+      "revId": "fb3fa5df223e2616ba8308138b5c888822fde6b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
