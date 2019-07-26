@@ -94,6 +94,30 @@
       "revId": "fb3fa5df223e2616ba8308138b5c888822fde6b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa088917_d482dead",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-07-26T17:53:43Z",
+      "side": 1,
+      "message": "I\u0027d guess so, but that should be fixable too.  I assume there should be a CIPD package containing GN somewhere.",
+      "parentUuid": "3c6fba79_4e7f62ba",
+      "range": {
+        "startLine": 298,
+        "startChar": 2,
+        "endLine": 298,
+        "endChar": 64
+      },
+      "revId": "fb3fa5df223e2616ba8308138b5c888822fde6b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
