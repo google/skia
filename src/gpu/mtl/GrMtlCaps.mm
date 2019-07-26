@@ -874,7 +874,7 @@ GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType
 GrCaps::SupportedWrite GrMtlCaps::supportedWritePixelsColorType(GrPixelConfig config,
                                                                 GrColorType srcColorType) const {
     GrColorType ct = GrPixelConfigToColorType(config);
-    return {ct, static_cast<size_t>(GrColorTypeBytesPerPixel(ct))};
+    return {ct, GrColorTypeBytesPerPixel(ct)};
 }
 
 GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
@@ -951,6 +951,6 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
     }
     // Metal requires the destination offset for copyFromTexture to be a multiple of the textures
     // pixels size.
-    return {GrSwizzle::RGBA(), readCT, static_cast<size_t>(GrColorTypeBytesPerPixel(readCT))};
+    return {GrSwizzle::RGBA(), readCT, GrColorTypeBytesPerPixel(readCT)};
 }
 
