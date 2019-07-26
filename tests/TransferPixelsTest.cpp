@@ -45,6 +45,25 @@ void fill_transfer_data(int left, int top, int width, int height, int bufferWidt
     }
 }
 
+void determine_tolerances(GrColorType a, GrColorType b, float tolerances[4]) {
+    if (a == b) {
+        std::fill_n(tolerances, 4, 0);
+    }
+    auto descA = GrGetColorTypeDesc(a);
+    auto descB = GrGetColorTypeDesc(b);
+    // For each channel x set the tolerance to 1 / (2^min(bits_in_a, bits_in_b) - 1) unless
+    // one color type is missing the channel. In that case leave it at 0. If the other color
+    // has the channel then it better be exactly 1 for alpha or 0 for rgb.
+    for (int i = 0; i < 4; ++i) {
+        if (descA[i] != descB[i]) {
+            auto m = std::min(descA[i], descB[i]);
+            if (m) {
+                tolerances[i] = 1.f / (m - 1);
+            }
+        }
+    }
+}
+
 bool read_pixels_from_texture(GrTexture* texture, GrColorType dstColorType, char* dst,
                               float tolerances[4]) {
     auto* context = texture->getContext();
@@ -69,21 +88,7 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType dstColorType, char
         }
         GrPixelInfo tmpInfo(supportedRead.fColorType, kUnpremul_SkAlphaType, nullptr, w, h);
         GrPixelInfo dstInfo(dstColorType,             kUnpremul_SkAlphaType, nullptr, w, h);
-        if (supportedRead.fColorType != dstColorType) {
-            auto descA = GrGetColorTypeDesc(supportedRead.fColorType);
-            auto descB = GrGetColorTypeDesc(dstColorType);
-            // For each channel x set the tolerance to 1 / (2^min(bits_in_a, bits_in_b) - 1) unless
-            // one color type is missing the channel. In that case leave it at 0. If the other color
-            // has the channel then it better be exactly 1 for alpha or 0 for rgb.
-            for (int i = 0; i < 4; ++i) {
-                if (descA[i] != descB[i]) {
-                    auto m = std::min(descA[i], descB[i]);
-                    if (m) {
-                        tolerances[i] = 1.f / (m - 1);
-                    }
-                }
-            }
-        }
+        determine_tolerances(tmpInfo.colorType(), dstInfo.colorType(), tolerances);
         return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, tmpPixels.get(), tmpRowBytes, false,
                                supportedRead.fSwizzle);
     }
@@ -296,6 +301,17 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
         return;
     }
 
+    if (GrCaps::SurfaceReadPixelsSupport::kSupported !=
+        caps->surfaceSupportsReadPixels(tex.get())) {
+        return;
+    }
+    // GL requires a texture to be framebuffer bindable to call glReadPixels. However, we have not
+    // incorporated that test into surfaceSupportsReadPixels(). TODO: Remove this once we handle
+    // drawing to a bindable format.
+    if (!caps->isFormatRenderable(colorType, tex->backendFormat())) {
+        return;
+    }
+
     // Create the transfer buffer.
     auto allowedRead =
             caps->supportedReadPixelsColorType(colorType, tex->backendFormat(), colorType);
@@ -359,7 +375,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
                         transferData.get(), fullBufferRowBytes, false, allowedRead.fSwizzle);
     }
 
-    static constexpr float kTol[4] = {};
+    float tol[4];
+    determine_tolerances(allowedRead.fColorType, colorType, tol);
     auto error = std::function<ComparePixmapsErrorReporter>(
             [reporter, colorType](int x, int y, const float diffs[4]) {
                 ERRORF(reporter,
@@ -369,7 +386,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     GrPixelInfo textureDataInfo(colorType, kUnpremul_SkAlphaType, nullptr, kTextureWidth,
                                 kTextureHeight);
     compare_pixels(textureDataInfo, textureData.get(), textureDataRowBytes, transferInfo,
-                   transferData.get(), fullBufferRowBytes, kTol, error);
+                   transferData.get(), fullBufferRowBytes, tol, error);
 
     ///////////////////////
     // Now test a partial read at an offset into the buffer.
@@ -399,15 +416,15 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     transferInfo = transferInfo.makeWH(kPartialWidth, kPartialHeight);
     if (allowedRead.fSwizzle != GrSwizzle("rgba")) {
-        GrConvertPixels(transferInfo, transferData.get(), fullBufferRowBytes, transferInfo,
-                        transferData.get(), fullBufferRowBytes, false, allowedRead.fSwizzle);
+        GrConvertPixels(transferInfo, transferData.get(), partialBufferRowBytes, transferInfo,
+                        transferData.get(), partialBufferRowBytes, false, allowedRead.fSwizzle);
     }
 
     const char* textureDataStart =
             textureData.get() + textureDataRowBytes * kPartialTop + textureDataBpp * kPartialLeft;
     textureDataInfo = textureDataInfo.makeWH(kPartialWidth, kPartialHeight);
     compare_pixels(textureDataInfo, textureDataStart, textureDataRowBytes, transferInfo,
-                   transferData.get(), partialBufferRowBytes, kTol, error);
+                   transferData.get(), partialBufferRowBytes, tol, error);
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->transfersFromSurface() == expectedTransferCnt);
 #else
@@ -451,8 +468,26 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
         return;
     }
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-        for (auto colorType :
-             {GrColorType::kRGBA_8888, GrColorType::kRGBA_8888_SRGB, GrColorType::kBGRA_8888}) {
+        for (auto colorType : {
+                GrColorType::kAlpha_8,
+                GrColorType::kBGR_565,
+                GrColorType::kABGR_4444,
+                GrColorType::kRGBA_8888,
+                GrColorType::kRGBA_8888_SRGB,
+                //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
+                GrColorType::kRG_88,
+                GrColorType::kBGRA_8888,
+                GrColorType::kRGBA_1010102,
+                //  GrColorType::kGray_8, Reading back to kGray is busted.
+                GrColorType::kAlpha_F16,
+                GrColorType::kRGBA_F16,
+                GrColorType::kRGBA_F16_Clamped,
+                GrColorType::kRGBA_F32,
+                GrColorType::kR_16,
+                GrColorType::kRG_1616,
+                GrColorType::kRGBA_16161616,
+                GrColorType::kRG_F16,
+        }) {
             basic_transfer_from_test(reporter, ctxInfo, colorType, renderable);
         }
     }
