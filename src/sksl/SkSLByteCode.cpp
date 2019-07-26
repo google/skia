@@ -80,7 +80,6 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kConvertStoF, "convertstof")
         VECTOR_DISASSEMBLE(kConvertUtoF, "convertutof")
         VECTOR_DISASSEMBLE(kCos, "cos")
-        case ByteCodeInstruction::kCross: printf("cross"); break;
         VECTOR_MATRIX_DISASSEMBLE(kDivideF, "dividef")
         VECTOR_DISASSEMBLE(kDivideS, "divideS")
         VECTOR_DISASSEMBLE(kDivideU, "divideu")
@@ -132,12 +131,10 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
             printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
             break;
         }
-        VECTOR_DISASSEMBLE(kMix, "mix")
         VECTOR_MATRIX_DISASSEMBLE(kMultiplyF, "multiplyf")
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
         VECTOR_MATRIX_DISASSEMBLE(kNegateF, "negatef")
         VECTOR_DISASSEMBLE(kNegateI, "negatei")
-        VECTOR_DISASSEMBLE(kNormalize, "normalize")
         case ByteCodeInstruction::kNotB: printf("notb"); break;
         case ByteCodeInstruction::kOrB: printf("orb"); break;
         VECTOR_MATRIX_DISASSEMBLE(kPop, "pop")
@@ -346,10 +343,6 @@ struct StackFrame {
     int fParameterCount;
 };
 
-static F32 mix(F32 start, F32 end, F32 t) {
-    return start * (1 - t) + end * t;
-}
-
 // TODO: trunc on integers?
 template <typename T>
 static T vec_mod(T a, T b) {
@@ -513,19 +506,6 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                                                      break;
 
             VECTOR_UNARY_FN_VEC(kCos, cosf)
-
-            case ByteCodeInstruction::kCross: {
-                F32 ax = sp[-5].fFloat, ay = sp[-4].fFloat, az = sp[-3].fFloat,
-                    bx = sp[-2].fFloat, by = sp[-1].fFloat, bz = sp[ 0].fFloat;
-                F32 cx = ay*bz - az*by,
-                    cy = az*bx - ax*bz,
-                    cz = ax*by - ay*bx;
-                sp -= 3;
-                sp[-2] = cx;
-                sp[-1] = cy;
-                sp[ 0] = cz;
-                break;
-            }
 
             VECTOR_BINARY_OP(kDivideS, fSigned, /)
             VECTOR_BINARY_OP(kDivideU, fUnsigned, /)
@@ -740,30 +720,6 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 break;
             }
 
-            // stack looks like: X1 Y1 Z1 W1 X2 Y2 Z2 W2 T
-            case ByteCodeInstruction::kMix4:
-                sp[-5] = mix(sp[-5].fFloat, sp[-1].fFloat, sp[0].fFloat);
-                // fall through
-            case ByteCodeInstruction::kMix3: {
-                int count = (int) inst - (int) ByteCodeInstruction::kMix + 1;
-                int target = 2 - count * 2;
-                sp[target] = mix(sp[target].fFloat, sp[2 - count].fFloat, sp[0].fFloat);
-                // fall through
-            }
-            case ByteCodeInstruction::kMix2: {
-                int count = (int) inst - (int) ByteCodeInstruction::kMix + 1;
-                int target = 1 - count * 2;
-                sp[target] = mix(sp[target].fFloat, sp[1 - count].fFloat, sp[0].fFloat);
-                // fall through
-            }
-            case ByteCodeInstruction::kMix: {
-                int count = (int) inst - (int) ByteCodeInstruction::kMix + 1;
-                int target = -count * 2;
-                sp[target] = mix(sp[target].fFloat, sp[-count].fFloat, sp[0].fFloat);
-                sp -= 1 + count;
-                break;
-            }
-
             VECTOR_BINARY_OP(kMultiplyI, fSigned, *)
             VECTOR_MATRIX_BINARY_OP(kMultiplyF, fFloat, *)
 
@@ -786,22 +742,6 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             case ByteCodeInstruction::kNegateI2: sp[-1] = -sp[-1].fSigned;
             case ByteCodeInstruction::kNegateI : sp[ 0] = -sp[ 0].fSigned;
                                                  break;
-
-            case ByteCodeInstruction::kNormalize:
-            case ByteCodeInstruction::kNormalize2:
-            case ByteCodeInstruction::kNormalize3:
-            case ByteCodeInstruction::kNormalize4: {
-                int count = (int)inst - (int)ByteCodeInstruction::kNormalize + 1;
-                F32 len = sp[0].fFloat * sp[0].fFloat;
-                for (int i = 1; i < count; ++i) {
-                    len = skvx::mad(sp[-i].fFloat, sp[-i].fFloat, len);
-                }
-                F32 invLen = 1.0f / skvx::sqrt(len);
-                for (int i = 0; i < count; ++i) {
-                    sp[-i].fFloat *= invLen;
-                }
-                break;
-            }
 
             case ByteCodeInstruction::kPop4: POP();
             case ByteCodeInstruction::kPop3: POP();

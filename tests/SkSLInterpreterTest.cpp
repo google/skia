@@ -38,7 +38,7 @@ void test(skiatest::Reporter* r, const char* src, float* in, int expectedCount, 
             printf("%s\n%s", src, compiler.errorText().c_str());
             return;
         }
-        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
         std::unique_ptr<float[]> out = std::unique_ptr<float[]>(new float[expectedCount]);
         SkAssertResult(byteCode->run(main, in, out.get(), 1, nullptr, 0));
         bool valid = exactCompare ? !memcmp(out.get(), expected, sizeof(float) * expectedCount)
@@ -943,7 +943,7 @@ DEF_TEST(SkSLInterpreterExternalValues, r) {
             printf("%s\n%s", src, compiler.errorText().c_str());
             return;
         }
-        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
         float out;
         SkAssertResult(byteCode->run(main, nullptr, &out, 1, nullptr, 0));
         REPORTER_ASSERT(r, out == 66.0);
@@ -976,7 +976,7 @@ DEF_TEST(SkSLInterpreterExternalValuesVector, r) {
             printf("%s\n%s", src, compiler.errorText().c_str());
             return;
         }
-        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
         SkAssertResult(byteCode->run(main, nullptr, nullptr, 1, nullptr, 0));
         REPORTER_ASSERT(r, value[0] == 2);
         REPORTER_ASSERT(r, value[1] == 4);
@@ -1041,7 +1041,7 @@ DEF_TEST(SkSLInterpreterExternalValuesCall, r) {
             printf("%s\n%s", src, compiler.errorText().c_str());
             return;
         }
-        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
         float out;
         SkAssertResult(byteCode->run(main, nullptr, &out, 1, nullptr, 0));
         REPORTER_ASSERT(r, out == 5.0);
@@ -1109,7 +1109,7 @@ DEF_TEST(SkSLInterpreterExternalValuesVectorCall, r) {
             printf("%s\n%s", src, compiler.errorText().c_str());
             return;
         }
-        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
         float out[4];
         SkAssertResult(byteCode->run(main, nullptr, out, 1, nullptr, 0));
         REPORTER_ASSERT(r, out[0] == 1.0);
