@@ -1032,7 +1032,8 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                           int mipLevelCount,
                                           int baseWidth,
                                           int baseHeight,
-                                          bool* changedUnpackRowLength) {
+                                          bool* changedUnpackRowLength,
+                                          GrMipMapsStatus* mipMapsStatus) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
 
     if (caps.configSupportsTexStorage(config)) {
@@ -1048,6 +1049,9 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
             for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
                 const void* currentMipData = texels[currentMipLevel].fPixels;
                 if (currentMipData == nullptr) {
+                    if (mipMapsStatus) {
+                        *mipMapsStatus = GrMipMapsStatus::kDirty;
+                    }
                     continue;
                 }
                 int twoToTheMipLevel = 1 << currentMipLevel;
@@ -1103,7 +1107,8 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 const int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
                 const int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
 
-                if (texels[currentMipLevel].fPixels) {
+                const void* currentMipData = texels[currentMipLevel].fPixels;
+                if (currentMipData) {
                     const size_t trimRowBytes = currentWidth * bpp;
                     const size_t rowBytes = texels[currentMipLevel].fRowBytes;
                     if (rowBytes != trimRowBytes) {
@@ -1116,9 +1121,10 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                         GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
                         *changedUnpackRowLength = false;
                     }
+                } else if (mipMapsStatus) {
+                    *mipMapsStatus = GrMipMapsStatus::kDirty;
                 }
 
-                const void* currentMipData = texels[currentMipLevel].fPixels;
                 // Even if curremtMipData is nullptr, continue to call TexImage2D.
                 // This will allocate texture memory which we can later populate.
                 GL_ALLOC_CALL(&interface,
@@ -1218,11 +1224,8 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     SkAutoSMalloc<128 * 128> tempStorage;
 
     if (mipMapsStatus) {
-        *mipMapsStatus = GrMipMapsStatus::kValid;
-    }
-
-    if (mipMapsStatus && mipLevelCount <= 1) {
-        *mipMapsStatus = GrMipMapsStatus::kNotAllocated;
+        *mipMapsStatus = (mipLevelCount > 1)
+                ? GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
     }
 
     if (mipLevelCount) {
@@ -1235,13 +1238,16 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             succeeded = allocate_and_populate_texture(
                     texConfig, *interface, caps, target, internalFormat,
                     internalFormatForTexStorage, externalFormat, externalType, texels,
-                    mipLevelCount, width, height, &restoreGLRowLength);
+                    mipLevelCount, width, height, &restoreGLRowLength, mipMapsStatus);
         } else {
             succeeded = false;
         }
     } else {
         for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
             if (!texels[currentMipLevel].fPixels) {
+                if (mipMapsStatus) {
+                    *mipMapsStatus = GrMipMapsStatus::kDirty;
+                }
                 continue;
             }
             int twoToTheMipLevel = 1 << currentMipLevel;
