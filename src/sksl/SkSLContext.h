@@ -91,8 +91,9 @@ public:
     , fDouble4x2_Type(new Type("double4x2", *fDouble_Type, 4, 2))
     , fDouble4x3_Type(new Type("double4x3", *fDouble_Type, 4, 3))
     , fDouble4x4_Type(new Type("double4x4", *fDouble_Type, 4, 4))
+    , fTexture2D_Type(new Type("texture2D", Type::kTexture_Kind))
     , fSampler1D_Type(new Type("sampler1D", SpvDim1D, false, false, false, true))
-    , fSampler2D_Type(new Type("sampler2D", SpvDim2D, false, false, false, true))
+    , fSampler2D_Type(new Type("sampler2D", SpvDim2D, false, false, false, true, &*fTexture2D_Type))
     , fSampler3D_Type(new Type("sampler3D", SpvDim3D, false, false, false, true))
     , fSamplerExternalOES_Type(new Type("samplerExternalOES", SpvDim2D, false, false,
                                         false, true))
@@ -116,6 +117,7 @@ public:
     // Related to below FIXME, gsampler*s don't currently expand to cover integer case.
     , fISampler2D_Type(new Type("isampler2D", SpvDim2D, false, false, false, true))
 
+    , fSampler_Type(new Type("sampler", Type::kSeparateSampler_Kind))
     // FIXME express these as "gimage2D" that expand to image2D, iimage2D, and uimage2D.
     , fImage2D_Type(new Type("image2D", SpvDim2D, false, false, false, true))
     , fIImage2D_Type(new Type("iimage2D", SpvDim2D, false, false, false, true))
@@ -293,6 +295,8 @@ public:
     const std::unique_ptr<Type> fDouble4x3_Type;
     const std::unique_ptr<Type> fDouble4x4_Type;
 
+    const std::unique_ptr<Type> fTexture2D_Type;
+
     const std::unique_ptr<Type> fSampler1D_Type;
     const std::unique_ptr<Type> fSampler2D_Type;
     const std::unique_ptr<Type> fSampler3D_Type;
@@ -314,6 +318,7 @@ public:
     const std::unique_ptr<Type> fSamplerCubeArrayShadow_Type;
 
     const std::unique_ptr<Type> fISampler2D_Type;
+    const std::unique_ptr<Type> fSampler_Type;
 
     const std::unique_ptr<Type> fImage2D_Type;
     const std::unique_ptr<Type> fIImage2D_Type;

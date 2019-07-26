@@ -49,8 +49,10 @@ public:
         kMatrix_Kind,
         kOther_Kind,
         kSampler_Kind,
+        kSeparateSampler_Kind,
         kScalar_Kind,
         kStruct_Kind,
+        kTexture_Kind,
         kVector_Kind
     };
 
@@ -194,7 +196,7 @@ public:
 
     // Create a sampler type.
     Type(const char* name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
-         bool isSampled)
+         bool isSampled, Type* textureType = nullptr)
     : INHERITED(-1, kType_Kind, StringFragment())
     , fNameString(name)
     , fTypeKind(kSampler_Kind)
@@ -203,7 +205,9 @@ public:
     , fIsDepth(isDepth)
     , fIsArrayed(isArrayed)
     , fIsMultisampled(isMultisampled)
-    , fIsSampled(isSampled) {
+    , fIsSampled(isSampled)
+    , fTextureType(textureType)
+    {
         fName.fChars = fNameString.c_str();
         fName.fLength = fNameString.size();
     }
@@ -305,6 +309,14 @@ public:
     }
 
     /**
+     * For texturesamplers, returns the type of texture it samples (e.g., sampler2D has
+     * a texture type of texture2D).
+     */
+    const Type* textureType() const {
+        return fTextureType;
+    }
+
+    /**
      * For nullable types, returns the base type, otherwise returns the type itself.
      */
     const Type& nonnullable() const {
@@ -349,27 +361,27 @@ public:
     }
 
     SpvDim_ dimensions() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fDimensions;
     }
 
     bool isDepth() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fIsDepth;
     }
 
     bool isArrayed() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fIsArrayed;
     }
 
     bool isMultisampled() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fIsMultisampled;
     }
 
     bool isSampled() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fIsSampled;
     }
 
@@ -405,6 +417,7 @@ private:
     bool fIsMultisampled = false;
     bool fIsSampled = false;
     bool fHighPrecision = false;
+    const Type* fTextureType = nullptr;
 };
 
 } // namespace
