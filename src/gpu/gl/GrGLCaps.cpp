@@ -3734,8 +3734,8 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
     return fallbackRead;
 }
 
-GrColorType GrGLCaps::supportedWritePixelsColorType(GrPixelConfig config,
-                                                    GrColorType srcColorType) const {
+GrCaps::SupportedWrite GrGLCaps::supportedWritePixelsColorType(GrPixelConfig config,
+                                                               GrColorType srcColorType) const {
     GrGLFormat surfaceFormat = this->pixelConfigToFormat(config);
     GrColorType surfaceColorType = GrPixelConfigToColorType(config);
 
@@ -3752,7 +3752,7 @@ GrColorType GrGLCaps::supportedWritePixelsColorType(GrPixelConfig config,
                 const auto& ioInfo = ctInfo.fExternalIOFormats[j];
                 if (ioInfo.fExternalTexImageFormat != 0) {
                     if (ioInfo.fColorType == srcColorType) {
-                        return srcColorType;
+                        return {srcColorType, 1};
                     }
                     // Currently we just pick the first supported format that we find as our
                     // fallback.
@@ -3763,7 +3763,7 @@ GrColorType GrGLCaps::supportedWritePixelsColorType(GrPixelConfig config,
             }
         }
     }
-    return fallbackCT;
+    return {fallbackCT, 1};
 }
 
 bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& backendRT) const {

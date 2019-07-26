@@ -1292,6 +1292,15 @@ public:
     constexpr int g() const { return fGBits; }
     constexpr int b() const { return fBBits; }
     constexpr int a() const { return fABits; }
+    constexpr int operator[](int c) const {
+        switch (c) {
+            case 0: return this->r();
+            case 1: return this->g();
+            case 2: return this->b();
+            case 3: return this->a();
+        }
+        SkUNREACHABLE;
+    }
 
     constexpr int gray() const { return fGrayBits; }
 

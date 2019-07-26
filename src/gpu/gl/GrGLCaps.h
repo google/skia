@@ -349,11 +349,9 @@ public:
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
-    SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
-                                                 GrColorType) const override;
 
-    GrColorType supportedWritePixelsColorType(GrPixelConfig config,
-                                              GrColorType srcColorType) const override;
+    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+                                                 GrColorType srcColorType) const override;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
@@ -506,6 +504,9 @@ private:
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
+
+    SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
+                                                 GrColorType) const override;
 
     bool isFormatTexturable(GrColorType, GrGLFormat) const;
     bool formatSupportsTexStorage(GrGLFormat) const;

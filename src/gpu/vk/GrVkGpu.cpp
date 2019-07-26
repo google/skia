@@ -464,8 +464,8 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
 bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                                  GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
                                  size_t bufferOffset, size_t rowBytes) {
-    // Vulkan only supports 4-byte aligned offsets
-    if (SkToBool(bufferOffset & 0x2)) {
+    // Vulkan only supports offsets that are both 4-byte aligned and aligned to a pixel.
+    if ((bufferOffset & 0x3) || (bufferOffset % GrColorTypeBytesPerPixel(bufferColorType))) {
         return false;
     }
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(texture);

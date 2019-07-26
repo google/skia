@@ -46,11 +46,12 @@ public:
     int maxRenderTargetSampleCount(GrPixelConfig) const override;
     int maxRenderTargetSampleCount(MTLPixelFormat) const;
 
+    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+                                                 GrColorType srcColorType) const override;
+
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
         return SurfaceReadPixelsSupport::kSupported;
     }
-    SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
-                                                 GrColorType) const override;
 
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
@@ -91,6 +92,9 @@ private:
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
+
+    SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
+                                                 GrColorType) const override;
 
     struct FormatInfo {
         FormatInfo() : fFlags(0) {}
