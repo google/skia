@@ -1173,9 +1173,8 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                 case SK_FRAGCOORD_BUILTIN:
                     if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                         fInputs.fFlipY = true;
-                        if (fSettings->fFlipY &&
-                            (!fSettings->fCaps ||
-                             !fSettings->fCaps->fragCoordConventionsExtensionString())) {
+                        if (!fSettings->fCaps ||
+                            !fSettings->fCaps->fragCoordConventionsExtensionString()) {
                             fInputs.fRTHeight = true;
                         }
                     }
