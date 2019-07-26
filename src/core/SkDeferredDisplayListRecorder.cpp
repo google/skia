@@ -153,8 +153,10 @@ bool SkDeferredDisplayListRecorder::init() {
     if (usesGLFBO0) {
         surfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
-    static constexpr GrProxyProvider::TextureInfo kTextureInfo{GrMipMapped::kNo,
-                                                               GrTextureType::k2D};
+    const GrProxyProvider::TextureInfo kTextureInfo{
+        GrMipMapped(fCharacterization.isMipMapped()),
+        GrTextureType::k2D
+    };
     const GrProxyProvider::TextureInfo* optionalTextureInfo = nullptr;
     if (fCharacterization.isTextureable()) {
         optionalTextureInfo = &kTextureInfo;
