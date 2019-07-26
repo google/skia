@@ -15,12 +15,14 @@
 
 #include <vector>
 
+class SkFontMgr;
+
 namespace skottie {
 namespace internal {
 
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {
 public:
-    TextAdapter(sk_sp<sksg::Group> root, bool hasAnimators);
+    TextAdapter(sk_sp<sksg::Group> root, sk_sp<SkFontMgr>, bool hasAnimators);
     ~TextAdapter();
 
     ADAPTER_PROPERTY(Text, TextValue, TextValue())
@@ -49,11 +51,12 @@ private:
                             const TextAnimator::DomainSpan&,
                             float line_tracking) const;
 
-    sk_sp<sksg::Group>       fRoot;
+    const sk_sp<sksg::Group> fRoot;
+    const sk_sp<SkFontMgr>   fFontMgr;
+    const bool               fHasAnimators;
+
     std::vector<FragmentRec> fFragments;
     TextAnimator::DomainMaps fMaps;
-
-    const bool               fHasAnimators;
 };
 
 } // namespace internal
