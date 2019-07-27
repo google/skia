@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrDawnRenderTarget_DEFINED
 #define GrDawnRenderTarget_DEFINED
 
@@ -35,13 +34,13 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
     GrBackendFormat backendFormat() const override;
+    const dawn::Texture texture() const { return fInfo.fTexture; }
 
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
                        const GrSurfaceDesc& desc,
                        int sampleCnt,
-                       const GrDawnImageInfo& info,
-                       GrBackendObjectOwnership);
+                       const GrDawnImageInfo& info);
 
     GrDawnGpu* getDawnGpu() const;
 
@@ -58,7 +57,7 @@ protected:
     }
 
     static GrDawnRenderTarget* Create(GrDawnGpu*, const GrSurfaceDesc&, int sampleCnt,
-                                      const GrDawnImageInfo&, GrBackendObjectOwnership);
+                                      const GrDawnImageInfo&);
 
     bool completeStencilAttachment() override;
     GrDawnImageInfo fInfo;
