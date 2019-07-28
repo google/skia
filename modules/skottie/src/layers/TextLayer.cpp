@@ -291,7 +291,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
     }
 
     auto text_root = sksg::Group::Make();
-    auto adapter   = sk_make_sp<TextAdapter>(text_root, fLazyFontMgr.getMaybeNull(), has_animators);
+    auto adapter   = sk_make_sp<TextAdapter>(text_root,
+                                             fLazyFontMgr.getMaybeNull(),
+                                             fLogger,
+                                             has_animators);
 
     this->bindProperty<TextValue>(*jd,
         [adapter] (const TextValue& txt) {

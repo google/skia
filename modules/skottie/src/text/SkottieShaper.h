@@ -34,6 +34,7 @@ public:
 
     struct Result {
         std::vector<Fragment> fFragments;
+        size_t                fMissingGlyphCount = 0;
 
         SkRect computeVisualBounds() const;
     };

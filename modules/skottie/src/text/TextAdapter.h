@@ -22,7 +22,7 @@ namespace internal {
 
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {
 public:
-    TextAdapter(sk_sp<sksg::Group> root, sk_sp<SkFontMgr>, bool hasAnimators);
+    TextAdapter(sk_sp<sksg::Group> root, sk_sp<SkFontMgr>, sk_sp<Logger>, bool hasAnimators);
     ~TextAdapter();
 
     ADAPTER_PROPERTY(Text, TextValue, TextValue())
@@ -53,6 +53,7 @@ private:
 
     const sk_sp<sksg::Group> fRoot;
     const sk_sp<SkFontMgr>   fFontMgr;
+    sk_sp<Logger>            fLogger;
     const bool               fHasAnimators;
 
     std::vector<FragmentRec> fFragments;
