@@ -19,9 +19,11 @@
 namespace skottie {
 namespace internal {
 
-TextAdapter::TextAdapter(sk_sp<sksg::Group> root, sk_sp<SkFontMgr> fontmgr, bool hasAnimators)
+TextAdapter::TextAdapter(sk_sp<sksg::Group> root, sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger,
+                         bool hasAnimators)
     : fRoot(std::move(root))
     , fFontMgr(std::move(fontmgr))
+    , fLogger(std::move(logger))
     , fHasAnimators(hasAnimators) {}
 
 TextAdapter::~TextAdapter() = default;
@@ -131,6 +133,17 @@ void TextAdapter::apply() {
         fHasAnimators ? Shaper::Flags::kFragmentGlyphs : Shaper::Flags::kNone,
     };
     const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox, fFontMgr);
+
+    if (fLogger && shape_result.fMissingGlyphCount > 0) {
+        const auto msg = SkStringPrintf("Missing %zu glyphs for '%s'.",
+                                        shape_result.fMissingGlyphCount,
+                                        fText.fText.c_str());
+        fLogger->log(Logger::Level::kWarning, msg.c_str());
+
+        // This may trigger repeatedly when the text is animating.
+        // To avoid spamming, only log once.
+        fLogger = nullptr;
+    }
 
     // Rebuild all fragments.
     // TODO: we can be smarter here and try to reuse the existing SG structure if needed.

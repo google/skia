@@ -263,6 +263,7 @@ private:
                                           { fBox.x() + pos[i].fX, fBox.y() + pos[i].fY },
                                           line_index, is_whitespace(fUTF8[clusters[i]])
                                          });
+            fResult.fMissingGlyphCount += (glyphs[i] == kMissingGlyphID);
         }
     }
 
@@ -275,7 +276,10 @@ private:
         // to fResult as a single blob in finalize().  Glyph positions are baked in the
         // blob (Fragment::fPos only reflects the box origin).
         const auto& blob_buffer = fBuilder.allocRunPos(rec.fFont, rec.fGlyphCount);
-        sk_careful_memcpy(blob_buffer.glyphs, glyphs, rec.fGlyphCount * sizeof(SkGlyphID));
+        for (size_t i = 0; i < rec.fGlyphCount; ++i) {
+            blob_buffer.glyphs[i] = glyphs[i];
+            fResult.fMissingGlyphCount += (glyphs[i] == kMissingGlyphID);
+        }
         sk_careful_memcpy(blob_buffer.pos   , pos   , rec.fGlyphCount * sizeof(SkPoint));
     }
 
@@ -287,6 +291,8 @@ private:
         }
         return 0.0f; // go home, msvc...
     }
+
+    static constexpr SkGlyphID kMissingGlyphID = 0;
 
     const Shaper::TextDesc&   fDesc;
     const SkRect&             fBox;
