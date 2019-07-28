@@ -46,6 +46,30 @@
       "revId": "10bdc34f75e2b72e62bb7d1f6f7c16ce661b1ff7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78552531_5b27d367",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-28T17:31:33Z",
+      "side": 1,
+      "message": "SkStringPrintf needs this: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-format-function-attribute",
+      "parentUuid": "38506c08_6ba20747",
+      "range": {
+        "startLine": 138,
+        "startChar": 49,
+        "endLine": 138,
+        "endChar": 51
+      },
+      "revId": "10bdc34f75e2b72e62bb7d1f6f7c16ce661b1ff7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
