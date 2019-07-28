@@ -22,6 +22,30 @@
       "revId": "10bdc34f75e2b72e62bb7d1f6f7c16ce661b1ff7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38506c08_6ba20747",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-28T15:09:28Z",
+      "side": 1,
+      "message": "Good catch, \"%z\" is not a valid format string, should be \"%zu\" (the conversion specifier is not optional).  Kinda disappointing that it doesn\u0027t break build, we must be disabling the related warnings...\n\nDone.\n\n(if you were asking about \"z\" specifically, it\u0027s the portable size_t length specifier, introduced in a later C spec IIRC)",
+      "parentUuid": "0cf3f8fa_32effe7c",
+      "range": {
+        "startLine": 138,
+        "startChar": 49,
+        "endLine": 138,
+        "endChar": 51
+      },
+      "revId": "10bdc34f75e2b72e62bb7d1f6f7c16ce661b1ff7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
