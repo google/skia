@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dfc7eb8_974bbabc",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-29T20:57:51Z",
+      "side": 1,
+      "message": "nit this-\u003e",
+      "range": {
+        "startLine": 49,
+        "startChar": 21,
+        "endLine": 49,
+        "endChar": 26
+      },
+      "revId": "2ddbf4e278de8ee831a93daa2fa84b9c3c105aa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd1f346b_c7b61ee4",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-29T20:57:51Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 57,
+        "startChar": 26,
+        "endLine": 57,
+        "endChar": 32
+      },
+      "revId": "2ddbf4e278de8ee831a93daa2fa84b9c3c105aa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

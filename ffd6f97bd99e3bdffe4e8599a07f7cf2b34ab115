@@ -140,6 +140,30 @@
       "revId": "ffd6f97bd99e3bdffe4e8599a07f7cf2b34ab115",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c44a091_cde8de83",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-29T20:57:51Z",
+      "side": 1,
+      "message": "Yeah this was actually something wrong so makes sense to fix it here. But since we\u0027re breaking down these reviews into small CLs, if a \"feature\" is ever suggested that you already have in a follow on CL, feel free to say that and not actually move it forward.",
+      "parentUuid": "c54c4b37_2a62fdf4",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 19
+      },
+      "revId": "ffd6f97bd99e3bdffe4e8599a07f7cf2b34ab115",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
