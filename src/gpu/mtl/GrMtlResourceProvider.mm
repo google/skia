@@ -21,7 +21,18 @@
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
-    fBufferSuballocator.reset(new BufferSuballocator(gpu->device(), kBufferSuballocatorStartSize));
+
+#ifdef SK_BUILD_FOR_MAC
+    NSUInteger dynamicBufferOptions = MTLResourceStorageModeManaged;
+#else
+    NSUInteger dynamicBufferOptions = MTLResourceStorageModeShared;
+#endif
+    fDynamicBufferSuballocator.reset(new BufferSuballocator(gpu->device(),
+                                                            kBufferSuballocatorStartSize,
+                                                            dynamicBufferOptions));
+    fTransferBufferSuballocator.reset(new BufferSuballocator(gpu->device(),
+                                                             kBufferSuballocatorStartSize,
+                                                             MTLResourceStorageModeShared));
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
@@ -161,14 +172,8 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-static id<MTLBuffer> alloc_dynamic_buffer(id<MTLDevice> device, size_t size) {
-    return [device newBufferWithLength: size
-#ifdef SK_BUILD_FOR_MAC
-                               options: MTLResourceStorageModeManaged];
-#else
-                               options: MTLResourceStorageModeShared];
-#endif
-
+static id<MTLBuffer> alloc_dynamic_buffer(id<MTLDevice> device, size_t size, NSUInteger options) {
+    return [device newBufferWithLength: size options:options];
 }
 
 // The idea here is that we create a ring buffer which is used for all dynamic allocations
@@ -177,9 +182,11 @@ static id<MTLBuffer> alloc_dynamic_buffer(id<MTLDevice> device, size_t size) {
 // This prevents the buffer from overwriting itself before it's submitted to the command
 // stream.
 
-GrMtlResourceProvider::BufferSuballocator::BufferSuballocator(id<MTLDevice> device, size_t size)
-        : fBuffer(alloc_dynamic_buffer(device, size))
+GrMtlResourceProvider::BufferSuballocator::BufferSuballocator(id<MTLDevice> device, size_t size,
+                                                              NSUInteger options)
+        : fBuffer(alloc_dynamic_buffer(device, size, options))
         , fTotalSize(size)
+        , fOptions(options)
         , fHead(0)
         , fTail(0) {
     // We increment fHead and fTail without bound and let overflow handle any wrapping.
@@ -251,8 +258,9 @@ void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
     });
 }
 
-id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
-    id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
+id<MTLBuffer> GrMtlResourceProvider::getBuffer(sk_sp<BufferSuballocator>* suballocator,
+                                               size_t size, size_t* offset) {
+    id<MTLBuffer> buffer = (*suballocator)->getAllocation(size, offset);
     if (buffer) {
         return buffer;
     }
@@ -261,20 +269,22 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
     // We grow up to a maximum size, and only grow if the requested allocation will
     // fit into half of the new buffer (to prevent very large transient buffers forcing
     // growth when they'll never fit anyway).
-    if (fBufferSuballocator->size() < kBufferSuballocatorMaxSize &&
-        size <= fBufferSuballocator->size()) {
-        fBufferSuballocator.reset(new BufferSuballocator(fGpu->device(),
-                                                         2*fBufferSuballocator->size()));
-        id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
+    if ((*suballocator)->size() < kBufferSuballocatorMaxSize &&
+        size <= (*suballocator)->size()) {
+        (*suballocator).reset(new BufferSuballocator(fGpu->device(),
+                                                     2 * (*suballocator)->size(),
+                                                     (*suballocator)->options()));
+        id<MTLBuffer> buffer = (*suballocator)->getAllocation(size, offset);
         if (buffer) {
             return buffer;
         }
     }
 
     *offset = 0;
-    return alloc_dynamic_buffer(fGpu->device(), size);
+    return alloc_dynamic_buffer(fGpu->device(), size, (*suballocator)->options());
 }
 
-void GrMtlResourceProvider::addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer) {
-    fBufferSuballocator->addCompletionHandler(cmdBuffer);
+void GrMtlResourceProvider::addBufferCompletionHandlers(GrMtlCommandBuffer* cmdBuffer) {
+    fDynamicBufferSuballocator->addCompletionHandler(cmdBuffer);
+    fTransferBufferSuballocator->addCompletionHandler(cmdBuffer);
 }
