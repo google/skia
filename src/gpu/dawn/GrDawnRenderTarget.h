@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrDawnRenderTarget_DEFINED
 #define GrDawnRenderTarget_DEFINED
 
