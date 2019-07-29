@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db6cb034_201782d6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-29T16:56:21Z",
+      "side": 1,
+      "message": "IIRC, I tried several times to switch to Clang but ran into lots of Valgrind warnings about system libraries (or something like that, it\u0027s been a long time).",
+      "revId": "04305c1256c61bffe46cc2b62ee827f984e1ae9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
