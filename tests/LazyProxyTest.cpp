@@ -81,8 +81,8 @@ public:
         Op(GrRecordingContext* ctx, GrProxyProvider* proxyProvider,
            LazyProxyTest* test, bool nullTexture)
                     : GrDrawOp(ClassID()), fTest(test) {
-            const GrBackendFormat format =
-                    ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kBGR_565);
+            const GrBackendFormat format = ctx->defaultBackendFormat(kRGB_565_SkColorType,
+                                                                     GrRenderable::kNo);
             fProxy = GrProxyProvider::MakeFullyLazyProxy(
                     [this, nullTexture](
                             GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationResult {
@@ -231,8 +231,8 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
     desc.fHeight = kSize;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    GrBackendFormat format =
-            ctx->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
+    GrBackendFormat format = ctx->defaultBackendFormat(kRGBA_8888_SkColorType,
+                                                       GrRenderable::kNo);
 
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
     using LazyInstantiationResult = GrSurfaceProxy::LazyInstantiationResult;

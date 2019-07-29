@@ -138,8 +138,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     GrOnFlushResourceProvider onFlushResourceProvider(drawingManager);
     TestingUploadTarget uploadTarget;
 
-    GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_8);
+    GrBackendFormat format = context->defaultBackendFormat(kAlpha_8_SkColorType,
+                                                           GrRenderable::kNo);
 
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
