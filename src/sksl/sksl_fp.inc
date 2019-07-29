@@ -23,8 +23,8 @@ layout(builtin=10006) sampler2D[] sk_TextureSamplers;
 layout(builtin=10011) half sk_Width;
 layout(builtin=10012) half sk_Height;
 
-half4 process(fragmentProcessor fp);
-half4 process(fragmentProcessor fp, half4 input);
-half4 process(fragmentProcessor? fp);
-half4 process(fragmentProcessor? fp, half4 input);
+half4 sample(fragmentProcessor fp);
+half4 sample(fragmentProcessor fp, half4 input);
+half4 sample(fragmentProcessor? fp);
+half4 sample(fragmentProcessor? fp, half4 input);
 )

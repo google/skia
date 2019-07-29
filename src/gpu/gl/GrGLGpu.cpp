@@ -3287,7 +3287,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     fshaderTxt.appendf(
         "// Copy Program FS\n"
         "void main() {"
-        "  sk_FragColor = texture(u_texture, v_texCoord);"
+        "  sk_FragColor = sample(u_texture, v_texCoord);"
         "}"
     );
 
@@ -3427,19 +3427,19 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
 
     if (oddWidth && oddHeight) {
         fshaderTxt.append(
-            "  sk_FragColor = (texture(u_texture, v_texCoord0) + "
-            "                  texture(u_texture, v_texCoord1) + "
-            "                  texture(u_texture, v_texCoord2) + "
-            "                  texture(u_texture, v_texCoord3)) * 0.25;"
+            "  sk_FragColor = (sample(u_texture, v_texCoord0) + "
+            "                  sample(u_texture, v_texCoord1) + "
+            "                  sample(u_texture, v_texCoord2) + "
+            "                  sample(u_texture, v_texCoord3)) * 0.25;"
         );
     } else if (oddWidth || oddHeight) {
         fshaderTxt.append(
-            "  sk_FragColor = (texture(u_texture, v_texCoord0) + "
-            "                  texture(u_texture, v_texCoord1)) * 0.5;"
+            "  sk_FragColor = (sample(u_texture, v_texCoord0) + "
+            "                  sample(u_texture, v_texCoord1)) * 0.5;"
         );
     } else {
         fshaderTxt.append(
-            "  sk_FragColor = texture(u_texture, v_texCoord0);"
+            "  sk_FragColor = sample(u_texture, v_texCoord0);"
         );
     }
 

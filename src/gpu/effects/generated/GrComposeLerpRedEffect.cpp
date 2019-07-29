@@ -23,24 +23,24 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrComposeLerpRedEffect& _outer = args.fFp.cast<GrComposeLerpRedEffect>();
         (void)_outer;
-        SkString _child0("_child0");
+        SkString _sample292("_sample292");
         if (_outer.child1_index >= 0) {
-            this->invokeChild(_outer.child1_index, &_child0, args);
+            this->invokeChild(_outer.child1_index, &_sample292, args);
         } else {
-            fragBuilder->codeAppendf("half4 %s;", _child0.c_str());
+            fragBuilder->codeAppendf("half4 %s;", _sample292.c_str());
         }
-        SkString _child1("_child1");
+        SkString _sample360("_sample360");
         if (_outer.child2_index >= 0) {
-            this->invokeChild(_outer.child2_index, &_child1, args);
+            this->invokeChild(_outer.child2_index, &_sample360, args);
         } else {
-            fragBuilder->codeAppendf("half4 %s;", _child1.c_str());
+            fragBuilder->codeAppendf("half4 %s;", _sample360.c_str());
         }
-        SkString _child2("_child2");
-        this->invokeChild(_outer.lerp_index, &_child2, args);
+        SkString _sample411("_sample411");
+        this->invokeChild(_outer.lerp_index, &_sample411, args);
         fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, %s.x);\n", args.fOutputColor,
-                                 _outer.child1_index >= 0 ? "true" : "false", _child0.c_str(),
+                                 _outer.child1_index >= 0 ? "true" : "false", _sample292.c_str(),
                                  args.fInputColor, _outer.child2_index >= 0 ? "true" : "false",
-                                 _child1.c_str(), args.fInputColor, _child2.c_str());
+                                 _sample360.c_str(), args.fInputColor, _sample411.c_str());
     }
 
 private:
