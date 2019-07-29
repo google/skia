@@ -11,6 +11,7 @@
 #include "src/utils/SkUTF.h"
 
 #include "experimental/editor/run_handler.h"
+#include "experimental/editor/utf8_tools.h"
 
 #include <algorithm>
 
@@ -210,31 +211,6 @@ Editor::TextPosition Editor::getPosition(SkIPoint xy) {
         approximatePosition = {xy.x() <= line.fOrigin.x() ? 0 : line.fText.size(), j};
     }
     return approximatePosition;
-}
-
-static inline bool is_utf8_continuation(char v) {
-    return ((unsigned char)v & 0b11000000) ==
-                               0b10000000;
-}
-
-static const char* next_utf8(const char* p, const char* end) {
-    if (p < end) {
-        do {
-            ++p;
-        } while (p < end && is_utf8_continuation(*p));
-    }
-    return p;
-}
-
-static const char* align_utf8(const char* p, const char* begin) {
-    while (p > begin && is_utf8_continuation(*p)) {
-        --p;
-    }
-    return p;
-}
-
-static const char* prev_utf8(const char* p, const char* begin) {
-    return p > begin ? align_utf8(p - 1, begin) : begin;
 }
 
 static size_t count_char(const StringSlice& string, char value) {
