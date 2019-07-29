@@ -103,7 +103,7 @@ void SPIRVCodeGenerator::setupIntrinsics() {
                                                            SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[String("makeSampler2D")] = SPECIAL(SampledImage);
 
-    fIntrinsicMap[String("texture")]     = SPECIAL(Texture);
+    fIntrinsicMap[String("sample")]      = SPECIAL(Texture);
     fIntrinsicMap[String("subpassLoad")] = SPECIAL(SubpassLoad);
 
     fIntrinsicMap[String("any")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,

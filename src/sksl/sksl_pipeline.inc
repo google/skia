@@ -17,5 +17,5 @@ STRINGIFY(
     layout(builtin=10010) int sk_y;
     layout(builtin=10004) out half4 sk_OutColor;
 
-    half4 process(fragmentProcessor fp);
+    half4 sample(fragmentProcessor fp);
 )

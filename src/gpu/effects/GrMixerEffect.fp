@@ -39,8 +39,8 @@ in uniform half      weight;
 @optimizationFlags { OptFlags(fp0, fp1) }
 
 void main() {
-    half4 in0 = process(fp0, sk_InColor);
-    half4 in1 = (fp1 != null) ? process(fp1, sk_InColor) : sk_InColor;
+    half4 in0 = sample(fp0, sk_InColor);
+    half4 in1 = (fp1 != null) ? sample(fp1, sk_InColor) : sk_InColor;
 
     sk_OutColor = mix(in0, in1, weight);
 }

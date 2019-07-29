@@ -281,7 +281,7 @@ void main() {
     half2 vec = half2(half((sk_FragCoord.x - circleData.x) * circleData.w),
                       half((sk_FragCoord.y - circleData.y) * circleData.w));
     half dist = length(vec) + (0.5 - circleData.z) * circleData.w;
-    sk_OutColor = sk_InColor * texture(blurProfileSampler, half2(dist, 0.5)).a;
+    sk_OutColor = sk_InColor * sample(blurProfileSampler, half2(dist, 0.5)).a;
 }
 
 @test(testData) {
