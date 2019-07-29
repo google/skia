@@ -22,6 +22,30 @@
       "revId": "96827b125f3a91ad9423a3f51d312518b9cdd425",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf21d9e8_874ceb81",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-07-29T17:06:08Z",
+      "side": 0,
+      "message": "Just missed a line when doing the copy-paste. Fixed.",
+      "parentUuid": "4d78abd4_95083b91",
+      "range": {
+        "startLine": 590,
+        "startChar": 0,
+        "endLine": 593,
+        "endChar": 0
+      },
+      "revId": "96827b125f3a91ad9423a3f51d312518b9cdd425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
