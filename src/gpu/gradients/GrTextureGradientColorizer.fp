@@ -14,5 +14,5 @@ in uniform sampler2D gradient;
 
 void main() {
     half2 coord = half2(sk_InColor.x, 0.5);
-    sk_OutColor = texture(gradient, coord);
+    sk_OutColor = sample(gradient, coord);
 }

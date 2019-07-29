@@ -257,27 +257,27 @@ $genIType findMSB($genUType value);
 sampler2D makeSampler2D(texture2D texture, sampler sampler);
 int2 textureSize($gsampler2DRect sampler);
 
-half4 texture($gsampler1D sampler, float P);
-half4 texture($gsampler1D sampler, float P, float bias);
-half4 texture($gsampler2D sampler, float2 P);
+half4 sample($gsampler1D sampler, float P);
+half4 sample($gsampler1D sampler, float P, float bias);
+half4 sample($gsampler2D sampler, float2 P);
 // The above currently only expand to handle the float/fixed case. So we also declare this integer
-// version of texture().
-int4 texture(isampler2D sampler, float2 P);
-half4 texture(samplerExternalOES sampler, float2 P, float bias);
-half4 texture(samplerExternalOES sampler, float2 P);
+// version of sample().
+int4 sample(isampler2D sampler, float2 P);
+half4 sample(samplerExternalOES sampler, float2 P, float bias);
+half4 sample(samplerExternalOES sampler, float2 P);
 
-half4 texture($gsampler2DRect sampler, float2 P);
-half4 texture($gsampler2DRect sampler, float3 P);
+half4 sample($gsampler2DRect sampler, float2 P);
+half4 sample($gsampler2DRect sampler, float3 P);
 
 // Currently we do not support the generic types of loading subpassInput so we have some explicit
 // versions that we currently use
 float4 subpassLoad(subpassInput subpass);
 float4 subpassLoad(subpassInputMS subpass, int sample);
 
-half4 texture($gsampler1D sampler, float2 P);
-half4 texture($gsampler1D sampler, float2 P, float bias);
-half4 texture($gsampler2D sampler, float3 P);
-half4 texture($gsampler2D sampler, float3 P, float bias);
+half4 sample($gsampler1D sampler, float2 P);
+half4 sample($gsampler1D sampler, float2 P, float bias);
+half4 sample($gsampler2D sampler, float3 P);
+half4 sample($gsampler2D sampler, float3 P, float bias);
 
 float4 imageLoad(image2D image, int2 P);
 int4 imageLoad(iimage2D image, int2 P);

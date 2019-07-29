@@ -10,7 +10,7 @@ in fragmentProcessor? child2;
 in fragmentProcessor lerp;
 
 void main() {
-    sk_OutColor = mix(child1 != null ? process(child1) : sk_InColor,
-                      child2 != null ? process(child2) : sk_InColor,
-                      process(lerp).r);
+    sk_OutColor = mix(child1 != null ? sample(child1) : sk_InColor,
+                      child2 != null ? sample(child2) : sk_InColor,
+                      sample(lerp).r);
 }

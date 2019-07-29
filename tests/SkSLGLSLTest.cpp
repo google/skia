@@ -1047,10 +1047,10 @@ DEF_TEST(SkSLTexture, r) {
          "uniform sampler1D one;"
          "uniform sampler2D two;"
          "void main() {"
-         "float4 a = texture(one, 0);"
-         "float4 b = texture(two, float2(0));"
-         "float4 c = texture(one, float2(0));"
-         "float4 d = texture(two, float3(0));"
+         "float4 a = sample(one, 0);"
+         "float4 b = sample(two, float2(0));"
+         "float4 c = sample(one, float2(0));"
+         "float4 d = sample(two, float3(0));"
          "sk_FragColor = half4(half(a.x), half(b.x), half(c.x), half(d.x));"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
@@ -1069,10 +1069,10 @@ DEF_TEST(SkSLTexture, r) {
          "uniform sampler1D one;"
          "uniform sampler2D two;"
          "void main() {"
-         "float4 a = texture(one, 0);"
-         "float4 b = texture(two, float2(0));"
-         "float4 c = texture(one, float2(0));"
-         "float4 d = texture(two, float3(0));"
+         "float4 a = sample(one, 0);"
+         "float4 b = sample(two, float2(0));"
+         "float4 c = sample(one, float2(0));"
+         "float4 d = sample(two, float3(0));"
          "sk_FragColor = half4(half(a.x), half(b.x), half(c.x), half(d.x));"
          "}",
          *SkSL::ShaderCapsFactory::Version110(),
@@ -1098,10 +1098,10 @@ DEF_TEST(SkSLSharpen, r) {
          "uniform sampler1D one;"
          "uniform sampler2D two;"
          "void main() {"
-         "float4 a = texture(one, 0);"
-         "float4 b = texture(two, float2(0));"
-         "float4 c = texture(one, float2(0));"
-         "float4 d = texture(two, float3(0));"
+         "float4 a = sample(one, 0);"
+         "float4 b = sample(two, float2(0));"
+         "float4 c = sample(one, float2(0));"
+         "float4 d = sample(two, float3(0));"
          "sk_FragColor = half4(half(a.x), half(b.x), half(c.x), half(d.x));"
          "}",
          settings,
@@ -1124,10 +1124,10 @@ DEF_TEST(SkSLSharpen, r) {
          "uniform sampler1D one;"
          "uniform sampler2D two;"
          "void main() {"
-         "float4 a = texture(one, 0);"
-         "float4 b = texture(two, float2(0));"
-         "float4 c = texture(one, float2(0));"
-         "float4 d = texture(two, float3(0));"
+         "float4 a = sample(one, 0);"
+         "float4 b = sample(two, float2(0));"
+         "float4 c = sample(one, float2(0));"
+         "float4 d = sample(two, float3(0));"
          "sk_FragColor = half4(half(a.x), half(b.x), half(c.x), half(d.x));"
          "}",
          settings,
@@ -1607,7 +1607,7 @@ DEF_TEST(SkSLRectangleTexture, r) {
     test(r,
          "uniform sampler2D test;"
          "void main() {"
-         "    sk_FragColor = texture(test, float2(0.5));"
+         "    sk_FragColor = sample(test, float2(0.5));"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
@@ -1619,7 +1619,7 @@ DEF_TEST(SkSLRectangleTexture, r) {
     test(r,
          "uniform sampler2DRect test;"
          "void main() {"
-         "    sk_FragColor = texture(test, float2(0.5));"
+         "    sk_FragColor = sample(test, float2(0.5));"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
@@ -1631,7 +1631,7 @@ DEF_TEST(SkSLRectangleTexture, r) {
     test(r,
          "uniform sampler2DRect test;"
          "void main() {"
-         "    sk_FragColor = texture(test, float3(0.5));"
+         "    sk_FragColor = sample(test, float3(0.5));"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
@@ -1687,7 +1687,7 @@ DEF_TEST(SkSLComplexDelete, r) {
          "uniform sampler2D sampler;"
          "void main() {"
          "float4 tmpColor;"
-         "sk_FragColor = half4(1.0) * (tmpColor = texture(sampler, float2(1)) , "
+         "sk_FragColor = half4(1.0) * (tmpColor = sample(sampler, float2(1)) , "
          "half4(colorXform != float4x4(1.0) ? float4(clamp((float4x4(colorXform) * "
                                                      "float4(tmpColor.xyz, 1.0)).xyz, "
                                                      "0.0, tmpColor.w), tmpColor.w) : tmpColor));"
@@ -2090,7 +2090,7 @@ DEF_TEST(SkSLIncompleteShortIntPrecision, r) {
          "in short2 offset;"
          "void main() {"
          "    short scalar = offset.y;"
-         "    sk_FragColor = texture(tex, texcoord + float2(offset * scalar));"
+         "    sk_FragColor = sample(tex, texcoord + float2(offset * scalar));"
          "}",
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
@@ -2110,7 +2110,7 @@ DEF_TEST(SkSLIncompleteShortIntPrecision, r) {
          "in short2 offset;"
          "void main() {"
          "    short scalar = offset.y;"
-         "    sk_FragColor = texture(tex, texcoord + float2(offset * scalar));"
+         "    sk_FragColor = sample(tex, texcoord + float2(offset * scalar));"
          "}",
          *SkSL::ShaderCapsFactory::IncompleteShortIntPrecision(),
          "#version 310es\n"

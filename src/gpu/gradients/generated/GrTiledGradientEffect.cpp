@@ -29,23 +29,23 @@ public:
         (void)makePremul;
         auto colorsAreOpaque = _outer.colorsAreOpaque;
         (void)colorsAreOpaque;
-        SkString _child1("_child1");
-        this->invokeChild(_outer.gradLayout_index, &_child1, args);
+        SkString _sample453("_sample453");
+        this->invokeChild(_outer.gradLayout_index, &_sample453, args);
         fragBuilder->codeAppendf(
                 "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else {\n    @if "
                 "(%s) {\n        half t_1 = t.x - 1.0;\n        half tiled_t = (t_1 - 2.0 * "
                 "floor(t_1 * 0.5)) - 1.0;\n        if (sk_Caps.mustDoOpBetweenFloorAndAbs) {\n     "
                 "       tiled_t = clamp(tiled_t, -1.0, 1.0);\n        }\n        t.x = "
                 "abs(tiled_t);\n    } else {\n        t.x = fract(t.x);\n    }",
-                _child1.c_str(),
+                _sample453.c_str(),
                 (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
                                                                                        : "false"),
                 args.fOutputColor, (_outer.mirror ? "true" : "false"));
         SkString _input0("t");
-        SkString _child0("_child0");
-        this->invokeChild(_outer.colorizer_index, _input0.c_str(), &_child0, args);
+        SkString _sample1464("_sample1464");
+        this->invokeChild(_outer.colorizer_index, _input0.c_str(), &_sample1464, args);
         fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
-                                 args.fOutputColor, _child0.c_str(),
+                                 args.fOutputColor, _sample1464.c_str(),
                                  (_outer.makePremul ? "true" : "false"), args.fOutputColor,
                                  args.fOutputColor);
     }

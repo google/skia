@@ -51,7 +51,7 @@ public:
                 "height - float(%s));\n    float center = float(2.0 * floor(%s / 2.0 + 0.25) - "
                 "1.0);\n    float2 wh = smallDims - float2(center, center);\n    half hcoord = "
                 "half((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x) / float(%s));\n    half "
-                "hlookup = texture(%s, float2(float(hcoord), 0.5)).",
+                "hlookup = sample(%s, float2(float(hcoord), 0.5)).%s",
                 (highPrecision ? "true" : "false"), args.fUniformHandler->getUniformCStr(rectVar),
                 args.fUniformHandler->getUniformCStr(rectVar),
                 args.fUniformHandler->getUniformCStr(rectVar),
@@ -61,16 +61,16 @@ public:
                 args.fUniformHandler->getUniformCStr(profileSizeVar),
                 args.fUniformHandler->getUniformCStr(profileSizeVar),
                 args.fUniformHandler->getUniformCStr(profileSizeVar),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]));
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+                fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
         fragBuilder->codeAppendf(
-                "%s.w;\n    half vcoord = half((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y) "
-                "/ float(%s));\n    half vlookup = texture(%s, float2(float(vcoord), 0.5)).%s.w;\n "
-                "   %s = (%s * hlookup) * vlookup;\n} else {\n    half2 translatedPos = "
+                ".w;\n    half vcoord = half((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y) / "
+                "float(%s));\n    half vlookup = sample(%s, float2(float(vcoord), 0.5)).%s.w;\n    "
+                "%s = (%s * hlookup) * vlookup;\n} else {\n    half2 translatedPos = "
                 "half2(sk_FragCoord.xy - %s.xy);\n    half width = half(%s.z - %s.x);\n    half "
                 "height = half(%s.w - %s.y);\n    half2 smallDims = half2(width - %s, height - "
                 "%s);\n    half center = 2.0 * floor(%s / 2.0 + 0.25) - 1.0;\n    half2 wh = "
-                "smallDims - half2(center, center);\n    half ",
-                fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
+                "smallDims - half2(center, center);\n    half hco",
                 args.fUniformHandler->getUniformCStr(profileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
@@ -83,10 +83,10 @@ public:
                 args.fUniformHandler->getUniformCStr(profileSizeVar),
                 args.fUniformHandler->getUniformCStr(profileSizeVar));
         fragBuilder->codeAppendf(
-                "hcoord = (abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x) / %s;\n    half "
-                "hlookup = texture(%s, float2(float(hcoord), 0.5)).%s.w;\n    half vcoord = "
+                "ord = (abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x) / %s;\n    half hlookup = "
+                "sample(%s, float2(float(hcoord), 0.5)).%s.w;\n    half vcoord = "
                 "(abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y) / %s;\n    half vlookup = "
-                "texture(%s, float2(float(vcoord), 0.5)).%s.w;\n    %s = (%s * hlookup) * "
+                "sample(%s, float2(float(vcoord), 0.5)).%s.w;\n    %s = (%s * hlookup) * "
                 "vlookup;\n}\n",
                 args.fUniformHandler->getUniformCStr(profileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),

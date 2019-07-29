@@ -125,9 +125,9 @@ void main() {
         float center = 2 * floor(profileSize / 2 + 0.25) - 1;
         float2 wh = smallDims - float2(center, center);
         half hcoord = half(((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x)) / profileSize);
-        half hlookup = texture(blurProfile, float2(hcoord, 0.5)).a;
+        half hlookup = sample(blurProfile, float2(hcoord, 0.5)).a;
         half vcoord = half(((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y)) / profileSize);
-        half vlookup = texture(blurProfile, float2(vcoord, 0.5)).a;
+        half vlookup = sample(blurProfile, float2(vcoord, 0.5)).a;
         sk_OutColor = sk_InColor * hlookup * vlookup;
     } else {
         half2 translatedPos = half2(sk_FragCoord.xy - rect.xy);
@@ -137,9 +137,9 @@ void main() {
         half center = 2 * floor(profileSize / 2 + 0.25) - 1;
         half2 wh = smallDims - half2(center, center);
         half hcoord = ((half(abs(translatedPos.x - 0.5 * width)) - 0.5 * wh.x)) / profileSize;
-        half hlookup = texture(blurProfile, float2(hcoord, 0.5)).a;
+        half hlookup = sample(blurProfile, float2(hcoord, 0.5)).a;
         half vcoord = ((half(abs(translatedPos.y - 0.5 * height)) - 0.5 * wh.y)) / profileSize;
-        half vlookup = texture(blurProfile, float2(vcoord, 0.5)).a;
+        half vlookup = sample(blurProfile, float2(vcoord, 0.5)).a;
         sk_OutColor = sk_InColor * hlookup * vlookup;
     }
 }

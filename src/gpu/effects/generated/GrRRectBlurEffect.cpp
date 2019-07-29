@@ -91,7 +91,7 @@ public:
                 "\n} else if (translatedFragPos.y >= middle.y + threshold) {\n    "
                 "translatedFragPos.y -= middle.y - 1.0;\n}\nhalf2 proxyDims = half2(2.0 * "
                 "threshold + 1.0);\nhalf2 texCoord = translatedFragPos / proxyDims;\n%s = %s * "
-                "texture(%s, float2(texCoord)).%s;\n",
+                "sample(%s, float2(texCoord)).%s;\n",
                 args.fOutputColor, args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());

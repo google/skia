@@ -219,6 +219,8 @@ protected:
     bool fSetupFragPositionGlobal = false;
     bool fSetupFragPositionLocal = false;
     bool fSetupFragCoordWorkaround = false;
+    // if non-empty, replace all texture / texture2D / textureProj / etc. calls with this name
+    String fTextureFunctionOverride;
 
     // We map function names to function class so we can quickly deal with function calls that need
     // extra processing

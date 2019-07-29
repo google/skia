@@ -16,7 +16,7 @@ layout(key) in bool makePremul;
 in bool colorsAreOpaque;
 
 void main() {
-    half4 t = process(gradLayout);
+    half4 t = sample(gradLayout);
 
     if (!gradLayout.preservesOpaqueInput && t.y < 0) {
         // layout has rejected this fragment (rely on sksl to remove this branch if the layout FP
@@ -40,7 +40,7 @@ void main() {
 
         // t.x has been tiled (repeat or mirrored), but pass through remaining 3 components
         // unmodified.
-        sk_OutColor = process(colorizer, t);
+        sk_OutColor = sample(colorizer, t);
     }
 
     @if (makePremul) {

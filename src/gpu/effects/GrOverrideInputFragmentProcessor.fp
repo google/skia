@@ -51,5 +51,5 @@ void main() {
     } else {
         constColor = literalColor;
     }
-    sk_OutColor = process(fp, constColor);
+    sk_OutColor = sample(fp, constColor);
 }

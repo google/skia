@@ -27,6 +27,7 @@ CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* progra
 , fFullName(String::printf("Gr%s", fName.c_str()))
 , fSectionAndParameterHelper(*program, *errors) {
     fLineEnding = "\\n";
+    fTextureFunctionOverride = "sample";
 }
 
 void CPPCodeGenerator::writef(const char* s, va_list va) {
@@ -404,18 +405,19 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
 }
 
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    if (c.fFunction.fBuiltin && c.fFunction.fName == "process") {
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "sample" &&
+        c.fArguments[0]->fType.kind() != Type::Kind::kSampler_Kind) {
         // Sanity checks that are detected by function definition in sksl_fp.inc
         SkASSERT(c.fArguments.size() == 1 || c.fArguments.size() == 2);
         SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
                  "fragmentProcessor?" == c.fArguments[0]->fType.name());
 
         // Actually fail during compilation if arguments with valid types are
-        // provided that are not variable references, since process() is a
+        // provided that are not variable references, since sample() is a
         // special function that impacts code emission.
         if (c.fArguments[0]->fKind != Expression::kVariableReference_Kind) {
             fErrors.error(c.fArguments[0]->fOffset,
-                    "process()'s fragmentProcessor argument must be a variable reference\n");
+                    "sample()'s fragmentProcessor argument must be a variable reference\n");
             return;
         }
         if (c.fArguments.size() > 1) {
@@ -445,7 +447,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
 
         // Write the output handling after the possible input handling
-        String childName = "_child" + to_string(index);
+        String childName = "_sample" + to_string(c.fOffset);
         addExtraEmitCodeLine("SkString " + childName + "(\"" + childName + "\");");
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index >= 0) {\n    ");
@@ -468,7 +470,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         return;
     }
     INHERITED::writeFunctionCall(c);
-    if (c.fFunction.fBuiltin && c.fFunction.fName == "texture") {
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "sample") {
         this->write(".%s");
         SkASSERT(c.fArguments.size() >= 1);
         SkASSERT(c.fArguments[0]->fKind == Expression::kVariableReference_Kind);
