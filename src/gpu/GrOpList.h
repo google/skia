@@ -12,6 +12,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/GrTextureResolveManager.h"
 
 class GrAuditTrail;
 class GrCaps;
@@ -58,7 +59,8 @@ public:
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps);
+    void addDependency(
+            GrSurfaceProxy* dependedOn, GrMipMapped, GrTextureResolveManager, const GrCaps& caps);
 
     /*
      * Does this opList depend on 'dependedOn'?
