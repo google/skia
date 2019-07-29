@@ -2596,26 +2596,21 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_lib("editor_lib") {
-    import("experimental/editor/editor.gni")
-    sources = editor_sources
-    deps = [
-      ":skia",
-      "modules/skshaper",
-    ]
-    if (skia_use_icu) {
-      deps += [ "third_party/icu:icu" ]
-      defines = [ "SK_EDITOR_USE_ICU" ]
-    }
-  }
-
   test_app("editor") {
     is_shared_library = is_android
-    sources = [ "experimental/editor/editor_application.cpp" ]
+    sources = [
+      "experimental/editor/editor.cpp",
+      "experimental/editor/editor.h",
+      "experimental/editor/editor_application.cpp",
+      "experimental/editor/run_handler.cpp",
+      "experimental/editor/run_handler.h",
+      "experimental/editor/stringslice.cpp",
+      "experimental/editor/stringslice.h",
+    ]
     deps = [
-      ":editor_lib",
       ":sk_app",
       ":skia",
+      "modules/skshaper",
     ]
   }
 

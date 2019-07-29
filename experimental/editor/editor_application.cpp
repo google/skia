@@ -110,11 +110,13 @@ struct EditorLayer : public sk_app::Window::Layer {
             options.fSelectionBegin = fMarkPos;
             options.fSelectionEnd = fTextPos;
         }
-        #ifdef SK_EDITOR_DEBUG_OUT
         {
+            #ifdef SK_EDITOR_DEBUG_OUT
             Timer timer("shaping");
+            #endif  // SK_EDITOR_DEBUG_OUT
             fEditor.paint(nullptr, options);
         }
+        #ifdef SK_EDITOR_DEBUG_OUT
         Timer timer("painting");
         #endif  // SK_EDITOR_DEBUG_OUT
         fEditor.paint(canvas, options);
@@ -241,15 +243,7 @@ struct EditorLayer : public sk_app::Window::Layer {
     bool onKey(sk_app::Window::Key key,
                InputState state,
                ModifierKey modifiers) override {
-        if (state != InputState::kDown) {
-            return false;  // ignore keyup
-        }
-        // ignore other modifiers.
-        ModifierKey ctrlAltCmd = modifiers & (ModifierKey::kControl |
-                                              ModifierKey::kOption  |
-                                              ModifierKey::kCommand);
-        if (!ModifierKeyIsSet(ctrlAltCmd)) {
-            // no modifiers
+        if (state == InputState::kDown) {
             switch (key) {
                 case sk_app::Window::Key::kPageDown:
                     return this->scroll(fHeight * 4 / 5);
@@ -290,22 +284,11 @@ struct EditorLayer : public sk_app::Window::Layer {
                 default:
                     break;
             }
-        } else if (ModifierKeyIsSet(ctrlAltCmd & (ModifierKey::kControl | ModifierKey::kCommand))) {
-            switch (key) {
-                case sk_app::Window::Key::kLeft:
-                    return this->moveCursor(editor::Editor::Movement::kWordLeft,
-                                            (int)(modifiers & ModifierKey::kShift));
-                case sk_app::Window::Key::kRight:
-                    return this->moveCursor(editor::Editor::Movement::kWordRight,
-                                            (int)(modifiers & ModifierKey::kShift));
-                default:
-                    break;
-            }
+            #ifdef SK_EDITOR_DEBUG_OUT
+            debug_on_key(key, state, modifiers);
+            #endif  // SK_EDITOR_DEBUG_OUT
         }
-        #ifdef SK_EDITOR_DEBUG_OUT
-        debug_on_key(key, state, modifiers);
-        #endif  // SK_EDITOR_DEBUG_OUT
-        return false;
+        return true;
     }
 };
 
