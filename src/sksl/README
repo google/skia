@@ -58,8 +58,8 @@ Differences from GLSL
 * The last swizzle component, in addition to the normal rgba / xyzw components,
   can also be the constants '0' or '1'. foo.rgb1 is equivalent to
   float4(foo.rgb, 1).
-* Use texture() instead of textureProj(), e.g. texture(sampler2D, float3) is
-  equivalent to GLSL's textureProj(sampler2D, float3)
+* All texture functions are named "sample", e.g. sample(sampler2D, float3) is
+  equivalent to GLSL's textureProj(sampler2D, float3).
 * Render target width and height are available via sk_Width and sk_Height
 * some built-in functions and one or two rarely-used language features are not
   yet supported (sorry!)
@@ -144,7 +144,7 @@ Within an '.fp' fragment processor file:
   which causes the key to consider only whether or not the matrix is an
   identity matrix.
 * child processors can be declared with 'in fragmentProcessor <name>;', and can
-  be invoked by calling 'process(<name>)' or 'process(<name>, <inputColor>)'.
+  be invoked by calling 'sample(<name>)' or 'sample(<name>, <inputColor>)'.
   The first variant emits the child with a solid white input color. The second
   variant emits the child with the result of the 2nd argument's expression,
   which must evaluate to a half4. The process function returns a half4.
