@@ -38,8 +38,13 @@ public:
     // Finds or creates a compatible MTLSamplerState based on the GrSamplerState.
     GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
 
-    id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
-    void addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer);
+    id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset) {
+        return getBuffer(&fDynamicBufferSuballocator, size, offset);
+    }
+    id<MTLBuffer> getTransferBuffer(size_t size, size_t* offset) {
+        return getBuffer(&fTransferBufferSuballocator, size, offset);
+    }
+    void addBufferCompletionHandlers(GrMtlCommandBuffer* cmdBuffer);
 
     // Destroy any cached resources. To be called before releasing the MtlDevice.
     void destroyResources();
@@ -89,7 +94,7 @@ private:
     // Buffer allocator
     class BufferSuballocator : public SkRefCnt {
     public:
-        BufferSuballocator(id<MTLDevice> device, size_t size);
+        BufferSuballocator(id<MTLDevice> device, size_t size, NSUInteger options);
         ~BufferSuballocator() {
             fBuffer = nil;
             fTotalSize = 0;
@@ -98,16 +103,20 @@ private:
         id<MTLBuffer> getAllocation(size_t size, size_t* offset);
         void addCompletionHandler(GrMtlCommandBuffer* cmdBuffer);
         size_t size() { return fTotalSize; }
+        NSUInteger options() { return fOptions; }
 
     private:
         id<MTLBuffer> fBuffer;
         size_t        fTotalSize;
+        NSUInteger    fOptions;
         size_t        fHead SK_GUARDED_BY(fMutex);     // where we start allocating
         size_t        fTail SK_GUARDED_BY(fMutex);     // where we start deallocating
         SkSpinlock    fMutex;
     };
-    static constexpr size_t kBufferSuballocatorStartSize = 1024*1024;
+    static constexpr size_t kBufferSuballocatorStartSize = 512*1024;
     static constexpr size_t kBufferSuballocatorMaxSize = 8*1024*1024;
+
+    id<MTLBuffer> getBuffer(sk_sp<BufferSuballocator>* subAllocator, size_t size, size_t* offset);
 
     GrMtlGpu* fGpu;
 
@@ -117,10 +126,15 @@ private:
     SkTDynamicHash<GrMtlSampler, GrMtlSampler::Key> fSamplers;
     SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key> fDepthStencilStates;
 
-    // This is ref-counted because we might delete the GrContext before the command buffer
-    // finishes. The completion handler will retain a reference to this so it won't get
+    // These are ref-counted because we might delete the GrContext before the command buffer
+    // finishes. The completion handler will retain a reference to them so they won't get
     // deleted along with the GrContext.
-    sk_sp<BufferSuballocator> fBufferSuballocator;
+
+    // Allocator for generic dynamic buffers
+    sk_sp<BufferSuballocator> fDynamicBufferSuballocator;
+
+    // Allocator for buffers used to transfer data to the GPU
+    sk_sp<BufferSuballocator> fTransferBufferSuballocator;
 };
 
 #endif

@@ -168,7 +168,7 @@ GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     if (fCmdBuffer) {
-        fResourceProvider.addBufferCompletionHandler(fCmdBuffer);
+        fResourceProvider.addBufferCompletionHandlers(fCmdBuffer);
         fCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync);
         delete fCmdBuffer;
         fCmdBuffer = nullptr;
@@ -253,8 +253,8 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     }
 
     size_t bufferOffset;
-    id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(combinedBufferSize,
-                                                                             &bufferOffset);
+    id<MTLBuffer> transferBuffer = this->resourceProvider().getTransferBuffer(combinedBufferSize,
+                                                                              &bufferOffset);
     if (!transferBuffer) {
         return false;
     }
@@ -291,9 +291,6 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         currentHeight = SkTMax(1, currentHeight/2);
         layerHeight = currentHeight;
     }
-#ifdef SK_BUILD_FOR_MAC
-    [transferBuffer didModifyRange: NSMakeRange(bufferOffset, combinedBufferSize)];
-#endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
         tex->texturePriv().markMipMapsDirty();
