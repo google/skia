@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dc22cb3a_93721379",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-29T20:51:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99e7e450_3c3ca88e",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 38
+      },
+      "revId": "ffd6f97bd99e3bdffe4e8599a07f7cf2b34ab115",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63472f46_118edcb8",
         "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "248ad0df_34c595f8",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-29T20:51:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63472f46_118edcb8",
+      "range": {
+        "startLine": 36,
+        "startChar": 14,
+        "endLine": 36,
+        "endChar": 15
+      },
+      "revId": "ffd6f97bd99e3bdffe4e8599a07f7cf2b34ab115",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a42a3e6a_a789f2f7",
         "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "ffd6f97bd99e3bdffe4e8599a07f7cf2b34ab115",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c54c4b37_2a62fdf4",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-29T20:51:31Z",
+      "side": 1,
+      "message": "Yes, it should! In fact that fix was in the next CL in the chain. :)\n\nI\u0027ve applied it here.",
+      "parentUuid": "a42a3e6a_a789f2f7",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 19
+      },
+      "revId": "ffd6f97bd99e3bdffe4e8599a07f7cf2b34ab115",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
