@@ -26,7 +26,8 @@ public:
     GrMtlCaps(const GrContextOptions& contextOptions, id<MTLDevice> device,
               MTLFeatureSet featureSet);
 
-    bool isFormatSRGB(const GrBackendFormat& format) const override;
+    bool isFormatSRGB(const GrBackendFormat&) const override;
+    bool isFormatCompressed(const GrBackendFormat&) const override;
 
     bool isFormatTexturable(GrColorType, const GrBackendFormat&) const override;
     bool isConfigTexturable(GrPixelConfig config) const override;

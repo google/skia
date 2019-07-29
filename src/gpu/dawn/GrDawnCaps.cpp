@@ -18,6 +18,10 @@ bool GrDawnCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return false;
 }
 
+bool GrDawnCaps::isFormatCompressed(const GrBackendFormat& format) const {
+    return false;
+}
+
 bool GrDawnCaps::isConfigTexturable(GrPixelConfig config) const {
     switch (config) {
         case kRGBA_8888_GrPixelConfig:
