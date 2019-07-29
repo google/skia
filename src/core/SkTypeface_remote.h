@@ -65,6 +65,7 @@ public:
 protected:
     int onGetUPEM() const override { SK_ABORT("Should never be called."); return 0; }
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
+        printf("This is SkTypefaceProxy\n");
         SK_ABORT("Should never be called.");
         return nullptr;
     }

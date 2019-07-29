@@ -91,10 +91,12 @@ public:
         *serialize = false;
     }
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
-        *ttcIndex = fIndex;
+      printf("This is SkTypeface_AndroidSystem!!\n");
+      *ttcIndex = fIndex;
         return this->makeStream();
     }
     std::unique_ptr<SkFontData> onMakeFontData() const override {
+        printf( "SkTypeface_AndroidSystem::onMakeFontData()\n");
         return skstd::make_unique<SkFontData>(this->makeStream(), fIndex,
                                               fAxes.begin(), fAxes.count());
     }
@@ -149,6 +151,7 @@ public:
     }
 
     std::unique_ptr<SkFontData> onMakeFontData() const override {
+        printf("SkTypeface_AndroidStream::onMakeFontData()\n");
         return skstd::make_unique<SkFontData>(*fData);
     }
 

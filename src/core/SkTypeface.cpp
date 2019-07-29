@@ -44,7 +44,7 @@ public:
 protected:
     SkEmptyTypeface() : SkTypeface(SkFontStyle(), true) { }
 
-    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { printf("This is SkEmptyTypeface!!\n");return nullptr; }
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
         return sk_ref_sp(this);
     }
@@ -273,6 +273,7 @@ sk_sp<SkData> SkTypeface::onCopyTableData(SkFontTableTag tag) const {
 
 std::unique_ptr<SkStreamAsset> SkTypeface::openStream(int* ttcIndex) const {
     int ttcIndexStorage;
+    printf("SkTypeface::onMakeFontData()\nindex = %d\n", index);
     if (nullptr == ttcIndex) {
         // So our subclasses don't need to check for null param
         ttcIndex = &ttcIndexStorage;

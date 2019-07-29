@@ -397,6 +397,7 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
     f_t_mutex().assertHeld();
 
     const SkFontID fontID = typeface->uniqueID();
+    printf("fontID = %d\n", (int)fontID);
     SkFaceRec* cachedRec = gFaceRecHead;
     while (cachedRec) {
         if (cachedRec->fFontID == fontID) {
@@ -851,12 +852,13 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
 {
     SkAutoMutexExclusive  ac(f_t_mutex());
     SkASSERT_RELEASE(ref_ft_library());
-
+    printf("xx..\n");
     fFaceRec.reset(ref_ft_face(this->getTypeface()));
 
     // load the font file
     if (nullptr == fFaceRec) {
         LOG_INFO("Could not create FT_Face.\n");
+        printf("xxxx\n");
         return;
     }
 

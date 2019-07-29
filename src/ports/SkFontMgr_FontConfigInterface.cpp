@@ -21,7 +21,7 @@
 
 std::unique_ptr<SkStreamAsset> SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
     *ttcIndex =  this->getIdentity().fTTCIndex;
-
+    printf("This is SkTypeface_FCI!!\n");
     if (fFontData) {
         SkStreamAsset* stream = fFontData->getStream();
         if (!stream) {
