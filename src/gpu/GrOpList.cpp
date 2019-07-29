@@ -9,11 +9,13 @@
 
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrDeferredProxyUploader.h"
+#include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
+#include "src/gpu/GrTextureResolveOpList.h"
 #include <atomic>
 
 uint32_t GrOpList::CreateUniqueID() {
@@ -34,7 +36,6 @@ GrOpList::GrOpList(sk_sp<GrOpMemoryPool> opMemoryPool,
         , fFlags(0) {
     SkASSERT(fOpMemoryPool);
     fTarget = std::move(surfaceProxy);
-    fTarget->setLastOpList(this);
 }
 
 GrOpList::~GrOpList() {
@@ -89,27 +90,52 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
-void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
-    if (dependedOn->getLastOpList()) {
+void GrOpList::addDependency(
+        GrSurfaceProxy* dependedOn, GrMipMapped mipMapped,
+        GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
+    GrOpList* dependedOnOpList = dependedOn->getLastOpList();
+
+    GrTextureProxy* textureProxy = dependedOn->asTextureProxy();
+    SkASSERT(GrMipMapped::kNo == mipMapped || textureProxy);
+
+    if (GrMipMapped::kYes == mipMapped && textureProxy->mipMapsAreDirty()) {
+        // We only read our own target during dst reads, and we shouldn't use mipmaps in that case.
+        SkASSERT(dependedOnOpList != this);
+
+        // Create an opList that resolves the texture's mipmap data.
+        GrOpList* textureResolveOpList = textureResolveManager.newTextureResolveOpList(
+                sk_ref_sp(textureProxy), GrTextureResolveOpList::ResolveFlags::kMipMaps, caps);
+
+        // The GrTextureResolveOpList constructor should have called addDependency (in this
+        // instance, recursively) on the textureProxy.
+        SkASSERT(!dependedOnOpList || textureResolveOpList->dependsOn(dependedOnOpList));
+        SkASSERT(!textureProxy->texPriv().isDeferred() ||
+                 textureResolveOpList->fDeferredProxies.back() == textureProxy);
+
+        // The GrTextureResolveOpList constructors should have also marked the mipmaps clean and set
+        // the last opList on the textureProxy to textureResolveOpList.
+        SkASSERT(!textureProxy->mipMapsAreDirty());
+        SkASSERT(textureProxy->getLastOpList() == textureResolveOpList);
+
+        // Fall through and add textureResolveOpList as a dependency of "this".
+        dependedOnOpList = textureResolveOpList;
+    } else if (textureProxy && textureProxy->texPriv().isDeferred()) {
+        fDeferredProxies.push_back(textureProxy);
+    }
+
+    if (dependedOnOpList) {
         // If it is still receiving dependencies, this GrOpList shouldn't be closed
         SkASSERT(!this->isClosed());
 
-        GrOpList* opList = dependedOn->getLastOpList();
-        if (opList == this) {
+        if (dependedOnOpList == this) {
             // self-read - presumably for dst reads. We can't make it closed in the self-read case.
         } else {
-            this->addDependency(opList);
+            this->addDependency(dependedOnOpList);
 
-            // We are closing 'opList' here bc the current contents of it are what 'this' opList
-            // depends on. We need a break in 'opList' so that the usage of that state has a
-            // chance to execute.
-            opList->makeClosed(caps);
-        }
-    }
-
-    if (GrTextureProxy* textureProxy = dependedOn->asTextureProxy()) {
-        if (textureProxy->texPriv().isDeferred()) {
-            fDeferredProxies.push_back(textureProxy);
+            // We are closing 'dependedOnOpList' here bc the current contents of it are what 'this'
+            // dependedOnOpList depends on. We need a break in 'dependedOnOpList' so that the usage
+            // of that state has a chance to execute.
+            dependedOnOpList->makeClosed(caps);
         }
     }
 }
