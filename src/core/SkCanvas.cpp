@@ -8,7 +8,6 @@
 #include "include/core/SkCanvas.h"
 
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkDrawLooper.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPathEffect.h"
@@ -110,11 +109,7 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
               paintStyle == SkPaint::kStrokeAndFill_Style)) {
             return false;
         }
-        if (paint->getMaskFilter()
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-            || paint->getLooper()
-#endif
-            || paint->getPathEffect() || paint->getImageFilter()) {
+        if (paint->getMaskFilter() || paint->getPathEffect() || paint->getImageFilter()) {
             return false; // conservative
         }
     }
@@ -419,16 +414,7 @@ public:
             // we remove the imagefilter/xfermode inside doNext()
         }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-        if (SkDrawLooper* looper = paint.getLooper()) {
-            fLooperContext = looper->makeContext(&fAlloc);
-            fCanvas->save();
-            fIsSimple = false;
-        } else
-#endif
         {
-            fLooperContext = nullptr;
-            // can we be marked as simple?
             fIsSimple = !fTempLayerForImageFilter;
         }
     }
@@ -442,9 +428,6 @@ public:
 
     const SkPaint& paint() const {
         SkASSERT(fPaint);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-        SkASSERT(fPaint->getDrawLooper() == nullptr);   // we should have cleared this
-#endif
         return *fPaint;
     }
 
@@ -469,8 +452,6 @@ private:
     bool            fTempLayerForImageFilter;
     bool            fDone;
     bool            fIsSimple;
-    SkDrawLooper::Context* fLooperContext;
-    SkSTArenaAlloc<48>     fAlloc;
 
     bool doNext();
 };
@@ -478,36 +459,20 @@ private:
 bool AutoDrawLooper::doNext() {
     fPaint = nullptr;
     SkASSERT(!fIsSimple);
-    SkASSERT(fLooperContext || fTempLayerForImageFilter);
+    SkASSERT(fTempLayerForImageFilter);
 
     SkPaint* paint = fLazyPaintPerLooper.set(fLazyPaintInit.isValid() ?
                                              *fLazyPaintInit.get() : fOrigPaint);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-    // never want our downstream clients (i.e. devices) to see loopers
-    paint->setDrawLooper(nullptr);
-#endif
 
     if (fTempLayerForImageFilter) {
         paint->setImageFilter(nullptr);
         paint->setBlendMode(SkBlendMode::kSrcOver);
     }
 
-    if (fLooperContext) {
-        fCanvas->restore();
-        SkDrawLooper::Context::Info info;
-        if (!fLooperContext->next(&info, paint)) {
-            fDone = true;
-            return false;
-        }
-        fCanvas->save();
-        info.applyToCanvas(fCanvas);
-    }
     fPaint = paint;
 
     // if we only came in here for the imagefilter, mark us as done
-    if (!fLooperContext) {
-        fDone = true;
-    }
+    fDone = true;
     return true;
 }
 
@@ -2132,11 +2097,7 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
 }
 
 static bool needs_autodrawlooper(SkCanvas* canvas, const SkPaint& paint) {
-    return ((intptr_t)paint.getImageFilter()
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-            | (intptr_t)paint.getLooper()
-#endif
-            ) != 0;
+    return paint.getImageFilter() != nullptr;
 }
 
 void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
