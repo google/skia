@@ -84,29 +84,20 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
     return nullptr;
 }
 
-sk_sp<sksg::RenderNode> EffectBuilder::attachEffects(const skjson::ArrayValue& jeffects,
-                                                     sk_sp<sksg::RenderNode> layer) const {
-    if (!layer) {
-        return nullptr;
+sk_sp<sksg::RenderNode> EffectBuilder::attachEffect(const skjson::ObjectValue& jeffect,
+                                                    sk_sp<sksg::RenderNode> layer) const {
+    const auto builder = this->findBuilder(jeffect);
+
+    const skjson::ArrayValue* jprops = (jeffect)["ef"];
+    if (!builder || !jprops) {
+        return layer;
     }
 
-    for (const skjson::ObjectValue* jeffect : jeffects) {
-        if (!jeffect) {
-            continue;
-        }
+    layer = (this->*builder)(*jprops, std::move(layer));
 
-        const auto builder = this->findBuilder(*jeffect);
-        const skjson::ArrayValue* jprops = (*jeffect)["ef"];
-        if (!builder || !jprops) {
-            continue;
-        }
-
-        layer = (this->*builder)(*jprops, std::move(layer));
-
-        if (!layer) {
-            fBuilder->log(Logger::Level::kError, jeffect, "Invalid layer effect.");
-            return nullptr;
-        }
+    if (!layer) {
+        fBuilder->log(Logger::Level::kError, &jeffect, "Invalid layer effect.");
+        return nullptr;
     }
 
     return layer;

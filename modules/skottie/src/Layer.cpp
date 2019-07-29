@@ -469,7 +469,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
 
     // Optional layer effects.
     if (const skjson::ArrayValue* jeffects = (*jlayer)["ef"]) {
-        layer = EffectBuilder(this, layer_info.fSize).attachEffects(*jeffects, std::move(layer));
+        EffectBuilder effect_builder(this, layer_info.fSize);
+        for (const skjson::ObjectValue* jeffect : *jeffects) {
+            const AutoPropertyTracker effect_apt(this, *jeffect);
+            layer = effect_builder.attachEffect(*jeffect, std::move(layer));
+        }
     }
 
     // Attach the transform after effects, when needed.

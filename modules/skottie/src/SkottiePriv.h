@@ -207,7 +207,7 @@ private:
     const float                fDuration,
                                fFrameRate;
     mutable AnimatorScope*     fCurrentAnimatorScope;
-    mutable const char*        fPropertyObserverContext;
+    mutable const char*        fPropertyObserverContext = nullptr;
     mutable bool               fHasNontrivialBlending : 1;
 
     struct LayerInfo {
