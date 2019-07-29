@@ -164,7 +164,7 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
 static id<MTLBuffer> alloc_dynamic_buffer(id<MTLDevice> device, size_t size) {
     return [device newBufferWithLength: size
 #ifdef SK_BUILD_FOR_MAC
-                               options: MTLResourceStorageModeManaged];
+                               options: MTLResourceStorageModeShared];
 #else
                                options: MTLResourceStorageModeShared];
 #endif
