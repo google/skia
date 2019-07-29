@@ -34,6 +34,24 @@
       "revId": "04305c1256c61bffe46cc2b62ee827f984e1ae9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7161ac1_af912708",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-29T16:57:53Z",
+      "side": 1,
+      "message": "Oh, interesting.  I guess I\u0027ll switch back if that crops up.",
+      "parentUuid": "de170d70_0a94ad6d",
+      "revId": "04305c1256c61bffe46cc2b62ee827f984e1ae9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
