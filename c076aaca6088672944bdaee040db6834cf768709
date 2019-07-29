@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfb020be_7b190f28",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-29T14:51:21Z",
+      "side": 1,
+      "message": "I would do the texturable as an assert as well.",
+      "range": {
+        "startLine": 335,
+        "startChar": 12,
+        "endLine": 335,
+        "endChar": 24
+      },
+      "revId": "c076aaca6088672944bdaee040db6834cf768709",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
