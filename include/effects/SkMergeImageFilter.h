@@ -8,16 +8,15 @@
 #ifndef SkMergeImageFilter_DEFINED
 #define SkMergeImageFilter_DEFINED
 
-#include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 
-class SK_API SkMergeImageFilter : public SkImageFilter {
+class SK_API SkMergeImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter>* const filters, int count,
-                                     const CropRect* cropRect = nullptr);
+                                     const SkImageFilter::CropRect* cropRect = nullptr);
 
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> first, sk_sp<SkImageFilter> second,
-                                     const CropRect* cropRect = nullptr) {
+                                     const SkImageFilter::CropRect* cropRect = nullptr) {
         sk_sp<SkImageFilter> array[] = {
             std::move(first),
             std::move(second),
@@ -25,18 +24,10 @@ public:
         return Make(array, 2, cropRect);
     }
 
-protected:
-    void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
-    bool onCanHandleComplexCTM() const override { return true; }
+    static void RegisterFlattenables();
 
 private:
-    SK_FLATTENABLE_HOOKS(SkMergeImageFilter)
-
-    SkMergeImageFilter(sk_sp<SkImageFilter>* const filters, int count, const CropRect* cropRect);
-
-    typedef SkImageFilter INHERITED;
+    SkMergeImageFilter() = delete;
 };
 
 #endif
