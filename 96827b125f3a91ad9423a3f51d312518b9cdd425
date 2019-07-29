@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d78abd4_95083b91",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-29T16:50:30Z",
+      "side": 0,
+      "message": "What happened here? Looks like we lost some (important) generated code?",
+      "range": {
+        "startLine": 590,
+        "startChar": 0,
+        "endLine": 593,
+        "endChar": 0
+      },
+      "revId": "96827b125f3a91ad9423a3f51d312518b9cdd425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
