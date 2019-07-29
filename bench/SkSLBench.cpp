@@ -103,7 +103,7 @@ DEF_BENCH(return new SkSLBench("huge", R"(
             half2 _dstTexCoord = (half2(sk_FragCoord.xy) - uDstTextureUpperLeft_Stage1) *
                                   uDstTextureCoordScale_Stage1;
             _dstTexCoord.y = 1.0 - _dstTexCoord.y;
-            half4 _dstColor = texture(uDstTextureSampler_Stage1, _dstTexCoord);
+            half4 _dstColor = sample(uDstTextureSampler_Stage1, _dstTexCoord);
             sk_FragColor.a = outputColor_Stage0.a + (1.0 - outputColor_Stage0.a) * _dstColor.a;
             half4 srcDstAlpha = outputColor_Stage0 * _dstColor.a;
             sk_FragColor.rgb = set_luminance_Stage1(_dstColor.rgb * outputColor_Stage0.a,

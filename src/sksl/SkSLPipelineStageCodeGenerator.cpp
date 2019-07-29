@@ -78,8 +78,11 @@ void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b
 }
 
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    if (c.fFunction.fBuiltin && c.fFunction.fName == "process") {
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "sample" &&
+        c.fArguments[0]->fType.kind() != Type::Kind::kSampler_Kind) {
         SkASSERT(c.fArguments.size() == 1);
+        SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
+                 "fragmentProcessor?" == c.fArguments[0]->fType.name());
         SkASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
         int index = 0;
         bool found = false;

@@ -21,8 +21,8 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrRectBlurEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProvider,
-                                                          float sigma) {
+    static sk_sp<GrTextureProxy> CreateBlurProfilesample(GrProxyProvider* proxyProvider,
+                                                         float sigma) {
         unsigned int profileSize = SkScalarCeilToInt(6 * sigma);
 
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
@@ -82,7 +82,7 @@ public:
             return nullptr;
         }
 
-        sk_sp<GrTextureProxy> blurProfile(CreateBlurProfileTexture(proxyProvider, sigma));
+        sk_sp<GrTextureProxy> blurProfile(CreateBlurProfilesample(proxyProvider, sigma));
         if (!blurProfile) {
             return nullptr;
         }

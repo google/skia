@@ -38,7 +38,7 @@ void main() {
         weight = min(min(delta_squared.x, delta_squared.y), 1.0);
     }
 
-    sk_OutColor = texture(src, mix(coord, zoom_coord, weight));
+    sk_OutColor = sample(src, mix(coord, zoom_coord, weight));
 }
 
 @setData(pdman) {

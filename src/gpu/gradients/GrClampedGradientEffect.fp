@@ -25,7 +25,7 @@ layout(key) in bool makePremul;
 in bool colorsAreOpaque;
 
 void main() {
-    half4 t = process(gradLayout);
+    half4 t = sample(gradLayout);
     // If t.x is below 0, use the left border color without invoking the child processor. If any t.x
     // is above 1, use the right border color. Otherwise, t is in the [0, 1] range assumed by the
     // colorizer FP, so delegate to the child processor.
@@ -38,7 +38,7 @@ void main() {
     } else if (t.x > 1.0) {
         sk_OutColor = rightBorderColor;
     } else {
-        sk_OutColor = process(colorizer, t);
+        sk_OutColor = sample(colorizer, t);
     }
 
     @if(makePremul) {
