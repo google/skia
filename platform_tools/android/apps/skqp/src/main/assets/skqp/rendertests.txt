@@ -76,7 +76,7 @@ blur_ignore_xform_rect,-1
 blur_ignore_xform_rrect,-1
 blur_image,-1
 blurcircles,-1
-blurcircles2,0
+blurcircles2,1000
 blurimagevmask,-1
 blurquickreject,-1
 blurrect_gallery,0
