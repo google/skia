@@ -160,13 +160,20 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
             texels[i].fPixels = nullptr;
             texels[i].fRowBytes = 0;
         }
-
         surface = resourceProvider->createTexture(desc, renderable, sampleCnt, fBudgeted,
                                                   fIsProtected, texels.get(), mipCount);
+#ifdef SK_DEBUG
         if (surface) {
-            SkASSERT(surface->asTexture());
-            SkASSERT(GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
+            const GrTextureProxy* thisTexProxy = this->asTextureProxy();
+            SkASSERT(thisTexProxy);
+
+            GrTexture* texture = surface->asTexture();
+            SkASSERT(texture);
+
+            SkASSERT(GrMipMapped::kYes == texture->texturePriv().mipMapped());
+            SkASSERT(thisTexProxy->fInitialMipMapsStatus == texture->texturePriv().mipMapsStatus());
         }
+#endif
     } else {
         if (SkBackingFit::kApprox == fFit) {
             surface = resourceProvider->createApproxTexture(desc, renderable, sampleCnt,
