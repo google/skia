@@ -228,9 +228,18 @@ struct EditorLayer : public sk_app::Window::Layer {
             fShiftDown = shift;
         }
         fTextPos = fEditor.move(m, fTextPos);
+
+        // scroll if needed.
+        SkIRect cursor = fEditor.getLocation(fTextPos).roundOut();
+        if (cursor.bottom() > fPos + fHeight) {
+            fPos = cursor.bottom() - fHeight + fEditor.getMargin();
+        } else if (cursor.top() < fPos) {
+            fPos = cursor.top() - fEditor.getMargin();
+        }
         this->inval();
         return true;
     }
+
     bool onKey(sk_app::Window::Key key,
                InputState state,
                ModifierKey modifiers) override {
