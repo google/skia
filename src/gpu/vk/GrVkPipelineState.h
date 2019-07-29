@@ -23,7 +23,6 @@ class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkImageView;
 class GrVkPipeline;
-class GrVkPipelineLayout;
 class GrVkSampler;
 class GrVkTexture;
 class GrVkUniformBuffer;
@@ -42,7 +41,6 @@ public:
     GrVkPipelineState(
             GrVkGpu* gpu,
             GrVkPipeline* pipeline,
-            VkPipelineLayout layout,
             const GrVkDescriptorSetManager::Handle& samplerDSHandle,
             const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
@@ -118,10 +116,6 @@ private:
 
     // GrVkResources
     GrVkPipeline* fPipeline;
-
-    // Used for binding DescriptorSets to the command buffer but does not need to survive during
-    // command buffer execution. Thus this is not need to be a GrVkResource.
-    GrVkPipelineLayout* fPipelineLayout;
 
     // The DescriptorSets need to survive until the gpu has finished all draws that use them.
     // However, they will only be freed by the descriptor pool. Thus by simply keeping the
