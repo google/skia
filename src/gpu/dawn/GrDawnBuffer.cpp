@@ -26,42 +26,45 @@ namespace {
     }
 }
 
-GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
+GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu, size_t size, GrGpuBufferType type,
                            GrAccessPattern pattern)
-    : INHERITED(gpu, sizeInBytes, type, pattern)
-    , fData(nullptr) {
+    : INHERITED(gpu, size, type, pattern)
+    , fStagingBuffer(nullptr) {
     dawn::BufferDescriptor bufferDesc;
-    bufferDesc.size = sizeInBytes;
+    bufferDesc.size = size;
     bufferDesc.usage = GrGpuBufferTypeToDawnUsageBit(type) | dawn::BufferUsageBit::CopyDst;
     fBuffer = getDawnGpu()->device().CreateBuffer(&bufferDesc);
     this->registerWithCache(SkBudgeted::kYes);
 }
 
 GrDawnBuffer::~GrDawnBuffer() {
-    delete[] fData;
 }
 
 void GrDawnBuffer::onMap() {
     if (this->wasDestroyed()) {
         return;
     }
-    fData = new char[size()];
-    fMapPtr = fData;
+    fStagingBuffer = getDawnGpu()->getStagingBuffer(size());
+    fMapPtr = fStagingBuffer->fData;
 }
 
 void GrDawnBuffer::onUnmap() {
     if (this->wasDestroyed()) {
         return;
     }
-    delete[] fData;
-    fData = nullptr;
+    fStagingBuffer->fBuffer.Unmap();
+    fMapPtr = nullptr;
+    getDawnGpu()->getCopyEncoder()
+        .CopyBufferToBuffer(fStagingBuffer->fBuffer, 0, fBuffer, 0, size());
 }
 
 bool GrDawnBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     if (this->wasDestroyed()) {
         return false;
     }
-    fBuffer.SetSubData(0, srcSizeInBytes, static_cast<const uint8_t*>(src));
+    this->onMap();
+    memcpy(fStagingBuffer->fData, src, srcSizeInBytes);
+    this->onUnmap();
     return true;
 }
 

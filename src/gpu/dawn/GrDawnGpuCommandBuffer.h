@@ -20,33 +20,19 @@ class GrDawnRenderTarget;
 
 class GrDawnGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
-    GrDawnGpuTextureCommandBuffer(GrDawnGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
-        : INHERITED(texture, origin)
-        , fGpu(gpu) {
-    }
-
+    GrDawnGpuTextureCommandBuffer(GrDawnGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin);
     ~GrDawnGpuTextureCommandBuffer() override;
 
     void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
-    void insertEventMarker(const char*) override;
-
-private:
+    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+                      GrGpuBuffer* transferBuffer, size_t offset) override;
+    void insertEventMarker(const char*) override {}
     void submit();
 
-    struct CopyInfo {
-        CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-                 const SkIPoint& dstPoint)
-            : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
-
-        GrSurface*      fSrc;
-        GrSurfaceOrigin fSrcOrigin;
-        SkIRect         fSrcRect;
-        SkIPoint        fDstPoint;
-    };
-
-    GrDawnGpu*                   fGpu;
-    SkTArray<CopyInfo>          fCopies;
+private:
+    GrDawnGpu*                        fGpu;
+    dawn::CommandEncoder              fEncoder;
 
     typedef GrGpuTextureCommandBuffer INHERITED;
 };
@@ -62,7 +48,7 @@ public:
     void begin() override { }
     void end() override;
 
-    dawn::RenderPassEncoder beginRenderPass();
+    dawn::RenderPassEncoder beginRenderPass(dawn::LoadOp colorOp, dawn::LoadOp stencilOp);
     void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
                       GrGpuBuffer* transferBuffer, size_t offset) override;
     void insertEventMarker(const char*) override;
@@ -76,12 +62,17 @@ public:
 private:
     GrGpu* gpu() override;
 
-    void beginDraw(const GrPipeline& pipeline,
-                   const GrPrimitiveProcessor& primProc,
-                   const GrTextureProxy* const primProcProxies[],
-                   bool hasPoints);
+    void setScissorState(const GrPipeline&,
+                         const GrPipeline::FixedDynamicState* fixedDynamicState,
+                         const GrPipeline::DynamicStateArrays* dynamicStateArrays);
+    void applyState(const GrPipeline& pipeline,
+                    const GrPrimitiveProcessor& primProc,
+                    const GrTextureProxy* const primProcProxies[],
+                    const GrPipeline::FixedDynamicState* fixedDynamicState,
+                    const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                    const GrPrimitiveType primitiveType,
+                    bool hasPoints);
 
-    void endDraw();
     void onDraw(const GrPrimitiveProcessor& primProc,
                 const GrPipeline& pipeline,
                 const GrPipeline::FixedDynamicState* fixedDynamicState,
@@ -119,6 +110,8 @@ private:
     void onClear(const GrFixedClip&, const SkPMColor4f& color) override;
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
+
+    void tick();
 
     struct InlineUploadInfo {
         InlineUploadInfo(GrOpFlushState* state, const GrDeferredTextureUploadFn& upload)
