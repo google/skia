@@ -156,6 +156,7 @@ public:
     }
 
     virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
+    virtual bool isFormatCompressed(const GrBackendFormat&) const = 0;
 
     virtual bool isFormatTexturable(GrColorType, const GrBackendFormat&) const = 0;
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;

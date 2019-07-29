@@ -778,6 +778,17 @@ bool GrVkCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(*format.getVkFormat());
 }
 
+bool GrVkCaps::isFormatCompressed(const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return false;
+    }
+
+    VkFormat vkFormat = *format.getVkFormat();
+    SkASSERT(GrVkFormatIsSupported(vkFormat));
+
+    return vkFormat == VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+}
+
 bool GrVkCaps::isFormatTexturable(GrColorType, const GrBackendFormat& format) const {
     if (!format.getVkFormat()) {
         return false;

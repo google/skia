@@ -17,7 +17,9 @@ class GrDawnCaps : public GrCaps {
 public:
     GrDawnCaps(const GrContextOptions& contextOptions);
 
-    bool isFormatSRGB(const GrBackendFormat& format) const override;
+    bool isFormatSRGB(const GrBackendFormat&) const override;
+    bool isFormatCompressed(const GrBackendFormat&) const override;
+
     bool isFormatTexturable(GrColorType, const GrBackendFormat& format) const override;
     bool isFormatCopyable(GrColorType, const GrBackendFormat& format) const override;
 

@@ -32,7 +32,9 @@ public:
              uint32_t instanceVersion, uint32_t physicalDeviceVersion,
              const GrVkExtensions& extensions, GrProtected isProtected = GrProtected::kNo);
 
-    bool isFormatSRGB(const GrBackendFormat& format) const override;
+    bool isFormatSRGB(const GrBackendFormat&) const override;
+    bool isFormatCompressed(const GrBackendFormat&) const override;
+
 
     bool isFormatTexturable(GrColorType, const GrBackendFormat&) const override;
     bool isVkFormatTexturable(VkFormat) const;

@@ -3777,6 +3777,13 @@ bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return GrGLBackendFormatToGLFormat(format) == GrGLFormat::kSRGB8_ALPHA8;
 }
 
+bool GrGLCaps::isFormatCompressed(const GrBackendFormat& format) const {
+    GrGLFormat grGLFormat = GrGLBackendFormatToGLFormat(format);
+
+    return grGLFormat == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
+           grGLFormat == GrGLFormat::kCOMPRESSED_ETC1_RGB8;
+}
+
 bool GrGLCaps::isFormatTexturable(GrColorType ct, GrGLFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
     // Currently we conflate texturable to mean the format itself is texturable in a draw and that
