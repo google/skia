@@ -9,7 +9,6 @@
 #define SkTextBlobPriv_DEFINED
 
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkDrawLooper.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMaskFilter.h"
