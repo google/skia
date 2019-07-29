@@ -40,7 +40,7 @@ const (
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
-	DEFAULT_OS_MAC       = "Mac-10.13.6"
+	DEFAULT_OS_MAC       = "Mac-10.14.4"
 	DEFAULT_OS_WIN       = "Windows-Server-14393"
 
 	// Small is a 2-core machine.
