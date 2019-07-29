@@ -46,6 +46,11 @@ public:
         return *format.getMockColorType() == GrColorType::kRGBA_8888_SRGB;
     }
 
+    // Mock caps doesn't support any compressed formats right now
+    bool isFormatCompressed(const GrBackendFormat&) const override {
+        return false;
+    }
+
     bool isFormatTexturable(GrColorType, const GrBackendFormat& format) const override {
         if (!format.getMockColorType()) {
             return false;
