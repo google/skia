@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "de62d9bb_3651d7a9",
+        "filename": "include/effects/SkMatrixConvolutionImageFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-29T17:53:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2731ca53_54cbcc17",
+      "revId": "8996510c8e84d9a0a219afa477a74d589d5bbd29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f7b0748_a16321c7",
         "filename": "src/effects/imagefilters/SkBlurImageFilter.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "8996510c8e84d9a0a219afa477a74d589d5bbd29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "284b489d_1f0b3e81",
+        "filename": "src/effects/imagefilters/SkBlurImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-29T17:53:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f7b0748_a16321c7",
+      "revId": "8996510c8e84d9a0a219afa477a74d589d5bbd29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "b1f6853f_00cd2445",
+        "filename": "src/effects/imagefilters/SkBlurImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-29T17:53:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2660c0c_ebb60da6",
+      "revId": "8996510c8e84d9a0a219afa477a74d589d5bbd29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "509b60d4_221792b2",
         "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
         "patchSetId": 1
@@ -67,6 +121,24 @@
       "revId": "8996510c8e84d9a0a219afa477a74d589d5bbd29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "873e8f37_ee6bf033",
+        "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-29T17:53:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "509b60d4_221792b2",
+      "revId": "8996510c8e84d9a0a219afa477a74d589d5bbd29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "30a22ac1_060566ea",
+        "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-29T17:53:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "056cdf7d_b8ae4722",
+      "revId": "8996510c8e84d9a0a219afa477a74d589d5bbd29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "557ec7d4_2e186834",
         "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
         "patchSetId": 1
@@ -101,6 +191,24 @@
       "revId": "8996510c8e84d9a0a219afa477a74d589d5bbd29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eea4741_134abb47",
+        "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-29T17:53:13Z",
+      "side": 1,
+      "message": "That would be a handy spot for this sort of thing; I will address this clean up when I refactor the crop rect code",
+      "parentUuid": "557ec7d4_2e186834",
+      "revId": "8996510c8e84d9a0a219afa477a74d589d5bbd29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
