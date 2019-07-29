@@ -10,9 +10,16 @@
 
 #include "src/gpu/GrGpu.h"
 #include "dawn/dawncpp.h"
+#include "src/core/SkLRUCache.h"
+#include "src/gpu/dawn/GrDawnRingBuffer.h"
+#include "src/gpu/dawn/GrDawnStagingManager.h"
+
+#include <unordered_map>
 
 class GrPipeline;
+struct GrDawnProgram;
 class GrDawnGpuRTCommandBuffer;
+class GrDawnGpuTextureCommandBuffer;
 
 namespace SkSL {
     class Compiler;
@@ -49,6 +56,7 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
+    void flush();
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -80,6 +88,23 @@ public:
     void checkFinishProcs() override;
 
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
+
+    sk_sp<GrDawnProgram> getOrCreateRenderPipeline(GrRenderTarget*,
+                                                   GrSurfaceOrigin origin,
+                                                  const GrPipeline&,
+                                                  const GrPrimitiveProcessor&,
+                                                  const GrTextureProxy* const* primProcProxies,
+                                                  bool hasPoints,
+                                                  GrPrimitiveType primitiveType);
+
+    dawn::Sampler getOrCreateSampler(const GrSamplerState& samplerState);
+
+    GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
+    GrDawnStagingBuffer* getStagingBuffer(size_t size);
+    void setReadPixelsPtr(const void* ptr) { fReadPixelsPtr = ptr; }
+    GrDawnStagingManager* getStagingManager() { return &fStagingManager; }
+    dawn::CommandEncoder getCopyEncoder() { return fCopyEncoder; }
+    void appendCommandBuffer(dawn::CommandBuffer commandBuffer);
 
 private:
     void onResetContext(uint32_t resetBits) override {}
@@ -136,13 +161,30 @@ private:
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override;
 
     dawn::Device                                 fDevice;
-    dawn::Queue                                  fQueue;    // Must be Graphics queue
+    dawn::Queue                                  fQueue;
+    std::unique_ptr<SkSL::Compiler>              fCompiler;
+    std::unique_ptr<GrDawnGpuRTCommandBuffer>    fCachedRTCommandBuffer;
+    std::unique_ptr<GrDawnGpuTextureCommandBuffer>    fCachedTextureCommandBuffer;
+    GrDawnRingBuffer                             fUniformRingBuffer;
+    dawn::CommandEncoder                         fCopyEncoder;
+    const void*                                  fReadPixelsPtr = nullptr;
 
-    // Compiler used for compiling sksl into spirv. We only want to create the compiler once since
-    // there is significant overhead to the first compile of any compiler.
-    std::unique_ptr<SkSL::Compiler> fCompiler;
+    struct ProgramDescHash {
+        uint32_t operator()(const GrProgramDesc& desc) const {
+            return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+        }
+    };
 
-    std::unique_ptr<GrDawnGpuRTCommandBuffer> fCachedRTCommandBuffer;
+    struct SamplerHash {
+        size_t operator()(const GrSamplerState& samplerState) const {
+            return SkOpts::hash_fn(&samplerState, sizeof(samplerState), 0);
+        }
+    };
+
+    SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
+    std::unordered_map<GrSamplerState, dawn::Sampler, SamplerHash> fSamplers;
+    GrDawnStagingManager fStagingManager;
+    std::vector<dawn::CommandBuffer> fCommandBuffers;
 
     typedef GrGpu INHERITED;
 };
