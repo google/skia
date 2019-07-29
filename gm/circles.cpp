@@ -86,17 +86,6 @@ protected:
         fPaints.push_back(p);
         }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-        {
-        // AA with blur
-        SkPaint p;
-        p.setAntiAlias(true);
-        p.setLooper(SkBlurDrawLooper::Make(SK_ColorBLUE,
-                                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
-                                     SkIntToScalar(5), SkIntToScalar(10)));
-        fPaints.push_back(p);
-        }
-#else
         fLooper = SkBlurDrawLooper::Make(SK_ColorBLUE, SkBlurMask::ConvertRadiusToSigma(10),5,10);
         {
             SkPaint p;
@@ -104,7 +93,6 @@ protected:
             p.setAntiAlias(true);
             fPaints.push_back(p);
         }
-#endif
         {
         // AA with stroke style
         SkPaint p;

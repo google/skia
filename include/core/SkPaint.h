@@ -16,7 +16,6 @@
 
 class SkColorFilter;
 class SkColorSpace;
-class SkDrawLooper;
 struct SkRect;
 class SkImageFilter;
 class SkMaskFilter;
@@ -57,12 +56,12 @@ public:
     explicit SkPaint(const SkColor4f& color, SkColorSpace* colorSpace = nullptr);
 
     /** Makes a shallow copy of SkPaint. SkPathEffect, SkShader,
-        SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter are shared
+        SkMaskFilter, SkColorFilter, and SkImageFilter are shared
         between the original paint and the copy. Objects containing SkRefCnt increment
         their references by one.
 
         The referenced objects SkPathEffect, SkShader, SkMaskFilter, SkColorFilter,
-        SkDrawLooper, and SkImageFilter cannot be modified after they are created.
+        and SkImageFilter cannot be modified after they are created.
         This prevents objects with SkRefCnt from being modified once SkPaint refers to them.
 
         @param paint  original to copy
@@ -81,13 +80,13 @@ public:
     SkPaint(SkPaint&& paint);
 
     /** Decreases SkPaint SkRefCnt of owned objects: SkPathEffect, SkShader,
-        SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter. If the
+        SkMaskFilter, SkColorFilter, and SkImageFilter. If the
         objects containing SkRefCnt go to zero, they are deleted.
     */
     ~SkPaint();
 
     /** Makes a shallow copy of SkPaint. SkPathEffect, SkShader,
-        SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter are shared
+        SkMaskFilter, SkColorFilter, and SkImageFilter are shared
         between the original paint and the copy. Objects containing SkRefCnt in the
         prior destination are decreased by one, and the referenced objects are deleted if the
         resulting count is zero. Objects containing SkRefCnt in the parameter paint
@@ -112,7 +111,7 @@ public:
 
     /** Compares a and b, and returns true if a and b are equivalent. May return false
         if SkPathEffect, SkShader, SkMaskFilter, SkColorFilter,
-        SkDrawLooper, or SkImageFilter have identical contents but different pointers.
+        or SkImageFilter have identical contents but different pointers.
 
         @param a  SkPaint to compare
         @param b  SkPaint to compare
@@ -122,7 +121,7 @@ public:
 
     /** Compares a and b, and returns true if a and b are not equivalent. May return true
         if SkPathEffect, SkShader, SkMaskFilter, SkColorFilter,
-        SkDrawLooper, or SkImageFilter have identical contents but different pointers.
+        or SkImageFilter have identical contents but different pointers.
 
         @param a  SkPaint to compare
         @param b  SkPaint to compare
@@ -556,42 +555,6 @@ public:
     */
     void setImageFilter(sk_sp<SkImageFilter> imageFilter);
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-    /** Returns SkDrawLooper if set, or nullptr.
-        Does not alter SkDrawLooper SkRefCnt.
-
-        @return  SkDrawLooper if previously set, nullptr otherwise
-    */
-    SkDrawLooper* getDrawLooper() const { return fDrawLooper.get(); }
-
-    /** Returns SkDrawLooper if set, or nullptr.
-        Increases SkDrawLooper SkRefCnt by one.
-
-        @return  SkDrawLooper if previously set, nullptr otherwise
-    */
-    sk_sp<SkDrawLooper> refDrawLooper() const;
-
-    /** Deprecated.
-        (see skbug.com/6259)
-    */
-    SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
-
-    /** Sets SkDrawLooper to drawLooper, decreasing SkRefCnt of the previous
-        drawLooper.  Pass nullptr to clear SkDrawLooper and leave SkDrawLooper effect on
-        drawing unaltered.
-
-        Increments drawLooper SkRefCnt by one.
-
-        @param drawLooper  iterates through drawing one or more time, altering SkPaint
-    */
-    void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
-
-    /** Deprecated.
-        (see skbug.com/6259)
-    */
-    void setLooper(sk_sp<SkDrawLooper> drawLooper);
-#endif
-
     /** Returns true if SkPaint prevents all drawing;
         otherwise, the SkPaint may or may not allow drawing.
 
@@ -642,9 +605,6 @@ public:
         // ultra fast-case: filling with no effects that affect geometry
         if (kFill_Style == style) {
             uintptr_t effects = 0;
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-            effects |= reinterpret_cast<uintptr_t>(this->getLooper());
-#endif
             effects |= reinterpret_cast<uintptr_t>(this->getMaskFilter());
             effects |= reinterpret_cast<uintptr_t>(this->getPathEffect());
             effects |= reinterpret_cast<uintptr_t>(this->getImageFilter());
@@ -685,7 +645,6 @@ private:
     sk_sp<SkShader>       fShader;
     sk_sp<SkMaskFilter>   fMaskFilter;
     sk_sp<SkColorFilter>  fColorFilter;
-    sk_sp<SkDrawLooper>   fDrawLooper;
     sk_sp<SkImageFilter>  fImageFilter;
 
     SkColor4f       fColor4f;

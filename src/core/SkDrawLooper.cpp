@@ -38,9 +38,6 @@ bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) const {
         SkPaint p(paint);
         SkDrawLooper::Context::Info info;
         if (context->next(&info, &p)) {
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-            p.setLooper(nullptr);
-#endif
             if (!p.canComputeFastBounds()) {
                 return false;
             }
@@ -67,9 +64,6 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& s,
         if (context->next(&info, &p)) {
             SkRect r(src);
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-            p.setLooper(nullptr);
-#endif
             p.computeFastBounds(r, &r);
             r.offset(info.fTranslate.fX, info.fTranslate.fY);
 

@@ -15,7 +15,6 @@
 #include <vector>
 
 #include "include/core/SkData.h"
-#include "include/core/SkDrawLooper.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkTypeface.h"

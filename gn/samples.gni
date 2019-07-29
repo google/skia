@@ -86,7 +86,6 @@ samples_sources = [
   "$_samplecode/SampleTextEffects.cpp",
   "$_samplecode/SampleTextureDomain.cpp",
   "$_samplecode/SampleThinAA.cpp",
-  "$_samplecode/SampleTiling.cpp",
   "$_samplecode/SampleUnpremul.cpp",
   "$_samplecode/SampleVertices.cpp",
   "$_samplecode/SampleWritePixels.cpp",

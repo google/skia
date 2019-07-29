@@ -10,7 +10,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurDrawLooper.h"
 #include "samplecode/DecodeFile.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkBlurMask.h"
@@ -19,8 +18,6 @@
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
-
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
 
 /**
  *  Interprets c as an unpremultiplied color, and returns the
@@ -75,10 +72,6 @@ protected:
 
         SkFont font;
         font.setSize(24);
-        auto looper(
-            SkBlurDrawLooper::Make(SK_ColorBLUE, SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2)),
-                                   0, 0));
-        paint.setLooper(looper);
         SkScalar height = font.getMetrics(nullptr);
         if (!fDecodeSucceeded) {
             SkString failure;
@@ -171,5 +164,3 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE( return new UnpremulView(GetResourcePath("images")); )
-
-#endif

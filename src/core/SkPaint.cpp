@@ -76,7 +76,6 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
         && EQUAL(fShader)
         && EQUAL(fMaskFilter)
         && EQUAL(fColorFilter)
-        && EQUAL(fDrawLooper)
         && EQUAL(fImageFilter)
         && EQUAL(fColor4f)
         && EQUAL(fWidth)
@@ -88,9 +87,6 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
 
 #define DEFINE_REF_FOO(type)    sk_sp<Sk##type> SkPaint::ref##type() const { return f##type; }
 DEFINE_REF_FOO(ColorFilter)
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-DEFINE_REF_FOO(DrawLooper)
-#endif
 DEFINE_REF_FOO(ImageFilter)
 DEFINE_REF_FOO(MaskFilter)
 DEFINE_REF_FOO(PathEffect)
@@ -183,14 +179,7 @@ MOVE_FIELD(Shader)
 MOVE_FIELD(ColorFilter)
 MOVE_FIELD(PathEffect)
 MOVE_FIELD(MaskFilter)
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-MOVE_FIELD(DrawLooper)
-#endif
 #undef MOVE_FIELD
-
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fDrawLooper = std::move(looper); }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -327,9 +316,6 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
         paint.getShader() ||
         paint.getMaskFilter() ||
         paint.getColorFilter() ||
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-        paint.getLooper() ||
-#endif
         paint.getImageFilter()) {
         flatFlags |= kHasEffects_FlatFlag;
     }
@@ -345,11 +331,7 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
         buffer.writeFlattenable(paint.getShader());
         buffer.writeFlattenable(paint.getMaskFilter());
         buffer.writeFlattenable(paint.getColorFilter());
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-        buffer.writeFlattenable(paint.getLooper());
-#else
-        buffer.write32(0);
-#endif
+        buffer.write32(0);  // legacy, was drawlooper
         buffer.writeFlattenable(paint.getImageFilter());
     }
 }
@@ -400,20 +382,13 @@ SkReadPaintResult SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& bu
         paint->setMaskFilter(buffer.readMaskFilter());
         paint->setColorFilter(buffer.readColorFilter());
         (void)buffer.read32();  // use to be SkRasterizer
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-        paint->setLooper(buffer.readDrawLooper());
-#else
         (void)buffer.read32();  // used to be drawlooper
-#endif
         paint->setImageFilter(buffer.readImageFilter());
     } else {
         paint->setPathEffect(nullptr);
         paint->setShader(nullptr);
         paint->setMaskFilter(nullptr);
         paint->setColorFilter(nullptr);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-        paint->setLooper(nullptr);
-#endif
         paint->setImageFilter(nullptr);
     }
 
@@ -446,20 +421,13 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
         paint->setShader(buffer.readShader());
         paint->setMaskFilter(buffer.readMaskFilter());
         paint->setColorFilter(buffer.readColorFilter());
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-        paint->setLooper(buffer.readDrawLooper());
-#else
         (void)buffer.readDrawLooper();
-#endif
         paint->setImageFilter(buffer.readImageFilter());
     } else {
         paint->setPathEffect(nullptr);
         paint->setShader(nullptr);
         paint->setMaskFilter(nullptr);
         paint->setColorFilter(nullptr);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-        paint->setLooper(nullptr);
-#endif
         paint->setImageFilter(nullptr);
     }
 
@@ -508,11 +476,6 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect
 }
 
 bool SkPaint::canComputeFastBounds() const {
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-    if (this->getLooper()) {
-        return this->getLooper()->canComputeFastBounds(*this);
-    }
-#endif
     if (this->getImageFilter() && !this->getImageFilter()->canComputeFastBounds()) {
         return false;
     }
@@ -525,14 +488,6 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
     SkASSERT(storage);
 
     const SkRect* src = &origSrc;
-
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-if (this->getLooper()) {
-        SkASSERT(this->getLooper()->canComputeFastBounds(*this));
-        this->getLooper()->computeFastBounds(*this, *src, storage);
-        return *storage;
-    }
-#endif
 
     SkRect tmpSrc;
     if (this->getPathEffect()) {
@@ -569,9 +524,6 @@ static bool affects_alpha(const SkImageFilter* imf) {
 }
 
 bool SkPaint::nothingToDraw() const {
-    if (fDrawLooper) {
-        return false;
-    }
     switch (this->getBlendMode()) {
         case SkBlendMode::kSrcOver:
         case SkBlendMode::kSrcATop:
@@ -591,9 +543,9 @@ bool SkPaint::nothingToDraw() const {
 }
 
 uint32_t SkPaint::getHash() const {
-    // We're going to hash 6 pointers and 6 floats, finishing up with fBitfields,
-    // so fBitfields should be 6 pointers and 6 floats from the start.
-    static_assert(offsetof(SkPaint, fBitfieldsUInt) == 6 * sizeof(void*) + 6 * sizeof(float),
+    // We're going to hash 5 pointers and 6 floats, finishing up with fBitfields,
+    // so fBitfields should be 5 pointers and 6 floats from the start.
+    static_assert(offsetof(SkPaint, fBitfieldsUInt) == 5 * sizeof(void*) + 6 * sizeof(float),
                   "SkPaint_notPackedTightly");
     return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
                         offsetof(SkPaint, fBitfieldsUInt) + sizeof(fBitfieldsUInt));
