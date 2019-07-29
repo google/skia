@@ -16,6 +16,11 @@
 
 using namespace editor;
 
+static inline SkRect offset(SkRect r, SkIPoint p) {
+    r.offset((float)p.x(), (float)p.y());
+    return r;
+}
+
 static constexpr SkRect kUnsetRect{-FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX};
 
 static SkRect selection_box(const SkFontMetrics& metrics,
@@ -237,6 +242,21 @@ static const char* prev_utf8(const char* p, const char* begin) {
     return p > begin ? align_utf8(p - 1, begin) : begin;
 }
 
+SkRect Editor::getLocation(Editor::TextPosition cursor) {
+    this->reshapeAll();
+    if (fLines.size() > 0) {
+        const TextLine& cLine = fLines[cursor.fParagraphIndex];
+        SkRect pos = fSpaceBounds;
+        if (cursor.fTextByteIndex < cLine.fCursorPos.size()) {
+            pos = cLine.fCursorPos[cursor.fTextByteIndex];
+        }
+        pos.fRight = pos.fLeft + 1;
+        pos.fLeft -= 1;
+        return offset(pos, cLine.fOrigin);
+    }
+    return SkRect{0, 0, 0, 0};
+}
+
 static size_t count_char(const StringSlice& string, char value) {
     size_t count = 0;
     for (char c : string) { if (c == value) { ++count; } }
@@ -456,11 +476,6 @@ Editor::TextPosition Editor::move(Editor::Movement move, Editor::TextPosition po
     return pos;
 }
 
-static inline SkRect offset(SkRect r, SkIPoint p) {
-    r.offset((float)p.x(), (float)p.y());
-    return r;
-}
-
 void Editor::paint(SkCanvas* c, PaintOpts options) {
     this->reshapeAll();
     if (!c) {
@@ -482,14 +497,7 @@ void Editor::paint(SkCanvas* c, PaintOpts options) {
     }
 
     if (fLines.size() > 0) {
-        const TextLine& cLine = fLines[options.fCursor.fParagraphIndex];
-        SkRect pos = fSpaceBounds;
-        if (options.fCursor.fTextByteIndex < cLine.fCursorPos.size()) {
-            pos = cLine.fCursorPos[options.fCursor.fTextByteIndex];
-        }
-        pos.fRight = pos.fLeft + 1;
-        pos.fLeft -= 1;
-        c->drawRect(offset(pos, cLine.fOrigin), SkPaint(options.fCursorColor));
+        c->drawRect(Editor::getLocation(options.fCursor), SkPaint(options.fCursorColor));
     }
 
     SkPaint foreground = SkPaint(options.fForegroundColor);

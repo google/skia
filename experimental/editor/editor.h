@@ -72,6 +72,7 @@ public:
     };
     TextPosition move(Editor::Movement move, Editor::TextPosition pos) const;
     TextPosition getPosition(SkIPoint);
+    SkRect getLocation(TextPosition);
     // insert into current text.
     TextPosition insert(TextPosition, const char* utf8Text, size_t byteLen);
     // remove text between two positions
