@@ -529,22 +529,10 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             case Type::kSampler_Kind: {
                 SpvId image = result;
                 if (SpvDimSubpassData != type.dimensions()) {
-                    if (type.textureType()) {
-                        image = this->getType(*type.textureType(), layout);
-                    } else {
-                        image = nextId();
-                    }
+                    image = this->getType(type.textureType(), layout);
                 }
                 if (SpvDimBuffer == type.dimensions()) {
                     fCapabilities |= (((uint64_t) 1) << SpvCapabilitySampledBuffer);
-                }
-                if (!type.textureType()) {
-                    this->writeInstruction(SpvOpTypeImage, image,
-                                           this->getType(*fContext.fFloat_Type, layout),
-                                           type.dimensions(), type.isDepth(), type.isArrayed(),
-                                           type.isMultisampled(), type.isSampled() ? 1 : 2,
-                                           SpvImageFormatUnknown, fConstantBuffer);
-                    fImageTypeMap[key] = image;
                 }
                 if (SpvDimSubpassData != type.dimensions()) {
                     this->writeInstruction(SpvOpTypeSampledImage, result, image, fConstantBuffer);
@@ -556,11 +544,10 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 break;
             }
             case Type::kTexture_Kind: {
-                // FIXME: should support more than 2D
                 this->writeInstruction(SpvOpTypeImage, result,
                                        this->getType(*fContext.fFloat_Type, layout),
-                                       SpvDim2D, type.isDepth(), type.isArrayed(),
-                                       type.isMultisampled(), 1,
+                                       type.dimensions(), type.isDepth(), type.isArrayed(),
+                                       type.isMultisampled(), type.isSampled() ? 1 : 2,
                                        SpvImageFormatUnknown, fConstantBuffer);
                 fImageTypeMap[key] = result;
                 break;
