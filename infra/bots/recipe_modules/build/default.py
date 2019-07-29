@@ -6,11 +6,11 @@
 from . import util
 
 
-# See mapping of Xcode version to Xcode build version here:
-# https://chromium.googlesource.com/chromium/tools/build/+/master/scripts/slave/recipe_modules/ios/api.py#37
+# XCode build is listed in parentheses after the version at
+# https://developer.apple.com/news/releases/. Use lowercase letters.
 # When updating XCODE_BUILD_VERSION, you will also need to update
 # XCODE_CLANG_VERSION.
-XCODE_BUILD_VERSION = '9c40b'
+XCODE_BUILD_VERSION = '10g8'
 XCODE_CLANG_VERSION = '9.0.0'
 
 
