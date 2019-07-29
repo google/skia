@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "db4e65f1_9a5c4857",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-29T14:42:18Z",
+      "side": 1,
+      "message": "ack - I\u0027ve added some TODOs",
+      "parentUuid": "e1d68ce5_5b25d8da",
+      "range": {
+        "startLine": 334,
+        "startChar": 35,
+        "endLine": 334,
+        "endChar": 64
+      },
+      "revId": "a8637116fe2ca6eddc25fc281dc9c221a5452fab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5ab6d58c_718d443f",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2019-07-26T13:21:16Z",
       "side": 1,
       "message": "copyable? Why do we require that here?\n\nAnd on a higher level why are we checking any properties of the backendFormat we return here? Looking at createBackendFormat that takes an SkColorType it doesn\u0027t do any of these checks. Similarly we don\u0027t do those checks in SkSurface::MakeRenderTarget.",
+      "range": {
+        "startLine": 335,
+        "startChar": 23,
+        "endLine": 335,
+        "endChar": 32
+      },
+      "revId": "a8637116fe2ca6eddc25fc281dc9c221a5452fab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe623af4_109aae14",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-29T14:42:18Z",
+      "side": 1,
+      "message": "Switched copyable to texturable\n\nIn SkSurface::MakeRenderTarget we don\u0027t explicitly have a check but we do go through the creation of a GrPixelConfig which checks compatibility for us.\n\nIn general this is more of a placeholder. This method should encompass all the decisions we would internally make when getting a backend format from an SkColorType. When that isn\u0027t possible we should return an invalid format.",
+      "parentUuid": "5ab6d58c_718d443f",
       "range": {
         "startLine": 335,
         "startChar": 23,
