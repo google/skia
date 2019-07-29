@@ -86,22 +86,24 @@ private:
 
     virtual void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override {}
 
-    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, GrRenderable, SkBudgeted budgeted,
-                                     GrProtected, const GrMipLevel texels[], int mipLevelCount)
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, GrRenderable,
+                                     int renderTargetSampleCnt, SkBudgeted, GrProtected,
+                                     const GrMipLevel texels[], int mipLevelCount)
                                      override;
 
     sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, SkImage::CompressionType,
                                                SkBudgeted, const void* data) override;
 
-    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership,
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType, GrWrapOwnership,
                                           GrWrapCacheable, GrIOType) override;
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&, int sampleCnt,
                                                     GrColorType, GrWrapOwnership,
                                                     GrWrapCacheable) override;
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) override;
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
+                                                    GrColorType) override;
 
-    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                             int sampleCnt) override;
+    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&, int sampleCnt,
+                                                             GrColorType) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType type, GrAccessPattern,
                                       const void* data) override;

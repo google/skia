@@ -58,18 +58,6 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
     return kUnknown_GrPixelConfig;
 }
 
-size_t GrDawnCaps::onTransferFromOffsetAlignment(GrColorType bufferColorType) const {
-    if (bufferColorType == GrColorType::kRGB_888x) {
-        return false;
-    }
-    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
-    switch (bpp & 0b11) {
-        case 0:     return bpp;
-        case 2:     return 2 * bpp;
-        default:    return 4 * bpp;
-    }
-}
-
 static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
                              bool forOutput) {
     SkASSERT(format.getDawnFormat());
@@ -154,4 +142,8 @@ GrSwizzle GrDawnCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorTyp
 bool GrDawnCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                    const GrBackendFormat& format) const {
     return true;
+}
+
+GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const {
+    return GrColorType::kUnknown;
 }

@@ -43,6 +43,12 @@ public:
         return SurfaceReadPixelsSupport::kSupported;
     }
 
+    SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType,
+                                                 const GrBackendFormat& backendFormat,
+                                                 GrColorType dstColorType) const override {
+        return {GrSwizzle(), GrColorType::kUnknown, 0};
+    }
+
     bool onSurfaceSupportsWritePixels(const GrSurface* surface) const override {
         return true;
     }
@@ -73,9 +79,9 @@ public:
 
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
-    size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override;
-
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
+
+    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
 
     typedef GrCaps INHERITED;
 };
