@@ -22,7 +22,7 @@ import urllib2
 import utils
 
 
-VALGRIND = 'valgrind-3.13.0'
+VALGRIND = 'valgrind-3.15.0'
 TARBALL = '%s.tar.bz2' % VALGRIND
 DOWNLOAD_URL = 'ftp://sourceware.org/pub/valgrind/%s' % TARBALL
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'skia-%s' % VALGRIND)
@@ -55,13 +55,13 @@ def build_valgrind():
     return
   with utils.chdir(os.path.join(TEMP_DIR, VALGRIND)):
     subprocess.check_call(['./configure', '--prefix=%s' % INSTALL_DIR])
-    subprocess.check_call(['make'])
+    subprocess.check_call(['make', '-j'])
     subprocess.check_call(['make', 'install'])
 
 
 def copy_files(target_dir):
   with utils.chdir(os.path.join(TEMP_DIR, VALGRIND)):
-    os.mkdir(os.path.join(target_dir, 'bin'))
+    os.makedirs(os.path.join(target_dir, 'bin'))
     shutil.copy(os.path.join(INSTALL_DIR, 'bin', 'valgrind'),
                 os.path.join(target_dir, 'bin', 'valgrind'))
     os.mkdir(os.path.join(target_dir, 'lib'))
@@ -97,7 +97,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('--target_dir', '-t', required=True)
   args = parser.parse_args()
-  create_asset(args.target_dir)
+  create_asset(os.path.abspath(args.target_dir))
 
 
 if __name__ == '__main__':
