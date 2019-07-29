@@ -216,7 +216,7 @@ gm_sources = [
   "$_gm/internal_links.cpp",
   "$_gm/inversepaths.cpp",
   "$_gm/jpg_color_cube.cpp",
-  "$_gm/labrynth.cpp",
+  "$_gm/labyrinth.cpp",
   "$_gm/largeglyphblur.cpp",
   "$_gm/lattice.cpp",
   "$_gm/lcdblendmodes.cpp",
