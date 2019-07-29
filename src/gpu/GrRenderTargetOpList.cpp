@@ -23,6 +23,9 @@
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrCopySurfaceOp.h"
 
+
+#include "src/gpu/GrTexturePriv.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Experimentally we have found that most combining occurs within the first 10 comparisons.
@@ -354,6 +357,12 @@ GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrOpMemoryPool> opMemoryPool,
         : INHERITED(std::move(opMemoryPool), std::move(proxy), auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
+    if (GrTextureProxy* textureProxy = fTarget->asTextureProxy()) {
+        if (GrMipMapped::kYes == textureProxy->mipMapped()) {
+            textureProxy->markMipMapsDirty();
+        }
+    }
+    fTarget->setLastOpList(this);
 }
 
 void GrRenderTargetOpList::deleteOps() {
@@ -593,7 +602,7 @@ bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
         return false;
     }
 
-    this->addOp(std::move(op), *context->priv().caps());
+    this->addOp(std::move(op), context->priv().drawingManager(), *context->priv().caps());
     return true;
 }
 

@@ -30,6 +30,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
+#include "src/gpu/GrTextureResolveOpList.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrTextContext.h"
@@ -80,8 +81,8 @@ bool GrDrawingManager::OpListDAG::isUsed(GrSurfaceProxy* proxy) const {
     return false;
 }
 
-void GrDrawingManager::OpListDAG::add(sk_sp<GrOpList> opList) {
-    fOpLists.emplace_back(std::move(opList));
+GrOpList* GrDrawingManager::OpListDAG::add(sk_sp<GrOpList> opList) {
+    return fOpLists.emplace_back(std::move(opList)).get();
 }
 
 void GrDrawingManager::OpListDAG::add(const SkTArray<sk_sp<GrOpList>>& opLists) {
@@ -494,17 +495,14 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
         if (!proxies[i]->isInstantiated()) {
             return result;
         }
-    }
-
-    for (int i = 0; i < numProxies; ++i) {
         GrSurface* surface = proxies[i]->peekSurface();
         if (auto* rt = surface->asRenderTarget()) {
             gpu->resolveRenderTarget(rt);
         }
-        if (auto* tex = surface->asTexture()) {
-            if (tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
-                tex->texturePriv().mipMapsAreDirty()) {
-                gpu->regenerateMipMapLevels(tex);
+        if (auto* textureProxy = proxies[i]->asTextureProxy()) {
+            if (textureProxy->mipMapsAreDirty()) {
+                gpu->regenerateMipMapLevels(textureProxy->peekTexture());
+                textureProxy->markMipMapsClean();
             }
         }
     }
@@ -582,7 +580,14 @@ void GrDrawingManager::validate() const {
         if (fActiveOpList) {
             SkASSERT(!fDAG.empty());
             SkASSERT(!fActiveOpList->isClosed());
-            SkASSERT(fActiveOpList == fDAG.back());
+            // Ensure any opLists created after fActiveOpList are one-off additions that are closed off and
+            // dependencies of fActiveOpList.
+            int i = fDAG.numOpLists() - 1;
+            while (fActiveOpList != fDAG.opList(i)) {
+                SkASSERT(fDAG.opList(i)->isClosed() && fActiveOpList->dependsOn(fDAG.opList(i)));
+                SkASSERT(i > 0);
+                --i;
+            }
         }
 
         for (int i = 0; i < fDAG.numOpLists(); ++i) {
@@ -662,8 +667,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> 
     }
 
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->priv().refOpMemoryPool(),
-                                                      textureProxy,
-                                                      fContext->priv().auditTrail()));
+                                                      textureProxy, fContext->priv().auditTrail()));
 
     SkASSERT(textureProxy->getLastOpList() == opList.get());
 
@@ -792,4 +796,20 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
                                                         colorType,
                                                         alphaType,
                                                         std::move(colorSpace)));
+}
+
+GrOpList* GrDrawingManager::newTextureResolveOpList(
+        sk_sp<GrTextureProxy> textureProxy, GrTextureResolveManager::ResolveFlags resolveFlags,
+        const GrCaps& caps) {
+    sk_sp<GrOpList> textureResolveOpList = sk_make_sp<GrTextureResolveOpList>(
+            fContext->priv().refOpMemoryPool(), textureProxy, resolveFlags,
+            fContext->priv().auditTrail(), caps);
+    return fDAG.add(std::move(textureResolveOpList));
+}
+
+GrOpList* GrTextureResolveManager::newTextureResolveOpList(
+        sk_sp<GrTextureProxy> textureProxy, GrTextureResolveManager::ResolveFlags resolveFlags,
+        const GrCaps& caps) const {
+    SkASSERT(fDrawingManager);
+    return fDrawingManager->newTextureResolveOpList(std::move(textureProxy), resolveFlags, caps);
 }
