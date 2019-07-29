@@ -396,3 +396,32 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
 GrContext* GrRecordingContextPriv::backdoor() {
     return (GrContext*) fContext;
 }
+
+GrBackendFormat GrRecordingContext::defaultBackendFormat(SkColorType skColorType,
+                                                         GrRenderable renderable) const {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+    if (this->abandoned()) {
+        return GrBackendFormat();
+    }
+
+    const GrCaps* caps = this->caps();
+
+    GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
+
+    // TODO: pass the 'renderable' parameter into getBackendFormatFromColorType and change
+    // the texturabilit and renderability tests below into asserts
+    GrBackendFormat format = caps->getBackendFormatFromColorType(grColorType);
+    if (!caps->isFormatTexturable(grColorType, format)) {
+        return GrBackendFormat();
+    }
+
+    if (renderable == GrRenderable::kYes) {
+        if (!caps->isFormatRenderable(grColorType, format)) {
+            return GrBackendFormat();
+        }
+    }
+
+    return format;
+}
+

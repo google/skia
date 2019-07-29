@@ -394,6 +394,7 @@ public:
     virtual GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const = 0;
 
     /** These are used when creating a new texture internally. */
+    // TODO: also take a GrRenderable parameter.
     virtual GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const = 0;
 
     virtual GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const = 0;
