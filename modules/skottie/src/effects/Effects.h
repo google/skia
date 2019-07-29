@@ -24,8 +24,8 @@ class EffectBuilder final : public SkNoncopyable {
 public:
     EffectBuilder(const AnimationBuilder*, const SkSize&);
 
-    sk_sp<sksg::RenderNode> attachEffects(const skjson::ArrayValue&,
-                                          sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachEffect(const skjson::ObjectValue&,
+                                         sk_sp<sksg::RenderNode>) const;
 
 private:
     using EffectBuilderT = sk_sp<sksg::RenderNode>(EffectBuilder::*)(const skjson::ArrayValue&,

@@ -340,7 +340,7 @@ void AnimationBuilder::dispatchMarkers(const skjson::ArrayValue* jmarkers) const
 bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c) const {
     bool dispatched = false;
 
-    if (fPropertyObserver) {
+    if (fPropertyObserver && fPropertyObserverContext) {
         fPropertyObserver->onColorProperty(fPropertyObserverContext,
             [&]() {
                 dispatched = true;
@@ -354,7 +354,7 @@ bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c) const 
 bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>& o) const {
     bool dispatched = false;
 
-    if (fPropertyObserver) {
+    if (fPropertyObserver && fPropertyObserverContext) {
         fPropertyObserver->onOpacityProperty(fPropertyObserverContext,
             [&]() {
                 dispatched = true;
@@ -368,7 +368,7 @@ bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&
 bool AnimationBuilder::dispatchTransformProperty(const sk_sp<TransformAdapter2D>& t) const {
     bool dispatched = false;
 
-    if (fPropertyObserver) {
+    if (fPropertyObserver && fPropertyObserverContext) {
         fPropertyObserver->onTransformProperty(fPropertyObserverContext,
             [&]() {
                 dispatched = true;

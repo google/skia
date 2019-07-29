@@ -10,6 +10,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/text/SkottieShaper.h"
@@ -23,6 +24,29 @@
 #include <vector>
 
 using namespace skottie;
+
+namespace {
+
+class UnitTestAnimationLogger : public Logger {
+    void log(Level level, const char message[], const char* json) final {
+        switch(level) {
+            case Level::kWarning:
+              SkDebugf("WARNING when building animation: %s\n", message);
+              if (json) {
+                SkDebugf("JSON Fragment:\n%s\n", json);
+              }
+              break;
+            case Level::kError:
+              SkDebugf("ERROR when building animation: %s\n", message);
+              if (json) {
+                SkDebugf("JSON Fragment:\n%s\n", json);
+              }
+              break;
+        }
+    }
+};
+
+}  // namespace
 
 DEF_TEST(Skottie_OssFuzz8956, reporter) {
     static constexpr char json[] =
@@ -73,6 +97,44 @@ DEF_TEST(Skottie_Properties, reporter) {
                                              "s": { "a": 0, "k": [ 50, 50 ] }
                                            }
                                          ]
+                                       },
+                                       {
+                                         "ty": 1,
+                                         "ind": 1,
+                                         "ip":  0,
+                                         "op": 1,
+                                         "ks": {
+                                           "o": { "a": 0, "k": 100 },
+                                           "p": { "a": 0, "k": [ 25, 25 ]}
+                                         },
+                                         "sw": 50,
+                                         "sh": 50,
+                                         "ef": [
+                                          {
+                                            "ty": 21,
+                                            "nm": "fill_effect",
+                                            "ef": [
+                                              {},
+                                              {},
+                                              {
+                                                "v": {
+                                                  "a": 0,
+                                                  "k": [0, 1, 0, 1]
+                                                }
+                                              },
+                                              {},
+                                              {},
+                                              {},
+                                              {
+                                                "v": {
+                                                  "a": 0,
+                                                  "k": 1
+                                                }
+                                              }
+                                            ]
+                                          }
+                                         ],
+                                         "sc": "#ffffffff"
                                        }
                                      ]
                                    })";
@@ -121,17 +183,21 @@ DEF_TEST(Skottie_Properties, reporter) {
 
     SkMemoryStream stream(json, strlen(json));
     auto observer = sk_make_sp<TestPropertyObserver>();
+    auto logger = sk_make_sp<UnitTestAnimationLogger>();
 
     auto animation = skottie::Animation::Builder()
             .setPropertyObserver(observer)
+            .setLogger(logger)
             .make(&stream);
 
     REPORTER_ASSERT(reporter, animation);
 
     const auto& colors = observer->colors();
-    REPORTER_ASSERT(reporter, colors.size() == 1);
+    REPORTER_ASSERT(reporter, colors.size() == 2);
     REPORTER_ASSERT(reporter, colors[0].node_name.equals("fill_0"));
     REPORTER_ASSERT(reporter, colors[0].color == 0xffff0000);
+    REPORTER_ASSERT(reporter, colors[1].node_name.equals("fill_effect"));
+    REPORTER_ASSERT(reporter, colors[1].color == 0xff00ff00);
 
     const auto& opacities = observer->opacities();
     REPORTER_ASSERT(reporter, opacities.size() == 2);
