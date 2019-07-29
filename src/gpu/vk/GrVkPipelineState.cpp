@@ -22,7 +22,6 @@
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkMemory.h"
 #include "src/gpu/vk/GrVkPipeline.h"
-#include "src/gpu/vk/GrVkPipelineLayout.h"
 #include "src/gpu/vk/GrVkPipelineState.h"
 #include "src/gpu/vk/GrVkSampler.h"
 #include "src/gpu/vk/GrVkTexture.h"
@@ -31,7 +30,6 @@
 GrVkPipelineState::GrVkPipelineState(
         GrVkGpu* gpu,
         GrVkPipeline* pipeline,
-        VkPipelineLayout layout,
         const GrVkDescriptorSetManager::Handle& samplerDSHandle,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
@@ -43,7 +41,6 @@ GrVkPipelineState::GrVkPipelineState(
         std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
         int fragmentProcessorCnt)
         : fPipeline(pipeline)
-        , fPipelineLayout(new GrVkPipelineLayout(layout))
         , fUniformDescriptorSet(nullptr)
         , fSamplerDescriptorSet(nullptr)
         , fSamplerDSHandle(samplerDSHandle)
@@ -72,18 +69,12 @@ GrVkPipelineState::GrVkPipelineState(
 GrVkPipelineState::~GrVkPipelineState() {
     // Must have freed all GPU resources before this is destroyed
     SkASSERT(!fPipeline);
-    SkASSERT(!fPipelineLayout);
 }
 
 void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
     if (fPipeline) {
         fPipeline->unref(gpu);
         fPipeline = nullptr;
-    }
-
-    if (fPipelineLayout) {
-        fPipelineLayout->unref(gpu);
-        fPipelineLayout = nullptr;
     }
 
     if (fGeometryUniformBuffer) {
@@ -111,11 +102,6 @@ void GrVkPipelineState::abandonGPUResources() {
     if (fPipeline) {
         fPipeline->unrefAndAbandon();
         fPipeline = nullptr;
-    }
-
-    if (fPipelineLayout) {
-        fPipelineLayout->unrefAndAbandon();
-        fPipelineLayout = nullptr;
     }
 
     if (fGeometryUniformBuffer) {
@@ -180,7 +166,7 @@ void GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
             fDescriptorSets[uniformDSIdx] = fUniformDescriptorSet->descriptorSet();
             this->writeUniformBuffers(gpu);
         }
-        commandBuffer->bindDescriptorSets(gpu, this, fPipelineLayout, uniformDSIdx, 1,
+        commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), uniformDSIdx, 1,
                                           &fDescriptorSets[uniformDSIdx], 0, nullptr);
         if (fUniformDescriptorSet) {
             commandBuffer->addRecycledResource(fUniformDescriptorSet);
@@ -289,7 +275,7 @@ void GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
             commandBuffer->addResource(samplerBindings[i].fTexture->resource());
         }
 
-        commandBuffer->bindDescriptorSets(gpu, this, fPipelineLayout, samplerDSIdx, 1,
+        commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), samplerDSIdx, 1,
                                           &fDescriptorSets[samplerDSIdx], 0, nullptr);
         commandBuffer->addRecycledResource(fSamplerDescriptorSet);
     }

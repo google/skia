@@ -315,7 +315,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
 
     return new GrVkPipelineState(fGpu,
                                  pipeline,
-                                 pipelineLayout,
                                  samplerDSHandle,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,

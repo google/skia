@@ -53,17 +53,7 @@ public:
 
     void bindDescriptorSets(const GrVkGpu* gpu,
                             GrVkPipelineState*,
-                            GrVkPipelineLayout* layout,
-                            uint32_t firstSet,
-                            uint32_t setCount,
-                            const VkDescriptorSet* descriptorSets,
-                            uint32_t dynamicOffsetCount,
-                            const uint32_t* dynamicOffsets);
-
-    void bindDescriptorSets(const GrVkGpu* gpu,
-                            const SkTArray<const GrVkRecycledResource*>&,
-                            const SkTArray<const GrVkResource*>&,
-                            GrVkPipelineLayout* layout,
+                            VkPipelineLayout layout,
                             uint32_t firstSet,
                             uint32_t setCount,
                             const VkDescriptorSet* descriptorSets,
@@ -120,14 +110,6 @@ public:
         fTrackedRecycledResources.append(1, &resource);
     }
 
-    // Add ref-counted resource that will be tracked and released when this command buffer finishes
-    // recording.
-    void addRecordingResource(const GrVkResource* resource) {
-        resource->ref();
-        resource->notifyAddedToCommandBuffer();
-        fTrackedRecordingResources.append(1, &resource);
-    }
-
     void releaseResources(GrVkGpu* gpu);
 
     bool hasWork() const { return fHasWork; }
@@ -142,7 +124,6 @@ protected:
             , fNumResets(0) {
             fTrackedResources.setReserve(kInitialTrackedResourcesCount);
             fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
-            fTrackedRecordingResources.setReserve(kInitialTrackedResourcesCount);
             this->invalidateState();
         }
 
@@ -156,7 +137,6 @@ protected:
 
         SkTDArray<const GrVkResource*>          fTrackedResources;
         SkTDArray<const GrVkRecycledResource*>  fTrackedRecycledResources;
-        SkTDArray<const GrVkResource*>          fTrackedRecordingResources;
 
         // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
         // new commands to the buffer;
