@@ -46,9 +46,8 @@ void fill_transfer_data(int left, int top, int width, int height, int bufferWidt
 }
 
 void determine_tolerances(GrColorType a, GrColorType b, float tolerances[4]) {
-    if (a == b) {
-        std::fill_n(tolerances, 4, 0);
-    }
+    std::fill_n(tolerances, 4, 0);
+
     auto descA = GrGetColorTypeDesc(a);
     auto descB = GrGetColorTypeDesc(b);
     // For each channel x set the tolerance to 1 / (2^min(bits_in_a, bits_in_b) - 1) unless
