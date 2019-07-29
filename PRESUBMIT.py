@@ -198,7 +198,8 @@ def _CheckIncludesFormatted(input_api, output_api):
   cmd = ['python',
          'tools/rewrite_includes.py',
          '--dry-run'] + files
-  if 0 != subprocess.call(cmd):
+  # TODO(mtklein): tools/rewrite_includes.py doesn't work on Windows.
+  if 'win32' not in sys.platform and 0 != subprocess.call(cmd):
     return [output_api.PresubmitError('`%s` failed' % ' '.join(cmd))]
   return []
 
