@@ -353,6 +353,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CharacterizationBackendAllocationTest, report
                         REPORTER_ASSERT(reporter, backendTex.isValid());
                         REPORTER_ASSERT(reporter, c.isCompatible(backendTex));
 
+                        {
+                            GrBackendFormat format = context->defaultBackendFormat(
+                                                                    c.imageInfo().colorType(),
+                                                                    GrRenderable::kYes);
+                            REPORTER_ASSERT(reporter, format == backendTex.getBackendFormat());
+                        }
+
                         sk_sp<SkSurface> s2 = SkSurface::MakeFromBackendTexture(context, c,
                                                                                 backendTex);
                         REPORTER_ASSERT(reporter, s2);
@@ -369,6 +376,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CharacterizationBackendAllocationTest, report
                         check_vk_layout(backendTex, VkLayout::kColorAttachmentOptimal);
                         REPORTER_ASSERT(reporter, backendTex.isValid());
                         REPORTER_ASSERT(reporter, c.isCompatible(backendTex));
+
+                        {
+                            GrBackendFormat format = context->defaultBackendFormat(
+                                                                    c.imageInfo().colorType(),
+                                                                    GrRenderable::kYes);
+                            REPORTER_ASSERT(reporter, format == backendTex.getBackendFormat());
+                        }
 
                         sk_sp<SkSurface> s2 = SkSurface::MakeFromBackendTexture(context, c,
                                                                                 backendTex);
@@ -454,6 +468,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                                     mipMapped, renderable,
                                                                     GrProtected::kNo);
                         check_vk_layout(result, VkLayout::kUndefined);
+
+                        {
+                            GrBackendFormat format = context->defaultBackendFormat(colorType,
+                                                                                   renderable);
+                            SkASSERT(format == result.getBackendFormat());
+                        }
+
                         return result;
                     };
 
@@ -484,6 +505,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                         check_vk_layout(result, GrRenderable::kYes == renderable
                                                         ? VkLayout::kColorAttachmentOptimal
                                                         : VkLayout::kReadOnlyOptimal);
+
+                        {
+                            GrBackendFormat format = context->defaultBackendFormat(colorType,
+                                                                                   renderable);
+                            SkASSERT(format == result.getBackendFormat());
+                        }
+
                         return result;
                     };
 
