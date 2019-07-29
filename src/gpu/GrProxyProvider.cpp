@@ -440,12 +440,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                    SkBudgeted budgeted,
                                                    GrProtected isProtected,
                                                    GrInternalSurfaceFlags surfaceFlags) {
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+    const GrCaps* caps = this->caps();
+
+    if (caps->isFormatCompressed(format)) {
         // Deferred proxies for compressed textures are not supported.
         return nullptr;
     }
 
-    const GrCaps* caps = this->caps();
     GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
 
     SkASSERT(GrCaps::AreConfigsCompatible(desc.fConfig,
@@ -483,14 +484,16 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
         int width, int height, SkBudgeted budgeted, SkImage::CompressionType compressionType,
         sk_sp<SkData> data) {
-    GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
 
     GrSurfaceDesc desc;
     desc.fConfig = GrCompressionTypePixelConfig(compressionType);
     desc.fWidth = width;
     desc.fHeight = height;
 
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+    GrColorType grColorType = GrCompressionTypeClosestColorType(compressionType);
+    GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
+
+    if (!this->caps()->isFormatTexturable(grColorType, format)) {
         return nullptr;
     }
 

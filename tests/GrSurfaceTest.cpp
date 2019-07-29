@@ -116,8 +116,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         GrPixelConfig config = static_cast<GrPixelConfig>(c);
 
         // We don't round trip correctly going from pixelConfig to colorType to
-        // backendFormat with the RGBX config.
-        if (config == kRGB_888X_GrPixelConfig) {
+        // backendFormat with the RGBX and ETC1 configs.
+        if (config == kRGB_888X_GrPixelConfig || config == kRGB_ETC1_GrPixelConfig) {
             continue;
         }
 
