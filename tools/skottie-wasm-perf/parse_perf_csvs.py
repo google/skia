@@ -34,6 +34,7 @@ def read_from_csv(csv_file):
     for v in csv_reader:
       # Extract the test name.
       result = p.search(v[0])
+      print v
       test_name = result.group(1)
 
       vals = [float(i) for i in v[1:]]
