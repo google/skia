@@ -438,11 +438,13 @@ public:
     }
 
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
+      printf("This is SkTypeface_stream!!\n");
         *ttcIndex = fData->getIndex();
         return fData->getStream()->duplicate();
     }
 
     std::unique_ptr<SkFontData> onMakeFontData() const override {
+        printf("SkTypeface_stream::onMakeFontData()\n");
         return skstd::make_unique<SkFontData>(*fData);
     }
 
@@ -488,6 +490,7 @@ public:
 
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
         FCLocker lock;
+        printf("This is SkTypeface_fontconfig!!\n");
         *ttcIndex = get_int(fPattern, FC_INDEX, 0);
         const char* filename = get_string(fPattern, FC_FILE);
         // See FontAccessible for note on searching sysroot then non-sysroot path.

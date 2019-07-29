@@ -1851,7 +1851,7 @@ static SK_SFNT_ULONG get_font_type_tag(CTFontRef ctFont) {
 
 std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
     *ttcIndex = 0;
-
+    printf("This is SkTypeface_Mac\n");
     fInitStream([this]{
     if (fStream) {
         return;
@@ -2061,6 +2061,7 @@ static bool get_variations(CTFontRef ctFont, CFIndex* cgAxisCount,
     return true;
 }
 std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
+    printf("SkTypeface_Mac::onMakeFontData()\n");
     int index;
     std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
 

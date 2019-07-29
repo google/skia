@@ -1798,6 +1798,7 @@ static sk_sp<SkTypeface> create_from_stream(std::unique_ptr<SkStreamAsset> strea
 std::unique_ptr<SkStreamAsset> LogFontTypeface::onOpenStream(int* ttcIndex) const {
     *ttcIndex = 0;
 
+    printf("This is LogFontTypeface!!\n");
     const DWORD kTTCTag = SkEndian_SwapBE32(SkSetFourByteTag('t', 't', 'c', 'f'));
     LOGFONT lf = fLogFont;
 
