@@ -331,18 +331,13 @@ GrBackendFormat GrContext::defaultBackendFormat(SkColorType skColorType,
 
     GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
 
-    // TODO: pass the 'renderable' parameter into getBackendFormatFromColorType and change
-    // the texturabilit and renderability tests below into asserts
-    GrBackendFormat format = caps->getBackendFormatFromColorType(grColorType);
-    if (!caps->isFormatTexturable(grColorType, format)) {
+    GrBackendFormat format = caps->getBackendFormatFromColorType(grColorType, renderable);
+    if (!format.isValid()) {
         return GrBackendFormat();
     }
 
-    if (renderable == GrRenderable::kYes) {
-        if (!caps->isFormatRenderable(grColorType, format)) {
-            return GrBackendFormat();
-        }
-    }
+    SkASSERT(caps->isFormatTexturable(grColorType, format));
+    SkASSERT(renderable == GrRenderable::kNo || caps->isFormatRenderable(grColorType, format));
 
     return format;
 }
