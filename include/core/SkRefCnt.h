@@ -88,6 +88,8 @@ public:
         }
     }
 
+    int32_t getRefCount() const { return fRefCnt.load(std::memory_order_relaxed); }
+
 protected:
     /**
      *  Allow subclasses to call this if they've overridden internal_dispose
@@ -226,6 +228,8 @@ public:
         }
     }
     void  deref() const { this->unref(); }
+
+    int32_t getRefCount() const { return fRefCnt.load(std::memory_order_relaxed); }
 
 private:
     mutable std::atomic<int32_t> fRefCnt;

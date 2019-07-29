@@ -141,6 +141,18 @@ const void* sk_stream_get_memory_base(sk_stream_t* cstream) {
     return AsStream(cstream)->getMemoryBase();
 }
 
+sk_stream_t* sk_stream_fork(sk_stream_t* cstream) {
+    return ToStream(AsStream(cstream)->fork().release());
+}
+
+sk_stream_t* sk_stream_duplicate(sk_stream_t* cstream) {
+    return ToStream(AsStream(cstream)->duplicate().release());
+}
+
+void sk_stream_destroy(sk_stream_t* cstream) {
+    delete AsStream(cstream);
+}
+
 
 // file W stream
 

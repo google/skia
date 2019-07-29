@@ -27,10 +27,6 @@
 
 #include "sk_types_priv.h"
 
-sk_colortype_t sk_colortype_get_default_8888() {
-    return (sk_colortype_t)SkColorType::kN32_SkColorType;
-}
-
 // surface
 
 sk_surface_t* sk_surface_new_null(int width, int height) {

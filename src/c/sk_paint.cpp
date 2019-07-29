@@ -119,11 +119,11 @@ void sk_paint_set_verticaltext(sk_paint_t* cpaint, bool vt) {
 }
 
 sk_shader_t* sk_paint_get_shader(sk_paint_t* cpaint) {
-    return ToShader(AsPaint(cpaint)->getShader());
+    return ToShader(AsPaint(cpaint)->refShader().release());
 }
 
 sk_maskfilter_t* sk_paint_get_maskfilter(sk_paint_t* cpaint) {
-    return ToMaskFilter(AsPaint(cpaint)->getMaskFilter());
+    return ToMaskFilter(AsPaint(cpaint)->refMaskFilter().release());
 }
 
 void sk_paint_set_colorfilter(sk_paint_t* cpaint, sk_colorfilter_t* cfilter) {
@@ -131,7 +131,7 @@ void sk_paint_set_colorfilter(sk_paint_t* cpaint, sk_colorfilter_t* cfilter) {
 }
 
 sk_colorfilter_t* sk_paint_get_colorfilter(sk_paint_t* cpaint) {
-    return ToColorFilter(AsPaint(cpaint)->getColorFilter());
+    return ToColorFilter(AsPaint(cpaint)->refColorFilter().release());
 }
 
 void sk_paint_set_imagefilter(sk_paint_t* cpaint, sk_imagefilter_t* cfilter) {
@@ -139,7 +139,7 @@ void sk_paint_set_imagefilter(sk_paint_t* cpaint, sk_imagefilter_t* cfilter) {
 }
 
 sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t* cpaint) {
-    return ToImageFilter(AsPaint(cpaint)->getImageFilter());
+    return ToImageFilter(AsPaint(cpaint)->refImageFilter().release());
 }
 
 sk_blendmode_t sk_paint_get_blendmode(sk_paint_t* paint) {
@@ -155,7 +155,7 @@ sk_filter_quality_t sk_paint_get_filter_quality(sk_paint_t* cpaint) {
 }
 
 sk_typeface_t* sk_paint_get_typeface(sk_paint_t* paint) {
-    return ToTypeface(AsPaint(paint)->getTypeface());
+    return ToTypeface(AsPaint(paint)->refTypeface().release());
 }
 
 void sk_paint_set_typeface(sk_paint_t* paint, sk_typeface_t* typeface) {
@@ -227,7 +227,7 @@ float sk_paint_get_fontmetrics(sk_paint_t* cpaint, sk_fontmetrics_t* cfontmetric
 }
 
 sk_path_effect_t* sk_paint_get_path_effect(sk_paint_t* cpaint) {
-    return ToPathEffect(AsPaint(cpaint)->getPathEffect());
+    return ToPathEffect(AsPaint(cpaint)->refPathEffect().release());
 }
 
 void sk_paint_set_path_effect(sk_paint_t* cpaint, sk_path_effect_t* effect) {

@@ -19,6 +19,7 @@
 #include "sk_data.h"
 #include "sk_document.h"
 #include "sk_drawable.h"
+#include "sk_general.h"
 #include "sk_image.h"
 #include "sk_imagefilter.h"
 #include "sk_mask.h"
@@ -51,6 +52,7 @@ void** KeepSkiaCSymbols (void)
 {
     static void* ret[] = {
         // Skia
+        (void*)sk_colortype_get_default_8888,
         (void*)gr_context_unref,
         (void*)gr_glinterface_create_native_interface,
         (void*)sk_bitmap_new,
@@ -77,7 +79,7 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_shader_ref,
         (void*)sk_stream_asset_destroy,
         (void*)sk_string_new_empty,
-        (void*)sk_colortype_get_default_8888,
+        (void*)sk_surface_new_null,
         (void*)sk_svgcanvas_create,
         (void*)sk_typeface_unref,
         (void*)sk_textblob_ref,

@@ -11,14 +11,10 @@
 #include "sk_managedstream.h"
 #include "sk_types_priv.h"
 
+// WRITEABLE MANAGED STREAM
 
-static sk_managedwstream_write_delegate        gWrite;
-static sk_managedwstream_flush_delegate        gFlush;
-static sk_managedwstream_bytesWritten_delegate gBytesWritten;
-static sk_managedwstream_destroy_delegate      gWDestroy;
-
-static inline SkManagedWStream* AsManagedWStream(sk_wstream_managedstream_t* cstream) {
-    return reinterpret_cast<SkManagedWStream*>(cstream);
+static inline SkManagedWStream* AsManagedWStream(sk_wstream_managedstream_t* stream) {
+    return reinterpret_cast<SkManagedWStream*>(stream);
 }
 static inline sk_wstream_managedstream_t* ToManagedWStream(SkManagedWStream* stream) {
     return reinterpret_cast<sk_wstream_managedstream_t*>(stream);
@@ -27,158 +23,136 @@ static inline const sk_wstream_managedstream_t* ToManagedWStream(const SkManaged
     return reinterpret_cast<const sk_wstream_managedstream_t*>(stream);
 }
 
-bool dWrite(SkManagedWStream* managedStream, const void* buffer, size_t size)
-{
-    return gWrite(ToManagedWStream(managedStream), buffer, size);
+static sk_managedwstream_procs_t gWProcs;
+
+bool dWrite(SkManagedWStream* stream, void* context, const void* buffer, size_t size) {
+    if (!gWProcs.fWrite) return false;
+    return gWProcs.fWrite(ToManagedWStream(stream), context, buffer, size);
 }
-void dFlush(SkManagedWStream* managedStream)
-{
-    gFlush(ToManagedWStream(managedStream));
+void dFlush(SkManagedWStream* stream, void* context) {
+    if (!gWProcs.fFlush) return;
+    gWProcs.fFlush(ToManagedWStream(stream), context);
 }
-size_t dBytesWritten(const SkManagedWStream* managedStream)
-{
-    return gBytesWritten(ToManagedWStream(managedStream));
+size_t dBytesWritten(const SkManagedWStream* stream, void* context) {
+    if (!gWProcs.fBytesWritten) return 0;
+    return gWProcs.fBytesWritten(ToManagedWStream(stream), context);
 }
-void dWDestroy(size_t managedStream)
-{
-    gWDestroy(managedStream);
+void dWDestroy(SkManagedWStream* stream, void* context) {
+    if (!gWProcs.fDestroy) return;
+    gWProcs.fDestroy(ToManagedWStream(stream), context);
 }
 
-sk_wstream_managedstream_t* sk_managedwstream_new()
-{
-    return ToManagedWStream(new SkManagedWStream());
+sk_wstream_managedstream_t* sk_managedwstream_new(void* context) {
+    return ToManagedWStream(new SkManagedWStream(context));
 }
-
-void sk_managedwstream_destroy(sk_wstream_managedstream_t* stream)
-{
-    delete AsManagedWStream(stream);
+void sk_managedwstream_destroy(sk_wstream_managedstream_t* stream) {
+    if (stream)
+        delete AsManagedWStream(stream);
 }
+void sk_managedwstream_set_procs(sk_managedwstream_procs_t procs) {
+    gWProcs = procs;
 
-void sk_managedwstream_set_delegates(const sk_managedwstream_write_delegate pWrite,
-                                     const sk_managedwstream_flush_delegate pFlush,
-                                     const sk_managedwstream_bytesWritten_delegate pBytesWritten,
-                                     const sk_managedwstream_destroy_delegate pDestroy)
-{
-    gWrite = pWrite;
-    gFlush = pFlush;
-    gBytesWritten = pBytesWritten;
-    gWDestroy = pDestroy;
+    SkManagedWStream::Procs p;
+    p.fWrite = dWrite;
+    p.fFlush = dFlush;
+    p.fBytesWritten = dBytesWritten;
+    p.fDestroy = dWDestroy;
 
-    SkManagedWStream::setDelegates(dWrite, dFlush, dBytesWritten, dWDestroy);
+    SkManagedWStream::setProcs(p);
 }
 
 
-static sk_managedstream_read_delegate         gRead;
-static sk_managedstream_peek_delegate         gPeek;
-static sk_managedstream_isAtEnd_delegate      gIsAtEnd;
-static sk_managedstream_hasPosition_delegate  gHasPosition;
-static sk_managedstream_hasLength_delegate    gHasLength;
-static sk_managedstream_rewind_delegate       gRewind;
-static sk_managedstream_getPosition_delegate  gGetPosition;
-static sk_managedstream_seek_delegate         gSeek;
-static sk_managedstream_move_delegate         gMove;
-static sk_managedstream_getLength_delegate    gGetLength;
-static sk_managedstream_createNew_delegate    gCreateNew;
-static sk_managedstream_destroy_delegate      gDestroy;
+// READ-ONLY MANAGED STREAM
 
-
-static inline SkManagedStream* AsManagedStream(sk_stream_managedstream_t* cstream) {
-    return reinterpret_cast<SkManagedStream*>(cstream);
+static inline SkManagedStream* AsManagedStream(sk_stream_managedstream_t* s) {
+    return reinterpret_cast<SkManagedStream*>(s);
 }
-static inline sk_stream_managedstream_t* ToManagedStream(SkManagedStream* stream) {
-    return reinterpret_cast<sk_stream_managedstream_t*>(stream);
+static inline sk_stream_managedstream_t* ToManagedStream(SkManagedStream* s) {
+    return reinterpret_cast<sk_stream_managedstream_t*>(s);
 }
-static inline const sk_stream_managedstream_t* ToManagedStream(const SkManagedStream* stream) {
-    return reinterpret_cast<const sk_stream_managedstream_t*>(stream);
+static inline const sk_stream_managedstream_t* ToManagedStream(const SkManagedStream* s) {
+    return reinterpret_cast<const sk_stream_managedstream_t*>(s);
 }
 
+static sk_managedstream_procs_t gProcs;
 
-size_t dRead(SkManagedStream* managedStream, void* buffer, size_t size)
-{
-    return gRead(ToManagedStream(managedStream), buffer, size);
+size_t dRead(SkManagedStream* stream, void* context, void* buffer, size_t size) {
+    if (!gProcs.fRead) return 0;
+    return gProcs.fRead(ToManagedStream(stream), context, buffer, size);
 }
-size_t dPeek(SkManagedStream* managedStream, void* buffer, size_t size)
-{
-    return gPeek(ToManagedStream(managedStream), buffer, size);
+size_t dPeek(const SkManagedStream* stream, void* context, void* buffer, size_t size) {
+    if (!gProcs.fPeek) return 0;
+    return gProcs.fPeek(ToManagedStream(stream), context, buffer, size);
 }
-bool dIsAtEnd(const SkManagedStream* managedStream)
-{
-    return gIsAtEnd(ToManagedStream(managedStream));
+bool dIsAtEnd(const SkManagedStream* stream, void* context) {
+    if (!gProcs.fIsAtEnd) return false;
+    return gProcs.fIsAtEnd(ToManagedStream(stream), context);
 }
-bool dHasPosition(const SkManagedStream* managedStream)
-{
-    return gHasPosition(ToManagedStream(managedStream));
+bool dHasPosition(const SkManagedStream* stream, void* context) {
+    if (!gProcs.fIsAtEnd) return false;
+    return gProcs.fHasPosition(ToManagedStream(stream), context);
 }
-bool dHasLength(const SkManagedStream* managedStream)
-{
-    return gHasLength(ToManagedStream(managedStream));
+bool dHasLength(const SkManagedStream* stream, void* context) {
+    if (!gProcs.fHasLength) return false;
+    return gProcs.fHasLength(ToManagedStream(stream), context);
 }
-bool dRewind(SkManagedStream* managedStream)
-{
-    return gRewind(ToManagedStream(managedStream));
+bool dRewind(SkManagedStream* stream, void* context) {
+    if (!gProcs.fRewind) return false;
+    return gProcs.fRewind(ToManagedStream(stream), context);
 }
-size_t dGetPosition(const SkManagedStream* managedStream)
-{
-    return gGetPosition(ToManagedStream(managedStream));
+size_t dGetPosition(const SkManagedStream* stream, void* context) {
+    if (!gProcs.fGetPosition) return 0;
+    return gProcs.fGetPosition(ToManagedStream(stream), context);
 }
-bool dSeek(SkManagedStream* managedStream, size_t position)
-{
-    return gSeek(ToManagedStream(managedStream), position);
+bool dSeek(SkManagedStream* stream, void* context, size_t position) {
+    if (!gProcs.fSeek) return false;
+    return gProcs.fSeek(ToManagedStream(stream), context, position);
 }
-bool dMove(SkManagedStream* managedStream, long offset)
-{
-    return gMove(ToManagedStream(managedStream), offset);
+bool dMove(SkManagedStream* stream, void* context, long offset) {
+    if (!gProcs.fMove) return false;
+    return gProcs.fMove(ToManagedStream(stream), context, offset);
 }
-size_t dGetLength(const SkManagedStream* managedStream)
-{
-    return gGetLength(ToManagedStream(managedStream));
+size_t dGetLength(const SkManagedStream* stream, void* context) {
+    if (!gProcs.fGetLength) return 0;
+    return gProcs.fGetLength(ToManagedStream(stream), context);
 }
-SkManagedStream* dCreateNew(const SkManagedStream* managedStream)
-{
-    return AsManagedStream(gCreateNew(ToManagedStream(managedStream)));
+SkManagedStream* dDuplicate(const SkManagedStream* stream, void* context) {
+    if (!gProcs.fDuplicate) return nullptr;
+    return AsManagedStream(gProcs.fDuplicate(ToManagedStream(stream), context));
 }
-void dDestroy(size_t managedStream)
-{
-    gDestroy(managedStream);
+SkManagedStream* dFork(const SkManagedStream* stream, void* context) {
+    if (!gProcs.fFork) return nullptr;
+    return AsManagedStream(gProcs.fFork(ToManagedStream(stream), context));
 }
-
-
-sk_stream_managedstream_t* sk_managedstream_new ()
-{
-    return ToManagedStream (new SkManagedStream ());
-}
-
-void sk_managedstream_destroy (sk_stream_managedstream_t* stream)
-{
-    delete AsManagedStream (stream);
+void dDestroy(SkManagedStream* stream, void* context) {
+    if (!gProcs.fDestroy) return;
+    gProcs.fDestroy(ToManagedStream(stream), context);
 }
 
-void sk_managedstream_set_delegates (const sk_managedstream_read_delegate pRead,
-                                     const sk_managedstream_peek_delegate pPeek,
-                                     const sk_managedstream_isAtEnd_delegate pIsAtEnd,
-                                     const sk_managedstream_hasPosition_delegate pHasPosition,
-                                     const sk_managedstream_hasLength_delegate pHasLength,
-                                     const sk_managedstream_rewind_delegate pRewind,
-                                     const sk_managedstream_getPosition_delegate pGetPosition,
-                                     const sk_managedstream_seek_delegate pSeek,
-                                     const sk_managedstream_move_delegate pMove,
-                                     const sk_managedstream_getLength_delegate pGetLength,
-                                     const sk_managedstream_createNew_delegate pCreateNew,
-                                     const sk_managedstream_destroy_delegate pDestroy)
-{
-    gRead = pRead;
-    gPeek = pPeek;
-    gIsAtEnd = pIsAtEnd;
-    gHasPosition = pHasPosition;
-    gHasLength = pHasLength;
-    gRewind = pRewind;
-    gGetPosition = pGetPosition;
-    gSeek = pSeek;
-    gMove = pMove;
-    gGetLength = pGetLength;
-    gCreateNew = pCreateNew;
-    gDestroy = pDestroy;
-
-    SkManagedStream::setDelegates(dRead, dPeek, dIsAtEnd, dHasPosition, dHasLength, dRewind, dGetPosition, dSeek, dMove, dGetLength, dCreateNew, dDestroy);
+sk_stream_managedstream_t* sk_managedstream_new(void* context) {
+    return ToManagedStream(new SkManagedStream(context));
 }
+void sk_managedstream_destroy(sk_stream_managedstream_t* stream) {
+    if (stream)
+        delete AsManagedStream(stream);
+}
+void sk_managedstream_set_procs(const sk_managedstream_procs_t procs) {
+    gProcs = procs;
 
+    SkManagedStream::Procs p;
+    p.fRead = dRead;
+    p.fPeek = dPeek;
+    p.fIsAtEnd = dIsAtEnd;
+    p.fHasPosition = dHasPosition;
+    p.fHasLength = dHasLength;
+    p.fRewind = dRewind;
+    p.fGetPosition = dGetPosition;
+    p.fSeek = dSeek;
+    p.fMove = dMove;
+    p.fGetLength = dGetLength;
+    p.fDuplicate = dDuplicate;
+    p.fFork = dFork;
+    p.fDestroy = dDestroy;
+
+    SkManagedStream::setProcs(p);
+}

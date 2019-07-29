@@ -42,6 +42,9 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
+typedef struct sk_refcnt_t sk_refcnt_t;
+typedef struct sk_nvrefcnt_t sk_nvrefcnt_t;
+
 typedef uint32_t sk_color_t;
 typedef uint32_t sk_pmcolor_t;
 

@@ -8,147 +8,97 @@
 
 #include "SkManagedStream.h"
 
+// READ-ONLY MANAGED STREAM
 
-// read stream
-static read_delegate fRead = nullptr;
-static peek_delegate fPeek = nullptr;
-static isAtEnd_delegate fIsAtEnd = nullptr;
-static hasPosition_delegate fHasPosition = nullptr;
-static hasLength_delegate fHasLength = nullptr;
-static rewind_delegate fRewind = nullptr;
-static getPosition_delegate fGetPosition = nullptr;
-static seek_delegate fSeek = nullptr;
-static move_delegate fMove = nullptr;
-static getLength_delegate fGetLength = nullptr;
-static createNew_delegate fCreateNew = nullptr;
-static destroy_delegate fDestroy = nullptr;
+SkManagedStream::Procs SkManagedStream::fProcs;
 
-// write stream
-static write_delegate fWrite = nullptr;
-static flush_delegate fFlush = nullptr;
-static bytesWritten_delegate fBytesWritten = nullptr;
-static wdestroy_delegate fWDestroy = nullptr;
-
-
-// the read stream
-
-SkManagedStream::SkManagedStream() {
-    this->address = (size_t)this;
+void SkManagedStream::setProcs(SkManagedStream::Procs procs) {
+    fProcs = procs;
 }
 
+SkManagedStream::SkManagedStream(void* context) {
+    fContext = context;
+}
 SkManagedStream::~SkManagedStream() {
-    ::fDestroy(address);
+    if (!fProcs.fDestroy) return;
+    fProcs.fDestroy(this, fContext);
 }
-
-void SkManagedStream::setDelegates(const read_delegate pRead,
-                                   const peek_delegate pPeek,
-                                   const isAtEnd_delegate pIsAtEnd,
-                                   const hasPosition_delegate pHasPosition,
-                                   const hasLength_delegate pHasLength,
-                                   const rewind_delegate pRewind,
-                                   const getPosition_delegate pGetPosition,
-                                   const seek_delegate pSeek,
-                                   const move_delegate pMove,
-                                   const getLength_delegate pGetLength,
-                                   const createNew_delegate pCreateNew,
-                                   const destroy_delegate pDestroy)
-{
-    ::fRead = (pRead);
-    ::fPeek = (pPeek);
-    ::fIsAtEnd = (pIsAtEnd);
-    ::fHasPosition = (pHasPosition);
-    ::fHasLength = (pHasLength);
-    ::fRewind = (pRewind);
-    ::fGetPosition = (pGetPosition);
-    ::fSeek = (pSeek);
-    ::fMove = (pMove);
-    ::fGetLength = (pGetLength);
-    ::fCreateNew = (pCreateNew);
-    ::fDestroy = (pDestroy);
-}
-
 
 size_t SkManagedStream::read(void* buffer, size_t size) {
-    return ::fRead(this, buffer, size);
+    if (!fProcs.fRead) return 0;
+    return fProcs.fRead(this, fContext, buffer, size);
 }
-
 size_t SkManagedStream::peek(void *buffer, size_t size) const {
-    SkManagedStream* nonConstThis = const_cast<SkManagedStream*>(this);
-    return ::fPeek(nonConstThis, buffer, size);
+    if (!fProcs.fPeek) return 0;
+    return fProcs.fPeek(this, fContext, buffer, size);
 }
-
 bool SkManagedStream::isAtEnd() const {
-    return ::fIsAtEnd(this);
+    if (!fProcs.fIsAtEnd) return false;
+    return fProcs.fIsAtEnd(this, fContext);
 }
-
 bool SkManagedStream::hasPosition() const {
-    return ::fHasPosition(this);
+    if (!fProcs.fHasPosition) return false;
+    return fProcs.fHasPosition(this, fContext);
 }
-
 bool SkManagedStream::hasLength() const {
-    return ::fHasLength(this);
+    if (!fProcs.fHasLength) return false;
+    return fProcs.fHasLength(this, fContext);
 }
-
 bool SkManagedStream::rewind() {
-    return ::fRewind(this);
+    if (!fProcs.fRewind) return false;
+    return fProcs.fRewind(this, fContext);
 }
-
 size_t SkManagedStream::getPosition() const {
-    return ::fGetPosition(this);
+    if (!fProcs.fGetPosition) return 0;
+    return fProcs.fGetPosition(this, fContext);
 }
-
 bool SkManagedStream::seek(size_t position) {
-    return ::fSeek(this, position);
+    if (!fProcs.fSeek) return false;
+    return fProcs.fSeek(this, fContext, position);
 }
-
 bool SkManagedStream::move(long offset) {
-    return ::fMove(this, offset);
+    if (!fProcs.fMove) return false;
+    return fProcs.fMove(this, fContext, offset);
 }
-
 size_t SkManagedStream::getLength() const {
-    return ::fGetLength(this);
+    if (!fProcs.fGetLength) return 0;
+    return fProcs.fGetLength(this, fContext);
 }
-
 SkStreamAsset* SkManagedStream::onDuplicate() const {
-    return ::fCreateNew(this);
+    if (!fProcs.fDuplicate) return nullptr;
+    return fProcs.fDuplicate(this, fContext);
 }
-
 SkStreamAsset* SkManagedStream::onFork() const {
-    std::unique_ptr<SkManagedStream> that(::fCreateNew(this));
-    that->seek(getPosition());
-    return that.release();
+    if (!fProcs.fFork) return nullptr;
+    return fProcs.fFork(this, fContext);
 }
 
 
-// the write stream
+// WRITEABLE MANAGED STREAM
 
-SkManagedWStream::SkManagedWStream() {
-    this->address = (size_t)this;
+SkManagedWStream::Procs SkManagedWStream::fProcs;
+
+void SkManagedWStream::setProcs(SkManagedWStream::Procs procs) {
+    fProcs = procs;
 }
 
+SkManagedWStream::SkManagedWStream(void* context) {
+    fContext = context;
+}
 SkManagedWStream::~SkManagedWStream() {
-    ::fWDestroy(address);
-}
-
-void SkManagedWStream::setDelegates(const write_delegate pWrite,
-                                    const flush_delegate pFlush,
-                                    const bytesWritten_delegate pBytesWritten,
-                                    const wdestroy_delegate pDestroy)
-{
-    ::fWrite = (pWrite);
-    ::fFlush = (pFlush);
-    ::fBytesWritten = (pBytesWritten);
-    ::fWDestroy = (pDestroy);
+    if (!fProcs.fDestroy) return;
+    fProcs.fDestroy(this, fContext);
 }
 
 bool SkManagedWStream::write(const void* buffer, size_t size) {
-    return ::fWrite(this, buffer, size);
+    if (!fProcs.fWrite) return false;
+    return fProcs.fWrite(this, fContext, buffer, size);
 }
-
 void SkManagedWStream::flush() {
-    ::fFlush(this);
+    if (!fProcs.fFlush) return;
+    fProcs.fFlush(this, fContext);
 }
-
 size_t SkManagedWStream::bytesWritten() const {
-    return ::fBytesWritten(this);
+    if (!fProcs.fBytesWritten) return 0;
+    return fProcs.fBytesWritten(this, fContext);
 }

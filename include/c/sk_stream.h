@@ -52,6 +52,9 @@ SK_C_API bool sk_stream_move(sk_stream_t* cstream, long offset);
 SK_C_API bool sk_stream_has_length(sk_stream_t* cstream);
 SK_C_API size_t sk_stream_get_length(sk_stream_t* cstream);
 SK_C_API const void* sk_stream_get_memory_base(sk_stream_t* cstream);
+SK_C_API sk_stream_t* sk_stream_fork(sk_stream_t* cstream);
+SK_C_API sk_stream_t* sk_stream_duplicate(sk_stream_t* cstream);
+SK_C_API void sk_stream_destroy(sk_stream_t* cstream);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -12,54 +12,46 @@
 #include "sk_picture.h"
 #include "sk_types_priv.h"
 
-/* This is a C wrapper around the C++ class, so that it is possible
-   to access the C++ from C#.                                        */
-   
-static sk_manageddrawable_draw_delegate               gDraw;
-static sk_manageddrawable_getBounds_delegate          gGetBounds;
-static sk_manageddrawable_newPictureSnapshot_delegate gNewPictureSnapshot;
-
-static inline SkManagedDrawable* AsManagedDrawable(sk_manageddrawable_t* cdrawable) 
-{
-    return reinterpret_cast<SkManagedDrawable*>(cdrawable);
+static inline SkManagedDrawable* AsManagedDrawable(sk_manageddrawable_t* d) {
+    return reinterpret_cast<SkManagedDrawable*>(d);
+}
+static inline sk_manageddrawable_t* ToManagedDrawable(SkManagedDrawable* d) {
+    return reinterpret_cast<sk_manageddrawable_t*>(d);
 }
 
-static inline sk_manageddrawable_t* ToManagedDrawable(SkManagedDrawable* drawable) 
-{
-    return reinterpret_cast<sk_manageddrawable_t*>(drawable);
+static sk_manageddrawable_procs_t gProcs;
+
+void dDraw(SkManagedDrawable* d, void* context, SkCanvas* canvas) {
+    if (!gProcs.fDraw) return;
+    gProcs.fDraw(ToManagedDrawable(d), context, ToCanvas(canvas));
+}
+void dGetBounds(SkManagedDrawable* d, void* context, SkRect* rect) {
+    if (!gProcs.fGetBounds) return;
+    gProcs.fGetBounds(ToManagedDrawable(d), context, ToRect(rect));
+}
+SkPicture* dNewPictureSnapshot(SkManagedDrawable* d, void* context) {
+    if (!gProcs.fNewPictureSnapshot) return nullptr;
+    return AsPicture(gProcs.fNewPictureSnapshot(ToManagedDrawable(d), context));
+}
+void dDestroy(SkManagedDrawable* d, void* context) {
+    if (!gProcs.fDestroy) return;
+    gProcs.fDestroy(ToManagedDrawable(d), context);
 }
 
-void dDraw(SkManagedDrawable* managedDrawable, SkCanvas* canvas) 
-{
-    gDraw(ToManagedDrawable(managedDrawable), ToCanvas(canvas));
+sk_manageddrawable_t* sk_manageddrawable_new(void* context) {
+    return ToManagedDrawable(new SkManagedDrawable(context));
 }
-
-void dGetBounds(SkManagedDrawable* managedDrawable, SkRect* rect) 
-{
-    gGetBounds(ToManagedDrawable(managedDrawable), ToRect(rect));
-}
-
-SkPicture* dNewPictureSnapshot(SkManagedDrawable* managedDrawable) 
-{
-    return AsPicture(gNewPictureSnapshot(ToManagedDrawable(managedDrawable)));
-}
-
-sk_manageddrawable_t* sk_manageddrawable_new() { 
-    return ToManagedDrawable(new SkManagedDrawable());
-}
-
-void sk_manageddrawable_destroy(sk_manageddrawable_t* drawable)
-{ 
+void sk_manageddrawable_unref(sk_manageddrawable_t* drawable) {
     SkSafeUnref(AsManagedDrawable(drawable));
 }
+void sk_manageddrawable_set_procs(sk_manageddrawable_procs_t procs) {
+    gProcs = procs;
 
-void sk_manageddrawable_set_delegates(const sk_manageddrawable_draw_delegate pDraw,
-                                      const sk_manageddrawable_getBounds_delegate pGetBounds,
-                                      const sk_manageddrawable_newPictureSnapshot_delegate pNewPictureSnapshot)
-{
-    gDraw = pDraw;
-    gGetBounds = pGetBounds;
-    gNewPictureSnapshot = pNewPictureSnapshot;
+    SkManagedDrawable::Procs p;
+    p.fDraw = dDraw;
+    p.fGetBounds = dGetBounds;
+    p.fNewPictureSnapshot = dNewPictureSnapshot;
+    p.fDestroy = dDestroy;
 
-    SkManagedDrawable::setDelegates(dDraw, dGetBounds, dNewPictureSnapshot);
+    SkManagedDrawable::setProcs(p);
 }
