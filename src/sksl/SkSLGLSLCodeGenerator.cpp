@@ -470,7 +470,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         (*fFunctionClasses)["min"]         = FunctionClass::kMin;
         (*fFunctionClasses)["pow"]         = FunctionClass::kPow;
         (*fFunctionClasses)["saturate"]    = FunctionClass::kSaturate;
-        (*fFunctionClasses)["texture"]     = FunctionClass::kTexture;
+        (*fFunctionClasses)["sample"]      = FunctionClass::kTexture;
         (*fFunctionClasses)["transpose"]   = FunctionClass::kTranspose;
     }
 #ifndef SKSL_STANDALONE
@@ -670,12 +670,16 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                         proj = false;
                         break;
                 }
-                this->write("texture");
-                if (fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
-                    this->write(dim);
-                }
-                if (proj) {
-                    this->write("Proj");
+                if (fTextureFunctionOverride != "") {
+                    this->write(fTextureFunctionOverride.c_str());
+                } else {
+                    this->write("texture");
+                    if (fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
+                        this->write(dim);
+                    }
+                    if (proj) {
+                        this->write("Proj");
+                    }
                 }
                 nameWritten = true;
                 break;
