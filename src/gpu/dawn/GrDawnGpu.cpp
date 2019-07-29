@@ -99,8 +99,9 @@ bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int 
 
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                            SkBudgeted budgeted, GrProtected,
-                                            const GrMipLevel texels[], int mipLevelCount) {
+                                            int renderTargetSampleCnt, SkBudgeted budgeted,
+                                            GrProtected, const GrMipLevel texels[],
+                                            int mipLevelCount) {
     return nullptr;
 }
 
@@ -111,6 +112,7 @@ sk_sp<GrTexture> GrDawnGpu::onCreateCompressedTexture(int width, int height,
 }
 
 sk_sp<GrTexture> GrDawnGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
+                                                 GrColorType,
                                                  GrWrapOwnership ownership,
                                                  GrWrapCacheable cacheable,
                                                  GrIOType) {
@@ -124,12 +126,14 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     return nullptr;
 }
 
-sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget&) {
+sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget&,
+                                                           GrColorType colorType) {
     return nullptr;
 }
 
 sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                    int sampleCnt) {
+                                                                    int sampleCnt,
+                                                                    GrColorType colorType) {
     GrDawnImageInfo info;
     if (!tex.getDawnImageInfo(&info)) {
         return nullptr;
@@ -141,8 +145,8 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     GrSurfaceDesc desc;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-    desc.fConfig = tex.config();
-    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
+    desc.fConfig = this->caps()->getConfigFromBackendFormat(tex.getBackendFormat(), colorType);
+    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, desc.fConfig);
     if (sampleCnt < 1) {
         return nullptr;
     }
