@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99e7e450_3c3ca88e",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-29T20:39:25Z",
+      "side": 1,
+      "message": "This is more an informative comment but maybe will impact things in future CLs, but normally we want the cpps direct header file to be the first thing. With the new PRESUBMIT auto rewrite_headers script it will alphabetize the headers for you (don\u0027t but blocks of headers with no empty newlines). So if you leave the direct header in the same block as others it often accidentally gets reordered. So we typically leave a newline between that header and the rest.",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 38
+      },
+      "revId": "ffd6f97bd99e3bdffe4e8599a07f7cf2b34ab115",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63472f46_118edcb8",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-29T20:39:25Z",
+      "side": 1,
+      "message": "nit: this-\u003egetDawnGpu()..",
+      "range": {
+        "startLine": 36,
+        "startChar": 14,
+        "endLine": 36,
+        "endChar": 15
+      },
+      "revId": "ffd6f97bd99e3bdffe4e8599a07f7cf2b34ab115",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a42a3e6a_a789f2f7",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-29T20:39:25Z",
+      "side": 1,
+      "message": "should this be calling fBuffer.SetSubData or onUpdateData?",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 19
+      },
+      "revId": "ffd6f97bd99e3bdffe4e8599a07f7cf2b34ab115",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
