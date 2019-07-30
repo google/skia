@@ -9,7 +9,6 @@
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/FontResolver.h"
-#include "modules/skparagraph/src/ParagraphCache.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 
@@ -132,9 +131,8 @@ public:
     Block& block(BlockIndex blockIndex);
 
     void markDirty() override { fState = kUnknown; }
-    void turnOnCache(bool on) { fParagraphCacheOn = on; }
+    FontResolver& getResolver() { return fFontResolver; }
     void setState(InternalState state);
-    void resetCache() { fParagraphCache.reset(); }
     sk_sp<SkPicture> getPicture() { return fPicture; }
 
     void resetContext();
@@ -180,10 +178,6 @@ private:
 
     SkScalar fOldWidth;
     SkScalar fOldHeight;
-
-    // Cache
-    bool fParagraphCacheOn;
-    static ParagraphCache fParagraphCache;
 };
 }  // namespace textlayout
 }  // namespace skia
