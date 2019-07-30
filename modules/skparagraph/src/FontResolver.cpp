@@ -232,13 +232,11 @@ SkUnichar FontResolver::firstUnresolved() {
     return fCodepoints[index];
 }
 
-void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
-                                                  SkSpan<Block> styles,
-                                                  sk_sp<FontCollection> fontCollection) {
-    fFontCollection = fontCollection;
-    fStyles = styles;
-    fText = utf8;
-    fTextRange = TextRange(0, utf8.size());
+void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
+    fFontCollection = master->fontCollection();
+    fStyles = master->styles();
+    fText = master->text();
+    fTextRange = TextRange(0, fText.size());
 
     Block combined;
     for (auto& block : fStyles) {
@@ -262,7 +260,7 @@ void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
 
     fFontSwitches.reset();
     FontDescr* prev = nullptr;
-    for (auto& ch : utf8) {
+    for (auto& ch : fText) {
         if (fFontSwitches.count() == fFontMapping.count()) {
             // Checked all
             break;
