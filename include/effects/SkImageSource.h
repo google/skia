@@ -8,11 +8,10 @@
 #ifndef SkImageSource_DEFINED
 #define SkImageSource_DEFINED
 
-#include "include/core/SkFlattenable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 
-class SK_API SkImageSource : public SkImageFilter {
+class SK_API SkImageSource {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkImage> image);
     static sk_sp<SkImageFilter> Make(sk_sp<SkImage> image,
@@ -20,31 +19,10 @@ public:
                                      const SkRect& dstRect,
                                      SkFilterQuality filterQuality);
 
-    SkRect computeFastBounds(const SkRect& src) const override;
-
-protected:
-    void flatten(SkWriteBuffer&) const override;
-
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
-
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
-                               MapDirection, const SkIRect* inputRect) const override;
+    static void RegisterFlattenables();
 
 private:
-    SK_FLATTENABLE_HOOKS(SkImageSource)
-
-    explicit SkImageSource(sk_sp<SkImage>);
-    SkImageSource(sk_sp<SkImage>,
-                  const SkRect& srcRect,
-                  const SkRect& dstRect,
-                  SkFilterQuality);
-
-    sk_sp<SkImage>   fImage;
-    SkRect           fSrcRect, fDstRect;
-    SkFilterQuality  fFilterQuality;
-
-    typedef SkImageFilter INHERITED;
+    SkImageSource() = delete;
 };
 
 #endif

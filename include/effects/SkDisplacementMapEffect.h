@@ -12,7 +12,7 @@
 
 enum class SkColorChannel;
 
-class SK_API SkDisplacementMapEffect : public SkImageFilter {
+class SK_API SkDisplacementMapEffect {
 public:
 
     // DEPRECATED - Use SkColorChannel instead.
@@ -26,47 +26,23 @@ public:
         kLast_ChannelSelectorType = kA_ChannelSelectorType
     };
 
-    ~SkDisplacementMapEffect() override;
-
     static sk_sp<SkImageFilter> Make(ChannelSelectorType xChannelSelector,
                                      ChannelSelectorType yChannelSelector,
                                      SkScalar scale,
                                      sk_sp<SkImageFilter> displacement,
                                      sk_sp<SkImageFilter> color,
-                                     const CropRect* cropRect = nullptr);
+                                     const SkImageFilter::CropRect* cropRect = nullptr);
     static sk_sp<SkImageFilter> Make(SkColorChannel xChannelSelector,
                                      SkColorChannel yChannelSelector,
                                      SkScalar scale,
                                      sk_sp<SkImageFilter> displacement,
                                      sk_sp<SkImageFilter> color,
-                                     const CropRect* cropRect = nullptr);
+                                     const SkImageFilter::CropRect* cropRect = nullptr);
 
-    SkRect computeFastBounds(const SkRect& src) const override;
-
-    virtual SkIRect onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                   MapDirection, const SkIRect* inputRect) const override;
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
-                               MapDirection, const SkIRect* inputRect) const override;
-
-protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
-
-    SkDisplacementMapEffect(SkColorChannel xChannelSelector,
-                            SkColorChannel yChannelSelector,
-                            SkScalar scale, sk_sp<SkImageFilter> inputs[2],
-                            const CropRect* cropRect);
-    void flatten(SkWriteBuffer&) const override;
+    static void RegisterFlattenables();
 
 private:
-    SK_FLATTENABLE_HOOKS(SkDisplacementMapEffect)
-
-    SkColorChannel fXChannelSelector;
-    SkColorChannel fYChannelSelector;
-    SkScalar fScale;
-    typedef SkImageFilter INHERITED;
-    const SkImageFilter* getDisplacementInput() const { return getInput(0); }
-    const SkImageFilter* getColorInput() const { return getInput(1); }
+    SkDisplacementMapEffect() = delete;
 };
 
 #endif
