@@ -77,7 +77,7 @@ namespace skvm {
                     vpermq;
 
         using DstEqOpX = void(Ymm dst, Ymm x);
-        DstEqOpX vcvtdq2ps, vcvttps2dq;
+        DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq;
 
         struct Label {
             int                                 offset = 0;
