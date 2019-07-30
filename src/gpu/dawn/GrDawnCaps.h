@@ -29,11 +29,6 @@ public:
         return true;
     }
 
-    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                          const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
-        return true;
-    }
-
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
 
     SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
@@ -71,8 +66,6 @@ public:
         return this->isConfigTexturable(config) ? 1 : 0;
     }
 
-    GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override;
-
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
     bool canClearTextureOnCreation() const override;
@@ -84,6 +77,13 @@ public:
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
+
+private:
+    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+        const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
+        return true;
+    }
+    GrBackendFormat onGetBackendFormatFromColorType(GrColorType, GrRenderable) const override;
 
     typedef GrCaps INHERITED;
 };
