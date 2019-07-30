@@ -419,6 +419,26 @@ DEF_TEST(SkVM, r) {
     });
 }
 
+DEF_TEST(SkVM_Pointless, r) {
+    // Let's build a program with no memory arguments.
+    // It should all be pegged as dead code, but we should be able to "run" it.
+    skvm::Builder b;
+    {
+        b.add(b.splat(5.0f),
+              b.splat(4.0f));
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+        for (int N = 0; N < 64; N++) {
+            program.eval(N);
+        }
+    });
+
+    for (const skvm::Builder::Instruction& inst : b.program()) {
+        REPORTER_ASSERT(r, inst.death == 0 && inst.hoist == true);
+    }
+}
+
 DEF_TEST(SkVM_LoopCounts, r) {
     // Make sure we cover all the exact N we want.
 
