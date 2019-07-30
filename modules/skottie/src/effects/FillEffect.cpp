@@ -43,11 +43,12 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachFillEffect(const skjson::ArrayValue
         return nullptr;
     }
 
+    auto* raw_color_node = color_node.get();
     fBuilder->bindProperty<ScalarValue>((*opacity_prop)["v"],
-        [color_node](const ScalarValue& o) {
-            const auto c = color_node->getColor();
+        [raw_color_node](const ScalarValue& o) {
+            const auto c = raw_color_node->getColor();
             const auto a = sk_float_round2int_no_saturate(SkTPin(o, 0.0f, 1.0f) * 255);
-            color_node->setColor(SkColorSetA(c, a));
+            raw_color_node->setColor(SkColorSetA(c, a));
         });
 
     return sksg::ModeColorFilter::Make(std::move(layer),

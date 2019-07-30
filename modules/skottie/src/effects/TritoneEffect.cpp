@@ -48,9 +48,10 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachTritoneEffect(const skjson::ArrayVa
         return nullptr;
     }
 
+    auto* raw_tritone_node = tritone_node.get();
     fBuilder->bindProperty<ScalarValue>((*blend_prop)["v"],
-        [tritone_node](const ScalarValue& w) {
-            tritone_node->setWeight((100 - w) / 100); // 100-based, inverted (!?).
+        [raw_tritone_node](const ScalarValue& w) {
+            raw_tritone_node->setWeight((100 - w) * 0.01f); // 100-based, inverted (!?).
         });
 
     return std::move(tritone_node);

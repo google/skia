@@ -138,40 +138,35 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
                            const AnimationBuilder* abuilder)
     : fSelectors(std::move(selectors)) {
 
-    // It's *probably* OK to capture a raw pointer to this animator, because the lambda
-    // life time is limited to |ascope|, which is also the container for the TextAnimatorList
-    // owning us. But for peace of mind (and future-proofing) let's grab a ref.
-    auto animator = sk_ref_sp(this);
-
     abuilder->bindProperty<VectorValue>(jprops["p"],
-        [animator](const VectorValue& p) {
-            animator->fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
+        [this](const VectorValue& p) {
+            fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
         });
     abuilder->bindProperty<ScalarValue>(jprops["s"],
-        [animator](const ScalarValue& s) {
+        [this](const ScalarValue& s) {
             // Scale is 100-based.
-            animator->fTextProps.scale = s * 0.01f;
+            fTextProps.scale = s * 0.01f;
         });
     abuilder->bindProperty<ScalarValue>(jprops["r"],
-        [animator](const ScalarValue& r) {
-            animator->fTextProps.rotation = r;
+        [this](const ScalarValue& r) {
+            fTextProps.rotation = r;
         });
     fHasFillColor   = abuilder->bindProperty<VectorValue>(jprops["fc"],
-        [animator](const VectorValue& fc) {
-            animator->fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor>(fc);
+        [this](const VectorValue& fc) {
+            fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor>(fc);
         });
     fHasStrokeColor = abuilder->bindProperty<VectorValue>(jprops["sc"],
-        [animator](const VectorValue& sc) {
-            animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
+        [this](const VectorValue& sc) {
+            fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
         });
     abuilder->bindProperty<ScalarValue>(jprops["o"],
-        [animator](const ScalarValue& o) {
+        [this](const ScalarValue& o) {
             // Opacity is 100-based.
-            animator->fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
+            fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
         });
     abuilder->bindProperty<ScalarValue>(jprops["t"],
-        [animator](const ScalarValue& t) {
-            animator->fTextProps.tracking = t;
+        [this](const ScalarValue& t) {
+            fTextProps.tracking = t;
         });
 }
 

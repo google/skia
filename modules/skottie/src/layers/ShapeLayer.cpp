@@ -189,10 +189,11 @@ sk_sp<sksg::PaintNode> AttachPaint(const skjson::ObjectValue& jpaint,
     if (paint_node) {
         paint_node->setAntiAlias(true);
 
+        auto* raw_paint_node = paint_node.get();
         abuilder->bindProperty<ScalarValue>(jpaint["o"],
-            [paint_node](const ScalarValue& o) {
+            [raw_paint_node](const ScalarValue& o) {
                 // BM opacity is [0..100]
-                paint_node->setOpacity(o * 0.01f);
+                raw_paint_node->setOpacity(o * 0.01f);
             });
     }
 
@@ -207,9 +208,10 @@ sk_sp<sksg::PaintNode> AttachStroke(const skjson::ObjectValue& jstroke,
 
     stroke_node->setStyle(SkPaint::kStroke_Style);
 
+    auto* raw_stroke_node = stroke_node.get();
     abuilder->bindProperty<ScalarValue>(jstroke["w"],
-        [stroke_node](const ScalarValue& w) {
-            stroke_node->setStrokeWidth(w);
+        [raw_stroke_node](const ScalarValue& w) {
+            raw_stroke_node->setStrokeWidth(w);
         });
 
     stroke_node->setStrokeMiter(ParseDefault<SkScalar>(jstroke["ml"], 4.0f));
@@ -338,12 +340,13 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachRoundGeometryEffect(
     rounded.reserve(geos.size());
 
     for (auto& g : geos) {
-        const auto roundEffect = sksg::RoundEffect::Make(std::move(g));
-        rounded.push_back(roundEffect);
+        const auto round_effect = sksg::RoundEffect::Make(std::move(g));
+        rounded.push_back(round_effect);
 
+        auto* raw_round_effect = round_effect.get();
         abuilder->bindProperty<ScalarValue>(jtrim["r"],
-            [roundEffect](const ScalarValue& r) {
-                roundEffect->setRadius(r);
+            [raw_round_effect](const ScalarValue& r) {
+                raw_round_effect->setRadius(r);
             });
     }
 

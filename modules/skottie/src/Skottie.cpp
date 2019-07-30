@@ -175,21 +175,25 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValu
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jtransform,
-                                                        sk_sp<sksg::RenderNode> childNode) const {
-    if (!childNode)
+                                                        sk_sp<sksg::RenderNode> child_node) const {
+    if (!child_node)
         return nullptr;
 
-    auto opacityNode = sksg::OpacityEffect::Make(childNode);
+    auto opacity_node = sksg::OpacityEffect::Make(child_node);
+    ScopeCounter counter(this);
 
-    const auto bound = this->bindProperty<ScalarValue>(jtransform["o"],
-        [opacityNode](const ScalarValue& o) {
+    auto* raw_node = opacity_node.get();
+    this->bindProperty<ScalarValue>(jtransform["o"],
+        [raw_node](const ScalarValue& o) {
             // BM opacity is [0..100]
-            opacityNode->setOpacity(o * 0.01f);
-        }, 100.0f);
-    const auto dispatched = this->dispatchOpacityProperty(opacityNode);
+            raw_node->setOpacity(o * 0.01f);
+        });
+    const auto dispatched = this->dispatchOpacityProperty(opacity_node),
+                  is_noop = (counter.newAnimatorCount() == 0 &&
+                             SkScalarNearlyEqual(opacity_node->getOpacity(), 1));
 
     // We can ignore constant full opacity.
-    return (bound || dispatched) ? std::move(opacityNode) : childNode;
+    return (!is_noop || dispatched) ? std::move(opacity_node) : child_node;
 }
 
 namespace  {
@@ -241,12 +245,14 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachBlendMode(const skjson::ObjectVa
 
 sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath) const {
     auto path_node = sksg::Path::Make();
+
+    auto* raw_path_node = path_node.get();
     return this->bindProperty<ShapeValue>(jpath,
-        [path_node](const ShapeValue& p) {
+        [raw_path_node](const ShapeValue& p) {
             // FillType is tracked in the SG node, not in keyframes -- make sure we preserve it.
             auto path = ValueTraits<ShapeValue>::As<SkPath>(p);
-            path.setFillType(path_node->getFillType());
-            path_node->setPath(path);
+            path.setFillType(raw_path_node->getFillType());
+            raw_path_node->setPath(path);
         })
         ? path_node
         : nullptr;
@@ -256,9 +262,10 @@ sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcol
                                                  const char prop_name[]) const {
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
 
+    auto* raw_color_node = color_node.get();
     this->bindProperty<VectorValue>(jcolor[prop_name],
-        [color_node](const VectorValue& c) {
-            color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
+        [raw_color_node](const VectorValue& c) {
+            raw_color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
         });
     this->dispatchColorProperty(color_node);
 

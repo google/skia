@@ -116,19 +116,21 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         mask_paint->setBlendMode(mask_stack.empty() ? SkBlendMode::kSrc
                                                     : mask_info->fBlendMode);
 
+        auto* raw_mask_paint = mask_paint.get();
         has_effect |= abuilder->bindProperty<ScalarValue>((*m)["o"],
-            [mask_paint](const ScalarValue& o) {
-                mask_paint->setOpacity(o * 0.01f);
-        }, 100.0f);
+            [raw_mask_paint](const ScalarValue& o) {
+                raw_mask_paint->setOpacity(o * 0.01f);
+            }, 100.0f);
 
         static const VectorValue default_feather = { 0, 0 };
+        auto* raw_blur_effect = blur_effect.get();
         if (abuilder->bindProperty<VectorValue>((*m)["f"],
-            [blur_effect](const VectorValue& feather) {
+            [raw_blur_effect](const VectorValue& feather) {
                 // Close enough to AE.
                 static constexpr SkScalar kFeatherToSigma = 0.38f;
                 auto sX = feather.size() > 0 ? feather[0] * kFeatherToSigma : 0,
                      sY = feather.size() > 1 ? feather[1] * kFeatherToSigma : 0;
-                blur_effect->setSigma({ sX, sY });
+                raw_blur_effect->setSigma({ sX, sY });
             }, default_feather)) {
 
             has_effect = true;

@@ -209,21 +209,22 @@ sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
                               ParseEnum<Mode>  (gModeMap  , (*jrange)["m" ], abuilder, "mode"  ),
                               ParseEnum<Shape> (gShapeMap , (*jrange)["sh"], abuilder, "shape" )));
 
+    auto* raw_selector = selector.get();
     abuilder->bindProperty<ScalarValue>((*jrange)["s"],
-        [selector](const ScalarValue& s) {
-            selector->fStart = s;
+        [raw_selector](const ScalarValue& s) {
+            raw_selector->fStart = s;
         });
     abuilder->bindProperty<ScalarValue>((*jrange)["e"],
-        [selector](const ScalarValue& e) {
-            selector->fEnd = e;
+        [raw_selector](const ScalarValue& e) {
+            raw_selector->fEnd = e;
         });
     abuilder->bindProperty<ScalarValue>((*jrange)["o"],
-        [selector](const ScalarValue& o) {
-            selector->fOffset = o;
+        [raw_selector](const ScalarValue& o) {
+            raw_selector->fOffset = o;
         });
     abuilder->bindProperty<ScalarValue>((*jrange)["a"],
-        [selector](const ScalarValue& a) {
-            selector->fAmount = a;
+        [raw_selector](const ScalarValue& a) {
+            raw_selector->fAmount = a;
         });
 
     return selector;

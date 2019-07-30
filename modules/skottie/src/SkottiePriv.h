@@ -116,8 +116,21 @@ public:
         AnimatorScope*          fPrevScope;
     };
 
-    // TODO: delete
-    AnimatorScope* currentScope() const { return fCurrentAnimatorScope; }
+    class ScopeCounter final {
+    public:
+        explicit ScopeCounter(const AnimationBuilder* builder)
+            : fBuilder(builder)
+            , fInitialAnimatorCount(builder->fCurrentAnimatorScope->size()) {}
+
+        size_t newAnimatorCount() const {
+            SkASSERT(fBuilder->fCurrentAnimatorScope->size() >= fInitialAnimatorCount);
+            return fBuilder->fCurrentAnimatorScope->size() - fInitialAnimatorCount;
+        }
+
+    private:
+        const AnimationBuilder* fBuilder;
+        const size_t            fInitialAnimatorCount;
+    };
 
 private:
     struct AttachLayerContext;

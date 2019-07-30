@@ -145,25 +145,26 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachRadialWipeEffect(const skjson::Arra
 
     auto wiper = sk_make_sp<RWipeRenderNode>(std::move(layer));
 
+    auto* raw_wiper = wiper.get();
     fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index),
-        [wiper](const ScalarValue& c) {
-            wiper->setCompletion(c);
+        [raw_wiper](const ScalarValue& c) {
+            raw_wiper->setCompletion(c);
         });
     fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kStartAngle_Index),
-        [wiper](const ScalarValue& sa) {
-            wiper->setStartAngle(sa);
+        [raw_wiper](const ScalarValue& sa) {
+            raw_wiper->setStartAngle(sa);
         });
     fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kWipeCenter_Index),
-        [wiper](const VectorValue& c) {
-            wiper->setWipeCenter(ValueTraits<VectorValue>::As<SkPoint>(c));
+        [raw_wiper](const VectorValue& c) {
+            raw_wiper->setWipeCenter(ValueTraits<VectorValue>::As<SkPoint>(c));
         });
     fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kWipe_Index),
-        [wiper](const ScalarValue& w) {
-            wiper->setWipe(w);
+        [raw_wiper](const ScalarValue& w) {
+            raw_wiper->setWipe(w);
         });
     fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index),
-        [wiper](const ScalarValue& f) {
-            wiper->setFeather(f);
+        [raw_wiper](const ScalarValue& f) {
+            raw_wiper->setFeather(f);
         });
 
     return std::move(wiper);
