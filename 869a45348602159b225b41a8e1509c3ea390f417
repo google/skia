@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcecc9a9_466bcbf2",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1242,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-07-30T17:48:54Z",
+      "side": 1,
+      "message": "Remove this comment?",
+      "range": {
+        "startLine": 1242,
+        "startChar": 0,
+        "endLine": 1242,
+        "endChar": 32
+      },
+      "revId": "869a45348602159b225b41a8e1509c3ea390f417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
