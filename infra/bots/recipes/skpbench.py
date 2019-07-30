@@ -81,6 +81,8 @@ def skpbench_steps(api):
         '--pr', 'ccpr', '--cc', '--nocache',
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_*svg.skp'),
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_chalkboard.skp')]
+  if 'Mskp' in api.vars.builder_name:
+    skpbench_args += [api.flavor.device_dirs.mskp_dir]
   else:
     skpbench_args += [api.flavor.device_dirs.skp_dir]
 
@@ -130,7 +132,7 @@ def RunSteps(api):
   api.flavor.setup()
 
   try:
-    api.flavor.install(skps=True)
+    api.flavor.install(skps=True, mskps=('Mskp' in api.vars.builder_name))
     skpbench_steps(api)
   finally:
     api.flavor.cleanup_steps()
