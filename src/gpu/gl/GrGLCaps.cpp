@@ -3833,7 +3833,7 @@ bool GrGLCaps::canFormatBeFBOColorAttachment(GrGLFormat format) const {
     return SkToBool(this->getFormatInfo(format).fFlags & FormatInfo::kFBOColorAttachment_Flag);
 }
 
-bool GrGLCaps::isFormatCopyable(GrColorType ct, const GrBackendFormat& format) const {
+bool GrGLCaps::isFormatCopyable(const GrBackendFormat& format) const {
     // In GL we have three ways to be able to copy. CopyTexImage, blit, and draw. CopyTexImage
     // requires the src to be an FBO attachment, blit requires both src and dst to be FBO
     // attachments, and draw requires the dst to be an FBO attachment. Thus to copy from and to

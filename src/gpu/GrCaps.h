@@ -161,9 +161,8 @@ public:
     virtual bool isFormatTexturable(GrColorType, const GrBackendFormat&) const = 0;
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
 
-    // Returns whether a texture of the given config can be copied to a texture of the same config.
-    virtual bool isFormatCopyable(GrColorType, const GrBackendFormat&) const = 0;
-    virtual bool isConfigCopyable(GrPixelConfig) const = 0;
+    // Returns whether a texture of the given format can be copied to a texture of the same format.
+    virtual bool isFormatCopyable(const GrBackendFormat&) const = 0;
 
     // Returns the maximum supported sample count for a config. 0 means the config is not renderable
     // 1 means the config is renderable but doesn't support MSAA.

@@ -40,8 +40,7 @@ public:
     bool isVkFormatTexturable(VkFormat) const;
     bool isConfigTexturable(GrPixelConfig config) const override;
 
-    bool isFormatCopyable(GrColorType, const GrBackendFormat&) const override { return true; }
-    bool isConfigCopyable(GrPixelConfig config) const override { return true; }
+    bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
     bool isFormatRenderable(VkFormat) const;
 

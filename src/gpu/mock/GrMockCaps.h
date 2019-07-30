@@ -63,11 +63,7 @@ public:
         return fOptions.fConfigOptions[(int)ct].fTexturable;
     }
 
-    bool isFormatCopyable(GrColorType, const GrBackendFormat& format) const override {
-        return false;
-    }
-
-    bool isConfigCopyable(GrPixelConfig config) const override {
+    bool isFormatCopyable(const GrBackendFormat& format) const override {
         return false;
     }
 

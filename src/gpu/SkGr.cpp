@@ -127,7 +127,7 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
                                                      GrTextureProxy* baseProxy) {
     SkASSERT(baseProxy);
 
-    if (!ctx->priv().caps()->isConfigCopyable(baseProxy->config())) {
+    if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
         return nullptr;
     }
     return GrSurfaceProxy::Copy(ctx, baseProxy, GrMipMapped::kYes, SkBackingFit::kExact,
