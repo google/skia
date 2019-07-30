@@ -56,7 +56,7 @@ public:
                                           SkScalar shift, bool clippingNeeded)>;
     SkScalar iterateThroughRuns(TextRange textRange,
                                 SkScalar offsetX,
-                                bool includeEmptyText,
+                                bool includeGhostWhitespaces,
                                 const RunVisitor& visitor) const;
 
     using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index)>;

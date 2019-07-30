@@ -26,6 +26,7 @@ public:
 
     bool initialize(SkSpan<const char> text, UBreakIteratorType type) {
         UErrorCode status = U_ZERO_ERROR;
+        fIterator = nullptr;
 
         fSize = text.size();
         UText utf8UText = UTEXT_INITIALIZER;
@@ -66,10 +67,15 @@ public:
 
     bool eof() { return fPos == icu::BreakIterator::DONE; }
 
-    ~TextBreaker() = default;
+    ~TextBreaker() {
+        if (fIterator) {
+            ubrk_close(fIterator);
+        }
+    }
 
 private:
     std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>> fAutoClose;
+    // TODO: Stop leaking the iterator
     UBreakIterator* fIterator;
     int32_t fPos;
     size_t fSize;
@@ -247,6 +253,7 @@ void ParagraphImpl::markLineBreaks() {
         return;
     }
 
+    // Mark line breaks
     Cluster* current = fClusters.begin();
     while (!breaker.eof() && current < fClusters.end()) {
         size_t currentPos = breaker.next();
@@ -264,33 +271,44 @@ void ParagraphImpl::markLineBreaks() {
         }
     }
 
-    // Walk through all the clusters in the direction of input text
+    // Walk through all the clusters in the direction of shaped text
     Block* currentStyle = this->fTextStyles.begin();
     SkScalar shift = 0;
-    for (auto& cluster : fClusters) {
-        auto run = cluster.run();
+    for (auto& run : fRuns) {
 
-        // Shift the cluster
-        run->shift(&cluster, shift);
+        bool soFarWhitespacesOnly = true;
+        for (size_t index = 0; index != run.clusterRange().end; ++index) {
+            const auto cluster = &this->cluster(run.leftToRight() ? index : run.clusterRange().end - index - 1);
 
-        // Synchronize styles (one cluster can be covered by few styles)
-        while (!cluster.startsIn(currentStyle->fRange)) {
-            currentStyle++;
-            SkASSERT(currentStyle != this->fTextStyles.end());
-        }
+            // Shift the cluster (shift collected from the previous clusters)
+            run.shift(cluster, shift);
 
-        // Take spacing styles in account
-        if (currentStyle->fStyle.getWordSpacing() != 0 &&
-            fParagraphStyle.getTextAlign() != TextAlign::kJustify) {
-            if (cluster.isWhitespaces() && cluster.isSoftBreak()) {
-                shift += run->addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), &cluster);
+            // Synchronize styles (one cluster can be covered by few styles)
+            while (!cluster->startsIn(currentStyle->fRange)) {
+                currentStyle++;
+                SkASSERT(currentStyle != this->fTextStyles.end());
+            }
+
+            // Process word spacing
+            if (currentStyle->fStyle.getWordSpacing() != 0 &&
+                fParagraphStyle.getTextAlign() != TextAlign::kJustify) {
+                if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
+                    if (!soFarWhitespacesOnly) {
+                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
+                    }
+                }
+            }
+            // Process letter spacing
+            if (currentStyle->fStyle.getLetterSpacing() != 0) {
+                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
+            }
+
+            if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {
+                soFarWhitespacesOnly = false;
             }
         }
-        if (currentStyle->fStyle.getLetterSpacing() != 0) {
-            shift += run->addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), &cluster);
-        }
     }
-
+    // Add an empty cluster at the end for convenience
     fClusters.emplace_back(this, EMPTY_RUN, 0, 0, SkSpan<const char>(), 0, 0);
 }
 
@@ -521,17 +539,37 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                     [](Run*, size_t, size_t, SkRect, SkScalar, bool) { return true; });
         }
         auto firstBox = results.size();
-        line.iterateThroughRuns(intersect,
-                                runOffset,
-                                true,
-                                [&results, &line](Run* run, size_t pos, size_t size, SkRect clip,
-                                                  SkScalar shift, bool clippingNeeded) {
-                                    clip.offset(line.offset());
-                                    results.emplace_back(clip, run->leftToRight()
-                                                                       ? TextDirection::kLtr
-                                                                       : TextDirection::kRtl);
-                                    return true;
-                                });
+        auto paragraphTextDirection = paragraphStyle().getTextDirection();
+        line.iterateThroughRuns(
+            intersect,
+            runOffset,
+            true,
+            [&results, &line, paragraphTextDirection](Run* run, size_t pos, size_t size, SkRect clip,
+                              SkScalar shift, bool clippingNeeded) {
+                SkRect trailingSpaces = SkRect::MakeEmpty();
+                auto spaces = clip.left() >= line.width() ? 0 : clip.right() - line.width();
+                if (spaces > 0) {
+                    // There are trailing spaces; let's make a special box for them
+                    if (paragraphTextDirection == TextDirection::kRtl) {
+                        trailingSpaces.fLeft = clip.fLeft - spaces;
+                        trailingSpaces.fRight = clip.fLeft;
+                        clip.fRight = line.width();
+                    } else {
+                        trailingSpaces.fLeft = clip.fRight;
+                        trailingSpaces.fRight = clip.fRight + spaces;
+                    }
+                    trailingSpaces.offset(line.offset());
+                }
+                clip.offset(line.offset());
+
+                results.emplace_back(clip, run->leftToRight()
+                                                   ? TextDirection::kLtr
+                                                   : TextDirection::kRtl);
+                if (trailingSpaces.width() > 0) {
+                    results.emplace_back(trailingSpaces, paragraphTextDirection);
+                }
+                return true;
+            });
 
         if (rectHeightStyle != RectHeightStyle::kTight) {
             // Align all the rectangles

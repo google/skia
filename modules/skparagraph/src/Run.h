@@ -104,6 +104,7 @@ public:
     SkSpan<const SkPoint> positions() {
         return SkSpan<const SkPoint>(fPositions.begin(), fPositions.size());
     }
+    SkSpan<const SkScalar> offsets() { return SkSpan<const SkScalar>(fOffsets.begin(), fOffsets.size()); }
     SkSpan<const uint32_t> clusterIndexes() {
         return SkSpan<const uint32_t>(fClusterIndexes.begin(), fClusterIndexes.size());
     }

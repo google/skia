@@ -557,13 +557,12 @@ void TextLine::iterateThroughClustersInGlyphsOrder(bool reverse,
 // Walk through the runs in the logical order
 SkScalar TextLine::iterateThroughRuns(TextRange textRange,
                                       SkScalar runOffset,
-                                      bool includeEmptyText,
+                                      bool includeGhostWhitespaces,
                                       const RunVisitor& visitor) const {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-
     SkScalar width = 0;
     for (auto& runIndex : fLogical) {
-        auto run = this->fMaster->runs().begin() + runIndex;
+        const auto run = &this->fMaster->run(runIndex);
+
         // Only skip the text if it does not even touch the run
         if (intersectedSize(run->textRange(), textRange) < 0) {
             continue;
@@ -574,6 +573,7 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
             continue;
         }
 
+        // Measure the text
         size_t pos;
         size_t size;
         bool clippingNeeded;
@@ -582,13 +582,16 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
             continue;
         }
 
+        // Clip the text
         auto shift = runOffset - clip.fLeft;
         clip.offset(shift, 0);
-        if (clip.fRight > fAdvance.fX) {
-            clip.fRight = fAdvance.fX;
-            clippingNeeded = true;  // Correct the clip in case there was an ellipsis
-        } else if (runIndex == fLogical.back() && this->ellipsis() != nullptr) {
-            clippingNeeded = true;  // To avoid trouble
+        if (includeGhostWhitespaces) {
+            clippingNeeded = false;
+        } else {
+            clippingNeeded = true;
+            if (clip.fRight > fAdvance.fX) {
+                clip.fRight = fAdvance.fX;
+            }
         }
 
         if (!visitor(run, pos, size, clip, shift - run->positionX(0), clippingNeeded)) {
@@ -600,6 +603,7 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
     }
 
     if (this->ellipsis() != nullptr) {
+        // Count an ellipis if it's there
         auto ellipsis = this->ellipsis();
         if (!visitor(ellipsis, 0, ellipsis->size(), ellipsis->clip(), ellipsis->clip().fLeft,
                      false)) {

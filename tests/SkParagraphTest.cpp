@@ -1,6 +1,7 @@
 // Copyright 2019 Google LLC.
-#include "tools/ToolUtils.h"
+#include <src/utils/SkOSPath.h>
 #include <sstream>
+#include "CodecPriv.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
@@ -8,6 +9,7 @@
 #include "src/utils/SkShaperJSONWriter.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 #define VeryLongCanvasWidth 1000000
 #define TestCanvasWidth 1000
@@ -16,6 +18,7 @@
 using namespace skia::textlayout;
 namespace {
 
+SkScalar EPSILON = 0.01;
 bool equal(const char* base, TextRange a, const char* b) {
     return std::strncmp(b, base + a.start, a.width()) == 0;
 }
@@ -101,6 +104,35 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
                             return true;
                         });
     }
+}
+
+DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) { SkDebugf("Not implemented yet.\n"); }
+DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
+    SkDebugf("Not implemented yet.\n");
+}
+DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraphh, reporter) {
+    SkDebugf("Not implemented yet.\n");
+}
+DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
+    SkDebugf("Not implemented yet.\n");
+}
+DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
+    SkDebugf("Not implemented yet.\n");
+}
+DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
+    SkDebugf("Not implemented yet.\n");
+}
+DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
+    SkDebugf("Not implemented yet.\n");
+}
+DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraphh, reporter) {
+    SkDebugf("Not implemented yet.\n");
+}
+DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
+    SkDebugf("Not implemented yet.\n");
+}
+DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
+    SkDebugf("Not implemented yet.\n");
 }
 
 DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
@@ -208,32 +240,32 @@ DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->lines().size() == 1);
 
     size_t index = 0;
-    impl->lines()[0].scanStyles(StyleType::kAllAttributes,
-        [&](TextRange text, TextStyle style, SkScalar) {
-            switch (index) {
-                case 0:
-                    REPORTER_ASSERT(reporter, style.equals(text_style1));
-                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text1));
-                    break;
-                case 1:
-                    REPORTER_ASSERT(reporter, style.equals(text_style2));
-                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text2));
-                    break;
-                case 2:
-                    REPORTER_ASSERT(reporter, style.equals(text_style3));
-                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text3));
-                    break;
-                case 3:
-                    REPORTER_ASSERT(reporter, style.equals(text_style4));
-                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text45));
-                    break;
-                default:
-                    REPORTER_ASSERT(reporter, false);
-                    break;
-            }
-            ++index;
-            return true;
-        });
+    impl->lines()[0].scanStyles(
+            StyleType::kAllAttributes, [&](TextRange text, TextStyle style, SkScalar) {
+                switch (index) {
+                    case 0:
+                        REPORTER_ASSERT(reporter, style.equals(text_style1));
+                        REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text1));
+                        break;
+                    case 1:
+                        REPORTER_ASSERT(reporter, style.equals(text_style2));
+                        REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text2));
+                        break;
+                    case 2:
+                        REPORTER_ASSERT(reporter, style.equals(text_style3));
+                        REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text3));
+                        break;
+                    case 3:
+                        REPORTER_ASSERT(reporter, style.equals(text_style4));
+                        REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text45));
+                        break;
+                    default:
+                        REPORTER_ASSERT(reporter, false);
+                        break;
+                }
+                ++index;
+                return true;
+            });
     REPORTER_ASSERT(reporter, index == 4);
 }
 
@@ -300,14 +332,76 @@ DEF_TEST(SkParagraph_BoldParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->lines().size() == 1);
 
     size_t index = 0;
-    impl->lines()[0].scanStyles(StyleType::kAllAttributes,
-                                [&](TextRange text1, TextStyle style, SkScalar) {
-                                    REPORTER_ASSERT(reporter, style.equals(text_style));
-                                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), text1, text));
-                                    ++index;
-                                    return true;
-                                });
+    impl->lines()[0].scanStyles(
+            StyleType::kAllAttributes, [&](TextRange text1, TextStyle style, SkScalar) {
+                REPORTER_ASSERT(reporter, style.equals(text_style));
+                REPORTER_ASSERT(reporter, equal(impl->text().begin(), text1, text));
+                ++index;
+                return true;
+            });
     REPORTER_ASSERT(reporter, index == 1);
+}
+
+DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
+    SkDebugf("Not implemented yet.\n");
+    /*
+        sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+        if (!fontCollection->fontsFound()) return;
+        const char* text = "01234満毎冠行来昼本可\nabcd\n満毎冠行来昼本可";
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.turnHintingOff();
+        paragraph_style.setMaxLines(10);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(20);
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setHeight(3.6345);
+        //text_style.setHeightOverride(true);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(550);
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        REPORTER_ASSERT(reporter, impl->runs().size() == 1);
+        REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
+        REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+
+        SkBitmap bits;
+        bits.allocN32Pixels(TestCanvasWidth, TestCanvasHeight);
+        SkCanvas canvas(bits);
+
+        paragraph->paint(&canvas, 0, 0);
+
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
+
+        // Tests for GetRectsForRange()
+        RectHeightStyle rect_height_style = RectHeightStyle::kIncludeLineSpacingMiddle;
+        RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+        paint.setColor(SK_ColorRED);
+        std::vector<TextBox> boxes = paragraph->getRectsForRange(0, 0, rect_height_style,
+       rect_width_style); for (auto& box : boxes) { canvas.drawRect(box.rect, paint);
+        }
+        REPORTER_ASSERT(reporter, boxes.size() == 0ull);
+
+        boxes = paragraph->getRectsForRange(0, 40, rect_height_style, rect_width_style);
+        for (auto& box : boxes) {
+            canvas.drawRect(box.rect, paint);
+        }
+        REPORTER_ASSERT(reporter, boxes.size() == 3ull);
+        REPORTER_ASSERT(reporter, boxes[1].rect.left() == 0);
+        REPORTER_ASSERT(reporter, boxes[1].rect.top() == 92.805778503417969);
+        REPORTER_ASSERT(reporter, boxes[1].rect.right() == 43.84375);
+        REPORTER_ASSERT(reporter, boxes[1].rect.bottom() == 165.4957885742187);
+    */
 }
 
 DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
@@ -751,58 +845,59 @@ DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
     size_t index = 0;
     for (auto& line : impl->lines()) {
         line.scanStyles(
-            StyleType::kDecorations,
-            [&index, reporter](TextRange, TextStyle style, SkScalar) {
-                auto decoration = (TextDecoration)(TextDecoration::kUnderline |
-                                                   TextDecoration::kOverline |
-                                                   TextDecoration::kLineThrough);
-                REPORTER_ASSERT(reporter, style.getDecorationType() == decoration);
-                switch (index) {
-                    case 0:
-                        REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
-                                                          TextDecorationStyle::kSolid);
-                        REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorBLACK);
-                        REPORTER_ASSERT(reporter,
-                                        style.getDecorationThicknessMultiplier() == 2.0);
-                        break;
-                    case 1:  // The style appears on 2 lines so it has 2 pieces
-                        REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
-                                                          TextDecorationStyle::kDouble);
-                        REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorBLUE);
-                        REPORTER_ASSERT(reporter,
-                                        style.getDecorationThicknessMultiplier() == 1.0);
-                        break;
-                    case 2:
-                        REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
-                                                          TextDecorationStyle::kDotted);
-                        REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorBLACK);
-                        REPORTER_ASSERT(reporter,
-                                        style.getDecorationThicknessMultiplier() == 1.0);
-                        break;
-                    case 3:
-                    case 4:
-                        REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
-                                                          TextDecorationStyle::kDashed);
-                        REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorBLACK);
-                        REPORTER_ASSERT(reporter,
-                                        style.getDecorationThicknessMultiplier() == 3.0);
-                        break;
-                    case 5:
-                        REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
-                                                          TextDecorationStyle::kWavy);
-                        REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorRED);
-                        REPORTER_ASSERT(reporter,
-                                        style.getDecorationThicknessMultiplier() == 1.0);
-                        break;
-                    default:
-                        REPORTER_ASSERT(reporter, false);
-                        break;
-                }
-                ++index;
-                return true;
-            });
+                StyleType::kDecorations, [&index, reporter](TextRange, TextStyle style, SkScalar) {
+                    auto decoration = (TextDecoration)(TextDecoration::kUnderline |
+                                                       TextDecoration::kOverline |
+                                                       TextDecoration::kLineThrough);
+                    REPORTER_ASSERT(reporter, style.getDecorationType() == decoration);
+                    switch (index) {
+                        case 0:
+                            REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
+                                                              TextDecorationStyle::kSolid);
+                            REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorBLACK);
+                            REPORTER_ASSERT(reporter,
+                                            style.getDecorationThicknessMultiplier() == 2.0);
+                            break;
+                        case 1:  // The style appears on 2 lines so it has 2 pieces
+                            REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
+                                                              TextDecorationStyle::kDouble);
+                            REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorBLUE);
+                            REPORTER_ASSERT(reporter,
+                                            style.getDecorationThicknessMultiplier() == 1.0);
+                            break;
+                        case 2:
+                            REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
+                                                              TextDecorationStyle::kDotted);
+                            REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorBLACK);
+                            REPORTER_ASSERT(reporter,
+                                            style.getDecorationThicknessMultiplier() == 1.0);
+                            break;
+                        case 3:
+                        case 4:
+                            REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
+                                                              TextDecorationStyle::kDashed);
+                            REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorBLACK);
+                            REPORTER_ASSERT(reporter,
+                                            style.getDecorationThicknessMultiplier() == 3.0);
+                            break;
+                        case 5:
+                            REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
+                                                              TextDecorationStyle::kWavy);
+                            REPORTER_ASSERT(reporter, style.getDecorationColor() == SK_ColorRED);
+                            REPORTER_ASSERT(reporter,
+                                            style.getDecorationThicknessMultiplier() == 1.0);
+                            break;
+                        default:
+                            REPORTER_ASSERT(reporter, false);
+                            break;
+                    }
+                    ++index;
+                    return true;
+                });
     }
 }
+
+DEF_TEST(SkParagraph_WavyDecorationParagraph, reporter) { SkDebugf("Not implemented yet.\n"); }
 
 DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
@@ -836,30 +931,30 @@ DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
     auto& line = impl->lines()[0];
     size_t index = 0;
     line.scanStyles(
-        StyleType::kForeground,
-        [&index, reporter](TextRange textRange, TextStyle style, SkScalar) {
-            switch (index) {
-                case 0:
-                    REPORTER_ASSERT(
-                            reporter,
-                            style.getFontStyle().slant() == SkFontStyle::kUpright_Slant);
-                    break;
-                case 1:
-                    REPORTER_ASSERT(reporter,
-                                    style.getFontStyle().slant() == SkFontStyle::kItalic_Slant);
-                    break;
-                case 2:
-                    REPORTER_ASSERT(
-                            reporter,
-                            style.getFontStyle().slant() == SkFontStyle::kUpright_Slant);
-                    break;
-                default:
-                    REPORTER_ASSERT(reporter, false);
-                    break;
-            }
-            ++index;
-            return true;
-        });
+            StyleType::kForeground,
+            [&index, reporter](TextRange textRange, TextStyle style, SkScalar) {
+                switch (index) {
+                    case 0:
+                        REPORTER_ASSERT(
+                                reporter,
+                                style.getFontStyle().slant() == SkFontStyle::kUpright_Slant);
+                        break;
+                    case 1:
+                        REPORTER_ASSERT(reporter,
+                                        style.getFontStyle().slant() == SkFontStyle::kItalic_Slant);
+                        break;
+                    case 2:
+                        REPORTER_ASSERT(
+                                reporter,
+                                style.getFontStyle().slant() == SkFontStyle::kUpright_Slant);
+                        break;
+                    default:
+                        REPORTER_ASSERT(reporter, false);
+                        break;
+                }
+                ++index;
+                return true;
+            });
 }
 
 DEF_TEST(SkParagraph_ChineseParagraph, reporter) {
@@ -945,6 +1040,214 @@ DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
 }
 
+// Checked
+DEF_TEST(SkParagraph_ArabicRectsParagraph, reporter) {
+
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    const char* text = "بمباركة التقليدية قام عن. تصفح يد    ";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    paragraph_style.setTextAlign(TextAlign::kRight);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth - 100);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->runs().size() == 1);
+
+    SkBitmap bits;
+    bits.allocN32Pixels(TestCanvasWidth, TestCanvasHeight);
+    SkCanvas canvas(bits);
+    canvas.drawColor(SK_ColorWHITE);
+    paragraph->paint(&canvas, 0, 0);
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(1);
+    RectHeightStyle rect_height_style = RectHeightStyle::kMax;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    paint.setColor(SK_ColorRED);
+    std::vector<TextBox> boxes =
+            paragraph->getRectsForRange(0, 100, rect_height_style, rect_width_style);
+    for (size_t i = 0; i < boxes.size(); ++i) {
+        canvas.drawRect(boxes[i].rect, paint);
+    }
+
+    SkFILEWStream file("/usr/local/google/home/jlavrova/Temp/SkParagraph_ArabicRectsParagraph.png");
+    if (!SkEncodeImage(&file, bits, SkEncodedImageFormat::kPNG, 100)) {
+        REPORTER_ASSERT(reporter, false);
+    }
+
+    REPORTER_ASSERT(reporter, boxes.size() == 2ull); // DIFF: 2
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 561.501953, EPSILON));  // DIFF: 556.54688
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.26855469, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(),  900, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 538.548828, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.top(), -0.26855469, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.right(),  561.501953, EPSILON));// DIFF: 556.54688
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.bottom(), 44, EPSILON));
+
+}
+
+// Checked
+DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
+
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    const char* text = "Helloبمباركة التقليدية قام عن. تصفح يد ";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    paragraph_style.setTextAlign(TextAlign::kLeft);
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth - 100);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->runs().size() == 3);
+
+    SkBitmap bits;
+    bits.allocN32Pixels(TestCanvasWidth, TestCanvasHeight);
+    SkCanvas canvas(bits);
+    canvas.drawColor(SK_ColorWHITE);
+    paragraph->paint(&canvas, 0, 0);
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(1);
+    paint.setColor(SK_ColorRED);
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kMax;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    paint.setColor(SK_ColorRED);
+    std::vector<TextBox> boxes =
+            paragraph->getRectsForRange(36, 40, rect_height_style, rect_width_style);
+    for (size_t i = 0; i < boxes.size(); ++i) {
+        canvas.drawRect(boxes[i].rect, paint);
+    }
+
+    SkFILEWStream file("/usr/local/google/home/jlavrova/Temp/SkParagraph_ArabicRectsLTRLeftAlignParagraph.png");
+    if (!SkEncodeImage(&file, bits, SkEncodedImageFormat::kPNG, 100)) {
+        REPORTER_ASSERT(reporter, false);
+    }
+
+    REPORTER_ASSERT(reporter, boxes.size() == 2ull); // DIFF: 1
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 396.174805, EPSILON));  // DIFF: 89.40625
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.26855469, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 422.414062, EPSILON)); // DIFF: 121.87891
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 422.414062, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.top(), -0.26855469, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.right(), 428.152344, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.bottom(), 44, EPSILON));
+}
+
+// Checked
+DEF_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
+    SkDebugf("Not implemented yet.\n");
+
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    const char* text = "Helloبمباركة التقليدية قام عن. تصفح يد ";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    paragraph_style.setTextAlign(TextAlign::kRight);
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth - 100);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->runs().size() == 3);
+
+    SkBitmap bits;
+    bits.allocN32Pixels(TestCanvasWidth, TestCanvasHeight);
+    SkCanvas canvas(bits);
+    canvas.drawColor(SK_ColorWHITE);
+    paragraph->paint(&canvas, 0, 0);
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(1);
+    paint.setColor(SK_ColorRED);
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kMax;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    paint.setColor(SK_ColorRED);
+    std::vector<TextBox> boxes =
+            paragraph->getRectsForRange(36, 40, rect_height_style, rect_width_style);
+    for (size_t i = 0; i < boxes.size(); ++i) {
+        canvas.drawRect(boxes[i].rect, paint);
+    }
+
+    SkFILEWStream file("/usr/local/google/home/jlavrova/Temp/SkParagraph_ArabicRectsLTRRightAlignParagraph.png");
+    if (!SkEncodeImage(&file, bits, SkEncodedImageFormat::kPNG, 100)) {
+        REPORTER_ASSERT(reporter, false);
+    }
+
+    REPORTER_ASSERT(reporter, boxes.size() == 2ull);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 868.022461, EPSILON));  // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.26855469, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 894.261719, EPSILON)); // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 894.261719, EPSILON));  // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.top(), -0.26855469, EPSILON));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.right(), 900, EPSILON));        // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.bottom(), 44, EPSILON));
+}
+
 DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -988,18 +1291,15 @@ DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(301, 2.2f).position == 11);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(302, 2.6f).position == 11);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(301, 2.1f).position == 11);
-    REPORTER_ASSERT(reporter,
-                    paragraph->getGlyphPositionAtCoordinate(100000, 20).position == 18);
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 20).position == 18);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(450, 20).position == 16);
-    REPORTER_ASSERT(reporter,
-                    paragraph->getGlyphPositionAtCoordinate(100000, 90).position == 36);
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 90).position == 36);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(-100000, 90).position == 18);
     REPORTER_ASSERT(reporter,
                     paragraph->getGlyphPositionAtCoordinate(20, -80).position == 0);  // !!! 1
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(1, 90).position == 18);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(1, 170).position == 36);
-    REPORTER_ASSERT(reporter,
-                    paragraph->getGlyphPositionAtCoordinate(10000, 180).position == 72);
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(10000, 180).position == 72);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(70, 180).position == 56);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(1, 270).position == 72);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(35, 90).position == 19);
@@ -1106,7 +1406,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeTight, reporter) {
     paragraphStyle.setMaxLines(10);
     paragraphStyle.turnHintingOff();
     TextStyle textStyle;
-    textStyle.setFontFamilies({ SkString("Noto Sans CJK JP")});
+    textStyle.setFontFamilies({SkString("Noto Sans CJK JP")});
     textStyle.setFontSize(50);
     textStyle.setColor(SK_ColorBLACK);
     textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
@@ -1754,6 +2054,11 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterMultiLineParagraph, reporter) {
     }
 }
 
+DEF_TEST(SkParagraph_GetRectsForRangeStrut, reporter) { SkDebugf("Not implemented yet.\n"); }
+DEF_TEST(SkParagraph_GetRectsForRangeStrutFallback, reporter) {
+    SkDebugf("Not implemented yet.\n");
+}
+
 DEF_TEST(SkParagraph_GetWordBoundaries, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -1974,6 +2279,17 @@ DEF_TEST(SkParagraph_NewlineParagraph, reporter) {
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth - 300);
 
+    SkBitmap bits;
+    bits.allocN32Pixels(TestCanvasWidth, TestCanvasHeight);
+    SkCanvas canvas(bits);
+    canvas.drawColor(SK_ColorWHITE);
+    paragraph->paint(&canvas, 0, 0);
+
+    SkFILEWStream file("/usr/local/google/home/jlavrova/Temp/SkParagraph_NewlineParagraph.png");
+    if (!SkEncodeImage(&file, bits, SkEncodedImageFormat::kPNG, 100)) {
+        REPORTER_ASSERT(reporter, false);
+    }
+
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     // Minikin does not count empty lines but SkParagraph does
     REPORTER_ASSERT(reporter, impl->lines().size() == 7);
@@ -2003,16 +2319,20 @@ DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text =
-            "😀😃😄😁😆😅😂🤣☺😇🙂😍😡😟😢😻👽💩👍👎🙏👌👋👄👁👦👼👨‍🚀👨‍🚒🙋‍♂️👳👨‍👨‍👧"
+            "😀😃😄😁😆😅😂🤣☺😇🙂😍😡😟😢😻👽💩👍👎🙏👌👋👄👁👦👼👨‍🚀👨‍🚒🙋‍♂️👳👨‍👨‍"
+            "👧"
             "‍"
             "👧"
-            "💼👡👠☂🐶🐰🐻🐼🐷🐒🐵🐔🐧🐦🐋🐟🐡🕸🐌🐴🐊🐄🐪🐘🌸🌏🔥🌟🌚🌝"
+            "💼👡👠☂🐶🐰🐻🐼🐷🐒🐵🐔🐧🐦🐋🐟🐡🕸🐌🐴🐊🐄🐪🐘🌸🌏🔥🌟🌚"
+            "🌝"
             "💦"
             "💧"
-            "❄🍕🍔🍟🥝🍱🕶🎩🏈⚽🚴‍♀️🎻🎼🎹🚨🚎🚐⚓🛳🚀🚁🏪🏢🖱⏰📱💾💉📉🛏"
+            "❄🍕🍔🍟🥝🍱🕶🎩🏈⚽🚴‍♀️🎻🎼🎹🚨🚎🚐⚓🛳🚀🚁🏪🏢🖱⏰📱💾💉📉"
+            "🛏"
             "🔑"
             "🔓"
-            "📁🗓📊❤💯🚫🔻♠♣🕓❗🏳🏁🏳️‍🌈🇮🇹🇱🇷🇺🇸🇬🇧🇨🇳"
+            "📁🗓📊❤💯🚫🔻♠♣🕓❗🏳🏁🏳️‍🌈🇮🇹🇱🇷🇺🇸🇬🇧🇨"
+            "🇳"
             "🇧"
             "🇴";
 
@@ -2044,6 +2364,9 @@ DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
         REPORTER_ASSERT(reporter, line.height() == 59);
     }
 }
+
+DEF_TEST(SkParagraph_EmojiMultiLineRectsParagraph, reporter) { SkDebugf("Not implemented yet.\n"); }
+DEF_TEST(SkParagraph_HyphenBreakParagraph, reporter) { SkDebugf("Not implemented yet.\n"); }
 
 DEF_TEST(SkParagraph_RepeatLayoutParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
@@ -2173,25 +2496,26 @@ DEF_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
     {
         auto& line = impl->lines()[0];
         size_t index = 0;
-        line.scanStyles(
-                StyleType::kDecorations,
-                [&index, reporter](TextRange text, TextStyle style, SkScalar) {
-                    switch (index) {
-                        case 0:
-                            REPORTER_ASSERT(reporter,
-                                            style.getDecorationType() == TextDecoration::kNoDecoration);
-                            break;
-                        case 1:
-                            REPORTER_ASSERT(reporter,
-                                            style.getDecorationType() == TextDecoration::kUnderline);
-                            break;
-                        default:
-                            REPORTER_ASSERT(reporter, false);
-                            break;
-                    }
-                    ++index;
-                    return true;
-                });
+        line.scanStyles(StyleType::kDecorations,
+                        [&index, reporter](TextRange text, TextStyle style, SkScalar) {
+                            switch (index) {
+                                case 0:
+                                    REPORTER_ASSERT(reporter,
+                                                    style.getDecorationType() ==
+                                                            TextDecoration::kNoDecoration);
+                                    break;
+                                case 1:
+                                    REPORTER_ASSERT(reporter,
+                                                    style.getDecorationType() ==
+                                                            TextDecoration::kUnderline);
+                                    break;
+                                default:
+                                    REPORTER_ASSERT(reporter, false);
+                                    break;
+                            }
+                            ++index;
+                            return true;
+                        });
         REPORTER_ASSERT(reporter, index == 2);
     }
     {
@@ -2261,13 +2585,12 @@ DEF_TEST(SkParagraph_SimpleShadow, reporter) {
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
     size_t index = 0;
     for (auto& line : impl->lines()) {
-        line.scanStyles(
-                StyleType::kShadow,
-                [&index, text_style, reporter](TextRange text, TextStyle style, SkScalar) {
-                    REPORTER_ASSERT(reporter, index == 0 && style.equals(text_style));
-                    ++index;
-                    return true;
-                });
+        line.scanStyles(StyleType::kShadow,
+                        [&index, text_style, reporter](TextRange text, TextStyle style, SkScalar) {
+                            REPORTER_ASSERT(reporter, index == 0 && style.equals(text_style));
+                            ++index;
+                            return true;
+                        });
     }
 }
 
@@ -2309,32 +2632,31 @@ DEF_TEST(SkParagraph_ComplexShadow, reporter) {
 
     size_t index = 0;
     for (auto& line : impl->lines()) {
-        line.scanStyles(
-                StyleType::kShadow,
-                [&index, text_style, reporter](TextRange text, TextStyle style, SkScalar) {
-                    ++index;
-                    switch (index) {
-                        case 1:
-                            REPORTER_ASSERT(reporter, style.getShadowNumber() == 1);
-                            break;
-                        case 2:
-                            REPORTER_ASSERT(reporter, style.getShadowNumber() == 3);
-                            break;
-                        case 3:
-                            REPORTER_ASSERT(reporter, style.getShadowNumber() == 1);
-                            break;
-                        case 4:
-                            REPORTER_ASSERT(reporter, style.getShadowNumber() == 4);
-                            REPORTER_ASSERT(reporter, style.equals(text_style));
-                            break;
-                        case 5:
-                            REPORTER_ASSERT(reporter, style.getShadowNumber() == 1);
-                            break;
-                        default:
-                            REPORTER_ASSERT(reporter, false);
-                    }
-                    return true;
-                });
+        line.scanStyles(StyleType::kShadow,
+                        [&index, text_style, reporter](TextRange text, TextStyle style, SkScalar) {
+                            ++index;
+                            switch (index) {
+                                case 1:
+                                    REPORTER_ASSERT(reporter, style.getShadowNumber() == 1);
+                                    break;
+                                case 2:
+                                    REPORTER_ASSERT(reporter, style.getShadowNumber() == 3);
+                                    break;
+                                case 3:
+                                    REPORTER_ASSERT(reporter, style.getShadowNumber() == 1);
+                                    break;
+                                case 4:
+                                    REPORTER_ASSERT(reporter, style.getShadowNumber() == 4);
+                                    REPORTER_ASSERT(reporter, style.equals(text_style));
+                                    break;
+                                case 5:
+                                    REPORTER_ASSERT(reporter, style.getShadowNumber() == 1);
+                                    break;
+                                default:
+                                    REPORTER_ASSERT(reporter, false);
+                            }
+                            return true;
+                        });
     }
 }
 
@@ -2377,9 +2699,9 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
 
-    const char* text1 = "Roboto 字典 "; // Roboto + unresolved
-    const char* text2 = "Homemade Apple 字典"; // Homemade Apple + Noto Sans...
-    const char* text3 = "Chinese 字典"; // Homemade Apple + Source Han
+    const char* text1 = "Roboto 字典 ";         // Roboto + unresolved
+    const char* text2 = "Homemade Apple 字典";  // Homemade Apple + Noto Sans...
+    const char* text3 = "Chinese 字典";         // Homemade Apple + Source Han
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -2387,42 +2709,42 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
 
     TextStyle text_style;
     text_style.setFontFamilies({
-        SkString("Not a real font"),
-        SkString("Also a fake font"),
-        SkString("So fake it is obvious"),
-        SkString("Next one should be a real font..."),
-        SkString("Roboto"),
-        SkString("another fake one in between"),
-        SkString("Homemade Apple"),
+            SkString("Not a real font"),
+            SkString("Also a fake font"),
+            SkString("So fake it is obvious"),
+            SkString("Next one should be a real font..."),
+            SkString("Roboto"),
+            SkString("another fake one in between"),
+            SkString("Homemade Apple"),
     });
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
     builder.addText(text1);
 
     text_style.setFontFamilies({
-        SkString("Not a real font"),
-        SkString("Also a fake font"),
-        SkString("So fake it is obvious"),
-        SkString("Homemade Apple"),
-        SkString("Next one should be a real font..."),
-        SkString("Roboto"),
-        SkString("another fake one in between"),
-        SkString("Noto Sans CJK JP"),
-        SkString("Source Han Serif CN"),
+            SkString("Not a real font"),
+            SkString("Also a fake font"),
+            SkString("So fake it is obvious"),
+            SkString("Homemade Apple"),
+            SkString("Next one should be a real font..."),
+            SkString("Roboto"),
+            SkString("another fake one in between"),
+            SkString("Noto Sans CJK JP"),
+            SkString("Source Han Serif CN"),
     });
     builder.pushStyle(text_style);
     builder.addText(text2);
 
     text_style.setFontFamilies({
-       SkString("Not a real font"),
-       SkString("Also a fake font"),
-       SkString("So fake it is obvious"),
-       SkString("Homemade Apple"),
-       SkString("Next one should be a real font..."),
-       SkString("Roboto"),
-       SkString("another fake one in between"),
-       SkString("Source Han Serif CN"),
-       SkString("Noto Sans CJK JP"),
+            SkString("Not a real font"),
+            SkString("Also a fake font"),
+            SkString("So fake it is obvious"),
+            SkString("Homemade Apple"),
+            SkString("Next one should be a real font..."),
+            SkString("Roboto"),
+            SkString("another fake one in between"),
+            SkString("Source Han Serif CN"),
+            SkString("Noto Sans CJK JP"),
     });
     builder.pushStyle(text_style);
     builder.addText(text3);
@@ -2470,7 +2792,7 @@ DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
 
     StrutStyle strut_style;
     strut_style.setStrutEnabled(true);
-    strut_style.setFontFamilies({ SkString("BlahFake"), SkString("Ahem") });
+    strut_style.setFontFamilies({SkString("BlahFake"), SkString("Ahem")});
     strut_style.setFontSize(50);
     strut_style.setHeight(1.8f);
     strut_style.setLeading(0.1f);
@@ -2569,7 +2891,7 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
     StrutStyle strut_style;
 
     strut_style.setStrutEnabled(true);
-    strut_style.setFontFamilies({ SkString("Ahem") });
+    strut_style.setFontFamilies({SkString("Ahem")});
     strut_style.setFontSize(50);
     strut_style.setHeight(1.6f);
     paragraph_style.setStrutStyle(strut_style);
@@ -2666,7 +2988,7 @@ DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
 
     StrutStyle strut_style;
     strut_style.setStrutEnabled(true);
-    strut_style.setFontFamilies({ SkString("Ahem") });
+    strut_style.setFontFamilies({SkString("Ahem")});
     strut_style.setFontSize(50);
     strut_style.setHeight(1.2f);
     paragraph_style.setStrutStyle(strut_style);
@@ -2761,7 +3083,7 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
 
     StrutStyle strut_style;
     strut_style.setStrutEnabled(true);
-    strut_style.setFontFamilies({SkString("Ahem") });
+    strut_style.setFontFamilies({SkString("Ahem")});
     strut_style.setFontSize(50);
     strut_style.setHeight(1.5f);
     strut_style.setLeading(0.1f);
@@ -2838,6 +3160,9 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes7[0].rect.bottom(), 320, epsilon));
 }
 
+DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) { SkDebugf("Not implemented yet.\n"); }
+DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) { SkDebugf("Not implemented yet.\n"); }
+
 // Not in Minikin
 DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
@@ -2859,12 +3184,11 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
     paragraph->layout(TestCanvasWidth);
 
     SkDEBUGCODE(auto impl = static_cast<ParagraphImpl*>(paragraph.get());)
-    SkASSERT(impl->runs().size() == 3);
+            SkASSERT(impl->runs().size() == 3);
     SkASSERT(impl->runs()[0].textRange().end == impl->runs()[1].textRange().start);
     SkASSERT(impl->runs()[1].textRange().end == impl->runs()[2].textRange().start);
 }
 
-// 4 to 1
 DEF_TEST(SkParagraph_JSON1, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -2902,7 +3226,6 @@ DEF_TEST(SkParagraph_JSON1, reporter) {
     SkASSERT(cluster <= 2);
 }
 
-// 5 to 3
 DEF_TEST(SkParagraph_JSON2, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -2930,7 +3253,8 @@ DEF_TEST(SkParagraph_JSON2, reporter) {
     auto cluster = 0;
     for (auto& run : impl->runs()) {
         SkShaperJSONWriter::VisualizeClusters(
-                impl->text().begin() + run.textRange().start, 0, run.textRange().width(), run.glyphs(), run.clusterIndexes(),
+                impl->text().begin() + run.textRange().start, 0, run.textRange().width(),
+                run.glyphs(), run.clusterIndexes(),
                 [&](int codePointCount, SkSpan<const char> utf1to1,
                     SkSpan<const SkGlyphID> glyph1to1) {
                     if (cluster == 0) {
@@ -2946,7 +3270,6 @@ DEF_TEST(SkParagraph_JSON2, reporter) {
 }
 
 DEF_TEST(SkParagraph_CacheText, reporter) {
-
     ParagraphCache cache;
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -2981,7 +3304,6 @@ DEF_TEST(SkParagraph_CacheText, reporter) {
 }
 
 DEF_TEST(SkParagraph_CacheFonts, reporter) {
-
     ParagraphCache cache;
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -3020,7 +3342,6 @@ DEF_TEST(SkParagraph_CacheFonts, reporter) {
 }
 
 DEF_TEST(SkParagraph_CacheFontRanges, reporter) {
-
     ParagraphCache cache;
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -3067,7 +3388,6 @@ DEF_TEST(SkParagraph_CacheFontRanges, reporter) {
 }
 
 DEF_TEST(SkParagraph_CacheStyles, reporter) {
-
     ParagraphCache cache;
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -3095,7 +3415,6 @@ DEF_TEST(SkParagraph_CacheStyles, reporter) {
         auto added = cache.updateParagraph(impl);
         REPORTER_ASSERT(reporter, added != expectedToBeFound);
     };
-
 
     test(0, false);
     test(1, true);

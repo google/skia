@@ -90,6 +90,31 @@ void TextWrapper::trimEndSpaces() {
     }
     fEndLine.trim();
 }
+/*
+// Special case for start/end cluster since they can be clipped
+void TextWrapper::trimEndSpaces(TextAlign align) {
+    // Remember the breaking position
+    fEndLine.saveBreak();
+    // Skip all space cluster at the end
+    bool left = align == TextAlign::kStart || align == TextAlign::kLeft;
+    bool right = align == TextAlign::kRight || align == TextAlign::kEnd;
+    for (auto cluster = fEndLine.endCluster();
+         cluster >= fEndLine.startCluster() && cluster->isWhitespaces();
+         --cluster) {
+        if ((left && cluster->run()->leftToRight()) ||
+            (right && !cluster->run()->leftToRight()) ||
+             align == TextAlign::kJustify || align == TextAlign::kCenter) {
+            fEndLine.trimRight(cluster);
+            continue;
+        } else {
+            break;
+        }
+    }
+    if (!right) {
+        fEndLine.trim();
+    }
+}
+ */
 
 SkScalar TextWrapper::getClustersTrimmedWidth() {
     // Move the end of the line to the left
