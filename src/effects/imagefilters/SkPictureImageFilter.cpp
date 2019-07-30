@@ -92,7 +92,7 @@ sk_sp<SkFlattenable> SkPictureImageFilterImpl::CreateProc(SkReadBuffer& buffer) 
     }
     buffer.readRect(&cropRect);
 
-    if (buffer.isVersionLT(SkReadBuffer::kRemovePictureImageFilterLocalSpace)) {
+    if (buffer.isVersionLT(SkPicturePriv::kRemovePictureImageFilterLocalSpace)) {
         PictureResolution pictureResolution = buffer.checkRange<PictureResolution>(
             kDeviceSpace_PictureResolution, kLocalSpace_PictureResolution);
         if (kLocalSpace_PictureResolution == pictureResolution) {

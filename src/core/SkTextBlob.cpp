@@ -707,7 +707,7 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
         SkPoint offset;
         reader.readPoint(&offset);
         SkFont font;
-        if (reader.isVersionLT(SkReadBuffer::kSerializeFonts_Version)) {
+        if (reader.isVersionLT(SkPicturePriv::kSerializeFonts_Version)) {
             SkPaint paint;
             reader.readPaint(&paint, &font);
         } else {
