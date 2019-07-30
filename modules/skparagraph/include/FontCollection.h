@@ -7,6 +7,7 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTHash.h"
+#include "modules/skparagraph/include/StringCache.h"
 #include "modules/skparagraph/include/TextStyle.h"
 
 namespace skia {
@@ -30,7 +31,7 @@ public:
 
     sk_sp<SkTypeface> matchTypeface(const char familyName[], SkFontStyle fontStyle);
     sk_sp<SkTypeface> matchDefaultTypeface(SkFontStyle fontStyle);
-    sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const SkString& locale);
+    sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const char* locale);
 
     void disableFontFallback();
     bool fontFallbackEnabled() { return fEnableFontFallback; }
@@ -38,14 +39,14 @@ public:
 private:
     std::vector<sk_sp<SkFontMgr>> getFontManagerOrder() const;
 
+    typedef size_t FamilyNameIndex;
+    typedef size_t LocaleIndex;
     struct FamilyKey {
-        FamilyKey(const char family[], const char loc[], SkFontStyle style)
-                : fFontFamily(family), fLocale(loc), fFontStyle(style) {}
-
+        FamilyKey(const char* family, const char* locale, SkFontStyle style);
         FamilyKey() {}
 
-        SkString fFontFamily;
-        SkString fLocale;
+        CachedString fFontFamily;
+        CachedString fLocale;
         SkFontStyle fFontStyle;
 
         bool operator==(const FamilyKey& other) const;
@@ -61,7 +62,7 @@ private:
     sk_sp<SkFontMgr> fAssetFontManager;
     sk_sp<SkFontMgr> fDynamicFontManager;
     sk_sp<SkFontMgr> fTestFontManager;
-    SkString fDefaultFamilyName;
+    const char* fDefaultFamilyName;
 };
 }  // namespace textlayout
 }  // namespace skia

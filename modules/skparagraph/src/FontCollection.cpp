@@ -10,10 +10,16 @@ bool FontCollection::FamilyKey::operator==(const FontCollection::FamilyKey& othe
 }
 
 size_t FontCollection::FamilyKey::Hasher::operator()(const FontCollection::FamilyKey& key) const {
-    return std::hash<std::string>()(key.fFontFamily.c_str()) ^
-           std::hash<std::string>()(key.fLocale.c_str()) ^
-           std::hash<uint32_t>()(key.fFontStyle.weight()) ^
-           std::hash<uint32_t>()(key.fFontStyle.slant());
+    return SkGoodHash()(key.fFontFamily) ^
+           SkGoodHash()(key.fLocale) ^
+           SkGoodHash()(key.fFontStyle.weight()) ^
+           SkGoodHash()(key.fFontStyle.slant());
+}
+
+FontCollection::FamilyKey::FamilyKey(const char* family, const char* locale, SkFontStyle style)
+    : fFontStyle(style){
+    fFontFamily = StringCache::gStringCache.make(family);
+    fLocale = StringCache::gStringCache.make(locale);
 }
 
 FontCollection::FontCollection()
@@ -93,7 +99,7 @@ sk_sp<SkTypeface> FontCollection::matchTypeface(const char familyName[], SkFontS
 
 sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle) {
     // Look inside the font collections cache first
-    FamilyKey familyKey(fDefaultFamilyName.c_str(), "en", fontStyle);
+    FamilyKey familyKey(fDefaultFamilyName, "en", fontStyle);
     auto found = fTypefaces.find(familyKey);
     if (found) {
         return *found;
@@ -101,7 +107,7 @@ sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle) {
 
     sk_sp<SkTypeface> typeface = nullptr;
     for (const auto& manager : this->getFontManagerOrder()) {
-        SkFontStyleSet* set = manager->matchFamily(fDefaultFamilyName.c_str());
+        SkFontStyleSet* set = manager->matchFamily(fDefaultFamilyName);
         if (nullptr == set || set->count() == 0) {
             continue;
         }
@@ -120,12 +126,12 @@ sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle) {
     return nullptr;
 }
 
-sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const SkString& locale) {
+sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const char* locale) {
 
     for (const auto& manager : this->getFontManagerOrder()) {
         std::vector<const char*> bcp47;
-        if (!locale.isEmpty()) {
-            bcp47.push_back(locale.c_str());
+        if (strlen(locale) != 0) {
+            bcp47.push_back(locale);
         }
         sk_sp<SkTypeface> typeface(manager->matchFamilyStyleCharacter(
                 0, fontStyle, bcp47.data(), bcp47.size(), unicode));
@@ -137,7 +143,7 @@ sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle
     if (fDefaultFontManager == nullptr) {
         return nullptr;
     }
-    auto result = fDefaultFontManager->matchFamilyStyle(fDefaultFamilyName.c_str(), fontStyle);
+    auto result = fDefaultFontManager->matchFamilyStyle(fDefaultFamilyName, fontStyle);
     return sk_ref_sp<SkTypeface>(result);
 }
 
