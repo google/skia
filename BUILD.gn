@@ -2596,22 +2596,13 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_app("editor") {
-    is_shared_library = is_android
-    sources = [
-      "experimental/editor/editor.cpp",
-      "experimental/editor/editor.h",
-      "experimental/editor/editor_application.cpp",
-      "experimental/editor/run_handler.cpp",
-      "experimental/editor/run_handler.h",
-      "experimental/editor/stringslice.cpp",
-      "experimental/editor/stringslice.h",
-    ]
-    deps = [
-      ":sk_app",
-      ":skia",
-      "modules/skshaper",
-    ]
+  if (skia_use_icu && skia_use_harfbuzz) {
+    test_app("editor") {
+      is_shared_library = is_android
+      deps = [
+        "experimental/editor:editor_app",
+      ]
+    }
   }
 
   if (skia_enable_skvm_jit) {
