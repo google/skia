@@ -815,10 +815,11 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
         WORD glyphs = glyph->getGlyphID();
         if (0 == GetTextExtentPointI(fDDC, &glyphs, 1, &size)) {
             glyph->fWidth = SkToS16(fTM.tmMaxCharWidth);
+            glyph->fHeight = SkToS16(fTM.tmHeight);
         } else {
             glyph->fWidth = SkToS16(size.cx);
+            glyph->fHeight = SkToS16(size.cy);
         }
-        glyph->fHeight = SkToS16(size.cy);
 
         glyph->fTop = SkToS16(-fTM.tmAscent);
         // Bitmap FON cannot underhang, but vector FON may.
