@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1df12d5d_7ada97d7",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-30T14:06:06Z",
+      "side": 0,
+      "message": "This was actually only registering the blur filter, so I moved it to the SkBlurImageFilter header.",
+      "range": {
+        "startLine": 259,
+        "startChar": 16,
+        "endLine": 259,
+        "endChar": 36
+      },
+      "revId": "d9be3383a06bc83f9fb305fe5660b066350a8687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

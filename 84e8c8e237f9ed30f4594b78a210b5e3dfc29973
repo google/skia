@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1f20ae4_ee937188",
+        "filename": "src/effects/imagefilters/SkLightingImageFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-30T14:06:06Z",
+      "side": 1,
+      "message": "This is everything that had been in the public SkLightingImageFilter class, which is now merged with the existing SkLightingImageFilterInternal class (which the specular and diffuse filters already extend from).",
+      "range": {
+        "startLine": 410,
+        "startChar": 0,
+        "endLine": 420,
+        "endChar": 59
+      },
+      "revId": "84e8c8e237f9ed30f4594b78a210b5e3dfc29973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
