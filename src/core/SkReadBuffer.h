@@ -47,7 +47,8 @@ public:
         kSaveBehind_Version                = 66,
         kSerializeFonts_Version            = 67,
         kPaintDoesntSerializeFonts_Version = 68,
-        kCleanupImageFilterEnums_Version   = 69
+        kCleanupImageFilterEnums_Version   = 69,
+        kRemoveDrawLooper_Version          = 70
     };
 
     /**
