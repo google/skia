@@ -77,6 +77,9 @@ enum class ByteCodeInstruction : uint16_t {
     kMatrixToMatrix,
     // Followed by three bytes: leftCols (== rightRows), leftRows, rightCols
     kMatrixMultiply,
+    // Masked selection: Stack is ... A1, A2, A3, B1, B2, B3, M1, M2, M3
+    //                   Result:      M1 ? A1 : B1, M2 ? A2 : B2, M3 ? A3 : B3
+    VECTOR(kMix),
     VECTOR_MATRIX(kNegateF),
     VECTOR(kNegateI),
     VECTOR_MATRIX(kMultiplyF),
