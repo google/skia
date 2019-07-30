@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
 #include "include/effects/SkPaintImageFilter.h"
 #include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -13,31 +14,64 @@
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
 
+namespace {
+
+class SkPaintImageFilterImpl final : public SkImageFilter {
+public:
+    static sk_sp<SkImageFilter> Make(const SkPaint& paint, const CropRect* cropRect = nullptr) {
+        return sk_sp<SkImageFilter>(new SkPaintImageFilterImpl(paint, cropRect));
+    }
+
+    bool affectsTransparentBlack() const override;
+
+protected:
+    void flatten(SkWriteBuffer&) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+
+private:
+    friend void SkPaintImageFilter::RegisterFlattenables();
+    SK_FLATTENABLE_HOOKS(SkPaintImageFilterImpl)
+
+    SkPaintImageFilterImpl(const SkPaint& paint, const CropRect* rect)
+            : INHERITED(nullptr, 0, rect)
+            , fPaint(paint) {}
+
+    SkPaint fPaint;
+
+    typedef SkImageFilter INHERITED;
+};
+
+} // end namespace
+
 sk_sp<SkImageFilter> SkPaintImageFilter::Make(const SkPaint& paint,
-                                              const CropRect* cropRect) {
-    return sk_sp<SkImageFilter>(new SkPaintImageFilter(paint, cropRect));
+                                              const SkImageFilter::CropRect* cropRect) {
+    return SkPaintImageFilterImpl::Make(paint, cropRect);
 }
 
-SkPaintImageFilter::SkPaintImageFilter(const SkPaint& paint, const CropRect* cropRect)
-    : INHERITED(nullptr, 0, cropRect)
-    , fPaint(paint) {
+void SkPaintImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkPaintImageFilterImpl);
+    // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
+    SkFlattenable::Register("SkPaintImageFilter", SkPaintImageFilterImpl::CreateProc);
 }
 
-sk_sp<SkFlattenable> SkPaintImageFilter::CreateProc(SkReadBuffer& buffer) {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkFlattenable> SkPaintImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     SkPaint paint;
     buffer.readPaint(&paint, nullptr);
-    return SkPaintImageFilter::Make(paint, &common.cropRect());
+    return Make(paint, &common.cropRect());
 }
 
-void SkPaintImageFilter::flatten(SkWriteBuffer& buffer) const {
+void SkPaintImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePaint(fPaint);
 }
 
-sk_sp<SkSpecialImage> SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
-                                                        const Context& ctx,
-                                                        SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkPaintImageFilterImpl::onFilterImage(SkSpecialImage* source,
+                                                            const Context& ctx,
+                                                            SkIPoint* offset) const {
     SkIRect bounds;
     const SkIRect srcBounds = SkIRect::MakeWH(source->width(), source->height());
     if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
@@ -71,6 +105,6 @@ sk_sp<SkSpecialImage> SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
     return surf->makeImageSnapshot();
 }
 
-bool SkPaintImageFilter::affectsTransparentBlack() const {
+bool SkPaintImageFilterImpl::affectsTransparentBlack() const {
     return true;
 }

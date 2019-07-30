@@ -16,6 +16,47 @@
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
 
+namespace {
+
+class SkOffsetImageFilterImpl final : public SkImageFilter {
+public:
+    static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy,
+                                     sk_sp<SkImageFilter> input,
+                                     const CropRect* cropRect = nullptr) {
+        if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
+            return nullptr;
+        }
+
+        return sk_sp<SkImageFilter>(new SkOffsetImageFilterImpl(
+                dx, dy, std::move(input), cropRect));
+    }
+
+    SkRect computeFastBounds(const SkRect& src) const override;
+
+protected:
+    void flatten(SkWriteBuffer&) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
+                               MapDirection, const SkIRect* inputRect) const override;
+
+private:
+    friend void SkOffsetImageFilter::RegisterFlattenables();
+    SK_FLATTENABLE_HOOKS(SkOffsetImageFilterImpl)
+
+    SkOffsetImageFilterImpl(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input,
+                            const CropRect* cropRect)
+            : INHERITED(&input, 1, cropRect) {
+        fOffset.set(dx, dy);
+    }
+
+    SkVector fOffset;
+
+    typedef SkImageFilter INHERITED;
+};
+
+} // end namespace
+
 static SkIPoint map_offset_vector(const SkMatrix& ctm, const SkVector& offset) {
     SkVector vec = ctm.mapVector(offset.fX, offset.fY);
     return SkIPoint::Make(SkScalarRoundToInt(vec.fX), SkScalarRoundToInt(vec.fY));
@@ -23,17 +64,33 @@ static SkIPoint map_offset_vector(const SkMatrix& ctm, const SkVector& offset) {
 
 sk_sp<SkImageFilter> SkOffsetImageFilter::Make(SkScalar dx, SkScalar dy,
                                                sk_sp<SkImageFilter> input,
-                                               const CropRect* cropRect) {
-    if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
-        return nullptr;
-    }
-
-    return sk_sp<SkImageFilter>(new SkOffsetImageFilter(dx, dy, std::move(input), cropRect));
+                                               const SkImageFilter::CropRect* cropRect) {
+    return SkOffsetImageFilterImpl::Make(dx, dy, std::move(input), cropRect);
 }
 
-sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
-                                                         const Context& ctx,
-                                                         SkIPoint* offset) const {
+void SkOffsetImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkOffsetImageFilterImpl);
+    // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
+    SkFlattenable::Register("SkOffsetImageFilter", SkOffsetImageFilterImpl::CreateProc);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkFlattenable> SkOffsetImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    SkPoint offset;
+    buffer.readPoint(&offset);
+    return Make(offset.x(), offset.y(), common.getInput(0), &common.cropRect());
+}
+
+void SkOffsetImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
+    buffer.writePoint(fOffset);
+}
+
+sk_sp<SkSpecialImage> SkOffsetImageFilterImpl::onFilterImage(SkSpecialImage* source,
+                                                             const Context& ctx,
+                                                             SkIPoint* offset) const {
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &srcOffset));
     if (!input) {
@@ -78,37 +135,18 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
     }
 }
 
-SkRect SkOffsetImageFilter::computeFastBounds(const SkRect& src) const {
+SkRect SkOffsetImageFilterImpl::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
     bounds.offset(fOffset.fX, fOffset.fY);
     return bounds;
 }
 
-SkIRect SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                MapDirection dir, const SkIRect* inputRect) const {
+SkIRect SkOffsetImageFilterImpl::onFilterNodeBounds(
+        const SkIRect& src, const SkMatrix& ctm, MapDirection dir, const SkIRect* inputRect) const {
     SkIPoint vec = map_offset_vector(ctm, fOffset);
     if (kReverse_MapDirection == dir) {
         SkPointPriv::Negate(vec);
     }
 
     return src.makeOffset(vec.fX, vec.fY);
-}
-
-sk_sp<SkFlattenable> SkOffsetImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    SkPoint offset;
-    buffer.readPoint(&offset);
-    return Make(offset.x(), offset.y(), common.getInput(0), &common.cropRect());
-}
-
-void SkOffsetImageFilter::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.writePoint(fOffset);
-}
-
-SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy,
-                                         sk_sp<SkImageFilter> input,
-                                         const CropRect* cropRect)
-    : INHERITED(&input, 1, cropRect) {
-    fOffset.set(dx, dy);
 }

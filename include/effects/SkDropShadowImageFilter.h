@@ -9,11 +9,10 @@
 #define SkDropShadowImageFilter_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkScalar.h"
 
-class SK_API SkDropShadowImageFilter : public SkImageFilter {
+class SK_API SkDropShadowImageFilter {
 public:
     enum ShadowMode {
         kDrawShadowAndForeground_ShadowMode,
@@ -27,29 +26,12 @@ public:
     static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY,
                                      SkColor color, ShadowMode shadowMode,
                                      sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr);
+                                     const SkImageFilter::CropRect* cropRect = nullptr);
 
-    SkRect computeFastBounds(const SkRect&) const override;
-
-protected:
-    void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
-    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                               MapDirection, const SkIRect* inputRect) const override;
+    static void RegisterFlattenables();
 
 private:
-    SK_FLATTENABLE_HOOKS(SkDropShadowImageFilter)
-
-    SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor,
-                            ShadowMode shadowMode, sk_sp<SkImageFilter> input,
-                            const CropRect* cropRect);
-
-    SkScalar fDx, fDy, fSigmaX, fSigmaY;
-    SkColor fColor;
-    ShadowMode fShadowMode;
-
-    typedef SkImageFilter INHERITED;
+    SkDropShadowImageFilter() = delete;
 };
 
 #endif

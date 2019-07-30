@@ -45,7 +45,9 @@ void main(inout half4 color) {
 )";
 #endif
 
-class ArithmeticImageFilterImpl : public SkImageFilter {
+namespace {
+
+class ArithmeticImageFilterImpl final : public SkImageFilter {
 public:
     ArithmeticImageFilterImpl(float k1, float k2, float k3, float k4, bool enforcePMColor,
                               sk_sp<SkImageFilter> inputs[2], const CropRect* cropRect)
@@ -90,6 +92,8 @@ private:
 
     typedef SkImageFilter INHERITED;
 };
+
+}; // end namespace
 
 sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);

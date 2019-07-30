@@ -8,11 +8,11 @@
 #ifndef SkPaintImageFilter_DEFINED
 #define SkPaintImageFilter_DEFINED
 
-#include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
-#include "include/core/SkPaint.h"
 
-class SK_API SkPaintImageFilter : public SkImageFilter {
+class SkPaint;
+
+class SK_API SkPaintImageFilter  {
 public:
     /** Create a new image filter which fills the given rectangle using the
      *  given paint. If no rectangle is specified, an output is produced with
@@ -23,23 +23,13 @@ public:
      *                not specified, the source primitive's bounds are used
      *                instead.
      */
-    static sk_sp<SkImageFilter> Make(const SkPaint& paint, const CropRect* cropRect = nullptr);
+    static sk_sp<SkImageFilter> Make(const SkPaint& paint,
+                                     const SkImageFilter::CropRect* cropRect = nullptr);
 
-    bool affectsTransparentBlack() const override;
-
-protected:
-    void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    static void RegisterFlattenables();
 
 private:
-    SK_FLATTENABLE_HOOKS(SkPaintImageFilter)
-
-    SkPaintImageFilter(const SkPaint& paint, const CropRect* rect);
-
-    SkPaint fPaint;
-
-    typedef SkImageFilter INHERITED;
+    SkPaintImageFilter() = delete;
 };
 
 #endif

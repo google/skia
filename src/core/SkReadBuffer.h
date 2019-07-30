@@ -47,7 +47,8 @@ public:
         kSaveBehind_Version                = 66,
         kSerializeFonts_Version            = 67,
         kPaintDoesntSerializeFonts_Version = 68,
-        kCleanupImageFilterEnums_Version   = 69
+        kCleanupImageFilterEnums_Version   = 69,
+        kHideImageFilterImpls_Version      = 70,
     };
 
     /**
@@ -257,7 +258,8 @@ public:
         kSaveBehind_Version                = 66,
         kSerializeFonts_Version            = 67,
         kPaintDoesntSerializeFonts_Version = 68,
-        kCleanupImageFilterEnums_Version   = 69
+        kCleanupImageFilterEnums_Version   = 69,
+        kHideImageFilterImpls_Version      = 70,
     };
 
     bool isVersionLT(Version) const { return false; }

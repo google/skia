@@ -279,10 +279,11 @@ private:
     // V67: Blobs serialize fonts instead of paints
     // V68: Paint doesn't serialize font-related stuff
     // V69: Clean up duplicated and redundant SkImageFilter related enums
+    // V70: Image filters definitions hidden, registered names updated to include "Impl"
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 56;     // august 2017
-    static const uint32_t CURRENT_PICTURE_VERSION = 69;
+    static const uint32_t CURRENT_PICTURE_VERSION = 70;
 
     static_assert(MIN_PICTURE_VERSION <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
 

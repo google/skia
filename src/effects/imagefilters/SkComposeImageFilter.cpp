@@ -11,28 +11,72 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
 
+namespace {
+
+class SkComposeImageFilterImpl final : public SkImageFilter {
+public:
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> outer, sk_sp<SkImageFilter> inner) {
+        if (!outer) {
+            return inner;
+        }
+        if (!inner) {
+            return outer;
+        }
+        sk_sp<SkImageFilter> inputs[2] = { std::move(outer), std::move(inner) };
+        return sk_sp<SkImageFilter>(new SkComposeImageFilterImpl(inputs));
+    }
+
+    SkRect computeFastBounds(const SkRect& src) const override;
+
+protected:
+    explicit SkComposeImageFilterImpl(sk_sp<SkImageFilter> inputs[2])
+            : INHERITED(inputs, 2, nullptr) {
+        SkASSERT(inputs[0].get());
+        SkASSERT(inputs[1].get());
+    }
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+    SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
+                           MapDirection, const SkIRect* inputRect) const override;
+    bool onCanHandleComplexCTM() const override { return true; }
+
+private:
+    friend void SkComposeImageFilter::RegisterFlattenables();
+    SK_FLATTENABLE_HOOKS(SkComposeImageFilterImpl)
+
+    typedef SkImageFilter INHERITED;
+};
+
+} // end namespace
+
 sk_sp<SkImageFilter> SkComposeImageFilter::Make(sk_sp<SkImageFilter> outer,
                                                 sk_sp<SkImageFilter> inner) {
-    if (!outer) {
-        return inner;
-    }
-    if (!inner) {
-        return outer;
-    }
-    sk_sp<SkImageFilter> inputs[2] = { std::move(outer), std::move(inner) };
-    return sk_sp<SkImageFilter>(new SkComposeImageFilter(inputs));
+    return SkComposeImageFilterImpl::Make(std::move(outer), std::move(inner));
 }
 
-SkRect SkComposeImageFilter::computeFastBounds(const SkRect& src) const {
+void SkComposeImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkComposeImageFilterImpl);
+    // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
+    SkFlattenable::Register("SkComposeImageFilter", SkComposeImageFilterImpl::CreateProc);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkFlattenable> SkComposeImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
+    return Make(common.getInput(0), common.getInput(1));
+}
+
+SkRect SkComposeImageFilterImpl::computeFastBounds(const SkRect& src) const {
     SkImageFilter* outer = this->getInput(0);
     SkImageFilter* inner = this->getInput(1);
 
     return outer->computeFastBounds(inner->computeFastBounds(src));
 }
 
-sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(SkSpecialImage* source,
-                                                          const Context& ctx,
-                                                          SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(SkSpecialImage* source,
+                                                              const Context& ctx,
+                                                              SkIPoint* offset) const {
     // The bounds passed to the inner filter must be filtered by the outer
     // filter, so that the inner filter produces the pixels that the outer
     // filter requires as input. This matters if the outer filter moves pixels.
@@ -62,8 +106,8 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(SkSpecialImage* source
     return outer;
 }
 
-SkIRect SkComposeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                             MapDirection dir, const SkIRect* inputRect) const {
+SkIRect SkComposeImageFilterImpl::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                 MapDirection dir, const SkIRect* inputRect) const {
     SkImageFilter* outer = this->getInput(0);
     SkImageFilter* inner = this->getInput(1);
 
@@ -71,9 +115,3 @@ SkIRect SkComposeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&
     return outer->filterBounds(innerRect, ctm, dir,
                                kReverse_MapDirection == dir ? &innerRect : nullptr);
 }
-
-sk_sp<SkFlattenable> SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    return SkComposeImageFilter::Make(common.getInput(0), common.getInput(1));
-}
-

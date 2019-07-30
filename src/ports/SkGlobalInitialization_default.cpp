@@ -132,26 +132,27 @@
      */
     void SkFlattenable::PrivateInitializer::InitImageFilters() {
         SkAlphaThresholdFilter::RegisterFlattenables();
-        SkImageFilter::RegisterFlattenables();
         SkArithmeticImageFilter::RegisterFlattenables();
-        SkXfermodeImageFilter::RegisterFlattenables();
-        SK_REGISTER_FLATTENABLE(SkDilateImageFilter);
-        SK_REGISTER_FLATTENABLE(SkDisplacementMapEffect);
-        SK_REGISTER_FLATTENABLE(SkDropShadowImageFilter);
-        SK_REGISTER_FLATTENABLE(SkErodeImageFilter);
-        SK_REGISTER_FLATTENABLE(SkImageSource);
-        SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
-        SK_REGISTER_FLATTENABLE(SkPaintImageFilter);
-        SK_REGISTER_FLATTENABLE(SkPictureImageFilter);
-        SK_REGISTER_FLATTENABLE(SkTileImageFilter);
-        SK_REGISTER_FLATTENABLE(SkMagnifierImageFilter);
-        SK_REGISTER_FLATTENABLE(SkMatrixConvolutionImageFilter);
-        SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
-        SK_REGISTER_FLATTENABLE(SkOffsetImageFilter);
-        SK_REGISTER_FLATTENABLE(SkComposeImageFilter);
-        SK_REGISTER_FLATTENABLE(SkMergeImageFilter);
-        SK_REGISTER_FLATTENABLE(SkColorFilterImageFilter);
+        SkBlurImageFilter::RegisterFlattenables();
+        SkColorFilterImageFilter::RegisterFlattenables();
+        SkComposeImageFilter::RegisterFlattenables();
+        SkDilateImageFilter::RegisterFlattenables();
+        SkDisplacementMapEffect::RegisterFlattenables();
+        SkDropShadowImageFilter::RegisterFlattenables();
+        SkErodeImageFilter::RegisterFlattenables();
+        SkImageSource::RegisterFlattenables();
         SkLightingImageFilter::RegisterFlattenables();
+        SkMagnifierImageFilter::RegisterFlattenables();
+        SkMatrixConvolutionImageFilter::RegisterFlattenables();
+        SkMergeImageFilter::RegisterFlattenables();
+        SkOffsetImageFilter::RegisterFlattenables();
+        SkPaintImageFilter::RegisterFlattenables();
+        SkPictureImageFilter::RegisterFlattenables();
+        SkTileImageFilter::RegisterFlattenables();
+        SkXfermodeImageFilter::RegisterFlattenables();
+
+        SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
+        SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }
 
 #endif

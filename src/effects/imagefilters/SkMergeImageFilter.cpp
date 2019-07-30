@@ -14,21 +14,51 @@
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
 
+namespace {
+
+class SK_API SkMergeImageFilterImpl final : public SkImageFilter {
+public:
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter>* const filters, int count,
+                                     const CropRect* cropRect = nullptr) {
+        return sk_sp<SkImageFilter>(new SkMergeImageFilterImpl(filters, count, cropRect));
+    }
+
+protected:
+    void flatten(SkWriteBuffer&) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+    bool onCanHandleComplexCTM() const override { return true; }
+
+private:
+    friend void SkMergeImageFilter::RegisterFlattenables();
+    SK_FLATTENABLE_HOOKS(SkMergeImageFilterImpl)
+
+    SkMergeImageFilterImpl(sk_sp<SkImageFilter>* const filters, int count,
+                           const CropRect* cropRect)
+            : INHERITED(filters, count, cropRect) {
+        SkASSERT(count >= 0);
+    }
+
+    typedef SkImageFilter INHERITED;
+};
+
+} // end namespace
+
 sk_sp<SkImageFilter> SkMergeImageFilter::Make(sk_sp<SkImageFilter>* const filters, int count,
-                                               const CropRect* cropRect) {
-    return sk_sp<SkImageFilter>(new SkMergeImageFilter(filters, count, cropRect));
+                                               const SkImageFilter::CropRect* cropRect) {
+    return SkMergeImageFilterImpl::Make(filters, count, cropRect);
+}
+
+void SkMergeImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkMergeImageFilterImpl);
+    // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
+    SkFlattenable::Register("SkMergeImageFilter", SkMergeImageFilterImpl::CreateProc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkMergeImageFilter::SkMergeImageFilter(sk_sp<SkImageFilter>* const filters, int count,
-                                       const CropRect* cropRect)
-    : INHERITED(filters, count, cropRect) {
-    SkASSERT(count >= 0);
-}
-
-sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                                        SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkMergeImageFilterImpl::onFilterImage(
+        SkSpecialImage* source, const Context& ctx, SkIPoint* offset) const {
     int inputCount = this->countInputs();
     if (inputCount < 1) {
         return nullptr;
@@ -93,7 +123,7 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, 
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkFlattenable> SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkMergeImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     Common common;
     if (!common.unflatten(buffer, -1) || !buffer.isValid()) {
         return nullptr;
@@ -101,7 +131,7 @@ sk_sp<SkFlattenable> SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
     return Make(common.inputs(), common.inputCount(), &common.cropRect());
 }
 
-void SkMergeImageFilter::flatten(SkWriteBuffer& buffer) const {
+void SkMergeImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 }
 

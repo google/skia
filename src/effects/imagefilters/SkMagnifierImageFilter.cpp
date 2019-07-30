@@ -28,52 +28,83 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
+namespace {
+
+class SkMagnifierImageFilterImpl final : public SkImageFilter {
+public:
+    static sk_sp<SkImageFilter> Make(const SkRect& srcRect, SkScalar inset,
+                                     sk_sp<SkImageFilter> input,
+                                     const CropRect* cropRect = nullptr) {
+        if (!SkScalarIsFinite(inset) || !SkIsValidRect(srcRect)) {
+            return nullptr;
+        }
+        if (inset < 0) {
+            return nullptr;
+        }
+        // Negative numbers in src rect are not supported
+        if (srcRect.fLeft < 0 || srcRect.fTop < 0) {
+            return nullptr;
+        }
+        return sk_sp<SkImageFilter>(new SkMagnifierImageFilterImpl(
+                srcRect, inset, std::move(input), cropRect));
+    }
+
+protected:
+    SkMagnifierImageFilterImpl(const SkRect& srcRect, SkScalar inset, sk_sp<SkImageFilter> input,
+                               const CropRect* cropRect)
+            : INHERITED(&input, 1, cropRect)
+            , fSrcRect(srcRect)
+            , fInset(inset) {
+        SkASSERT(srcRect.left() >= 0 && srcRect.top() >= 0 && inset >= 0);
+    }
+
+    void flatten(SkWriteBuffer&) const override;
+
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+
+private:
+    friend void SkMagnifierImageFilter::RegisterFlattenables();
+    SK_FLATTENABLE_HOOKS(SkMagnifierImageFilterImpl)
+
+    SkRect   fSrcRect;
+    SkScalar fInset;
+
+    typedef SkImageFilter INHERITED;
+};
+
+} // end namespace
+
 sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScalar inset,
                                                   sk_sp<SkImageFilter> input,
-                                                  const CropRect* cropRect) {
-    if (!SkScalarIsFinite(inset) || !SkIsValidRect(srcRect)) {
-        return nullptr;
-    }
-    if (inset < 0) {
-        return nullptr;
-    }
-    // Negative numbers in src rect are not supported
-    if (srcRect.fLeft < 0 || srcRect.fTop < 0) {
-        return nullptr;
-    }
-    return sk_sp<SkImageFilter>(new SkMagnifierImageFilter(srcRect, inset,
-                                                           std::move(input),
-                                                           cropRect));
+                                                  const SkImageFilter::CropRect* cropRect) {
+    return SkMagnifierImageFilterImpl::Make(srcRect, inset, std::move(input), cropRect);
+}
+
+void SkMagnifierImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkMagnifierImageFilterImpl);
+    // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
+    SkFlattenable::Register("SkMagnifierImageFilter", SkMagnifierImageFilterImpl::CreateProc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkMagnifierImageFilter::SkMagnifierImageFilter(const SkRect& srcRect,
-                                               SkScalar inset,
-                                               sk_sp<SkImageFilter> input,
-                                               const CropRect* cropRect)
-    : INHERITED(&input, 1, cropRect)
-    , fSrcRect(srcRect)
-    , fInset(inset) {
-    SkASSERT(srcRect.left() >= 0 && srcRect.top() >= 0 && inset >= 0);
-}
-
-sk_sp<SkFlattenable> SkMagnifierImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkMagnifierImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkRect src;
     buffer.readRect(&src);
     return Make(src, buffer.readScalar(), common.getInput(0), &common.cropRect());
 }
 
-void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {
+void SkMagnifierImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeRect(fSrcRect);
     buffer.writeScalar(fInset);
 }
 
-sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* source,
-                                                            const Context& ctx,
-                                                            SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(SkSpecialImage* source,
+                                                                const Context& ctx,
+                                                                SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
     if (!input) {
