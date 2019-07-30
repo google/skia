@@ -423,7 +423,7 @@ public:
                 fByteCode = c.toByteCode(*prog);
             }
             ctx->byteCode = fByteCode.get();
-            ctx->fn = ctx->byteCode->fFunctions[0].get();
+            ctx->fn = ctx->byteCode->getFunction("main");
             rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
         }
         return true;
