@@ -327,7 +327,7 @@ sk_sp<SkTypeface> SkFontMgr_Fuchsia::FetchTypeface(const char familyName[],
     request.weight = style.weight();
     request.width = style.width();
     request.slant = SkToFuchsiaSlant(style.slant());
-    request.language.reset(std::vector<std::string>(bcp47, bcp47 + bcp47Count));
+    request.language = std::vector<std::string>(bcp47, bcp47 + bcp47Count);
     request.character = character;
     request.fallback_group = GetFallbackGroupByName(familyName);
 
