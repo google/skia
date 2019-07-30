@@ -34,6 +34,7 @@ class AndroidFlavor(default.DefaultFlavor):
         lotties_dir   = android_data_dir + 'lotties',
         skp_dir       = android_data_dir + 'skps',
         svg_dir       = android_data_dir + 'svgs',
+        mskp_dir      = android_data_dir + 'mskp',
         tmp_dir       = android_data_dir)
 
     # A list of devices we can't root.  If rooting fails and a device is not

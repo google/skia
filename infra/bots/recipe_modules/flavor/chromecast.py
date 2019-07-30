@@ -31,6 +31,7 @@ class ChromecastFlavor(android.AndroidFlavor):
         lotties_dir   = data_dir + 'lotties',
         skp_dir       = data_dir + 'skps',
         svg_dir       = data_dir + 'svgs',
+        mskp_dir      = data_dir + 'mskp',
         tmp_dir       = data_dir)
 
   @property
