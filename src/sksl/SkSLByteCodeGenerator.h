@@ -136,32 +136,20 @@ private:
 #endif
     };
 
-    // Intrinsics which do not simply map to a single opcode
-    enum class SpecialIntrinsic {
-        kDot,
-    };
-
     struct Intrinsic {
-        Intrinsic(ByteCodeInstruction instruction)
-            : fIsSpecial(false)
-            , fValue(instruction) {}
+        Intrinsic(ByteCodeInstruction i)
+            : fFloatInstruction(i)
+            , fSignedInstruction(i)
+            , fUnsignedInstruction(i) {}
 
-        Intrinsic(SpecialIntrinsic special)
-            : fIsSpecial(true)
-            , fValue(special) {}
+        Intrinsic(ByteCodeInstruction f, ByteCodeInstruction s, ByteCodeInstruction u)
+            : fFloatInstruction(f)
+            , fSignedInstruction(s)
+            , fUnsignedInstruction(u) {}
 
-        bool fIsSpecial;
-
-        union Value {
-            Value(ByteCodeInstruction instruction)
-                : fInstruction(instruction) {}
-
-            Value(SpecialIntrinsic special)
-                : fSpecial(special) {}
-
-            ByteCodeInstruction fInstruction;
-            SpecialIntrinsic fSpecial;
-        } fValue;
+        ByteCodeInstruction fFloatInstruction;
+        ByteCodeInstruction fSignedInstruction;
+        ByteCodeInstruction fUnsignedInstruction;
     };
 
     /**

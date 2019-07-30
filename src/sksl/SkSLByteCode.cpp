@@ -131,6 +131,7 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
             printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
             break;
         }
+        VECTOR_DISASSEMBLE(kMix, "mix")
         VECTOR_MATRIX_DISASSEMBLE(kMultiplyF, "multiplyf")
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
         VECTOR_MATRIX_DISASSEMBLE(kNegateF, "negatef")
@@ -717,6 +718,21 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp -= (lCols * lRows) + (rCols * rRows);
                 memcpy(sp + 1, tmp, rCols * lRows * sizeof(VValue));
                 sp += (rCols * lRows);
+                break;
+            }
+
+            case ByteCodeInstruction::kMix:
+            case ByteCodeInstruction::kMix2:
+            case ByteCodeInstruction::kMix3:
+            case ByteCodeInstruction::kMix4: {
+                int count = (int)inst - (int)ByteCodeInstruction::kMix + 1;
+                for (int i = count - 1; i >= 0; --i) {
+                    // GLSL's arguments are: mix(else, true, cond)
+                    sp[-(2 * count + i)] = skvx::if_then_else(sp[-i].fSigned,
+                                                              sp[-(count + i)].fFloat,
+                                                              sp[-(2 * count + i)].fFloat);
+                }
+                sp -= 2 * count;
                 break;
             }
 
