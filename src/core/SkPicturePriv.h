@@ -87,10 +87,11 @@ public:
         kPaintDoesntSerializeFonts_Version = 68,
         kCleanupImageFilterEnums_Version   = 69,
         kHideImageFilterImpls_Version      = 70,
+        kRemoveDrawLooper_Version          = 71,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kTileModeInBlurImageFilter_Version,
-        kCurrent_Version = kHideImageFilterImpls_Version
+        kCurrent_Version = kRemoveDrawLooper_Version
     };
 
     static_assert(kMin_Version <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
