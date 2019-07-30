@@ -29,9 +29,16 @@ namespace {
 
 class ParagraphView_Base : public Sample {
 protected:
-    sk_sp<TestFontCollection> fFC;
     void onOnceBeforeDraw() override {
-        fFC = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
+    }
+
+    sk_sp<TestFontCollection> getFontCollection() {
+        // If we reset font collection we need to reset paragraph cache
+        static sk_sp<TestFontCollection> fFC = nullptr;
+        if (fFC == nullptr) {
+            fFC = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
+        }
+        return fFC;
     }
 };
 
@@ -276,7 +283,7 @@ protected:
         TextStyle defaultStyle;
         defaultStyle.setFontSize(20);
         paraStyle.setTextStyle(defaultStyle);
-        ParagraphBuilderImpl builder(paraStyle, fFC);
+        ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
         SkPaint foreground;
         foreground.setColor(fg);
@@ -621,7 +628,7 @@ protected:
         const char* logo5 = "google_lo";
         const char* logo6 = "go";
         {
-            ParagraphBuilderImpl builder(paraStyle, fFC);
+            ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
             builder.pushStyle(style0);
             builder.addText(logo1);
@@ -711,7 +718,7 @@ protected:
 
         paraStyle.setEllipsis(ellipsis);
 
-        ParagraphBuilderImpl builder(paraStyle, fFC);
+        ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
         if (text.empty()) {
             const std::u16string text0 = u"\u202Dabc";
@@ -871,7 +878,7 @@ protected:
         const char* logo5 = "Ski";
         const char* logo6 = "a";
         {
-            ParagraphBuilderImpl builder(paraStyle, fFC);
+            ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
             builder.pushStyle(style0);
             builder.addText(logo1);
@@ -911,7 +918,7 @@ protected:
         const char* logo15 = "S";
         const char* logo16 = "S";
         {
-            ParagraphBuilderImpl builder(paraStyle, fFC);
+            ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
             builder.pushStyle(style0);
             builder.addText(logo11);
@@ -982,7 +989,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        ParagraphBuilderImpl builder(paragraphStyle, fFC);
+        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
         builder.pushStyle(textStyle);
         builder.addText(line);
         builder.pop();
@@ -1052,7 +1059,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        ParagraphBuilderImpl builder(paragraphStyle, fFC);
+        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
         builder.pushStyle(textStyle);
         builder.addText(line);
         builder.pop();
@@ -1143,7 +1150,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        ParagraphBuilderImpl builder(paragraphStyle, fFC);
+        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
         builder.pushStyle(textStyle);
         builder.addText(text);
         builder.pop();
@@ -1202,7 +1209,7 @@ protected:
         const char* text = "English English 字典 字典 😀😃😄 😀😃😄";
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, fFC);
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
 
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto"),
@@ -1242,7 +1249,7 @@ protected:
 
         for (size_t i = 0; i < 10; i++) {
             ParagraphStyle paragraph_style;
-            ParagraphBuilderImpl builder(paragraph_style, fFC);
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
             TextStyle text_style;
             text_style.setFontFamilies({SkString("Roboto")});
             text_style.setColor(SK_ColorBLACK);
@@ -1270,7 +1277,7 @@ protected:
         paragraph_style.setMaxLines(14);
         paragraph_style.setTextAlign(TextAlign::kLeft);
         paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, fFC);
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
 
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto")});

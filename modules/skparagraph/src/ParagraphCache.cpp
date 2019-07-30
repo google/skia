@@ -7,20 +7,11 @@ namespace textlayout {
 
 // Just the flutter input for now
 // TODO: We don't really need to copy anything...
-ParagraphCacheKey::ParagraphCacheKey(ParagraphImpl* paragraph)
-        : fText(paragraph->fText)
-        , fFontSwitches(paragraph->switches())
-        , fTextStyles(paragraph->fTextStyles)
-        , fParagraphStyle(paragraph->paragraphStyle()) { }
+ParagraphCacheKey::ParagraphCacheKey(ParagraphImpl* paragraph) { }
 
 // TODO: copying clusters and runs for now (there are minor things changed on formatting)
 ParagraphCacheValue::ParagraphCacheValue(ParagraphImpl* paragraph)
-        : fKey(ParagraphCacheKey(paragraph))
-        , fInternalState(paragraph->state())
-        , fRuns(paragraph->fRuns)
-        , fClusters(paragraph->fClusters)
-        , fMeasurement(paragraph->measurement())
-        , fPicture(paragraph->fPicture) { }
+        : fKey(ParagraphCacheKey(paragraph)) { }
 
 bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
 

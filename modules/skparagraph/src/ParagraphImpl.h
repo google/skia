@@ -71,6 +71,7 @@ public:
                       ClusterRange clusters, LineMetrics sizes);
 
     SkSpan<const char> text() const { return fTextSpan; }
+    const char* text(TextIndex index) const { return fTextSpan.begin() + index; }
     InternalState state() const { return fState; }
     SkSpan<Run> runs() { return SkSpan<Run>(fRuns.data(), fRuns.size()); }
     SkTArray<FontDescr>& switches() { return fFontResolver.switches(); }
@@ -80,6 +81,7 @@ public:
     SkSpan<TextLine> lines() { return SkSpan<TextLine>(fLines.data(), fLines.size()); }
     ParagraphStyle paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
+    sk_sp<FontCollection> fontCollection() { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
 
     void shiftCluster(ClusterIndex index, SkScalar shift) {

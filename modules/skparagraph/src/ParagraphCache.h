@@ -8,6 +8,8 @@
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/src/FontResolver.h"
+#include "modules/skparagraph/src/Run.h"
+#include "modules/skparagraph/src/TextLine.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkTDynamicHash.h"
