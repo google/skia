@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32702601_ef69229d",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-30T15:03:51Z",
+      "side": 1,
+      "message": "So what checks do we actually want here? Should we be checking texture/renderability here as well? If we do that here, what checks should go into the creation of a GrSurfaceProxy? Do we want to get to a place where a GrColorType is not passed into GrSurfaceProxy factories at all? In that case do we need a way to just generically check if that GrBackendFormat can be a texture or rendered to (in GL\u0027s case the rendered to would just mean FBO attachable). Then when making a surface context we\u0027ll call into caps again but this time with a GrColorType and make sure the combination is texturable and renderable?\n\nOr do we think some of this should have all been checked at a higher level and we should just be making asserts down in here?",
+      "range": {
+        "startLine": 751,
+        "startChar": 4,
+        "endLine": 751,
+        "endChar": 68
+      },
+      "revId": "962b95a1afa03b998bf615b74c769724a95e636f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
