@@ -54,6 +54,19 @@ DEF_TEST(Skottie_Properties, reporter) {
                                          "ks": {
                                            "o": { "a": 0, "k": 50 }
                                          },
+                                         "ef": [{
+                                           "ef": [
+                                             {},
+                                             {},
+                                             { "v": { "a": 0, "k": [ 0, 1, 0 ] }},
+                                             {},
+                                             {},
+                                             {},
+                                             { "v": { "a": 0, "k": 1 }}
+                                           ],
+                                           "nm": "fill_effect_0",
+                                           "ty": 21
+                                         }],
                                          "shapes": [
                                            {
                                              "ty": "el",
@@ -129,9 +142,11 @@ DEF_TEST(Skottie_Properties, reporter) {
     REPORTER_ASSERT(reporter, animation);
 
     const auto& colors = observer->colors();
-    REPORTER_ASSERT(reporter, colors.size() == 1);
+    REPORTER_ASSERT(reporter, colors.size() == 2);
     REPORTER_ASSERT(reporter, colors[0].node_name.equals("fill_0"));
     REPORTER_ASSERT(reporter, colors[0].color == 0xffff0000);
+    REPORTER_ASSERT(reporter, colors[1].node_name.equals("fill_effect_0"));
+    REPORTER_ASSERT(reporter, colors[1].color == 0xff00ff00);
 
     const auto& opacities = observer->opacities();
     REPORTER_ASSERT(reporter, opacities.size() == 2);
