@@ -130,7 +130,7 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& bu
     kernelOffset.fY = buffer.readInt();
 
     SkTileMode tileMode;
-    if (buffer.isVersionLT(SkReadBuffer::kCleanupImageFilterEnums_Version)) {
+    if (buffer.isVersionLT(SkPicturePriv::kCleanupImageFilterEnums_Version)) {
         tileMode = to_sktilemode(buffer.read32LE(kLast_TileMode));
     } else {
         tileMode = buffer.read32LE(SkTileMode::kLastTileMode);
