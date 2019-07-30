@@ -13,6 +13,8 @@
 #include <memory>
 #include <vector>
 
+class SkImage;
+
 namespace SkSL {
 
 class  ExternalValue;
@@ -95,6 +97,7 @@ enum class ByteCodeInstruction : uint16_t {
     kReserve,
     // Followed by a byte indicating the number of slots being returned
     kReturn,
+    kSample,
     // Followed by two bytes indicating columns and rows of matrix (2, 3, or 4 each).
     // Takes a single value from the top of the stack, and converts to a CxR matrix with that value
     // replicated along the diagonal (and zero elsewhere), per the GLSL matrix construction rules.
@@ -178,6 +181,7 @@ struct SK_API ByteCode {
     int fGlobalCount = 0;
     // one entry per input slot, contains the global slot to which the input slot maps
     std::vector<uint8_t> fInputSlots;
+    int fImageCount = 0;
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
     std::vector<ExternalValue*> fExternalValues;
 
@@ -204,7 +208,9 @@ struct SK_API ByteCode {
     bool SKSL_WARN_UNUSED_RESULT runStriped(const ByteCodeFunction*,
                                             float* args[], int nargs, int N,
                                             const float* uniforms, int uniformCount,
-                                            float* outArgs[], int outArgCount) const;
+                                            float* outArgs[], int outArgCount,
+                                            const SkImage* images[] = nullptr,
+                                            int imageCount = 0) const;
 };
 
 }

@@ -10,6 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "include/private/SkMutex.h"
+#include "include/private/SkTArray.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/sksl/SkSLByteCode.h"
 
@@ -18,11 +19,13 @@
 #endif
 
 class SkData;
+class SkImage;
 class SkMatrix;
 
 class SkRTShader : public SkShaderBase {
 public:
-    SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix, bool isOpaque);
+    SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkTArray<sk_sp<SkImage>>& images,
+               const SkMatrix* localMatrix, bool isOpaque);
 
     bool isOpaque() const override { return fIsOpaque; }
 
@@ -39,6 +42,8 @@ private:
 
     SkString fSkSL;
     sk_sp<SkData> fInputs;
+    SkTArray<sk_sp<SkImage>> fImages;
+
     const uint32_t fUniqueID;
     const bool fIsOpaque;
 

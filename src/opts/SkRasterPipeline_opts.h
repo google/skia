@@ -2585,7 +2585,8 @@ STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
     }
 
     SkAssertResult(c->byteCode->runStriped(c->fn, in_args, in_count, tail ? tail : N,
-                                           (const float*)c->inputs, c->ninputs, nullptr, 0));
+                                           (const float*)c->inputs, c->ninputs, nullptr, 0,
+                                           c->images, c->nimages));
 
     r = sk_unaligned_load<F>(rr);
     g = sk_unaligned_load<F>(gg);

@@ -20,6 +20,7 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "cos",     ByteCodeInstruction::kCos },
         { "dot",     SpecialIntrinsic::kDot },
         { "inverse", ByteCodeInstruction::kInverse2x2 },
+        { "sample",  ByteCodeInstruction::kSample },
         { "sin",     ByteCodeInstruction::kSin },
         { "sqrt",    ByteCodeInstruction::kSqrt },
         { "tan",     ByteCodeInstruction::kTan },
@@ -67,8 +68,12 @@ bool ByteCodeGenerator::generateCode() {
                         continue;
                     }
                     if (declVar->fModifiers.fFlags & Modifiers::kIn_Flag) {
-                        for (int i = SlotCount(declVar->fType); i > 0; --i) {
-                            fOutput->fInputSlots.push_back(fOutput->fGlobalCount++);
+                        if (declVar->fType.kind() == Type::kSampler_Kind) {
+                            fOutput->fImageCount++;
+                        } else {
+                            for (int i = SlotCount(declVar->fType); i > 0; --i) {
+                                fOutput->fInputSlots.push_back(fOutput->fGlobalCount++);
+                            }
                         }
                     } else {
                         fOutput->fGlobalCount += SlotCount(declVar->fType);
@@ -346,6 +351,9 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
 
         // Miscellaneous
 
+        // (Image, X, Y) -> (R, G, B, A)
+        case ByteCodeInstruction::kSample: return 1;
+
         // kCall is net-zero. Max stack depth is adjusted in writeFunctionCall.
         case ByteCodeInstruction::kCall:             return 0;
         case ByteCodeInstruction::kBranch:           return 0;
@@ -401,20 +409,43 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
             return 0;
         }
         case Variable::kGlobal_Storage: {
-            int offset = 0;
-            for (const auto& e : fProgram) {
-                if (e.fKind == ProgramElement::kVar_Kind) {
-                    VarDeclarations& decl = (VarDeclarations&) e;
-                    for (const auto& v : decl.fVars) {
-                        const Variable* declVar = ((VarDeclaration&) *v).fVar;
-                        if (declVar->fModifiers.fLayout.fBuiltin >= 0) {
-                            continue;
+            if (var.fType.kind() != Type::kSampler_Kind) {
+                int offset = 0;
+                for (const auto& e : fProgram) {
+                    if (e.fKind == ProgramElement::kVar_Kind) {
+                        VarDeclarations& decl = (VarDeclarations&)e;
+                        for (const auto& v : decl.fVars) {
+                            const Variable* declVar = ((VarDeclaration&)*v).fVar;
+                            if (declVar->fModifiers.fLayout.fBuiltin >= 0) {
+                                continue;
+                            }
+                            if (declVar->fType.kind() == Type::kSampler_Kind) {
+                                continue;
+                            }
+                            if (declVar == &var) {
+                                SkASSERT(offset <= 255);
+                                return offset;
+                            }
+                            offset += SlotCount(declVar->fType);
                         }
-                        if (declVar == &var) {
-                            SkASSERT(offset <= 255);
-                            return offset;
+                    }
+                }
+            } else {
+                int offset = 0;
+                for (const auto& e : fProgram) {
+                    if (e.fKind == ProgramElement::kVar_Kind) {
+                        VarDeclarations& decl = (VarDeclarations&)e;
+                        for (const auto& v : decl.fVars) {
+                            const Variable* declVar = ((VarDeclaration&)*v).fVar;
+                            if (declVar->fType.kind() != Type::kSampler_Kind) {
+                                continue;
+                            }
+                            if (declVar == &var) {
+                                SkASSERT(offset <= 255);
+                                return offset;
+                            }
+                            offset++;
                         }
-                        offset += SlotCount(declVar->fType);
                     }
                 }
             }
@@ -834,6 +865,13 @@ void ByteCodeGenerator::writeVariableExpression(const Expression& expr) {
     Variable::Storage storage = Variable::kLocal_Storage;
     int location = this->getLocation(expr, &storage);
     bool isGlobal = storage == Variable::kGlobal_Storage;
+
+    if (expr.fType.kind() == Type::kSampler_Kind) {
+        this->write(ByteCodeInstruction::kPushImmediate);
+        this->write32(location);
+        return;
+    }
+
     int count = SlotCount(expr.fType);
     if (location < 0 || count > 4) {
         if (location >= 0) {
@@ -867,6 +905,10 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     auto found = fIntrinsics.find(c.fFunction.fName);
     if (found == fIntrinsics.end()) {
         fErrors.error(c.fOffset, "unsupported intrinsic function");
+        return;
+    }
+    if (found->second.fValue.fInstruction == ByteCodeInstruction::kSample) {
+        this->write(ByteCodeInstruction::kSample);
         return;
     }
     int count = SlotCount(c.fArguments[0]->fType);

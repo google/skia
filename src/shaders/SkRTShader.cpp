@@ -35,11 +35,12 @@ static inline uint32_t new_sksl_unique_id() {
 }
 #endif
 
-SkRTShader::SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
-                       bool isOpaque)
+SkRTShader::SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkTArray<sk_sp<SkImage>>& images,
+                       const SkMatrix* localMatrix, bool isOpaque)
     : SkShaderBase(localMatrix)
     , fSkSL(std::move(sksl))
     , fInputs(std::move(inputs))
+    , fImages(images)
     , fUniqueID(new_sksl_unique_id())
     , fIsOpaque(isOpaque)
 {}
@@ -49,6 +50,12 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     ctx->paintColor = rec.fPaint.getColor4f();
     ctx->inputs = fInputs->data();
     ctx->ninputs = fInputs->size() / 4;
+    ctx->images = fImages.empty() ? nullptr
+                                  : rec.fAlloc->makeArray<const SkImage*>(fImages.count());
+    ctx->nimages = fImages.count();
+    for (int i = 0; i < fImages.count(); ++i) {
+        ctx->images[i] = fImages[i].get();
+    }
     ctx->shaderConvention = true;
 
     SkAutoMutexExclusive ama(fByteCodeMutex);
@@ -103,6 +110,10 @@ void SkRTShader::flatten(SkWriteBuffer& buffer) const {
     if (flags & kHasLocalMatrix_Flag) {
         buffer.writeMatrix(this->getLocalMatrix());
     }
+    buffer.write32(fImages.count());
+    for (const auto& img : fImages) {
+        buffer.writeImage(img.get());
+    }
 }
 
 sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
@@ -118,13 +129,19 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         localMPtr = &localM;
     }
 
+    SkTArray<sk_sp<SkImage>> images;
+    for (int numImages = buffer.read32(); numImages --> 0; ) {
+        images.push_back(buffer.readImage());
+    }
+
     return sk_sp<SkFlattenable>(new SkRTShader(std::move(sksl), std::move(inputs),
-                                               localMPtr, isOpaque));
+                                               std::move(images), localMPtr, isOpaque));
 }
 
 sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
+                                     const SkTArray<sk_sp<SkImage>>& images,
                                      const SkMatrix* localMatrix, bool isOpaque) {
-    return sk_sp<SkShader>(new SkRTShader(std::move(sksl), std::move(inputs),
+    return sk_sp<SkShader>(new SkRTShader(std::move(sksl), std::move(inputs), std::move(images),
                                           localMatrix, isOpaque));
 }
 

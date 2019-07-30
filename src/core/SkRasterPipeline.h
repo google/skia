@@ -17,6 +17,8 @@
 #include <functional>
 #include <vector>  // TODO: unused
 
+class SkImage;
+
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
  *
@@ -159,10 +161,12 @@ struct SkRasterPipeline_InterpreterCtx {
     const SkSL::ByteCode*         byteCode;
     const SkSL::ByteCodeFunction* fn;
 
-    SkColor4f   paintColor;
-    const void* inputs;
-    int         ninputs;
-    bool        shaderConvention;  // if false, we're a colorfilter
+    SkColor4f       paintColor;
+    const void*     inputs;
+    int             ninputs;
+    const SkImage** images;
+    int             nimages;
+    bool            shaderConvention;  // if false, we're a colorfilter
 };
 
 struct SkRasterPipeline_GradientCtx {

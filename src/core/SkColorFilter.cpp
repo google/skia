@@ -408,6 +408,8 @@ public:
             // don't need to set ctx->paintColor
             ctx->inputs = fInputs->data();
             ctx->ninputs = fInputs->size() / 4;
+            ctx->images = nullptr;
+            ctx->nimages = 0;
             ctx->shaderConvention = false;
 
             SkAutoMutexExclusive ama(fByteCodeMutex);

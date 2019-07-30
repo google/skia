@@ -50,4 +50,6 @@ float3 cross(float3 a, float3 b) {
                   a.x * b.y - a.y * b.x);
 }
 
+half4 sample($gsampler2D sampler, float2 P);
+
 )

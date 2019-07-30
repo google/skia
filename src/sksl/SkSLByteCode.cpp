@@ -7,6 +7,7 @@
 
 #ifndef SKSL_STANDALONE
 
+#include "include/core/SkImage.h"
 #include "include/core/SkPoint3.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkUtils.h"   // sk_unaligned_load
@@ -153,6 +154,7 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kRemainderU, "remainderu")
         case ByteCodeInstruction::kReserve: printf("reserve %d", READ8()); break;
         case ByteCodeInstruction::kReturn: printf("return %d", READ8()); break;
+        case ByteCodeInstruction::kSample: printf("sample"); break;
         case ByteCodeInstruction::kScalarToMatrix: {
             int cols = READ8();
             int rows = READ8();
@@ -827,6 +829,15 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 }
             }
 
+            case ByteCodeInstruction::kSample: {
+                // TODO
+                int index = sp[-2].fSigned[0];
+                F32 x = sp[-1].fFloat;
+                F32 y = sp[ 0].fFloat;
+
+                break;
+            }
+
             case ByteCodeInstruction::kScalarToMatrix: {
                 int cols = READ8();
                 int rows = READ8();
@@ -1147,7 +1158,8 @@ bool ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
 
 bool ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, int N,
                           const float* uniforms, int uniformCount,
-                          float* outArgs[], int outCount) const {
+                          float* outArgs[], int outCount,
+                          const SkImage* images[], int imageCount) const {
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
 #ifdef TRACE
     f->disassemble();

@@ -22,13 +22,15 @@
 #include <stddef.h>
 
 extern sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
+                                            const SkTArray<sk_sp<SkImage>>& images,
                                             const SkMatrix* localMatrix, bool isOpaque);
 
 const char* gProg = R"(
     layout(ctype=SkRect) in uniform half4 gColor;
+    in sampler2D image;
 
     void main(float x, float y, inout half4 color) {
-        color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
+        color = sample(image, float2(x, y));
     }
 )";
 
@@ -36,6 +38,7 @@ static sk_sp<SkShader> gShader;
 
 class RuntimeShader : public skiagm::GM {
     sk_sp<SkData> fData;
+    SkTArray<sk_sp<SkImage>> fImages;
 
     bool runAsBench() const override { return true; }
 
@@ -46,13 +49,15 @@ class RuntimeShader : public skiagm::GM {
     void onOnceBeforeDraw() override {
         // use global to pass gl persistent cache test in dm
         if (!gShader) {
+            fImages.push_back(GetResourceAsImage("images/mandrill_256.png"));
+
             SkMatrix localM;
             localM.setRotate(90, 128, 128);
 
             fData = SkData::MakeUninitialized(sizeof(SkColor4f));
             SkColor4f* c = (SkColor4f*)fData->writable_data();
             *c = {1, 0, 0, 1};
-            gShader = SkRuntimeShaderMaker(SkString(gProg), fData, &localM, true);
+            gShader = SkRuntimeShaderMaker(SkString(gProg), fData, fImages, &localM, true);
         }
     }
 
