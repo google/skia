@@ -2473,11 +2473,13 @@ void adjust_bounds_to_granularity(SkIRect* dstBounds, const SkIRect& srcBounds,
     }
 }
 
-void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBuffer*>& buffers,
-                                           const GrVkRenderPass* renderPass,
-                                           const VkClearValue* colorClear,
-                                           GrVkRenderTarget* target, GrSurfaceOrigin origin,
-                                           const SkIRect& bounds) {
+void GrVkGpu::submitSecondaryCommandBuffer(
+        SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>>& buffers,
+        const GrVkRenderPass* renderPass,
+        const VkClearValue* colorClear,
+        GrVkRenderTarget* target, GrSurfaceOrigin origin,
+        const SkIRect& bounds) {
+
     SkASSERT (!target->wrapsSecondaryCommandBuffer());
     const SkIRect* pBounds = &bounds;
     SkIRect flippedBounds;
@@ -2515,7 +2517,8 @@ void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBu
 
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, clears, *target, *pBounds, true);
     for (int i = 0; i < buffers.count(); ++i) {
-        fCurrentCmdBuffer->executeCommands(this, buffers[i]);
+        std::unique_ptr<GrVkSecondaryCommandBuffer> scb = std::move(buffers[i]);
+        fCurrentCmdBuffer->executeCommands(this, std::move(scb));
     }
     fCurrentCmdBuffer->endRenderPass(this);
 
