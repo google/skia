@@ -151,13 +151,11 @@ void GrTextureOpList::endFlush() {
 // This closely parallels GrRenderTargetOpList::copySurface but renderTargetOpList
 // stores extra data with the op
 bool GrTextureOpList::copySurface(GrRecordingContext* context,
-                                  GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
-    SkASSERT(dst == fTarget.get());
-
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(context, dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(
+            context, fTarget.get(), src, srcRect, dstPoint);
     if (!op) {
         return false;
     }

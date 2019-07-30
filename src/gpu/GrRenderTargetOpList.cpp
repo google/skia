@@ -585,12 +585,11 @@ bool GrRenderTargetOpList::resetForFullscreenClear(CanDiscardPreviousOps canDisc
 // This closely parallels GrTextureOpList::copySurface but renderTargetOpLists
 // also store the applied clip and dest proxy with the op
 bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
-                                       GrSurfaceProxy* dst,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    SkASSERT(dst->asRenderTargetProxy() == fTarget.get());
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(context, dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(
+            context, fTarget.get(), src, srcRect, dstPoint);
     if (!op) {
         return false;
     }

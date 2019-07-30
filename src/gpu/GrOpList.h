@@ -38,7 +38,6 @@ public:
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
     virtual bool copySurface(GrRecordingContext*,
-                             GrSurfaceProxy* dst,
                              GrSurfaceProxy* src,
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) = 0;
