@@ -102,6 +102,7 @@ protected:
         defaultStyle.setForegroundColor(paint);
         ParagraphStyle paraStyle;
 
+        // Does not work on the static collection - does not use the cache
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         for (auto i = 1; i < 5; ++i) {
