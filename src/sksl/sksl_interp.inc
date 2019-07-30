@@ -1,17 +1,20 @@
 STRINGIFY(
 
-$genType cos($genType y);
+$genType  cos($genType  y);
 $genHType cos($genHType y);
-float dot($genType x, $genType y);
 float2x2 inverse(float2x2 m);
 float3x3 inverse(float3x3 m);
 float4x4 inverse(float4x4 m);
-$genType sin($genType x);
+$genType  sin($genType  x);
 $genHType sin($genHType x);
-$genType sqrt($genType x);
+$genType  sqrt($genType  x);
 $genHType sqrt($genHType x);
-$genType tan($genType x);
+$genType  tan($genType  x);
 $genHType tan($genHType x);
+
+float dot(float2 a, float2 b) { return a.x*b.x + a.y*b.y; }
+float dot(float3 a, float3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }
+float dot(float4 a, float4 b) { return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w; }
 
 float  degrees(float  rad) { return rad * 57.2957795; }
 float2 degrees(float2 rad) { return rad * 57.2957795; }
@@ -43,6 +46,38 @@ float4 mix(float4 x, float4 y, float t) { return x * (1 - t) + y * t; }
 float2 mix(float2 x, float2 y, float2 t) { return x * (1 - t) + y * t; }
 float3 mix(float3 x, float3 y, float3 t) { return x * (1 - t) + y * t; }
 float4 mix(float4 x, float4 y, float4 t) { return x * (1 - t) + y * t; }
+
+$genType  mix($genType  x, $genType  y, $genBType a);
+$genHType mix($genHType x, $genHType y, $genBType a);
+$genIType mix($genIType x, $genIType y, $genBType a);
+$genBType mix($genBType x, $genBType y, $genBType a);
+
+$bvec lessThan($vec  x, $vec  y);
+$bvec lessThan($hvec x, $hvec y);
+$bvec lessThan($ivec x, $ivec y);
+$bvec lessThan($uvec x, $uvec y);
+$bvec lessThanEqual($vec  x, $vec  y);
+$bvec lessThanEqual($hvec x, $hvec y);
+$bvec lessThanEqual($ivec x, $ivec y);
+$bvec lessThanEqual($uvec x, $uvec y);
+$bvec greaterThan($vec  x, $vec  y);
+$bvec greaterThan($hvec x, $hvec y);
+$bvec greaterThan($ivec x, $ivec y);
+$bvec greaterThan($uvec x, $uvec y);
+$bvec greaterThanEqual($vec  x, $vec  y);
+$bvec greaterThanEqual($hvec x, $hvec y);
+$bvec greaterThanEqual($ivec x, $ivec y);
+$bvec greaterThanEqual($uvec x, $uvec y);
+$bvec equal($vec  x, $vec  y);
+$bvec equal($hvec x, $hvec y);
+$bvec equal($ivec x, $ivec y);
+$bvec equal($uvec x, $uvec y);
+$bvec equal($bvec x, $bvec y);
+$bvec notEqual($vec  x, $vec  y);
+$bvec notEqual($hvec x, $hvec y);
+$bvec notEqual($ivec x, $ivec y);
+$bvec notEqual($uvec x, $uvec y);
+$bvec notEqual($bvec x, $bvec y);
 
 float3 cross(float3 a, float3 b) {
     return float3(a.y * b.z - a.z * b.y,
