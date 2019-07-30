@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b452b76_8d6bce8d",
+        "filename": "src/gpu/dawn/GrDawnUniformHandler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-30T14:16:28Z",
+      "side": 1,
+      "message": "does dawn have the same alignment requirements for uniform buffers as Vulkan? I know metal has some slightly different alignment requirements I believe.",
+      "range": {
+        "startLine": 25,
+        "startChar": 1,
+        "endLine": 25,
+        "endChar": 76
+      },
+      "revId": "f9f223d42f0565af7e9cae4daa73eb547761cafc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
