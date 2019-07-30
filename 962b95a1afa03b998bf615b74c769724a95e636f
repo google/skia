@@ -22,6 +22,30 @@
       "revId": "962b95a1afa03b998bf615b74c769724a95e636f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10faaa1d_aa7a010b",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-30T16:50:56Z",
+      "side": 1,
+      "message": "I think GrSurfaceProxy should not have a color type, alpha type, or color space. I believe that\u0027s already the case, though. If we\u0027re passing a color type just to choose a \"default\" format for that color type before making the proxy, then it seems like the caps must either fail to find a format or will find a format that is known to be allowed with the color type/renderability/texturability.\n\nMy preference is for these types of checks to go as deep in the stack as possible so we catch many callers with less code duplication and new callers get the check.",
+      "parentUuid": "32702601_ef69229d",
+      "range": {
+        "startLine": 751,
+        "startChar": 4,
+        "endLine": 751,
+        "endChar": 68
+      },
+      "revId": "962b95a1afa03b998bf615b74c769724a95e636f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
