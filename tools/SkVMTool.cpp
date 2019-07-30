@@ -26,7 +26,7 @@ void SkDebugf(const char* fmt, ...) {
 static skvm::Program plus_one() {
     skvm::Builder b;
 
-    skvm::Arg ptr = b.arg<int>();
+    skvm::Arg ptr = b.varying<int>();
     skvm::I32 v = b.load32(ptr);
     b.store32(ptr, b.add(v, b.splat(1)));
 
@@ -36,7 +36,7 @@ static skvm::Program plus_one() {
 static skvm::Program square() {
     skvm::Builder b;
 
-    skvm::Arg ptr = b.arg<int>();
+    skvm::Arg ptr = b.varying<int>();
     skvm::I32 v = b.load32(ptr);
     b.store32(ptr, b.mul(v,v));
 
