@@ -30,8 +30,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
 #include "include/utils/SkTextUtils.h"
 #include "src/core/SkBlendModePriv.h"
@@ -222,7 +222,7 @@ DEF_SIMPLE_GM(savelayer_maskfilter, canvas, 450, 675) {
 
     // Important that we test with and without an imagefilter attached to the layer,
     // as cpu and gpu backends treat these differently (w/ or w/o a SkSpecialImage)
-    const sk_sp<SkImageFilter> imfs[] = {nullptr, SkBlurImageFilter::Make(3.5f, 3.5f, nullptr)};
+    const sk_sp<SkImageFilter> imfs[] = {nullptr, SkImageFilters::Blur(3.5f, 3.5f, nullptr)};
 
     for (auto& mf : mfs) {
         SkPaint layerPaint;
