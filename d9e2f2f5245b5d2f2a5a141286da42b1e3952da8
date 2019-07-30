@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8e6d931_9643254f",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-30T18:39:02Z",
+      "side": 1,
+      "message": "This was copy-pasta bug on my part from https://skia-review.googlesource.com/c/skia/+/230126, but now would be a handy time to change it to kCleanupImageFilterEnums_Version, if you don\u0027t mind?",
+      "range": {
+        "startLine": 164,
+        "startChar": 42,
+        "endLine": 164,
+        "endChar": 76
+      },
+      "revId": "d9e2f2f5245b5d2f2a5a141286da42b1e3952da8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
