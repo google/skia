@@ -149,7 +149,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                             "config:%d, tex:%d, isConfigTexturable:%d", config, SkToBool(tex), ict);
 
             GrColorType colorType = GrPixelConfigToColorType(config);
-            const GrBackendFormat format = caps->getBackendFormatFromColorType(colorType);
+            const GrBackendFormat format = caps->getDefaultBackendFormat(colorType,
+                                                                         GrRenderable::kNo);
             if (!format.isValid()) {
                 continue;
             }

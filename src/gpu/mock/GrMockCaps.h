@@ -139,10 +139,6 @@ public:
         return *format.getMockColorType();
     }
 
-    GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override {
-        return GrBackendFormat::MakeMock(ct);
-    }
-
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override {
         return {};
     }
@@ -161,6 +157,9 @@ private:
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
         return true;
+    }
+    GrBackendFormat onGetDefaultBackendFormat(GrColorType ct, GrRenderable) const override {
+        return GrBackendFormat::MakeMock(ct);
     }
 
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,

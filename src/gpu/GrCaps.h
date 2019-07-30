@@ -394,8 +394,7 @@ public:
     virtual GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const = 0;
 
     /** These are used when creating a new texture internally. */
-    // TODO: also take a GrRenderable parameter.
-    virtual GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const = 0;
+    GrBackendFormat getDefaultBackendFormat(GrColorType, GrRenderable) const;
 
     virtual GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const = 0;
 
@@ -529,6 +528,7 @@ private:
     virtual bool onSurfaceSupportsWritePixels(const GrSurface*) const = 0;
     virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                   const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
+    virtual GrBackendFormat onGetDefaultBackendFormat(GrColorType, GrRenderable) const = 0;
 
     // Backends should implement this if they have any extra requirements for use of window
     // rectangles for a specific GrBackendRenderTarget outside of basic support.

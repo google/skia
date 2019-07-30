@@ -1586,7 +1586,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
     auto backendFormatOfFinalContext = fRenderTargetProxy->backendFormat();
     if (needsRescale) {
         colorTypeOfFinalContext = dstCT;
-        backendFormatOfFinalContext = this->caps()->getBackendFormatFromColorType(dstCT);
+        backendFormatOfFinalContext = this->caps()->getDefaultBackendFormat(dstCT,
+                                                                            GrRenderable::kYes);
     }
     auto readInfo = this->caps()->supportedReadPixelsColorType(colorTypeOfFinalContext,
                                                                backendFormatOfFinalContext, dstCT);

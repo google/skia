@@ -290,7 +290,7 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
         if (canvas2DFastPath) {
             desc.fConfig = kRGBA_8888_GrPixelConfig;
             colorType = GrColorType::kRGBA_8888;
-            format = caps->getBackendFormatFromColorType(colorType);
+            format = caps->getDefaultBackendFormat(colorType, GrRenderable::kNo);
             alphaType = kUnpremul_SkAlphaType;
         } else {
             desc.fConfig =  dstProxy->config();

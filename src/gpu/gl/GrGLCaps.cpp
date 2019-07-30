@@ -4063,11 +4063,13 @@ GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
     SkUNREACHABLE;
 }
 
-GrBackendFormat GrGLCaps::getBackendFormatFromColorType(GrColorType ct) const {
+GrBackendFormat GrGLCaps::onGetDefaultBackendFormat(GrColorType ct,
+                                                    GrRenderable renderable) const {
     auto format = this->getFormatFromColorType(ct);
     if (format == GrGLFormat::kUnknown) {
         return GrBackendFormat();
     }
+    // TODO: plumb 'renderable' into getSizedInternalFormat (or, at least, make use of it)
     return GrBackendFormat::MakeGL(this->getSizedInternalFormat(format), GR_GL_TEXTURE_2D);
 }
 

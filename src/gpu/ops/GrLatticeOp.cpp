@@ -404,10 +404,11 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = random->nextRangeU(1, 1000);
     desc.fHeight = random->nextRangeU(1, 1000);
-    GrSurfaceOrigin origin =
-            random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
+    GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
+                                                : kBottomLeft_GrSurfaceOrigin;
     const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
+            context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                            GrRenderable::kNo);
     auto proxy = context->priv().proxyProvider()->createProxy(format, desc, GrRenderable::kNo, 1,
                                                               origin, SkBackingFit::kExact,
                                                               SkBudgeted::kYes, GrProtected::kNo);
