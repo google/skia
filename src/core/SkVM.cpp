@@ -405,6 +405,8 @@ namespace skvm {
         this->byte(imm);
     }
 
+    void Assembler::vmovdqa(Ymm dst, Ymm src) { this->op(0x66,0x0f,0x6f, dst,src); }
+
     void Assembler::vcvtdq2ps (Ymm dst, Ymm x) { this->op(0,   0x0f,0x5b, dst,x); }
     void Assembler::vcvttps2dq(Ymm dst, Ymm x) { this->op(0xf3,0x0f,0x5b, dst,x); }
 
@@ -1356,8 +1358,7 @@ namespace skvm {
                     else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmadd213ps(r[y], r[x], r[z]); }
                     else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmadd231ps(r[z], r[x], r[y]); }
                     else                        {                SkASSERT(dst() == tmp());
-                                                                 // TODO: vpor -> vmovdqa here?
-                                                                 a->vpor       (dst(),r[x], r[x]);
+                                                                 a->vmovdqa    (dst(),r[x]);
                                                                  a->vfmadd132ps(dst(),r[z], r[y]); }
                                                                  break;
 
