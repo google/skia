@@ -280,19 +280,21 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
         return SkPDFIndirectReference();
     }
     // Clamp the bitmap size to about 1M pixels
-    static const SkScalar kMaxBitmapArea = 1024 * 1024;
-    SkScalar bitmapArea = surfaceBBox.width() * surfaceBBox.height();
+    static const int kMaxBitmapArea = 1024 * 1024;
+    SkScalar bitmapArea = (float)surfaceBBox.width() * (float)surfaceBBox.height();
     SkScalar rasterScale = 1.0f;
-    if (bitmapArea > kMaxBitmapArea) {
-        rasterScale *= SkScalarSqrt(kMaxBitmapArea / bitmapArea);
+    if (bitmapArea > (float)kMaxBitmapArea) {
+        rasterScale *= SkScalarSqrt((float)kMaxBitmapArea / bitmapArea);
     }
 
-    SkISize size = {SkScalarRoundToInt(rasterScale * surfaceBBox.width()),
-                    SkScalarRoundToInt(rasterScale * surfaceBBox.height())};
+    SkISize size = {
+        SkTClamp(SkScalarCeilToInt(rasterScale * surfaceBBox.width()),  1, kMaxBitmapArea),
+        SkTClamp(SkScalarCeilToInt(rasterScale * surfaceBBox.height()), 1, kMaxBitmapArea)};
     SkSize scale = {SkIntToScalar(size.width()) / shaderRect.width(),
                     SkIntToScalar(size.height()) / shaderRect.height()};
 
     auto surface = SkSurface::MakeRasterN32Premul(size.width(), size.height());
+    SkASSERT(surface);
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorTRANSPARENT);
 
