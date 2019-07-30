@@ -201,8 +201,9 @@ void GrVkGpuRTCommandBuffer::initWrapped() {
     cbInfo.fRenderPass->ref();
 
     cbInfo.fBounds.setEmpty();
-    cbInfo.fCommandBuffers.push_back(vkRT->getExternalSecondaryCommandBuffer());
-    cbInfo.fCommandBuffers[0]->ref();
+    std::unique_ptr<GrVkSecondaryCommandBuffer> scb(
+            GrVkSecondaryCommandBuffer::Create(vkRT->getExternalSecondaryCommandBuffer()));
+    cbInfo.fCommandBuffers.push_back(std::move(scb));
     cbInfo.currentCmdBuf()->begin(fGpu, nullptr, cbInfo.fRenderPass);
 }
 
@@ -354,7 +355,9 @@ void GrVkGpuRTCommandBuffer::reset() {
     for (int i = 0; i < fCommandBufferInfos.count(); ++i) {
         CommandBufferInfo& cbInfo = fCommandBufferInfos[i];
         for (int j = 0; j < cbInfo.fCommandBuffers.count(); ++j) {
-            cbInfo.fCommandBuffers[j]->unref(fGpu);
+            if (cbInfo.fCommandBuffers[j]) {
+                cbInfo.fCommandBuffers[j].release()->recycle(fGpu);
+            }
         }
         cbInfo.fRenderPass->unref(fGpu);
     }
