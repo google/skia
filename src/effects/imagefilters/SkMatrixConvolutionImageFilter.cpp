@@ -26,6 +26,19 @@
 // by the size of a scalar to know how many scalars we can read.
 static const int32_t gMaxKernelSize = SK_MaxS32 / sizeof(SkScalar);
 
+static SkTileMode to_sktilemode(SkMatrixConvolutionImageFilter::TileMode tileMode) {
+    switch(tileMode) {
+        case SkMatrixConvolutionImageFilter::kClamp_TileMode:
+            return SkTileMode::kClamp;
+        case SkMatrixConvolutionImageFilter::kRepeat_TileMode:
+            return SkTileMode::kRepeat;
+        case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode:
+            // Fall through
+        default:
+            return SkTileMode::kDecal;
+    }
+}
+
 SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(const SkISize& kernelSize,
                                                                const SkScalar* kernel,
                                                                SkScalar gain,
@@ -59,22 +72,8 @@ sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelS
                                                           bool convolveAlpha,
                                                           sk_sp<SkImageFilter> input,
                                                           const CropRect* cropRect) {
-    SkTileMode skTileMode;
-    switch(tileMode) {
-        case kClamp_TileMode:
-            skTileMode = SkTileMode::kClamp;
-            break;
-        case kRepeat_TileMode:
-            skTileMode = SkTileMode::kRepeat;
-            break;
-        case kClampToBlack_TileMode:
-            // Fall through
-        default:
-            skTileMode = SkTileMode::kDecal;
-            break;
-    }
-    return Make(kernelSize, kernel, gain, bias, kernelOffset, skTileMode, convolveAlpha,
-                std::move(input), cropRect);
+    return Make(kernelSize, kernel, gain, bias, kernelOffset, to_sktilemode(tileMode),
+                convolveAlpha, std::move(input), cropRect);
 }
 
 sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelSize,
@@ -130,7 +129,12 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& bu
     kernelOffset.fX = buffer.readInt();
     kernelOffset.fY = buffer.readInt();
 
-    TileMode tileMode = buffer.read32LE(kLast_TileMode);
+    SkTileMode tileMode;
+    if (buffer.isVersionLT(SkReadBuffer::kCleanupImageFilterEnums_Version)) {
+        tileMode = to_sktilemode(buffer.read32LE(kLast_TileMode));
+    } else {
+        tileMode = buffer.read32LE(SkTileMode::kLastTileMode);
+    }
     bool convolveAlpha = buffer.readBool();
 
     if (!buffer.isValid()) {
@@ -149,26 +153,7 @@ void SkMatrixConvolutionImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fBias);
     buffer.writeInt(fKernelOffset.fX);
     buffer.writeInt(fKernelOffset.fY);
-    // CreateProc only knows how to deserialize the old TileMode enum, so temporarily convert
-    // SkTileMode back to the old one, treating kMirror as kRepeat.
-    // TODO (michaelludwig) - Remove once CreateProc can deserialize SkTileMode directly, which will
-    // require a new SkPicture version number.
-    TileMode backwardsCompatibleMode;
-    switch(fTileMode) {
-        case SkTileMode::kClamp:
-            backwardsCompatibleMode = kClamp_TileMode;
-            break;
-        case SkTileMode::kMirror:
-            // Treat as repeat for now
-        case SkTileMode::kRepeat:
-            backwardsCompatibleMode = kRepeat_TileMode;
-            break;
-        case SkTileMode::kDecal:
-        default:
-            backwardsCompatibleMode = kClampToBlack_TileMode;
-            break;
-    }
-    buffer.writeInt((int) backwardsCompatibleMode);
+    buffer.writeInt((int) fTileMode);
     buffer.writeBool(fConvolveAlpha);
 }
 
