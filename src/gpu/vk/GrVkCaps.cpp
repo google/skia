@@ -1298,3 +1298,10 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
             return {GrSwizzle(), GrColorType::kUnknown, 0};
     }
 }
+
+#if GR_TEST_UTILS
+std::vector<GrCaps::TestingCombination> GrVkCaps::getTestingCombinations() const {
+
+
+}
+#endif

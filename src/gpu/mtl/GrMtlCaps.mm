@@ -977,3 +977,9 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
     return {GrSwizzle::RGBA(), readCT, GrColorTypeBytesPerPixel(readCT)};
 }
 
+#if GR_TEST_UTILS
+std::vector<GrCaps::TestingCombination> GrMtlCaps::getTestingCombinations() const {
+
+
+}
+#endif
