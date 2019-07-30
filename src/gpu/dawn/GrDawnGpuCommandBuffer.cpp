@@ -19,9 +19,11 @@
 
 void GrDawnGpuTextureCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
                                          const SkIPoint& dstPoint) {
+    SkASSERT(!"unimplemented");
 }
 
 void GrDawnGpuTextureCommandBuffer::insertEventMarker(const char* msg) {
+    SkASSERT(!"unimplemented");
 }
 
 void GrDawnGpuTextureCommandBuffer::submit() {
@@ -76,6 +78,7 @@ void GrDawnGpuRTCommandBuffer::submit() {
 }
 
 void GrDawnGpuRTCommandBuffer::insertEventMarker(const char* msg) {
+    SkASSERT(!"unimplemented");
 }
 
 void GrDawnGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
@@ -85,19 +88,23 @@ void GrDawnGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType 
 }
 
 void GrDawnGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+    SkASSERT(!"unimplemented");
 }
 
 void GrDawnGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
+    SkASSERT(!"unimplemented");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDawnGpuRTCommandBuffer::inlineUpload(GrOpFlushState* state,
                                             GrDeferredTextureUploadFn& upload) {
+    SkASSERT(!"unimplemented");
 }
 
 void GrDawnGpuRTCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
                                     const SkIPoint& dstPoint) {
+    SkASSERT(!"unimplemented");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

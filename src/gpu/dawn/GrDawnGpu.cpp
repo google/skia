@@ -39,7 +39,7 @@ sk_sp<GrGpu> GrDawnGpu::Make(const dawn::Device& device,
 ////////////////////////////////////////////////////////////////////////////////
 
 GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
-                   const dawn::Device& device)
+                     const dawn::Device& device)
         : INHERITED(context)
         , fDevice(device)
         , fQueue(device.CreateQueue())
@@ -52,7 +52,7 @@ GrDawnGpu::~GrDawnGpu() {
 
 
 void GrDawnGpu::disconnect(DisconnectType type) {
-    INHERITED::disconnect(type);
+    SkASSERT(!"unimplemented");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,7 @@ GrGpuRTCommandBuffer* GrDawnGpu::getCommandBuffer(
 
 GrGpuTextureCommandBuffer* GrDawnGpu::getCommandBuffer(GrTexture* texture,
                                                        GrSurfaceOrigin origin) {
+    SkASSERT(!"unimplemented");
     return nullptr;
 }
 
@@ -82,6 +83,7 @@ bool GrDawnGpu::onWritePixels(GrSurface* surface,
                               int left, int top, int width, int height,
                               GrColorType colorType,
                               const GrMipLevel texels[], int mipLevelCount) {
+    SkASSERT(!"unimplemented");
     return false;
 }
 
@@ -89,11 +91,13 @@ bool GrDawnGpu::onTransferPixelsTo(GrTexture* texture,
                                   int left, int top, int width, int height,
                                   GrColorType colorType, GrGpuBuffer* transferBuffer,
                                   size_t bufferOffset, size_t rowBytes) {
+    SkASSERT(!"unimplemented");
     return false;
 }
 
 bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                                      GrColorType, GrGpuBuffer* transferBuffer, size_t offset) {
+    SkASSERT(!"unimplemented");
     return false;
 }
 
@@ -102,6 +106,7 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRendera
                                             int renderTargetSampleCnt, SkBudgeted budgeted,
                                             GrProtected, const GrMipLevel texels[],
                                             int mipLevelCount) {
+    SkASSERT(!"unimplemented");
     return nullptr;
 }
 
@@ -123,11 +128,13 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
                                                            int sampleCnt, GrColorType,
                                                            GrWrapOwnership,
                                                            GrWrapCacheable cacheable) {
+    SkASSERT(!"unimplemented");
     return nullptr;
 }
 
 sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget&,
                                                            GrColorType colorType) {
+    SkASSERT(!"unimplemented");
     return nullptr;
 }
 
@@ -159,6 +166,7 @@ GrStencilAttachment* GrDawnGpu::createStencilAttachmentForRenderTarget(const GrR
                                                                        int width,
                                                                        int height,
                                                                        int numStencilSamples) {
+    SkASSERT(!"unimplemented");
     return nullptr;
 }
 
@@ -170,25 +178,31 @@ GrBackendTexture GrDawnGpu::createBackendTexture(int width, int height,
                                                  size_t rowBytes,
                                                  const SkColor4f* color,
                                                  GrProtected isProtected) {
+    SkASSERT(!"unimplemented");
     return GrBackendTexture();
 }
 
 void GrDawnGpu::deleteBackendTexture(const GrBackendTexture& tex) {
+    SkASSERT(!"unimplemented");
 }
 
 #if GR_TEST_UTILS
 bool GrDawnGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
+    SkASSERT(!"unimplemented");
     return false;
 }
 
 GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType) {
+    SkASSERT(!"unimplemented");
     return GrBackendRenderTarget();
 }
 
 void GrDawnGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) {
+    SkASSERT(!"unimplemented");
 }
 
 void GrDawnGpu::testingOnly_flushGpuAndSync() {
+    SkASSERT(!"unimplemented");
 }
 
 #endif
@@ -202,6 +216,7 @@ bool GrDawnGpu::onCopySurface(GrSurface* dst,
                               const SkIRect& srcRect,
                               const SkIPoint& dstPoint,
                               bool canDiscardOutsideDstRect) {
+    SkASSERT(!"unimplemented");
     return false;
 }
 
@@ -210,6 +225,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface,
                              GrColorType colorType,
                              void* buffer,
                              size_t rowBytes) {
+    SkASSERT(!"unimplemented");
     return false;
 }
 
@@ -224,17 +240,21 @@ void GrDawnGpu::submit(GrGpuCommandBuffer* buffer) {
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrDawnGpu::insertFence() {
+    SkASSERT(!"unimplemented");
     return GrFence();
 }
 
 bool GrDawnGpu::waitFence(GrFence fence, uint64_t timeout) {
+    SkASSERT(!"unimplemented");
     return false;
 }
 
 void GrDawnGpu::deleteFence(GrFence fence) const {
+    SkASSERT(!"unimplemented");
 }
 
 sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrDawnGpu::makeSemaphore(bool isOwned) {
+    SkASSERT(!"unimplemented");
     return nullptr;
 }
 
@@ -258,5 +278,6 @@ void GrDawnGpu::checkFinishProcs() {
 }
 
 sk_sp<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
+    SkASSERT(!"unimplemented");
     return nullptr;
 }
