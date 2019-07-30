@@ -526,7 +526,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readPoint3(&rec.fZPlaneParams);
             reader->readPoint3(&rec.fLightPos);
             rec.fLightRadius = reader->readScalar();
-            if (reader->isVersionLT(SkReadBuffer::kTwoColorDrawShadow_Version)) {
+            if (reader->isVersionLT(SkPicturePriv::kTwoColorDrawShadow_Version)) {
                 SkScalar ambientAlpha = reader->readScalar();
                 SkScalar spotAlpha = reader->readScalar();
                 SkColor color = reader->read32();

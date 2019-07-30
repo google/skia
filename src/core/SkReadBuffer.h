@@ -19,6 +19,7 @@
 #include "include/core/SkSerialProcs.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintPriv.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReader32.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
@@ -33,28 +34,10 @@ public:
     SkReadBuffer();
     SkReadBuffer(const void* data, size_t size);
 
-    enum Version {
-        kTileModeInBlurImageFilter_Version = 56,
-        kTileInfoInSweepGradient_Version   = 57,
-        k2PtConicalNoFlip_Version          = 58,
-        kRemovePictureImageFilterLocalSpace = 59,
-        kRemoveHeaderFlags_Version         = 60,
-        kTwoColorDrawShadow_Version        = 61,
-        kDontNegateImageSize_Version       = 62,
-        kStoreImageBounds_Version          = 63,
-        kRemoveOccluderFromBlurMaskFilter  = 64,
-        kFloat4PaintColor_Version          = 65,
-        kSaveBehind_Version                = 66,
-        kSerializeFonts_Version            = 67,
-        kPaintDoesntSerializeFonts_Version = 68,
-        kCleanupImageFilterEnums_Version   = 69,
-        kHideImageFilterImpls_Version      = 70,
-    };
-
     /**
      *  Returns true IFF the version is older than the specified version.
      */
-    bool isVersionLT(Version targetVersion) const {
+    bool isVersionLT(SkPicturePriv::Version targetVersion) const {
         SkASSERT(targetVersion > 0);
         return fVersion > 0 && fVersion < targetVersion;
     }
@@ -244,25 +227,7 @@ public:
     SkReadBuffer() {}
     SkReadBuffer(const void*, size_t) {}
 
-    enum Version {
-        kTileModeInBlurImageFilter_Version = 56,
-        kTileInfoInSweepGradient_Version   = 57,
-        k2PtConicalNoFlip_Version          = 58,
-        kRemovePictureImageFilterLocalSpace = 59,
-        kRemoveHeaderFlags_Version         = 60,
-        kTwoColorDrawShadow_Version        = 61,
-        kDontNegateImageSize_Version       = 62,
-        kStoreImageBounds_Version          = 63,
-        kRemoveOccluderFromBlurMaskFilter  = 64,
-        kFloat4PaintColor_Version          = 65,
-        kSaveBehind_Version                = 66,
-        kSerializeFonts_Version            = 67,
-        kPaintDoesntSerializeFonts_Version = 68,
-        kCleanupImageFilterEnums_Version   = 69,
-        kHideImageFilterImpls_Version      = 70,
-    };
-
-    bool isVersionLT(Version) const { return false; }
+    bool isVersionLT(SkPicturePriv::Version) const { return false; }
     uint32_t getVersion() const { return 0xffffffff; }
     void     setVersion(int) {}
 

@@ -288,7 +288,7 @@ uint32_t SkReadBuffer::getArrayCount() {
  */
 sk_sp<SkImage> SkReadBuffer::readImage() {
     SkIRect bounds;
-    if (this->isVersionLT(kStoreImageBounds_Version)) {
+    if (this->isVersionLT(SkPicturePriv::kStoreImageBounds_Version)) {
         bounds.fLeft = bounds.fTop = 0;
         bounds.fRight = this->read32();
         bounds.fBottom = this->read32();
@@ -333,7 +333,7 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
         this->validate(false);
         return nullptr;
     }
-    if (this->isVersionLT(kDontNegateImageSize_Version)) {
+    if (this->isVersionLT(SkPicturePriv::kDontNegateImageSize_Version)) {
         (void)this->read32();   // originX
         (void)this->read32();   // originY
     }

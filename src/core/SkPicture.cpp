@@ -50,7 +50,7 @@ SkPictInfo SkPicture::createHeader() const {
     memcpy(info.fMagic, kMagic, sizeof(kMagic));
 
     // Set picture info after magic bytes in the header
-    info.setVersion(CURRENT_PICTURE_VERSION);
+    info.setVersion(SkPicturePriv::kCurrent_Version);
     info.fCullRect = this->cullRect();
     return info;
 }
@@ -59,7 +59,8 @@ bool SkPicture::IsValidPictInfo(const SkPictInfo& info) {
     if (0 != memcmp(info.fMagic, kMagic, sizeof(kMagic))) {
         return false;
     }
-    if (info.getVersion() < MIN_PICTURE_VERSION || info.getVersion() > CURRENT_PICTURE_VERSION) {
+    if (info.getVersion() < SkPicturePriv::kMin_Version ||
+        info.getVersion() > SkPicturePriv::kCurrent_Version) {
         return false;
     }
     return true;
@@ -83,7 +84,7 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     if (!stream->readScalar(&info.fCullRect.fTop   )) { return false; }
     if (!stream->readScalar(&info.fCullRect.fRight )) { return false; }
     if (!stream->readScalar(&info.fCullRect.fBottom)) { return false; }
-    if (info.getVersion() < SkReadBuffer::kRemoveHeaderFlags_Version) {
+    if (info.getVersion() < SkPicturePriv::kRemoveHeaderFlags_Version) {
         if (!stream->readU32(nullptr)) { return false; }
     }
 
@@ -105,7 +106,7 @@ bool SkPicture::BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo) {
 
     info.setVersion(buffer->readUInt());
     buffer->readRect(&info.fCullRect);
-    if (info.getVersion() < SkReadBuffer::kRemoveHeaderFlags_Version) {
+    if (info.getVersion() < SkPicturePriv::kRemoveHeaderFlags_Version) {
         (void)buffer->readUInt();   // used to be flags
     }
 
