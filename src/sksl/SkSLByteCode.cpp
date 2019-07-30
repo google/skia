@@ -131,11 +131,12 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
             printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
             break;
         }
+        VECTOR_DISASSEMBLE(kMix, "mix")
         VECTOR_MATRIX_DISASSEMBLE(kMultiplyF, "multiplyf")
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
         VECTOR_MATRIX_DISASSEMBLE(kNegateF, "negatef")
         VECTOR_DISASSEMBLE(kNegateI, "negatei")
-        case ByteCodeInstruction::kNotB: printf("notb"); break;
+        VECTOR_DISASSEMBLE(kNotB, "notb")
         case ByteCodeInstruction::kOrB: printf("orb"); break;
         VECTOR_MATRIX_DISASSEMBLE(kPop, "pop")
         case ByteCodeInstruction::kPushImmediate: {
@@ -403,8 +404,10 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp[-1] = sp[-1].fSigned & sp[0].fSigned;
                 POP();
                 break;
-            case ByteCodeInstruction::kNotB:
-                sp[0] = ~sp[0].fSigned;
+            case ByteCodeInstruction::kNotB4: sp[-3] = ~sp[-3].fSigned;
+            case ByteCodeInstruction::kNotB3: sp[-2] = ~sp[-2].fSigned;
+            case ByteCodeInstruction::kNotB2: sp[-1] = ~sp[-1].fSigned;
+            case ByteCodeInstruction::kNotB:  sp[ 0] = ~sp[ 0].fSigned;
                 break;
             case ByteCodeInstruction::kOrB:
                 sp[-1] = sp[-1].fSigned | sp[0].fSigned;
@@ -717,6 +720,21 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp -= (lCols * lRows) + (rCols * rRows);
                 memcpy(sp + 1, tmp, rCols * lRows * sizeof(VValue));
                 sp += (rCols * lRows);
+                break;
+            }
+
+            case ByteCodeInstruction::kMix:
+            case ByteCodeInstruction::kMix2:
+            case ByteCodeInstruction::kMix3:
+            case ByteCodeInstruction::kMix4: {
+                int count = (int)inst - (int)ByteCodeInstruction::kMix + 1;
+                for (int i = count - 1; i >= 0; --i) {
+                    // GLSL's arguments are: mix(else, true, cond)
+                    sp[-(2 * count + i)] = skvx::if_then_else(sp[-i].fSigned,
+                                                              sp[-(count + i)].fFloat,
+                                                              sp[-(2 * count + i)].fFloat);
+                }
+                sp -= 2 * count;
                 break;
             }
 
