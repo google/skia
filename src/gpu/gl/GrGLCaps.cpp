@@ -1203,25 +1203,42 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Max instances per draw without crashing (or zero)",
                        fMaxInstancesPerDrawWithoutCrashing);
 
-    writer->beginArray("configs");
+    writer->beginArray("formats");
 
-    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+    for (int i = 0; i < kGrGLFormatCount; ++i) {
         writer->beginObject(nullptr, false);
-//        writer->appendHexU32("flags", fConfigTable[i].fFlags);
-//        writer->appendHexU32("b_internal", fConfigTable[i].fFormats.fBaseInternalFormat);
-//        writer->appendHexU32("s_internal", fConfigTable[i].fFormats.fSizedInternalFormat);
-//        writer->appendHexU32("e_format_read_pixels",
-//                             fConfigTable[i].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage]);
-//        writer->appendHexU32(
-//                "e_format_teximage",
-//                fConfigTable[i].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage]);
-//        writer->appendHexU32("e_type", fConfigTable[i].fFormats.fExternalType);
-//        writer->appendHexU32("i_for_teximage", fConfigTable[i].fFormats.fInternalFormatTexImage);
-//        writer->appendHexU32("i_for_renderbuffer",
-//                             fConfigTable[i].fFormats.fInternalFormatRenderbuffer);
+        writer->appendHexU32("flags", fFormatTable[i].fFlags);
+        writer->appendHexU32("f_type", (uint32_t)fFormatTable[i].fFormatType);
+        writer->appendHexU32("b_internal", fFormatTable[i].fBaseInternalFormat);
+        writer->appendHexU32("s_internal", fFormatTable[i].fSizedInternalFormat);
+        writer->appendHexU32("c_internal", fFormatTable[i].fCompressedInternalFormat);
+        writer->appendHexU32("i_for_teximage", fFormatTable[i].fInternalFormatForTexImage);
+        writer->appendHexU32("i_for_renderbuffer", fFormatTable[i].fInternalFormatForRenderbuffer);
+        writer->appendHexU32("default_ex_type", fFormatTable[i].fDefaultExternalType);
+
+        writer->beginArray("surface color types");
+        for (int j = 0; j < fFormatTable[i].fColorTypeInfoCount; ++j) {
+            const auto& ctInfo = fFormatTable[i].fColorTypeInfos[j];
+            writer->beginObject(nullptr, false);
+            writer->appendHexU32("colorType", (uint32_t)ctInfo.fColorType);
+            writer->appendHexU32("flags", ctInfo.fFlags);
+
+            writer->beginArray("data color types");
+            for (int k = 0; k < ctInfo.fExternalIOFormatCount; ++k) {
+                const auto& ioInfo = ctInfo.fExternalIOFormats[k];
+                writer->beginObject(nullptr, false);
+                writer->appendHexU32("colorType", (uint32_t)ioInfo.fColorType);
+                writer->appendHexU32("ex_type", ioInfo.fExternalType);
+                writer->appendHexU32("ex_teximage", ioInfo.fExternalTexImageFormat);
+                writer->appendHexU32("ex_read", ioInfo.fExternalReadFormat);
+                writer->endObject();
+            }
+            writer->endArray();
+            writer->endObject();
+        }
+        writer->endArray();
         writer->endObject();
     }
-// TODO: Add dump of FormatInfos
 
     writer->endArray();
     writer->endObject();
