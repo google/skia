@@ -160,8 +160,15 @@ SkDisplacementMapEffect::~SkDisplacementMapEffect() {
 sk_sp<SkFlattenable> SkDisplacementMapEffect::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
 
-    ChannelSelectorType xsel = buffer.read32LE(kLast_ChannelSelectorType);
-    ChannelSelectorType ysel = buffer.read32LE(kLast_ChannelSelectorType);
+    SkColorChannel xsel, ysel;
+    if (buffer.isVersionLT(SkReadBuffer::kTileModeInBlurImageFilter_Version)) {
+        xsel = convert_channel_type(buffer.read32LE(kLast_ChannelSelectorType));
+        ysel = convert_channel_type(buffer.read32LE(kLast_ChannelSelectorType));
+    } else {
+        xsel = buffer.read32LE(SkColorChannel::kLastEnum);
+        ysel = buffer.read32LE(SkColorChannel::kLastEnum);
+    }
+
     SkScalar scale = buffer.readScalar();
 
     return Make(xsel, ysel, scale, common.getInput(0), common.getInput(1), &common.cropRect());
@@ -169,12 +176,8 @@ sk_sp<SkFlattenable> SkDisplacementMapEffect::CreateProc(SkReadBuffer& buffer) {
 
 void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    // CreateProc currently expects to read values as the old ChannelSelectorType, so convert the
-    // SkColorChannel enum to the old range by skipping over the removed kUnknown_ChannelSelector.
-    // TODO (michaelludwig) - Remove this once CreateProc knows how to read SkColorChannels, which
-    // will require a new SkPicture version number.
-    buffer.writeInt((int) fXChannelSelector + 1);
-    buffer.writeInt((int) fYChannelSelector + 1);
+    buffer.writeInt((int) fXChannelSelector);
+    buffer.writeInt((int) fYChannelSelector);
     buffer.writeScalar(fScale);
 }
 
