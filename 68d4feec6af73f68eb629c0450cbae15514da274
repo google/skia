@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71c14f9a_d68fbf05",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-30T18:15:36Z",
+      "side": 1,
+      "message": "can this not be const, or const \u0026 ?",
+      "range": {
+        "startLine": 10,
+        "startChar": 22,
+        "endLine": 10,
+        "endChar": 46
+      },
+      "revId": "68d4feec6af73f68eb629c0450cbae15514da274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f97bdef_c99700bf",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-30T18:15:36Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 139,
+        "startChar": 32,
+        "endLine": 139,
+        "endChar": 56
+      },
+      "revId": "68d4feec6af73f68eb629c0450cbae15514da274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29eb5227_4a61a24b",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-30T18:15:36Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 151,
+        "startChar": 56,
+        "endLine": 151,
+        "endChar": 68
+      },
+      "revId": "68d4feec6af73f68eb629c0450cbae15514da274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
