@@ -1,4 +1,5 @@
 // Copyright 2019 Google LLC.
+// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #ifndef StringCache_DEFINED
 #define StringCache_DEFINED
 #include "include/core/SkString.h"
@@ -11,31 +12,14 @@ class StringCache {
 private:
     struct String {
         const char* fPtr;
-        bool operator==(const String& that) const {
-            return fPtr == that.fPtr || 0 == strcmp(fPtr, that.fPtr);
-        }
+        bool operator==(const String& that) const;
     };
     struct Hasher {
-        uint32_t operator()(String k) const {
-            static constexpr char gEmpty[] = "";
-            if (!k.fPtr) { k = {gEmpty}; }
-            return SkOpts::hash_fn(k.fPtr, strlen(k.fPtr), 0);
-         }
+        uint32_t operator()(String k) const;
     };
     mutable SkMutex fMutex;
     SkTHashMap<String, SkString, Hasher> fMap;
-    const SkString& maker_internal(const char* str) {
-        SkAutoMutexExclusive lock(fMutex);
-        String k = { str };
-        const SkString* ptr = fMap.find(k);
-        if (!ptr) {
-            SkString newString(str);
-            const char* cstr = newString.c_str();
-            ptr = fMap.set(String{cstr}, std::move(newString));
-            SkASSERT(ptr);
-        }
-        return *ptr;
-    }
+    const SkString& maker_internal(const char* str);
 public:
     // This cache could be attached to ParagraphImpl but then
     // it will not be possible to use it on locale strings on TextStyle.

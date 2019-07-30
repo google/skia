@@ -105,11 +105,11 @@ protected:
         defaultStyle.setForegroundColor(paint);
         ParagraphStyle paraStyle;
 
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         for (auto i = 1; i < 5; ++i) {
             defaultStyle.setFontSize(24 * i);
             paraStyle.setTextStyle(defaultStyle);
-            auto fontCollection = sk_make_sp<FontCollection>();
-            fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
             ParagraphBuilderImpl builder(paraStyle, fontCollection);
             std::string name = "Paragraph: " + std::to_string(24 * i);
             builder.addText(name.c_str());
@@ -1292,7 +1292,6 @@ protected:
 
         auto paragraph = builder.Build();
         auto impl = reinterpret_cast<ParagraphImpl*>(paragraph.get());
-        impl->turnOnCache(false);
 
         for (auto i = 0; i < 1000; ++i) {
             impl->setState(kUnknown);
