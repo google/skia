@@ -41,7 +41,8 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
     desc.fHeight = p.fSize;
     desc.fConfig = config;
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(p.fColorType);
+    const GrBackendFormat format = caps->getBackendFormatFromColorType1(p.fColorType,
+                                                                       p.fRenderable);
 
     return proxyProvider->createProxy(format, desc, p.fRenderable, p.fSampleCnt, p.fOrigin, p.fFit,
                                       p.fBudgeted, GrProtected::kNo);
@@ -292,7 +293,8 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
         }
         return GrSurfaceProxy::LazyInstantiationResult(std::move(texture));
     };
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(p.fColorType);
+    const GrBackendFormat format = caps->getBackendFormatFromColorType1(p.fColorType,
+                                                                       p.fRenderable);
     auto lazyType = deinstantiate ? GrSurfaceProxy::LazyInstantiationType ::kDeinstantiate
                                   : GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;

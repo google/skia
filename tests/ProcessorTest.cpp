@@ -168,8 +168,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     desc.fHeight = 10;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
+    const GrBackendFormat format = context->defaultBackendFormat(kRGBA_8888_SkColorType,
+                                                                 GrRenderable::kNo);
 
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {

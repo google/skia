@@ -134,7 +134,7 @@ public:
         return *format.getMockColorType();
     }
 
-    GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override {
+    GrBackendFormat onGetBackendFormatFromColorType(GrColorType ct, GrRenderable) const override {
         return GrBackendFormat::MakeMock(ct);
     }
 

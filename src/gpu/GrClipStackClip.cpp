@@ -493,8 +493,8 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         desc.fHeight = maskSpaceIBounds.height();
         desc.fConfig = kAlpha_8_GrPixelConfig;
 
-        GrBackendFormat format =
-                context->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_8);
+        GrBackendFormat format = context->defaultBackendFormat(kAlpha_8_SkColorType,
+                                                               GrRenderable::kNo);
 
         // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
         // to ops), so it can't have any pending IO.

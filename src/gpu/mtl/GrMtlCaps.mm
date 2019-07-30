@@ -740,7 +740,8 @@ GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& 
     SkUNREACHABLE;
 }
 
-GrBackendFormat GrMtlCaps::getBackendFormatFromColorType(GrColorType ct) const {
+GrBackendFormat GrMtlCaps::onGetBackendFormatFromColorType(GrColorType ct,
+                                                           GrRenderable renderable) const {
     GrPixelConfig config = GrColorTypeToPixelConfig(ct);
     if (config == kUnknown_GrPixelConfig) {
         return GrBackendFormat();

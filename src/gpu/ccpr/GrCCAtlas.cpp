@@ -76,7 +76,7 @@ sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(
             break;
     }
 
-    const GrBackendFormat format = caps.getBackendFormatFromColorType(colorType);
+    auto format = caps.getBackendFormatFromColorType1(colorType, GrRenderable::kYes);
 
     sk_sp<GrTextureProxy> proxy = GrProxyProvider::MakeFullyLazyProxy(
             std::bind(callback, std::placeholders::_1, pixelConfig, sampleCount), format,

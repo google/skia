@@ -63,7 +63,7 @@ public:
         return this->isConfigTexturable(config) ? 1 : 0;
     }
 
-    GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override;
+    GrBackendFormat onGetBackendFormatFromColorType(GrColorType, GrRenderable) const override;
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
