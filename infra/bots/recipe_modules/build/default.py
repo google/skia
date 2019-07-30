@@ -6,12 +6,16 @@
 from . import util
 
 
-# See mapping of Xcode version to Xcode build version here:
-# https://chromium.googlesource.com/chromium/tools/build/+/master/scripts/slave/recipe_modules/ios/api.py#37
+# XCode build is listed in parentheses after the version at
+# https://developer.apple.com/news/releases/, or on Wikipedia here:
+# https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
+# Use lowercase letters.
 # When updating XCODE_BUILD_VERSION, you will also need to update
 # XCODE_CLANG_VERSION.
-XCODE_BUILD_VERSION = '9c40b'
-XCODE_CLANG_VERSION = '9.0.0'
+XCODE_BUILD_VERSION = '10g8'
+# Wikipedia lists the Clang version here:
+# https://en.wikipedia.org/wiki/Xcode#Toolchain_versions
+XCODE_CLANG_VERSION = '10.0.1'
 
 
 def build_command_buffer(api, chrome_dir, skia_dir, out):
@@ -111,6 +115,8 @@ def compile_fn(api, checkout_root, out_dir):
       api.step('install xcode', install_xcode_cmd)
       api.step('select xcode', [
           'sudo', 'xcode-select', '-switch', xcode_app_path])
+      # Our iOS devices are on an older version.
+      env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
 
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
