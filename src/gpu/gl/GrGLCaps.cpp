@@ -1319,11 +1319,6 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     bool texImageSupportsSizedInternalFormat =
             (GR_IS_GR_GL(standard) || (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3,0)));
 
-    // All ES versions (thus far) require sized internal formats for render buffers.
-    // TODO: Always use sized internal format?
-    bool renderbufferStorageSupportsSizedInternalFormat =
-            GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard);
-
     // This is set when we know we have both texture and render support for:
     // R 8/16/16F
     // RG 8/16/16F
@@ -1436,8 +1431,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RGBA8;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RGBA8 : GR_GL_RGBA;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RGBA8 : GR_GL_RGBA;
+        info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         info.fFlags = FormatInfo::kTextureable_Flag;
         if (GR_IS_GR_GL(standard)) {
@@ -1543,8 +1537,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_R8;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_R8 : GR_GL_RED;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_R8 : GR_GL_RED;
+        info.fInternalFormatForRenderbuffer = GR_GL_R8;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         if (textureRedSupport) {
             info.fFlags |= FormatInfo::kTextureable_Flag | msaaRenderFlags;
@@ -1642,8 +1635,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         } else {
             info.fInternalFormatForTexImage = GR_GL_ALPHA8;
         }
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_ALPHA8 : GR_GL_ALPHA;
+        info.fInternalFormatForRenderbuffer = GR_GL_ALPHA8;
 
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
@@ -1710,8 +1702,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_LUMINANCE8;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_LUMINANCE8 : GR_GL_LUMINANCE;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_LUMINANCE8 : GR_GL_LUMINANCE;
+        info.fInternalFormatForRenderbuffer = GR_GL_LUMINANCE8;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         bool supportsLum = (GR_IS_GR_GL(standard) && version <= GR_GL_VER(3, 0)) ||
                            (GR_IS_GR_GL_ES(standard) && version < GR_GL_VER(3, 0)) ||
@@ -1803,7 +1794,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // revision of the extension. So it is possible for older drivers to support the extension
         // but only an early revision of it without renderable support. We have no way of
         // distinguishing between the two. The GL_APPLE_texture_format_BGRA8888 does not add support
-        // for BGRA color renderbuffers at all. Ideally, for both cases we would use RGBA[8] for our
+        // for BGRA color renderbuffers at all. Ideally, for both cases we would use RGBA8 for our
         // format for the MSAA buffer. In the GL_EXT_texture_format_BGRA8888 case we can still
         // make the resolve BGRA and which will work for glBlitFramebuffer for resolving which just
         // requires the src and dst be bindable to FBOs. However, we can't do this in the current
@@ -1812,14 +1803,9 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // have one GrPixelConfig and one GrBackendFormat that is shared by the GrGLRenderTarget.
         // Once we break those up into different surface we can revisit doing this change.
         if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
-            if (renderbufferStorageSupportsSizedInternalFormat) {
-                info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
-            } else {
-                info.fInternalFormatForRenderbuffer = GR_GL_RGBA;
-            }
+            info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
         } else {
-            info.fInternalFormatForRenderbuffer =
-                    renderbufferStorageSupportsSizedInternalFormat ? GR_GL_BGRA8 : GR_GL_BGRA;
+            info.fInternalFormatForRenderbuffer = GR_GL_BGRA8;
         }
 
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
@@ -1903,8 +1889,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RGB565;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RGB565 : GR_GL_RGB;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RGB565 : GR_GL_RGB;
+        info.fInternalFormatForRenderbuffer = GR_GL_RGB565;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT_5_6_5;
         if (GR_IS_GR_GL(standard)) {
             if (version >= GR_GL_VER(4, 2) || ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
@@ -1971,8 +1956,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RGBA16F;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RGBA16F : GR_GL_RGBA;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RGBA16F : GR_GL_RGBA;
+        info.fInternalFormatForRenderbuffer = GR_GL_RGBA16F;
         info.fDefaultExternalType = halfFloatType;
         if (hasFP16Textures) {
             info.fFlags = FormatInfo::kTextureable_Flag;
@@ -2064,8 +2048,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_R16F;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_R16F : GR_GL_RED;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_R16F : GR_GL_RED;
+        info.fInternalFormatForRenderbuffer = GR_GL_R16F;
         info.fDefaultExternalType = halfFloatType;
         if (textureRedSupport && hasFP16Textures) {
             info.fFlags = FormatInfo::kTextureable_Flag;
@@ -2150,9 +2133,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_LUMINANCE16F;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_LUMINANCE16F : GR_GL_LUMINANCE;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_LUMINANCE16F
-                                                               : GR_GL_LUMINANCE;
+        info.fInternalFormatForRenderbuffer = GR_GL_LUMINANCE16F;
         info.fDefaultExternalType = halfFloatType;
 
         if (lum16FSupported) {
@@ -2212,8 +2193,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RGB8;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RGB8 : GR_GL_RGB;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RGB8 : GR_GL_RGB;
+        info.fInternalFormatForRenderbuffer = GR_GL_RGB8;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         info.fFlags = FormatInfo::kTextureable_Flag;
         if (GR_IS_GR_GL(standard)) {
@@ -2290,8 +2270,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RG8;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RG8 : GR_GL_RG;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RG8 : GR_GL_RG;
+        info.fInternalFormatForRenderbuffer = GR_GL_RG8;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         if (textureRedSupport) {
             info.fFlags |= FormatInfo::kTextureable_Flag | msaaRenderFlags;
@@ -2346,8 +2325,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RGB10_A2;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RGB10_A2 : GR_GL_RGBA;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RGB10_A2 : GR_GL_RGBA;
+        info.fInternalFormatForRenderbuffer = GR_GL_RGB10_A2;
         info.fDefaultExternalType = GR_GL_UNSIGNED_INT_2_10_10_10_REV;
         if (GR_IS_GR_GL(standard) ||
            (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0))) {
@@ -2405,8 +2383,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RGBA4;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RGBA4 : GR_GL_RGBA;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RGBA4 : GR_GL_RGBA;
+        info.fInternalFormatForRenderbuffer = GR_GL_RGBA4;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
         info.fFlags = FormatInfo::kTextureable_Flag;
         if (GR_IS_GR_GL(standard)) {
@@ -2465,8 +2442,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RGBA32F;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RGBA32F : GR_GL_RGBA;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RGBA32F : GR_GL_RGBA;
+        info.fInternalFormatForRenderbuffer = GR_GL_RGBA32F;
         // We don't allow texturing or rendering to this format
     }
 
@@ -2478,9 +2454,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_SRGB8_ALPHA8 : GR_GL_SRGB_ALPHA;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_SRGB8_ALPHA8
-                                                               : GR_GL_SRGB_ALPHA;
+        info.fInternalFormatForRenderbuffer = GR_GL_SRGB8_ALPHA8;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         if (fSRGBSupport) {
             uint32_t srgbRenderFlags =
@@ -2579,8 +2553,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_R16;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_R16 : GR_GL_RED;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_R16 : GR_GL_RED;
+        info.fInternalFormatForRenderbuffer = GR_GL_R16;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT;
         if (r16AndRG1616Supported) {
             info.fFlags = FormatInfo::kTextureable_Flag | msaaRenderFlags;
@@ -2631,8 +2604,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RG16;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RG16 : GR_GL_RG;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RG16 : GR_GL_RG;
+        info.fInternalFormatForRenderbuffer = GR_GL_RG16;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT;
         if (r16AndRG1616Supported) {
             info.fFlags = FormatInfo::kTextureable_Flag | msaaRenderFlags;
@@ -2702,8 +2674,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RGBA16;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RGBA16 : GR_GL_RGBA;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RGBA16 : GR_GL_RGBA;
+        info.fInternalFormatForRenderbuffer = GR_GL_RGBA16;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT;
         if (rgba16161616Supported) {
             info.fFlags = FormatInfo::kTextureable_Flag | msaaRenderFlags;
@@ -2777,8 +2748,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fSizedInternalFormat = GR_GL_RG16F;
         info.fInternalFormatForTexImage =
                 texImageSupportsSizedInternalFormat ? GR_GL_RG16F : GR_GL_RG;
-        info.fInternalFormatForRenderbuffer =
-                renderbufferStorageSupportsSizedInternalFormat ? GR_GL_RG16F : GR_GL_RG;
+        info.fInternalFormatForRenderbuffer = GR_GL_RG16F;
         info.fDefaultExternalType = halfFloatType;
         if (rg16fTexturesSupported) {
             info.fFlags |= FormatInfo::kTextureable_Flag;
