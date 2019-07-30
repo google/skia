@@ -16,6 +16,57 @@
       "revId": "8c1efc4053cd631512b31ee8fdcd7eb9d67679b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c058fcc_d2975906",
+        "filename": "modules/skparagraph/include/StringCache.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-30T14:59:48Z",
+      "side": 1,
+      "message": "// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.",
+      "revId": "8c1efc4053cd631512b31ee8fdcd7eb9d67679b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4c0b8d2_04c5baaa",
+        "filename": "modules/skparagraph/include/StringCache.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-30T14:59:48Z",
+      "side": 1,
+      "message": "Don\u0027t need to inline these; maker_internal is just long enough not to inline.\n\n    struct String {\n        const char* fPtr;\n        bool operator\u003d\u003d(const String\u0026 that) const;\n    };\n    struct Hasher {\n        uint32_t operator()(String k) const;\n    };\n    mutable SkMutex fMutex;\n    SkTHashMap\u003cString, SkString, Hasher\u003e fMap;\n    const SkString\u0026 maker_internal(const char* str);",
+      "revId": "8c1efc4053cd631512b31ee8fdcd7eb9d67679b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1ae8266_9876e2c7",
+        "filename": "modules/skparagraph/src/StringCache.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-30T14:59:48Z",
+      "side": 1,
+      "message": "The following don\u0027t need to be inlined:\n\nbool StringCache::String::operator\u003d\u003d(const StringCache::String\u0026 that) const {\n    return fPtr \u003d\u003d that.fPtr || 0 \u003d\u003d strcmp(fPtr, that.fPtr);\n}\n\nuint32_t StringCache::Hasher::operator()(StringCache::String k) const {\n    static constexpr char gEmpty[] \u003d \"\";\n    if (!k.fPtr) { k \u003d {gEmpty}; }\n    return SkOpts::hash_fn(k.fPtr, strlen(k.fPtr), 0);\n}\n\n\nconst SkString\u0026 StringCache::maker_internal(const char* str) {\n    SkAutoMutexExclusive lock(fMutex);\n    const SkString* ptr \u003d fMap.find(String{str});\n    if (!ptr) {\n        SkString newString(str);\n        const char* cstr \u003d newString.c_str();\n        ptr \u003d fMap.set(String{cstr}, std::move(newString));\n        SkASSERT(ptr);\n    }\n    return *ptr;\n}",
+      "revId": "8c1efc4053cd631512b31ee8fdcd7eb9d67679b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
