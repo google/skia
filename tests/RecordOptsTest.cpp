@@ -11,8 +11,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkPictureImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordOpts.h"
 #include "src/core/SkRecorder.h"
@@ -189,7 +188,7 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     REPORTER_ASSERT(r, drawRect->paint.getColor() == 0x03020202);
 
     // saveLayer w/ backdrop should NOT go away
-    sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(3, 3, nullptr));
+    sk_sp<SkImageFilter> filter(SkImageFilters::Blur(3, 3, nullptr));
     recorder.saveLayer({ nullptr, nullptr, filter.get(), nullptr, nullptr, 0});
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
@@ -251,12 +250,12 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
         canvas->drawRect(SkRect::MakeWH(SkIntToScalar(50), SkIntToScalar(50)), shapePaint);
         shape = recorder.finishRecordingAsPicture();
     }
-    translucentFilterLayerPaint.setImageFilter(SkPictureImageFilter::Make(shape));
+    translucentFilterLayerPaint.setImageFilter(SkImageFilters::Picture(shape));
 
     int index = 0;
 
     {
-        sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(3, 3, nullptr));
+        sk_sp<SkImageFilter> filter(SkImageFilters::Blur(3, 3, nullptr));
         // first (null) should be optimized, 2nd should not
         SkImageFilter* filters[] = { nullptr, filter.get() };
 
