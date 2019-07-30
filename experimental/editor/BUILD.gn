@@ -1,0 +1,37 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+if (skia_use_icu && skia_use_harfbuzz) {
+  source_set("editor_lib") {
+    public = [
+      "editor.h",
+      "stringslice.h",
+    ]
+    sources = [
+      "editor.cpp",
+      "run_handler.cpp",
+      "run_handler.h",
+      "stringslice.cpp",
+    ]
+    public_deps = [
+      "../..:skia",
+    ]
+    deps = [
+      "../../modules/skshaper",
+    ]
+  }
+
+  source_set("editor_app") {
+    testonly = true
+    sources = [
+      "editor_application.cpp",
+    ]
+    deps = [
+      ":editor_lib",
+      "../..:sk_app",
+    ]
+  }
+}
