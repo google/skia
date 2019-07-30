@@ -9,6 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
@@ -18,13 +19,9 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
 
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkColorFilterImageFilter.h"
 #include "include/effects/SkDashPathEffect.h"
-#include "include/effects/SkDropShadowImageFilter.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkMergeImageFilter.h"
-#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 #include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkSpecialImage.h"
@@ -497,17 +494,16 @@ public:
         //        /--- Color Filter <---- Blur <--- Offset
         // Merge <
         //        \--- Blur <--- Drop Shadow
-        sk_sp<SkImageFilter> drop2 = SkDropShadowImageFilter::Make(
-                10.f, 5.f, 3.f, 3.f, SK_ColorBLACK,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr);
-        sk_sp<SkImageFilter> blur1 = SkBlurImageFilter::Make(2.f, 2.f, std::move(drop2));
+        sk_sp<SkImageFilter> drop2 = SkImageFilters::DropShadow(
+                10.f, 5.f, 3.f, 3.f, SK_ColorBLACK, nullptr);
+        sk_sp<SkImageFilter> blur1 = SkImageFilters::Blur(2.f, 2.f, std::move(drop2));
 
-        sk_sp<SkImageFilter> offset3 = SkOffsetImageFilter::Make(-5.f, -5.f, nullptr);
-        sk_sp<SkImageFilter> blur2 = SkBlurImageFilter::Make(4.f, 4.f, std::move(offset3));
-        sk_sp<SkImageFilter> cf1 = SkColorFilterImageFilter::Make(
+        sk_sp<SkImageFilter> offset3 = SkImageFilters::Offset(-5.f, -5.f, nullptr);
+        sk_sp<SkImageFilter> blur2 = SkImageFilters::Blur(4.f, 4.f, std::move(offset3));
+        sk_sp<SkImageFilter> cf1 = SkImageFilters::ColorFilter(
                 SkColorFilters::Blend(SK_ColorGRAY, SkBlendMode::kModulate), std::move(blur2));
 
-        sk_sp<SkImageFilter> merge0 = SkMergeImageFilter::Make(std::move(blur1), std::move(cf1));
+        sk_sp<SkImageFilter> merge0 = SkImageFilters::Merge(std::move(blur1), std::move(cf1));
 
         draw_dag(canvas, std::move(merge0), kFilterRect, kFilterSurfaceSize);
     }

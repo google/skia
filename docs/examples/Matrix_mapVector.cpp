@@ -13,8 +13,8 @@ void draw(SkCanvas* canvas) {
     matrix.setRotate(90);
     SkVector offset = { 7, 7 };
     for (int i = 0; i < 4; ++i) {
-        paint.setImageFilter(SkDropShadowImageFilter::Make(offset.fX, offset.fY, 3, 3,
-              SK_ColorBLUE, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr));
+        paint.setImageFilter(SkImageFilters::DropShadow(offset.fX, offset.fY, 3, 3,
+              SK_ColorBLUE, nullptr));
         matrix.mapVector(offset.fX, offset.fY, &offset);
         canvas->translate(0, 60);
         canvas->drawString("Text", 50, 0, paint);
