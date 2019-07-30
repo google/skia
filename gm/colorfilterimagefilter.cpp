@@ -19,10 +19,9 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkColorFilterImageFilter.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "tools/Resources.h"
@@ -100,19 +99,19 @@ static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkImageFilter> make_blur(float amount, sk_sp<SkImageFilter> input) {
-    return SkBlurImageFilter::Make(amount, amount, std::move(input));
+    return SkImageFilters::Blur(amount, amount, std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_brightness(float amount, sk_sp<SkImageFilter> input) {
-    return SkColorFilterImageFilter::Make(cf_make_brightness(amount), std::move(input));
+    return SkImageFilters::ColorFilter(cf_make_brightness(amount), std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
-    return SkColorFilterImageFilter::Make(cf_make_grayscale(), std::move(input));
+    return SkImageFilters::ColorFilter(cf_make_grayscale(), std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_mode_blue(sk_sp<SkImageFilter> input) {
-    return SkColorFilterImageFilter::Make(cf_make_colorize(SK_ColorBLUE), std::move(input));
+    return SkImageFilters::ColorFilter(cf_make_colorize(SK_ColorBLUE), std::move(input));
 }
 
 static void draw_clipped_rect(SkCanvas* canvas,
@@ -190,7 +189,7 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     cm.setSaturation(0.0f);
     sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(cm));
     SkPaint p;
-    p.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
+    p.setImageFilter(SkImageFilters::ColorFilter(std::move(cf), nullptr));
     canvas->saveLayer(nullptr, &p);
     canvas->clear(SK_ColorRED);
 }

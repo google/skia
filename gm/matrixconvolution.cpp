@@ -21,7 +21,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
 
 namespace skiagm {
@@ -62,8 +62,8 @@ protected:
     }
 
     void draw(SkCanvas* canvas, int x, int y, const SkIPoint& kernelOffset,
-              SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha,
-              const SkImageFilter::CropRect* cropRect = nullptr) {
+              SkTileMode tileMode, bool convolveAlpha,
+              const SkIRect* cropRect = nullptr) {
         SkScalar kernel[9] = {
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
             SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
@@ -72,15 +72,9 @@ protected:
         SkISize kernelSize = SkISize::Make(3, 3);
         SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkPaint paint;
-        paint.setImageFilter(SkMatrixConvolutionImageFilter::Make(kernelSize,
-                                                                  kernel,
-                                                                  gain,
-                                                                  bias,
-                                                                  kernelOffset,
-                                                                  tileMode,
-                                                                  convolveAlpha,
-                                                                  nullptr,
-                                                                  cropRect));
+        paint.setImageFilter(SkImageFilters::MatrixConvolution(kernelSize, kernel, gain, bias,
+                                                               kernelOffset, tileMode,
+                                                               convolveAlpha, nullptr, cropRect));
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
         const SkRect layerBounds = SkRect::MakeIWH(fBitmap.width(), fBitmap.height());
@@ -94,8 +88,6 @@ protected:
         canvas->restore();
     }
 
-    typedef SkMatrixConvolutionImageFilter MCIF;
-
     void onOnceBeforeDraw() override {
         this->makeBitmap();
     }
@@ -103,22 +95,22 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         SkIPoint kernelOffset = SkIPoint::Make(1, 0);
-        SkImageFilter::CropRect rect(SkRect::Make(fBitmap.bounds()));
+        SkIRect rect = fBitmap.bounds();
         for (int x = 10; x < 310; x += 100) {
-            this->draw(canvas, x, 10, kernelOffset, MCIF::kClamp_TileMode, true, &rect);
-            this->draw(canvas, x, 110, kernelOffset, MCIF::kClampToBlack_TileMode, true, &rect);
-            this->draw(canvas, x, 210, kernelOffset, MCIF::kRepeat_TileMode, true, &rect);
+            this->draw(canvas, x, 10, kernelOffset, SkTileMode::kClamp, true, &rect);
+            this->draw(canvas, x, 110, kernelOffset, SkTileMode::kDecal, true, &rect);
+            this->draw(canvas, x, 210, kernelOffset, SkTileMode::kRepeat, true, &rect);
             kernelOffset.fY++;
         }
         kernelOffset.fY = 1;
-        SkImageFilter::CropRect smallRect(SkRect::MakeXYWH(10, 5, 60, 60));
-        this->draw(canvas, 310, 10, kernelOffset, MCIF::kClamp_TileMode, true, &smallRect);
-        this->draw(canvas, 310, 110, kernelOffset, MCIF::kClampToBlack_TileMode, true, &smallRect);
-        this->draw(canvas, 310, 210, kernelOffset, MCIF::kRepeat_TileMode, true, &smallRect);
+        SkIRect smallRect = SkIRect::MakeXYWH(10, 5, 60, 60);
+        this->draw(canvas, 310, 10, kernelOffset, SkTileMode::kClamp, true, &smallRect);
+        this->draw(canvas, 310, 110, kernelOffset, SkTileMode::kDecal, true, &smallRect);
+        this->draw(canvas, 310, 210, kernelOffset, SkTileMode::kRepeat, true, &smallRect);
 
-        this->draw(canvas, 410, 10, kernelOffset, MCIF::kClamp_TileMode, false, &rect);
-        this->draw(canvas, 410, 110, kernelOffset, MCIF::kClampToBlack_TileMode, false, &rect);
-        this->draw(canvas, 410, 210, kernelOffset, MCIF::kRepeat_TileMode, false, &rect);
+        this->draw(canvas, 410, 10, kernelOffset, SkTileMode::kClamp, false, &rect);
+        this->draw(canvas, 410, 110, kernelOffset, SkTileMode::kDecal, false, &rect);
+        this->draw(canvas, 410, 210, kernelOffset, SkTileMode::kRepeat, false, &rect);
     }
 
 private:

@@ -34,7 +34,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLineClipper.h"
@@ -1031,7 +1031,7 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_filtered_renderers() {
     SkColorMatrix cm;
     cm.setSaturation(10);
     sk_sp<SkColorFilter> colorFilter = SkColorFilters::Matrix(cm);
-    sk_sp<SkImageFilter> imageFilter = SkDilateImageFilter::Make(8, 8, nullptr);
+    sk_sp<SkImageFilter> imageFilter = SkImageFilters::Dilate(8, 8, nullptr);
 
     static constexpr SkColor kAlphas[] = { SK_ColorTRANSPARENT, SK_ColorBLACK };
     auto alphaGradient = SkGradientShader::MakeRadial(

@@ -18,7 +18,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkImageSource.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -62,28 +62,28 @@ protected:
 
         {
             // Draw an unscaled bitmap.
-            sk_sp<SkImageFilter> imageSource(SkImageSource::Make(fImage));
+            sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(fImage));
             fill_rect_filtered(canvas, clipRect, std::move(imageSource));
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
             // Draw an unscaled subset of the source bitmap (srcRect -> srcRect).
             sk_sp<SkImageFilter> imageSourceSrcRect(
-                SkImageSource::Make(fImage, srcRect, srcRect, kHigh_SkFilterQuality));
+                    SkImageFilters::Image(fImage, srcRect, srcRect, kHigh_SkFilterQuality));
             fill_rect_filtered(canvas, clipRect, std::move(imageSourceSrcRect));
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
             // Draw a subset of the bitmap scaled to a destination rect (srcRect -> dstRect).
             sk_sp<SkImageFilter> imageSourceSrcRectDstRect(
-                SkImageSource::Make(fImage, srcRect, dstRect, kHigh_SkFilterQuality));
+                    SkImageFilters::Image(fImage, srcRect, dstRect, kHigh_SkFilterQuality));
             fill_rect_filtered(canvas, clipRect, std::move(imageSourceSrcRectDstRect));
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
             // Draw the entire bitmap scaled to a destination rect (bounds -> dstRect).
             sk_sp<SkImageFilter> imageSourceDstRectOnly(
-                SkImageSource::Make(fImage, bounds, dstRect, kHigh_SkFilterQuality));
+                    SkImageFilters::Image(fImage, bounds, dstRect, kHigh_SkFilterQuality));
             fill_rect_filtered(canvas, clipRect, std::move(imageSourceDstRectOnly));
             canvas->translate(SkIntToScalar(100), 0);
         }

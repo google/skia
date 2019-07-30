@@ -18,7 +18,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -54,7 +54,7 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
         SkPaint imageBlurPaint;
         r.offset(250, 0);
-        imageBlurPaint.setImageFilter(SkBlurImageFilter::Make(sigma, sigma, nullptr));
+        imageBlurPaint.setImageFilter(SkImageFilters::Blur(sigma, sigma, nullptr));
         canvas->saveLayer(nullptr, &imageBlurPaint);
 
         canvas->drawRect(r, paint);

@@ -22,8 +22,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkColorFilterImageFilter.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/effects/SkTableColorFilter.h"
 
 #include <math.h>
@@ -182,8 +182,8 @@ protected:
 
             for (unsigned i = 0; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
                 sk_sp<SkColorFilter> colorFilter1(gColorFilterMakers[i]());
-                sk_sp<SkImageFilter> imageFilter1(SkColorFilterImageFilter::Make(
-                            std::move(colorFilter1), nullptr));
+                sk_sp<SkImageFilter> imageFilter1(SkImageFilters::ColorFilter(
+                        std::move(colorFilter1), nullptr));
 
                 // Move down to the next line and draw it
                 // each draw being at xOffset of the previous one
@@ -191,8 +191,8 @@ protected:
                 x = 0;
                 for (unsigned j = 1; j < SK_ARRAY_COUNT(gColorFilterMakers); ++j) {
                     sk_sp<SkColorFilter> colorFilter2(gColorFilterMakers[j]());
-                    sk_sp<SkImageFilter> imageFilter2(SkColorFilterImageFilter::Make(
-                                std::move(colorFilter2), imageFilter1, nullptr));
+                    sk_sp<SkImageFilter> imageFilter2(SkImageFilters::ColorFilter(
+                            std::move(colorFilter2), imageFilter1, nullptr));
                     paint.setImageFilter(std::move(imageFilter2));
                     canvas->drawBitmap(bm, x, y, &paint);
                     x += xOffset;
