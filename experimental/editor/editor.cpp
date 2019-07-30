@@ -270,8 +270,7 @@ Editor::TextPosition Editor::insert(TextPosition pos, const char* utf8Text, size
     pos = this->move(Editor::Movement::kNowhere, pos);
     if (pos.fParagraphIndex < fLines.size()) {
         fLines[pos.fParagraphIndex].fText.insert(pos.fTextByteIndex, utf8Text, byteLen);
-        fLines[pos.fParagraphIndex].fBlob = nullptr;
-        fLines[pos.fParagraphIndex].fShaped = false;
+        this->markDirty(&fLines[pos.fParagraphIndex]);
     } else {
         SkASSERT(pos.fParagraphIndex == fLines.size());
         SkASSERT(pos.fTextByteIndex == 0);
@@ -306,8 +305,7 @@ Editor::TextPosition Editor::remove(TextPosition pos1, TextPosition pos2) {
         SkASSERT(end.fTextByteIndex > start.fTextByteIndex);
         fLines[start.fParagraphIndex].fText.remove(
                 start.fTextByteIndex, end.fTextByteIndex - start.fTextByteIndex);
-        fLines[start.fParagraphIndex].fBlob = nullptr;
-        fLines[start.fParagraphIndex].fShaped = false;
+        this->markDirty(&fLines[start.fParagraphIndex]);
     } else {
         SkASSERT(end.fParagraphIndex < fLines.size());
         auto& line = fLines[start.fParagraphIndex];
@@ -316,8 +314,7 @@ Editor::TextPosition Editor::remove(TextPosition pos1, TextPosition pos2) {
         line.fText.insert(start.fTextByteIndex,
                           fLines[end.fParagraphIndex].fText.begin() + end.fTextByteIndex,
                           fLines[end.fParagraphIndex].fText.size() - end.fTextByteIndex);
-        line.fBlob = nullptr;
-        line.fShaped = false;
+        this->markDirty(&line);
         fLines.erase(fLines.begin() + start.fParagraphIndex + 1,
                      fLines.begin() + end.fParagraphIndex + 1);
     }
@@ -508,13 +505,11 @@ void Editor::paint(SkCanvas* c, PaintOpts options) {
     }
 }
 
-void Editor::markAllDirty() {
-    for (TextLine& line : fLines) {
-        line.fBlob = nullptr;
-        line.fShaped = false;
-    }
+void Editor::markDirty(TextLine* line) {
+    line->fBlob = nullptr;
+    line->fShaped = false;
     fNeedsReshape = true;
-};
+}
 
 void Editor::reshapeAll() {
     if (fNeedsReshape) {

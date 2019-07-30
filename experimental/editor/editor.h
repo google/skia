@@ -115,7 +115,8 @@ private:
     bool fNeedsReshape = false;
 
     static void Shape(TextLine*, SkShaper*, float width, const SkFont&, SkRect);
-    void markAllDirty();
+    void markDirty(TextLine*);
+    void markAllDirty() { for (auto& l : fLines) { this->markDirty(&l); } }
     void reshapeAll();
 };
 }  // namespace editor
