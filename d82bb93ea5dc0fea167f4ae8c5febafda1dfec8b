@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cef23373_81935003",
+        "filename": "src/effects/imagefilters/SkDropShadowImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-30T16:51:56Z",
+      "side": 1,
+      "message": "line up ?",
+      "revId": "d82bb93ea5dc0fea167f4ae8c5febafda1dfec8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
