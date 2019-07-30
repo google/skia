@@ -11,6 +11,7 @@
 #include "src/utils/SkUTF.h"
 
 #include "experimental/editor/run_handler.h"
+#include "experimental/editor/word_boundaries.h"
 
 #include <algorithm>
 
@@ -114,30 +115,33 @@ void callback_fn(void* context,
 static bool valid_utf8(const char* ptr, size_t size) { return SkUTF::CountUTF8(ptr, size) >= 0; }
 
 void Editor::Shape(TextLine* line, SkShaper* shaper, float width, const SkFont& font,
-                   SkRect space) {
+                   SkRect space, const char* locale) {
     SkASSERT(line);
     SkASSERT(shaper);
-    line->fCursorPos.resize(line->fText.size() + 1);
+    const StringSlice& text = line->fText;
+    line->fCursorPos.resize(text.size() + 1);
     for (SkRect& c : line->fCursorPos) {
         c = kUnsetRect;
     }
-    RunHandler runHandler(line->fText.begin(), line->fText.size());
+    RunHandler runHandler(text.begin(), text.size());
     runHandler.setRunCallback(callback_fn, line->fCursorPos.data());
-    if (line->fText.size()) {
-        shaper->shape(line->fText.begin(), line->fText.size(), font, true, width, &runHandler);
+    if (text.size()) {
+        // TODO: make use of locale in shaping.
+        shaper->shape(text.begin(), text.size(), font, true, width, &runHandler);
         line->fLineEndOffsets = runHandler.lineEndOffsets();
         SkASSERT(line->fLineEndOffsets.size() > 0);
         line->fLineEndOffsets.pop_back();
     }
-    SkRect& last = line->fCursorPos[line->fText.size()];
+    SkRect& last = line->fCursorPos[text.size()];
     last = space;
-    if (line->fText.size() > 0) {
-        last.offset(line->fCursorPos[line->fText.size() - 1].fRight,
+    if (text.size() > 0) {
+        last.offset(line->fCursorPos[text.size() - 1].fRight,
                     runHandler.yOffset());  // FIXME offset down.
     }
     float h = std::max(runHandler.endPoint().y(), font.getSpacing());
     line->fHeight = (int)ceilf(h);
     line->fBlob = runHandler.makeBlob();
+    line->fWordBoundaries = GetUtf8WordBoundaries(text.begin(), text.end(), locale);
     line->fShaped = true;
 }
 
@@ -180,7 +184,7 @@ void Editor::setFont(SkFont font) {
         auto shaper = SkShaper::Make();
         const char kSpace[] = " ";
         TextLine textLine(StringSlice(kSpace, strlen(kSpace)));
-        Editor::Shape(&textLine, shaper.get(), FLT_MAX, fFont, SkRect{0, 0, 0, 0});
+        Editor::Shape(&textLine, shaper.get(), FLT_MAX, fFont, SkRect{0, 0, 0, 0}, fLocale);
         fSpaceBounds = textLine.fCursorPos[0];
         this->markAllDirty();
     }
@@ -469,6 +473,34 @@ Editor::TextPosition Editor::move(Editor::Movement move, Editor::TextPosition po
                     align_column(fLines[pos.fParagraphIndex].fText, pos.fTextByteIndex);
             }
             break;
+        case Editor::Movement::kWordLeft:
+            if (pos.fParagraphIndex < fLines.size()) {
+                if (pos.fTextByteIndex == 0) {
+                    pos = this->move(Editor::Movement::kLeft, pos);
+                    break;
+                }
+                const std::vector<bool>& words = fLines[pos.fParagraphIndex].fWordBoundaries;
+                SkASSERT(words.size() == fLines[pos.fParagraphIndex].fText.size());
+                do {
+                    --pos.fTextByteIndex;
+                } while (pos.fTextByteIndex > 0 && !words[pos.fTextByteIndex]);
+            }
+            break;
+        case Editor::Movement::kWordRight:
+            if (pos.fParagraphIndex < fLines.size()) {
+                const StringSlice& text = fLines[pos.fParagraphIndex].fText;
+                if (pos.fTextByteIndex == text.size()) {
+                    pos = this->move(Editor::Movement::kRight, pos);
+                    break;
+                }
+                const std::vector<bool>& words = fLines[pos.fParagraphIndex].fWordBoundaries;
+                SkASSERT(words.size() == text.size());
+                do {
+                    ++pos.fTextByteIndex;
+                } while (pos.fTextByteIndex < text.size() && !words[pos.fTextByteIndex]);
+            }
+            break;
+
     }
     return pos;
 }
@@ -508,6 +540,7 @@ void Editor::paint(SkCanvas* c, PaintOpts options) {
 void Editor::markDirty(TextLine* line) {
     line->fBlob = nullptr;
     line->fShaped = false;
+    line->fWordBoundaries = std::vector<bool>();
     fNeedsReshape = true;
 }
 
@@ -521,7 +554,8 @@ void Editor::reshapeAll() {
         for (TextLine& line : fLines) {
             if (!line.fShaped) {
                 executor->add([&]() {
-                    Editor::Shape(&line, SkShaper::Make().get(), shape_width, fFont, fSpaceBounds);
+                    Editor::Shape(&line, SkShaper::Make().get(), shape_width,
+                                  fFont, fSpaceBounds, fLocale);
                     semaphore.signal();
                 }
                 ++jobCount;
@@ -536,7 +570,7 @@ void Editor::reshapeAll() {
                 #ifdef SK_EDITOR_DEBUG_OUT
                 SkDebugf("shape %d: '%.*s'\n", i, line.fText.size(), line.fText.begin());
                 #endif  // SK_EDITOR_DEBUG_OUT
-                Editor::Shape(&line, shaper.get(), shape_width, fFont, fSpaceBounds);
+                Editor::Shape(&line, shaper.get(), shape_width, fFont, fSpaceBounds, fLocale);
             }
             ++i;
         }
