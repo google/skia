@@ -22,6 +22,30 @@
       "revId": "c475958603a6b98a260ec7ff49840782c12c4870",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a21e48f_6c936b16",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-07-30T18:02:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73e33f57_13d9ec4f",
+      "range": {
+        "startLine": 247,
+        "startChar": 9,
+        "endLine": 247,
+        "endChar": 16
+      },
+      "revId": "c475958603a6b98a260ec7ff49840782c12c4870",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
