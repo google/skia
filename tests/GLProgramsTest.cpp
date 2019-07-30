@@ -149,7 +149,7 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
                                                 : kBottomLeft_GrSurfaceOrigin;
 
     GrColorType ct = GrColorType::kRGBA_8888;
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(ct);
+    const GrBackendFormat format = caps->getDefaultBackendFormat(ct, GrRenderable::kYes);
 
     int sampleCnt = random->nextBool() ? caps->getRenderTargetSampleCount(2, ct, format) : 1;
     // Above could be 0 if msaa isn't supported.
@@ -272,7 +272,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fHeight = 18;
         dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
         const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
+            context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                            GrRenderable::kYes);
         proxies[0] = proxyProvider->createProxy(format, dummyDesc, GrRenderable::kYes, 1,
                                                 kBottomLeft_GrSurfaceOrigin, mipMapped,
                                                 SkBackingFit::kExact, SkBudgeted::kNo,
@@ -284,7 +285,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fHeight = 22;
         dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
         const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kAlpha_8);
+            context->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_8,
+                                                            GrRenderable::kNo);
         proxies[1] = proxyProvider->createProxy(format, dummyDesc, GrRenderable::kNo, 1,
                                                 kTopLeft_GrSurfaceOrigin, mipMapped,
                                                 SkBackingFit::kExact, SkBudgeted::kNo,
