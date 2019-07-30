@@ -1298,3 +1298,51 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
             return {GrSwizzle(), GrColorType::kUnknown, 0};
     }
 }
+
+#if GR_TEST_UTILS
+std::vector<GrCaps::TestingCombination> GrVkCaps::getTestingCombinations() const {
+    std::vector<GrCaps::TestingCombination> combos = {
+
+    { GrColorType::kRGBA_8888, VK_FORMAT_R8G8B8A8_UNORM  },
+    { GrColorType::kRGBA_8888_SRGB,   VK_FORMAT_R8G8B8A8_SRGB },
+
+    { GrColorType::kRGB_888x,         VK_FORMAT_R8G8B8A8_UNORMw },
+    { GrColorType::kRGB_888x,         VK_FORMAT_R8G8B8_UNORM},
+
+    { GrColorType::kBGRA_8888,        VK_FORMAT_B8G8R8A8_UNORM },
+
+    { GrColorType::kRGBA_1010102,     VK_FORMAT_A2B10G10R10_UNORM_PACK32 },
+    { GrColorType::kBGR_565,          VK_FORMAT_R5G6B5_UNORM_PACK16 },
+
+    { GrColorType::kABGR_4444,        VK_FORMAT_R4G4B4A4_UNORM_PACK16 },
+    { GrColorType::kABGR_4444,        VK_FORMAT_B4G4R4A4_UNORM_PACK16 },
+
+    { GrColorType::kAlpha_8,          VK_FORMAT_R8_UNORM },
+    { GrColorType::kGray_8,           VK_FORMAT_R8_UNORM },
+
+    { GrColorType::kRGBA_F32,         VK_FORMAT_R32G32B32A32_SFLOAT,      SkColors::kRed },
+
+    { GrColorType::kRGBA_F16_Clamped, VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kLtGray },
+    { GrColorType::kRGBA_F16,         VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kYellow },
+
+        // These backend formats don't have SkColorType equivalents
+    { GrColorType::kRG_88,            VK_FORMAT_R8G8_UNORM,               { 0.5f, 0.5f, 0, 0 } },
+    { GrColorType::kAlpha_F16,        VK_FORMAT_R16_SFLOAT,               { 1.0f, 0, 0, 0.5f } },
+
+    { GrColorType::kR_16,             VK_FORMAT_R16_UNORM,                SkColors::kRed },
+    { GrColorType::kRG_1616,          VK_FORMAT_R16G16_UNORM,             SkColors::kYellow },
+
+        // Experimental (for Y416 and mutant P016/P010)
+    { GrColorType::kRGBA_16161616,    VK_FORMAT_R16G16B16A16_UNORM,       SkColors::kLtGray },
+    { GrColorType::kRG_F16,           VK_FORMAT_R16G16_SFLOAT,            SkColors::kYellow },
+
+    { GrColorType::kUnknown,          VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,  SkColors::kRed },
+    };
+
+    for (auto combo : combos) {
+        SkASSERT(this->onAreColorTypeAndFormatCompatible(combo.fColorType, combo.fFormat));
+    }
+
+    return combos;
+}
+#endif
