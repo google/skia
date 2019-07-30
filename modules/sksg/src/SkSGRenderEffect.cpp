@@ -10,7 +10,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkShader.h"
-#include "include/effects/SkDropShadowImageFilter.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskFilterBase.h"
 
@@ -220,13 +219,13 @@ DropShadowImageFilter::DropShadowImageFilter(sk_sp<ImageFilter> input)
 DropShadowImageFilter::~DropShadowImageFilter() = default;
 
 sk_sp<SkImageFilter> DropShadowImageFilter::onRevalidateFilter() {
-    const auto mode = (fMode == Mode::kShadowOnly)
-            ? SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode
-            : SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode;
-
-    return SkDropShadowImageFilter::Make(fOffset.x(), fOffset.y(),
-                                         fSigma.x(), fSigma.y(),
-                                         fColor, mode, this->refInput(0));
+    if (fMode == Mode::kShadowOnly) {
+        return SkImageFilters::DropShadowOnly(fOffset.x(), fOffset.y(), fSigma.x(), fSigma.y(),
+                                              fColor, this->refInput(0));
+    } else {
+        return SkImageFilters::DropShadow(fOffset.x(), fOffset.y(), fSigma.x(), fSigma.y(),
+                                          fColor, this->refInput(0));
+    }
 }
 
 sk_sp<BlurImageFilter> BlurImageFilter::Make(sk_sp<ImageFilter> input) {
@@ -239,7 +238,7 @@ BlurImageFilter::BlurImageFilter(sk_sp<ImageFilter> input)
 BlurImageFilter::~BlurImageFilter() = default;
 
 sk_sp<SkImageFilter> BlurImageFilter::onRevalidateFilter() {
-    return SkBlurImageFilter::Make(fSigma.x(), fSigma.y(), this->refInput(0), nullptr, fTileMode);
+    return SkImageFilters::Blur(fSigma.x(), fSigma.y(), fTileMode, this->refInput(0));
 }
 
 sk_sp<BlendModeEffect> BlendModeEffect::Make(sk_sp<RenderNode> child, SkBlendMode mode) {
