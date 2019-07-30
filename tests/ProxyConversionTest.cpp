@@ -124,16 +124,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PreinstantiatedProxyConversionTest, reporter,
 // Test converting between RenderTargetProxies and TextureProxies for deferred
 // Proxies
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
+    GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     GrSurfaceDesc desc;
     desc.fWidth = 64;
     desc.fHeight = 64;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    const GrBackendFormat format =
-            ctxInfo.grContext()->priv().caps()->getBackendFormatFromColorType(
-                    GrColorType::kRGBA_8888);
+    const GrBackendFormat format = context->defaultBackendFormat(kRGBA_8888_SkColorType,
+                                                                 GrRenderable::kYes);
+
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                 format, desc, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin,

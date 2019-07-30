@@ -216,7 +216,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     SkColorType ct = info.colorType();
     GrColorType grCT = SkColorTypeToGrColorType(ct);
 
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(grCT);
+    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(grCT, renderable);
 
     if (!format.isValid() || !this->caps()->isFormatTexturable(grCT, format)) {
         SkBitmap copy8888;
@@ -228,7 +228,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         srcImage = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
         ct = kRGBA_8888_SkColorType;
         grCT = GrColorType::kRGBA_8888;
-        format = this->caps()->getBackendFormatFromColorType(grCT);
+        format = this->caps()->getBackendFormatFromColorType(grCT, renderable);
         if (!format.isValid()) {
             return nullptr;
         }
@@ -338,7 +338,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     }
 
     GrColorType grColorType = SkColorTypeToGrColorType(bitmap.info().colorType());
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(grColorType);
+    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(grColorType,
+                                                                         GrRenderable::kNo);
     if (!format.isValid()) {
         return nullptr;
     }
@@ -354,7 +355,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         baseLevel = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
         desc.fConfig = kRGBA_8888_GrPixelConfig;
         grColorType = GrColorType::kRGBA_8888;
-        format = this->caps()->getBackendFormatFromColorType(grColorType);
+        format = this->caps()->getBackendFormatFromColorType(grColorType, GrRenderable::kNo);
         if (!format.isValid()) {
             return nullptr;
         }

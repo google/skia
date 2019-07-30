@@ -419,15 +419,15 @@ GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], i
         }
     }
 
-    GrBackendFormat backendFormat = fContext->defaultBackendFormat(colorType, renderable);
-    if (!backendFormat.isValid()) {
+    GrBackendFormat format = fContext->defaultBackendFormat(colorType, renderable);
+    if (!format.isValid()) {
         return {};
     }
 
     GrGpu* gpu = fContext->fGpu.get();
 
     // TODO: propagate the array of pixmaps interface to GrGpu
-    return gpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
+    return gpu->createBackendTexture(baseWidth, baseHeight, format,
                                      GrMipMapped::kNo, // TODO: use real mipmap setting here
                                      renderable, srcData[0].addr(), srcData[0].rowBytes(),
                                      nullptr, isProtected);

@@ -103,7 +103,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
 
     auto* caps = context->priv().caps();
 
-    auto backendFormat = caps->getBackendFormatFromColorType(colorType);
+    auto backendFormat = caps->getBackendFormatFromColorType(colorType, renderable);
     if (!caps->isFormatTexturable(colorType, backendFormat)) {
         return;
     }
