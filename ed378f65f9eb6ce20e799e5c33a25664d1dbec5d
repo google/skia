@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb7b7b6d_4f28807e",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-30T15:38:29Z",
+      "side": 1,
+      "message": "This might work better as a SkTCopyOnFirstWrite\u003cSkPaint\u003e, but doesn\u0027t have to be this CL.",
+      "range": {
+        "startLine": 435,
+        "startChar": 4,
+        "endLine": 435,
+        "endChar": 15
+      },
+      "revId": "ed378f65f9eb6ce20e799e5c33a25664d1dbec5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
