@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "670f38b0_eb06fa70",
+        "filename": "src/core/SkPicture.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-07-30T18:59:52Z",
+      "side": 1,
+      "message": "Should this be SkPicturePriv::kCurrent_Version?",
+      "range": {
+        "startLine": 53,
+        "startChar": 35,
+        "endLine": 53,
+        "endChar": 47
+      },
+      "revId": "9cd0b2049953f4a1ec1488370ed5152f0c120678",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
