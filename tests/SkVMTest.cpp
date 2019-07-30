@@ -1061,6 +1061,16 @@ DEF_TEST(SkVM_Assembler, r) {
         0xc5, 0x9d, 0xdf, 0xda,
     });
 
+    test_asm(r, [&](A& a) {
+        a.vmovdqa   (A::ymm3, A::ymm2);
+        a.vcvttps2dq(A::ymm3, A::ymm2);
+        a.vcvtdq2ps (A::ymm3, A::ymm2);
+    },{
+        0xc5,0xfd,0x6f,0xda,
+        0xc5,0xfe,0x5b,0xda,
+        0xc5,0xfc,0x5b,0xda,
+    });
+
     // echo "fmul v4.4s, v3.4s, v1.4s" | llvm-mc -show-encoding -arch arm64
 
     test_asm(r, [&](A& a) {
