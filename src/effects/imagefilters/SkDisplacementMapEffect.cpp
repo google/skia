@@ -214,7 +214,7 @@ sk_sp<SkFlattenable> SkDisplacementMapEffectImpl::CreateProc(SkReadBuffer& buffe
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
 
     SkColorChannel xsel, ysel;
-    if (buffer.isVersionLT(SkReadBuffer::kTileModeInBlurImageFilter_Version)) {
+    if (buffer.isVersionLT(SkPicturePriv::kCleanupImageFilterEnums_Version)) {
         xsel = convert_channel_type(buffer.read32LE(
                 SkDisplacementMapEffect::kLast_ChannelSelectorType));
         ysel = convert_channel_type(buffer.read32LE(

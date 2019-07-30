@@ -352,7 +352,7 @@ SkReadPaintResult SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& bu
 
     paint->setStrokeWidth(buffer.readScalar());
     paint->setStrokeMiter(buffer.readScalar());
-    if (buffer.isVersionLT(SkReadBuffer::kFloat4PaintColor_Version)) {
+    if (buffer.isVersionLT(SkPicturePriv::kFloat4PaintColor_Version)) {
         paint->setColor(buffer.readColor());
     } else {
         SkColor4f color;
@@ -400,7 +400,7 @@ SkReadPaintResult SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& bu
 }
 
 SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, SkFont* font) {
-    if (buffer.isVersionLT(SkReadBuffer::kPaintDoesntSerializeFonts_Version)) {
+    if (buffer.isVersionLT(SkPicturePriv::kPaintDoesntSerializeFonts_Version)) {
         return Unflatten_PreV68(paint, buffer, font);
     }
 

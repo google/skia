@@ -136,7 +136,7 @@ sk_sp<SkFlattenable> SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer)
     SkScalar r1 = buffer.readScalar();
     SkScalar r2 = buffer.readScalar();
 
-    if (buffer.isVersionLT(SkReadBuffer::k2PtConicalNoFlip_Version) && buffer.readBool()) {
+    if (buffer.isVersionLT(SkPicturePriv::k2PtConicalNoFlip_Version) && buffer.readBool()) {
         using std::swap;
         // legacy flipped gradient
         swap(c1, c2);
