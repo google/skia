@@ -16,6 +16,7 @@
 #include "src/gpu/GrColorSpaceInfo.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrTextureResolveManager.h"
 
 class GrAuditTrail;
 class GrDrawingManager;
@@ -107,6 +108,8 @@ protected:
 
     GrDrawingManager* drawingManager();
     const GrDrawingManager* drawingManager() const;
+
+    GrTextureResolveManager textureResolveManager() { return this->drawingManager(); }
 
     virtual GrOpList* getOpList() = 0;
     SkDEBUGCODE(virtual void validate() const = 0;)

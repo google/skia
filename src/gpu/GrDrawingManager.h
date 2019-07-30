@@ -16,6 +16,7 @@
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrPathRendererChain.h"
 #include "src/gpu/GrResourceCache.h"
+#include "src/gpu/GrTextureResolveManager.h"
 #include "src/gpu/text/GrTextContext.h"
 
 class GrCoverageCountingPathRenderer;
@@ -50,6 +51,9 @@ public:
                                                GrColorType,
                                                SkAlphaType,
                                                sk_sp<SkColorSpace>);
+
+    GrOpList* newTextureResolveOpList(
+            sk_sp<GrTextureProxy>, GrTextureResolveManager::ResolveFlags, const GrCaps&);
 
     // A managed opList is controlled by the drawing manager (i.e., sorted & flushed with the
     // others). An unmanaged one is created and used by the onFlushCallback.
@@ -133,7 +137,7 @@ private:
         GrOpList* back() { return fOpLists.back().get(); }
         const GrOpList* back() const { return fOpLists.back().get(); }
 
-        void add(sk_sp<GrOpList>);
+        GrOpList* add(sk_sp<GrOpList>);
         void add(const SkTArray<sk_sp<GrOpList>>&);
 
         void swap(SkTArray<sk_sp<GrOpList>>* opLists);
