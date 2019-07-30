@@ -11,8 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/utils/SkRandom.h"
 
 #define FILTER_WIDTH_SMALL  32
@@ -91,22 +90,20 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        static const SkScalar kX = 0;
-        static const SkScalar kY = 0;
-        const SkRect bmpRect = SkRect::MakeXYWH(kX, kY,
-                                                SkIntToScalar(fCheckerboard.width()),
-                                                SkIntToScalar(fCheckerboard.height()));
-        const SkImageFilter::CropRect cropRect(bmpRect.makeInset(10.f, 10.f));
-        const SkImageFilter::CropRect cropRectLarge(bmpRect);
+        static const int kX = 0;
+        static const int kY = 0;
+        const SkIRect bmpRect = SkIRect::MakeXYWH(kX, kY, fCheckerboard.width(),
+                                                  fCheckerboard.height());
+        const SkIRect bmpRectInset = bmpRect.makeInset(10, 10);
 
         sk_sp<SkImageFilter> input = fIsExpanded
-                                        ? SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect)
+                                        ? SkImageFilters::Offset(0, 0, nullptr, &bmpRectInset)
                                         : nullptr;
 
-        const SkImageFilter::CropRect* crop =
-            fIsExpanded ? &cropRectLarge : fIsCropped ? &cropRect : nullptr;
+        const SkIRect* crop =
+            fIsExpanded ? &bmpRect : fIsCropped ? &bmpRectInset : nullptr;
         SkPaint paint;
-        paint.setImageFilter(SkBlurImageFilter::Make(fSigmaX, fSigmaY, std::move(input), crop));
+        paint.setImageFilter(SkImageFilters::Blur(fSigmaX, fSigmaY, std::move(input), crop));
 
         for (int i = 0; i < loops; i++) {
             canvas->drawBitmap(fCheckerboard, kX, kY, &paint);
