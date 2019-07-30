@@ -166,20 +166,21 @@ public:
      */
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrBackendFormat&,
                                           const GrSurfaceDesc&, GrRenderable,
-                                          int renderTargetSampleCnt, GrSurfaceOrigin, GrMipMapped,
-                                          GrInternalSurfaceFlags, SkBackingFit, SkBudgeted,
-                                          GrProtected, LazyInstantiationType);
+                                          int renderTargetSampleCnt, GrSurfaceOrigin,
+                                          GrMipMapped, GrMipMapsStatus, GrInternalSurfaceFlags,
+                                          SkBackingFit, SkBudgeted, GrProtected,
+                                          LazyInstantiationType);
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrBackendFormat&,
                                           const GrSurfaceDesc&, GrRenderable,
                                           int renderTargetSampleCnt, GrSurfaceOrigin, GrMipMapped,
-                                          GrInternalSurfaceFlags, SkBackingFit, SkBudgeted,
-                                          GrProtected);
+                                          GrMipMapsStatus, GrInternalSurfaceFlags, SkBackingFit,
+                                          SkBudgeted, GrProtected);
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrBackendFormat&,
                                           const GrSurfaceDesc&, GrRenderable,
                                           int renderTargetSampleCnt, GrSurfaceOrigin, GrMipMapped,
-                                          SkBackingFit, SkBudgeted, GrProtected);
+                                          GrMipMapsStatus, SkBackingFit, SkBudgeted, GrProtected);
 
     /** A null TextureInfo indicates a non-textureable render target. */
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
@@ -188,10 +189,8 @@ public:
                                                            int renderTargetSampleCnt,
                                                            GrSurfaceOrigin origin,
                                                            GrInternalSurfaceFlags,
-                                                           const TextureInfo*,
-                                                           SkBackingFit,
-                                                           SkBudgeted,
-                                                           GrProtected,
+                                                           const TextureInfo*, GrMipMapsStatus,
+                                                           SkBackingFit, SkBudgeted, GrProtected,
                                                            bool wrapsVkSecondaryCB);
 
     /**

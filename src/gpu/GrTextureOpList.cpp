@@ -16,6 +16,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/ops/GrCopySurfaceOp.h"
 #include "src/gpu/ops/GrTransferFromOp.h"
@@ -98,6 +99,15 @@ void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
 
 bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
+        // TEMPORARY: We are in the process of moving GrMipMapsStatus from the texture to the proxy.
+        // During this time we want to assert that the proxy resolves mipmaps at the exact same
+        // times the old code would have. A null opList is very exceptional, and the proxy will have
+        // assumed mipmaps are dirty in this scenario. We mark them dirty here on the texture as
+        // well, in order to keep the assert passing.
+        GrTexture* tex = fTarget->peekTexture();
+        if (tex && GrMipMapped::kYes == tex->texturePriv().mipMapped()) {
+            tex->texturePriv().markMipMapsDirty();
+        }
         return false;
     }
 

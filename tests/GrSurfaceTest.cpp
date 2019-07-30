@@ -562,8 +562,9 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 auto proxy = context->priv().proxyProvider()->createLazyProxy(
                         singleUseLazyCB, backendFormat, desc, renderable, 1,
                         GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-                        GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
-                        GrProtected::kNo, GrSurfaceProxy::LazyInstantiationType::kSingleUse);
+                        GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
+                        SkBackingFit::kExact, budgeted, GrProtected::kNo,
+                        GrSurfaceProxy::LazyInstantiationType::kSingleUse);
                 rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
                                  SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
                                  SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
@@ -599,8 +600,9 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 proxy = context->priv().proxyProvider()->createLazyProxy(
                         deinstantiateLazyCB, backendFormat, desc, renderable, 1,
                         GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-                        GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
-                        GrProtected::kNo, GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
+                        GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
+                        SkBackingFit::kExact, budgeted, GrProtected::kNo,
+                        GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
                 rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
                                  SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
                                  SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,

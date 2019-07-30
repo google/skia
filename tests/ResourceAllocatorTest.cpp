@@ -296,9 +296,9 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     auto lazyType = deinstantiate ? GrSurfaceProxy::LazyInstantiationType ::kDeinstantiate
                                   : GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
-    return proxyProvider->createLazyProxy(callback, format, desc, p.fRenderable, p.fSampleCnt,
-                                          p.fOrigin, GrMipMapped::kNo, flags, p.fFit, p.fBudgeted,
-                                          GrProtected::kNo, lazyType);
+    return proxyProvider->createLazyProxy(
+            callback, format, desc, p.fRenderable, p.fSampleCnt, p.fOrigin, GrMipMapped::kNo,
+            GrMipMapsStatus::kNotAllocated, flags, p.fFit, p.fBudgeted, GrProtected::kNo, lazyType);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
