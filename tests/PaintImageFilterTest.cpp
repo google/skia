@@ -9,12 +9,12 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkPaintImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tests/Test.h"
 
 static void test_unscaled(skiatest::Reporter* reporter) {
     int w = 10, h = 10;
-    SkRect r = SkRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h));
+    SkIRect ir = SkIRect::MakeWH(w, h);
 
     SkBitmap filterResult, paintResult;
 
@@ -38,21 +38,20 @@ static void test_unscaled(skiatest::Reporter* reporter) {
     // Test using the image filter
     {
         SkPaint paint;
-        SkImageFilter::CropRect cr(r);
-        paint.setImageFilter(SkPaintImageFilter::Make(gradientPaint, &cr));
-        canvasFilter.drawRect(r, paint);
+        paint.setImageFilter(SkImageFilters::Paint(gradientPaint, &ir));
+        canvasFilter.drawRect(SkRect::Make(ir), paint);
     }
 
     // Test using the paint directly
     {
-        canvasPaint.drawRect(r, gradientPaint);
+        canvasPaint.drawRect(SkRect::Make(ir), gradientPaint);
     }
 
     // Assert that both paths yielded the same result
-    for (int y = 0; y < r.height(); ++y) {
+    for (int y = 0; y < h; ++y) {
         const SkPMColor* filterPtr = filterResult.getAddr32(0, y);
         const SkPMColor* paintPtr = paintResult.getAddr32(0, y);
-        for (int x = 0; x < r.width(); ++x, ++filterPtr, ++paintPtr) {
+        for (int x = 0; x < w; ++x, ++filterPtr, ++paintPtr) {
             REPORTER_ASSERT(reporter, *filterPtr == *paintPtr);
         }
     }
@@ -60,7 +59,7 @@ static void test_unscaled(skiatest::Reporter* reporter) {
 
 static void test_scaled(skiatest::Reporter* reporter) {
     int w = 10, h = 10;
-    SkRect r = SkRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h));
+    SkIRect ir = SkIRect::MakeWH(w, h);
 
     SkBitmap filterResult, paintResult;
 
@@ -84,23 +83,22 @@ static void test_scaled(skiatest::Reporter* reporter) {
     // Test using the image filter
     {
         SkPaint paint;
-        SkImageFilter::CropRect cr(r);
-        paint.setImageFilter(SkPaintImageFilter::Make(gradientPaint, &cr));
+        paint.setImageFilter(SkImageFilters::Paint(gradientPaint, &ir));
         canvasFilter.scale(SkIntToScalar(2), SkIntToScalar(2));
-        canvasFilter.drawRect(r, paint);
+        canvasFilter.drawRect(SkRect::Make(ir), paint);
     }
 
     // Test using the paint directly
     {
         canvasPaint.scale(SkIntToScalar(2), SkIntToScalar(2));
-        canvasPaint.drawRect(r, gradientPaint);
+        canvasPaint.drawRect(SkRect::Make(ir), gradientPaint);
     }
 
     // Assert that both paths yielded the same result
-    for (int y = 0; y < r.height(); ++y) {
+    for (int y = 0; y < h; ++y) {
         const SkPMColor* filterPtr = filterResult.getAddr32(0, y);
         const SkPMColor* paintPtr = paintResult.getAddr32(0, y);
-        for (int x = 0; x < r.width(); ++x, ++filterPtr, ++paintPtr) {
+        for (int x = 0; x < w; ++x, ++filterPtr, ++paintPtr) {
             REPORTER_ASSERT(reporter, *filterPtr == *paintPtr);
         }
     }

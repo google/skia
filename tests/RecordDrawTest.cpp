@@ -9,7 +9,7 @@
 #include "tests/Test.h"
 
 #include "include/core/SkSurface.h"
-#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
@@ -187,10 +187,7 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     // We draw a rectangle with a long drop shadow.  We used to not update the clip
     // bounds based on SaveLayer paints, so the drop shadow could be cut off.
     SkPaint paint;
-    paint.setImageFilter(SkDropShadowImageFilter::Make(
-                                 20, 0, 0, 0, SK_ColorBLACK,
-                                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-                                 nullptr));
+    paint.setImageFilter(SkImageFilters::DropShadow(20, 0, 0, 0, SK_ColorBLACK,  nullptr));
 
     recorder.saveLayer(nullptr, &paint);
         recorder.clipRect(SkRect::MakeWH(20, 40));
