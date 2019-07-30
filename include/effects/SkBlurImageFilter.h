@@ -35,6 +35,11 @@ public:
     static sk_sp<SkImageFilter> Make(SkScalar sigmaX, SkScalar sigmaY, SkTileMode tileMode,
                                      sk_sp<SkImageFilter> input,
                                      const SkImageFilter::CropRect* cropRect = nullptr);
+
+    static void RegisterFlattenables();
+
+private:
+    SkBlurImageFilter() = delete;
 };
 
 #endif

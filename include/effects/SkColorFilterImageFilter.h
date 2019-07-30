@@ -11,30 +11,16 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkImageFilter.h"
 
-class SK_API SkColorFilterImageFilter : public SkImageFilter {
+class SK_API SkColorFilterImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkColorFilter> cf,
                                      sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr);
+                                     const SkImageFilter::CropRect* cropRect = nullptr);
 
-protected:
-    void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
-    bool onIsColorFilterNode(SkColorFilter**) const override;
-    bool onCanHandleComplexCTM() const override { return true; }
-    bool affectsTransparentBlack() const override;
+    static void RegisterFlattenables();
 
 private:
-    SK_FLATTENABLE_HOOKS(SkColorFilterImageFilter)
-
-    SkColorFilterImageFilter(sk_sp<SkColorFilter> cf,
-                             sk_sp<SkImageFilter> input,
-                             const CropRect* cropRect);
-
-    sk_sp<SkColorFilter> fColorFilter;
-
-    typedef SkImageFilter INHERITED;
+    SkColorFilterImageFilter() = delete;
 };
 
 #endif

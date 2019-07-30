@@ -27,6 +27,9 @@ public:
 
 
     static void RegisterFlattenables();
+
+private:
+    SkAlphaThresholdFilter() = delete;
 };
 
 #endif
