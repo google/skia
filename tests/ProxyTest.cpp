@@ -127,7 +127,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             desc.fHeight = widthHeight;
                             desc.fConfig = config;
 
-                            const GrBackendFormat format = caps.getBackendFormatFromColorType(ct);
+                            auto format = caps.getBackendFormatFromColorType(ct,
+                                                                             GrRenderable::kYes);
                             if (!format.isValid()) {
                                 continue;
                             }
@@ -257,7 +258,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 // Test wrapping FBO 0 (with made up properties). This tests sample count and the
                 // special case where FBO 0 doesn't support window rectangles.
                 if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
-                    GrBackendFormat beFormat = caps.getBackendFormatFromColorType(grColorType);
+                    auto beFormat = caps.getBackendFormatFromColorType(grColorType,
+                                                                       GrRenderable::kYes);
                     GrGLFramebufferInfo fboInfo;
                     fboInfo.fFBOID = 0;
                     SkASSERT(beFormat.getGLFormat());
@@ -366,7 +368,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
-    GrProxyProvider* provider = ctxInfo.grContext()->priv().proxyProvider();
+    GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* provider = context->priv().proxyProvider();
 
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
         for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
@@ -382,8 +385,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
                     const GrBackendFormat format =
-                        ctxInfo.grContext()->priv().caps()->getBackendFormatFromColorType(
-                                GrColorType::kRGBA_8888);
+                            context->priv().caps()->getBackendFormatFromColorType(
+                                GrColorType::kRGBA_8888,
+                                renderable);
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(
                             format, desc, renderable, 1, kBottomLeft_GrSurfaceOrigin, fit,
