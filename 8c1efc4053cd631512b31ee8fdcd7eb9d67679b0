@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c20070ec_90955e0d",
+        "filename": "modules/skparagraph/include/ParagraphCache.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-07-30T14:40:06Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "8c1efc4053cd631512b31ee8fdcd7eb9d67679b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
