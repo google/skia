@@ -1,5 +1,8 @@
 // Copyright 2019 Google LLC.
+#include "include/core/SkTypeface.h"
 #include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 
 namespace skia {
 namespace textlayout {
@@ -148,6 +151,16 @@ sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle
 }
 
 void FontCollection::disableFontFallback() { fEnableFontFallback = false; }
+
+bool FontCollection::updateParagraph(Paragraph* paragraph) {
+    auto impl = static_cast<ParagraphImpl*>(paragraph);
+    return fParagraphCache.updateParagraph(impl);
+}
+
+bool FontCollection::findParagraph(Paragraph* paragraph) {
+    auto impl = static_cast<ParagraphImpl*>(paragraph);
+    return fParagraphCache.findParagraph(impl);
+}
 
 }  // namespace textlayout
 }  // namespace skia
