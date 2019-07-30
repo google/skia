@@ -9,7 +9,6 @@
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/TextStyle.h"
-#include "modules/skparagraph/src/TextLine.h"
 #include "src/core/SkSpan.h"
 
 namespace skia {
@@ -27,15 +26,14 @@ struct FontDescr {
     TextIndex fStart;
 };
 
+class ParagraphImpl;
 class FontResolver {
 public:
 
     FontResolver() = default;
     ~FontResolver() = default;
 
-    void findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
-                                        SkSpan<Block> styles,
-                                        sk_sp<FontCollection> fontCollection);
+    void findAllFontsForAllStyledBlocks(ParagraphImpl* paragraph);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
 
     SkTArray<FontDescr>& switches() { return fFontSwitches; }
@@ -43,7 +41,7 @@ public:
 private:
     void findAllFontsForStyledBlock(const TextStyle& style, TextRange textRange);
     FontDescr makeFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar height);
-    size_t resolveAllCharactersByFont(const FontDescr& fontDescr);
+    bool resolveAllCharactersByFont(const FontDescr& fontDescr);
     void addResolvedWhitespacesToMapping();
 
     struct Hash {
@@ -56,10 +54,7 @@ private:
 
     SkUnichar firstUnresolved();
 
-    sk_sp<FontCollection> fFontCollection;
-    SkSpan<const char> fText;
-    TextRange fTextRange;
-    SkSpan<Block> fStyles;
+    ParagraphImpl* fMaster;
 
     SkTArray<FontDescr> fFontSwitches;
     FontDescr* fFontIterator;

@@ -25,7 +25,7 @@ namespace textlayout {
 bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* height) {
 
     SkASSERT(fFontIterator != nullptr);
-    TextIndex index = codepoint - fText.begin();
+    TextIndex index = codepoint - fMaster->text().begin();
     while (fFontIterator != fFontSwitches.end() && fFontIterator->fStart <= index) {
         if (fFontIterator->fStart == index) {
             *font = fFontIterator->fFont;
@@ -44,8 +44,8 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
     fUnresolvedCodepoints.reset();
 
     // Extract all unicode codepoints
-    const char* end = fText.begin() + textRange.end;
-    const char* current = fText.begin() + textRange.start;
+    const char* end = fMaster->text(textRange.end);
+    const char* current = fMaster->text(textRange.start);
     while (current != end) {
         fCharacters.emplace_back(current);
         fCodepoints.emplace_back(utf8_next(&current, end));
@@ -54,22 +54,24 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
     fUnresolved = fCodepoints.size();
 
     // Walk through all available fonts to resolve the block
-    for (auto& fontFamily : style.getFontFamilies()) {
-        auto typeface = fFontCollection->matchTypeface(fontFamily.c_str(), style.getFontStyle());
+    style.foreachFontFamilyName([this, &style](const char* fontFamily) {
+        auto typeface = fMaster->fontCollection()->matchTypeface(fontFamily, style.getFontStyle());
         if (typeface.get() == nullptr) {
-            continue;
+            return true;
         }
 
         // Resolve all unresolved characters
         auto font = makeFont(typeface, style.getFontSize(), style.getHeight());
         resolveAllCharactersByFont(font);
         if (fUnresolved == 0) {
-            break;
+            return false;
         }
-    }
+
+        return true;
+    });
 
     if (fUnresolved > 0) {
-        auto typeface = fFontCollection->matchDefaultTypeface(style.getFontStyle());
+        auto typeface = fMaster->fontCollection()->matchDefaultTypeface(style.getFontStyle());
         if (typeface.get() != nullptr) {
             // Resolve all unresolved characters
             auto font = makeFont(typeface, style.getFontSize(), style.getHeight());
@@ -79,11 +81,10 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
 
     addResolvedWhitespacesToMapping();
 
-    if (fUnresolved > 0 && fFontCollection->fontFallbackEnabled()) {
+    if (fUnresolved > 0 && fMaster->fontCollection()->fontFallbackEnabled()) {
         while (fUnresolved > 0) {
             auto unicode = firstUnresolved();
-            auto typeface = fFontCollection->defaultFallback(unicode, style.getFontStyle(), style.getLocale());
-            if (typeface == nullptr) {
+            auto typeface = fMaster->fontCollection()->defaultFallback(unicode, style.getFontStyle(), style.getLocale().c_str());            if (typeface == nullptr) {
                 break;
             }
             auto font = makeFont(typeface, style.getFontSize(), style.getHeight());
@@ -99,7 +100,7 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
 
     // In case something still unresolved
     if (fResolvedFonts.count() == 0) {
-        auto result = fFontCollection->defaultFallback(firstUnresolved(), style.getFontStyle(), style.getLocale());
+        auto result = fMaster->fontCollection()->defaultFallback(firstUnresolved(), style.getFontStyle(), style.getLocale().c_str());
         if (result == nullptr) {
             SkDebugf("No fallback!!!\n");
             return;
@@ -117,7 +118,7 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
     }
 }
 
-size_t FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
+bool FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
     // Consolidate all unresolved unicodes in one array to make a batch call
     SkTArray<SkGlyphID> glyphs(fUnresolved);
     glyphs.push_back_n(fUnresolved, SkGlyphID(0));
@@ -147,7 +148,7 @@ size_t FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
             }
         } else {
             //SkDebugf("Resolved %d @%d\n", font.fFont.getTypeface()->uniqueID(), resolved.start);
-            fFontMapping.set(fCharacters[resolved.start] - fText.begin(), font);
+            fFontMapping.set(fCharacters[resolved.start] - fMaster->text().begin(), font);
         }
     };
 
@@ -198,7 +199,7 @@ void FontResolver::addResolvedWhitespacesToMapping() {
         auto index = fUnresolvedIndexes[i];
         auto found = fWhitespaces.find(index);
         if (found != nullptr) {
-            fFontMapping.set(fCharacters[index] - fText.begin(), *found);
+            fFontMapping.set(fCharacters[index] - fMaster->text().begin(), *found);
             ++resolvedWhitespaces;
         }
     }
@@ -232,42 +233,37 @@ SkUnichar FontResolver::firstUnresolved() {
     return fCodepoints[index];
 }
 
-void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
-                                                  SkSpan<Block> styles,
-                                                  sk_sp<FontCollection> fontCollection) {
-    fFontCollection = fontCollection;
-    fStyles = styles;
-    fText = utf8;
-    fTextRange = TextRange(0, utf8.size());
+void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* paragraph) {
+    fMaster = paragraph;
 
-    Block combined;
-    for (auto& block : fStyles) {
-        SkASSERT(combined.fRange.empty() ||
-                 combined.fRange.end == block.fRange.start);
+    TextStyle* combinedStyle = nullptr;
+    TextRange combinedRange;
+    for (auto& block : paragraph->styles()) {
+        SkASSERT(combinedRange.width() == 0 ||
+                 combinedRange.end == block.fRange.start);
 
-        if (!combined.fRange.empty() &&
-                block.fStyle.matchOneAttribute(StyleType::kFont, combined.fStyle)) {
-            combined.add(block.fRange);
-            continue;
+        if (combinedRange.width() > 0) {
+            if (block.fStyle.matchOneAttribute(StyleType::kFont, *combinedStyle)) {
+                combinedRange.end += block.fRange.width();
+                continue;
+            }
+
+            this->findAllFontsForStyledBlock(*combinedStyle, combinedRange);
         }
-
-        if (!combined.fRange.empty()) {
-            this->findAllFontsForStyledBlock(combined.fStyle, combined.fRange);
-        }
-
-        combined = block;
+        combinedStyle = &block.fStyle;
+        combinedRange = block.fRange;
     }
-    this->findAllFontsForStyledBlock(combined.fStyle, combined.fRange);
-
+    this->findAllFontsForStyledBlock(*combinedStyle, combinedRange);
 
     fFontSwitches.reset();
     FontDescr* prev = nullptr;
-    for (auto& ch : utf8) {
+    auto text = paragraph->text();
+    for (auto& ch : text) {
         if (fFontSwitches.count() == fFontMapping.count()) {
             // Checked all
             break;
         }
-        auto found = fFontMapping.find(&ch - fText.begin());
+        auto found = fFontMapping.find(&ch - text.begin());
         if (found == nullptr) {
             // Insignificant character
             continue;
@@ -284,7 +280,7 @@ void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
         fFontSwitches.emplace_back(*prev);
 
         prev = found;
-        prev->fStart = &ch - fText.begin();
+        prev->fStart = &ch - text.begin();
     }
 
     if (prev == nullptr) {

@@ -1,14 +1,17 @@
 // Copyright 2019 Google LLC.
 #include "include/core/SkColor.h"
 #include "include/core/SkFontStyle.h"
+#include "modules/skparagraph/include/StringCache.h"
 #include "modules/skparagraph/include/TextStyle.h"
 
 namespace skia {
 namespace textlayout {
 
-TextStyle::TextStyle() : fFontStyle() {
-    fFontFamilies.reserve(1);
-    fFontFamilies.emplace_back(DEFAULT_FONT_FAMILY);
+TextStyle::TextStyle() : fFontStyle(), fFontFamilies(1), fLocale() {
+
+    fFontFamilies.emplace_back(StringCache::gStringCache.make(DEFAULT_FONT_FAMILY));
+    fLocale = StringCache::gStringCache.make("");
+
     fColor = SK_ColorWHITE;
     fDecoration.fType = TextDecoration::kNoDecoration;
     // Does not make sense to draw a transparent object, so we use it as a default
@@ -24,7 +27,6 @@ TextStyle::TextStyle() : fFontStyle() {
     fHasBackground = false;
     fHasForeground = false;
     fTextBaseline = TextBaseline::kAlphabetic;
-    fLocale = "";
 }
 
 bool TextStyle::equals(const TextStyle& other) const {
@@ -118,6 +120,24 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
         default:
             SkASSERT(false);
             return false;
+    }
+}
+
+const std::vector<SkString> TextStyle::getFontFamilies() const {
+
+    std::vector<SkString> result;
+    result.reserve(fFontFamilies.size());
+    for (auto& cs : fFontFamilies) {
+        result.emplace_back(StringCache::gStringCache.makerSkString(cs));
+    }
+    return result;
+}
+
+void TextStyle::setFontFamilies(const std::vector<SkString>& families) {
+    fFontFamilies.reset();
+    fFontFamilies.reserve(families.size());
+    for (auto& family : families) {
+        fFontFamilies.emplace_back(StringCache::gStringCache.make(family.c_str()));
     }
 }
 

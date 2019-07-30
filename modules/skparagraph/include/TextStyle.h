@@ -9,6 +9,7 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPaint.h"
 #include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/StringCache.h"
 #include "modules/skparagraph/include/TextShadow.h"
 
 // TODO: Make it external so the other platforms (Android) could use it
@@ -114,9 +115,15 @@ public:
     SkScalar getFontSize() const { return fFontSize; }
     void setFontSize(SkScalar size) { fFontSize = size; }
 
-    const std::vector<SkString>& getFontFamilies() const { return fFontFamilies; }
-    void setFontFamilies(std::vector<SkString> families) {
-        fFontFamilies = std::move(families);
+    const std::vector<SkString> getFontFamilies() const;
+    void setFontFamilies(const std::vector<SkString>& families);
+    template <typename Fn>
+    void foreachFontFamilyName(Fn&& fn) const {
+        for (auto& cs : fFontFamilies) {
+            if (!fn(cs.value)) {
+                break;
+            }
+        }
     }
 
     void setHeight(SkScalar height) { fHeight = height; }
@@ -132,31 +139,21 @@ public:
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
     void setTypeface(sk_sp<SkTypeface> typeface) { fTypeface = std::move(typeface); }
 
-    SkString getLocale() const { return fLocale; }
-    void setLocale(const SkString& locale) { fLocale = locale; }
+    SkString getLocale() const { return  StringCache::gStringCache.makerSkString(fLocale); }
+    void setLocale(const SkString& locale) { fLocale = StringCache::gStringCache.make(locale.c_str()); }
 
     TextBaseline getTextBaseline() const { return fTextBaseline; }
     void setTextBaseline(TextBaseline baseline) { fTextBaseline = baseline; }
-
-    // TODO: Not to use SkFontMetrics class (it has different purpose and meaning)
-    void getFontMetrics(SkFontMetrics* metrics) const {
-        SkFont font(fTypeface, fFontSize);
-        font.getMetrics(metrics);
-        metrics->fAscent =
-                (metrics->fAscent - metrics->fLeading / 2) * (fHeight == 0 ? 1 : fHeight);
-        metrics->fDescent =
-                (metrics->fDescent + metrics->fLeading / 2) * (fHeight == 0 ? 1 : fHeight);
-    }
 
 private:
     Decoration fDecoration;
 
     SkFontStyle fFontStyle;
 
-    std::vector<SkString> fFontFamilies;
+    SkTArray<CachedString> fFontFamilies;
     SkScalar fFontSize;
     SkScalar fHeight;
-    SkString fLocale;
+    CachedString fLocale;
     SkScalar fLetterSpacing;
     SkScalar fWordSpacing;
 
@@ -185,10 +182,6 @@ struct Block {
     Block(TextRange textRange, const TextStyle& style)
         : fRange(textRange), fStyle(style) {}
 
-    void add(TextRange tail) {
-        SkASSERT(fRange.end == tail.start);
-        fRange = TextRange(fRange.start, fRange.start + fRange.width() + tail.width());
-    }
     TextRange fRange;
     TextStyle fStyle;
 };
