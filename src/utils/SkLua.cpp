@@ -28,8 +28,8 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkMakeUnique.h"
@@ -1812,7 +1812,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
 static int lsk_newBlurImageFilter(lua_State* L) {
     SkScalar sigmaX = lua2scalar_def(L, 1, 0);
     SkScalar sigmaY = lua2scalar_def(L, 2, 0);
-    sk_sp<SkImageFilter> imf(SkBlurImageFilter::Make(sigmaX, sigmaY, nullptr));
+    sk_sp<SkImageFilter> imf(SkImageFilters::Blur(sigmaX, sigmaY, nullptr));
     if (!imf) {
         lua_pushnil(L);
     } else {

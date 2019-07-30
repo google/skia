@@ -12,6 +12,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkScalar.h"
 
+// DEPRECATED: Use include/effects/SkImageFilters::DropShadow and DropShadowOnly
 class SK_API SkDropShadowImageFilter {
 public:
     enum ShadowMode {

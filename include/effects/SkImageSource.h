@@ -11,6 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 
+// DEPRECATED: Use include/effects/SkImageFilters::Image
 class SK_API SkImageSource {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkImage> image);
