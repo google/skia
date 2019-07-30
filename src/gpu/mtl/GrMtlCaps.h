@@ -33,8 +33,7 @@ public:
     bool isConfigTexturable(GrPixelConfig config) const override;
     bool isFormatTexturable(MTLPixelFormat) const;
 
-    bool isFormatCopyable(GrColorType, const GrBackendFormat&) const override { return true; }
-    bool isConfigCopyable(GrPixelConfig) const override { return true; }
+    bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
     bool isFormatRenderable(MTLPixelFormat) const;
 

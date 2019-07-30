@@ -98,10 +98,6 @@ bool GrDawnCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& forma
     return this->isConfigTexturable(config);
 }
 
-bool GrDawnCaps::isFormatCopyable(GrColorType ct, const GrBackendFormat& format) const {
-    return true;
-}
-
 int GrDawnCaps::getRenderTargetSampleCount(int requestedCount, GrColorType ct,
                                            const GrBackendFormat& format) const {
     GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);

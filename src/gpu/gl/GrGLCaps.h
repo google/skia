@@ -140,14 +140,7 @@ public:
         return this->maxRenderTargetSampleCount(ct, format);
     }
 
-    bool isFormatCopyable(GrColorType, const GrBackendFormat&) const override;
-    bool isConfigCopyable(GrPixelConfig config) const override {
-        // In GL we have three ways to be able to copy. CopyTexImage, blit, and draw. CopyTexImage
-        // requires the src to be an FBO attachment, blit requires both src and dst to be FBO
-        // attachments, and draw requires the dst to be an FBO attachment. Thus to copy from and to
-        // the same config, we need that config to be bindable to an FBO.
-        return this->canConfigBeFBOColorAttachment(config);
-    }
+    bool isFormatCopyable(const GrBackendFormat&) const override;
 
     bool canFormatBeFBOColorAttachment(GrGLFormat) const;
 
