@@ -1670,7 +1670,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
             fRenderTargetContext->colorSpaceInfo().refColorSpace(),
             fRenderTargetContext->numSamples(),
             GrMipMapped::kNo,
-            kBottomLeft_GrSurfaceOrigin,
+            kTopLeft_GrSurfaceOrigin,
             &props,
             SkBudgeted::kYes,
             fRenderTargetContext->asSurfaceProxy()->isProtected() ? GrProtected::kYes
