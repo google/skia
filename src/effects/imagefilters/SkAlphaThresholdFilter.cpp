@@ -27,6 +27,8 @@
 #include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
 #endif
 
+namespace {
+
 class SkAlphaThresholdFilterImpl : public SkImageFilter {
 public:
     SkAlphaThresholdFilterImpl(const SkRegion& region, SkScalar innerThreshold,
@@ -55,6 +57,8 @@ private:
     SkScalar fOuterThreshold;
     typedef SkImageFilter INHERITED;
 };
+
+}; // end namespace
 
 void SkAlphaThresholdFilter::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkAlphaThresholdFilterImpl);

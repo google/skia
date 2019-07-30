@@ -256,8 +256,6 @@ public:
                                                  SkFilterQuality quality,
                                                  sk_sp<SkImageFilter> input);
 
-    static void RegisterFlattenables();
-
     static SkFlattenable::Type GetFlattenableType() {
         return kSkImageFilter_Type;
     }
