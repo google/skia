@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d280b83_3e4d74c4",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 2384,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-07-30T16:20:57Z",
+      "side": 0,
+      "message": "Looks like you still need this.",
+      "revId": "7bacbf71f7d317c5f86194e9a649f73fef310042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
