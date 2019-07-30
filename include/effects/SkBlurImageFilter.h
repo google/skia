@@ -12,6 +12,7 @@
 
 enum class SkTileMode;
 
+
 class SK_API SkBlurImageFilter {
 public:
     /*! \enum TileMode

@@ -13,6 +13,7 @@
 
 struct SkPoint3;
 
+// DEPRECATED: Use include/effects/SkImageFilters::[Diffuse|Specular]Light[Distant|Point|Spot]
 class SK_API SkLightingImageFilter {
 public:
     static sk_sp<SkImageFilter> MakeDistantLitDiffuse(const SkPoint3& direction,
