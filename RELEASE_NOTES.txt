@@ -10,3 +10,4 @@ Milestone 78
 
 SkDrawLooper is no longer supported in SkPaint or SkCanvas.
 
+SkPicture version number increased: consolidated enum types in image filters.

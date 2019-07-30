@@ -69,25 +69,24 @@ void SkImageFilter::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkBlurImage
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static SkTileMode to_sktilemode(SkBlurImageFilter::TileMode tileMode) {
+    switch(tileMode) {
+        case SkBlurImageFilter::kClamp_TileMode:
+            return SkTileMode::kClamp;
+        case SkBlurImageFilter::kRepeat_TileMode:
+            return SkTileMode::kRepeat;
+        case SkBlurImageFilter::kClampToBlack_TileMode:
+            // Fall through
+        default:
+            return SkTileMode::kDecal;
+    }
+}
+
 sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY,
                                              sk_sp<SkImageFilter> input,
                                              const SkImageFilter::CropRect* cropRect,
                                              TileMode tileMode) {
-    SkTileMode skTileMode;
-    switch(tileMode) {
-        case kClamp_TileMode:
-            skTileMode = SkTileMode::kClamp;
-            break;
-        case kRepeat_TileMode:
-            skTileMode = SkTileMode::kRepeat;
-            break;
-        case kClampToBlack_TileMode:
-            // Fall through
-        default:
-            skTileMode = SkTileMode::kDecal;
-            break;
-    }
-    return Make(sigmaX, sigmaY, skTileMode, std::move(input), cropRect);
+    return Make(sigmaX, sigmaY, to_sktilemode(tileMode), std::move(input), cropRect);
 }
 
 sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY, SkTileMode tileMode,
@@ -126,17 +125,19 @@ sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
-    SkBlurImageFilter::TileMode tileMode;
+    SkTileMode tileMode;
     if (buffer.isVersionLT(SkReadBuffer::kTileModeInBlurImageFilter_Version)) {
-        tileMode = SkBlurImageFilter::kClampToBlack_TileMode;
+        tileMode = SkTileMode::kDecal;
+    } else if (buffer.isVersionLT(SkReadBuffer::kCleanupImageFilterEnums_Version)) {
+        tileMode = to_sktilemode(buffer.read32LE(SkBlurImageFilter::kLast_TileMode));
     } else {
-        tileMode = buffer.read32LE(SkBlurImageFilter::kLast_TileMode);
+        tileMode = buffer.read32LE(SkTileMode::kLastTileMode);
     }
 
     static_assert(SkBlurImageFilter::kLast_TileMode == 2, "CreateProc");
 
     return SkBlurImageFilter::Make(
-          sigmaX, sigmaY, common.getInput(0), &common.cropRect(), tileMode);
+          sigmaX, sigmaY, tileMode, common.getInput(0), &common.cropRect());
 }
 
 void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
@@ -144,30 +145,11 @@ void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fSigma.fWidth);
     buffer.writeScalar(fSigma.fHeight);
 
-    // CreateProc only knows how to deserialize the old TileMode enum, so temporarily convert
-    // SkTileMode back to the old one, treating kMirror as kRepeat.
-    // TODO (michaelludwig) - Remove once CreateProc can deserialize SkTileMode directly, which will
-    // require a new SkPicture version number.
-    SkBlurImageFilter::TileMode backwardsCompatibleMode;
-    switch(fTileMode) {
-        case SkTileMode::kClamp:
-            backwardsCompatibleMode = SkBlurImageFilter::kClamp_TileMode;
-            break;
-        case SkTileMode::kMirror:
-            // Treat as repeat for now
-        case SkTileMode::kRepeat:
-            backwardsCompatibleMode = SkBlurImageFilter::kRepeat_TileMode;
-            break;
-        case SkTileMode::kDecal:
-        default:
-            backwardsCompatibleMode = SkBlurImageFilter::kClampToBlack_TileMode;
-            break;
-    }
-
-    static_assert(SkBlurImageFilter::kLast_TileMode == 2, "flatten");
-    SkASSERT(backwardsCompatibleMode <= SkBlurImageFilter::kLast_TileMode);
-
-    buffer.writeInt(static_cast<int>(backwardsCompatibleMode));
+    // Fuzzer sanity checks
+    static_assert((int) SkTileMode::kLastTileMode == 3 && SkBlurImageFilter::kLast_TileMode == 2,
+                  "SkBlurImageFilterImpl::flatten");
+    SkASSERT(fTileMode <= SkTileMode::kLastTileMode);
+    buffer.writeInt(static_cast<int>(fTileMode));
 }
 
 #if SK_SUPPORT_GPU
