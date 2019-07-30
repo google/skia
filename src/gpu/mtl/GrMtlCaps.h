@@ -70,7 +70,7 @@ public:
 
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
 
-    GrBackendFormat getBackendFormatFromColorType(GrColorType ct) const override;
+    GrBackendFormat onGetBackendFormatFromColorType(GrColorType, GrRenderable) const override;
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
     bool canClearTextureOnCreation() const override { return true; }
