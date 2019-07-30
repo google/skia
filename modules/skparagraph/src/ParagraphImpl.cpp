@@ -85,8 +85,6 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
-ParagraphCache ParagraphImpl::fParagraphCache;
-
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
@@ -98,8 +96,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fState(kUnknown)
         , fPicture(nullptr)
         , fOldWidth(0)
-        , fOldHeight(0)
-        , fParagraphCacheOn(false) {
+        , fOldHeight(0) {
     // TODO: extractStyles();
 }
 
@@ -112,8 +109,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
         , fState(kUnknown)
         , fPicture(nullptr)
         , fOldWidth(0)
-        , fOldHeight(0)
-        , fParagraphCacheOn(false) {
+        , fOldHeight(0) {
     icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
     std::string str;
     unicode.toUTF8String(str);
@@ -161,10 +157,9 @@ void ParagraphImpl::layout(SkScalar width) {
             fState = kClusterized;
             this->markLineBreaks();
             fState = kMarked;
+
             // Add the paragraph to the cache
-            if (fParagraphCacheOn) {
-                fParagraphCache.updateParagraph(this);
-            }
+            fFontCollection->getParagraphCache()->updateParagraph(this);
         }
     }
 
@@ -187,10 +182,6 @@ void ParagraphImpl::layout(SkScalar width) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
         fState = kFormatted;
-        // Add the paragraph to the cache
-        if (fParagraphCacheOn) {
-            fParagraphCache.updateParagraph(this);
-        }
     }
 
     this->fOldWidth = width;
@@ -203,9 +194,6 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
         // Record the picture anyway (but if we have some pieces in the cache they will be used)
         this->paintLinesIntoPicture();
         fState = kDrawn;
-        if (fParagraphCacheOn) {
-            fParagraphCache.updateParagraph(this);
-        }
     }
 
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
@@ -355,28 +343,27 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     }
 
     // This is a pretty big step - resolving all characters against all given fonts
-    fFontResolver.findAllFontsForAllStyledBlocks(fTextSpan, styles(), fFontCollection);
+    fFontResolver.findAllFontsForAllStyledBlocks(this);
 
     // Check the font-resolved text against the cache
-    if (fParagraphCacheOn && fParagraphCache.findParagraph(this)) {
-        return true;
-    }
+    if (!fFontCollection->getParagraphCache()->findParagraph(this)) {
+        LangIterator lang(fTextSpan, styles(), paragraphStyle().getTextStyle());
+        FontIterator font(fTextSpan, &fFontResolver);
+        ShapeHandler handler(*this, &font);
+        std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
+        SkASSERT_RELEASE(shaper != nullptr);
+        auto bidi = SkShaper::MakeIcuBiDiRunIterator(
+                fTextSpan.begin(), fTextSpan.size(),
+                fParagraphStyle.getTextDirection() == TextDirection::kLtr ? (uint8_t)2
+                                                                          : (uint8_t)1);
+        if (bidi == nullptr) {
+            return false;
+        }
+        auto script = SkShaper::MakeHbIcuScriptRunIterator(fTextSpan.begin(), fTextSpan.size());
 
-    LangIterator lang(fTextSpan, styles(), paragraphStyle().getTextStyle());
-    FontIterator font(fTextSpan, &fFontResolver);
-    ShapeHandler handler(*this, &font);
-    std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
-    SkASSERT_RELEASE(shaper != nullptr);
-    auto bidi = SkShaper::MakeIcuBiDiRunIterator(
-            fTextSpan.begin(), fTextSpan.size(),
-            fParagraphStyle.getTextDirection() == TextDirection::kLtr ? (uint8_t)2 : (uint8_t)1);
-    if (bidi == nullptr) {
-        return false;
+        shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
+                      std::numeric_limits<SkScalar>::max(), &handler);
     }
-    auto script = SkShaper::MakeHbIcuScriptRunIterator(fTextSpan.begin(), fTextSpan.size());
-
-    shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
-                  std::numeric_limits<SkScalar>::max(), &handler);
 
     if (fParagraphStyle.getTextAlign() == TextAlign::kJustify) {
         fRunShifts.reset();
