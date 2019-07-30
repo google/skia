@@ -73,7 +73,7 @@ private:
              in_1 = SkTPin(fInWhite,  0.0f, 1.0f),
             out_0 = SkTPin(fOutBlack, 0.0f, 1.0f),
             out_1 = SkTPin(fOutWhite, 0.0f, 1.0f),
-                g = 1 / SkTMax(fGamma, 0.0f);
+                g = sk_ieee_float_divide(1, std::max(fGamma, 0.0f));
 
         float clip[] = {0, 1};
         const auto kLottieDoClip = 1;
