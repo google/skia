@@ -8,7 +8,7 @@
 namespace skia {
 namespace textlayout {
 
-enum Affinity { kUpstream, kDownstream };
+enum class Affinity { kUpstream, kDownstream };
 
 enum class RectHeightStyle {
     // Provide tight bounding boxes that fit heights per run.

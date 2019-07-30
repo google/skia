@@ -19,7 +19,7 @@ struct Measurement {
     SkScalar fMinIntrinsicWidth;
 };
 
-enum InternalState {
+enum class InternalState {
   kUnknown = 0,
   kShaped = 1,
   kClusterized = 2,

@@ -4,7 +4,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
@@ -106,14 +105,11 @@ private:
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
     SkScalar fShift;                    // Left right
-    std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
+    std::unique_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
     LineMetrics fSizes;                 // Line metrics as a max of all run metrics
     bool fHasBackground;
     bool fHasShadows;
     bool fHasDecorations;
-
-    // TODO: use for ellipsis the common cache
-    static SkTHashMap<SkFont, Run> fEllipsisCache;  // All found so far shapes of ellipsis
 };
 }  // namespace textlayout
 }  // namespace skia

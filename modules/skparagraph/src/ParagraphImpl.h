@@ -41,15 +41,15 @@ struct StyleBlock {
 class ParagraphImpl final : public Paragraph {
 public:
 
-    ParagraphImpl(const SkString& text,
+    ParagraphImpl(SkString text,
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   sk_sp<FontCollection> fonts);
 
     ParagraphImpl(const std::u16string& utf16text,
-                    ParagraphStyle style,
-                    SkTArray<Block, true> blocks,
-                    sk_sp<FontCollection> fonts);
+                  ParagraphStyle style,
+                  SkTArray<Block, true> blocks,
+                  sk_sp<FontCollection> fonts);
     ~ParagraphImpl() override;
 
     void layout(SkScalar width) override;
@@ -78,7 +78,7 @@ public:
         return SkSpan<Block>(fTextStyles.data(), fTextStyles.size());
     }
     SkSpan<TextLine> lines() { return SkSpan<TextLine>(fLines.data(), fLines.size()); }
-    ParagraphStyle paragraphStyle() const { return fParagraphStyle; }
+    const ParagraphStyle& paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     sk_sp<FontCollection> fontCollection() { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
@@ -130,7 +130,7 @@ public:
     SkSpan<Block> blocks(BlockRange blockRange);
     Block& block(BlockIndex blockIndex);
 
-    void markDirty() override { fState = kUnknown; }
+    void markDirty() override { fState = InternalState::kUnknown; }
     FontResolver& getResolver() { return fFontResolver; }
     void setState(InternalState state);
     sk_sp<SkPicture> getPicture() { return fPicture; }

@@ -33,9 +33,9 @@ constexpr TextDecoration AllTextDecorations[] = {
         kLineThrough,
 };
 
-enum TextDecorationStyle { kSolid, kDouble, kDotted, kDashed, kWavy };
+enum class TextDecorationStyle { kSolid, kDouble, kDotted, kDashed, kWavy };
 
-enum StyleType {
+enum class StyleType {
     kAllAttributes,
     kFont,
     kForeground,
@@ -135,10 +135,6 @@ public:
     void setWordSpacing(SkScalar wordSpacing) { fWordSpacing = wordSpacing; }
     SkScalar getWordSpacing() const { return fWordSpacing; }
 
-    SkTypeface* getTypeface() const { return fTypeface.get(); }
-    sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
-    void setTypeface(sk_sp<SkTypeface> typeface) { fTypeface = std::move(typeface); }
-
     SkString getLocale() const { return  StringCache::gStringCache.makerSkString(fLocale); }
     void setLocale(const SkString& locale) { fLocale = StringCache::gStringCache.make(locale.c_str()); }
 
@@ -166,14 +162,11 @@ private:
     SkPaint fForeground;
 
     std::vector<TextShadow> fTextShadows;
-
-    sk_sp<SkTypeface> fTypeface;
 };
 
 typedef size_t TextIndex;
 typedef SkRange<size_t> TextRange;
 const SkRange<size_t> EMPTY_TEXT = EMPTY_RANGE;
-
 
 struct Block {
     Block() : fRange(EMPTY_RANGE), fStyle() { }

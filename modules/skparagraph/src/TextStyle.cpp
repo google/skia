@@ -78,17 +78,21 @@ bool TextStyle::equals(const TextStyle& other) const {
 
 bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) const {
     switch (styleType) {
-        case kForeground:
+        case StyleType::kForeground:
             if (fHasForeground) {
                 return other.fHasForeground && fForeground == other.fForeground;
             } else {
                 return !other.fHasForeground && fColor == other.fColor;
             }
 
-        case kBackground:
-            return (fHasBackground == other.fHasBackground && fBackground == other.fBackground);
+        case StyleType::kBackground:
+            if (fHasBackground) {
+                return other.fHasBackground && fBackground == other.fBackground;
+            } else {
+                return !other.fHasBackground;
+            }
 
-        case kShadow:
+        case StyleType::kShadow:
             if (fTextShadows.size() != other.fTextShadows.size()) {
                 return false;
             }
@@ -100,22 +104,24 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             }
             return true;
 
-        case kDecorations:
+        case StyleType::kDecorations:
             return this->fDecoration == other.fDecoration;
 
-        case kLetterSpacing:
+        case StyleType::kLetterSpacing:
             return fLetterSpacing == other.fLetterSpacing;
 
-        case kWordSpacing:
+        case StyleType::kWordSpacing:
             return fWordSpacing == other.fWordSpacing;
 
-        case kAllAttributes:
+        case StyleType::kAllAttributes:
             return this->equals(other);
 
-        case kFont:
+        case StyleType::kFont:
             // TODO: should not we take typefaces in account?
-            return fFontStyle == other.fFontStyle && fFontFamilies == other.fFontFamilies &&
-                   fFontSize == other.fFontSize && fHeight == other.fHeight;
+            return fFontStyle == other.fFontStyle &&
+                   fFontSize == other.fFontSize &&
+                   fHeight == other.fHeight &&
+                   fFontFamilies == other.fFontFamilies;
 
         default:
             SkASSERT(false);

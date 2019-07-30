@@ -1294,34 +1294,34 @@ protected:
         auto impl = reinterpret_cast<ParagraphImpl*>(paragraph.get());
 
         for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kUnknown);
+            impl->setState(InternalState::kUnknown);
             impl->shapeTextIntoEndlessLine();
-            impl->setState(kShaped);
+            impl->setState(InternalState::kShaped);
         }
 
         for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kShaped);
+            impl->setState(InternalState::kShaped);
             impl->buildClusterTable();
             impl->markLineBreaks();
-            impl->setState(kMarked);
+            impl->setState(InternalState::kMarked);
         }
 
         for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kMarked);
+            impl->setState(InternalState::kMarked);
             impl->breakShapedTextIntoLines(1000);
-            impl->setState(kLineBroken);
+            impl->setState(InternalState::kLineBroken);
         }
 
         for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kLineBroken);
+            impl->setState(InternalState::kLineBroken);
             impl->formatLines(1000);
-            impl->setState(kFormatted);
+            impl->setState(InternalState::kFormatted);
         }
 
         for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kFormatted);
+            impl->setState(InternalState::kFormatted);
             impl->paintLinesIntoPicture();
-            impl->setState(kDrawn);
+            impl->setState(InternalState::kDrawn);
         }
 
         auto picture = impl->getPicture();

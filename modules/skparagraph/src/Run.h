@@ -135,7 +135,7 @@ private:
 
 class Cluster {
 public:
-    enum BreakType {
+    enum class BreakType {
         None,
         CharacterBoundary,       // not yet in use (UBRK_CHARACTER)
         WordBoundary,            // calculated for all clusters (UBRK_WORD)
@@ -155,7 +155,7 @@ public:
             , fSpacing(0)
             , fHeight()
             , fWhiteSpaces(false)
-            , fBreakType(None) {}
+            , fBreakType(BreakType::None) {}
 
     Cluster(ParagraphImpl* master,
             RunIndex runIndex,
@@ -183,10 +183,10 @@ public:
     void setBreakType(BreakType type) { fBreakType = type; }
     bool isWhitespaces() const { return fWhiteSpaces; }
     bool canBreakLineAfter() const {
-        return fBreakType == SoftLineBreak || fBreakType == HardLineBreak;
+        return fBreakType == BreakType::SoftLineBreak || fBreakType == BreakType::HardLineBreak;
     }
-    bool isHardBreak() const { return fBreakType == HardLineBreak; }
-    bool isSoftBreak() const { return fBreakType == SoftLineBreak; }
+    bool isHardBreak() const { return fBreakType == BreakType::HardLineBreak; }
+    bool isSoftBreak() const { return fBreakType == BreakType::SoftLineBreak; }
     size_t startPos() const { return fStart; }
     size_t endPos() const { return fEnd; }
     SkScalar width() const { return fWidth; }
@@ -269,7 +269,7 @@ public:
 
     SkScalar delta() const { return height() - ideographicBaseline(); }
 
-    void updateLineMetrics(LineMetrics& metrics, bool forceHeight) {
+    void updateLineMetrics(LineMetrics& metrics, bool forceHeight) const {
         if (forceHeight) {
             metrics.fAscent = fAscent;
             metrics.fDescent = fDescent;

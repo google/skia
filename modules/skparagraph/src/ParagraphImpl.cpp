@@ -85,15 +85,15 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
-ParagraphImpl::ParagraphImpl(const SkString& text,
+ParagraphImpl::ParagraphImpl(SkString text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
                              sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style), std::move(fonts))
         , fTextStyles(std::move(blocks))
-        , fText(text)
+        , fText(std::move(text))
         , fTextSpan(fText.c_str(), fText.size())
-        , fState(kUnknown)
+        , fState(InternalState::kUnknown)
         , fPicture(nullptr)
         , fOldWidth(0)
         , fOldHeight(0) {
@@ -106,7 +106,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style), std::move(fonts))
         , fTextStyles(std::move(blocks))
-        , fState(kUnknown)
+        , fState(InternalState::kUnknown)
         , fPicture(nullptr)
         , fOldWidth(0)
         , fOldHeight(0) {
@@ -122,16 +122,16 @@ ParagraphImpl::~ParagraphImpl() = default;
 
 void ParagraphImpl::layout(SkScalar width) {
 
-    if (fState < kShaped) {
+    if (fState < InternalState::kShaped) {
         // Layout marked as dirty for performance/testing reasons
         this->fRuns.reset();
         this->fClusters.reset();
-    } else if (fState >= kLineBroken && (fOldWidth != width || fOldHeight != fHeight)) {
+    } else if (fState >= InternalState::kLineBroken && (fOldWidth != width || fOldHeight != fHeight)) {
         // We can use the results from SkShaper but have to break lines again
-        fState = kShaped;
+        fState = InternalState::kShaped;
     }
 
-    if (fState < kShaped) {
+    if (fState < InternalState::kShaped) {
         fClusters.reset();
 
         if (!this->shapeTextIntoEndlessLine()) {
@@ -145,43 +145,43 @@ void ParagraphImpl::layout(SkScalar width) {
             fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
             fIdeographicBaseline = lineMetrics.ideographicBaseline();
         }
-        if (fState < kShaped) {
-            fState = kShaped;
+        if (fState < InternalState::kShaped) {
+            fState = InternalState::kShaped;
         } else {
             layout(width);
             return;
         }
 
-        if (fState < kMarked) {
+        if (fState < InternalState::kMarked) {
             this->buildClusterTable();
-            fState = kClusterized;
+            fState = InternalState::kClusterized;
             this->markLineBreaks();
-            fState = kMarked;
+            fState = InternalState::kMarked;
 
             // Add the paragraph to the cache
             fFontCollection->updateParagraph(this);
         }
     }
 
-    if (fState >= kLineBroken)  {
+    if (fState >= InternalState::kLineBroken)  {
         if (fOldWidth != width || fOldHeight != fHeight) {
-            fState = kMarked;
+            fState = InternalState::kMarked;
         }
     }
 
-    if (fState < kLineBroken) {
+    if (fState < InternalState::kLineBroken) {
         this->resetContext();
         this->resolveStrut();
         this->fLines.reset();
         this->breakShapedTextIntoLines(width);
-        fState = kLineBroken;
+        fState = InternalState::kLineBroken;
 
     }
 
-    if (fState < kFormatted) {
+    if (fState < InternalState::kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
-        fState = kFormatted;
+        fState = InternalState::kFormatted;
     }
 
     this->fOldWidth = width;
@@ -190,10 +190,10 @@ void ParagraphImpl::layout(SkScalar width) {
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
-    if (fState < kDrawn) {
+    if (fState < InternalState::kDrawn) {
         // Record the picture anyway (but if we have some pieces in the cache they will be used)
         this->paintLinesIntoPicture();
-        fState = kDrawn;
+        fState = InternalState::kDrawn;
     }
 
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
@@ -594,14 +594,14 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                               bool clippingNeeded) {
                     if (dx < clip.fLeft) {
                         // All the other runs are placed right of this one
-                        result = {SkToS32(run->fClusterIndexes[pos]), kDownstream};
+                        result = {SkToS32(run->fClusterIndexes[pos]), Affinity::kDownstream};
                         return false;
                     }
 
                     if (dx >= clip.fRight) {
                         // We have to keep looking but just in case keep the last one as the closes
                         // so far
-                        result = {SkToS32(run->fClusterIndexes[pos + size]), kUpstream};
+                        result = {SkToS32(run->fClusterIndexes[pos + size]), Affinity::kUpstream};
                         return true;
                     }
 
@@ -615,15 +615,15 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                     }
 
                     if (found == pos) {
-                        result = {SkToS32(run->fClusterIndexes[found]), kDownstream};
+                        result = {SkToS32(run->fClusterIndexes[found]), Affinity::kDownstream};
                     } else if (found == pos + size - 1) {
-                        result = {SkToS32(run->fClusterIndexes[found]), kUpstream};
+                        result = {SkToS32(run->fClusterIndexes[found]), Affinity::kUpstream};
                     } else {
                         auto center = (run->positionX(found + 1) + run->positionX(found)) / 2;
                         if ((dx <= center + shift) == run->leftToRight()) {
-                            result = {SkToS32(run->fClusterIndexes[found]), kDownstream};
+                            result = {SkToS32(run->fClusterIndexes[found]), Affinity::kDownstream};
                         } else {
-                            result = {SkToS32(run->fClusterIndexes[found + 1]), kUpstream};
+                            result = {SkToS32(run->fClusterIndexes[found + 1]), Affinity::kUpstream};
                         }
                     }
                     // No need to continue
@@ -718,20 +718,20 @@ void ParagraphImpl::setState(InternalState state) {
 
     fState = state;
     switch (fState) {
-        case kUnknown:
+        case InternalState::kUnknown:
             fRuns.reset();
-        case kShaped:
+        case InternalState::kShaped:
             fClusters.reset();
-        case kClusterized:
-        case kMarked:
-        case kLineBroken:
+        case InternalState::kClusterized:
+        case InternalState::kMarked:
+        case InternalState::kLineBroken:
             this->resetContext();
             this->resolveStrut();
             this->resetRunShifts();
             fLines.reset();
-        case kFormatted:
+        case InternalState::kFormatted:
             fPicture = nullptr;
-        case kDrawn:
+        case InternalState::kDrawn:
             break;
     default:
         break;

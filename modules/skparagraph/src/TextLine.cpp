@@ -27,8 +27,6 @@ TextRange intersected(const TextRange& a, const TextRange& b) {
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
-SkTHashMap<SkFont, Run> TextLine::fEllipsisCache;
-
 TextLine::TextLine(ParagraphImpl* master,
                    SkVector offset,
                    SkVector advance,
@@ -256,39 +254,37 @@ SkScalar TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange,
                     return true;
                 }
 
+
+                SkScalar thickness = style.getDecorationThicknessMultiplier();
+                auto width = clip.width();
+
+                SkPaint paint;
+                SkPath path;
+                this->computeDecorationPaint(paint, clip, style, path);
+                paint.setStrokeWidth(thickness);
+
                 for (auto decoration : AllTextDecorations) {
-                    if (style.getDecorationType() && decoration == 0) {
+                    if (!(style.getDecorationType() & decoration)) {
                         continue;
                     }
 
-                    SkScalar thickness = style.getDecorationThicknessMultiplier();
-                    //
                     SkScalar position = 0;
-                    switch (style.getDecorationType()) {
+                    switch (decoration) {
                         case TextDecoration::kUnderline:
                             position = -run->ascent() + thickness;
                             break;
                         case TextDecoration::kOverline:
                             position = 0;
                             break;
-                        case TextDecoration::kLineThrough: {
+                        case TextDecoration::kLineThrough:
                             position = (run->descent() - run->ascent() - thickness) / 2;
                             break;
-                        }
                         default:
-                            // TODO: can we actually get here?
                             break;
                     }
 
-                    auto width = clip.width();
                     SkScalar x = clip.left();
                     SkScalar y = clip.top() + position;
-
-                    // Decoration paint (for now) and/or path
-                    SkPaint paint;
-                    SkPath path;
-                    this->computeDecorationPaint(paint, clip, style, path);
-                    paint.setStrokeWidth(thickness);
 
                     switch (style.getDecorationStyle()) {
                         case TextDecorationStyle::kWavy:
@@ -432,32 +428,26 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     // taking off cluster by cluster until the ellipsis fits
     SkScalar width = fAdvance.fX;
     iterateThroughClustersInGlyphsOrder(
-            true, [this, &width, ellipsis, maxWidth](const Cluster* cluster, ClusterIndex index) {
-                if (cluster->isWhitespaces()) {
-                    width -= cluster->width();
-                    return true;
-                }
+        true, [this, &width, ellipsis, maxWidth](const Cluster* cluster, ClusterIndex index) {
+            if (cluster->isWhitespaces()) {
+                width -= cluster->width();
+                return true;
+            }
 
-                // Shape the ellipsis
-                Run* cached = fEllipsisCache.find(cluster->font());
-                if (cached == nullptr) {
-                    cached = shapeEllipsis(ellipsis, cluster->run());
-                } else {
-                    cached->setMaster(fMaster);
-                }
-                fEllipsis = std::make_shared<Run>(*cached);
+            // Shape the ellipsis
+            fEllipsis = std::unique_ptr<Run>(shapeEllipsis(ellipsis, cluster->run()));
 
-                // See if it fits
-                if (width + fEllipsis->advance().fX > maxWidth) {
-                    width -= cluster->width();
-                    // Continue if it's not
-                    return true;
-                }
+            // See if it fits
+            if (width + fEllipsis->advance().fX > maxWidth) {
+                width -= cluster->width();
+                // Continue if it's not
+                return true;
+            }
 
-                fEllipsis->shift(width, 0);
-                fAdvance.fX = width;
-                return false;
-            });
+            fEllipsis->shift(width, 0);
+            fAdvance.fX = width;
+            return false;
+        });
 }
 
 Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
@@ -476,8 +466,7 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
         void commitRunInfo() override {}
 
         Buffer runBuffer(const RunInfo& info) override {
-            fRun = fEllipsisCache.set(info.fFont,
-                                      Run(nullptr, info, fLineHeight, 0, 0));
+            fRun = new Run(nullptr, info, fLineHeight, 0, 0);
             return fRun->newRunBuffer();
         }
 
