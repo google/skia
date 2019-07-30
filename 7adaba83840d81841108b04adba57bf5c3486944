@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d149ef5_ae21e2fc",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 4072,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-30T16:46:16Z",
+      "side": 1,
+      "message": "Yeah I don\u0027t think this is where we\u0027d plubm renderable into. I think it would be the call above getFormatFromColorType.",
+      "range": {
+        "startLine": 4072,
+        "startChar": 61,
+        "endLine": 4072,
+        "endChar": 89
+      },
+      "revId": "7adaba83840d81841108b04adba57bf5c3486944",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
