@@ -355,7 +355,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     }
 
     // This is a pretty big step - resolving all characters against all given fonts
-    fFontResolver.findAllFontsForAllStyledBlocks(fTextSpan, styles(), fFontCollection);
+    fFontResolver.findAllFontsForAllStyledBlocks(this);
 
     // Check the font-resolved text against the cache
     if (fParagraphCacheOn && fParagraphCache.findParagraph(this)) {
