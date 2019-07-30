@@ -935,7 +935,7 @@ static void make_RG_88(const GrCaps* caps,
             currPixel += 2;
         }
     }
-    *format = caps->getBackendFormatFromColorType(GrColorType::kRG_88);
+    *format = caps->getDefaultBackendFormat(GrColorType::kRG_88, GrRenderable::kNo);
 }
 
 static void make_RG_1616(const GrCaps* caps,
@@ -969,7 +969,7 @@ static void make_RG_1616(const GrCaps* caps,
         }
     }
 
-    *format = caps->getBackendFormatFromColorType(GrColorType::kRG_1616);
+    *format = caps->getDefaultBackendFormat(GrColorType::kRG_1616, GrRenderable::kNo);
 }
 
 static void make_RGBA_16(const GrCaps* caps,
@@ -1002,7 +1002,7 @@ static void make_RGBA_16(const GrCaps* caps,
         }
     }
 
-    *format = caps->getBackendFormatFromColorType(GrColorType::kRGBA_16161616);
+    *format = caps->getDefaultBackendFormat(GrColorType::kRGBA_16161616, GrRenderable::kNo);
     return;
 }
 
@@ -1035,7 +1035,7 @@ static void make_R_16(const GrCaps* caps,
         }
     }
 
-    *format = caps->getBackendFormatFromColorType(GrColorType::kR_16);
+    *format = caps->getDefaultBackendFormat(GrColorType::kR_16, GrRenderable::kNo);
 }
 
 static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& bm,

@@ -422,3 +422,19 @@ bool GrCaps::AreConfigsCompatible(GrPixelConfig genericConfig, GrPixelConfig spe
     return compatible;
 }
 #endif
+
+GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType grColorType,
+                                                GrRenderable renderable) const {
+    GrBackendFormat format = this->onGetDefaultBackendFormat(grColorType, renderable);
+    if (!this->isFormatTexturable(grColorType, format)) {
+        return {};
+    }
+
+    if (renderable == GrRenderable::kYes) {
+        if (!this->isFormatRenderable(grColorType, format)) {
+            return {};
+        }
+    }
+
+    return format;
+}

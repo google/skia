@@ -242,10 +242,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
 
     GrContext* ctx = ctxInfo.grContext();
     GrGpu* gpu = ctx->priv().getGpu();
-    const GrCaps* caps = ctx->priv().caps();
 
-    GrBackendFormat gray8Format  = caps->getBackendFormatFromColorType(GrColorType::kGray_8);
-    GrBackendFormat alpha8Format = caps->getBackendFormatFromColorType(GrColorType::kAlpha_8);
+    GrBackendFormat gray8Format  = ctx->defaultBackendFormat(kGray_8_SkColorType,
+                                                             GrRenderable::kNo);
+    GrBackendFormat alpha8Format = ctx->defaultBackendFormat(kAlpha_8_SkColorType,
+                                                             GrRenderable::kNo);
     if (gray8Format != alpha8Format) {
         // kGray_8 and kAlpha_8 won't share the same backend texture
         return;

@@ -168,7 +168,8 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     desc.fHeight = 1;
 
     const GrBackendFormat format =
-            context->priv().caps()->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
+        context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                        GrRenderable::kYes);
 
     auto proxy = context->priv().proxyProvider()->createProxy(
             format, desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,

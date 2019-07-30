@@ -301,7 +301,8 @@ public:
             return fAtlasProxy;
         }
 
-        const GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
+        const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                     GrRenderable::kYes);
 
         fAtlasProxy = GrProxyProvider::MakeFullyLazyProxy(
                 [](GrResourceProvider* resourceProvider)

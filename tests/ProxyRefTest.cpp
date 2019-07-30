@@ -34,19 +34,25 @@ static void check_refs(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, actualBackingRefs == expectedBackingRefs);
 }
 
-static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps) {
+static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    const GrCaps* caps = context->priv().caps();
+
     GrSurfaceDesc desc;
     desc.fWidth = kWidthHeight;
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(GrColorType::kRGBA_8888);
+    const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                 GrRenderable::kYes);
     return proxyProvider->createProxy(format, desc, GrRenderable::kYes, 1,
                                       kBottomLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
                                       SkBudgeted::kYes, GrProtected::kNo);
 }
 
-static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider, const GrCaps* caps) {
+static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+
     GrSurfaceDesc desc;
     desc.fWidth = kWidthHeight;
     desc.fHeight = kWidthHeight;
@@ -58,14 +64,12 @@ static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider, const 
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
-    const GrCaps* caps = ctxInfo.grContext()->priv().caps();
 
     for (auto make : { make_deferred, make_wrapped }) {
         // Pending IO ref
         {
-            sk_sp<GrTextureProxy> proxy((*make)(proxyProvider, caps));
+            sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
             if (proxy.get()) {
                 GrProxyPendingIO pendingIO(proxy.get());
 
@@ -82,7 +86,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
         // Multiple normal refs
         {
-            sk_sp<GrTextureProxy> proxy((*make)(proxyProvider, caps));
+            sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
             if (proxy.get()) {
                 proxy->ref();
                 proxy->ref();
@@ -103,7 +107,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
         // Continue using (reffing) proxy after instantiation
         {
-            sk_sp<GrTextureProxy> proxy((*make)(proxyProvider, caps));
+            sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
             if (proxy.get()) {
                 proxy->ref();
 

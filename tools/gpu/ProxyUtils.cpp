@@ -28,7 +28,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
 
     const GrCaps* caps = context->priv().caps();
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(colorType);
+    const GrBackendFormat format = caps->getDefaultBackendFormat(colorType, renderable);
     if (!format.isValid()) {
         return nullptr;
     }
