@@ -16,7 +16,7 @@
 
 namespace {
 
-class SK_API SkMergeImageFilterImpl final : public SkImageFilter {
+class SkMergeImageFilterImpl final : public SkImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter>* const filters, int count,
                                      const CropRect* cropRect = nullptr) {
