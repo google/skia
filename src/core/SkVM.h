@@ -289,12 +289,12 @@ namespace skvm {
 
 
         // Declare an argument with given stride (use stride=0 for uniforms).
+        // TODO: different types for varying and uniforms?
         Arg arg(int stride);
 
-        // Convenience arg() wrapper for most common strides, sizeof(T) and 0.
+        // Convenience arg() wrappers for most common strides, sizeof(T) and 0.
         template <typename T>
-        Arg arg() { return this->arg(sizeof(T)); }
-
+        Arg varying() { return this->arg(sizeof(T)); }
         Arg uniform() { return this->arg(0); }
 
         // TODO: allow uniform (i.e. Arg) offsets to store* and load*?
@@ -371,12 +371,12 @@ namespace skvm {
         I32 shr_16x2(I32 x, int bits);
         I32 sra_16x2(I32 x, int bits);
 
-        I32     eq_16x2(I32 x, I32 y);
-        I32    neq_16x2(I32 x, I32 y);
-        I32     lt_16x2(I32 x, I32 y);
-        I32    lte_16x2(I32 x, I32 y);
-        I32     gt_16x2(I32 x, I32 y);
-        I32    gte_16x2(I32 x, I32 y);
+        I32  eq_16x2(I32 x, I32 y);
+        I32 neq_16x2(I32 x, I32 y);
+        I32  lt_16x2(I32 x, I32 y);
+        I32 lte_16x2(I32 x, I32 y);
+        I32  gt_16x2(I32 x, I32 y);
+        I32 gte_16x2(I32 x, I32 y);
 
         // Bitwise operations.
         I32 bit_and  (I32 x, I32 y);
@@ -462,9 +462,11 @@ namespace skvm {
         Program(const Program&) = delete;
         Program& operator=(const Program&) = delete;
 
+        void eval(int n, void* args[]) const;
+
         template <typename... T>
         void eval(int n, T*... arg) const {
-            void* args[] = { (void*)arg..., nullptr };
+            void* args[] = { (void*)arg... };
             this->eval(n, args);
         }
 
@@ -476,8 +478,6 @@ namespace skvm {
         void dropJIT();
 
     private:
-        void eval(int n, void* args[]) const;
-
         void setupInterpreter(const std::vector<Builder::Instruction>&);
         void setupJIT        (const std::vector<Builder::Instruction>&, const char* debug_name);
 

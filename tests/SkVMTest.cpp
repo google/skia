@@ -424,7 +424,7 @@ DEF_TEST(SkVM_LoopCounts, r) {
 
     // buf[i] += 1
     skvm::Builder b;
-    skvm::Arg arg = b.arg<int>();
+    skvm::Arg arg = b.varying<int>();
     b.store32(arg,
               b.add(b.splat(1),
                     b.load32(arg)));
@@ -453,7 +453,7 @@ DEF_TEST(SkVM_mad, r) {
 
     skvm::Builder b;
     {
-        skvm::Arg arg = b.arg<int>();
+        skvm::Arg arg = b.varying<int>();
 
         skvm::F32 x = b.to_f32(b.load32(arg)),
                   y = b.mad(x,x,x),   // x is needed in the future, so r[x] != r[y].
@@ -480,7 +480,7 @@ DEF_TEST(SkVM_hoist, r) {
     // The JIT will try again without hoisting, and that'll just need 2 registers.
     skvm::Builder b;
     {
-        skvm::Arg arg = b.arg<int>();
+        skvm::Arg arg = b.varying<int>();
         skvm::I32 x = b.load32(arg);
         for (int i = 0; i < 32; i++) {
             x = b.add(x, b.splat(i));
@@ -501,7 +501,7 @@ DEF_TEST(SkVM_NewOps, r) {
     // Exercise a somewhat arbitrary set of new ops.
     skvm::Builder b;
     {
-        skvm::Arg buf      = b.arg<int16_t>(),
+        skvm::Arg buf      = b.varying<int16_t>(),
                   img      = b.uniform(),
                   uniforms = b.uniform();
 

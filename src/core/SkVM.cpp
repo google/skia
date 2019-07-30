@@ -799,15 +799,9 @@ namespace skvm {
 
         // Step each argument pointer ahead by its stride a number of times.
         auto step_args = [&](int times) {
-            // Looping by marching pointers until *arg == nullptr helps the
-            // compiler to keep this loop scalar.  Otherwise it'd create a
-            // rather large and useless autovectorized version.
-            void**        arg = args;
-            const int* stride = fStrides.data();
-            for (; *arg; arg++, stride++) {
-                *arg = (void*)( (char*)*arg + times * *stride );
+            for (int i = 0; i < (int)fStrides.size(); i++) {
+                args[i] = (void*)( (char*)args[i] + times * fStrides[i] );
             }
-            SkASSERT(arg == args + nargs);
         };
 
         int start = 0,
