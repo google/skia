@@ -40,17 +40,20 @@ roots = [
 # we don't want #include <vulkan/vulkan_foo.h> rewritten to point to them.
 blacklist = ['include/third_party/vulkan']
 
+def fix_path(path):
+  return path.replace(os.sep, os.altsep) if os.altsep else path
+
 # Map short name -> absolute path for all Skia headers.
 headers = {}
 for root in roots:
   for path, _, files in os.walk(root):
-    if not any(snippet in path for snippet in blacklist):
+    if not any(snippet in fix_path(path) for snippet in blacklist):
       for file_name in files:
         if file_name.endswith('.h'):
           if file_name in headers:
             print path, file_name, headers[file_name]
           assert file_name not in headers
-          headers[file_name] = os.path.abspath(os.path.join(path, file_name))
+          headers[file_name] = fix_path(os.path.abspath(os.path.join(path, file_name)))
 
 def to_rewrite():
   if args.sources:
@@ -79,7 +82,7 @@ for file_path in to_rewrite():
     lines = open(file_path).readlines()
 
     # Write it back out again line by line with substitutions for #includes.
-    output = StringIO.StringIO() if args.dry_run else open(file_path, 'w')
+    output = StringIO.StringIO() if args.dry_run else open(file_path, 'wb')
 
     includes = []
     for line in lines:
@@ -94,9 +97,9 @@ for file_path in to_rewrite():
                         parts[2])
       else:
         for inc in sorted(includes):
-          print >>output, inc.strip('\n')
+          output.write(inc.strip('\n') + '\n')
         includes = []
-        print >>output, line.strip('\n')
+        output.write(line.strip('\n') + '\n')
 
     if args.dry_run and output.getvalue() != open(file_path).read():
       print file_path, 'has #includes that need rewriting.'
