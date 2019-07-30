@@ -2944,3 +2944,165 @@ DEF_TEST(SkParagraph_JSON2, reporter) {
 
     SkASSERT(cluster <= 2);
 }
+
+
+DEF_TEST(SkParagraph_CacheText, reporter) {
+
+    ParagraphCache cache;
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+
+    auto test = [&](const char* text, int count, bool expectedToBeFound) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        builder.pop();
+        auto paragraph = builder.Build();
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        REPORTER_ASSERT(reporter, count == cache.count());
+        auto found = cache.findParagraph(impl);
+        REPORTER_ASSERT(reporter, found == expectedToBeFound);
+        auto added = cache.updateParagraph(impl);
+        REPORTER_ASSERT(reporter, added != expectedToBeFound);
+    };
+
+    test("text1", 0, false);
+    test("text1", 1, true);
+    test("text2", 1, false);
+    test("text2", 2, true);
+    test("text3", 2, false);
+}
+
+DEF_TEST(SkParagraph_CacheFonts, reporter) {
+
+    ParagraphCache cache;
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setColor(SK_ColorBLACK);
+
+    auto test = [&](int count, bool expectedToBeFound) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText("text");
+        builder.pop();
+        auto paragraph = builder.Build();
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+
+        impl->getResolver().findAllFontsForAllStyledBlocks(impl);
+
+        REPORTER_ASSERT(reporter, count == cache.count());
+        auto found = cache.findParagraph(impl);
+        REPORTER_ASSERT(reporter, found == expectedToBeFound);
+        auto added = cache.updateParagraph(impl);
+        REPORTER_ASSERT(reporter, added != expectedToBeFound);
+    };
+
+    text_style.setFontFamilies({SkString("Roboto")});
+    test(0, false);
+    test(1, true);
+    text_style.setFontFamilies({SkString("Homemade Apple")});
+    test(1, false);
+    test(2, true);
+    text_style.setFontFamilies({SkString("Noto Color Emoji")});
+    test(2, false);
+}
+
+DEF_TEST(SkParagraph_CacheFontRanges, reporter) {
+
+    ParagraphCache cache;
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+
+    auto test = [&](const char* text1,
+                    const char* text2,
+                    const char* font1,
+                    const char* font2,
+                    int count,
+                    bool expectedToBeFound) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        text_style.setFontFamilies({SkString(font1)});
+        builder.pushStyle(text_style);
+        builder.addText(text1);
+        builder.pop();
+        text_style.setFontFamilies({SkString(font2)});
+        builder.pushStyle(text_style);
+        builder.addText(text2);
+        builder.pop();
+        auto paragraph = builder.Build();
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+
+        impl->getResolver().findAllFontsForAllStyledBlocks(impl);
+
+        REPORTER_ASSERT(reporter, count == cache.count());
+        auto found = cache.findParagraph(impl);
+        REPORTER_ASSERT(reporter, found == expectedToBeFound);
+        auto added = cache.updateParagraph(impl);
+        REPORTER_ASSERT(reporter, added != expectedToBeFound);
+    };
+
+    test("text", "", "Roboto", "Homemade Apple", 0, false);
+    test("t", "ext", "Roboto", "Homemade Apple", 1, false);
+    test("te", "xt", "Roboto", "Homemade Apple", 2, false);
+    test("tex", "t", "Roboto", "Homemade Apple", 3, false);
+    test("text", "", "Roboto", "Homemade Apple", 4, true);
+}
+
+DEF_TEST(SkParagraph_CacheStyles, reporter) {
+
+    ParagraphCache cache;
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+
+    auto test = [&](int count, bool expectedToBeFound) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText("text");
+        builder.pop();
+        auto paragraph = builder.Build();
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+
+        impl->getResolver().findAllFontsForAllStyledBlocks(impl);
+
+        REPORTER_ASSERT(reporter, count == cache.count());
+        auto found = cache.findParagraph(impl);
+        REPORTER_ASSERT(reporter, found == expectedToBeFound);
+        auto added = cache.updateParagraph(impl);
+        REPORTER_ASSERT(reporter, added != expectedToBeFound);
+    };
+
+
+    test(0, false);
+    test(1, true);
+    text_style.setLetterSpacing(10);
+    test(1, false);
+    test(2, true);
+    text_style.setWordSpacing(10);
+    test(2, false);
+}
