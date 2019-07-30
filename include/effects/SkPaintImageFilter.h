@@ -12,6 +12,7 @@
 
 class SkPaint;
 
+// DEPRECATED: Use include/effects/SkImageFilters::Paint
 class SK_API SkPaintImageFilter  {
 public:
     /** Create a new image filter which fills the given rectangle using the
