@@ -17,6 +17,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkPerlinNoiseShader.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterPriv.h"
@@ -436,4 +438,26 @@ DEF_TEST(SkPDF_Clusterator, reporter) {
     }
 }
 
+DEF_TEST(fuzz875632f0, reporter) {
+    SkNullWStream stream;
+    auto doc = SkPDF::MakeDocument(&stream);
+    REPORTER_ASSERT(reporter, doc);
+    SkCanvas* canvas = doc->beginPage(128, 160);
+
+    SkAutoCanvasRestore autoCanvasRestore(canvas, false);
+
+    SkPaint layerPaint({0, 0, 0, 0});
+    layerPaint.setImageFilter(SkDilateImageFilter::Make(536870912, 0, nullptr, nullptr));
+    layerPaint.setBlendMode(SkBlendMode::kClear);
+
+    canvas->saveLayer(nullptr, &layerPaint);
+    canvas->saveLayer(nullptr, nullptr);
+
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kDarken);
+    paint.setShader(SkPerlinNoiseShader::MakeFractalNoise(0, 0, 2, 0, nullptr));
+    paint.setColor4f(SkColor4f{0, 0, 0 ,0});
+
+    canvas->drawPath(SkPath(), paint);
+}
 #endif
