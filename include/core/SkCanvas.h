@@ -2601,7 +2601,7 @@ private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvasPriv;      // needs kDontClipToLayer_PrivateSaveLayerFlag
     friend class SkDrawIter;        // needs setupDrawForLayerDevice()
-    friend class AutoDrawLooper;
+    friend class AutoLayerForImageFilter;
     friend class DebugCanvas;       // needs experimental fAllowSimplifyClip
     friend class SkSurface_Raster;  // needs getDevice()
     friend class SkNoDrawCanvas;    // needs resetForNextPicture()
