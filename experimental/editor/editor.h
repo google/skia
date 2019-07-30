@@ -69,6 +69,8 @@ public:
         kDown,
         kHome,
         kEnd,
+        kWordLeft,
+        kWordRight,
     };
     TextPosition move(Editor::Movement move, Editor::TextPosition pos) const;
     TextPosition getPosition(SkIPoint);
@@ -99,6 +101,7 @@ private:
         sk_sp<const SkTextBlob> fBlob;
         std::vector<SkRect> fCursorPos;
         std::vector<unsigned> fLineEndOffsets;
+        std::vector<bool> fWordBoundaries;
         SkIPoint fOrigin = {0, 0};
         int fHeight = 0;
         bool fShaped = false;
@@ -113,8 +116,9 @@ private:
     SkFont fFont;
     SkRect fSpaceBounds = {0, 0, 0, 0};
     bool fNeedsReshape = false;
+    const char* fLocale = "en";  // TODO: make this setable
 
-    static void Shape(TextLine*, SkShaper*, float width, const SkFont&, SkRect);
+    static void Shape(TextLine*, SkShaper*, float width, const SkFont&, SkRect, const char*);
     void markDirty(TextLine*);
     void markAllDirty() { for (auto& l : fLines) { this->markDirty(&l); } }
     void reshapeAll();

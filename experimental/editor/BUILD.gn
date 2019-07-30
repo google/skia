@@ -6,6 +6,7 @@ import("../../gn/skia.gni")
 
 if (skia_use_icu && skia_use_harfbuzz) {
   source_set("editor_lib") {
+    include_dirs = [ "../.." ]
     public = [
       "editor.h",
       "stringslice.h",
@@ -20,7 +21,21 @@ if (skia_use_icu && skia_use_harfbuzz) {
       "../..:skia",
     ]
     deps = [
+      ":word_boundaries",
       "../../modules/skshaper",
+    ]
+  }
+
+  source_set("word_boundaries") {
+    include_dirs = [ "../.." ]
+    public = [
+      "word_boundaries.h",
+    ]
+    sources = [
+      "word_boundaries.cpp",
+    ]
+    deps = [
+      "../../third_party/icu",
     ]
   }
 
