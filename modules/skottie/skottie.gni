@@ -10,6 +10,7 @@ _include = get_path_info("include", "abspath")
 skia_skottie_public = [
   "$_include/Skottie.h",
   "$_include/SkottieProperty.h",
+  "$_include/TextPropertyValue.h",
 ]
 
 skia_skottie_sources = [
