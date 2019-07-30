@@ -2314,6 +2314,10 @@ if (skia_enable_tools) {
     ]
     libs = []
 
+    if (skia_use_dawn) {
+      sources += [ "tools/sk_app/DawnWindowContext.cpp" ]
+    }
+
     if (is_android) {
       sources += [
         "tools/sk_app/android/GLWindowContext_android.cpp",
@@ -2331,6 +2335,13 @@ if (skia_enable_tools) {
         "tools/sk_app/unix/keysym2ucs.c",
         "tools/sk_app/unix/main_unix.cpp",
       ]
+      if (skia_use_dawn) {
+        if (dawn_enable_vulkan) {
+          sources += [ "tools/sk_app/unix/DawnVulkanWindowContext_unix.cpp" ]
+          defines = [ "VK_USE_PLATFORM_XCB_KHR" ]
+          libs += [ "X11-xcb" ]
+        }
+      }
       libs += [
         "GL",
         "X11",
@@ -2345,6 +2356,11 @@ if (skia_enable_tools) {
       if (skia_use_angle) {
         sources += [ "tools/sk_app/win/ANGLEWindowContext_win.cpp" ]
       }
+      if (skia_use_dawn) {
+        if (dawn_enable_d3d12) {
+          sources += [ "tools/sk_app/win/DawnD3D12WindowContext_win.cpp" ]
+        }
+      }
     } else if (is_mac) {
       sources += [
         "tools/sk_app/mac/GLWindowContext_mac.mm",
@@ -2352,6 +2368,11 @@ if (skia_enable_tools) {
         "tools/sk_app/mac/Window_mac.mm",
         "tools/sk_app/mac/main_mac.mm",
       ]
+      if (skia_use_dawn) {
+        if (dawn_enable_metal) {
+          sources += [ "tools/sk_app/mac/DawnMTLWindowContext_mac.mm" ]
+        }
+      }
       libs += [
         "QuartzCore.framework",
         "Cocoa.framework",
