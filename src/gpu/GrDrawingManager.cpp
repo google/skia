@@ -740,6 +740,20 @@ void GrDrawingManager::flushIfNecessary() {
     }
 }
 
+bool valid_backend_format_and_colorType(const GrCaps* caps, GrColorType colorType,
+                                        const GrBackendFormat& format) {
+    // SkSurface catches bad color space usage at creation. This check handles anything that slips
+    // by, including internal usage.
+    if (!SkSurface_Gpu::Valid(caps, format)) {
+        SkDEBUGFAIL("Invalid config and colorspace combination");
+        return false;
+    }
+    if (!caps->areColorTypeAndFormatCompatible(colorType, format)) {
+        return false;
+    }
+    return true;
+}
+
 sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
         sk_sp<GrSurfaceProxy> sProxy,
         GrColorType colorType,
@@ -750,10 +764,8 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
         return nullptr;
     }
 
-    // SkSurface catches bad color space usage at creation. This check handles anything that slips
-    // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->backendFormat())) {
-        SkDEBUGFAIL("Invalid config and colorspace combination");
+    if (!valid_backend_format_and_colorType(fContext->priv().caps(), colorType,
+                                            sProxy->backendFormat())) {
         return nullptr;
     }
 
@@ -775,10 +787,8 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
         return nullptr;
     }
 
-    // SkSurface catches bad color space usage at creation. This check handles anything that slips
-    // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->backendFormat())) {
-        SkDEBUGFAIL("Invalid config and colorspace combination");
+    if (!valid_backend_format_and_colorType(fContext->priv().caps(), colorType,
+                                            sProxy->backendFormat())) {
         return nullptr;
     }
 
