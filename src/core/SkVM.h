@@ -466,7 +466,9 @@ namespace skvm {
 
         template <typename... T>
         void eval(int n, T*... arg) const {
-            void* args[] = { (void*)arg... };
+            SkASSERT(sizeof...(arg) == fStrides.size());
+            // This nullptr isn't important except that it makes args[] non-empty if you pass none.
+            void* args[] = { (void*)arg..., nullptr };
             this->eval(n, args);
         }
 
