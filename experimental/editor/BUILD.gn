@@ -44,9 +44,11 @@ if (skia_use_icu && skia_use_harfbuzz) {
     sources = [
       "editor_application.cpp",
     ]
+    public_deps = [
+      "../..:sk_app",
+    ]
     deps = [
       ":editor_lib",
-      "../..:sk_app",
     ]
   }
 }
