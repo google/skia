@@ -7,11 +7,14 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTHash.h"
+#include "modules/skparagraph/include/ParagraphCache.h"
 #include "modules/skparagraph/include/TextStyle.h"
 
 namespace skia {
 namespace textlayout {
 
+class TextStyle;
+class Paragraph;
 class FontCollection : public SkRefCnt {
 public:
     FontCollection();
@@ -34,6 +37,18 @@ public:
 
     void disableFontFallback();
     bool fontFallbackEnabled() { return fEnableFontFallback; }
+
+    bool updateParagraph(Paragraph* paragraph);
+    bool findParagraph(Paragraph* paragraph);
+    void abandon() { fParagraphCache.abandon(); }
+    void reset() { fParagraphCache.reset(); }
+
+    // For testing:
+    void turnOnParagraphCache(bool on) { fParagraphCache.turnOn(on); }
+    void printParagraphCacheStatistics() { fParagraphCache.printStatistics(); }
+    void resetParagraphCache() { fParagraphCache.reset(); }
+    int  cacheCount() { return fParagraphCache.count(); }
+    void resetCache() { fParagraphCache.reset(); }
 
 private:
     std::vector<sk_sp<SkFontMgr>> getFontManagerOrder() const;
@@ -61,7 +76,9 @@ private:
     sk_sp<SkFontMgr> fAssetFontManager;
     sk_sp<SkFontMgr> fDynamicFontManager;
     sk_sp<SkFontMgr> fTestFontManager;
-    SkString fDefaultFamilyName;
+
+    const char* fDefaultFamilyName;
+    ParagraphCache fParagraphCache;
 };
 }  // namespace textlayout
 }  // namespace skia

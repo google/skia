@@ -9,7 +9,6 @@
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/FontResolver.h"
-#include "modules/skparagraph/src/ParagraphCache.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 
@@ -73,13 +72,14 @@ public:
     SkSpan<const char> text() const { return fTextSpan; }
     InternalState state() const { return fState; }
     SkSpan<Run> runs() { return SkSpan<Run>(fRuns.data(), fRuns.size()); }
-    SkTArray<FontDescr>& switches() { return fFontResolver.switches(); }
+    const SkTArray<FontDescr>& switches() const { return fFontResolver.switches(); }
     SkSpan<Block> styles() {
         return SkSpan<Block>(fTextStyles.data(), fTextStyles.size());
     }
     SkSpan<TextLine> lines() { return SkSpan<TextLine>(fLines.data(), fLines.size()); }
     ParagraphStyle paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
+    sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
 
     void shiftCluster(ClusterIndex index, SkScalar shift) {
@@ -130,9 +130,8 @@ public:
     Block& block(BlockIndex blockIndex);
 
     void markDirty() override { fState = kUnknown; }
-    void turnOnCache(bool on) { fParagraphCacheOn = on; }
+    FontResolver& getResolver() { return fFontResolver; }
     void setState(InternalState state);
-    void resetCache() { fParagraphCache.reset(); }
     sk_sp<SkPicture> getPicture() { return fPicture; }
 
     void resetContext();
@@ -178,10 +177,6 @@ private:
 
     SkScalar fOldWidth;
     SkScalar fOldHeight;
-
-    // Cache
-    bool fParagraphCacheOn;
-    static ParagraphCache fParagraphCache;
 };
 }  // namespace textlayout
 }  // namespace skia

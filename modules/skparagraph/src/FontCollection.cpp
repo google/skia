@@ -1,5 +1,8 @@
 // Copyright 2019 Google LLC.
+#include "include/core/SkTypeface.h"
 #include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 
 namespace skia {
 namespace textlayout {
@@ -93,7 +96,7 @@ sk_sp<SkTypeface> FontCollection::matchTypeface(const char familyName[], SkFontS
 
 sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle) {
     // Look inside the font collections cache first
-    FamilyKey familyKey(fDefaultFamilyName.c_str(), "en", fontStyle);
+    FamilyKey familyKey(fDefaultFamilyName, "en", fontStyle);
     auto found = fTypefaces.find(familyKey);
     if (found) {
         return *found;
@@ -101,7 +104,7 @@ sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle) {
 
     sk_sp<SkTypeface> typeface = nullptr;
     for (const auto& manager : this->getFontManagerOrder()) {
-        SkFontStyleSet* set = manager->matchFamily(fDefaultFamilyName.c_str());
+        SkFontStyleSet* set = manager->matchFamily(fDefaultFamilyName);
         if (nullptr == set || set->count() == 0) {
             continue;
         }
@@ -137,11 +140,21 @@ sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle
     if (fDefaultFontManager == nullptr) {
         return nullptr;
     }
-    auto result = fDefaultFontManager->matchFamilyStyle(fDefaultFamilyName.c_str(), fontStyle);
+    auto result = fDefaultFontManager->matchFamilyStyle(fDefaultFamilyName, fontStyle);
     return sk_ref_sp<SkTypeface>(result);
 }
 
 void FontCollection::disableFontFallback() { fEnableFontFallback = false; }
+
+bool FontCollection::updateParagraph(Paragraph* paragraph) {
+    auto impl = static_cast<ParagraphImpl*>(paragraph);
+    return fParagraphCache.updateParagraph(impl);
+}
+
+bool FontCollection::findParagraph(Paragraph* paragraph) {
+    auto impl = static_cast<ParagraphImpl*>(paragraph);
+    return fParagraphCache.findParagraph(impl);
+}
 
 }  // namespace textlayout
 }  // namespace skia
