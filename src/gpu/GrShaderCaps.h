@@ -296,6 +296,7 @@ private:
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
     friend class GrCaps;  // For initialization.
+    friend class GrDawnCaps;
     friend class GrGLCaps;
     friend class GrMockCaps;
     friend class GrMtlCaps;
