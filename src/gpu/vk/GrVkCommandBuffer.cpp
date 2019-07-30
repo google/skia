@@ -463,7 +463,7 @@ void GrVkPrimaryCommandBuffer::endRenderPass(const GrVkGpu* gpu) {
 }
 
 void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
-                                               GrVkSecondaryCommandBuffer* buffer) {
+                                               std::unique_ptr<GrVkSecondaryCommandBuffer> buffer) {
     // The Vulkan spec allows secondary command buffers to be executed on a primary command buffer
     // if the command pools both were created from were created with the same queue family. However,
     // we currently always create them from the same pool.
@@ -476,8 +476,7 @@ void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
     this->addingWork(gpu);
 
     GR_VK_CALL(gpu->vkInterface(), CmdExecuteCommands(fCmdBuffer, 1, &buffer->fCmdBuffer));
-    buffer->ref();
-    fSecondaryCommandBuffers.push_back(buffer);
+    fSecondaryCommandBuffers.push_back(std::move(buffer));
     // When executing a secondary command buffer all state (besides render pass state) becomes
     // invalidated and must be reset. This includes bound buffers, pipelines, dynamic state, etc.
     this->invalidateState();
@@ -626,10 +625,10 @@ void GrVkPrimaryCommandBuffer::onReleaseResources(GrVkGpu* gpu) {
     fFinishedProcs.reset();
 }
 
-void GrVkPrimaryCommandBuffer::recycleSecondaryCommandBuffers() {
+void GrVkPrimaryCommandBuffer::recycleSecondaryCommandBuffers(GrVkGpu* gpu) {
     for (int i = 0; i < fSecondaryCommandBuffers.count(); ++i) {
         SkASSERT(fSecondaryCommandBuffers[i]->commandPool() == fCmdPool);
-        fCmdPool->recycleSecondaryCommandBuffer(fSecondaryCommandBuffers[i]);
+        fSecondaryCommandBuffers[i].release()->recycle(gpu);
     }
     fSecondaryCommandBuffers.reset();
 }
@@ -846,15 +845,15 @@ void GrVkPrimaryCommandBuffer::onFreeGPUData(GrVkGpu* gpu) const {
     if (VK_NULL_HANDLE != fSubmitFence) {
         GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
     }
-    for (GrVkSecondaryCommandBuffer* buffer : fSecondaryCommandBuffers) {
-        buffer->unref(gpu);
+    for (const auto& buffer : fSecondaryCommandBuffers) {
+        buffer->freeGPUData(gpu);
     }
 }
 
 void GrVkPrimaryCommandBuffer::onAbandonGPUData() const {
     SkASSERT(!fActiveRenderPass);
-    for (GrVkSecondaryCommandBuffer* buffer : fSecondaryCommandBuffers) {
-        buffer->unrefAndAbandon();
+    for (const auto& buffer : fSecondaryCommandBuffers) {
+        buffer->abandonGPUData();
     }
 }
 
@@ -928,3 +927,13 @@ void GrVkSecondaryCommandBuffer::end(GrVkGpu* gpu) {
     fIsActive = false;
     fHasWork = false;
 }
+
+void GrVkSecondaryCommandBuffer::recycle(GrVkGpu* gpu) {
+    if (this->isWrapped()) {
+        this->freeGPUData(gpu);
+        delete this;
+    } else {
+        fCmdPool->recycleSecondaryCommandBuffer(this);
+    }
+}
+

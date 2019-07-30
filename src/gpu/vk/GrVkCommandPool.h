@@ -29,9 +29,9 @@ public:
 
     void releaseResources(GrVkGpu* gpu);
 
-    GrVkPrimaryCommandBuffer* getPrimaryCommandBuffer() { return fPrimaryCommandBuffer; }
+    GrVkPrimaryCommandBuffer* getPrimaryCommandBuffer() { return fPrimaryCommandBuffer.get(); }
 
-    GrVkSecondaryCommandBuffer* findOrCreateSecondaryCommandBuffer(GrVkGpu* gpu);
+    std::unique_ptr<GrVkSecondaryCommandBuffer> findOrCreateSecondaryCommandBuffer(GrVkGpu* gpu);
 
     void recycleSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer);
 
@@ -61,10 +61,10 @@ private:
 
     VkCommandPool fCommandPool;
 
-    GrVkPrimaryCommandBuffer* fPrimaryCommandBuffer;
+    std::unique_ptr<GrVkPrimaryCommandBuffer> fPrimaryCommandBuffer;
 
     // Array of available secondary command buffers that are not in flight
-    SkSTArray<4, GrVkSecondaryCommandBuffer*, true> fAvailableSecondaryBuffers;
+    SkSTArray<4, std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fAvailableSecondaryBuffers;
 };
 
 #endif

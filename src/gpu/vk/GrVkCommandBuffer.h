@@ -25,8 +25,10 @@ class GrVkRenderTarget;
 class GrVkTransferBuffer;
 class GrVkVertexBuffer;
 
-class GrVkCommandBuffer : public GrVkResource {
+class GrVkCommandBuffer {
 public:
+    virtual ~GrVkCommandBuffer() {}
+
     void invalidateState();
 
     ////////////////////////////////////////////////////////////////////////////
@@ -112,57 +114,55 @@ public:
 
     void releaseResources(GrVkGpu* gpu);
 
+    void freeGPUData(GrVkGpu* gpu) const;
+    void abandonGPUData() const;
+
     bool hasWork() const { return fHasWork; }
 
 protected:
-        GrVkCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool,
-                          const GrVkRenderPass* rp = nullptr)
+    GrVkCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool,
+                      const GrVkRenderPass* rp = nullptr)
             : fIsActive(false)
             , fActiveRenderPass(rp)
             , fCmdBuffer(cmdBuffer)
             , fCmdPool(cmdPool)
             , fNumResets(0) {
-            fTrackedResources.setReserve(kInitialTrackedResourcesCount);
-            fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
-            this->invalidateState();
-        }
+        fTrackedResources.setReserve(kInitialTrackedResourcesCount);
+        fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
+        this->invalidateState();
+    }
 
-        bool isWrapped() const {
-            return fCmdPool == nullptr;
-        }
+    bool isWrapped() const { return fCmdPool == nullptr; }
 
-        void addingWork(const GrVkGpu* gpu);
+    void addingWork(const GrVkGpu* gpu);
 
-        void submitPipelineBarriers(const GrVkGpu* gpu);
+    void submitPipelineBarriers(const GrVkGpu* gpu);
 
-        SkTDArray<const GrVkResource*>          fTrackedResources;
-        SkTDArray<const GrVkRecycledResource*>  fTrackedRecycledResources;
+    SkTDArray<const GrVkResource*>          fTrackedResources;
+    SkTDArray<const GrVkRecycledResource*>  fTrackedRecycledResources;
 
-        // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
-        // new commands to the buffer;
-        bool                      fIsActive;
-        bool                      fHasWork = false;
+    // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
+    // new commands to the buffer;
+    bool                      fIsActive;
+    bool                      fHasWork = false;
 
-        // Stores a pointer to the current active render pass (i.e. begin has been called but not
-        // end). A nullptr means there is no active render pass. The GrVKCommandBuffer does not own
-        // the render pass.
-        const GrVkRenderPass*     fActiveRenderPass;
+    // Stores a pointer to the current active render pass (i.e. begin has been called but not
+    // end). A nullptr means there is no active render pass. The GrVKCommandBuffer does not own
+    // the render pass.
+    const GrVkRenderPass*     fActiveRenderPass;
 
-        VkCommandBuffer           fCmdBuffer;
+    VkCommandBuffer           fCmdBuffer;
 
-        // Raw pointer, not refcounted. The command pool controls the command buffer's lifespan, so
-        // it's guaranteed to outlive us.
-        GrVkCommandPool*          fCmdPool;
+    // Raw pointer, not refcounted. The command pool controls the command buffer's lifespan, so
+    // it's guaranteed to outlive us.
+    GrVkCommandPool*          fCmdPool;
 
 private:
     static const int kInitialTrackedResourcesCount = 32;
 
-    void freeGPUData(GrVkGpu* gpu) const final override;
-    virtual void onFreeGPUData(GrVkGpu* gpu) const = 0;
-    void abandonGPUData() const final override;
-    virtual void onAbandonGPUData() const = 0;
-
     virtual void onReleaseResources(GrVkGpu* gpu) {}
+    virtual void onFreeGPUData(GrVkGpu* gpu) const = 0;
+    virtual void onAbandonGPUData() const = 0;
 
     static constexpr uint32_t kMaxInputBuffers = 2;
 
@@ -217,7 +217,7 @@ public:
     // currently inside a render pass that is compatible with the one used to create the
     // SecondaryCommandBuffer.
     void executeCommands(const GrVkGpu* gpu,
-                         GrVkSecondaryCommandBuffer* secondaryBuffer);
+                         std::unique_ptr<GrVkSecondaryCommandBuffer> secondaryBuffer);
 
     // Commands that only work outside of a render pass
     void clearColorImage(const GrVkGpu* gpu,
@@ -297,13 +297,7 @@ public:
 
     void addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc);
 
-    void recycleSecondaryCommandBuffers();
-
-#ifdef SK_TRACE_VK_RESOURCES
-    void dumpInfo() const override {
-        SkDebugf("GrVkPrimaryCommandBuffer: %d (%d refs)\n", fCmdBuffer, this->getRefCnt());
-    }
-#endif
+    void recycleSecondaryCommandBuffers(GrVkGpu* gpu);
 
 private:
     explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool)
@@ -316,9 +310,9 @@ private:
 
     void onReleaseResources(GrVkGpu* gpu) override;
 
-    SkTArray<GrVkSecondaryCommandBuffer*, true> fSecondaryCommandBuffers;
-    VkFence                                     fSubmitFence;
-    SkTArray<sk_sp<GrRefCntedCallback>>         fFinishedProcs;
+    SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fSecondaryCommandBuffers;
+    VkFence                                                     fSubmitFence;
+    SkTArray<sk_sp<GrRefCntedCallback>>                         fFinishedProcs;
 
     typedef GrVkCommandBuffer INHERITED;
 };
@@ -333,13 +327,9 @@ public:
                const GrVkRenderPass* compatibleRenderPass);
     void end(GrVkGpu* gpu);
 
-    VkCommandBuffer vkCommandBuffer() { return fCmdBuffer; }
+    void recycle(GrVkGpu* gpu);
 
-#ifdef SK_TRACE_VK_RESOURCES
-    void dumpInfo() const override {
-        SkDebugf("GrVkSecondaryCommandBuffer: %d (%d refs)\n", fCmdBuffer, this->getRefCnt());
-    }
-#endif
+    VkCommandBuffer vkCommandBuffer() { return fCmdBuffer; }
 
 private:
     explicit GrVkSecondaryCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool)
