@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4969ddf1_f9a23886",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2679,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-07-31T19:15:40Z",
+      "side": 1,
+      "message": "compiler can probably hoist this for you if you\u0027d prefer to write scale \u003d scalex[xx] * scaley[yy].",
+      "range": {
+        "startLine": 2679,
+        "startChar": 0,
+        "endLine": 2679,
+        "endChar": 31
+      },
+      "revId": "80fd284bda15138bb8da73431a6a6d7b45068959",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
