@@ -152,6 +152,10 @@ public:
         return GrSwizzle();
     }
 
+#if GR_TEST_UTILS
+    std::vector<GrCaps::TestingCombination> getTestingCombinations() const override;
+#endif
+
 private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,

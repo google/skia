@@ -460,6 +460,8 @@ public:
 
 #if GR_TEST_UTILS
     GrGLStandard standard() const { return fStandard; }
+
+    std::vector<TestingCombination> getTestingCombinations() const override;
 #endif
 
 private:
