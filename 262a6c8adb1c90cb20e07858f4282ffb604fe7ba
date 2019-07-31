@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89a8d44a_00df2820",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-31T20:08:15Z",
+      "side": 1,
+      "message": "I kinda think this should have a more precise name like TestFormatColoryTypeCombination",
+      "range": {
+        "startLine": 449,
+        "startChar": 11,
+        "endLine": 449,
+        "endChar": 29
+      },
+      "revId": "262a6c8adb1c90cb20e07858f4282ffb604fe7ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "271c4616_49af27b1",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-31T20:08:15Z",
+      "side": 1,
+      "message": "Could make these into an SkAutoPixmapStorage",
+      "range": {
+        "startLine": 193,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 68
+      },
+      "revId": "262a6c8adb1c90cb20e07858f4282ffb604fe7ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90020e99_049f79e0",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-31T20:08:15Z",
+      "side": 1,
+      "message": "Given that texture creation no longer takes an origin it might be overkill to continue to test both origins.",
+      "range": {
+        "startLine": 244,
+        "startChar": 0,
+        "endLine": 245,
+        "endChar": 79
+      },
+      "revId": "262a6c8adb1c90cb20e07858f4282ffb604fe7ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9eaed056_712bb3fb",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-07-31T20:08:15Z",
+      "side": 1,
+      "message": "I think this loop is hold over from when the implementation was supposed to clear textures pulled from the cache, which is no longer true.",
+      "range": {
+        "startLine": 275,
+        "startChar": 24,
+        "endLine": 275,
+        "endChar": 51
+      },
+      "revId": "262a6c8adb1c90cb20e07858f4282ffb604fe7ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
