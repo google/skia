@@ -1131,7 +1131,7 @@ static bool check_image_info(const GrVkCaps& caps,
     }
 
     if (info.fYcbcrConversionInfo.isValid()) {
-        if (!caps.supportsYcbcrConversion() || info.fFormat != VK_NULL_HANDLE) {
+        if (!caps.supportsYcbcrConversion()) {
             return false;
         }
     }

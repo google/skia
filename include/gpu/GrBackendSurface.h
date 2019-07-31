@@ -63,10 +63,7 @@ public:
         return GrBackendFormat(format, GrVkYcbcrConversionInfo());
     }
 
-    // This is used for external textures and the VkFormat is assumed to be VK_FORMAT_UNDEFINED.
-    // This call is only supported on Android since the GrVkYcbcrConvesionInfo contains an android
-    // external format.
-    static GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo);
+    static GrBackendFormat MakeVk(VkFormat format, const GrVkYcbcrConversionInfo& ycbcrInfo);
 
 #ifdef SK_DAWN
     static GrBackendFormat MakeDawn(dawn::TextureFormat format) {
