@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1ba01a4_256faf02",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T19:05:58Z",
+      "side": 1,
+      "message": "Rob has another change out that will update this class to not be based on config. Once that lands, I\u0027ll just rebase on top of that and fully delete this function.",
+      "range": {
+        "startLine": 174,
+        "startChar": 85,
+        "endLine": 176,
+        "endChar": 36
+      },
+      "revId": "227fbefe0917e693a72e935bb4f4585702d5cc2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
