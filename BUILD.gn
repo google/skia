@@ -1544,7 +1544,11 @@ if (skia_enable_tools) {
 
     if (skia_use_angle) {
       deps += [ "//third_party/angle2" ]
-      sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
+      sources += [
+        "tools/gpu/gl/angle/AngleLibs.cpp",
+        "tools/gpu/gl/angle/AngleLibs.h",
+        "tools/gpu/gl/angle/GLTestContext_angle.cpp",
+      ]
     }
 
     if (skia_use_vulkan) {

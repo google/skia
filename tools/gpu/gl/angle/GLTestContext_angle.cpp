@@ -7,22 +7,15 @@
 
 #include "tools/gpu/gl/angle/GLTestContext_angle.h"
 
-#define EGL_EGL_PROTOTYPES 1
-
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-
-#include "src/gpu/gl/GrGLDefines.h"
-#include "src/gpu/gl/GrGLUtil.h"
-
 #include "include/core/SkTime.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 #include "src/ports/SkOSLibrary.h"
 #include "third_party/externals/angle2/include/platform/Platform.h"
-
-#include <EGL/egl.h>
+#include "tools/gpu/gl/angle/AngleLibs.h"
 
 #define EGL_PLATFORM_ANGLE_ANGLE                0x3202
 #define EGL_PLATFORM_ANGLE_TYPE_ANGLE           0x3203
@@ -34,43 +27,36 @@ using sk_gpu_test::ANGLEBackend;
 using sk_gpu_test::ANGLEContextVersion;
 
 namespace {
-struct Libs {
-    void* fGLLib;
-    void* fEGLLib;
-};
 
 std::function<void()> context_restorer() {
-    auto display = eglGetCurrentDisplay();
-    auto dsurface = eglGetCurrentSurface(EGL_DRAW);
-    auto rsurface = eglGetCurrentSurface(EGL_READ);
-    auto context = eglGetCurrentContext();
-    return [display, dsurface, rsurface, context] {
-        eglMakeCurrent(display, dsurface, rsurface, context);
+    auto libs = sk_gpu_test::AngleLibs::Get();
+    SkASSERT(libs);
+    auto display = libs->fEGLGetCurrentDisplay();
+    auto dsurface = libs->fEGLGetCurrentSurface(EGL_DRAW);
+    auto rsurface = libs->fEGLGetCurrentSurface(EGL_READ);
+    auto context = libs->fEGLGetCurrentContext();
+    return [display, dsurface, rsurface, context, mc = libs->fEGLMakeCurrent] {
+        mc(display, dsurface, rsurface, context);
     };
 }
 
 static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
-    const Libs* libs = reinterpret_cast<const Libs*>(ctx);
-    GrGLFuncPtr proc = (GrGLFuncPtr) GetProcedureAddress(libs->fGLLib, name);
+    auto libs = sk_gpu_test::AngleLibs::Get();
+    SkASSERT(libs);
+    GrGLFuncPtr proc = (GrGLFuncPtr)GetProcedureAddress(libs->glLib(), name);
     if (proc) {
         return proc;
     }
-    proc = (GrGLFuncPtr) GetProcedureAddress(libs->fEGLLib, name);
+    proc = (GrGLFuncPtr)GetProcedureAddress(libs->eglLib(), name);
     if (proc) {
         return proc;
     }
-    return eglGetProcAddress(name);
+    return libs->fEGLGetProcAddress(name);
 }
 
 void* get_angle_egl_display(void* nativeDisplay, ANGLEBackend type) {
-    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT;
-    eglGetPlatformDisplayEXT =
-        (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress("eglGetPlatformDisplayEXT");
-
-    // We expect ANGLE to support this extension
-    if (!eglGetPlatformDisplayEXT) {
-        return EGL_NO_DISPLAY;
-    }
+    auto libs = sk_gpu_test::AngleLibs::Get();
+    SkASSERT(libs);
 
     EGLint typeNum = 0;
     switch (type) {
@@ -85,7 +71,7 @@ void* get_angle_egl_display(void* nativeDisplay, ANGLEBackend type) {
             break;
     }
     const EGLint attribs[] = { EGL_PLATFORM_ANGLE_TYPE_ANGLE, typeNum, EGL_NONE };
-    return eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, nativeDisplay, attribs);
+    return libs->fEGLGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, nativeDisplay, attribs);
 }
 
 class ANGLEGLContext : public sk_gpu_test::GLTestContext {
@@ -106,20 +92,21 @@ private:
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
-    void*                       fContext;
-    void*                       fDisplay;
-    void*                       fSurface;
+    void*                       fContext = EGL_NO_CONTEXT;
+    void*                       fDisplay = EGL_NO_DISPLAY;
+    void*                       fSurface = EGL_NO_SURFACE;
     ANGLEBackend                fType;
     ANGLEContextVersion         fVersion;
 
     angle::ResetDisplayPlatformFunc fResetPlatform = nullptr;
 
+    sk_gpu_test::AngleLibs*     fLibs = nullptr;
     PFNEGLCREATEIMAGEKHRPROC    fCreateImage = nullptr;
     PFNEGLDESTROYIMAGEKHRPROC   fDestroyImage = nullptr;
 
 #ifdef SK_BUILD_FOR_WIN
-    HWND                        fWindow;
-    HDC                         fDeviceContext;
+    HWND                        fWindow = NULL;
+    HDC                         fDeviceContext = INVALID_HANDLE_VALUE;
     static ATOM                 gWC;
 #endif
 };
@@ -175,14 +162,12 @@ static double ANGLE_monotonicallyIncreasingTime(angle::PlatformMethods* platform
 
 ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
                                ANGLEGLContext* shareContext, void* display)
-    : fContext(EGL_NO_CONTEXT)
-    , fDisplay(display)
-    , fSurface(EGL_NO_SURFACE)
-    , fType(type)
-    , fVersion(version) {
+        : fType(type), fVersion(version) {
+    fLibs = sk_gpu_test::AngleLibs::Get();
+    if (!fLibs) {
+        return;
+    }
 #ifdef SK_BUILD_FOR_WIN
-    fWindow = nullptr;
-    fDeviceContext = nullptr;
 
     static IsWine gIsWine = is_wine();
     if (gIsWine == IsWine::kYes && type != ANGLEBackend::kOpenGL) {
@@ -243,10 +228,10 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
 
     // Add ANGLE platform hooks to connect to Skia's tracing implementation
     angle::GetDisplayPlatformFunc getPlatform = reinterpret_cast<angle::GetDisplayPlatformFunc>(
-            eglGetProcAddress("ANGLEGetDisplayPlatform"));
+            fLibs->fEGLGetProcAddress("ANGLEGetDisplayPlatform"));
     if (getPlatform) {
         fResetPlatform = reinterpret_cast<angle::ResetDisplayPlatformFunc>(
-                eglGetProcAddress("ANGLEResetDisplayPlatform"));
+                fLibs->fEGLGetProcAddress("ANGLEResetDisplayPlatform"));
         SkASSERT(fResetPlatform);
 
         angle::PlatformMethods* platformMethods = nullptr;
@@ -261,7 +246,7 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
 
     EGLint majorVersion;
     EGLint minorVersion;
-    if (!eglInitialize(fDisplay, &majorVersion, &minorVersion)) {
+    if (!fLibs->fEGLInitialize(fDisplay, &majorVersion, &minorVersion)) {
         SkDebugf("Could not initialize display!");
         this->destroyGLContext();
         return;
@@ -279,7 +264,7 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     };
 
     EGLConfig surfaceConfig;
-    if (!eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs)) {
+    if (!fLibs->fEGLChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs)) {
         SkDebugf("Could not create choose config!");
         this->destroyGLContext();
         return;
@@ -291,7 +276,7 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         EGL_NONE
     };
     EGLContext eglShareContext = shareContext ? shareContext->fContext : nullptr;
-    fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext, contextAttribs);
+    fContext = fLibs->fEGLCreateContext(fDisplay, surfaceConfig, eglShareContext, contextAttribs);
     if (EGL_NO_CONTEXT == fContext) {
         SkDebugf("Could not create context!");
         this->destroyGLContext();
@@ -304,10 +289,10 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         EGL_NONE
     };
 
-    fSurface = eglCreatePbufferSurface(fDisplay, surfaceConfig, surfaceAttribs);
+    fSurface = fLibs->fEGLCreatePbufferSurface(fDisplay, surfaceConfig, surfaceAttribs);
 
     SkScopeExit restorer(context_restorer());
-    if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+    if (!fLibs->fEGLMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.");
         this->destroyGLContext();
         return;
@@ -342,10 +327,10 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         break;
     }
 #endif
-    const char* extensions = eglQueryString(fDisplay, EGL_EXTENSIONS);
+    const char* extensions = fLibs->fEGLQueryString(fDisplay, EGL_EXTENSIONS);
     if (strstr(extensions, "EGL_KHR_image")) {
-        fCreateImage = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
-        fDestroyImage = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+        fCreateImage = (PFNEGLCREATEIMAGEKHRPROC)fLibs->fEGLGetProcAddress("eglCreateImageKHR");
+        fDestroyImage = (PFNEGLDESTROYIMAGEKHRPROC)fLibs->fEGLGetProcAddress("eglDestroyImageKHR");
     }
 
     this->init(std::move(gl));
@@ -377,7 +362,7 @@ GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
     }
     typedef GrGLvoid (EGLAPIENTRY *EGLImageTargetTexture2DProc)(GrGLenum, GrGLeglImage);
     EGLImageTargetTexture2DProc glEGLImageTargetTexture2D =
-        (EGLImageTargetTexture2DProc)eglGetProcAddress("glEGLImageTargetTexture2DOES");
+            (EGLImageTargetTexture2DProc)fLibs->fEGLGetProcAddress("glEGLImageTargetTexture2DOES");
     if (!glEGLImageTargetTexture2D) {
         return 0;
     }
@@ -411,19 +396,21 @@ std::unique_ptr<sk_gpu_test::GLTestContext> ANGLEGLContext::makeNew() const {
 }
 
 void ANGLEGLContext::destroyGLContext() {
+    auto libs = sk_gpu_test::AngleLibs::Get();
     if (EGL_NO_DISPLAY != fDisplay) {
-        if (eglGetCurrentContext() == fContext) {
+        SkASSERT(libs);
+        if (fLibs->fEGLGetCurrentContext() == fContext) {
             // This will ensure that the context is immediately deleted.
-            eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+            libs->fEGLMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         }
 
         if (EGL_NO_CONTEXT != fContext) {
-            eglDestroyContext(fDisplay, fContext);
+            fLibs->fEGLDestroyContext(fDisplay, fContext);
             fContext = EGL_NO_CONTEXT;
         }
 
         if (EGL_NO_SURFACE != fSurface) {
-            eglDestroySurface(fDisplay, fSurface);
+            fLibs->fEGLDestroySurface(fDisplay, fSurface);
             fSurface = EGL_NO_SURFACE;
         }
 
@@ -431,7 +418,7 @@ void ANGLEGLContext::destroyGLContext() {
             fResetPlatform(fDisplay);
         }
 
-        eglTerminate(fDisplay);
+        fLibs->fEGLTerminate(fDisplay);
         fDisplay = EGL_NO_DISPLAY;
     }
 
@@ -449,53 +436,36 @@ void ANGLEGLContext::destroyGLContext() {
 }
 
 void ANGLEGLContext::onPlatformMakeCurrent() const {
-    if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
-        SkDebugf("Could not set the context 0x%x.\n", eglGetError());
+    if (!fLibs->fEGLMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+        SkDebugf("Could not set the context 0x%x.\n", fLibs->fEGLGetError());
     }
 }
 
 std::function<void()> ANGLEGLContext::onPlatformGetAutoContextRestore() const {
-    if (eglGetCurrentContext() == fContext) {
+    if (fLibs->fEGLGetCurrentContext() == fContext) {
         return nullptr;
     }
     return context_restorer();
 }
 
 void ANGLEGLContext::onPlatformSwapBuffers() const {
-    if (!eglSwapBuffers(fDisplay, fSurface)) {
+    if (!fLibs->fEGLSwapBuffers(fDisplay, fSurface)) {
         SkDebugf("Could not complete eglSwapBuffers.\n");
     }
 }
 
 GrGLFuncPtr ANGLEGLContext::onPlatformGetProcAddress(const char* name) const {
-    return eglGetProcAddress(name);
+    return fLibs->fEGLGetProcAddress(name);
 }
 }  // anonymous namespace
 
 namespace sk_gpu_test {
 sk_sp<const GrGLInterface> CreateANGLEGLInterface() {
-    static Libs gLibs = { nullptr, nullptr };
-
-    if (nullptr == gLibs.fGLLib) {
-        // We load the ANGLE library and never let it go
-#if defined _WIN32
-        gLibs.fGLLib = DynamicLoadLibrary("libGLESv2.dll");
-        gLibs.fEGLLib = DynamicLoadLibrary("libEGL.dll");
-#elif defined SK_BUILD_FOR_MAC
-        gLibs.fGLLib = DynamicLoadLibrary("libGLESv2.dylib");
-        gLibs.fEGLLib = DynamicLoadLibrary("libEGL.dylib");
-#else
-        gLibs.fGLLib = DynamicLoadLibrary("libGLESv2.so");
-        gLibs.fEGLLib = DynamicLoadLibrary("libEGL.so");
-#endif
-    }
-
-    if (nullptr == gLibs.fGLLib || nullptr == gLibs.fEGLLib) {
-        // We can't setup the interface correctly w/o the so
+    auto libs = sk_gpu_test::AngleLibs::Get();
+    if (!libs) {
         return nullptr;
     }
-
-    return GrGLMakeAssembledGLESInterface(&gLibs, angle_get_gl_proc);
+    return GrGLMakeAssembledGLESInterface(libs, angle_get_gl_proc);
 }
 
 std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLEContextVersion version,

@@ -6,34 +6,23 @@
  * found in the LICENSE file.
  */
 
-#define EGL_EGL_PROTOTYPES 1
+#include "tools/sk_app/win/WindowContextFactory_win.h"
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "src/gpu/gl/GrGLDefines.h"
+#include "tools/gpu/gl/angle/AngleLibs.h"
 #include "tools/sk_app/GLWindowContext.h"
-#include "tools/sk_app/win/WindowContextFactory_win.h"
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;
 
 namespace {
 
-EGLDisplay get_angle_egl_display(HDC hdc) {
-    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT;
-    eglGetPlatformDisplayEXT =
-            (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress("eglGetPlatformDisplayEXT");
-
-    // We expect ANGLE to support this extension
-    if (!eglGetPlatformDisplayEXT) {
-        return EGL_NO_DISPLAY;
-    }
-
+EGLDisplay get_angle_egl_display(sk_gpu_test::AngleLibs* libs, HDC hdc) {
     // We currently only support D3D11 ANGLE.
     static constexpr EGLint kType = EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE;
     static constexpr EGLint attribs[] = {EGL_PLATFORM_ANGLE_TYPE_ANGLE, kType, EGL_NONE};
-    return eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, hdc, attribs);
+    return libs->fEGLGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, hdc, attribs);
 }
 
 class ANGLEGLWindowContext_win : public GLWindowContext {
@@ -48,7 +37,8 @@ protected:
     void onDestroyContext() override;
 
 private:
-    HWND fHWND;
+    HWND fHWND = NULL;
+    sk_gpu_test::AngleLibs fLibs = nullptr;
     EGLDisplay fDisplay = EGL_NO_DISPLAY;
     EGLContext fEGLContext = EGL_NO_CONTEXT;
     EGLSurface fEGLSurface = EGL_NO_SURFACE;
@@ -64,15 +54,19 @@ ANGLEGLWindowContext_win::ANGLEGLWindowContext_win(HWND wnd, const DisplayParams
 ANGLEGLWindowContext_win::~ANGLEGLWindowContext_win() { this->destroyContext(); }
 
 sk_sp<const GrGLInterface> ANGLEGLWindowContext_win::onInitializeContext() {
+    fLibs = sk_gpu_test::AngleLibs::Get();
+    if (!fLibs) {
+        return nullptr;
+    }
     HDC dc = GetDC(fHWND);
-    fDisplay = get_angle_egl_display(dc);
+    fDisplay = get_angle_egl_display(libs, dc);
     if (EGL_NO_DISPLAY == fDisplay) {
         return nullptr;
     }
 
     EGLint majorVersion;
     EGLint minorVersion;
-    if (!eglInitialize(fDisplay, &majorVersion, &minorVersion)) {
+    if (!libs.fEGLInitialize(fDisplay, &majorVersion, &minorVersion)) {
         SkDebugf("Could not initialize display!\n");
         return nullptr;
     }
@@ -98,30 +92,31 @@ sk_sp<const GrGLInterface> ANGLEGLWindowContext_win::onInitializeContext() {
                                     EGL_NONE};
 
     EGLConfig surfaceConfig;
-    if (!eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs)) {
+    if (!fLibs->fEGLChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs)) {
         SkDebugf("Could not create choose config!\n");
         return nullptr;
     }
     // We currently only support ES3.
     const EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE};
-    fEGLContext = eglCreateContext(fDisplay, surfaceConfig, nullptr, contextAttribs);
+    fEGLContext = fLibs->fEGLCreateContext(fDisplay, surfaceConfig, nullptr, contextAttribs);
     if (EGL_NO_CONTEXT == fEGLContext) {
         SkDebugf("Could not create context!\n");
         return nullptr;
     }
-    fEGLSurface = eglCreateWindowSurface(fDisplay, surfaceConfig, fHWND, nullptr);
+    fEGLSurface = fLibs->fEGLCreateWindowSurface(fDisplay, surfaceConfig, fHWND, nullptr);
     if (EGL_NO_SURFACE == fEGLSurface) {
         SkDebugf("Could not create surface!\n");
         return nullptr;
     }
-    if (!eglMakeCurrent(fDisplay, fEGLSurface, fEGLSurface, fEGLContext)) {
+    if (!fLibs->fEGLMakeCurrent(fDisplay, fEGLSurface, fEGLSurface, fEGLContext)) {
         SkDebugf("Could not make contxt current!\n");
         return nullptr;
     }
 
-    sk_sp<const GrGLInterface> interface(GrGLMakeAssembledInterface(
-            nullptr,
-            [](void* ctx, const char name[]) -> GrGLFuncPtr { return eglGetProcAddress(name); }));
+    sk_sp<const GrGLInterface> interface(
+            GrGLMakeAssembledInterface(nullptr, [](void* ctx, const char name[]) -> GrGLFuncPtr {
+                return fLibs->fEGLGetProcAddress(name);
+            }));
     if (interface) {
         interface->fFunctions.fClearStencil(0);
         interface->fFunctions.fClearColor(0, 0, 0, 0);
@@ -144,20 +139,20 @@ sk_sp<const GrGLInterface> ANGLEGLWindowContext_win::onInitializeContext() {
 }
 
 void ANGLEGLWindowContext_win::onDestroyContext() {
-    eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    fLibs->fEGLMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     if (EGL_NO_CONTEXT != fEGLContext) {
-        eglDestroyContext(fDisplay, fEGLContext);
+        fLibs->fEGLDestroyContext(fDisplay, fEGLContext);
     }
     if (EGL_NO_SURFACE != fEGLSurface) {
-        eglDestroySurface(fDisplay, fEGLSurface);
+        fLibs->fEGLDestroySurface(fDisplay, fEGLSurface);
     }
     if (EGL_NO_DISPLAY != fDisplay) {
-        eglTerminate(fDisplay);
+        fLibs->fEGLTerminate(fDisplay);
     }
 }
 
 void ANGLEGLWindowContext_win::onSwapBuffers() {
-    if (!eglSwapBuffers(fDisplay, fEGLSurface)) {
+    if (!fLibs->fEGLSwapBuffers(fDisplay, fEGLSurface)) {
         SkDebugf("Could not complete eglSwapBuffers.\n");
     }
 }

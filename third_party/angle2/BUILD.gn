@@ -15,8 +15,8 @@ import("$angle_root/src/libGLESv2.gni")
 third_party("angle2") {
   public_include_dirs = [ "$angle_root/include" ]
   deps = [
-    ":libEGL",
-    ":libGLESv2",
+    ":libEGL_angle",
+    ":libGLESv2_angle",
   ]
 }
 
@@ -79,7 +79,7 @@ copy("commit_id") {
   ]
 }
 
-shared_library("libGLESv2") {
+shared_library("libGLESv2_angle") {
   configs += [ ":common" ]
   configs -= [ "//gn:warnings" ]
   defines = [
@@ -132,12 +132,12 @@ shared_library("libGLESv2") {
   }
 }
 
-shared_library("libEGL") {
+shared_library("libEGL_angle") {
   configs += [ ":common" ]
   configs -= [ "//gn:warnings" ]
   defines = [ "LIBEGL_IMPLEMENTATION" ]
   deps = [
-    ":libGLESv2",
+    ":libGLESv2_angle",
   ]
   sources = rebase_path(libegl_sources, ".", angle_root)
   if (is_win) {
