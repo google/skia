@@ -86,6 +86,12 @@ var (
 			Path: "cache/gopath",
 		},
 	}
+	CACHES_GOMA = []*specs.Cache{
+		&specs.Cache{
+			Name: "goma",
+			Path: "cache/goma",
+		},
+	}
 	CACHES_WORKDIR = []*specs.Cache{
 		&specs.Cache{
 			Name: "work",
@@ -965,6 +971,13 @@ func (b *builder) usesGo(t *specs.TaskSpec, name string) {
 	t.CipdPackages = append(t.CipdPackages, pkg)
 }
 
+// usesGoma adds attributes to tasks which use Goma.
+func usesGoma(t *specs.TaskSpec, name string) {
+	if strings.Contains(name, "Goma") {
+		t.Caches = append(t.Caches, CACHES_GOMA...)
+	}
+}
+
 // usesDocker adds attributes to tasks which use docker.
 func usesDocker(t *specs.TaskSpec, name string) {
 	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "CMake") {
@@ -1021,6 +1034,7 @@ func (b *builder) compile(name string, parts map[string]string) string {
 		task.Idempotent = true
 	}
 	usesDocker(task, name)
+	usesGoma(task, name)
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {

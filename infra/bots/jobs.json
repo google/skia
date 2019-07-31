@@ -90,6 +90,7 @@
   "Build-Mac-Clang-arm64-Release-iOS_Metal",
   "Build-Mac-Clang-x64-Release-iOS",
   "Build-Mac-Clang-x86_64-Debug",
+  "Build-Mac-Clang-x86_64-Debug-Goma",
   "Build-Mac-Clang-x86_64-Debug-ASAN",
   "Build-Mac-Clang-x86_64-Debug-ASAN_Metal",
   "Build-Mac-Clang-x86_64-Debug-CommandBuffer",

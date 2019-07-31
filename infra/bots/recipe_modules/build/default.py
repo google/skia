@@ -78,6 +78,7 @@ def compile_fn(api, checkout_root, out_dir):
   os            = api.vars.builder_cfg.get('os',            '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
+  goma_dir         = None
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
@@ -86,6 +87,7 @@ def compile_fn(api, checkout_root, out_dir):
   extra_cflags = []
   extra_ldflags = []
   args = {'werror': 'true'}
+  ninja_args = ['-C', out_dir]
   env = {}
 
   if os == 'Mac':
@@ -267,6 +269,17 @@ def compile_fn(api, checkout_root, out_dir):
     args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
+  if 'Goma' in extra_tokens or 'GomaNoFallback' in extra_tokens:
+    goma_package = ('infra_internal/goma/client/%s' %
+                    api.cipd.platform_suffix())
+    goma_dir = api.path['cache'].join('goma')
+    api.cipd.ensure(goma_dir, {goma_package: 'release'})
+    if 'GomaNoFallback' in extra_tokens:
+      env['GOMA_HERMETIC'] = 'error'
+      env['GOMA_USE_LOCAL'] = '0'
+      env['GOMA_FALLBACK'] = '0'
+    args['cc_wrapper'] = '"%s"' % goma_dir.join('gomacc')
+    ninja_args.extend(['-j', '2000'])
 
   sanitize = ''
   for t in extra_tokens:
@@ -317,9 +330,23 @@ def compile_fn(api, checkout_root, out_dir):
               infra_step=True)
 
     with api.env(env):
-      api.run(api.step, 'gn gen',
-              cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+      try:
+        if goma_dir:
+          api.run(api.python, 'start goma', script=goma_dir.join('goma_ctl.py'),
+                  args=['ensure_start'], infra_step=True)
+        api.run(api.step, 'gn gen',
+                cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
+        api.run(api.step, 'ninja', cmd=['ninja'] + ninja_args)
+      finally:
+        if goma_dir:
+          api.run(api.python, 'print goma stats',
+                  script=goma_dir.join('goma_ctl.py'), args=['stat'],
+                  infra_step=True,
+                  abort_on_failure=False, fail_build_on_failure=False)
+          api.run(api.python, 'stop goma',
+                  script=goma_dir.join('goma_ctl.py'), args=['ensure_stop'],
+                  infra_step=True,
+                  abort_on_failure=False, fail_build_on_failure=False)
 
 
 def copy_extra_build_products(api, src, dst):
