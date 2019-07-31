@@ -77,7 +77,7 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType,
                                                  const GrBackendFormat& backendFormat,
                                                  GrColorType dstColorType) const override {
-        return { GrSwizzle(), GrColorType::kUnknown, 0 };
+        return { GrColorType::kUnknown, 0 };
     }
 
     typedef GrCaps INHERITED;
