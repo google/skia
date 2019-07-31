@@ -78,7 +78,9 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         if (fDoScale) {
-            canvas->scale(.99f, .99f);
+//            canvas->scale(.99f, .99f);
+            canvas->scale(1.1f, 1.1f);
+            canvas->rotate(2);
         }
         SkIPoint dim = this->getSize();
         SkRandom rand;
@@ -194,10 +196,10 @@ protected:
 
         int index = 0;
         if (fFlags & kBilerp_Flag) {
-            index |= 1;
+            index = 1;
         }
         if (fFlags & kBicubic_Flag) {
-            index |= 2;
+            index = 3;
         }
         static const SkFilterQuality gQualitys[] = {
             kNone_SkFilterQuality,
