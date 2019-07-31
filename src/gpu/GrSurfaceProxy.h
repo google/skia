@@ -18,10 +18,10 @@
 
 class GrCaps;
 class GrContext_Base;
-class GrOpList;
 class GrRecordingContext;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
+class GrRenderTask;
 class GrResourceProvider;
 class GrSurfaceContext;
 class GrSurfaceProxyPriv;
@@ -269,8 +269,8 @@ public:
      */
     bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
 
-    void setLastOpList(GrOpList* opList);
-    GrOpList* getLastOpList() { return fLastOpList; }
+    void setLastRenderTask(GrRenderTask*);
+    GrRenderTask* getLastRenderTask() { return fLastRenderTask; }
 
     GrRenderTargetOpList* getLastRenderTargetOpList();
     GrTextureOpList* getLastTextureOpList();
@@ -437,8 +437,8 @@ private:
     // This back-pointer is required so that we can add a dependancy between
     // the opList used to create the current contents of this surface
     // and the opList of a destination surface to which this one is being drawn or copied.
-    // This pointer is unreffed. OpLists own a ref on their surface proxies.
-    GrOpList*              fLastOpList;
+    // This pointer is unreffed. GrRenderTasks own a ref on their surface proxies.
+    GrRenderTask*          fLastRenderTask;
 
     typedef GrIORefProxy INHERITED;
 };
