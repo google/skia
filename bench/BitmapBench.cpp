@@ -178,7 +178,7 @@ protected:
 
             canvas->translate(x, y);
             // just enough so we can't take the sprite case
-            canvas->scale(SK_Scalar1 * 99/100, SK_Scalar1 * 99/100);
+            canvas->scale(1.1f, 1.1f);
             canvas->translate(-x, -y);
         }
         if (fFlags & kRotate_Flag) {
