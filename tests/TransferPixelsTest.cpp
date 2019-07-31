@@ -276,9 +276,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     desc.fHeight = kTextureHeight;
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
 
-    if (!context->priv().caps()->isConfigTexturable(desc.fConfig) ||
-        (renderable == GrRenderable::kYes &&
-         !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
+    if (!context->priv().caps()->getDefaultBackendFormat(colorType, renderable).isValid()) {
         return;
     }
 

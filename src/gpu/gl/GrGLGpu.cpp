@@ -3898,15 +3898,14 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
         return GrBackendRenderTarget();  // invalid
     }
     this->handleDirtyContext();
-    auto config = GrColorTypeToPixelConfig(colorType);
-    if (!this->glCaps().isConfigRenderable(config)) {
+    auto format = this->glCaps().getFormatFromColorType(colorType);
+    if (!this->glCaps().maxRenderTargetSampleCount(colorType, format)) {
         return {};
     }
-    auto format = this->glCaps().getFormatFromColorType(colorType);
     bool useTexture = false;
     GrGLenum colorBufferFormat;
     GrGLenum externalFormat = 0, externalType = 0;
-    if (config == kBGRA_8888_GrPixelConfig && this->glCaps().bgraIsInternalFormat()) {
+    if (format == GrGLFormat::kBGRA8) {
         // BGRA render buffers are not supported.
         this->glCaps().getTexImageFormats(format, colorType, colorType, &colorBufferFormat,
                                           &externalFormat, &externalType);
@@ -3946,7 +3945,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
 
     GrGLFramebufferInfo info;
     info.fFBOID = 0;
-    info.fFormat = this->glCaps().configSizedInternalFormat(config);
+    info.fFormat = this->glCaps().formatSizedInternalFormat(format);
     GL_CALL(GenFramebuffers(1, &info.fFBOID));
     if (!info.fFBOID) {
         deleteIDs();
