@@ -20,6 +20,7 @@ def build_command_buffer(api, chrome_dir, skia_dir, out):
       args=[
         '--chrome-dir', chrome_dir,
         '--output-dir', out,
+        '--extra-gn-args', 'mac_sdk_min="10.13"',
         '--no-sync', '--no-hooks', '--make-output-dir'])
 
 

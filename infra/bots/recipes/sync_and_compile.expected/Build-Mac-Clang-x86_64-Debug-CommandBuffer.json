@@ -171,6 +171,8 @@
       "[START_DIR]/cache/work",
       "--output-dir",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
+      "--extra-gn-args",
+      "mac_sdk_min=\"10.13\"",
       "--no-sync",
       "--no-hooks",
       "--make-output-dir"
