@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0866333_326f2d8d",
+        "filename": "src/effects/imagefilters/SkImageSource.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:32:01Z",
+      "side": 1,
+      "message": "line up",
+      "revId": "7c16dfbe719268c00e5732fd899fec4738c8292f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af08cf8d_4495b45c",
+        "filename": "src/effects/imagefilters/SkMagnifierImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:32:01Z",
+      "side": 1,
+      "message": "It seems the auto-indenter could\u0027ve tried harder here",
+      "revId": "7c16dfbe719268c00e5732fd899fec4738c8292f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2414919b_e6670564",
+        "filename": "src/effects/imagefilters/SkOffsetImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:32:01Z",
+      "side": 1,
+      "message": "here too",
+      "revId": "7c16dfbe719268c00e5732fd899fec4738c8292f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
