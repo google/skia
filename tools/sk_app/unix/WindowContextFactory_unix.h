@@ -37,6 +37,10 @@ WindowContext* NewVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
 
 WindowContext* NewGLForXlib(const XlibWindowInfo&, const DisplayParams&);
 
+#ifdef SK_DAWN
+WindowContext* NewDawnVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
+#endif
+
 WindowContext* NewRasterForXlib(const XlibWindowInfo&, const DisplayParams&);
 
 }  // namespace window_context_factory
