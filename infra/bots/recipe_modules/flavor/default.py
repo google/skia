@@ -22,6 +22,7 @@ class DeviceDirs(object):
                lotties_dir,
                skp_dir,
                svg_dir,
+               mskp_dir,
                tmp_dir):
     self._bin_dir = bin_dir
     self._dm_dir = dm_dir
@@ -31,6 +32,7 @@ class DeviceDirs(object):
     self._lotties_dir = lotties_dir
     self._skp_dir = skp_dir
     self._svg_dir = svg_dir
+    self._mskp_dir = mskp_dir
     self._tmp_dir = tmp_dir
 
   @property
@@ -68,6 +70,10 @@ class DeviceDirs(object):
     return self._svg_dir
 
   @property
+  def mskp_dir(self):
+    return self._mskp_dir
+
+  @property
   def tmp_dir(self):
     return self._tmp_dir
 
@@ -92,6 +98,7 @@ class DefaultFlavor(object):
         lotties_dir=self.m.path['start_dir'].join('lottie-samples'),
         skp_dir=self.m.path['start_dir'].join('skp'),
         svg_dir=self.m.path['start_dir'].join('svg'),
+        mskp_dir=self.m.path['start_dir'].join('mskp'),
         tmp_dir=self.m.vars.tmp_dir)
     self.host_dirs = self.device_dirs
 

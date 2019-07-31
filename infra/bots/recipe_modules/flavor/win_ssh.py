@@ -31,6 +31,7 @@ class WinSSHFlavor(ssh.SSHFlavor):
       lotties_dir   = self.device_path_join(self.remote_homedir, 'lotties'),
       skp_dir       = self.device_path_join(self.remote_homedir, 'skps'),
       svg_dir       = self.device_path_join(self.remote_homedir, 'svgs'),
+      mskp_dir      = self.device_path_join(self.remote_homedir, 'mskp'),
       tmp_dir       = self.remote_homedir)
     self._empty_dir = self.device_path_join(self.remote_homedir, 'empty')
 
