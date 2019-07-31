@@ -10,7 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -19,7 +19,7 @@
 
 namespace {
 
-class SkOffsetImageFilterImpl final : public SkImageFilter {
+class SkOffsetImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkOffsetImageFilterImpl(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input,
                             const CropRect* cropRect)
@@ -42,7 +42,7 @@ private:
 
     SkVector fOffset;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace

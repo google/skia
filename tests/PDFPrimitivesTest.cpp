@@ -19,7 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkGlyphRun.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -245,7 +245,7 @@ DEF_TEST(SkPDF_Primitives, reporter) {
 
 namespace {
 
-class DummyImageFilter : public SkImageFilter {
+class DummyImageFilter : public SkImageFilter_Base {
 public:
     static sk_sp<DummyImageFilter> Make(bool visited = false) {
         return sk_sp<DummyImageFilter>(new DummyImageFilter(visited));
@@ -267,7 +267,7 @@ private:
 
     mutable bool fVisited;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer) {

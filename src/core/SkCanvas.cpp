@@ -28,7 +28,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMSAN.h"
 #include "src/core/SkMakeUnique.h"
@@ -907,7 +907,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         snapBounds = newBounds;
 
         SkMatrix localCTM;
-        sk_sp<SkImageFilter> modifiedFilter = SkApplyCTMToBackdropFilter(filter, ctm, &localCTM);
+        sk_sp<SkImageFilter> modifiedFilter = as_IFB(filter)->applyCTMForBackdrop(ctm, &localCTM);
         // Account for the origin offset in the CTM
         localCTM.postTranslate(-dstOrigin.x(), -dstOrigin.y());
 
@@ -915,7 +915,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         // since there's no device CTM stack that provides it to the image filter context.
         // FIXME skbug.com/9074 - once perspective is properly supported, drop the
         // localCTM.hasPerspective condition from assert.
-        SkASSERT(localCTM.isScaleTranslate() || filter->canHandleComplexCTM() ||
+        SkASSERT(localCTM.isScaleTranslate() || as_IFB(filter)->canHandleComplexCTM() ||
                  localCTM.hasPerspective());
         p.setImageFilter(modifiedFilter->makeWithLocalMatrix(localCTM));
     }
@@ -983,11 +983,11 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
      */
     if (imageFilter) {
         SkMatrix modifiedCTM;
-        sk_sp<SkImageFilter> modifiedFilter = SkApplyCTMToFilter(imageFilter, stashedMatrix,
-                                                                 &modifiedCTM);
-        if (!SkIsSameFilter(modifiedFilter.get(), imageFilter)) {
+        sk_sp<SkImageFilter> modifiedFilter = as_IFB(imageFilter)->applyCTM(stashedMatrix,
+                                                                            &modifiedCTM);
+        if (as_IFB(modifiedFilter)->uniqueID() != as_IFB(imageFilter)->uniqueID()) {
             // The original filter couldn't support the CTM entirely
-            SkASSERT(modifiedCTM.isScaleTranslate() || imageFilter->canHandleComplexCTM());
+            SkASSERT(modifiedCTM.isScaleTranslate() || as_IFB(imageFilter)->canHandleComplexCTM());
             modifiedRec = fMCRec;
             this->internalSetMatrix(modifiedCTM);
             SkPaint* p = lazyP.set(*paint);

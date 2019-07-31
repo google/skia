@@ -7,14 +7,14 @@
 
 #include "include/effects/SkComposeImageFilter.h"
 
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
 
 namespace {
 
-class SkComposeImageFilterImpl final : public SkImageFilter {
+class SkComposeImageFilterImpl final : public SkImageFilter_Base {
 public:
     explicit SkComposeImageFilterImpl(sk_sp<SkImageFilter> inputs[2])
             : INHERITED(inputs, 2, nullptr) {
@@ -35,7 +35,7 @@ private:
     friend void SkComposeImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkComposeImageFilterImpl)
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace
@@ -66,8 +66,8 @@ sk_sp<SkFlattenable> SkComposeImageFilterImpl::CreateProc(SkReadBuffer& buffer) 
 }
 
 SkRect SkComposeImageFilterImpl::computeFastBounds(const SkRect& src) const {
-    SkImageFilter* outer = this->getInput(0);
-    SkImageFilter* inner = this->getInput(1);
+    const SkImageFilter* outer = this->getInput(0);
+    const SkImageFilter* inner = this->getInput(1);
 
     return outer->computeFastBounds(inner->computeFastBounds(src));
 }
@@ -106,8 +106,8 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(SkSpecialImage* so
 
 SkIRect SkComposeImageFilterImpl::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                                  MapDirection dir, const SkIRect* inputRect) const {
-    SkImageFilter* outer = this->getInput(0);
-    SkImageFilter* inner = this->getInput(1);
+    const SkImageFilter* outer = this->getInput(0);
+    const SkImageFilter* inner = this->getInput(1);
 
     const SkIRect innerRect = inner->filterBounds(src, ctm, dir, inputRect);
     return outer->filterBounds(innerRect, ctm, dir,
