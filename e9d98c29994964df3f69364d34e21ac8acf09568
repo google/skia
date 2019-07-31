@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db333cc3_7dbd31cd",
+        "filename": "src/gpu/dawn/GrDawnProgramDataManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T19:25:51Z",
+      "side": 1,
+      "message": "nit: over 100 chars",
+      "range": {
+        "startLine": 269,
+        "startChar": 85,
+        "endLine": 269,
+        "endChar": 114
+      },
+      "revId": "e9d98c29994964df3f69364d34e21ac8acf09568",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6616a9c3_5350d2f0",
+        "filename": "src/gpu/dawn/GrDawnProgramDataManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T19:25:51Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 273,
+        "startChar": 89,
+        "endLine": 273,
+        "endChar": 115
+      },
+      "revId": "e9d98c29994964df3f69364d34e21ac8acf09568",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
