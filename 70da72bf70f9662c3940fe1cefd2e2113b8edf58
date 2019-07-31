@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "12ca9be6_9de03c11",
+        "filename": "modules/skottie/include/TextPropertyValue.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9707
+      },
+      "writtenOn": "2019-07-31T01:14:37Z",
+      "side": 1,
+      "message": "No reason from a Skottie client side, but internally I wasn\u0027t sure if it would be ok to pull in SkottieProperty.h in all skottie/src/text files that required access to TextValue. I\u0027ve merged this into SkottieProperty for now.",
+      "parentUuid": "bec8e22b_26a59839",
+      "revId": "70da72bf70f9662c3940fe1cefd2e2113b8edf58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8dc5da6c_5eb0fa09",
         "filename": "modules/skottie/include/TextPropertyValue.h",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "714a0a31_54af4d08",
+        "filename": "modules/skottie/include/TextPropertyValue.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9707
+      },
+      "writtenOn": "2019-07-31T01:14:37Z",
+      "side": 1,
+      "message": "Good catch - moved to src/text/TextValue.cpp which makes use of the ValueTraits from this header.",
+      "parentUuid": "8dc5da6c_5eb0fa09",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 45
+      },
+      "revId": "70da72bf70f9662c3940fe1cefd2e2113b8edf58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86290372_5e6fd177",
         "filename": "modules/skottie/include/TextPropertyValue.h",
         "patchSetId": 2
@@ -62,6 +104,30 @@
       "revId": "70da72bf70f9662c3940fe1cefd2e2113b8edf58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "160f4a07_c23f020e",
+        "filename": "modules/skottie/include/TextPropertyValue.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9707
+      },
+      "writtenOn": "2019-07-31T01:14:37Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "86290372_5e6fd177",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 51
+      },
+      "revId": "70da72bf70f9662c3940fe1cefd2e2113b8edf58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
