@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50adcafa_a78d6101",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T18:53:38Z",
+      "side": 1,
+      "message": "Should we add a GrColorTypeIsOpaque call? That way config isn\u0027t used at all here besides being on GrSurfaceDesc.",
+      "range": {
+        "startLine": 234,
+        "startChar": 43,
+        "endLine": 234,
+        "endChar": 77
+      },
+      "revId": "2382282bbece3799e8470df15b9b727f477a9cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d06acba7_7c7920ec",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T18:53:38Z",
+      "side": 1,
+      "message": "should we print out something else besides config? ColorType and maybe GrBackendFormat needs a dump/name/etc call?",
+      "range": {
+        "startLine": 261,
+        "startChar": 51,
+        "endLine": 261,
+        "endChar": 64
+      },
+      "revId": "2382282bbece3799e8470df15b9b727f477a9cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37e42e95_e36fe3ad",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T18:53:38Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 293,
+        "startChar": 46,
+        "endLine": 293,
+        "endChar": 59
+      },
+      "revId": "2382282bbece3799e8470df15b9b727f477a9cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
