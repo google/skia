@@ -262,6 +262,30 @@
     },
     {
       "key": {
+        "uuid": "cdc5906f_940f5dfa",
+        "filename": "src/gpu/vk/GrVkSampler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T22:45:01Z",
+      "side": 1,
+      "message": "Yeah that was the one caller I was referring to that didn\u0027t have the tiling info. I\u0027m fine with leaving this as is for now. If we get a request to calculate it ourselves it would be to hard to add the functionality.",
+      "parentUuid": "f659fa6f_0c8dbbc1",
+      "range": {
+        "startLine": 86,
+        "startChar": 34,
+        "endLine": 86,
+        "endChar": 69
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b21c217_0a1868b4",
         "filename": "src/gpu/vk/GrVkSamplerYcbcrConversion.cpp",
         "patchSetId": 2
