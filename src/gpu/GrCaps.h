@@ -237,6 +237,7 @@ public:
                                                          GrColorType srcColorType) const = 0;
 
     struct SupportedRead {
+        GrSwizzle fSwizzle;
         GrColorType fColorType;
         // If the read is occurring using GrGpu::transferPixelsFrom then this provides the
         // minimum alignment of the offset into the transfer buffer.

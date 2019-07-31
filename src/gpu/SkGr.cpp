@@ -308,9 +308,6 @@ static inline int32_t dither_range_type_for_config(GrColorType dstColorType) {
         case GrColorType::kRGBA_F16:
         case GrColorType::kRGBA_F16_Clamped:
         case GrColorType::kAlpha_8:
-        case GrColorType::kAlpha_8xxx:
-        case GrColorType::kAlpha_F32xxx:
-        case GrColorType::kGray_8xxx:
             return -1;
     }
     SkUNREACHABLE;

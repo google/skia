@@ -1150,14 +1150,6 @@ enum class GrColorType {
     kRGBA_F16_Clamped,
     kRGBA_F32,
 
-    // Unusual formats that come up after reading back in cases where we are reassigning the meaning
-    // of a texture format's channels to use for a particular color format but have to read back the
-    // data to a full RGBA quadruple. (e.g. using a R8 texture format as A8 color type but the API
-    // only supports reading to RGBA8.) None of these have SkColorType equivalents.
-    kAlpha_8xxx,
-    kAlpha_F32xxx,
-    kGray_8xxx,
-
     kR_16,          // Not in SkColorType
     kRG_1616,       // Not in SkColorType
 
@@ -1188,9 +1180,6 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kRGBA_F16:         return kRGBA_F16_SkColorType;
         case GrColorType::kRGBA_F16_Clamped: return kRGBA_F16Norm_SkColorType;
         case GrColorType::kRGBA_F32:         return kRGBA_F32_SkColorType;
-        case GrColorType::kAlpha_8xxx:       return kUnknown_SkColorType;
-        case GrColorType::kAlpha_F32xxx:     return kUnknown_SkColorType;
-        case GrColorType::kGray_8xxx:        return kUnknown_SkColorType;
         case GrColorType::kR_16:             return kUnknown_SkColorType;
         case GrColorType::kRG_1616:          return kUnknown_SkColorType;
         // Experimental (for Y416 and mutant P016/P010)
@@ -1243,9 +1232,6 @@ static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
         case GrColorType::kRGBA_F16:         return kRGBA_SkColorTypeComponentFlags;
         case GrColorType::kRGBA_F16_Clamped: return kRGBA_SkColorTypeComponentFlags;
         case GrColorType::kRGBA_F32:         return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kAlpha_8xxx:       return kAlpha_SkColorTypeComponentFlag;
-        case GrColorType::kAlpha_F32xxx:     return kAlpha_SkColorTypeComponentFlag;
-        case GrColorType::kGray_8xxx:        return kGray_SkColorTypeComponentFlag;
         case GrColorType::kR_16:             return kRed_SkColorTypeComponentFlag;
         case GrColorType::kRG_1616:          return kRed_SkColorTypeComponentFlag |
                                                     kGreen_SkColorTypeComponentFlag;
@@ -1378,12 +1364,6 @@ static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
             return GrColorTypeDesc::MakeRGBA(16, GrColorTypeEncoding::kFloat);
         case GrColorType::kRGBA_F32:
             return GrColorTypeDesc::MakeRGBA(32, GrColorTypeEncoding::kFloat);
-        case GrColorType::kAlpha_8xxx:
-            return GrColorTypeDesc::MakeAlpha(8, GrColorTypeEncoding::kUnorm);
-        case GrColorType::kAlpha_F32xxx:
-            return GrColorTypeDesc::MakeAlpha(32, GrColorTypeEncoding::kFloat);
-        case GrColorType::kGray_8xxx:
-            return GrColorTypeDesc::MakeGray(8, GrColorTypeEncoding::kUnorm);
         case GrColorType::kR_16:
             return GrColorTypeDesc::MakeR(16, GrColorTypeEncoding::kUnorm);
         case GrColorType::kRG_1616:
@@ -1441,9 +1421,6 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
         case GrColorType::kRGBA_F16:         return 8;
         case GrColorType::kRGBA_F16_Clamped: return 8;
         case GrColorType::kRGBA_F32:         return 16;
-        case GrColorType::kAlpha_8xxx:       return 4;
-        case GrColorType::kAlpha_F32xxx:     return 16;
-        case GrColorType::kGray_8xxx:        return 4;
         case GrColorType::kR_16:             return 2;
         case GrColorType::kRG_1616:          return 4;
         // Experimental (for Y416 and mutant P016/P010)
@@ -1541,9 +1518,6 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
         case GrColorType::kAlpha_F16:        return kAlpha_half_GrPixelConfig;
         case GrColorType::kRGBA_F16:         return kRGBA_half_GrPixelConfig;
         case GrColorType::kRGBA_F16_Clamped: return kRGBA_half_Clamped_GrPixelConfig;
-        case GrColorType::kAlpha_8xxx:       return kUnknown_GrPixelConfig;
-        case GrColorType::kAlpha_F32xxx:     return kUnknown_GrPixelConfig;
-        case GrColorType::kGray_8xxx:        return kUnknown_GrPixelConfig;
         case GrColorType::kR_16:             return kR_16_GrPixelConfig;
         case GrColorType::kRG_1616:          return kRG_1616_GrPixelConfig;
 

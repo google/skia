@@ -184,7 +184,7 @@ private:
 
     SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType, const GrBackendFormat&,
                                                  GrColorType) const override {
-        return SupportedRead{srcColorType, 1};
+        return SupportedRead{GrSwizzle::RGBA(), srcColorType, 1};
     }
 
     static const int kMaxSampleCnt = 16;
