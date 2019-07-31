@@ -9,7 +9,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRect.h"
-#include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"

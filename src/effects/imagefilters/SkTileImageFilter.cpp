@@ -14,7 +14,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkOffsetImageFilter.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -23,7 +23,7 @@
 
 namespace {
 
-class SkTileImageFilterImpl final : public SkImageFilter {
+class SkTileImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkTileImageFilterImpl(const SkRect& srcRect, const SkRect& dstRect, sk_sp<SkImageFilter> input)
             : INHERITED(&input, 1, nullptr)
@@ -49,7 +49,7 @@ private:
     SkRect fSrcRect;
     SkRect fDstRect;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace
