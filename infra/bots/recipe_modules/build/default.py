@@ -69,6 +69,34 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
             cmd=['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
 
 
+def get_goma_json(api):
+  """Retrieve the goma service account JWT JSON from metadata.
+
+  Returns: path to the temporary file where the JWT JSON is saved
+  """
+  json_key = 'jwt_service_account_goma-client'
+  json_filename = json_key + '.json'
+  # Ensure that the tmp_dir exists.
+  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
+  json_file = api.vars.tmp_dir.join(json_filename)
+  api.python.inline(
+      'download ' + json_filename,
+      """
+import os
+import sys
+import urllib2
+TOKEN_URL = (
+    'http://metadata/computeMetadata/v1/project/attributes/%s')
+req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})
+contents = urllib2.urlopen(req).read()
+with open(sys.argv[1], 'w') as f:
+  f.write(contents)
+""" % json_key,
+      args=[json_file],
+      infra_step=True)
+  return json_file
+
+
 def compile_fn(api, checkout_root, out_dir):
   skia_dir      = checkout_root.join('skia')
   compiler      = api.vars.builder_cfg.get('compiler',      '')
@@ -77,6 +105,7 @@ def compile_fn(api, checkout_root, out_dir):
   os            = api.vars.builder_cfg.get('os',            '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
+  goma_dir         = None
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
@@ -85,6 +114,7 @@ def compile_fn(api, checkout_root, out_dir):
   extra_cflags = []
   extra_ldflags = []
   args = {'werror': 'true'}
+  ninja_args = ['-C', out_dir]
   env = {}
 
   if os == 'Mac':
@@ -266,6 +296,24 @@ def compile_fn(api, checkout_root, out_dir):
     args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
+  if 'Goma' in extra_tokens or 'GomaNoFallback' in extra_tokens:
+    json_file = get_goma_json(api)
+    api.cipd.set_service_account_credentials(json_file)
+    goma_package = ('infra_internal/goma/client/%s' %
+                    api.cipd.platform_suffix())
+    goma_dir = api.path['cache'].join('goma')
+    api.cipd.ensure(goma_dir, {goma_package: 'release'})
+    env['GOMA_SERVICE_ACCOUNT_JSON_FILE'] = json_file
+    if 'GomaNoFallback' in extra_tokens:
+      env['GOMA_HERMETIC'] = 'error'
+      env['GOMA_USE_LOCAL'] = '0'
+      env['GOMA_FALLBACK'] = '0'
+    args['cc_wrapper'] = '"%s"' % goma_dir.join('gomacc')
+    if 'ANGLE' in extra_tokens and 'Win' in os:
+      # ANGLE uses case-insensitive include paths in D3D code. Not sure why
+      # only Goma warns about this.
+      extra_cflags.append('-Wno-nonportable-include-path')
+    ninja_args.extend(['-j', '2000'])
 
   sanitize = ''
   for t in extra_tokens:
@@ -316,9 +364,24 @@ def compile_fn(api, checkout_root, out_dir):
               infra_step=True)
 
     with api.env(env):
-      api.run(api.step, 'gn gen',
-              cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+      try:
+        if goma_dir:
+          api.run(api.python, 'start goma', script=goma_dir.join('goma_ctl.py'),
+                  args=['ensure_start'], infra_step=True)
+        api.run(api.step, 'gn gen',
+                cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
+        api.run(api.step, 'cat args.gn', cmd=['type', out_dir.join('args.gn')])
+        api.run(api.step, 'ninja', cmd=['ninja'] + ninja_args)
+      finally:
+        if goma_dir:
+          api.run(api.python, 'print goma stats',
+                  script=goma_dir.join('goma_ctl.py'), args=['stat'],
+                  infra_step=True,
+                  abort_on_failure=False, fail_build_on_failure=False)
+          api.run(api.python, 'stop goma',
+                  script=goma_dir.join('goma_ctl.py'), args=['ensure_stop'],
+                  infra_step=True,
+                  abort_on_failure=False, fail_build_on_failure=False)
 
 
 def copy_extra_build_products(api, src, dst):
