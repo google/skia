@@ -44,12 +44,12 @@ bool SkBitmapController::State::processHighRequest(const SkBitmapProvider& provi
     }
     invScaleX = SkScalarAbs(invScaleX);
     invScaleY = SkScalarAbs(invScaleY);
-
+#if 0
     if (invScaleX >= 1 - SK_ScalarNearlyZero || invScaleY >= 1 - SK_ScalarNearlyZero) {
         // we're down-scaling so abort HQ
         return false;
     }
-
+#endif
     // Confirmed that we can use HQ (w/ rasterpipeline)
     fQuality = kHigh_SkFilterQuality;
     (void)provider.asBitmap(&fResultBitmap);
