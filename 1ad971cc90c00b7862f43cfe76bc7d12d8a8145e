@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad3815b3_b7cb0f7a",
+        "filename": "src/pdf/SkPDFShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-07-31T15:21:49Z",
+      "side": 1,
+      "message": "It\u0027s frustrating that you can\u0027t just do\n\ntemplate\u003ctypename T\u003e constexpr T kMaxBitmapArea \u003d T(1024 * 1024);\n\nhere, since it is only possible to make such a declaration at namespace or class scope.",
+      "range": {
+        "startLine": 283,
+        "startChar": 4,
+        "endLine": 283,
+        "endChar": 50
+      },
+      "revId": "1ad971cc90c00b7862f43cfe76bc7d12d8a8145e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
