@@ -57,7 +57,7 @@
     M(load_16161616)                M(store_16161616)              \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
     M(alpha_to_gray) M(alpha_to_gray_dst) M(bt709_luminance_or_luma_to_alpha)         \
-    M(bilerp_clamp_8888)                                           \
+    M(bilerp_clamp_8888) M(bicubic_clamp_8888)                     \
     M(store_u16_be)                                                \
     M(load_src) M(store_src) M(load_dst) M(store_dst)              \
     M(scale_u8) M(scale_565) M(scale_1_float)                      \
