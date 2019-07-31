@@ -8,12 +8,16 @@
 #ifndef GrDawnProgramBuilder_DEFINED
 #define GrDawnProgramBuilder_DEFINED
 
+#include "src/core/SkLRUCache.h"
 #include "src/gpu/dawn/GrDawnProgramDataManager.h"
 #include "src/gpu/dawn/GrDawnUniformHandler.h"
 #include "src/gpu/dawn/GrDawnVaryingHandler.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "dawn/dawncpp.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/sksl/SkSLCompiler.h"
+
+#include "dawn/dawncpp.h"
+
+#include <vector>
 
 class GrPipeline;
 
@@ -51,27 +55,53 @@ struct GrDawnProgram : public SkRefCnt {
     typedef GrGLSLBuiltinUniformHandles BuiltinUniformHandles;
     GrDawnProgram(const GrDawnUniformHandler::UniformInfoArray& uniforms,
                   uint32_t geometryUniformSize,
-                  uint32_t fragmentUniformSize)
-      : fDataManager(uniforms, geometryUniformSize, fragmentUniformSize) {
-    }
-    dawn::ShaderModule fVSModule;
-    dawn::ShaderModule fFSModule;
+                  uint32_t fragmentUniformSize);
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
+    std::vector<dawn::Sampler> fSamplers;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
     int fFragmentProcessorCnt;
-    dawn::Buffer fGeometryUniformBuffer;
-    dawn::Buffer fFragmentUniformBuffer;
-    dawn::PipelineLayout fPipelineLayout;
-    dawn::BindGroup fUniformBindGroup;
-    dawn::ColorStateDescriptor fColorState;
+    dawn::BindGroupLayout fBindGroupLayout;
+    dawn::RenderPipeline fRenderPipeline;
     GrDawnProgramDataManager fDataManager;
     RenderTargetState fRenderTargetState;
     BuiltinUniformHandles fBuiltinUniformHandles;
+    struct BindGroupKey {
+        static const int kPreAllocSize = 128;
+        BindGroupKey() { }
+        bool operator==(const BindGroupKey& other) const {
+            SkASSERT(other.fData.count() == fData.count());
+            return !memcmp(other.fData.begin(), fData.begin(), fData.count());
+        }
+        struct Hash {
+            uint32_t operator()(const BindGroupKey& key) {
+                return SkOpts::hash_fn(key.fData.begin(), key.fData.count(), 0);
+            }
+        };
+        void append(size_t size, void* data) {
+            fData.push_back_n(size, static_cast<uint8_t*>(data));
+        }
+        SkSTArray<kPreAllocSize, uint8_t, true> fData;
+    };
+    struct BindGroupValue {
+        BindGroupValue() {}
+        BindGroupValue(const BindGroupValue& other)
+            : fBindGroup(other.fBindGroup)
+            , fGeometryBuffer(other.fGeometryBuffer)
+            , fFragmentBuffer(other.fFragmentBuffer) {
+        }
+        dawn::BindGroup fBindGroup;
+        dawn::Buffer    fGeometryBuffer;
+        dawn::Buffer    fFragmentBuffer;
+    };
+    SkLRUCache<BindGroupKey, BindGroupValue, BindGroupKey::Hash> fBindGroupCache;
 
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
-    void setData(const GrPrimitiveProcessor&, const GrRenderTarget*, GrSurfaceOrigin,
-                 const GrPipeline&);
+    void buildKey(BindGroupKey* key, const GrPrimitiveProcessor&, const GrPipeline&,
+                  const GrTextureProxy* const primProcTextures[]);
+    dawn::BindGroup setData(GrDawnGpu* gpu, const GrRenderTarget*, GrSurfaceOrigin origin,
+                            const GrPrimitiveProcessor&, const GrPipeline&,
+                            const GrTextureProxy* const primProcTextures[]);
 };
 
 class GrDawnProgramBuilder : public GrGLSLProgramBuilder {
@@ -82,7 +112,10 @@ public:
                                       const GrPipeline&,
                                       const GrPrimitiveProcessor&,
                                       const GrTextureProxy* const primProcProxies[],
+                                      GrPrimitiveType primitiveType,
                                       dawn::TextureFormat colorFormat,
+                                      bool hasDepthStencil,
+                                      dawn::TextureFormat depthStencilFormat,
                                       GrProgramDesc* desc);
     const GrCaps* caps() const override;
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
