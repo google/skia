@@ -44,6 +44,27 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport sys\nwith open(sys.argv[1], 'r') as f:\n  print(f.read())\n",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-loongson3a-Release/Release/args.gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "LD_LIBRARY_PATH": "[START_DIR]/mips64el_toolchain_linux/lib/x86_64-linux-gnu/"
+    },
+    "infra_step": true,
+    "name": "print args.gn",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(sys.argv[1], 'r') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(f.read())@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-loongson3a-Release/Release"

@@ -26,6 +26,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
   'Build-Debian9-Clang-arm-Release-Android_API26',
   'Build-Debian9-Clang-arm-Release-Android_ASAN',
   'Build-Debian9-Clang-arm-Release-Chromebook_GLES',
@@ -66,11 +67,12 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan',
   'Build-Win-Clang-arm64-Release-Android',
   'Build-Win-Clang-x86-Debug-Exceptions',
+  'Build-Win-Clang-x86_64-Debug-GomaNoFallback',
   'Build-Win-Clang-x86_64-Debug-OpenCL',
   'Build-Win-Clang-x86_64-Release-Vulkan',
   'Build-Win-MSVC-x86_64-Debug-MSRTC',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
 ]
 
 # Default properties used for TEST_BUILDERS.
