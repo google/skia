@@ -389,6 +389,7 @@ skia_core_sources = [
   "$_src/core/SkUtils.h",
   "$_src/core/SkVM.cpp",
   "$_src/core/SkVM.h",
+  "$_src/core/SkVMBlitter.cpp",
   "$_src/core/SkValidationUtils.h",
   "$_src/core/SkVertices.cpp",
   "$_src/core/SkVertState.cpp",
