@@ -27,7 +27,8 @@ public:
 
     SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
                                                  GrColorType srcColorType) const override {
-        return {GrColorType::kUnknown, 1};
+        GrColorType ct = GrPixelConfigToColorType(config);
+        return {ct, GrColorTypeBytesPerPixel(ct)};
     }
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
