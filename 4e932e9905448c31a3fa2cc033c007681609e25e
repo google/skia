@@ -22,6 +22,145 @@
       "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcf4f11d_db6f9790",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T17:15:28Z",
+      "side": 1,
+      "message": "I\u0027m not sure there is a format here. Mostly it is to keep track of public api level changes so that when we make a new \"release/branch\" of skia it is easier to quickly put together the release notes.",
+      "parentUuid": "becf7e6d_6684d809",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e27d2fc_893a68a9",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T17:15:28Z",
+      "side": 1,
+      "message": "I believe right now that this is only called through Skia helper functions so it should be safe to just change this, but you may want to search through chrome and android to see if anyone calls it directly there.",
+      "range": {
+        "startLine": 66,
+        "startChar": 27,
+        "endLine": 66,
+        "endChar": 53
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27168421_dfe2e45a",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T17:15:28Z",
+      "side": 1,
+      "message": "Can we add a comment that if fFormat is UNDEFINED then fExternalFormat must not be zero. And the opposite as well.",
+      "range": {
+        "startLine": 132,
+        "startChar": 2,
+        "endLine": 135,
+        "endChar": 51
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1446e0a5_893a2a88",
+        "filename": "src/gpu/vk/GrVkSampler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T17:15:28Z",
+      "side": 1,
+      "message": "I\u0027m wondering if for non-external textures if it still makes sense to require a client to pass in the formatFeatures or should we be querying them. I think we should have all the info needed to do the query. For the android external we definitely need it to be passed in since it is queried off of the HardwareBuffer.",
+      "range": {
+        "startLine": 86,
+        "startChar": 34,
+        "endLine": 86,
+        "endChar": 69
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b21c217_0a1868b4",
+        "filename": "src/gpu/vk/GrVkSamplerYcbcrConversion.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T17:15:28Z",
+      "side": 1,
+      "message": "I\u0027m not a huge fan of trying to initialize some fields like this and then explicitly setting others (and can lead to compiler bugs like you\u0027re getting). Can we just go ahead a explicitly set everything. Once we are allowed to use named members everywhere I start like this approach more, but till then..",
+      "range": {
+        "startLine": 38,
+        "startChar": 57,
+        "endLine": 39,
+        "endChar": 68
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6deb7c02_bca05240",
+        "filename": "src/gpu/vk/GrVkSamplerYcbcrConversion.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T17:15:28Z",
+      "side": 1,
+      "message": "you\u0027ll need to declare this outside of the if scope so it is still valid during the create call. Also ditto on not using this mixed initialization.",
+      "range": {
+        "startLine": 58,
+        "startChar": 8,
+        "endLine": 58,
+        "endChar": 82
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
