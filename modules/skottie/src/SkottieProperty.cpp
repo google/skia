@@ -13,6 +13,25 @@
 
 namespace skottie {
 
+bool TextPropertyValue::operator==(const TextPropertyValue& other) const {
+    return fTypeface == other.fTypeface
+        && fText == other.fText
+        && fTextSize == other.fTextSize
+        && fStrokeWidth == other.fStrokeWidth
+        && fLineHeight == other.fLineHeight
+        && fHAlign == other.fHAlign
+        && fVAlign == other.fVAlign
+        && fBox == other.fBox
+        && fFillColor == other.fFillColor
+        && fStrokeColor == other.fStrokeColor
+        && fHasFill == other.fHasFill
+        && fHasStroke == other.fHasStroke;
+}
+
+bool TextPropertyValue::operator!=(const TextPropertyValue& other) const {
+    return !(*this== other);
+}
+
 bool TransformPropertyValue::operator==(const TransformPropertyValue& other) const {
     return this->fAnchorPoint == other.fAnchorPoint
         && this->fPosition    == other.fPosition

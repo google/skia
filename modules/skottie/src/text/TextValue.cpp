@@ -9,27 +9,9 @@
 
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/SkottieValue.h"
 
 namespace skottie {
-
-bool TextValue::operator==(const TextValue &other) const {
-    return fTypeface == other.fTypeface
-        && fText == other.fText
-        && fTextSize == other.fTextSize
-        && fStrokeWidth == other.fStrokeWidth
-        && fLineHeight == other.fLineHeight
-        && fHAlign == other.fHAlign
-        && fVAlign == other.fVAlign
-        && fBox == other.fBox
-        && fFillColor == other.fFillColor
-        && fStrokeColor == other.fStrokeColor
-        && fHasFill == other.fHasFill
-        && fHasStroke == other.fHasStroke;
-}
-
-bool TextValue::operator!=(const TextValue &other) const {
-    return !(*this== other);
-}
 
 template <>
 bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
