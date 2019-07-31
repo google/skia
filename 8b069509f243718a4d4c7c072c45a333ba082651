@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "282c1da7_50227fd8",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:03:47Z",
+      "side": 1,
+      "message": "*",
+      "range": {
+        "startLine": 254,
+        "startChar": 5,
+        "endLine": 254,
+        "endChar": 7
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8e4b0ca_1aa432c9",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:03:47Z",
+      "side": 1,
+      "message": "These should all go on their own line",
+      "range": {
+        "startLine": 40,
+        "startChar": 76,
+        "endLine": 40,
+        "endChar": 78
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03ede0b3_3bdd26ff",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:03:47Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 71,
+        "startChar": 56,
+        "endLine": 71,
+        "endChar": 61
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50985ba3_0f44c3c1",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:03:47Z",
+      "side": 1,
+      "message": "Since this is a 1-1 mapping can we default to kNone ?",
+      "range": {
+        "startLine": 143,
+        "startChar": 45,
+        "endLine": 143,
+        "endChar": 66
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f457c12_13ea87ec",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:03:47Z",
+      "side": 1,
+      "message": "matrix",
+      "range": {
+        "startLine": 184,
+        "startChar": 64,
+        "endLine": 184,
+        "endChar": 73
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29b25709_24613ebc",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:03:47Z",
+      "side": 1,
+      "message": "What gets drawn if \u0027pic\u0027 is null?",
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5c46dc4_8e045f15",
+        "filename": "include/effects/SkMatrixConvolutionImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T21:03:47Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 6
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
