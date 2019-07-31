@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f04f1526_cb1f4139",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 4195,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-07-31T18:24:44Z",
+      "side": 1,
+      "message": "instead of having this all here, could we store a vector on GrGLCaps (in GR_TEST_UTIL only). And then when we are setting up the format table we can push back valid combinations there?",
+      "range": {
+        "startLine": 4195,
+        "startChar": 33,
+        "endLine": 4195,
+        "endChar": 61
+      },
+      "revId": "fff23df63827f8d60fa71dc29ce0481e06f35bda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
