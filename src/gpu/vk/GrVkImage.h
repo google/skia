@@ -56,12 +56,7 @@ public:
     }
     VkFormat imageFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
-        if (fResource && this->ycbcrConversionInfo().isValid()) {
-            SkASSERT(this->imageFormat() == VK_FORMAT_UNDEFINED);
-            return GrBackendFormat::MakeVk(this->ycbcrConversionInfo());
-        }
-        SkASSERT(this->imageFormat() != VK_FORMAT_UNDEFINED);
-        return GrBackendFormat::MakeVk(this->imageFormat());
+        return GrBackendFormat::MakeVk(this->imageFormat(), this->ycbcrConversionInfo());
     }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
     const GrVkYcbcrConversionInfo& ycbcrConversionInfo() const {
