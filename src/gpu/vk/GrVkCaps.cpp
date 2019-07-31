@@ -866,12 +866,19 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) co
     return 0;
 }
 
-int GrVkCaps::maxRenderTargetSampleCount(GrColorType, const GrBackendFormat& format) const {
+int GrVkCaps::maxRenderTargetSampleCount(GrColorType ct, const GrBackendFormat& format) const {
     if (!format.getVkFormat()) {
         return 0;
     }
 
-    return this->maxRenderTargetSampleCount(*format.getVkFormat());
+    VkFormat vkFormat = *format.getVkFormat();
+    if (ct == GrColorType::kRGB_888x && vkFormat != VK_FORMAT_R8G8B8_UNORM) {
+        // Only kRGB_888x/R8G8B8 is consider renderable, regardless of the renderability
+        // of the underlying backend format (e.g., R8G8B8A8), due to blending considerations.
+        return 0;
+    }
+
+    return this->maxRenderTargetSampleCount(vkFormat);
 }
 
 int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
@@ -1000,9 +1007,10 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
         case GrColorType::kRGB_888x:
             if (VK_FORMAT_R8G8B8_UNORM == format) {
                 return kRGB_888_GrPixelConfig;
-            }
-            if (VK_FORMAT_R8G8B8A8_UNORM == format) {
+            } else if (VK_FORMAT_R8G8B8A8_UNORM == format) {
                 return kRGB_888X_GrPixelConfig;
+            } else if (VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK == format) {
+                return kRGB_ETC1_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_88:
@@ -1306,3 +1314,39 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
             return {GrColorType::kUnknown, 0};
     }
 }
+
+#if GR_TEST_UTILS
+std::vector<GrCaps::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinations() const {
+    std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
+        { GrColorType::kAlpha_8,          GrBackendFormat::MakeVk(VK_FORMAT_R8_UNORM)             },
+        { GrColorType::kBGR_565,          GrBackendFormat::MakeVk(VK_FORMAT_R5G6B5_UNORM_PACK16)  },
+        { GrColorType::kABGR_4444,        GrBackendFormat::MakeVk(VK_FORMAT_R4G4B4A4_UNORM_PACK16)},
+        { GrColorType::kABGR_4444,        GrBackendFormat::MakeVk(VK_FORMAT_B4G4R4A4_UNORM_PACK16)},
+        { GrColorType::kRGBA_8888,        GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM)       },
+        { GrColorType::kRGBA_8888_SRGB,   GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_SRGB)        },
+        { GrColorType::kRGB_888x,         GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM)       },
+        { GrColorType::kRGB_888x,         GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM)         },
+        { GrColorType::kRGB_888x,         GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK)},
+        { GrColorType::kRG_88,            GrBackendFormat::MakeVk(VK_FORMAT_R8G8_UNORM)           },
+        { GrColorType::kBGRA_8888,        GrBackendFormat::MakeVk(VK_FORMAT_B8G8R8A8_UNORM)       },
+        { GrColorType::kRGBA_1010102,     GrBackendFormat::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32)},
+        { GrColorType::kGray_8,           GrBackendFormat::MakeVk(VK_FORMAT_R8_UNORM)             },
+        { GrColorType::kAlpha_F16,        GrBackendFormat::MakeVk(VK_FORMAT_R16_SFLOAT)           },
+        { GrColorType::kRGBA_F16,         GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT)  },
+        { GrColorType::kRGBA_F16_Clamped, GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT)  },
+        { GrColorType::kRGBA_F32,         GrBackendFormat::MakeVk(VK_FORMAT_R32G32B32A32_SFLOAT)  },
+        { GrColorType::kR_16,             GrBackendFormat::MakeVk(VK_FORMAT_R16_UNORM)            },
+        { GrColorType::kRG_1616,          GrBackendFormat::MakeVk(VK_FORMAT_R16G16_UNORM)         },
+        { GrColorType::kRGBA_16161616,    GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_UNORM)   },
+        { GrColorType::kRG_F16,           GrBackendFormat::MakeVk(VK_FORMAT_R16G16_SFLOAT)        },
+    };
+
+#ifdef SK_DEBUG
+    for (auto combo : combos) {
+        SkASSERT(this->onAreColorTypeAndFormatCompatible(combo.fColorType, combo.fFormat));
+    }
+#endif
+
+    return combos;
+}
+#endif
