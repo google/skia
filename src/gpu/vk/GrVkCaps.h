@@ -229,7 +229,7 @@ private:
 
         SkTDArray<int> fColorSampleCounts;
     };
-    static const size_t kNumVkFormats = 18;
+    static const size_t kNumVkFormats = 20;
     FormatInfo fFormatTable[kNumVkFormats];
 
     const FormatInfo& getFormatInfo(VkFormat) const;

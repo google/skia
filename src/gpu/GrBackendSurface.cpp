@@ -111,12 +111,11 @@ const GrGLenum* GrBackendFormat::getGLTarget() const {
     return nullptr;
 }
 
-GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo) {
-#ifdef SK_BUILD_FOR_ANDROID
-    return GrBackendFormat(VK_FORMAT_UNDEFINED, ycbcrInfo);
-#else
-    return GrBackendFormat();
-#endif
+GrBackendFormat GrBackendFormat::MakeVk(VkFormat format, const GrVkYcbcrConversionInfo& ycbcrInfo) {
+    // Format must not be set for external images. externalFormat should be set only for
+    // external images.
+    SkASSERT(format != VK_FORMAT_UNDEFINED ^ ycbcrInfo.fExternalFormat != 0);
+    return GrBackendFormat(format, ycbcrInfo);
 }
 
 GrBackendFormat::GrBackendFormat(VkFormat vkFormat, const GrVkYcbcrConversionInfo& ycbcrInfo)
@@ -526,11 +525,7 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
             auto info = fVkInfo.snapImageInfo();
-            if (info.fYcbcrConversionInfo.isValid()) {
-                SkASSERT(info.fFormat == VK_FORMAT_UNDEFINED);
-                return GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
-            }
-            return GrBackendFormat::MakeVk(info.fFormat);
+            return GrBackendFormat::MakeVk(info.fFormat, info.fYcbcrConversionInfo);
         }
 #endif
 #ifdef SK_DAWN
@@ -810,11 +805,7 @@ GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
             auto info = fVkInfo.snapImageInfo();
-            if (info.fYcbcrConversionInfo.isValid()) {
-                SkASSERT(info.fFormat == VK_FORMAT_UNDEFINED);
-                return GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
-            }
-            return GrBackendFormat::MakeVk(info.fFormat);
+            return GrBackendFormat::MakeVk(info.fFormat, info.fYcbcrConversionInfo);
         }
 #endif
 #ifdef SK_METAL

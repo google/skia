@@ -285,7 +285,7 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(const GrTextu
     // Check if we are dealing with an external texture and store the needed information if so
     const GrVkTexture* vkTexture = static_cast<const GrVkTexture*>(texture);
     if (vkTexture->ycbcrConversionInfo().isValid()) {
-        SkASSERT(type == GrTextureType::kExternal);
+        // SkASSERT(type == GrTextureType::kExternal);
         GrVkGpu* gpu = static_cast<GrVkPipelineStateBuilder*>(fProgramBuilder)->gpu();
         info.fImmutableSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(
                 state, vkTexture->ycbcrConversionInfo());

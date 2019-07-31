@@ -14,3 +14,6 @@ SkImageFilter API refactor started:
  - Consolidated enum types to use SkTileMode and SkColorChannel
  - Hide filter implementation classes
  - Bumps SkPicture version number
+
+Vulkan backend now supports YCbCr sampler for I420 Vulkan images that are not
+backed by external images.
