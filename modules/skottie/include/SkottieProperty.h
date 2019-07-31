@@ -11,6 +11,9 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkTextUtils.h"
+#include "modules/skottie/src/text/SkottieShaper.h"
 
 #include <functional>
 
@@ -27,6 +30,25 @@ namespace skottie {
 
 using ColorPropertyValue   = SkColor;
 using OpacityPropertyValue = float;
+
+struct TextPropertyValue {
+    sk_sp<SkTypeface>  fTypeface;
+    SkString           fText;
+    float              fTextSize    = 0,
+                       fStrokeWidth = 0,
+                       fLineHeight  = 0,
+                       fAscent      = 0;
+    SkTextUtils::Align fHAlign      = SkTextUtils::kLeft_Align;
+    Shaper::VAlign     fVAlign      = Shaper::VAlign::kTop;
+    SkRect             fBox         = SkRect::MakeEmpty();
+    SkColor            fFillColor   = SK_ColorTRANSPARENT,
+                       fStrokeColor = SK_ColorTRANSPARENT;
+    bool               fHasFill   : 1,
+                       fHasStroke : 1;
+
+    bool operator==(const TextPropertyValue& other) const;
+    bool operator!=(const TextPropertyValue& other) const;
+};
 
 struct TransformPropertyValue {
     SkPoint  fAnchorPoint,
