@@ -229,6 +229,9 @@ static ModifierKey get_modifiers(const NSEvent* event) {
     NSUInteger modifierFlags = [event modifierFlags];
     ModifierKey modifiers = ModifierKey::kNone;
 
+    if (modifierFlags & NSEventModifierFlagCommand) {
+        modifiers |= ModifierKey::kCommand;
+    }
     if (modifierFlags & NSEventModifierFlagShift) {
         modifiers |= ModifierKey::kShift;
     }
