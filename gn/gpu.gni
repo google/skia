@@ -721,6 +721,8 @@ skia_dawn_sources = [
   "$_src/gpu/dawn/GrDawnUniformHandler.h",
   "$_src/gpu/dawn/GrDawnUtil.cpp",
   "$_src/gpu/dawn/GrDawnUtil.h",
+  "$_src/gpu/dawn/GrDawnVaryingHandler.cpp",
+  "$_src/gpu/dawn/GrDawnVaryingHandler.h",
 ]
 
 skia_metal_sources = [
