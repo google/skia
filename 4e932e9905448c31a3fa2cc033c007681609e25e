@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "dda17434_627e6236",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-07-31T20:34:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "bcf4f11d_db6f9790",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e27d2fc_893a68a9",
         "filename": "include/gpu/GrBackendSurface.h",
         "patchSetId": 2
@@ -69,6 +93,30 @@
       "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aba6542_d1027102",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-07-31T20:34:47Z",
+      "side": 1,
+      "message": "Chrome does use this directly, see https://codesearch.chromium.org/chromium/src/components/viz/service/display_embedder/skia_output_surface_impl.cc?l\u003d693\nThank you for catching this.\n\nLooking at this again I don\u0027t think we need to change the signature: we have fFormat in ycbcrInfo for the format.",
+      "parentUuid": "9e27d2fc_893a68a9",
+      "range": {
+        "startLine": 66,
+        "startChar": 27,
+        "endLine": 66,
+        "endChar": 53
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "ef7b72ee_5a832d64",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-07-31T20:34:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27168421_dfe2e45a",
+      "range": {
+        "startLine": 132,
+        "startChar": 2,
+        "endLine": 135,
+        "endChar": 51
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1446e0a5_893a2a88",
         "filename": "src/gpu/vk/GrVkSampler.cpp",
         "patchSetId": 2
@@ -115,6 +187,30 @@
       "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5986140_8ea48d65",
+        "filename": "src/gpu/vk/GrVkSampler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-07-31T20:34:47Z",
+      "side": 1,
+      "message": "We could use vkGetPhysicalDeviceFormatProperties() here to query format features. Problem is that we don\u0027t know which tiling is used by the source image and features depend on tiling, so then we would need to put tiling flag in GrVkYcbcrConversionInfo.",
+      "parentUuid": "1446e0a5_893a2a88",
+      "range": {
+        "startLine": 86,
+        "startChar": 34,
+        "endLine": 86,
+        "endChar": 69
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -141,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "70fe48a7_59fd1e34",
+        "filename": "src/gpu/vk/GrVkSamplerYcbcrConversion.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-07-31T20:34:47Z",
+      "side": 1,
+      "message": "Done.\nThe nice thing about initializing the struct like this is that we can be sure that all fields are initialized to 0, even if we don\u0027t set them explicitly.",
+      "parentUuid": "1b21c217_0a1868b4",
+      "range": {
+        "startLine": 38,
+        "startChar": 57,
+        "endLine": 39,
+        "endChar": 68
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6deb7c02_bca05240",
         "filename": "src/gpu/vk/GrVkSamplerYcbcrConversion.cpp",
         "patchSetId": 2
@@ -161,6 +281,30 @@
       "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1bdef19_7aa55e97",
+        "filename": "src/gpu/vk/GrVkSamplerYcbcrConversion.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-07-31T20:34:47Z",
+      "side": 1,
+      "message": "Duh! Thanks for catching this.",
+      "parentUuid": "6deb7c02_bca05240",
+      "range": {
+        "startLine": 58,
+        "startChar": 8,
+        "endLine": 58,
+        "endChar": 82
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
