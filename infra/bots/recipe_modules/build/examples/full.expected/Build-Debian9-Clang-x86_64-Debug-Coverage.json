@@ -43,6 +43,26 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport sys\nwith open(sys.argv[1], 'r') as f:\n  for line in f:\n    print(line)\nprint()\n",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Debug-Coverage/Debug/args.gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "infra_step": true,
+    "name": "print args.gn",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(sys.argv[1], 'r') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for line in f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print(line)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print()@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Debug-Coverage/Debug"
