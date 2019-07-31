@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bec8e22b_26a59839",
+        "filename": "modules/skottie/include/TextPropertyValue.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-31T00:15:24Z",
+      "side": 1,
+      "message": "Is there a strong reason to have this in a separate header?  I would have thought of putting in SkottieProperty.h, where the rest of the property gunk lives.",
+      "revId": "70da72bf70f9662c3940fe1cefd2e2113b8edf58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dc5da6c_5eb0fa09",
+        "filename": "modules/skottie/include/TextPropertyValue.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-31T00:15:24Z",
+      "side": 1,
+      "message": "Do we actually need this header?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 45
+      },
+      "revId": "70da72bf70f9662c3940fe1cefd2e2113b8edf58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86290372_5e6fd177",
+        "filename": "modules/skottie/include/TextPropertyValue.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-07-31T00:15:24Z",
+      "side": 1,
+      "message": "Pulling private headers here may prove problematic.  But SkottieShaper is quasi-public (added for use outside Skottie, just not cleanly published yet), so we can probably make it public too if this is an issue.  Just a heads-up.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 51
+      },
+      "revId": "70da72bf70f9662c3940fe1cefd2e2113b8edf58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
