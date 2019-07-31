@@ -19,27 +19,10 @@ namespace {
 
 class SkColorFilterImageFilterImpl final : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(sk_sp<SkColorFilter> cf,
-                                     sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr) {
-        if (!cf) {
-            return nullptr;
-        }
-
-        SkColorFilter* inputCF;
-        if (input && input->isColorFilterNode(&inputCF)) {
-            // This is an optimization, as it collapses the hierarchy by just combining the two
-            // colorfilters into a single one, which the new imagefilter will wrap.
-            sk_sp<SkColorFilter> newCF = cf->makeComposed(sk_sp<SkColorFilter>(inputCF));
-            if (newCF) {
-                return sk_sp<SkImageFilter>(new SkColorFilterImageFilterImpl(
-                        std::move(newCF), sk_ref_sp(input->getInput(0)), cropRect));
-            }
-        }
-
-        return sk_sp<SkImageFilter>(new SkColorFilterImageFilterImpl(
-                std::move(cf), std::move(input), cropRect));
-    }
+    SkColorFilterImageFilterImpl(sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input,
+                                 const CropRect* cropRect)
+            : INHERITED(&input, 1, cropRect)
+            , fColorFilter(std::move(cf)) {}
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -53,11 +36,6 @@ private:
     friend void SkColorFilterImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkColorFilterImageFilterImpl)
 
-    SkColorFilterImageFilterImpl(sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input,
-                                 const CropRect* cropRect)
-            : INHERITED(&input, 1, cropRect)
-            , fColorFilter(std::move(cf)) {}
-
     sk_sp<SkColorFilter> fColorFilter;
 
     typedef SkImageFilter INHERITED;
@@ -68,7 +46,23 @@ private:
 sk_sp<SkImageFilter> SkColorFilterImageFilter::Make(sk_sp<SkColorFilter> cf,
                                                     sk_sp<SkImageFilter> input,
                                                     const SkImageFilter::CropRect* cropRect) {
-    return SkColorFilterImageFilterImpl::Make(std::move(cf), std::move(input), cropRect);
+    if (!cf) {
+        return nullptr;
+    }
+
+    SkColorFilter* inputCF;
+    if (input && input->isColorFilterNode(&inputCF)) {
+        // This is an optimization, as it collapses the hierarchy by just combining the two
+        // colorfilters into a single one, which the new imagefilter will wrap.
+        sk_sp<SkColorFilter> newCF = cf->makeComposed(sk_sp<SkColorFilter>(inputCF));
+        if (newCF) {
+            return sk_sp<SkImageFilter>(new SkColorFilterImageFilterImpl(
+                    std::move(newCF), sk_ref_sp(input->getInput(0)), cropRect));
+        }
+    }
+
+    return sk_sp<SkImageFilter>(new SkColorFilterImageFilterImpl(
+            std::move(cf), std::move(input), cropRect));
 }
 
 void SkColorFilterImageFilter::RegisterFlattenables() {
@@ -82,7 +76,7 @@ void SkColorFilterImageFilter::RegisterFlattenables() {
 sk_sp<SkFlattenable> SkColorFilterImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     sk_sp<SkColorFilter> cf(buffer.readColorFilter());
-    return Make(std::move(cf), common.getInput(0), &common.cropRect());
+    return SkColorFilterImageFilter::Make(std::move(cf), common.getInput(0), &common.cropRect());
 }
 
 void SkColorFilterImageFilterImpl::flatten(SkWriteBuffer& buffer) const {

@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkUnPreMultiply.h"
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
