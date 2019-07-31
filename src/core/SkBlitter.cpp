@@ -731,6 +731,12 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         paint.writable()->setDither(false);
     }
 
+#if defined(USE_SKVM_BLITTER)
+    if (auto blitter = SkCreateSkVMBlitter(device, *paint, matrix, alloc)) {
+        return blitter;
+    }
+#endif
+
     // We'll end here for many interesting cases: color spaces, color filters, most color types.
     if (UseRasterPipelineBlitter(device, *paint, matrix)) {
         auto blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc);
