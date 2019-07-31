@@ -22,6 +22,30 @@
       "revId": "fff23df63827f8d60fa71dc29ce0481e06f35bda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b246a244_9672553c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 4195,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T19:31:41Z",
+      "side": 1,
+      "message": "As discussed offline, it would be cool to just have an array like this stored on GrCaps and have each back-end build it. Each backend could then use its various format information to create it from existing data.",
+      "parentUuid": "f04f1526_cb1f4139",
+      "range": {
+        "startLine": 4195,
+        "startChar": 33,
+        "endLine": 4195,
+        "endChar": 61
+      },
+      "revId": "fff23df63827f8d60fa71dc29ce0481e06f35bda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

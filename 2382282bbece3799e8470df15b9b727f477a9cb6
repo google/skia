@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b60f4fb8_5e96bc3c",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T19:31:41Z",
+      "side": 1,
+      "message": "Done-ish - I replaced the GrPixelConfigIsOpaque call with a use of GrColorTypeComponentFlags.",
+      "parentUuid": "50adcafa_a78d6101",
+      "range": {
+        "startLine": 234,
+        "startChar": 43,
+        "endLine": 234,
+        "endChar": 77
+      },
+      "revId": "2382282bbece3799e8470df15b9b727f477a9cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d06acba7_7c7920ec",
         "filename": "tests/GrSurfaceTest.cpp",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2019-07-31T18:53:38Z",
       "side": 1,
       "message": "should we print out something else besides config? ColorType and maybe GrBackendFormat needs a dump/name/etc call?",
+      "range": {
+        "startLine": 261,
+        "startChar": 51,
+        "endLine": 261,
+        "endChar": 64
+      },
+      "revId": "2382282bbece3799e8470df15b9b727f477a9cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d59d3b8_549f52ed",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-07-31T19:31:41Z",
+      "side": 1,
+      "message": "Right - we definitely want GrBackendFormat to have a way to spit out a text representation. Same for GrColorType.",
+      "parentUuid": "d06acba7_7c7920ec",
       "range": {
         "startLine": 261,
         "startChar": 51,
