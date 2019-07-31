@@ -238,6 +238,30 @@
     },
     {
       "key": {
+        "uuid": "f659fa6f_0c8dbbc1",
+        "filename": "src/gpu/vk/GrVkSampler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-07-31T22:31:56Z",
+      "side": 1,
+      "message": "GrVkGpu::getExtraSamplerKeyForProgram() calls resourceProvider().findOrCreateCompatibleSampler() and we don\u0027t know image tiling there. Would it be good idea to add tiling flag in GrBackendFormat?",
+      "parentUuid": "489b2ce5_a13b5954",
+      "range": {
+        "startLine": 86,
+        "startChar": 34,
+        "endLine": 86,
+        "endChar": 69
+      },
+      "revId": "4e932e9905448c31a3fa2cc033c007681609e25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b21c217_0a1868b4",
         "filename": "src/gpu/vk/GrVkSamplerYcbcrConversion.cpp",
         "patchSetId": 2
