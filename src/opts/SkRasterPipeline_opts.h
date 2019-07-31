@@ -2651,6 +2651,53 @@ STAGE(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     }
 }
 
+// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
+STAGE(bicubic_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
+    // (cx,cy) are the center of our sample.
+    F cx = r,
+      cy = g;
+
+    // All sample points are at the same fractional offset (fx,fy).
+    // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
+    F fx = fract(cx + 0.5f),
+      fy = fract(cy + 0.5f);
+
+    // We'll accumulate the color of all four samples into {r,g,b,a} directly.
+    r = g = b = a = 0;
+
+    const F scaley[4] = {
+        bicubic_far (1.0f - fy), bicubic_near(1.0f - fy),
+        bicubic_near(       fy), bicubic_far (       fy),
+    };
+    const F scalex[4] = {
+        bicubic_far (1.0f - fx), bicubic_near(1.0f - fx),
+        bicubic_near(       fx), bicubic_far (       fx),
+    };
+
+    F sample_y = cy - 1.5f;
+    for (int yy = 0; yy <= 3; ++yy) {
+        F sample_x = cx - 1.5f;
+        for (int xx = 0; xx <= 3; ++xx) {
+            F scale = scalex[xx] * scaley[yy];
+
+            // ix_and_ptr() will clamp to the image's bounds for us.
+            const uint32_t* ptr;
+            U32 ix = ix_and_ptr(&ptr, ctx, sample_x, sample_y);
+
+            F sr,sg,sb,sa;
+            from_8888(gather(ptr, ix), &sr,&sg,&sb,&sa);
+
+            r = mad(scale, sr, r);
+            g = mad(scale, sg, g);
+            b = mad(scale, sb, b);
+            a = mad(scale, sa, a);
+
+            sample_x += 1;
+        }
+        sample_y += 1;
+    }
+}
+
 // ~~~~~~ GrSwizzle stage ~~~~~~ //
 
 STAGE(swizzle, void* ctx) {
@@ -3927,6 +3974,7 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(mirror_y)         // TODO
     NOT_IMPLEMENTED(repeat_y)         // TODO
     NOT_IMPLEMENTED(negate_x)
+    NOT_IMPLEMENTED(bicubic_clamp_8888)
     NOT_IMPLEMENTED(bilinear_nx)      // TODO
     NOT_IMPLEMENTED(bilinear_ny)      // TODO
     NOT_IMPLEMENTED(bilinear_px)      // TODO
