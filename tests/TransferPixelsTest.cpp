@@ -78,7 +78,7 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType dstColorType, char
     GrCaps::SupportedRead supportedRead = caps->supportedReadPixelsColorType(
             srcCT, texture->backendFormat(), dstColorType);
     std::fill_n(tolerances, 4, 0);
-    if (supportedRead.fColorType != dstColorType) {
+    if (supportedRead.fColorType != dstColorType || supportedRead.fSwizzle != GrSwizzle("rgba")) {
         size_t tmpRowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * w;
         std::unique_ptr<char[]> tmpPixels(new char[tmpRowBytes * h]);
         if (!gpu->readPixels(texture, 0, 0, w, h,
@@ -88,8 +88,8 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType dstColorType, char
         GrPixelInfo tmpInfo(supportedRead.fColorType, kUnpremul_SkAlphaType, nullptr, w, h);
         GrPixelInfo dstInfo(dstColorType,             kUnpremul_SkAlphaType, nullptr, w, h);
         determine_tolerances(tmpInfo.colorType(), dstInfo.colorType(), tolerances);
-        return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, tmpPixels.get(), tmpRowBytes,
-                               false);
+        return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, tmpPixels.get(), tmpRowBytes, false,
+                               supportedRead.fSwizzle);
     }
     return gpu->readPixels(texture, 0, 0, w, h, supportedRead.fColorType, dst, rowBytes);
 }
@@ -364,6 +364,11 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     GrPixelInfo transferInfo(allowedRead.fColorType, kUnpremul_SkAlphaType, nullptr, kTextureWidth,
                              kTextureHeight);
+    // Caps may indicate that we should swizzle this data before we compare it.
+    if (allowedRead.fSwizzle != GrSwizzle("rgba")) {
+        GrConvertPixels(transferInfo, transferData.get(), fullBufferRowBytes, transferInfo,
+                        transferData.get(), fullBufferRowBytes, false, allowedRead.fSwizzle);
+    }
 
     float tol[4];
     determine_tolerances(allowedRead.fColorType, colorType, tol);
@@ -405,6 +410,11 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     buffer->unmap();
 
     transferInfo = transferInfo.makeWH(kPartialWidth, kPartialHeight);
+    if (allowedRead.fSwizzle != GrSwizzle("rgba")) {
+        GrConvertPixels(transferInfo, transferData.get(), partialBufferRowBytes, transferInfo,
+                        transferData.get(), partialBufferRowBytes, false, allowedRead.fSwizzle);
+    }
+
     const char* textureDataStart =
             textureData.get() + textureDataRowBytes * kPartialTop + textureDataBpp * kPartialLeft;
     textureDataInfo = textureDataInfo.makeWH(kPartialWidth, kPartialHeight);

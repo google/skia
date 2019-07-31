@@ -1065,11 +1065,6 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
                 return kRG_half_GrPixelConfig;
             }
             break;
-        // These have no equivalent:
-        case GrColorType::kAlpha_8xxx:
-        case GrColorType::kAlpha_F32xxx:
-        case GrColorType::kGray_8xxx:
-            break;
     }
 
     return kUnknown_GrPixelConfig;
@@ -1147,7 +1142,7 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
 bool GrVkCaps::canClearTextureOnCreation() const { return true; }
 
 #ifdef SK_DEBUG
-static constexpr bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorType) {
+static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorType) {
     switch (colorType) {
         case GrColorType::kUnknown:
             return false;
@@ -1192,12 +1187,9 @@ static constexpr bool format_color_type_valid_pair(VkFormat vkFormat, GrColorTyp
             return VK_FORMAT_R16G16B16A16_UNORM == vkFormat;
         case GrColorType::kRG_F16:
             return VK_FORMAT_R16G16_SFLOAT == vkFormat;
-        case GrColorType::kAlpha_8xxx:
-        case GrColorType::kAlpha_F32xxx:
-        case GrColorType::kGray_8xxx:
-            return false;
     }
-    SkUNREACHABLE;
+    SK_ABORT("Unknown color type");
+    return false;
 }
 #endif
 
@@ -1248,7 +1240,7 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
         GrColorType dstColorType) const {
     const VkFormat* vkFormat = srcBackendFormat.getVkFormat();
     if (!vkFormat) {
-        return {GrColorType::kUnknown, 0};
+        return {GrSwizzle(), GrColorType::kUnknown, 0};
     }
 
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
@@ -1256,53 +1248,53 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
 
     switch (*vkFormat) {
         case VK_FORMAT_R8G8B8A8_UNORM:
-            return {GrColorType::kRGBA_8888, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_8888, offsetAlignment};
         case VK_FORMAT_R8_UNORM:
             if (srcColorType == GrColorType::kAlpha_8) {
-                return {GrColorType::kAlpha_8, offsetAlignment};
+                return {GrSwizzle::RGBA(), GrColorType::kAlpha_8, offsetAlignment};
             } else if (srcColorType == GrColorType::kGray_8) {
-                return {GrColorType::kGray_8, offsetAlignment};
+                return {GrSwizzle::RGBA(), GrColorType::kGray_8, offsetAlignment};
             } else {
-                return {GrColorType::kUnknown, 0};
+                return {GrSwizzle(), GrColorType::kUnknown, 0};
             }
         case VK_FORMAT_B8G8R8A8_UNORM:
-            return {GrColorType::kBGRA_8888, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kBGRA_8888, offsetAlignment};
         case VK_FORMAT_R5G6B5_UNORM_PACK16:
-            return {GrColorType::kBGR_565, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kBGR_565, offsetAlignment};
         case VK_FORMAT_R16G16B16A16_SFLOAT:
             if (srcColorType == GrColorType::kRGBA_F16) {
-                return {GrColorType::kRGBA_F16, offsetAlignment};
+                return {GrSwizzle::RGBA(), GrColorType::kRGBA_F16, offsetAlignment};
             } else if (srcColorType == GrColorType::kRGBA_F16_Clamped) {
-                return {GrColorType::kRGBA_F16_Clamped, offsetAlignment};
+                return {GrSwizzle::RGBA(), GrColorType::kRGBA_F16_Clamped, offsetAlignment};
             } else {
-                return {GrColorType::kUnknown, 0};
+                return {GrSwizzle(), GrColorType::kUnknown, 0};
             }
         case VK_FORMAT_R16_SFLOAT:
-            return {GrColorType::kAlpha_F16, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kAlpha_F16, offsetAlignment};
         case VK_FORMAT_R8G8B8_UNORM:
-            return {GrColorType::kRGB_888x, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kRGB_888x, offsetAlignment};
         case VK_FORMAT_R8G8_UNORM:
-            return {GrColorType::kRG_88, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kRG_88, offsetAlignment};
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
-            return {GrColorType::kRGBA_1010102, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_1010102, offsetAlignment};
         case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
-            return {GrColorType::kABGR_4444, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kABGR_4444, offsetAlignment};
         case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
-            return {GrColorType::kABGR_4444, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kABGR_4444, offsetAlignment};
         case VK_FORMAT_R32G32B32A32_SFLOAT:
-            return {GrColorType::kRGBA_F32, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_F32, offsetAlignment};
         case VK_FORMAT_R8G8B8A8_SRGB:
-            return {GrColorType::kRGBA_8888_SRGB, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_8888_SRGB, offsetAlignment};
         case VK_FORMAT_R16_UNORM:
-            return {GrColorType::kR_16, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kR_16, offsetAlignment};
         case VK_FORMAT_R16G16_UNORM:
-            return {GrColorType::kRG_1616, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kRG_1616, offsetAlignment};
         // Experimental (for Y416 and mutant P016/P010)
         case VK_FORMAT_R16G16B16A16_UNORM:
-            return {GrColorType::kRGBA_16161616, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kRGBA_16161616, offsetAlignment};
         case VK_FORMAT_R16G16_SFLOAT:
-            return {GrColorType::kRG_F16, offsetAlignment};
+            return {GrSwizzle::RGBA(), GrColorType::kRG_F16, offsetAlignment};
         default:
-            return {GrColorType::kUnknown, 0};
+            return {GrSwizzle(), GrColorType::kUnknown, 0};
     }
 }

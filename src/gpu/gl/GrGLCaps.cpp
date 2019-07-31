@@ -1590,13 +1590,14 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     ioFormat.fExternalReadFormat = 0;
                 }
 
-                // Format: R8, Surface: kAlpha_8, Data: kAlpha_8xxx
+                // Format: R8, Surface: kAlpha_8, Data: kRGBA_8888
                 {
                     auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
-                    ioFormat.fColorType = GrColorType::kAlpha_8xxx;
+                    ioFormat.fColorType = GrColorType::kRGBA_8888;
                     ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
                     ioFormat.fExternalTexImageFormat = 0;
                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                    ioFormat.fReadSwizzle = GrSwizzle("000r");
                 }
             }
 
@@ -1621,13 +1622,14 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     ioFormat.fExternalReadFormat = 0;
                 }
 
-                // Format: R8, Surface: kGray_8, Data: kGray_8xxx
+                // Format: R8, Surface: kGray_8, Data: kRGBA_8888
                 {
                     auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
-                    ioFormat.fColorType = GrColorType::kGray_8xxx;
+                    ioFormat.fColorType = GrColorType::kRGBA_8888;
                     ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
                     ioFormat.fExternalTexImageFormat = 0;
                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                    ioFormat.fReadSwizzle = GrSwizzle("rrr1");
                 }
             }
         }
@@ -1702,6 +1704,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                         ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
                         ioFormat.fExternalTexImageFormat = 0;
                         ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                        ioFormat.fReadSwizzle = GrSwizzle("000a");
                     }
                 }
             }
@@ -2100,13 +2103,14 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     ioFormat.fExternalReadFormat = 0;
                 }
 
-                // Format: R16F, Surface: kAlpha_F16, Data: kAlpha_F32xxx
+                // Format: R16F, Surface: kAlpha_F16, Data: kRGBA_F32
                 {
                     auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
-                    ioFormat.fColorType = GrColorType::kAlpha_F32xxx;
+                    ioFormat.fColorType = GrColorType::kRGBA_F32;
                     ioFormat.fExternalType = GR_GL_FLOAT;
                     ioFormat.fExternalTexImageFormat = 0;
                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                    ioFormat.fReadSwizzle = GrSwizzle("000r");
                 }
             }
         }
@@ -3684,12 +3688,12 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
     // this as makes sense to increase performance and correctness.
     GrGLFormat srcFormat = GrGLBackendFormatToGLFormat(srcBackendFormat);
     if (srcFormat == GrGLFormat::kUnknown) {
-        return {GrColorType::kUnknown, 0};
+        return {GrSwizzle{}, GrColorType::kUnknown, 0};
     }
 
     // We first try to find a supported read pixels GrColorType that matches the requested
     // dstColorType. If that doesn't exists we will use any valid read pixels GrColorType.
-    GrCaps::SupportedRead fallbackRead = {GrColorType::kUnknown, 0};
+    GrCaps::SupportedRead fallbackRead = {GrSwizzle{}, GrColorType::kUnknown, 0};
     const auto& formatInfo = this->getFormatInfo(srcFormat);
     bool foundSrcCT = false;
     for (int i = 0; !foundSrcCT && i < formatInfo.fColorTypeInfoCount; ++i) {
@@ -3702,12 +3706,13 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
                     GrGLenum transferOffsetAlignment =
                             offset_alignment_for_transfer_buffer(ioInfo.fExternalType);
                     if (ioInfo.fColorType == dstColorType) {
-                        return {dstColorType, transferOffsetAlignment};
+                        return {ioInfo.fReadSwizzle, dstColorType, transferOffsetAlignment};
                     }
                     // Currently we just pick the first supported format that we find as our
                     // fallback.
                     if (fallbackRead.fColorType == GrColorType::kUnknown) {
-                        fallbackRead = {ioInfo.fColorType, transferOffsetAlignment};
+                        fallbackRead = {ioInfo.fReadSwizzle, ioInfo.fColorType,
+                                        transferOffsetAlignment};
                     }
                 }
             }
@@ -3996,12 +4001,6 @@ static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGL
                 return kRG_half_GrPixelConfig;
             }
             break;
-
-        // These have no equivalent config:
-        case GrColorType::kAlpha_8xxx:
-        case GrColorType::kAlpha_F32xxx:
-        case GrColorType::kGray_8xxx:
-            break;
     }
 
     SkDebugf("Unknown pixel config 0x%x\n", format);
@@ -4075,7 +4074,7 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
 bool GrGLCaps::canClearTextureOnCreation() const { return fClearTextureSupport; }
 
 #ifdef SK_DEBUG
-static constexpr bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType) {
+static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType) {
     switch (colorType) {
         case GrColorType::kUnknown:
             return false;
@@ -4120,13 +4119,9 @@ static constexpr bool format_color_type_valid_pair(GrGLenum format, GrColorType 
         case GrColorType::kRG_F16:
             return GR_GL_RG16F == format;
 
-        // These have no equivalent config:
-        case GrColorType::kAlpha_8xxx:
-        case GrColorType::kAlpha_F32xxx:
-        case GrColorType::kGray_8xxx:
-            return false;
     }
-    SkUNREACHABLE;
+    SK_ABORT("Unknown color type");
+    return false;
 }
 #endif
 
