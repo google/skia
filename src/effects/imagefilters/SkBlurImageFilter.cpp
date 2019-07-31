@@ -35,11 +35,11 @@ namespace {
 
 class SkBlurImageFilterImpl final : public SkImageFilter {
 public:
-    SkBlurImageFilterImpl(SkScalar sigmaX,
-                          SkScalar sigmaY,
-                          SkTileMode tileMode,
-                          sk_sp<SkImageFilter> input,
-                          const CropRect* cropRect);
+    SkBlurImageFilterImpl(SkScalar sigmaX, SkScalar sigmaY,  SkTileMode tileMode,
+                          sk_sp<SkImageFilter> input, const CropRect* cropRect)
+            : INHERITED(&input, 1, cropRect)
+            , fSigma{sigmaX, sigmaY}
+            , fTileMode(tileMode) {}
 
     SkRect computeFastBounds(const SkRect&) const override;
 
@@ -54,9 +54,6 @@ private:
     friend void SkBlurImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkBlurImageFilterImpl)
 
-    typedef SkImageFilter INHERITED;
-    friend class SkImageFilter;
-
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> gpuFilter(
             SkSpecialImage *source, SkVector sigma, const sk_sp<SkSpecialImage> &input,
@@ -66,11 +63,11 @@ private:
 
     SkSize     fSigma;
     SkTileMode fTileMode;
+
+    typedef SkImageFilter INHERITED;
 };
 
 } // end namespace
-
-///////////////////////////////////////////////////////////////////////////////
 
 static SkTileMode to_sktilemode(SkBlurImageFilter::TileMode tileMode) {
     switch(tileMode) {
@@ -104,27 +101,7 @@ sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY, S
 
 void SkBlurImageFilter::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkBlurImageFilterImpl); }
 
-// This rather arbitrary-looking value results in a maximum box blur kernel size
-// of 1000 pixels on the raster path, which matches the WebKit and Firefox
-// implementations. Since the GPU path does not compute a box blur, putting
-// the limit on sigma ensures consistent behaviour between the GPU and
-// raster paths.
-#define MAX_SIGMA SkIntToScalar(532)
-
-static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
-    SkVector sigma = SkVector::Make(localSigma.width(), localSigma.height());
-    ctm.mapVectors(&sigma, 1);
-    sigma.fX = SkMinScalar(SkScalarAbs(sigma.fX), MAX_SIGMA);
-    sigma.fY = SkMinScalar(SkScalarAbs(sigma.fY), MAX_SIGMA);
-    return sigma;
-}
-
-SkBlurImageFilterImpl::SkBlurImageFilterImpl(SkScalar sigmaX,
-                                             SkScalar sigmaY,
-                                             SkTileMode tileMode,
-                                             sk_sp<SkImageFilter> input,
-                                             const CropRect* cropRect)
-        : INHERITED(&input, 1, cropRect), fSigma{sigmaX, sigmaY}, fTileMode(tileMode) {}
+///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
@@ -587,6 +564,21 @@ static sk_sp<SkSpecialImage> cpu_blur(
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
                                                           dstBounds.height()),
                                           dst, &source->props());
+}
+
+// This rather arbitrary-looking value results in a maximum box blur kernel size
+// of 1000 pixels on the raster path, which matches the WebKit and Firefox
+// implementations. Since the GPU path does not compute a box blur, putting
+// the limit on sigma ensures consistent behaviour between the GPU and
+// raster paths.
+#define MAX_SIGMA SkIntToScalar(532)
+
+static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
+    SkVector sigma = SkVector::Make(localSigma.width(), localSigma.height());
+    ctm.mapVectors(&sigma, 1);
+    sigma.fX = SkMinScalar(SkScalarAbs(sigma.fX), MAX_SIGMA);
+    sigma.fY = SkMinScalar(SkScalarAbs(sigma.fY), MAX_SIGMA);
+    return sigma;
 }
 
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
