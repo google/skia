@@ -4030,6 +4030,7 @@ GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
     GrGLFormat grGLFormat = GrGLBackendFormatToGLFormat(format);
 
     switch (grGLFormat) {
+        case GrGLFormat::kLUMINANCE8:   return GrColorType::kGray_8;
         case GrGLFormat::kALPHA8:       // fall through
         case GrGLFormat::kR8:           return GrColorType::kAlpha_8;
         case GrGLFormat::kRG8:          return GrColorType::kRG_88;
