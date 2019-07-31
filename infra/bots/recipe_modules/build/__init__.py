@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 DEPS = [
+  'depot_tools/cipd',
   'depot_tools/gclient',
   'env',
   'infra',

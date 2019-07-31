@@ -55,9 +55,9 @@ toolchain("msvc") {
       cl_m32_flag = "-m32"
     }
     if (host_os == "win") {
-      cl = "\"$clang_win/bin/clang-cl.exe\""
-      lib = "\"$clang_win/bin/lld-link.exe\" /lib"
-      link = "\"$clang_win/bin/lld-link.exe\""
+      cl = "\"$clang_win\\bin\\clang-cl.exe\""
+      lib = "\"$clang_win\\bin\\lld-link.exe\" /lib"
+      link = "\"$clang_win\\bin\\lld-link.exe\""
     } else {
       cl = "\"$clang_win/bin/clang-cl\""
       lib = "\"$clang_win/bin/lld-link\" /lib"
