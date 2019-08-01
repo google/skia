@@ -119,9 +119,8 @@ static void S32_alpha_D32_nofilter_DX(const SkBitmapProcState& s,
     }
 }
 
-SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmapProvider& provider,
-                                   SkTileMode tmx, SkTileMode tmy)
-    : fProvider(provider)
+SkBitmapProcInfo::SkBitmapProcInfo(const SkImage_Base* image, SkTileMode tmx, SkTileMode tmy)
+    : fImage(image)
     , fTileModeX(tmx)
     , fTileModeY(tmy)
     , fBMState(nullptr)
@@ -173,7 +172,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     fInvMatrix = inv;
     fFilterQuality = paint.getFilterQuality();
 
-    fBMState = SkBitmapController::RequestBitmap(fProvider, inv, paint.getFilterQuality(), &fAlloc);
+    fBMState = SkBitmapController::RequestBitmap(fImage, inv, paint.getFilterQuality(), &fAlloc);
 
     // Note : we allow the controller to return an empty (zero-dimension) result. Should we?
     if (nullptr == fBMState || fBMState->pixmap().info().isEmpty()) {

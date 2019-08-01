@@ -16,7 +16,6 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapController.h"
-#include "src/core/SkBitmapProvider.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMipMap.h"
 
@@ -29,10 +28,10 @@ typedef SkFixed3232    SkFractionalInt;
 class SkPaint;
 
 struct SkBitmapProcInfo {
-    SkBitmapProcInfo(const SkBitmapProvider&, SkTileMode tmx, SkTileMode tmy);
+    SkBitmapProcInfo(const SkImage_Base*, SkTileMode tmx, SkTileMode tmy);
     ~SkBitmapProcInfo();
 
-    const SkBitmapProvider  fProvider;
+    const SkImage_Base*     fImage;
 
     SkPixmap                fPixmap;
     SkMatrix                fInvMatrix;         // This changes based on tile mode.
@@ -55,8 +54,8 @@ private:
 };
 
 struct SkBitmapProcState : public SkBitmapProcInfo {
-    SkBitmapProcState(const SkBitmapProvider& prov, SkTileMode tmx, SkTileMode tmy)
-        : SkBitmapProcInfo(prov, tmx, tmy) {}
+    SkBitmapProcState(const SkImage_Base* image, SkTileMode tmx, SkTileMode tmy)
+        : SkBitmapProcInfo(image, tmx, tmy) {}
 
     bool setup(const SkMatrix& inv, const SkPaint& paint) {
         return this->init(inv, paint) && this->chooseProcs();

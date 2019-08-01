@@ -7,7 +7,6 @@
 
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapController.h"
-#include "src/core/SkBitmapProvider.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
@@ -135,7 +134,7 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     }
 
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get()), rec, alloc);
+                                                 as_IB(fImage.get()), rec, alloc);
 }
 #endif
 
@@ -303,8 +302,8 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
     }
     auto quality = rec.fPaint.getFilterQuality();
 
-    SkBitmapProvider provider(fImage.get());
-    const auto* state = SkBitmapController::RequestBitmap(provider, matrix, quality, alloc);
+    const auto* state = SkBitmapController::RequestBitmap(as_IB(fImage.get()),
+                                                          matrix, quality, alloc);
     if (!state) {
         return false;
     }
