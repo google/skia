@@ -65,13 +65,15 @@ const SkIPoint& dstPoint) {
     fGpu->copySurface(fRenderTarget, src, srcRect, dstPoint);
 }
 
-void GrMtlGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
-                                           GrGpuBuffer* transferBuffer, size_t offset) {
+void GrMtlGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                                           GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                                           size_t offset) {
     // We cannot have an active encoder when we call transferFrom since it requires its own
     // command encoder.
     SkASSERT(nil == fActiveRenderCmdEncoder);
     fGpu->transferPixelsFrom(fRenderTarget, srcRect.fLeft, srcRect.fTop, srcRect.width(),
-                             srcRect.height(), bufferColorType, transferBuffer, offset);
+                             srcRect.height(), surfaceColorType, bufferColorType, transferBuffer,
+                             offset);
 }
 
 GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(

@@ -14,13 +14,16 @@
 
 std::unique_ptr<GrOp> GrTransferFromOp::Make(GrRecordingContext* context,
                                              const SkIRect& srcRect,
+                                             GrColorType surfaceColorType,
                                              GrColorType dstColorType,
                                              sk_sp<GrGpuBuffer> dstBuffer,
                                              size_t dstOffset) {
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
-    return pool->allocate<GrTransferFromOp>(srcRect, dstColorType, std::move(dstBuffer), dstOffset);
+    return pool->allocate<GrTransferFromOp>(
+            srcRect, surfaceColorType, dstColorType, std::move(dstBuffer), dstOffset);
 }
 
 void GrTransferFromOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
-    state->commandBuffer()->transferFrom(fSrcRect, fDstColorType, fDstBuffer.get(), fDstOffset);
+    state->commandBuffer()->transferFrom(
+            fSrcRect, fSurfaceColorType, fDstColorType, fDstBuffer.get(), fDstOffset);
 }

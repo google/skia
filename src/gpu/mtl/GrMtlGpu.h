@@ -161,20 +161,22 @@ private:
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t, GrGpuBufferType, GrAccessPattern,
                                       const void*) override;
 
-    bool onReadPixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
-                      void* buffer, size_t rowBytes) override;
+    bool onReadPixels(GrSurface* surface, int left, int top, int width, int height,
+                      GrColorType surfaceColorType, GrColorType bufferColorType, void* buffer,
+                      size_t rowBytes) override;
 
-    bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
+    bool onWritePixels(GrSurface*, int left, int top, int width, int height,
+                       GrColorType surfaceColorType, GrColorType bufferColorType,
                        const GrMipLevel[], int mipLevelCount) override;
 
-    bool onTransferPixelsTo(GrTexture*,
-                            int left, int top, int width, int height,
-                            GrColorType, GrGpuBuffer*,
+    bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
+                            GrColorType textureColorType, GrColorType bufferColorType, GrGpuBuffer*,
                             size_t offset, size_t rowBytes) override {
         // TODO: not sure this is worth the work since nobody uses it
         return false;
     }
-    bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height, GrColorType,
+    bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
+                              GrColorType surfaceColorType, GrColorType bufferColorType,
                               GrGpuBuffer*, size_t offset) override {
         // TODO: Will need to implement this to support async read backs.
         return false;

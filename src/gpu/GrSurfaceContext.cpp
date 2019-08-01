@@ -204,8 +204,8 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     direct->priv().flushSurface(srcProxy);
 
     if (!direct->priv().getGpu()->readPixels(srcSurface, pt.fX, pt.fY, dstInfo.width(),
-                                             dstInfo.height(), supportedRead.fColorType, readDst,
-                                             readRB)) {
+                                             dstInfo.height(), this->colorSpaceInfo().colorType(),
+                                             supportedRead.fColorType, readDst, readRB)) {
         return false;
     }
 
@@ -396,8 +396,9 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
     // TODO: should this policy decision just be moved into the drawing manager?
     direct->priv().flushSurface(caps->preferVRAMUseOverFlushes() ? dstProxy : nullptr);
 
-    return direct->priv().getGpu()->writePixels(dstSurface, pt.fX, pt.fY, srcInfo.width(),
-                                                srcInfo.height(), srcColorType, src, rowBytes);
+    return direct->priv().getGpu()->writePixels(
+            dstSurface, pt.fX, pt.fY, srcInfo.width(), srcInfo.height(),
+            this->colorSpaceInfo().colorType(), srcColorType, src, rowBytes);
 }
 
 bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
@@ -625,7 +626,8 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
         srcRect = SkIRect::MakeLTRB(rect.fLeft, this->height() - rect.fBottom, rect.fRight,
                                     this->height() - rect.fTop);
     }
-    this->getOpList()->transferFrom(fContext, srcRect, supportedRead.fColorType, buffer, 0);
+    this->getOpList()->transferFrom(fContext, srcRect, this->colorSpaceInfo().colorType(),
+                                    supportedRead.fColorType, buffer, 0);
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);
     auto at = this->colorSpaceInfo().alphaType();

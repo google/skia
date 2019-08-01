@@ -63,7 +63,7 @@ void determine_tolerances(GrColorType a, GrColorType b, float tolerances[4]) {
     }
 }
 
-bool read_pixels_from_texture(GrTexture* texture, GrColorType dstColorType, char* dst,
+bool read_pixels_from_texture(GrTexture* texture, GrColorType colorType, char* dst,
                               float tolerances[4]) {
     auto* context = texture->getContext();
     auto* gpu = context->priv().getGpu();
@@ -71,27 +71,27 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType dstColorType, char
 
     int w = texture->width();
     int h = texture->height();
-    size_t rowBytes = GrColorTypeBytesPerPixel(dstColorType) * w;
+    size_t rowBytes = GrColorTypeBytesPerPixel(colorType) * w;
 
     GrColorType srcCT = GrPixelConfigToColorType(texture->config());
 
-    GrCaps::SupportedRead supportedRead = caps->supportedReadPixelsColorType(
-            srcCT, texture->backendFormat(), dstColorType);
+    GrCaps::SupportedRead supportedRead =
+            caps->supportedReadPixelsColorType(srcCT, texture->backendFormat(), colorType);
     std::fill_n(tolerances, 4, 0);
-    if (supportedRead.fColorType != dstColorType) {
+    if (supportedRead.fColorType != colorType) {
         size_t tmpRowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * w;
         std::unique_ptr<char[]> tmpPixels(new char[tmpRowBytes * h]);
-        if (!gpu->readPixels(texture, 0, 0, w, h,
-                             supportedRead.fColorType, tmpPixels.get(), tmpRowBytes)) {
+        if (!gpu->readPixels(texture, 0, 0, w, h, colorType, supportedRead.fColorType,
+                             tmpPixels.get(), tmpRowBytes)) {
             return false;
         }
         GrPixelInfo tmpInfo(supportedRead.fColorType, kUnpremul_SkAlphaType, nullptr, w, h);
-        GrPixelInfo dstInfo(dstColorType,             kUnpremul_SkAlphaType, nullptr, w, h);
+        GrPixelInfo dstInfo(colorType,                kUnpremul_SkAlphaType, nullptr, w, h);
         determine_tolerances(tmpInfo.colorType(), dstInfo.colorType(), tolerances);
         return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, tmpPixels.get(), tmpRowBytes,
                                false);
     }
-    return gpu->readPixels(texture, 0, 0, w, h, supportedRead.fColorType, dst, rowBytes);
+    return gpu->readPixels(texture, 0, 0, w, h, colorType, supportedRead.fColorType, dst, rowBytes);
 }
 
 void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, GrColorType colorType,
@@ -171,7 +171,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     // transfer full data
 
     bool result;
-    result = gpu->transferPixelsTo(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
+    result = gpu->transferPixelsTo(tex.get(), 0, 0, kTextureWidth, kTextureHeight, colorType,
                                    allowedSrc.fColorType, buffer.get(), 0, srcRowBytes);
     REPORTER_ASSERT(reporter, result);
 
@@ -229,10 +229,10 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     memcpy(data, srcData.get(), size);
     buffer->unmap();
 
-    result = gpu->transferPixelsTo(tex.get(), left, top, width, height, allowedSrc.fColorType,
-                                   buffer.get(), offset, srcRowBytes);
+    result = gpu->transferPixelsTo(tex.get(), left, top, width, height, colorType,
+                                   allowedSrc.fColorType, buffer.get(), offset, srcRowBytes);
     if (!result) {
-        gpu->transferPixelsTo(tex.get(), left, top, width, height, allowedSrc.fColorType,
+        gpu->transferPixelsTo(tex.get(), left, top, width, height, colorType, allowedSrc.fColorType,
                               buffer.get(), offset, srcRowBytes);
         ERRORF(reporter, "Could not transfer pixels to texture, color type: %d",
                static_cast<int>(colorType));
@@ -334,7 +334,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     //////////////////////////
     // transfer full data
-    bool result = gpu->transferPixelsFrom(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
+    bool result = gpu->transferPixelsFrom(tex.get(), 0, 0, kTextureWidth, kTextureHeight, colorType,
                                           allowedRead.fColorType, buffer.get(), 0);
     if (!result) {
         ERRORF(reporter, "transferPixelsFrom failed.");
@@ -379,8 +379,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     ///////////////////////
     // Now test a partial read at an offset into the buffer.
     result = gpu->transferPixelsFrom(tex.get(), kPartialLeft, kPartialTop, kPartialWidth,
-                                     kPartialHeight, allowedRead.fColorType, buffer.get(),
-                                     partialReadOffset);
+                                     kPartialHeight, colorType, allowedRead.fColorType,
+                                     buffer.get(), partialReadOffset);
     if (!result) {
         ERRORF(reporter, "transferPixelsFrom failed.");
         return;

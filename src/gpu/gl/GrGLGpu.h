@@ -231,17 +231,22 @@ private:
                                      GrGLTextureParameters::SamplerOverriddenState* initialState,
                                      const void* data);
 
-    bool onReadPixels(GrSurface*, int left, int top, int width, int height, GrColorType,
-                      void* buffer, size_t rowBytes) override;
+    bool onReadPixels(GrSurface*, int left, int top, int width, int height,
+                      GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
+                      size_t rowBytes) override;
 
-    bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
+    bool onWritePixels(GrSurface*, int left, int top, int width, int height,
+                       GrColorType surfaceColorType, GrColorType srcColorType,
                        const GrMipLevel texels[], int mipLevelCount) override;
 
-    bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height, GrColorType,
+    bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
+                            GrColorType textureColorType, GrColorType bufferColorType,
                             GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) override;
-    bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height, GrColorType,
+    bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
+                              GrColorType surfaceColorType, GrColorType bufferColorType,
                               GrGpuBuffer* transferBuffer, size_t offset) override;
-    bool readOrTransferPixelsFrom(GrSurface*, int left, int top, int width, int height, GrColorType,
+    bool readOrTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
+                                  GrColorType surfaceColorType, GrColorType dstColorType,
                                   void* offsetOrPtr, int rowWidthInPixels);
 
     // Before calling any variation of TexImage, TexSubImage, etc..., call this to ensure that the
@@ -389,9 +394,10 @@ private:
         kNewTexture_UploadType,   // we are creating a new texture
         kWrite_UploadType,        // we are using TexSubImage2D to copy data to an existing texture
     };
-    bool uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight, GrGLenum target,
+    bool uploadTexData(GrGLFormat textureFormat, GrColorType textureColorType,
+                       GrPixelConfig textureConfig, int texWidth, int texHeight, GrGLenum target,
                        UploadType uploadType, int left, int top, int width, int height,
-                       GrPixelConfig dataConfig, const GrMipLevel texels[], int mipLevelCount,
+                       GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount,
                        GrMipMapsStatus* mipMapsStatus = nullptr);
 
     // Helper for onCreateCompressedTexture. Compressed textures are read-only so we

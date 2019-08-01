@@ -112,6 +112,7 @@ public:
 
     void transferFrom(GrRecordingContext*,
                       const SkIRect& srcRect,
+                      GrColorType surfaceColorType,
                       GrColorType dstColorType,
                       sk_sp<GrGpuBuffer> dst,
                       size_t dstOffset) override;

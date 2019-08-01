@@ -88,35 +88,33 @@ void GrOpFlushState::reset() {
 
 void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
     GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* dstProxy, int left, int top,
-                                                     int width, int height,
-                                                     GrColorType srcColorType, const void* buffer,
-                                                     size_t rowBytes) {
+                                                     int width, int height, GrColorType colorType,
+                                                     const void* buffer, size_t rowBytes) {
         GrSurface* dstSurface = dstProxy->peekSurface();
         if (!fGpu->caps()->surfaceSupportsWritePixels(dstSurface)) {
             return false;
         }
         GrCaps::SupportedWrite supportedWrite =
-                fGpu->caps()->supportedWritePixelsColorType(dstSurface->config(), srcColorType);
+                fGpu->caps()->supportedWritePixelsColorType(dstSurface->config(), colorType);
         size_t tightRB = width * GrColorTypeBytesPerPixel(supportedWrite.fColorType);
         SkASSERT(rowBytes >= tightRB);
         std::unique_ptr<char[]> tmpPixels;
-        if (supportedWrite.fColorType != srcColorType ||
+        if (supportedWrite.fColorType != colorType ||
             (!fGpu->caps()->writePixelsRowBytesSupport() && rowBytes != tightRB)) {
             tmpPixels.reset(new char[height * tightRB]);
             // Use kUnpremul to ensure no alpha type conversions or clamping occur.
             static constexpr auto kAT = kUnpremul_SkAlphaType;
-            GrPixelInfo srcInfo(srcColorType, kAT, nullptr, width, height);
+            GrPixelInfo srcInfo(colorType, kAT, nullptr, width, height);
             GrPixelInfo tmpInfo(supportedWrite.fColorType, kAT, nullptr, width,
                                 height);
             if (!GrConvertPixels(tmpInfo, tmpPixels.get(), tightRB, srcInfo, buffer, rowBytes)) {
                 return false;
             }
-            srcColorType = supportedWrite.fColorType;
             rowBytes = tightRB;
             buffer = tmpPixels.get();
         }
-        return this->fGpu->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,
-                                       rowBytes);
+        return this->fGpu->writePixels(dstSurface, left, top, width, height, colorType,
+                                       supportedWrite.fColorType, buffer, rowBytes);
     };
     upload(wp);
 }
