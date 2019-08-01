@@ -8,12 +8,11 @@
 #ifndef SkSpecialImage_DEFINED
 #define SkSpecialImage_DEFINED
 
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkNextID.h"
-
-#include "include/core/SkImageFilter.h"
-#include "include/core/SkImageInfo.h"
 
 class GrRecordingContext;
 class GrTextureProxy;
@@ -92,7 +91,7 @@ public:
     /**
      *  Create a new special surface with a backend that is compatible with this special image.
      */
-    sk_sp<SkSpecialSurface> makeSurface(const SkImageFilter::OutputProperties& outProps,
+    sk_sp<SkSpecialSurface> makeSurface(const SkImageFilter_Base::OutputProperties& outProps,
                                         const SkISize& size,
                                         SkAlphaType at = kPremul_SkAlphaType,
                                         const SkSurfaceProps* props = nullptr) const;
@@ -101,7 +100,7 @@ public:
      * Create a new surface with a backend that is compatible with this special image.
      * TODO: switch this to makeSurface once we resolved the naming issue
      */
-    sk_sp<SkSurface> makeTightSurface(const SkImageFilter::OutputProperties& outProps,
+    sk_sp<SkSurface> makeTightSurface(const SkImageFilter_Base::OutputProperties& outProps,
                                       const SkISize& size,
                                       SkAlphaType at = kPremul_SkAlphaType) const;
 

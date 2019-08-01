@@ -9,13 +9,13 @@
 #define SkLocalMatrixImageFilter_DEFINED
 
 #include "include/core/SkFlattenable.h"
-#include "include/core/SkImageFilter.h"
+#include "src/core/SkImageFilter_Base.h"
 
 /**
  *  Wraps another imagefilter + matrix, such that using this filter will give the same result
  *  as using the wrapped filter with the matrix applied to its context.
  */
-class SkLocalMatrixImageFilter : public SkImageFilter {
+class SkLocalMatrixImageFilter : public SkImageFilter_Base {
 public:
     static sk_sp<SkImageFilter> Make(const SkMatrix& localM, sk_sp<SkImageFilter> input);
 
@@ -35,7 +35,7 @@ private:
 
     SkMatrix fLocalM;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 #endif

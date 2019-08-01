@@ -10,7 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkArithmeticImageFilter.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -33,7 +33,7 @@
 
 namespace {
 
-class SkXfermodeImageFilterImpl : public SkImageFilter {
+class SkXfermodeImageFilterImpl : public SkImageFilter_Base {
 public:
     SkXfermodeImageFilterImpl(SkBlendMode mode, sk_sp<SkImageFilter> inputs[2],
                               const CropRect* cropRect)
@@ -71,7 +71,7 @@ private:
 
     SkBlendMode fMode;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace
@@ -185,7 +185,7 @@ SkIRect SkXfermodeImageFilterImpl::onFilterBounds(const SkIRect& src,
                                                   MapDirection dir,
                                                   const SkIRect* inputRect) const {
     if (kReverse_MapDirection == dir) {
-        return SkImageFilter::onFilterBounds(src, ctm, dir, inputRect);
+        return INHERITED::onFilterBounds(src, ctm, dir, inputRect);
     }
 
     SkASSERT(!inputRect);
