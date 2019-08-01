@@ -139,6 +139,7 @@ public:
         auto format = this->pixelConfigToFormat(config);
         return this->maxRenderTargetSampleCount(ct, format);
     }
+    int maxRenderTargetSampleCount(GrColorType, GrGLFormat) const;
 
     bool isFormatCopyable(const GrBackendFormat&) const override;
 
@@ -161,6 +162,9 @@ public:
 
     GrGLenum configSizedInternalFormat(GrPixelConfig config) const {
         return this->getSizedInternalFormat(this->pixelConfigToFormat(config));
+    }
+    GrGLenum formatSizedInternalFormat(GrGLFormat format) const {
+        return this->getFormatInfo(format).fSizedInternalFormat;
     }
 
     // TODO: Once pixel config is no longer used in the caps remove this helper function.
@@ -433,7 +437,8 @@ public:
                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
     bool canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const;
 
-    DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src) const override;
+    DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src,
+                                               GrColorType) const override;
 
     bool programBinarySupport() const { return fProgramBinarySupport; }
     bool programParameterSupport() const { return fProgramParameterSupport; }
@@ -508,7 +513,6 @@ private:
     bool formatSupportsTexStorage(GrGLFormat) const;
 
     int getRenderTargetSampleCount(int requestedCount, GrColorType, GrGLFormat) const;
-    int maxRenderTargetSampleCount(GrColorType, GrGLFormat) const;
 
     GrGLStandard fStandard;
 

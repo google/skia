@@ -227,8 +227,8 @@ static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, En
 // are sRGB, linear, or untagged RGBA_8888.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    if (!context->priv().caps()->isConfigRenderable(kSRGBA_8888_GrPixelConfig) &&
-        !context->priv().caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+    if (!context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888_SRGB,
+                                                         GrRenderable::kNo).isValid()) {
         return;
     }
     // We allow more error on GPUs with lower precision shader variables.
