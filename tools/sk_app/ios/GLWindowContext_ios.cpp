@@ -83,10 +83,10 @@ void GLWindowContext_ios::onSwapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewGLForIOS(const IOSWindowInfo& info, const DisplayParams& params) {
-    WindowContext* ctx = new GLWindowContext_ios(info, params);
+std::unique_ptr<WindowContext> MakeGLForIOS(const IOSWindowInfo& info,
+                                            const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_ios(info, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

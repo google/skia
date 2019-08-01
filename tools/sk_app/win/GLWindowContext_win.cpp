@@ -22,7 +22,7 @@ using sk_app::DisplayParams;
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewGLForWin(HWND, const DisplayParams&) { return nullptr; }
+std::unique_ptr<WindowContext> MakeGLForWin(HWND, const DisplayParams&) { return nullptr; }
 
 }  // namespace window_context_factory
 }  // namespace sk_app
@@ -146,10 +146,9 @@ void GLWindowContext_win::onSwapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewGLForWin(HWND wnd, const DisplayParams& params) {
-    GLWindowContext_win* ctx = new GLWindowContext_win(wnd, params);
+std::unique_ptr<WindowContext> MakeGLForWin(HWND wnd, const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_win(wnd, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

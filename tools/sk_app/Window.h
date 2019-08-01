@@ -28,7 +28,7 @@ class Window {
 public:
     static Window* CreateNativeWindow(void* platformData);
 
-    virtual ~Window() { this->detach(); }
+    virtual ~Window();
 
     virtual void setTitle(const char*) = 0;
     virtual void show() = 0;
@@ -182,7 +182,7 @@ protected:
     SkTDArray<Layer*>      fLayers;
     DisplayParams          fRequestedDisplayParams;
 
-    WindowContext* fWindowContext = nullptr;
+    std::unique_ptr<WindowContext> fWindowContext;
 
     virtual void onInval() = 0;
 

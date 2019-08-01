@@ -182,10 +182,10 @@ namespace sk_app {
 
 namespace window_context_factory {
 
-WindowContext* NewGLForXlib(const XlibWindowInfo& winInfo, const DisplayParams& params) {
-    WindowContext* ctx = new GLWindowContext_xlib(winInfo, params);
+std::unique_ptr<WindowContext> MakeGLForXlib(const XlibWindowInfo& winInfo,
+                                             const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_xlib(winInfo, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

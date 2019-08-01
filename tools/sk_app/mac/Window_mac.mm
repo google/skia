@@ -120,21 +120,21 @@ bool Window_mac::attach(BackendType attachType) {
     info.fMainView = [fWindow contentView];
     switch (attachType) {
         case kRaster_BackendType:
-            fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
+            fWindowContext = MakeRasterForMac(info, fRequestedDisplayParams);
             break;
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = NewVulkanForMac(info, fRequestedDisplayParams);
+            fWindowContext = MakeVulkanForMac(info, fRequestedDisplayParams);
             break;
 #endif
 #ifdef SK_METAL
         case kMetal_BackendType:
-            fWindowContext = NewMetalForMac(info, fRequestedDisplayParams);
+            fWindowContext = MakeMetalForMac(info, fRequestedDisplayParams);
             break;
 #endif
         case kNativeGL_BackendType:
         default:
-            fWindowContext = NewGLForMac(info, fRequestedDisplayParams);
+            fWindowContext = MakeGLForMac(info, fRequestedDisplayParams);
             break;
     }
     this->onBackendCreated();

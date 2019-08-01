@@ -161,10 +161,10 @@ void GLWindowContext_mac::resize(int w, int h) {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewGLForMac(const MacWindowInfo& info, const DisplayParams& params) {
-    WindowContext* ctx = new GLWindowContext_mac(info, params);
+std::unique_ptr<WindowContext> MakeGLForMac(const MacWindowInfo& info,
+                                            const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_mac(info, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

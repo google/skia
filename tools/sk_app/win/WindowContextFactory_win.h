@@ -11,6 +11,8 @@
 
 #include <Windows.h>
 
+#include <memory>
+
 namespace sk_app {
 
 class WindowContext;
@@ -18,13 +20,13 @@ struct DisplayParams;
 
 namespace window_context_factory {
 
-WindowContext* NewVulkanForWin(HWND, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeVulkanForWin(HWND, const DisplayParams&);
 
-WindowContext* NewGLForWin(HWND, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeGLForWin(HWND, const DisplayParams&);
 
-WindowContext* NewANGLEForWin(HWND, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeANGLEForWin(HWND, const DisplayParams&);
 
-WindowContext* NewRasterForWin(HWND, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeRasterForWin(HWND, const DisplayParams&);
 
 }  // namespace window_context_factory
 

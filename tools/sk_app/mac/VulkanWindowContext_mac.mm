@@ -68,7 +68,8 @@ void VulkanWindowContext_mac::resize(int w, int h) {
 
 namespace window_context_factory {
 
-WindowContext* NewVulkanForMac(const MacWindowInfo& info, const DisplayParams& displayParams) {
+std::unique_ptr<WindowContext> MakeVulkanForMac(const MacWindowInfo& info,
+                                                const DisplayParams& displayParams) {
     PFN_vkGetInstanceProcAddr instProc;
     PFN_vkGetDeviceProcAddr devProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
@@ -138,15 +139,15 @@ WindowContext* NewVulkanForMac(const MacWindowInfo& info, const DisplayParams& d
     auto canPresent = [](VkInstance instance, VkPhysicalDevice physDev, uint32_t queueFamilyIndex) {
         return true;
     };
-    WindowContext* context = new VulkanWindowContext_mac(mtkView, displayParams, createVkSurface,
-                                                         canPresent, instProc, devProc);
-    if (!context->isValid()) {
-        delete context;
+    std::unique_ptr<WindowContext> ctx(new VulkanWindowContext_mac(
+            mtkView, displayParams, createVkSurface, canPresent, instProc, devProc));
+    if (!ctx->isValid()) {
+        ctx = nullptr;
         [mtkView removeFromSuperview];
         [mtkView release];
         return nullptr;
     }
-    return context;
+    return ctx;
 }
 
 }  // namespace VulkanWindowContextFactory

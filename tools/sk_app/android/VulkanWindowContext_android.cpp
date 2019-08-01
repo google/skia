@@ -18,7 +18,8 @@ namespace sk_app {
 
 namespace window_context_factory {
 
-WindowContext* NewVulkanForAndroid(ANativeWindow* window, const DisplayParams& params) {
+std::unique_ptr<WindowContext> MakeVulkanForAndroid(ANativeWindow* window,
+                                                    const DisplayParams& params) {
     PFN_vkGetInstanceProcAddr instProc;
     PFN_vkGetDeviceProcAddr devProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
@@ -48,10 +49,9 @@ WindowContext* NewVulkanForAndroid(ANativeWindow* window, const DisplayParams& p
 
     auto canPresent = [](VkInstance, VkPhysicalDevice, uint32_t) { return true; };
 
-    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent,
-                                                 instProc, devProc);
+    std::unique_ptr<WindowContext> ctx(
+            new VulkanWindowContext(params, createVkSurface, canPresent, instProc, devProc));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;
