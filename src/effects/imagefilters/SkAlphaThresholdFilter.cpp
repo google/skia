@@ -33,9 +33,11 @@ class SkAlphaThresholdFilterImpl final : public SkImageFilter {
 public:
     SkAlphaThresholdFilterImpl(const SkRegion& region, SkScalar innerThreshold,
                                SkScalar outerThreshold, sk_sp<SkImageFilter> input,
-                               const CropRect* cropRect = nullptr);
-
-    friend void SkAlphaThresholdFilter::RegisterFlattenables();
+                               const CropRect* cropRect = nullptr)
+            : INHERITED(&input, 1, cropRect)
+            , fRegion(region)
+            , fInnerThreshold(innerThreshold)
+            , fOuterThreshold(outerThreshold) {}
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -50,39 +52,36 @@ protected:
 #endif
 
 private:
+    friend void SkAlphaThresholdFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkAlphaThresholdFilterImpl)
 
     SkRegion fRegion;
     SkScalar fInnerThreshold;
     SkScalar fOuterThreshold;
+
     typedef SkImageFilter INHERITED;
 };
 
 }; // end namespace
 
+sk_sp<SkImageFilter> SkAlphaThresholdFilter::Make(const SkRegion& region, SkScalar innerThreshold,
+                                                  SkScalar outerThreshold,
+                                                  sk_sp<SkImageFilter> input,
+                                                  const SkImageFilter::CropRect* cropRect) {
+    innerThreshold = SkScalarPin(innerThreshold, 0.f, 1.f);
+    outerThreshold = SkScalarPin(outerThreshold, 0.f, 1.f);
+    if (!SkScalarIsFinite(innerThreshold) || !SkScalarIsFinite(outerThreshold)) {
+        return nullptr;
+    }
+    return sk_sp<SkImageFilter>(new SkAlphaThresholdFilterImpl(
+            region, innerThreshold, outerThreshold, std::move(input), cropRect));
+    }
+
 void SkAlphaThresholdFilter::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkAlphaThresholdFilterImpl);
 }
 
-static SkScalar pin_0_1(SkScalar x) {
-    return SkMinScalar(SkMaxScalar(x, 0), 1);
-}
-
-sk_sp<SkImageFilter> SkAlphaThresholdFilter::Make(const SkRegion& region,
-                                                  SkScalar innerThreshold,
-                                                  SkScalar outerThreshold,
-                                                  sk_sp<SkImageFilter> input,
-                                                  const SkImageFilter::CropRect* cropRect) {
-    innerThreshold = pin_0_1(innerThreshold);
-    outerThreshold = pin_0_1(outerThreshold);
-    if (!SkScalarIsFinite(innerThreshold) || !SkScalarIsFinite(outerThreshold)) {
-        return nullptr;
-    }
-    return sk_sp<SkImageFilter>(new SkAlphaThresholdFilterImpl(region, innerThreshold,
-                                                               outerThreshold,
-                                                               std::move(input),
-                                                               cropRect));
-}
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
@@ -94,15 +93,11 @@ sk_sp<SkFlattenable> SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer
                                         &common.cropRect());
 }
 
-SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
-                                                       SkScalar innerThreshold,
-                                                       SkScalar outerThreshold,
-                                                       sk_sp<SkImageFilter> input,
-                                                       const CropRect* cropRect)
-    : INHERITED(&input, 1, cropRect)
-    , fRegion(region)
-    , fInnerThreshold(innerThreshold)
-    , fOuterThreshold(outerThreshold) {
+void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
+    buffer.writeScalar(fInnerThreshold);
+    buffer.writeScalar(fOuterThreshold);
+    buffer.writeRegion(fRegion);
 }
 
 #if SK_SUPPORT_GPU
@@ -136,13 +131,6 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingC
     return rtContext->asTextureProxyRef();
 }
 #endif
-
-void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.writeScalar(fInnerThreshold);
-    buffer.writeScalar(fOuterThreshold);
-    buffer.writeRegion(fRegion);
-}
 
 sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* source,
                                                                 const Context& ctx,

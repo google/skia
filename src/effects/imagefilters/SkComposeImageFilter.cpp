@@ -6,6 +6,7 @@
  */
 
 #include "include/effects/SkComposeImageFilter.h"
+
 #include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -15,25 +16,15 @@ namespace {
 
 class SkComposeImageFilterImpl final : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> outer, sk_sp<SkImageFilter> inner) {
-        if (!outer) {
-            return inner;
-        }
-        if (!inner) {
-            return outer;
-        }
-        sk_sp<SkImageFilter> inputs[2] = { std::move(outer), std::move(inner) };
-        return sk_sp<SkImageFilter>(new SkComposeImageFilterImpl(inputs));
-    }
-
-    SkRect computeFastBounds(const SkRect& src) const override;
-
-protected:
     explicit SkComposeImageFilterImpl(sk_sp<SkImageFilter> inputs[2])
             : INHERITED(inputs, 2, nullptr) {
         SkASSERT(inputs[0].get());
         SkASSERT(inputs[1].get());
     }
+
+    SkRect computeFastBounds(const SkRect& src) const override;
+
+protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
@@ -51,7 +42,14 @@ private:
 
 sk_sp<SkImageFilter> SkComposeImageFilter::Make(sk_sp<SkImageFilter> outer,
                                                 sk_sp<SkImageFilter> inner) {
-    return SkComposeImageFilterImpl::Make(std::move(outer), std::move(inner));
+    if (!outer) {
+        return inner;
+    }
+    if (!inner) {
+        return outer;
+    }
+    sk_sp<SkImageFilter> inputs[2] = { std::move(outer), std::move(inner) };
+    return sk_sp<SkImageFilter>(new SkComposeImageFilterImpl(inputs));
 }
 
 void SkComposeImageFilter::RegisterFlattenables() {
@@ -64,7 +62,7 @@ void SkComposeImageFilter::RegisterFlattenables() {
 
 sk_sp<SkFlattenable> SkComposeImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    return Make(common.getInput(0), common.getInput(1));
+    return SkComposeImageFilter::Make(common.getInput(0), common.getInput(1));
 }
 
 SkRect SkComposeImageFilterImpl::computeFastBounds(const SkRect& src) const {

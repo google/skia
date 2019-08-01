@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
 #include "include/effects/SkArithmeticImageFilter.h"
+
+#include "include/core/SkCanvas.h"
 #include "include/effects/SkXfermodeImageFilter.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkImageFilterPriv.h"
@@ -70,17 +71,12 @@ protected:
                                          const OutputProperties& outputProperties) const;
 #endif
 
-    void flatten(SkWriteBuffer& buffer) const override {
-        this->INHERITED::flatten(buffer);
-        for (int i = 0; i < 4; ++i) {
-            buffer.writeScalar(fK[i]);
-        }
-        buffer.writeBool(fEnforcePMColor);
-    }
+    void flatten(SkWriteBuffer& buffer) const override;
 
     void drawForeground(SkCanvas* canvas, SkSpecialImage*, const SkIRect&) const;
 
 private:
+    friend void SkArithmeticImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(ArithmeticImageFilterImpl)
 
     bool affectsTransparentBlack() const override { return !SkScalarNearlyZero(fK[3]); }
@@ -88,12 +84,48 @@ private:
     const float fK[4];
     const bool fEnforcePMColor;
 
-    friend class ::SkArithmeticImageFilter;
-
     typedef SkImageFilter INHERITED;
 };
 
 }; // end namespace
+
+sk_sp<SkImageFilter> SkArithmeticImageFilter::Make(float k1, float k2, float k3, float k4,
+                                                   bool enforcePMColor,
+                                                   sk_sp<SkImageFilter> background,
+                                                   sk_sp<SkImageFilter> foreground,
+                                                   const SkImageFilter::CropRect* crop) {
+    if (!SkScalarIsFinite(k1) || !SkScalarIsFinite(k2) || !SkScalarIsFinite(k3) ||
+        !SkScalarIsFinite(k4)) {
+        return nullptr;
+    }
+
+    // are we nearly some other "std" mode?
+    int mode = -1;  // illegal mode
+    if (SkScalarNearlyZero(k1) && SkScalarNearlyEqual(k2, SK_Scalar1) && SkScalarNearlyZero(k3) &&
+        SkScalarNearlyZero(k4)) {
+        mode = (int)SkBlendMode::kSrc;
+    } else if (SkScalarNearlyZero(k1) && SkScalarNearlyZero(k2) &&
+               SkScalarNearlyEqual(k3, SK_Scalar1) && SkScalarNearlyZero(k4)) {
+        mode = (int)SkBlendMode::kDst;
+    } else if (SkScalarNearlyZero(k1) && SkScalarNearlyZero(k2) && SkScalarNearlyZero(k3) &&
+               SkScalarNearlyZero(k4)) {
+        mode = (int)SkBlendMode::kClear;
+    }
+    if (mode >= 0) {
+        return SkXfermodeImageFilter::Make((SkBlendMode)mode, std::move(background),
+                                           std::move(foreground), crop);
+    }
+
+    sk_sp<SkImageFilter> inputs[2] = {std::move(background), std::move(foreground)};
+    return sk_sp<SkImageFilter>(
+            new ArithmeticImageFilterImpl(k1, k2, k3, k4, enforcePMColor, inputs, crop));
+}
+
+void SkArithmeticImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(ArithmeticImageFilterImpl);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
@@ -107,6 +139,14 @@ sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer)
     }
     return SkArithmeticImageFilter::Make(k[0], k[1], k[2], k[3], enforcePMColor, common.getInput(0),
                                          common.getInput(1), &common.cropRect());
+}
+
+void ArithmeticImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
+    for (int i = 0; i < 4; ++i) {
+        buffer.writeScalar(fK[i]);
+    }
+    buffer.writeBool(fEnforcePMColor);
 }
 
 static Sk4f pin(float min, const Sk4f& val, float max) {
@@ -441,42 +481,4 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
             proc(fK, dst.writable_addr32(r.fLeft, y), r.width());
         }
     }
-}
-
-sk_sp<SkImageFilter> SkArithmeticImageFilter::Make(float k1, float k2, float k3, float k4,
-                                                   bool enforcePMColor,
-                                                   sk_sp<SkImageFilter> background,
-                                                   sk_sp<SkImageFilter> foreground,
-                                                   const SkImageFilter::CropRect* crop) {
-    if (!SkScalarIsFinite(k1) || !SkScalarIsFinite(k2) || !SkScalarIsFinite(k3) ||
-        !SkScalarIsFinite(k4)) {
-        return nullptr;
-    }
-
-    // are we nearly some other "std" mode?
-    int mode = -1;  // illegal mode
-    if (SkScalarNearlyZero(k1) && SkScalarNearlyEqual(k2, SK_Scalar1) && SkScalarNearlyZero(k3) &&
-        SkScalarNearlyZero(k4)) {
-        mode = (int)SkBlendMode::kSrc;
-    } else if (SkScalarNearlyZero(k1) && SkScalarNearlyZero(k2) &&
-               SkScalarNearlyEqual(k3, SK_Scalar1) && SkScalarNearlyZero(k4)) {
-        mode = (int)SkBlendMode::kDst;
-    } else if (SkScalarNearlyZero(k1) && SkScalarNearlyZero(k2) && SkScalarNearlyZero(k3) &&
-               SkScalarNearlyZero(k4)) {
-        mode = (int)SkBlendMode::kClear;
-    }
-    if (mode >= 0) {
-        return SkXfermodeImageFilter::Make((SkBlendMode)mode, std::move(background),
-                                           std::move(foreground), crop);
-    }
-
-    sk_sp<SkImageFilter> inputs[2] = {std::move(background), std::move(foreground)};
-    return sk_sp<SkImageFilter>(
-            new ArithmeticImageFilterImpl(k1, k2, k3, k4, enforcePMColor, inputs, crop));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-void SkArithmeticImageFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(ArithmeticImageFilterImpl);
 }

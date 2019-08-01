@@ -36,12 +36,13 @@ namespace {
 
 class SkDisplacementMapEffectImpl final : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(SkColorChannel xChannelSelector,
-                                     SkColorChannel yChannelSelector,
-                                     SkScalar scale,
-                                     sk_sp<SkImageFilter> displacement,
-                                     sk_sp<SkImageFilter> color,
-                                     const CropRect* cropRect = nullptr);
+    SkDisplacementMapEffectImpl(SkColorChannel xChannelSelector, SkColorChannel yChannelSelector,
+                                SkScalar scale, sk_sp<SkImageFilter> inputs[2],
+                                const CropRect* cropRect)
+            : INHERITED(inputs, 2, cropRect)
+            , fXChannelSelector(xChannelSelector)
+            , fYChannelSelector(yChannelSelector)
+            , fScale(scale) {}
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
@@ -54,9 +55,6 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
 
-    SkDisplacementMapEffectImpl(SkColorChannel xChannelSelector, SkColorChannel yChannelSelector,
-                                SkScalar scale, sk_sp<SkImageFilter> inputs[2],
-                                const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
 
 private:
@@ -93,33 +91,6 @@ struct Extractor {
     unsigned getY(SkColor c) const { return (c >> fShiftY) & 0xFF; }
 };
 
-void computeDisplacement(Extractor ex, const SkVector& scale, SkBitmap* dst,
-                         const SkBitmap& displ, const SkIPoint& offset,
-                         const SkBitmap& src,
-                         const SkIRect& bounds) {
-    static const SkScalar Inv8bit = SkScalarInvert(255);
-    const int srcW = src.width();
-    const int srcH = src.height();
-    const SkVector scaleForColor = SkVector::Make(scale.fX * Inv8bit, scale.fY * Inv8bit);
-    const SkVector scaleAdj = SkVector::Make(SK_ScalarHalf - scale.fX * SK_ScalarHalf,
-                                             SK_ScalarHalf - scale.fY * SK_ScalarHalf);
-    SkPMColor* dstPtr = dst->getAddr32(0, 0);
-    for (int y = bounds.top(); y < bounds.bottom(); ++y) {
-        const SkPMColor* displPtr = displ.getAddr32(bounds.left() + offset.fX, y + offset.fY);
-        for (int x = bounds.left(); x < bounds.right(); ++x, ++displPtr) {
-            SkColor c = SkUnPreMultiply::PMColorToColor(*displPtr);
-
-            SkScalar displX = scaleForColor.fX * ex.getX(c) + scaleAdj.fX;
-            SkScalar displY = scaleForColor.fY * ex.getY(c) + scaleAdj.fY;
-            // Truncate the displacement values
-            const int32_t srcX = Sk32_sat_add(x, SkScalarTruncToInt(displX));
-            const int32_t srcY = Sk32_sat_add(y, SkScalarTruncToInt(displY));
-            *dstPtr++ = ((srcX < 0) || (srcX >= srcW) || (srcY < 0) || (srcY >= srcH)) ?
-                      0 : *(src.getAddr32(srcX, srcY));
-        }
-    }
-}
-
 static bool channel_selector_type_is_valid(SkColorChannel cst) {
     switch (cst) {
         case SkColorChannel::kR:
@@ -155,12 +126,22 @@ static SkColorChannel convert_channel_type(SkDisplacementMapEffect::ChannelSelec
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImageFilter> SkDisplacementMapEffectImpl::Make(SkColorChannel xChannelSelector,
-                                                       SkColorChannel yChannelSelector,
-                                                       SkScalar scale,
-                                                       sk_sp<SkImageFilter> displacement,
-                                                       sk_sp<SkImageFilter> color,
-                                                       const CropRect* cropRect) {
+sk_sp<SkImageFilter> SkDisplacementMapEffect::Make(ChannelSelectorType xChannelSelector,
+                                                   ChannelSelectorType yChannelSelector,
+                                                   SkScalar scale,
+                                                   sk_sp<SkImageFilter> displacement,
+                                                   sk_sp<SkImageFilter> color,
+                                                   const SkImageFilter::CropRect* cropRect) {
+    return Make(convert_channel_type(xChannelSelector), convert_channel_type(yChannelSelector),
+                scale, std::move(displacement), std::move(color), cropRect);
+}
+
+sk_sp<SkImageFilter> SkDisplacementMapEffect::Make(SkColorChannel xChannelSelector,
+                                                   SkColorChannel yChannelSelector,
+                                                   SkScalar scale,
+                                                   sk_sp<SkImageFilter> displacement,
+                                                   sk_sp<SkImageFilter> color,
+                                                   const SkImageFilter::CropRect* cropRect) {
     if (!channel_selector_type_is_valid(xChannelSelector) ||
         !channel_selector_type_is_valid(yChannelSelector)) {
         return nullptr;
@@ -171,27 +152,6 @@ sk_sp<SkImageFilter> SkDisplacementMapEffectImpl::Make(SkColorChannel xChannelSe
                                                                 scale, inputs, cropRect));
 }
 
-sk_sp<SkImageFilter> SkDisplacementMapEffect::Make(ChannelSelectorType xChannelSelector,
-                                                   ChannelSelectorType yChannelSelector,
-                                                   SkScalar scale,
-                                                   sk_sp<SkImageFilter> displacement,
-                                                   sk_sp<SkImageFilter> color,
-                                                   const SkImageFilter::CropRect* cropRect) {
-    return SkDisplacementMapEffectImpl::Make(convert_channel_type(xChannelSelector),
-                                             convert_channel_type(yChannelSelector), scale,
-                                             std::move(displacement), std::move(color), cropRect);
-}
-
-sk_sp<SkImageFilter> SkDisplacementMapEffect::Make(SkColorChannel xChannelSelector,
-                                                   SkColorChannel yChannelSelector,
-                                                   SkScalar scale,
-                                                   sk_sp<SkImageFilter> displacement,
-                                                   sk_sp<SkImageFilter> color,
-                                                   const SkImageFilter::CropRect* cropRect) {
-    return SkDisplacementMapEffectImpl::Make(xChannelSelector, yChannelSelector, scale,
-                                             std::move(displacement), std::move(color), cropRect);
-}
-
 void SkDisplacementMapEffect::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkDisplacementMapEffectImpl);
     // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
@@ -199,16 +159,6 @@ void SkDisplacementMapEffect::RegisterFlattenables() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-SkDisplacementMapEffectImpl::SkDisplacementMapEffectImpl(SkColorChannel xChannelSelector,
-                                                         SkColorChannel yChannelSelector,
-                                                         SkScalar scale,
-                                                         sk_sp<SkImageFilter> inputs[2],
-                                                         const CropRect* cropRect)
-    : INHERITED(inputs, 2, cropRect)
-    , fXChannelSelector(xChannelSelector)
-    , fYChannelSelector(yChannelSelector)
-    , fScale(scale) {}
 
 sk_sp<SkFlattenable> SkDisplacementMapEffectImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
@@ -226,7 +176,8 @@ sk_sp<SkFlattenable> SkDisplacementMapEffectImpl::CreateProc(SkReadBuffer& buffe
 
     SkScalar scale = buffer.readScalar();
 
-    return Make(xsel, ysel, scale, common.getInput(0), common.getInput(1), &common.cropRect());
+    return SkDisplacementMapEffect::Make(xsel, ysel, scale, common.getInput(0), common.getInput(1),
+                                         &common.cropRect());
 }
 
 void SkDisplacementMapEffectImpl::flatten(SkWriteBuffer& buffer) const {
@@ -296,6 +247,33 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
+
+static void compute_displacement(Extractor ex, const SkVector& scale, SkBitmap* dst,
+                                 const SkBitmap& displ, const SkIPoint& offset,
+                                 const SkBitmap& src,
+                                 const SkIRect& bounds) {
+    static const SkScalar Inv8bit = SkScalarInvert(255);
+    const int srcW = src.width();
+    const int srcH = src.height();
+    const SkVector scaleForColor = SkVector::Make(scale.fX * Inv8bit, scale.fY * Inv8bit);
+    const SkVector scaleAdj = SkVector::Make(SK_ScalarHalf - scale.fX * SK_ScalarHalf,
+                                             SK_ScalarHalf - scale.fY * SK_ScalarHalf);
+    SkPMColor* dstPtr = dst->getAddr32(0, 0);
+    for (int y = bounds.top(); y < bounds.bottom(); ++y) {
+        const SkPMColor* displPtr = displ.getAddr32(bounds.left() + offset.fX, y + offset.fY);
+        for (int x = bounds.left(); x < bounds.right(); ++x, ++displPtr) {
+            SkColor c = SkUnPreMultiply::PMColorToColor(*displPtr);
+
+            SkScalar displX = scaleForColor.fX * ex.getX(c) + scaleAdj.fX;
+            SkScalar displY = scaleForColor.fY * ex.getY(c) + scaleAdj.fY;
+            // Truncate the displacement values
+            const int32_t srcX = Sk32_sat_add(x, SkScalarTruncToInt(displX));
+            const int32_t srcY = Sk32_sat_add(y, SkScalarTruncToInt(displY));
+            *dstPtr++ = ((srcX < 0) || (srcX >= srcW) || (srcY < 0) || (srcY >= srcH)) ?
+                      0 : *(src.getAddr32(srcX, srcY));
+        }
+    }
+}
 
 sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage* source,
                                                                  const Context& ctx,
@@ -441,8 +419,8 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage*
         return nullptr;
     }
 
-    computeDisplacement(Extractor(fXChannelSelector, fYChannelSelector), scale, &dst,
-                        displBM, colorOffset - displOffset, colorBM, colorBounds);
+    compute_displacement(Extractor(fXChannelSelector, fYChannelSelector), scale, &dst,
+                         displBM, colorOffset - displOffset, colorBM, colorBounds);
 
     offset->fX = bounds.left();
     offset->fY = bounds.top();

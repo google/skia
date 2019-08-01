@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/effects/SkOffsetImageFilter.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/effects/SkOffsetImageFilter.h"
 #include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -20,15 +21,10 @@ namespace {
 
 class SkOffsetImageFilterImpl final : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy,
-                                     sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr) {
-        if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
-            return nullptr;
-        }
-
-        return sk_sp<SkImageFilter>(new SkOffsetImageFilterImpl(
-                dx, dy, std::move(input), cropRect));
+    SkOffsetImageFilterImpl(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input,
+                            const CropRect* cropRect)
+            : INHERITED(&input, 1, cropRect) {
+        fOffset.set(dx, dy);
     }
 
     SkRect computeFastBounds(const SkRect& src) const override;
@@ -44,12 +40,6 @@ private:
     friend void SkOffsetImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkOffsetImageFilterImpl)
 
-    SkOffsetImageFilterImpl(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input,
-                            const CropRect* cropRect)
-            : INHERITED(&input, 1, cropRect) {
-        fOffset.set(dx, dy);
-    }
-
     SkVector fOffset;
 
     typedef SkImageFilter INHERITED;
@@ -57,15 +47,14 @@ private:
 
 } // end namespace
 
-static SkIPoint map_offset_vector(const SkMatrix& ctm, const SkVector& offset) {
-    SkVector vec = ctm.mapVector(offset.fX, offset.fY);
-    return SkIPoint::Make(SkScalarRoundToInt(vec.fX), SkScalarRoundToInt(vec.fY));
-}
-
 sk_sp<SkImageFilter> SkOffsetImageFilter::Make(SkScalar dx, SkScalar dy,
                                                sk_sp<SkImageFilter> input,
                                                const SkImageFilter::CropRect* cropRect) {
-    return SkOffsetImageFilterImpl::Make(dx, dy, std::move(input), cropRect);
+    if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
+        return nullptr;
+    }
+
+    return sk_sp<SkImageFilter>(new SkOffsetImageFilterImpl(dx, dy, std::move(input), cropRect));
 }
 
 void SkOffsetImageFilter::RegisterFlattenables() {
@@ -80,12 +69,18 @@ sk_sp<SkFlattenable> SkOffsetImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkPoint offset;
     buffer.readPoint(&offset);
-    return Make(offset.x(), offset.y(), common.getInput(0), &common.cropRect());
+    return SkOffsetImageFilter::Make(offset.x(), offset.y(), common.getInput(0),
+                                     &common.cropRect());
 }
 
 void SkOffsetImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fOffset);
+}
+
+static SkIPoint map_offset_vector(const SkMatrix& ctm, const SkVector& offset) {
+    SkVector vec = ctm.mapVector(offset.fX, offset.fY);
+    return SkIPoint::Make(SkScalarRoundToInt(vec.fX), SkScalarRoundToInt(vec.fY));
 }
 
 sk_sp<SkSpecialImage> SkOffsetImageFilterImpl::onFilterImage(SkSpecialImage* source,

@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkUnPreMultiply.h"
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -24,49 +25,8 @@
 
 namespace {
 
-// We need to be able to read at most SK_MaxS32 bytes, so divide that
-// by the size of a scalar to know how many scalars we can read.
-static const int32_t gMaxKernelSize = SK_MaxS32 / sizeof(SkScalar);
-
-static SkTileMode to_sktilemode(SkMatrixConvolutionImageFilter::TileMode tileMode) {
-    switch(tileMode) {
-        case SkMatrixConvolutionImageFilter::kClamp_TileMode:
-            return SkTileMode::kClamp;
-        case SkMatrixConvolutionImageFilter::kRepeat_TileMode:
-            return SkTileMode::kRepeat;
-        case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode:
-            // Fall through
-        default:
-            return SkTileMode::kDecal;
-    }
-}
-
 class SkMatrixConvolutionImageFilterImpl final : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(const SkISize& kernelSize, const SkScalar* kernel,
-                                     SkScalar gain, SkScalar bias, const SkIPoint& kernelOffset,
-                                     SkTileMode tileMode, bool convolveAlpha,
-                                     sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr) {
-        if (kernelSize.width() < 1 || kernelSize.height() < 1) {
-            return nullptr;
-        }
-        if (gMaxKernelSize / kernelSize.fWidth < kernelSize.fHeight) {
-            return nullptr;
-        }
-        if (!kernel) {
-            return nullptr;
-        }
-        if ((kernelOffset.fX < 0) || (kernelOffset.fX >= kernelSize.fWidth) ||
-            (kernelOffset.fY < 0) || (kernelOffset.fY >= kernelSize.fHeight)) {
-            return nullptr;
-        }
-        return sk_sp<SkImageFilter>(new SkMatrixConvolutionImageFilterImpl(
-                kernelSize, kernel, gain, bias, kernelOffset, tileMode, convolveAlpha,
-                std::move(input), cropRect));
-    }
-
-protected:
     SkMatrixConvolutionImageFilterImpl(const SkISize& kernelSize, const SkScalar* kernel,
                                        SkScalar gain, SkScalar bias, const SkIPoint& kernelOffset,
                                        SkTileMode tileMode, bool convolveAlpha,
@@ -89,6 +49,8 @@ protected:
     ~SkMatrixConvolutionImageFilterImpl() override {
         delete[] fKernel;
     }
+
+protected:
 
     void flatten(SkWriteBuffer&) const override;
 
@@ -180,6 +142,19 @@ public:
 
 } // end namespace
 
+static SkTileMode to_sktilemode(SkMatrixConvolutionImageFilter::TileMode tileMode) {
+    switch(tileMode) {
+        case SkMatrixConvolutionImageFilter::kClamp_TileMode:
+            return SkTileMode::kClamp;
+        case SkMatrixConvolutionImageFilter::kRepeat_TileMode:
+            return SkTileMode::kRepeat;
+        case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode:
+            // Fall through
+        default:
+            return SkTileMode::kDecal;
+    }
+}
+
 sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelSize,
                                                           const SkScalar* kernel,
                                                           SkScalar gain,
@@ -202,9 +177,26 @@ sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelS
                                                           bool convolveAlpha,
                                                           sk_sp<SkImageFilter> input,
                                                           const SkImageFilter::CropRect* cropRect) {
-    return SkMatrixConvolutionImageFilterImpl::Make(
+    // We need to be able to read at most SK_MaxS32 bytes, so divide that
+    // by the size of a scalar to know how many scalars we can read.
+    static constexpr int32_t kMaxKernelSize = SK_MaxS32 / sizeof(SkScalar);
+
+    if (kernelSize.width() < 1 || kernelSize.height() < 1) {
+        return nullptr;
+    }
+    if (kMaxKernelSize / kernelSize.fWidth < kernelSize.fHeight) {
+        return nullptr;
+    }
+    if (!kernel) {
+        return nullptr;
+    }
+    if ((kernelOffset.fX < 0) || (kernelOffset.fX >= kernelSize.fWidth) ||
+        (kernelOffset.fY < 0) || (kernelOffset.fY >= kernelSize.fHeight)) {
+        return nullptr;
+    }
+    return sk_sp<SkImageFilter>(new SkMatrixConvolutionImageFilterImpl(
             kernelSize, kernel, gain, bias, kernelOffset, tileMode, convolveAlpha,
-            std::move(input), cropRect);
+            std::move(input), cropRect));
 }
 
 void SkMatrixConvolutionImageFilter::RegisterFlattenables() {
@@ -252,7 +244,8 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilterImpl::CreateProc(SkReadBuffer
     if (!buffer.isValid()) {
         return nullptr;
     }
-    return Make(kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode,
+    return SkMatrixConvolutionImageFilter::Make(
+                kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode,
                 convolveAlpha, common.getInput(0), &common.cropRect());
 }
 
