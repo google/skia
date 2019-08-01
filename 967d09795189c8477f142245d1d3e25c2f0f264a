@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f203bd5_ddecdd70",
+        "filename": "tools/sk_app/unix/main_unix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:47:21Z",
+      "side": 1,
+      "message": "Nit: extra word here",
+      "range": {
+        "startLine": 27,
+        "startChar": 42,
+        "endLine": 27,
+        "endChar": 45
+      },
+      "revId": "967d09795189c8477f142245d1d3e25c2f0f264a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
