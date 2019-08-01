@@ -10,6 +10,7 @@
 
 #include "include/core/SkImageFilter.h"
 
+// DEPRECATED: Use include/effects/SkImageFilters::Offset
 class SK_API SkOffsetImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy,

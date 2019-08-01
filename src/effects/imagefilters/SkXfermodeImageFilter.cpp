@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkCanvas.h"
-#include "include/effects/SkArithmeticImageFilter.h"
 #include "include/effects/SkXfermodeImageFilter.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkImageFilterPriv.h"

@@ -10,6 +10,7 @@
 
 #include "include/core/SkImageFilter.h"
 
+// DEPRECATED: Use include/effects/SkImageFilters::Merge
 class SK_API SkMergeImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter>* const filters, int count,
