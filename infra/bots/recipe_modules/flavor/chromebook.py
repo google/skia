@@ -26,6 +26,7 @@ class ChromebookFlavor(ssh.SSHFlavor):
       lotties_dir   = self.chromeos_homedir + 'lotties',
       skp_dir       = self.chromeos_homedir + 'skps',
       svg_dir       = self.chromeos_homedir + 'svgs',
+      mskp_dir      = self.chromeos_homedir + 'mskp',
       tmp_dir       = self.chromeos_homedir)
 
   def install(self):

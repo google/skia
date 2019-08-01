@@ -33,6 +33,7 @@ const (
 	ISOLATE_GCLOUD_LINUX_NAME  = "Housekeeper-PerCommit-IsolateGCloudLinux"
 	ISOLATE_SKIMAGE_NAME       = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME           = "Housekeeper-PerCommit-IsolateSKP"
+	ISOLATE_MSKP_NAME           = "Housekeeper-PerCommit-IsolateMSKP"
 	ISOLATE_SVG_NAME           = "Housekeeper-PerCommit-IsolateSVG"
 	ISOLATE_NDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
@@ -205,6 +206,10 @@ var (
 		ISOLATE_SVG_NAME: {
 			cipdPkg: "svg",
 			path:    "svg",
+		},
+		ISOLATE_MSKP_NAME: {
+			cipdPkg: "mskp",
+			path:    "mskp",
 		},
 		ISOLATE_NDK_LINUX_NAME: {
 			cipdPkg: "android_ndk_linux",
@@ -503,7 +508,11 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
-			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI", "NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "SkottieTracing", "SkottieWASM", "NonNVPR"}
+			ignore := []string{
+				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
+				"ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
+				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9",
+				"BonusConfigs", "SkottieTracing", "SkottieWASM", "NonNVPR", "Mskp"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !util.In(part, ignore) {
@@ -935,6 +944,7 @@ func getIsolatedCIPDDeps(parts map[string]string) []string {
 	} else if e := parts["extra_config"]; strings.Contains(e, "Skpbench") {
 		// Skpbench only needs skps
 		deps = append(deps, ISOLATE_SKP_NAME)
+		deps = append(deps, ISOLATE_MSKP_NAME)
 	} else if util.In(o, rpiOS) {
 		deps = append(deps, ISOLATE_SKP_NAME)
 		deps = append(deps, ISOLATE_SVG_NAME)
@@ -1569,6 +1579,7 @@ func (b *builder) process(name string) {
 	pkgs := []*specs.CipdPackage{}
 
 	if deps := getIsolatedCIPDDeps(parts); len(deps) == 0 {
+		// for desktop machines
 		pkgs = []*specs.CipdPackage{
 			b.MustGetCipdPackageFromAsset("skimage"),
 			b.MustGetCipdPackageFromAsset("skp"),

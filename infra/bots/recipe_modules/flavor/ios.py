@@ -24,6 +24,7 @@ class iOSFlavor(default.DefaultFlavor):
         lotties_dir='lotties',
         skp_dir='skps',
         svg_dir='svgs',
+        mskp_dir='mskp',
         tmp_dir='tmp')
 
   def install(self):
