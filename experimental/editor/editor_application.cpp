@@ -88,14 +88,11 @@ struct EditorLayer : public sk_app::Window::Layer {
     bool fShiftDown = false;
     bool fBlink = false;
 
-    EditorLayer() {
-        fEditor.setFont(SkFont(SkTypeface::MakeFromName("monospace", SkFontStyle()), 18));
-    }
-
     void loadFile(const char* path) {
         if (sk_sp<SkData> data = SkData::MakeFromFileName(path)) {
             fPath = path;
-            fEditor.setText((const char*)data->data(), data->size());
+            fEditor.insert(editor::Editor::TextPosition{0, 0},
+                           (const char*)data->data(), data->size());
         } else {
             fPath  = "output.txt";
         }
@@ -108,6 +105,7 @@ struct EditorLayer : public sk_app::Window::Layer {
         canvas->translate(0, -(float)fPos);
         editor::Editor::PaintOpts options;
         options.fCursor = fTextPos;
+        options.fCursorColor = {1, 0, 0, fBlink ? 0.0f : 1.0f};
         options.fBackgroundColor = SkColor4f{0.8f, 0.8f, 0.8f, 1};
         options.fCursorColor = {1, 0, 0, fBlink ? 0.0f : 1.0f};
         if (fMarkPos != editor::Editor::TextPosition()) {
@@ -313,27 +311,37 @@ struct EditorLayer : public sk_app::Window::Layer {
     }
 };
 
+static constexpr float kFontSize = 18;
+// static constexpr char kTypefaceName[] = "monospace";
+static constexpr char kTypefaceName[] = "sans-serif";
+static constexpr SkFontStyle::Weight kFontWeight = SkFontStyle::kNormal_Weight;
+static constexpr SkFontStyle::Width  kFontWidth  = SkFontStyle::kNormal_Width;
+static constexpr SkFontStyle::Slant  kFontSlant  = SkFontStyle::kUpright_Slant;
+
+//static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kRaster_BackendType;
+static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kNativeGL_BackendType;
+
 struct EditorApplication : public sk_app::Application {
     std::unique_ptr<sk_app::Window> fWindow;
     EditorLayer fLayer;
     double fNextTime = -DBL_MAX;
 
-    EditorApplication(const char* path, void* platformData)
-        : fWindow(sk_app::Window::CreateNativeWindow(platformData))
-    {
-        //sk_app::Window::BackendType backendType = sk_app::Window::kRaster_BackendType;
-        sk_app::Window::BackendType backendType = sk_app::Window::kNativeGL_BackendType;
-        fWindow->attach(backendType);
+    EditorApplication(void* platformData)
+        : fWindow(sk_app::Window::CreateNativeWindow(platformData)) {}
+
+    bool init(const char* path) {
+        fWindow->attach(kBackendType);
         fLayer.inval();
+
+        fLayer.fEditor.setFont(SkFont(SkTypeface::MakeFromName(kTypefaceName,
+                               SkFontStyle(kFontWeight, kFontWidth, kFontSlant)), kFontSize));
         fLayer.loadFile(path);
+
         fWindow->pushLayer(&fLayer);
         fWindow->setTitle(SkStringPrintf("Editor: \"%s\"", fLayer.fPath.c_str()).c_str());
         fWindow->show();
         fLayer.onResize(fWindow->width(), fWindow->height());
-        #ifdef SK_EDITOR_DEBUG_OUT
-        Timer timer("shaping");
-        #endif  // SK_EDITOR_DEBUG_OUT
-        fLayer.fEditor.paint(nullptr, editor::Editor::PaintOpts());
+        return true;
     }
     ~EditorApplication() override { fWindow->detach(); }
 
@@ -353,5 +361,7 @@ sk_app::Application* sk_app::Application::Create(int argc, char** argv, void* da
     if (!SkLoadICU()) {
         SK_ABORT("SkLoadICU failed.");
     }
-    return new EditorApplication(argc > 1 ? argv[1] : nullptr, dat);
+    EditorApplication* app = new EditorApplication(dat);
+    SkASSERT(app->init(argc > 1 ? argv[1] : nullptr));
+    return app;
 }

@@ -24,8 +24,6 @@ namespace editor {
 class Editor {
     struct TextLine;
 public:
-    // used to load a new file.
-    void setText(const char* text, size_t len);
     // total height in canvas display units.
     int getHeight() const { return fHeight; }
     // spacing around the text, in canvas display units.
