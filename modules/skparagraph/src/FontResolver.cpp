@@ -205,9 +205,7 @@ void FontResolver::addResolvedWhitespacesToMapping() {
     fUnresolved -= resolvedWhitespaces;
 }
 
-FontDescr FontResolver::makeFont(sk_sp<SkTypeface> typeface,
-                                               SkScalar size,
-                                               SkScalar height) {
+FontDescr FontResolver::makeFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar height) {
     SkFont font(typeface, size);
     font.setEdging(SkFont::Edging::kAntiAlias);
     font.setHinting(SkFontHinting::kSlight);

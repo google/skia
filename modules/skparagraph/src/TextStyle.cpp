@@ -121,5 +121,18 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
     }
 }
 
+void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
+    SkFont font(fTypeface, fFontSize);
+    font.getMetrics(metrics);
+    if (fHeight == 0 || fHeight == 1) {
+        metrics->fAscent = (metrics->fAscent - metrics->fLeading / 2);
+        metrics->fDescent = (metrics->fDescent + metrics->fLeading / 2);
+    } else {
+        auto height = metrics->fDescent - metrics->fAscent + metrics->fLeading;
+        metrics->fAscent = (metrics->fAscent - metrics->fLeading / 2) * height / fHeight;
+        metrics->fDescent = (metrics->fDescent + metrics->fLeading / 2) * height / fHeight;
+    }
+}
+
 }  // namespace textlayout
 }  // namespace skia
