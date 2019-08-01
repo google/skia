@@ -251,6 +251,7 @@ public:
 
     /**
      * Return an imagefilter which transforms its input by the given matrix.
+     * DEPRECATED: Use include/effects/SkImageFilters::MatrixTransform
      */
     static sk_sp<SkImageFilter> MakeMatrixFilter(const SkMatrix& matrix,
                                                  SkFilterQuality quality,
