@@ -214,12 +214,12 @@ func main() {
 		}
 	}
 
-	cpu := make(chan work, *cpuLimit)
+	cpu := make(chan work, 1<<20)
 	for i := 0; i < *cpuLimit; i++ {
 		go worker(cpu)
 	}
 
-	gpu := make(chan work, *gpuLimit)
+	gpu := make(chan work, 1<<20)
 	for i := 0; i < *gpuLimit; i++ {
 		go worker(gpu)
 	}
