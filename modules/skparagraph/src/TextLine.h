@@ -25,6 +25,8 @@ public:
              TextRange text,
              TextRange textWithSpaces,
              ClusterRange clusters,
+             ClusterRange clustersWithGhosts,
+             SkScalar widthWithSpaces,
              LineMetrics sizes);
 
     inline void setMaster(ParagraphImpl* master) { fMaster = master; }
@@ -40,6 +42,7 @@ public:
         return fAdvance.fX + (fEllipsis != nullptr ? fEllipsis->fAdvance.fX : 0);
     }
     inline SkScalar shift() const { return fShift; }
+    SkScalar widthWithSpaces() const { return fWidthWithSpaces; }
     SkVector offset() const;
 
     inline SkScalar alphabeticBaseline() const { return fSizes.alphabeticBaseline(); }
@@ -55,13 +58,13 @@ public:
                                           SkScalar shift, bool clippingNeeded)>;
     SkScalar iterateThroughRuns(TextRange textRange,
                                 SkScalar offsetX,
-                                bool includeEmptyText,
+                                bool includeGhostWhitespaces,
                                 const RunVisitor& visitor) const;
 
     using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index)>;
     void iterateThroughClustersInGlyphsOrder(bool reverse, const ClustersVisitor& visitor) const;
 
-    void format(TextAlign effectiveAlign, SkScalar maxWidth, bool last);
+    void format(TextAlign effectiveAlign, SkScalar maxWidth);
     void paint(SkCanvas* canvas);
 
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
@@ -69,6 +72,8 @@ public:
     // For testing internal structures
     void scanStyles(StyleType style, const StyleVisitor& visitor);
     void scanRuns(const RunVisitor& visitor);
+
+    TextAlign assumedTextAlign() const;
 
 private:
 
@@ -79,6 +84,7 @@ private:
                                    Run* run,
                                    size_t& pos,
                                    size_t& size,
+                                   bool includeGhostSpaces,
                                    bool& clippingNeeded) const;
 
     SkScalar paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, SkScalar offsetX) const;
@@ -101,11 +107,13 @@ private:
     TextRange fTextRange;
     TextRange fTextWithWhitespacesRange;
     ClusterRange fClusterRange;
+    ClusterRange fGhostClusterRange;
 
     SkTArray<size_t, true> fLogical;
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
     SkScalar fShift;                    // Left right
+    SkScalar fWidthWithSpaces;
     std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
     LineMetrics fSizes;                 // Line metrics as a max of all run metrics
     bool fHasBackground;
