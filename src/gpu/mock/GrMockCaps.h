@@ -118,9 +118,10 @@ public:
         return this->maxRenderTargetSampleCount(ct);
     }
 
-    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+    SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
+                                                 const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override {
-        return {GrPixelConfigToColorType(config), 1};
+        return {surfaceColorType, 1};
     }
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
