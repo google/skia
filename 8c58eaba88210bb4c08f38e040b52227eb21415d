@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c26fa271_b53de20d",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-01T16:57:43Z",
+      "side": 1,
+      "message": "lets call this texImageCtx or imageCtx",
+      "range": {
+        "startLine": 158,
+        "startChar": 52,
+        "endLine": 158,
+        "endChar": 58
+      },
+      "revId": "8c58eaba88210bb4c08f38e040b52227eb21415d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72d573a4_acd0432c",
+        "filename": "src/gpu/GrAHardwareBufferUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-01T16:57:43Z",
+      "side": 1,
+      "message": "This probably should be renamed from GrCleanupHelper",
+      "range": {
+        "startLine": 160,
+        "startChar": 6,
+        "endLine": 160,
+        "endChar": 21
+      },
+      "revId": "8c58eaba88210bb4c08f38e040b52227eb21415d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4eff7aa1_759e9ed6",
+        "filename": "src/gpu/GrAHardwareBufferUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-01T16:57:43Z",
+      "side": 1,
+      "message": "can you add some comments for this function describing when a client should be calling the delete and update procs?",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 21
+      },
+      "revId": "8c58eaba88210bb4c08f38e040b52227eb21415d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
