@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fddf04ce_bde35c4b",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-01T19:10:46Z",
+      "side": 1,
+      "message": "Curious why this needs to be in this class instead of just op list.",
+      "revId": "d6bda5161a5ab83eb0c5ebba45b5bd830d790797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e121ddf7_f872f4cb",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-01T19:10:46Z",
+      "side": 1,
+      "message": "Could we get rid of this by adding virtuals? It seems like endFlush() could be virtual... I don\u0027t really get the purgeOpsWithUninstantiatedProxies, but wondering if that could be made generic.",
+      "range": {
+        "startLine": 57,
+        "startChar": 22,
+        "endLine": 57,
+        "endChar": 30
+      },
+      "revId": "d6bda5161a5ab83eb0c5ebba45b5bd830d790797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
