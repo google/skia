@@ -11,9 +11,12 @@
 
 #include "SDL.h"
 
+#include "tools/sk_app/WindowContext.h"
+
+#include <memory>
+
 namespace sk_app {
 
-class WindowContext;
 struct DisplayParams;
 
 namespace window_context_factory {
@@ -23,14 +26,14 @@ struct IOSWindowInfo {
     SDL_GLContext fGLContext;
 };
 
-inline WindowContext* NewVulkanForIOS(const IOSWindowInfo&, const DisplayParams&) {
+inline std::unique_ptr<WindowContext> MakeVulkanForIOS(const IOSWindowInfo&, const DisplayParams&) {
     // No Vulkan support on iOS.
     return nullptr;
 }
 
-WindowContext* NewGLForIOS(const IOSWindowInfo&, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeGLForIOS(const IOSWindowInfo&, const DisplayParams&);
 
-WindowContext* NewRasterForIOS(const IOSWindowInfo&, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeRasterForIOS(const IOSWindowInfo&, const DisplayParams&);
 
 }  // namespace window_context_factory
 

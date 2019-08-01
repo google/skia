@@ -116,10 +116,10 @@ void RasterWindowContext_ios::onSwapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewRasterForIOS(const IOSWindowInfo& info, const DisplayParams& params) {
-    WindowContext* ctx = new RasterWindowContext_ios(info, params);
+std::unique_ptr<WindowContext> MakeRasterForIOS(const IOSWindowInfo& info,
+                                                const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_ios(info, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;
