@@ -45,6 +45,54 @@
       "revId": "91fa50eccd24f26a2e69548d2efc04bfe20c84f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78b78fb3_2f58aa73",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-01T16:39:43Z",
+      "side": 1,
+      "message": "how\u0027s that?",
+      "parentUuid": "eeec7965_9ddf64e9",
+      "range": {
+        "startLine": 133,
+        "startChar": 12,
+        "endLine": 133,
+        "endChar": 23
+      },
+      "revId": "91fa50eccd24f26a2e69548d2efc04bfe20c84f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0aa251e0_6685f4a5",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-01T16:39:43Z",
+      "side": 1,
+      "message": "Yeah, this is kind of one of those places where I feel like C++ fails us.  If I were doing it in C I\u0027d make this a non-method field in the vtable, a sort of virtual class-scoped-static const field.",
+      "parentUuid": "4cb01e51_8d436990",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 44
+      },
+      "revId": "91fa50eccd24f26a2e69548d2efc04bfe20c84f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
