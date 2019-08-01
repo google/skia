@@ -32,8 +32,6 @@ bool SkColorFilter::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
-SkAlphaType SkColorFilter::onAlphaType() const { return kPremul_SkAlphaType; }
-
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
         GrRecordingContext*, const GrColorSpaceInfo&) const {
@@ -41,18 +39,8 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
 }
 #endif
 
-bool SkColorFilter::appendStages(const SkStageRec& rec, bool opaque) const {
-    const bool unpremul = this->onAlphaType() == kUnpremul_SkAlphaType;
-
-    if (unpremul && !opaque) { rec.fPipeline->append(SkRasterPipeline::unpremul); }
-
-    const bool ok = this->onAppendStages(rec, opaque);
-
-    opaque = opaque && (this->getFlags() & kAlphaUnchanged_Flag) != 0;
-
-    if (unpremul && !opaque) { rec.fPipeline->append(SkRasterPipeline::premul); }
-
-    return ok;
+bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+    return this->onAppendStages(rec, shaderIsOpaque);
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
@@ -198,8 +186,6 @@ public:
         }
     }()) {}
 
-private:
-
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             GrRecordingContext*, const GrColorSpaceInfo&) const override {
@@ -215,20 +201,27 @@ private:
     }
 #endif
 
-    uint32_t getFlags() const override { return kAlphaUnchanged_Flag; }
-    SkAlphaType onAlphaType() const override { return kUnpremul_SkAlphaType; }
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+        if (!shaderIsOpaque) {
+            rec.fPipeline->append(SkRasterPipeline::unpremul);
+        }
 
-    bool onAppendStages(const SkStageRec& rec, bool /*shaderIsOpaque*/) const override {
         // TODO: is it valuable to thread this through appendStages()?
         bool shaderIsNormalized = false;
         fSteps.apply(rec.fPipeline, shaderIsNormalized);
+
+        if (!shaderIsOpaque) {
+            rec.fPipeline->append(SkRasterPipeline::premul);
+        }
         return true;
     }
 
+protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.write32(static_cast<uint32_t>(fDir));
     }
 
+private:
     SK_FLATTENABLE_HOOKS(SkSRGBGammaColorFilter)
 
     const Direction fDir;
@@ -394,7 +387,7 @@ public:
     }
 #endif
 
-    bool onAppendStages(const SkStageRec& rec, bool /*shaderIsOpaque*/) const override {
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         if (fCpuFunction) {
             struct CpuFuncCtx : public SkRasterPipeline_CallbackCtx {
                 SkRuntimeColorFilterFn cpuFn;
