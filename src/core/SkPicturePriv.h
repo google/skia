@@ -72,29 +72,27 @@ public:
     // V69: Clean up duplicated and redundant SkImageFilter related enums
     // V70: Image filters definitions hidden, registered names updated to include "Impl"
     // V71: Unify erode and dilate image filters
-    // V72: SkColorFilter_Matrix domain (rgba vs. hsla)
     enum Version {
-        kTileModeInBlurImageFilter_Version  = 56,
-        kTileInfoInSweepGradient_Version    = 57,
-        k2PtConicalNoFlip_Version           = 58,
+        kTileModeInBlurImageFilter_Version = 56,
+        kTileInfoInSweepGradient_Version   = 57,
+        k2PtConicalNoFlip_Version          = 58,
         kRemovePictureImageFilterLocalSpace = 59,
-        kRemoveHeaderFlags_Version          = 60,
-        kTwoColorDrawShadow_Version         = 61,
-        kDontNegateImageSize_Version        = 62,
-        kStoreImageBounds_Version           = 63,
-        kRemoveOccluderFromBlurMaskFilter   = 64,
-        kFloat4PaintColor_Version           = 65,
-        kSaveBehind_Version                 = 66,
-        kSerializeFonts_Version             = 67,
-        kPaintDoesntSerializeFonts_Version  = 68,
-        kCleanupImageFilterEnums_Version    = 69,
-        kHideImageFilterImpls_Version       = 70,
-        kUnifyErodeDilateImpls_Version      = 71,
-        kMatrixColorFilterDomain_Version    = 72,
+        kRemoveHeaderFlags_Version         = 60,
+        kTwoColorDrawShadow_Version        = 61,
+        kDontNegateImageSize_Version       = 62,
+        kStoreImageBounds_Version          = 63,
+        kRemoveOccluderFromBlurMaskFilter  = 64,
+        kFloat4PaintColor_Version          = 65,
+        kSaveBehind_Version                = 66,
+        kSerializeFonts_Version            = 67,
+        kPaintDoesntSerializeFonts_Version = 68,
+        kCleanupImageFilterEnums_Version   = 69,
+        kHideImageFilterImpls_Version      = 70,
+        kUnifyErodeDilateImpls_Version     = 71,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kTileModeInBlurImageFilter_Version,
-        kCurrent_Version = kMatrixColorFilterDomain_Version
+        kCurrent_Version = kUnifyErodeDilateImpls_Version
     };
 
     static_assert(kMin_Version <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
