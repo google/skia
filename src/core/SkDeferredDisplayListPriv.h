@@ -15,9 +15,9 @@
     additional data members or virtual methods. */
 class SkDeferredDisplayListPriv {
 public:
-    int numOpLists() const {
+    int numRenderTasks() const {
 #if SK_SUPPORT_GPU
-        return fDDL->fOpLists.count();
+        return fDDL->fRenderTasks.count();
 #else
         return 0;
 #endif

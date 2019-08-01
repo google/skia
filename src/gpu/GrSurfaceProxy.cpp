@@ -69,7 +69,7 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
         , fLazyInstantiationType(lazyType)
         , fIsProtected(isProtected)
         , fGpuMemorySize(kInvalidGpuMemorySize)
-        , fLastOpList(nullptr) {
+        , fLastRenderTask(nullptr) {
     SkASSERT(fFormat.isValid());
     // NOTE: the default fUniqueID ctor pulls a value from the same pool as the GrGpuResources.
     if (fLazyInstantiateCallback) {
@@ -102,14 +102,14 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fIsProtected(fTarget->isProtected() ? GrProtected::kYes : GrProtected::kNo)
         , fGpuMemorySize(kInvalidGpuMemorySize)
-        , fLastOpList(nullptr) {
+        , fLastRenderTask(nullptr) {
     SkASSERT(fFormat.isValid());
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
     // For this to be deleted the opList that held a ref on it (if there was one) must have been
     // deleted. Which would have cleared out this back pointer.
-    SkASSERT(!fLastOpList);
+    SkASSERT(!fLastRenderTask);
 }
 
 bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvider,
@@ -289,23 +289,23 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
                                      mipMapped, key);
 }
 
-void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
+void GrSurfaceProxy::setLastRenderTask(GrRenderTask* renderTask) {
 #ifdef SK_DEBUG
-    if (fLastOpList) {
-        SkASSERT(fLastOpList->isClosed());
+    if (fLastRenderTask) {
+        SkASSERT(fLastRenderTask->isClosed());
     }
 #endif
 
     // Un-reffed
-    fLastOpList = opList;
+    fLastRenderTask = renderTask;
 }
 
 GrRenderTargetOpList* GrSurfaceProxy::getLastRenderTargetOpList() {
-    return fLastOpList ? fLastOpList->asRenderTargetOpList() : nullptr;
+    return fLastRenderTask ? fLastRenderTask->asRenderTargetOpList() : nullptr;
 }
 
 GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
-    return fLastOpList ? fLastOpList->asTextureOpList() : nullptr;
+    return fLastRenderTask ? fLastRenderTask->asTextureOpList() : nullptr;
 }
 
 int GrSurfaceProxy::worstCaseWidth() const {

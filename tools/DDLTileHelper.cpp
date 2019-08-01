@@ -34,7 +34,7 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
     fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
 
     std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
-    if (ddl->priv().numOpLists()) {
+    if (ddl->priv().numRenderTasks()) {
         // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
         // reinflation of the SKPs contains opLists that means some image subset operation
         // created a draw.

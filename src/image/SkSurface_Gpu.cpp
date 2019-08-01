@@ -325,7 +325,7 @@ bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
-    ctx->priv().copyOpListsFromDDL(ddl, rtc->asRenderTargetProxy());
+    ctx->priv().copyRenderTasksFromDDL(ddl, rtc->asRenderTargetProxy());
     return true;
 }
 

@@ -227,7 +227,7 @@ private:
         SkRect fBounds;
     };
 
-    void purgeOpsWithUninstantiatedProxies() override;
+    void handleInternalAllocationFailure() override;
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 

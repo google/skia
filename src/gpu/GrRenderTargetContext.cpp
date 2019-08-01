@@ -162,7 +162,7 @@ void GrRenderTargetContext::validate() const {
     fRenderTargetProxy->validate(fContext);
 
     if (fOpList && !fOpList->isClosed()) {
-        SkASSERT(fRenderTargetProxy->getLastOpList() == fOpList.get());
+        SkASSERT(fRenderTargetProxy->getLastRenderTask() == fOpList.get());
     }
 }
 #endif

@@ -219,8 +219,8 @@ public:
         return fContext->onGetAtlasManager();
     }
 
-    void moveOpListsToDDL(SkDeferredDisplayList*);
-    void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
+    void moveRenderTasksToDDL(SkDeferredDisplayList*);
+    void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
     GrContextOptions::ShaderErrorHandler* getShaderErrorHandler() const {

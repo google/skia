@@ -183,7 +183,7 @@ void GrTextureOpList::transferFrom(GrRecordingContext* context,
     this->recordOp(std::move(op));
 }
 
-void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
+void GrTextureOpList::handleInternalAllocationFailure() {
     bool hasUninstantiatedProxy = false;
     auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p, GrMipMapped) {
         if (!p->isInstantiated()) {

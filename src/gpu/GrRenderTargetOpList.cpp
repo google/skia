@@ -610,7 +610,7 @@ void GrRenderTargetOpList::transferFrom(GrRecordingContext* context,
     this->addOp(std::move(op), *context->priv().caps());
 }
 
-void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
+void GrRenderTargetOpList::handleInternalAllocationFailure() {
     bool hasUninstantiatedProxy = false;
     auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p, GrMipMapped) {
         if (!p->isInstantiated()) {
