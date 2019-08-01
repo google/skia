@@ -120,7 +120,10 @@ public:
     }
 
     void setHeight(SkScalar height) { fHeight = height; }
-    SkScalar getHeight() const { return fHeight; }
+    SkScalar getHeight() const { return fHeightOverride ? fHeight : 0; }
+
+    void setHeightOverride(bool heightOverride) { fHeightOverride = heightOverride; }
+    bool getHeightOverride() const { return fHeightOverride; }
 
     void setLetterSpacing(SkScalar letterSpacing) { fLetterSpacing = letterSpacing; }
     SkScalar getLetterSpacing() const { return fLetterSpacing; }
@@ -142,10 +145,14 @@ public:
     void getFontMetrics(SkFontMetrics* metrics) const {
         SkFont font(fTypeface, fFontSize);
         font.getMetrics(metrics);
-        metrics->fAscent =
-                (metrics->fAscent - metrics->fLeading / 2) * (fHeight == 0 ? 1 : fHeight);
-        metrics->fDescent =
-                (metrics->fDescent + metrics->fLeading / 2) * (fHeight == 0 ? 1 : fHeight);
+        if (fHeight == 0 || fHeight == 1) {
+            metrics->fAscent = (metrics->fAscent - metrics->fLeading / 2);
+            metrics->fDescent = (metrics->fDescent + metrics->fLeading / 2);
+        } else {
+            auto height = metrics->fDescent - metrics->fAscent + metrics->fLeading;
+            metrics->fAscent = (metrics->fAscent - metrics->fLeading / 2) * height / fHeight;
+            metrics->fDescent = (metrics->fDescent + metrics->fLeading / 2) * height / fHeight;
+        }
     }
 
 private:
@@ -156,6 +163,7 @@ private:
     std::vector<SkString> fFontFamilies;
     SkScalar fFontSize;
     SkScalar fHeight;
+    bool fHeightOverride;
     SkString fLocale;
     SkScalar fLetterSpacing;
     SkScalar fWordSpacing;
