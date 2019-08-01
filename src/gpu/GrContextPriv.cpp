@@ -224,25 +224,14 @@ void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
 
 //////////////////////////////////////////////////////////////////////////////
 #ifdef SK_ENABLE_DUMP_GPU
+#include "src/gpu/GrTestUtils.h"
 #include "src/utils/SkJSONWriter.h"
 SkString GrContextPriv::dump() const {
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
     writer.beginObject();
 
-    static const char* kBackendStr[] = {
-        "Metal",
-        "Dawn",
-        "OpenGL",
-        "Vulkan",
-        "Mock",
-    };
-    GR_STATIC_ASSERT(0 == (unsigned)GrBackendApi::kMetal);
-    GR_STATIC_ASSERT(1 == (unsigned)GrBackendApi::kDawn);
-    GR_STATIC_ASSERT(2 == (unsigned)GrBackendApi::kOpenGL);
-    GR_STATIC_ASSERT(3 == (unsigned)GrBackendApi::kVulkan);
-    GR_STATIC_ASSERT(4 == (unsigned)GrBackendApi::kMock);
-    writer.appendString("backend", kBackendStr[(unsigned)fContext->backend()]);
+    writer.appendString("backend", GrBackendApiToStr(fContext->backend()));
 
     writer.appendName("caps");
     fContext->caps()->dumpJSON(&writer);

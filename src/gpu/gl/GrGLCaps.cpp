@@ -3578,6 +3578,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // writing to/reading from a LUM16F texture reads from/writes to other formats behave
     // erratically.
     // All Adrenos claim to support LUM16F but don't appear to actually do so.
+    // The failing devices/gpus were: Nexus5/Adreno330, Nexus5x/Adreno418, Pixel/Adreno530,
+    // Pixel2XL/Adreno540 and Pixel3/Adreno630
     formatWorkarounds->fDisableLuminance16F = kIntelBroadwell_GrGLRenderer == ctxInfo.renderer() ||
                                               ctxInfo.vendor() == kQualcomm_GrGLVendor;
 }

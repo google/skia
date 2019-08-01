@@ -302,6 +302,36 @@ static constexpr GrGLFormat GrGLFormatFromGLEnum(GrGLenum glFormat) {
     }
 }
 
+#if GR_TEST_UTILS
+static constexpr const char* GrGLFormatToStr(GrGLenum glFormat) {
+    switch (glFormat) {
+        case GR_GL_RGBA8:                return "RGBA8";
+        case GR_GL_R8:                   return "R8";
+        case GR_GL_ALPHA8:               return "ALPHA8";
+        case GR_GL_LUMINANCE8:           return "LUMINANCE8";
+        case GR_GL_BGRA8:                return "BGRA8";
+        case GR_GL_RGB565:               return "RGB565";
+        case GR_GL_RGBA16F:              return "RGBA16F";
+        case GR_GL_LUMINANCE16F:         return "LUMINANCE16F";
+        case GR_GL_R16F:                 return "R16F";
+        case GR_GL_RGB8:                 return "RGB8";
+        case GR_GL_RG8:                  return "RG8";
+        case GR_GL_RGB10_A2:             return "RGB10_A2";
+        case GR_GL_RGBA4:                return "RGBA4";
+        case GR_GL_RGBA32F:              return "RGBA32F";
+        case GR_GL_SRGB8_ALPHA8:         return "SRGB8_ALPHA8";
+        case GR_GL_COMPRESSED_RGB8_ETC2: return "ETC2";
+        case GR_GL_COMPRESSED_ETC1_RGB8: return "ETC1";
+        case GR_GL_R16:                  return "R16";
+        case GR_GL_RG16:                 return "RG16";
+        case GR_GL_RGBA16:               return "RGBA16";
+        case GR_GL_RG16F:                return "RG16F";
+
+        default:                         return "Unknown";
+    }
+}
+#endif
+
 static inline GrGLFormat GrGLBackendFormatToGLFormat(const GrBackendFormat& format) {
     if (const GrGLenum* glFormat = format.getGLFormat()) {
         return GrGLFormatFromGLEnum(*glFormat);
