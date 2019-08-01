@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed593127_131ca2fc",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T14:25:32Z",
+      "side": 0,
+      "message": "lol - what in the world",
+      "range": {
+        "startLine": 797,
+        "startChar": 0,
+        "endLine": 798,
+        "endChar": 82
+      },
+      "revId": "2e3088306b8976917ab44b5fefb048c9b932d6b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

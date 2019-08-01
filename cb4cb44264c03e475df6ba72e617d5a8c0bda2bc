@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc835141_48161c07",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T14:25:32Z",
+      "side": 1,
+      "message": "// \u0027type\u0027 acts as a signal that old-style serialization is required. It is temporary.\n\n?",
+      "revId": "cb4cb44264c03e475df6ba72e617d5a8c0bda2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4c4d9d2_464935c1",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T14:25:32Z",
+      "side": 1,
+      "message": "Do we need this if-test anymore ?",
+      "revId": "cb4cb44264c03e475df6ba72e617d5a8c0bda2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
