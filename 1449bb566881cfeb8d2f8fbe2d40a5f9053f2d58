@@ -107,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "2c22bb62_38c3c4cc",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T19:19:08Z",
+      "side": 1,
+      "message": "To be deleted.",
+      "parentUuid": "7aad1974_2a31946b",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 49
+      },
+      "revId": "1449bb566881cfeb8d2f8fbe2d40a5f9053f2d58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d98615a5_7a60915b",
         "filename": "src/gpu/GrDrawingManager.h",
         "patchSetId": 4

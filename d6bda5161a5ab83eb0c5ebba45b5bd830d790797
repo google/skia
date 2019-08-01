@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "98b6440e_407f1010",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T19:19:08Z",
+      "side": 1,
+      "message": "The concept of closed-ness is limited to the opLists. However, I\u0027m unsure if it is too painful to move it there - probably worth a try but I suspect the asserts surrounding closed-ness are ill-placed for the move.",
+      "parentUuid": "fddf04ce_bde35c4b",
+      "revId": "d6bda5161a5ab83eb0c5ebba45b5bd830d790797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e121ddf7_f872f4cb",
         "filename": "src/gpu/GrRenderTask.h",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2019-08-01T19:10:46Z",
       "side": 1,
       "message": "Could we get rid of this by adding virtuals? It seems like endFlush() could be virtual... I don\u0027t really get the purgeOpsWithUninstantiatedProxies, but wondering if that could be made generic.",
+      "range": {
+        "startLine": 57,
+        "startChar": 22,
+        "endLine": 57,
+        "endChar": 30
+      },
+      "revId": "d6bda5161a5ab83eb0c5ebba45b5bd830d790797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "325e96be_8d476f36",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T19:19:08Z",
+      "side": 1,
+      "message": "The purgeOpsWithUninstantiatedProxies is used in allocation failure mode. The generalization would be something like: handleInternalAllocationFailure.\n\nIf the proxy that is the target of a GrRenderTask doesn\u0027t get allocated we drop the entire render task. If there is a allocation failure w/in an opList we just drop the effected ops.",
+      "parentUuid": "e121ddf7_f872f4cb",
       "range": {
         "startLine": 57,
         "startChar": 22,
