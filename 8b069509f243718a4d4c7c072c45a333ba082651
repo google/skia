@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "44c268a4_9084e8ff",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T15:02:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "282c1da7_50227fd8",
+      "range": {
+        "startLine": 254,
+        "startChar": 5,
+        "endLine": 254,
+        "endChar": 7
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e13fe84_410ef2ee",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 4
@@ -36,6 +60,24 @@
       "writtenOn": "2019-07-31T22:42:14Z",
       "side": 1,
       "message": "How about `namespace SkImageFilters`?",
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "512fad8d_96ae5011",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T15:02:35Z",
+      "side": 1,
+      "message": "Are we okay with namespaces in the public API? I used the class mostly to keep consistency with SkColorFilters and SkShaders, although these will need to be moved into include/effects and updated to include all filters/shaders so they could instead be updated to also be a namespace in a later CL.\n\nBut, are there issues with namespaces and SK_API?",
+      "parentUuid": "5e13fe84_410ef2ee",
       "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "938ba3d3_9cd8471b",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T15:02:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8e4b0ca_1aa432c9",
+      "range": {
+        "startLine": 40,
+        "startChar": 76,
+        "endLine": 40,
+        "endChar": 78
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03ede0b3_3bdd26ff",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 4
@@ -85,6 +151,30 @@
       "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3fe5ceb_d57093f7",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T15:02:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03ede0b3_3bdd26ff",
+      "range": {
+        "startLine": 71,
+        "startChar": 56,
+        "endLine": 71,
+        "endChar": 61
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "fc987e05_c130dd8d",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T15:02:35Z",
+      "side": 1,
+      "message": "Yes, I should think so. kHigh had been the default in SkImageSource::Make(SkImage), but I agree that it\u0027s unnecessary since it\u0027s a 1-1.",
+      "parentUuid": "50985ba3_0f44c3c1",
+      "range": {
+        "startLine": 143,
+        "startChar": 45,
+        "endLine": 143,
+        "endChar": 66
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f457c12_13ea87ec",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 4
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "e8fedc79_a7e6853e",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T15:02:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f457c12_13ea87ec",
+      "range": {
+        "startLine": 184,
+        "startChar": 64,
+        "endLine": 184,
+        "endChar": 73
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "29b25709_24613ebc",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 4
@@ -148,6 +286,24 @@
       "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8132be15_bf280ecc",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T15:02:35Z",
+      "side": 1,
+      "message": "Updated the docs for Picture() (and Image()) to state that it returns null when the image is null. This check in the simple case is keep the null policy in a single spot and avoid crashing when getting the default arguments.",
+      "parentUuid": "29b25709_24613ebc",
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -171,6 +327,30 @@
       "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82005328_f045a4e3",
+        "filename": "include/effects/SkMatrixConvolutionImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T15:02:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5c46dc4_8e045f15",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 6
+      },
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
