@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9338b0ac_d442fe8a",
+        "filename": "src/effects/imagefilters/SkImageSource.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T13:34:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0866333_326f2d8d",
+      "revId": "7c16dfbe719268c00e5732fd899fec4738c8292f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "af08cf8d_4495b45c",
         "filename": "src/effects/imagefilters/SkMagnifierImageFilter.cpp",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "365d068f_4f3a26f0",
+        "filename": "src/effects/imagefilters/SkMagnifierImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T13:34:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af08cf8d_4495b45c",
+      "revId": "7c16dfbe719268c00e5732fd899fec4738c8292f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2414919b_e6670564",
         "filename": "src/effects/imagefilters/SkOffsetImageFilter.cpp",
         "patchSetId": 3
@@ -50,6 +86,24 @@
       "revId": "7c16dfbe719268c00e5732fd899fec4738c8292f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b798d07f_6c1e7ada",
+        "filename": "src/effects/imagefilters/SkOffsetImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T13:34:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2414919b_e6670564",
+      "revId": "7c16dfbe719268c00e5732fd899fec4738c8292f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
