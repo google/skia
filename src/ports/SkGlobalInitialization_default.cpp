@@ -47,23 +47,7 @@
     #include "src/shaders/SkRTShader.h"
     #include "src/shaders/SkShaderBase.h"
 
-    #include "include/effects/SkAlphaThresholdFilter.h"
-    #include "include/effects/SkBlurImageFilter.h"
-    #include "include/effects/SkColorFilterImageFilter.h"
-    #include "include/effects/SkComposeImageFilter.h"
-    #include "include/effects/SkDisplacementMapEffect.h"
-    #include "include/effects/SkDropShadowImageFilter.h"
-    #include "include/effects/SkImageSource.h"
-    #include "include/effects/SkLightingImageFilter.h"
-    #include "include/effects/SkMagnifierImageFilter.h"
-    #include "include/effects/SkMatrixConvolutionImageFilter.h"
-    #include "include/effects/SkMergeImageFilter.h"
-    #include "include/effects/SkMorphologyImageFilter.h"
-    #include "include/effects/SkOffsetImageFilter.h"
-    #include "include/effects/SkPaintImageFilter.h"
-    #include "include/effects/SkPictureImageFilter.h"
-    #include "include/effects/SkTileImageFilter.h"
-    #include "include/effects/SkXfermodeImageFilter.h"
+    #include "include/effects/SkImageFilters.h"
     #include "src/core/SkLocalMatrixImageFilter.h"
     #include "src/core/SkMatrixImageFilter.h"
 
@@ -131,25 +115,7 @@
      *  SK_DISABLE_EFFECT_SERIALIZATION, or modify/replace this file as needed.
      */
     void SkFlattenable::PrivateInitializer::InitImageFilters() {
-        SkAlphaThresholdFilter::RegisterFlattenables();
-        SkArithmeticImageFilter::RegisterFlattenables();
-        SkBlurImageFilter::RegisterFlattenables();
-        SkColorFilterImageFilter::RegisterFlattenables();
-        SkComposeImageFilter::RegisterFlattenables();
-        SkDilateImageFilter::RegisterFlattenables();
-        SkDisplacementMapEffect::RegisterFlattenables();
-        SkDropShadowImageFilter::RegisterFlattenables();
-        SkImageSource::RegisterFlattenables();
-        SkLightingImageFilter::RegisterFlattenables();
-        SkMagnifierImageFilter::RegisterFlattenables();
-        SkMatrixConvolutionImageFilter::RegisterFlattenables();
-        SkMergeImageFilter::RegisterFlattenables();
-        SkOffsetImageFilter::RegisterFlattenables();
-        SkPaintImageFilter::RegisterFlattenables();
-        SkPictureImageFilter::RegisterFlattenables();
-        SkTileImageFilter::RegisterFlattenables();
-        SkXfermodeImageFilter::RegisterFlattenables();
-
+        SkImageFilters::RegisterFlattenables();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
         SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }

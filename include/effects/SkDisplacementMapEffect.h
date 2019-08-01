@@ -12,6 +12,7 @@
 
 enum class SkColorChannel;
 
+// DEPRECATED: Use include/effects/SkImageFilters::DisplacementMap
 class SK_API SkDisplacementMapEffect {
 public:
 

@@ -20,6 +20,8 @@ enum class SkTileMode;
     Matrix convolution image filter.  This filter applies an NxM image
     processing kernel to a given input image.  This can be used to produce
     effects such as sharpening, blurring, edge detection, etc.
+
+    DEPRECATED: Use include/effects/SkImageFilters::MatrixConvolution
  */
 
 class SK_API SkMatrixConvolutionImageFilter {
