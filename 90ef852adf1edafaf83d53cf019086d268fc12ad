@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac876b86_685193dd",
+        "filename": "src/gpu/GrTestUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-01T19:24:41Z",
+      "side": 1,
+      "message": "Could replace code at GrContextPriv.cpp:233 with this.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 1
+      },
+      "revId": "90ef852adf1edafaf83d53cf019086d268fc12ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6919404d_9f965a59",
+        "filename": "src/gpu/GrTestUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-01T19:24:41Z",
+      "side": 1,
+      "message": "redundent with pixel_config_name in GrCaps.cpp?",
+      "range": {
+        "startLine": 39,
+        "startChar": 12,
+        "endLine": 39,
+        "endChar": 30
+      },
+      "revId": "90ef852adf1edafaf83d53cf019086d268fc12ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
