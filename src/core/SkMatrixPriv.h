@@ -8,6 +8,7 @@
 #ifndef SkMatrixPriv_DEFINE
 #define SkMatrixPriv_DEFINE
 
+#include "include/core/SkFilterQuality.h"
 #include "include/core/SkMatrix.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkPointPriv.h"
@@ -146,6 +147,8 @@ public:
     static void MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 dst[], size_t dstStride,
                                                const SkPoint3 src[], size_t srcStride, int count);
 
+    // Returns the recommended filterquality, assuming the caller originally wanted kHigh (bicubic)
+    static SkFilterQuality ShouldUseBicubic(const SkMatrix& ctm);
 };
 
 #endif
