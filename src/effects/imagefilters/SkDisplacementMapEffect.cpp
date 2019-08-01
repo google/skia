@@ -116,8 +116,9 @@ static SkColorChannel convert_channel_type(SkDisplacementMapEffect::ChannelSelec
             return SkColorChannel::kA;
         case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
         default:
-            // Raster backend historically treated this as B, GPU backend would fail
-            SkDEBUGFAIL("Unknown channel selector");
+            // Raster backend historically treated this as B, GPU backend would fail when generating
+            // shader code. Just return B without aborting in debug-builds in order to keep fuzzers
+            // happy when they pass in the technically still valid kUnknown_ChannelSelectorType.
             return SkColorChannel::kB;
     }
 }
