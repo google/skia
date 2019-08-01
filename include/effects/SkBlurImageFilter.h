@@ -12,6 +12,7 @@
 
 enum class SkTileMode;
 
+// DEPRECATED: Use include/effects/SkImageFilters::Blur
 class SK_API SkBlurImageFilter {
 public:
     /*! \enum TileMode

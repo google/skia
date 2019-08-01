@@ -12,6 +12,7 @@
 
 class SkPicture;
 
+// DEPRECATED: Use include/effects/SkImageFilters::Picture
 class SK_API SkPictureImageFilter {
 public:
     /**

@@ -11,6 +11,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkImageFilter.h"
 
+// DEPRECATED: Use include/effects/SkImageFilters::ColorFilter
 class SK_API SkColorFilterImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkColorFilter> cf,

@@ -12,6 +12,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkRect.h"
 
+// DEPRECATED: Use include/effects/SkImageFilters::Magnifier
 class SK_API SkMagnifierImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(const SkRect& srcRect, SkScalar inset,

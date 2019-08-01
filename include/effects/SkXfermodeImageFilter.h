@@ -10,11 +10,11 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkImageFilter.h"
-#include "include/effects/SkArithmeticImageFilter.h"
 
 /**
  * This filter takes a SkBlendMode, and uses it to composite the foreground over the background.
  * If foreground or background is NULL, the input bitmap (src) is used instead.
+ // DEPRECATED: Use include/effects/SkImageFilters::XferMode
  */
 class SK_API SkXfermodeImageFilter {
 public:

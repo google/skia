@@ -11,6 +11,7 @@
 #include "include/core/SkImageFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+// DEPRECATED: Use include/effects/SkImageFilters::Dilate
 class SK_API SkDilateImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(int radiusX, int radiusY,
@@ -25,6 +26,7 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+// DEPRECATED: Use include/effects/SkImageFilters::Erode
 class SK_API SkErodeImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(int radiusX, int radiusY,
