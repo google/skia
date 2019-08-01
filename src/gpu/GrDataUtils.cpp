@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrDataUtils.h"
+
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrColor.h"
-#include "src/gpu/GrDataUtils.h"
 
 struct ETC1Block {
     uint32_t fHigh;
@@ -508,6 +510,28 @@ bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
     SkASSERT(dstRB % dstBpp == 0);
     SkASSERT(srcRB % srcBpp == 0);
 
+    bool premul   = srcInfo.alphaType() == kUnpremul_SkAlphaType &&
+                    dstInfo.alphaType() == kPremul_SkAlphaType;
+    bool unpremul = srcInfo.alphaType() == kPremul_SkAlphaType &&
+                    dstInfo.alphaType() == kUnpremul_SkAlphaType;
+    bool alphaOrCSConversion =
+            premul || unpremul || !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
+
+    if (srcInfo.colorType() == dstInfo.colorType() && !alphaOrCSConversion) {
+        size_t tightRB = dstBpp * dstInfo.width();
+        if (flipY) {
+            dst = static_cast<char*>(dst) + dstRB * (dstInfo.height() - 1);
+            for (int y = 0; y < dstInfo.height(); ++y) {
+                memcpy(dst, src, tightRB);
+                src = static_cast<const char*>(src) + srcRB;
+                dst = static_cast<      char*>(dst) - dstRB;
+            }
+        } else {
+            SkRectMemcpy(dst, dstRB, src, srcRB, tightRB, srcInfo.height());
+        }
+        return true;
+    }
+
     SkRasterPipeline::StockStage load;
     bool srcIsNormalized;
     bool srcIsSRGB;
@@ -519,13 +543,6 @@ bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
     bool dstIsSRGB;
     auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &dstIsNormalized,
                                                   &dstIsSRGB);
-
-    bool premul   = srcInfo.alphaType() == kUnpremul_SkAlphaType &&
-                    dstInfo.alphaType() == kPremul_SkAlphaType;
-    bool unpremul = srcInfo.alphaType() == kPremul_SkAlphaType &&
-                    dstInfo.alphaType() == kUnpremul_SkAlphaType;
-    bool alphaOrCSConversion =
-            premul || unpremul || !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
 
     bool clampGamut;
     SkTLazy<SkColorSpaceXformSteps> steps;
