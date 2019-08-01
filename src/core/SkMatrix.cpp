@@ -1798,3 +1798,31 @@ void SkRSXform::toTriStrip(SkScalar width, SkScalar height, SkPoint strip[4]) co
     strip[2].set(m00 * width + m02, m10 * width + m12);
     strip[3].set(m00 * width + m01 * height + m02, m10 * width + m11 * height + m12);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkFilterQuality SkMatrixPriv::ShouldUseBicubic(const SkMatrix& matrix) {
+    if (matrix.isIdentity()) {
+        return kNone_SkFilterQuality;
+    }
+
+    SkScalar scales[2];
+    if (!matrix.getMinMaxScales(scales) || scales[0] < SK_Scalar1) {
+        // Bicubic doesn't handle arbitrary minimization well, as src texels can be skipped
+        // entirely,
+        return kMedium_SkFilterQuality;
+    }
+
+    // At this point if scales[1] == SK_Scalar1 then the matrix doesn't do any scaling.
+    if (scales[1] == SK_Scalar1) {
+        if (matrix.rectStaysRect() && SkScalarIsInt(matrix.getTranslateX()) &&
+            SkScalarIsInt(matrix.getTranslateY())) {
+            return kNone_SkFilterQuality;
+        } else {
+            // Use bilerp to handle rotation or fractional translation.
+            return kLow_SkFilterQuality;
+        }
+    }
+
+    return kHigh_SkFilterQuality;
+}
