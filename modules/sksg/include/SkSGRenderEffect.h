@@ -13,7 +13,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkMaskFilter.h"
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 #include <memory>
 #include <vector>
@@ -222,8 +222,8 @@ public:
 
     static sk_sp<BlurImageFilter> Make(sk_sp<ImageFilter> input = nullptr);
 
-    SG_ATTRIBUTE(Sigma   , SkVector                   , fSigma   )
-    SG_ATTRIBUTE(TileMode, SkBlurImageFilter::TileMode, fTileMode)
+    SG_ATTRIBUTE(Sigma   , SkVector  , fSigma   )
+    SG_ATTRIBUTE(TileMode, SkTileMode, fTileMode)
 
 protected:
     sk_sp<SkImageFilter> onRevalidateFilter() override;
@@ -231,8 +231,8 @@ protected:
 private:
     explicit BlurImageFilter(sk_sp<ImageFilter> input);
 
-    SkVector                    fSigma    = { 0, 0 };
-    SkBlurImageFilter::TileMode fTileMode = SkBlurImageFilter::kClamp_TileMode;
+    SkVector   fSigma    = { 0, 0 };
+    SkTileMode fTileMode = SkTileMode::kClamp;
 
     using INHERITED = ImageFilter;
 };
