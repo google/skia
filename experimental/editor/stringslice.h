@@ -3,6 +3,8 @@
 #ifndef stringslice_DEFINED
 #define stringslice_DEFINED
 
+#include "experimental/editor/stringview.h"
+
 #include <memory>
 #include <cstddef>
 
@@ -23,6 +25,7 @@ public:
     const char* begin() const { return fPtr.get(); }
     const char* end() const { return fPtr ? fPtr.get() + fLength : nullptr; }
     std::size_t size() const { return fLength; }
+    editor::StringView view() const { return {fPtr.get(), fLength}; }
 
     // mutation:
     void insert(std::size_t offset, const char* text, std::size_t length);
