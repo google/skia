@@ -19,6 +19,47 @@
     },
     {
       "key": {
+        "uuid": "67aa0075_71008e01",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T14:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc835141_48161c07",
+      "revId": "cb4cb44264c03e475df6ba72e617d5a8c0bda2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d1ddef2_83df1b87",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T14:45:42Z",
+      "side": 1,
+      "message": "And I fixed this to actually use the new version number I added with this CL...",
+      "range": {
+        "startLine": 140,
+        "startChar": 51,
+        "endLine": 140,
+        "endChar": 80
+      },
+      "revId": "cb4cb44264c03e475df6ba72e617d5a8c0bda2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4c4d9d2_464935c1",
         "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
         "patchSetId": 5
@@ -33,6 +74,24 @@
       "revId": "cb4cb44264c03e475df6ba72e617d5a8c0bda2bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4184164a_88d1e112",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T14:45:42Z",
+      "side": 1,
+      "message": "Unfortunately yes, since the if-test selects what template arguments to use for the static function. morph() is written so that its morph type checks are compile time constants and should be optimized away to get specialized functions for each morph type.",
+      "parentUuid": "f4c4d9d2_464935c1",
+      "revId": "cb4cb44264c03e475df6ba72e617d5a8c0bda2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
