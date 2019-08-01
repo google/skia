@@ -89,6 +89,12 @@ public:
             GrRecordingContext*, const GrColorSpaceInfo&) const override;
 #endif
 
+private:
+    void flatten(SkWriteBuffer&) const override;
+    SK_FLATTENABLE_HOOKS(SkTable_ColorFilter)
+
+    void getTableAsBitmap(SkBitmap* table) const;
+
     enum {
         kA_Flag = 1 << 0,
         kR_Flag = 1 << 1,
@@ -96,7 +102,14 @@ public:
         kB_Flag = 1 << 3,
     };
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+
+    uint32_t getFlags() const override {
+        return (fFlags & kA_Flag) == 0 ? kAlphaUnchanged_Flag
+                                       : 0;
+    }
+    SkAlphaType onAlphaType() const override { return kUnpremul_SkAlphaType; }
+
+    bool onAppendStages(const SkStageRec& rec, bool /*shaderIsOpaque*/) const override {
         const uint8_t *r = gIdentityTable,
                       *g = gIdentityTable,
                       *b = gIdentityTable,
@@ -107,28 +120,12 @@ public:
         if (fFlags & kG_Flag) { g = ptr; ptr += 256; }
         if (fFlags & kB_Flag) { b = ptr;             }
 
-        SkRasterPipeline* p = rec.fPipeline;
-        if (!shaderIsOpaque) {
-            p->append(SkRasterPipeline::unpremul);
-        }
-
         struct Tables { const uint8_t *r, *g, *b, *a; };
-        p->append(SkRasterPipeline::byte_tables, rec.fAlloc->make<Tables>(Tables{r,g,b,a}));
-
-        bool definitelyOpaque = shaderIsOpaque && a[0xff] == 0xff;
-        if (!definitelyOpaque) {
-            p->append(SkRasterPipeline::premul);
-        }
+        rec.fPipeline->append(SkRasterPipeline::byte_tables,
+                              rec.fAlloc->make<Tables>(Tables{r,g,b,a}));
         return true;
     }
 
-protected:
-    void flatten(SkWriteBuffer&) const override;
-
-private:
-    SK_FLATTENABLE_HOOKS(SkTable_ColorFilter)
-
-    void getTableAsBitmap(SkBitmap* table) const;
 
     mutable const SkBitmap* fBitmap; // lazily allocated
 

@@ -52,15 +52,11 @@ bool SkColorFilter_Matrix::onAsAColorMatrix(float matrix[20]) const {
 }
 
 bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec,
-                                                    bool shaderIsOpaque) const {
-    const bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
-
+                                          bool /*shaderIsOpaque*/) const {
     SkRasterPipeline* p = rec.fPipeline;
-    if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
-    if (           true) { p->append(SkRasterPipeline::matrix_4x5, fMatrix); }
-    if (           true) { p->append(SkRasterPipeline::clamp_0); }
-    if (           true) { p->append(SkRasterPipeline::clamp_1); }
-    if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+    p->append(SkRasterPipeline::matrix_4x5, fMatrix);
+    p->append(SkRasterPipeline::clamp_0);
+    p->append(SkRasterPipeline::clamp_1);
     return true;
 }
 

@@ -46,13 +46,12 @@ public:
             GrRecordingContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-protected:
+private:
     void flatten(SkWriteBuffer&) const override {}
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool onAppendStages(const SkStageRec& rec, bool /*shaderIsOpaque*/) const override {
         rec.fPipeline->append(SkRasterPipeline::gauss_a_to_rgba);
         return true;
     }
-private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)
 
     SkGaussianColorFilter() : INHERITED() {}

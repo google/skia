@@ -25,43 +25,35 @@ using InvertStyle = SkHighContrastConfig::InvertStyle;
 
 class SkHighContrast_Filter : public SkColorFilter {
 public:
-    SkHighContrast_Filter(const SkHighContrastConfig& config) {
-        fConfig = config;
+    SkHighContrast_Filter(const SkHighContrastConfig& config) : fConfig(config) {
         // Clamp contrast to just inside -1 to 1 to avoid division by zero.
         fConfig.fContrast = SkScalarPin(fConfig.fContrast,
                                         -1.0f + FLT_EPSILON,
-                                        1.0f - FLT_EPSILON);
+                                        +1.0f - FLT_EPSILON);
     }
-
-    ~SkHighContrast_Filter() override {}
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             GrRecordingContext*, const GrColorSpaceInfo&) const override;
  #endif
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
-
-protected:
-    void flatten(SkWriteBuffer&) const override;
-
 private:
     SK_FLATTENABLE_HOOKS(SkHighContrast_Filter)
+    void flatten(SkWriteBuffer&) const override;
+
+    uint32_t getFlags() const override { return kAlphaUnchanged_Flag; }
+    SkAlphaType onAlphaType() const override { return kUnpremul_SkAlphaType; }
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
     SkHighContrastConfig fConfig;
 
     friend class SkHighContrastFilter;
-
     typedef SkColorFilter INHERITED;
 };
 
-bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool /*shaderIsOpaque*/) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
-
-    if (!shaderIsOpaque) {
-        p->append(SkRasterPipeline::unpremul);
-    }
 
     // Linearize before applying high-contrast filter.
     auto tf = alloc->make<skcms_TransferFunction>();
@@ -122,9 +114,6 @@ bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsO
     }
     p->append(SkRasterPipeline::parametric, invTF);
 
-    if (!shaderIsOpaque) {
-        p->append(SkRasterPipeline::premul);
-    }
     return true;
 }
 
