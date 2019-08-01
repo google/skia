@@ -186,6 +186,8 @@ public:
         return fStencilFormats;
     }
 
+    bool formatSupportsTexStorage(GrGLFormat) const;
+
     /**
      * Gets the internal format to use with glTexImage...() and glTexStorage...(). May be sized or
      * base depending upon the GL. Not applicable to compressed textures.
@@ -502,8 +504,6 @@ private:
 
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
-
-    bool formatSupportsTexStorage(GrGLFormat) const;
 
     int getRenderTargetSampleCount(int requestedCount, GrColorType, GrGLFormat) const;
     int maxRenderTargetSampleCount(GrColorType, GrGLFormat) const;

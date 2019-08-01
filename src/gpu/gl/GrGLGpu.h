@@ -395,9 +395,9 @@ private:
         kWrite_UploadType,        // we are using TexSubImage2D to copy data to an existing texture
     };
     bool uploadTexData(GrGLFormat textureFormat, GrColorType textureColorType,
-                       GrPixelConfig textureConfig, int texWidth, int texHeight, GrGLenum target,
-                       UploadType uploadType, int left, int top, int width, int height,
-                       GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount,
+                       int texWidth, int texHeight, GrGLenum target, UploadType uploadType,
+                       int left, int top, int width, int height, GrColorType srcColorType,
+                       const GrMipLevel texels[], int mipLevelCount,
                        GrMipMapsStatus* mipMapsStatus = nullptr);
 
     // Helper for onCreateCompressedTexture. Compressed textures are read-only so we
