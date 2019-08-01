@@ -112,6 +112,7 @@ public:
     bool isFormatCompressed(const GrBackendFormat&) const override;
 
     bool isFormatTexturable(GrColorType, const GrBackendFormat&) const override;
+    bool isFormatTexturable(GrColorType, GrGLFormat) const;
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         GrColorType ct = GrPixelConfigToColorType(config);
@@ -509,7 +510,6 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
 
-    bool isFormatTexturable(GrColorType, GrGLFormat) const;
     bool formatSupportsTexStorage(GrGLFormat) const;
 
     int getRenderTargetSampleCount(int requestedCount, GrColorType, GrGLFormat) const;

@@ -20,8 +20,9 @@ public:
     ~GrMockGpuTextureCommandBuffer() override {}
 
     void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {}
-    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
-                      GrGpuBuffer* transferBuffer, size_t offset) override {}
+    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                      size_t offset) override {}
     void insertEventMarker(const char*) override {}
 
 private:
@@ -41,8 +42,9 @@ public:
     void begin() override {}
     void end() override {}
     void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {}
-    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
-                      GrGpuBuffer* transferBuffer, size_t offset) override {}
+    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                      size_t offset) override {}
 
     int numDraws() const { return fNumDraws; }
 

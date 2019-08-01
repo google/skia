@@ -343,9 +343,11 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
 }
 
 bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int height,
-                       GrColorType dstColorType, void* buffer, size_t rowBytes) {
+                       GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
+                       size_t rowBytes) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
+    SkASSERT(this->caps()->isFormatTexturable(surfaceColorType, surface->backendFormat()));
 
     auto subRect = SkIRect::MakeXYWH(left, top, width, height);
     auto bounds  = SkIRect::MakeWH(surface->width(), surface->height());
@@ -373,13 +375,16 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
 
     this->handleDirtyContext();
 
-    return this->onReadPixels(surface, left, top, width, height, dstColorType, buffer, rowBytes);
+    return this->onReadPixels(surface, left, top, width, height, surfaceColorType, dstColorType,
+                              buffer, rowBytes);
 }
 
 bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int height,
-                        GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount) {
+                        GrColorType surfaceColorType, GrColorType srcColorType,
+                        const GrMipLevel texels[], int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
+    SkASSERT(this->caps()->isFormatTexturable(surfaceColorType, surface->backendFormat()));
 
     if (surface->readOnly()) {
         return false;
@@ -405,8 +410,8 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
     }
 
     this->handleDirtyContext();
-    if (this->onWritePixels(surface, left, top, width, height, srcColorType, texels,
-                            mipLevelCount)) {
+    if (this->onWritePixels(surface, left, top, width, height, surfaceColorType, srcColorType,
+                            texels, mipLevelCount)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(surface, kTopLeft_GrSurfaceOrigin, &rect, mipLevelCount);
         fStats.incTextureUploads();
@@ -416,11 +421,12 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
 }
 
 bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
-                             GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                             size_t offset, size_t rowBytes) {
+                             GrColorType textureColorType, GrColorType bufferColorType,
+                             GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
     SkASSERT(transferBuffer);
+    SkASSERT(this->caps()->isFormatTexturable(textureColorType, texture->backendFormat()));
 
     if (texture->readOnly()) {
         return false;
@@ -448,8 +454,8 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
     }
 
     this->handleDirtyContext();
-    if (this->onTransferPixelsTo(texture, left, top, width, height, bufferColorType, transferBuffer,
-                                 offset, rowBytes)) {
+    if (this->onTransferPixelsTo(texture, left, top, width, height, textureColorType,
+                                 bufferColorType, transferBuffer, offset, rowBytes)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(texture, kTopLeft_GrSurfaceOrigin, &rect);
         fStats.incTransfersToTexture();
@@ -460,11 +466,13 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
 }
 
 bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
-                               GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                               size_t offset) {
+                               GrColorType surfaceColorType, GrColorType bufferColorType,
+                               GrGpuBuffer* transferBuffer, size_t offset) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(transferBuffer);
+    SkASSERT(this->caps()->isFormatTexturable(surfaceColorType, surface->backendFormat()));
+
 #ifdef SK_DEBUG
     GrColorType surfCT = GrPixelConfigToColorType(surface->config());
     auto supportedRead = this->caps()->supportedReadPixelsColorType(surfCT,
@@ -482,8 +490,8 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width,
     }
 
     this->handleDirtyContext();
-    if (this->onTransferPixelsFrom(surface, left, top, width, height, bufferColorType,
-                                   transferBuffer, offset)) {
+    if (this->onTransferPixelsFrom(surface, left, top, width, height, surfaceColorType,
+                                   bufferColorType, transferBuffer, offset)) {
         fStats.incTransfersFromSurface();
         return true;
     }

@@ -66,23 +66,25 @@ private:
 
 class TransferFrom : public GrVkPrimaryCommandBufferTask {
 public:
-    TransferFrom(const SkIRect& srcRect, GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                 size_t offset)
+    TransferFrom(const SkIRect& srcRect, GrColorType surfaceColorType, GrColorType bufferColorType,
+                 GrGpuBuffer* transferBuffer, size_t offset)
             : fTransferBuffer(sk_ref_sp(transferBuffer))
             , fOffset(offset)
             , fSrcRect(srcRect)
+            , fSurfaceColorType(surfaceColorType)
             , fBufferColorType(bufferColorType) {}
 
     void execute(const Args& args) override {
         args.fGpu->transferPixelsFrom(args.fSurface, fSrcRect.fLeft, fSrcRect.fTop,
-                                      fSrcRect.width(), fSrcRect.height(), fBufferColorType,
-                                      fTransferBuffer.get(), fOffset);
+                                      fSrcRect.width(), fSrcRect.height(), fSurfaceColorType,
+                                      fBufferColorType, fTransferBuffer.get(), fOffset);
     }
 
 private:
     sk_sp<GrGpuBuffer> fTransferBuffer;
     size_t fOffset;
     SkIRect fSrcRect;
+    GrColorType fSurfaceColorType;
     GrColorType fBufferColorType;
 };
 
@@ -96,9 +98,11 @@ void GrVkGpuTextureCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
     fTasks.emplace<Copy>(src, srcRect, dstPoint, false);
 }
 
-void GrVkGpuTextureCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+void GrVkGpuTextureCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                                               GrColorType bufferColorType,
                                                GrGpuBuffer* transferBuffer, size_t offset) {
-    fTasks.emplace<TransferFrom>(srcRect, bufferColorType, transferBuffer, offset);
+    fTasks.emplace<TransferFrom>(srcRect, surfaceColorType, bufferColorType, transferBuffer,
+                                 offset);
 }
 
 void GrVkGpuTextureCommandBuffer::insertEventMarker(const char* msg) {
@@ -621,13 +625,15 @@ void GrVkGpuRTCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
     }
 }
 
-void GrVkGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
-                                          GrGpuBuffer* transferBuffer, size_t offset) {
+void GrVkGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                                          GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                                          size_t offset) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     if (!cbInfo.fIsEmpty) {
         this->addAdditionalRenderPass();
     }
-    fPreCommandBufferTasks.emplace<TransferFrom>(srcRect, bufferColorType, transferBuffer, offset);
+    fPreCommandBufferTasks.emplace<TransferFrom>(srcRect, surfaceColorType, bufferColorType,
+                                                 transferBuffer, offset);
     ++fCommandBufferInfos[fCurrentCmdInfo].fNumPreCmds;
 }
 

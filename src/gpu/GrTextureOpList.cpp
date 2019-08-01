@@ -174,10 +174,12 @@ bool GrTextureOpList::copySurface(GrRecordingContext* context,
 
 void GrTextureOpList::transferFrom(GrRecordingContext* context,
                                    const SkIRect& srcRect,
+                                   GrColorType surfaceColorType,
                                    GrColorType dstColorType,
                                    sk_sp<GrGpuBuffer> dst,
                                    size_t dstOffset) {
-    auto op = GrTransferFromOp::Make(context, srcRect, dstColorType, std::move(dst), dstOffset);
+    auto op = GrTransferFromOp::Make(context, srcRect, surfaceColorType, dstColorType,
+                                     std::move(dst), dstOffset);
     this->recordOp(std::move(op));
 }
 
