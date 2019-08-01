@@ -34,8 +34,9 @@ public:
     // already been adjusted for any origin flips.
     virtual void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
     // Initiates a transfer from the surface owned by the command buffer to the GrGpuBuffer.
-    virtual void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
-                              GrGpuBuffer* transferBuffer, size_t offset) = 0;
+    virtual void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                              GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                              size_t offset) = 0;
 
     virtual void insertEventMarker(const char*) = 0;
 

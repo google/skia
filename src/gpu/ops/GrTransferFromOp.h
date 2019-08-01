@@ -21,6 +21,7 @@ public:
 
     static std::unique_ptr<GrOp> Make(GrRecordingContext*,
                                       const SkIRect& srcRect,
+                                      GrColorType surfaceColorType,
                                       GrColorType dstColorType,
                                       sk_sp<GrGpuBuffer> dstBuffer,
                                       size_t dstOffset);
@@ -32,10 +33,11 @@ public:
         SkString string;
         string = INHERITED::dumpInfo();
         string.appendf(
-                "bufferID:: %d offset: %zu, color type: %d\n"
+                "bufferID:: %d offset: %zu, surf color type: %d, dst color type: %d\n"
                 "srcRect: [ L: %d, T: %d, R: %d, B: %d ]\n",
-                fDstBuffer->uniqueID().asUInt(), fDstOffset, (int)fDstColorType, fSrcRect.fLeft,
-                fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom);
+                fDstBuffer->uniqueID().asUInt(), fDstOffset, (int)fSurfaceColorType,
+                (int)fDstColorType, fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight,
+                fSrcRect.fBottom);
         return string;
     }
 #endif
@@ -44,6 +46,7 @@ private:
     friend class GrOpMemoryPool;  // for ctor
 
     GrTransferFromOp(const SkIRect& srcRect,
+                     GrColorType surfaceColorType,
                      GrColorType dstColorType,
                      sk_sp<GrGpuBuffer> dstBuffer,
                      size_t dstOffset)
@@ -51,6 +54,7 @@ private:
             , fDstBuffer(std::move(dstBuffer))
             , fDstOffset(dstOffset)
             , fSrcRect(srcRect)
+            , fSurfaceColorType(surfaceColorType)
             , fDstColorType(dstColorType) {
         this->setBounds(SkRect::Make(srcRect), HasAABloat::kNo, IsZeroArea::kNo);
     }
@@ -62,6 +66,7 @@ private:
     sk_sp<GrGpuBuffer> fDstBuffer;
     size_t fDstOffset;
     SkIRect fSrcRect;
+    GrColorType fSurfaceColorType;
     GrColorType fDstColorType;
 
     typedef GrOp INHERITED;

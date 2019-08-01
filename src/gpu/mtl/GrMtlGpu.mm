@@ -887,8 +887,8 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcR
 }
 
 bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
-                             GrColorType srcColorType, const GrMipLevel texels[],
-                             int mipLevelCount) {
+                             GrColorType surfaceColorType, GrColorType srcColorType,
+                             const GrMipLevel texels[], int mipLevelCount) {
     GrMtlTexture* mtlTexture = static_cast<GrMtlTexture*>(surface->asTexture());
     // TODO: In principle we should be able to support pure rendertargets as well, but
     // until we find a use case we'll only support texture rendertargets.
@@ -908,7 +908,8 @@ bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, i
 }
 
 bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
-                            GrColorType dstColorType, void* buffer, size_t rowBytes) {
+                            GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
+                            size_t rowBytes) {
     SkASSERT(surface);
     if (!check_max_blit_width(width)) {
         return false;
