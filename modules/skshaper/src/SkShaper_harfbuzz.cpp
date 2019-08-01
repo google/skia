@@ -129,12 +129,13 @@ unsigned skhb_nominal_glyphs(hb_font_t *hb_font, void *font_data,
                         glyph.get(), count);
 
     // Copy the results back to the sparse array.
-    for (unsigned i = 0; i < count; i++) {
-        *glyphs = glyph[i];
+    unsigned int done;
+    for (done = 0; done < count && glyph[done] != 0; done++) {
+        *glyphs = glyph[done];
         glyphs = SkTAddOffset<hb_codepoint_t>(glyphs, glyph_stride);
     }
-    // TODO: supposed to return index of first 0?
-    return count;
+    // return 'done' to allow HarfBuzz to synthesize with NFC and spaces, return 'count' to avoid
+    return done;
 }
 
 hb_position_t skhb_glyph_h_advance(hb_font_t* hb_font,

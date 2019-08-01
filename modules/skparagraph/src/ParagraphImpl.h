@@ -67,7 +67,7 @@ public:
     size_t lineNumber() override { return fLines.size(); }
 
     TextLine& addLine(SkVector offset, SkVector advance, TextRange text, TextRange textWithSpaces,
-                      ClusterRange clusters, LineMetrics sizes);
+                      ClusterRange clusters, ClusterRange clustersWithGhosts, LineMetrics sizes);
 
     SkSpan<const char> text() const { return fTextSpan; }
     InternalState state() const { return fState; }
@@ -77,7 +77,7 @@ public:
         return SkSpan<Block>(fTextStyles.data(), fTextStyles.size());
     }
     SkSpan<TextLine> lines() { return SkSpan<TextLine>(fLines.data(), fLines.size()); }
-    ParagraphStyle paragraphStyle() const { return fParagraphStyle; }
+    const ParagraphStyle& paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
@@ -149,6 +149,8 @@ private:
     friend class ParagraphCacheValue;
     friend class ParagraphCache;
 
+    friend class TextWrapper;
+
     BlockRange findAllBlocks(TextRange textRange);
     void extractStyles();
 
@@ -177,6 +179,7 @@ private:
 
     SkScalar fOldWidth;
     SkScalar fOldHeight;
+    SkScalar fMaxWidthWithTrailingSpaces;
 };
 }  // namespace textlayout
 }  // namespace skia

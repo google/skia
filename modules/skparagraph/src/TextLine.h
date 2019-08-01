@@ -25,6 +25,7 @@ public:
              TextRange text,
              TextRange textWithSpaces,
              ClusterRange clusters,
+             ClusterRange clustersWithGhosts,
              LineMetrics sizes);
 
     inline void setMaster(ParagraphImpl* master) { fMaster = master; }
@@ -55,7 +56,7 @@ public:
                                           SkScalar shift, bool clippingNeeded)>;
     SkScalar iterateThroughRuns(TextRange textRange,
                                 SkScalar offsetX,
-                                bool includeEmptyText,
+                                bool includeGhostWhitespaces,
                                 const RunVisitor& visitor) const;
 
     using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index)>;
@@ -101,6 +102,7 @@ private:
     TextRange fTextRange;
     TextRange fTextWithWhitespacesRange;
     ClusterRange fClusterRange;
+    ClusterRange fGhostClusterRange;
 
     SkTArray<size_t, true> fLogical;
     SkVector fAdvance;                  // Text size
