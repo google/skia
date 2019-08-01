@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a3a051d_22ff444a",
+        "filename": "include/private/SkDeferredDisplayList.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T17:49:22Z",
+      "side": 1,
+      "message": "These are supposed to line up with \u0027fCharacterization\u0027",
+      "revId": "1449bb566881cfeb8d2f8fbe2d40a5f9053f2d58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76f1c734_9d4b5916",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T17:49:22Z",
+      "side": 1,
+      "message": "rendertask ?",
+      "range": {
+        "startLine": 416,
+        "startChar": 22,
+        "endLine": 416,
+        "endChar": 28
+      },
+      "revId": "1449bb566881cfeb8d2f8fbe2d40a5f9053f2d58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d98615a5_7a60915b",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T17:49:22Z",
+      "side": 1,
+      "message": "renderTasks ?",
+      "range": {
+        "startLine": 99,
+        "startChar": 92,
+        "endLine": 99,
+        "endChar": 99
+      },
+      "revId": "1449bb566881cfeb8d2f8fbe2d40a5f9053f2d58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52c6ea77_fc996a3c",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T17:49:22Z",
+      "side": 1,
+      "message": "LLC",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "1449bb566881cfeb8d2f8fbe2d40a5f9053f2d58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
