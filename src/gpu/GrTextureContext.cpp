@@ -33,7 +33,7 @@ void GrTextureContext::validate() const {
     fTextureProxy->validate(fContext);
 
     if (fOpList && !fOpList->isClosed()) {
-        SkASSERT(fTextureProxy->getLastOpList() == fOpList.get());
+        SkASSERT(fTextureProxy->getLastRenderTask() == fOpList.get());
     }
 }
 #endif
