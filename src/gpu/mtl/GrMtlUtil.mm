@@ -333,4 +333,39 @@ size_t GrMtlBytesPerFormat(MTLPixelFormat format) {
     return 0;
 }
 
+#if GR_TEST_UTILS
+const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
+    switch (mtlFormat) {
+        case MTLPixelFormatInvalid:         return "Invalid";
+        case MTLPixelFormatRGBA8Unorm:      return "RGBA8Unorm";
+        case MTLPixelFormatR8Unorm:         return "R8Unorm";
+        case MTLPixelFormatA8Unorm:         return "A8Unorm";
+        case MTLPixelFormatBGRA8Unorm:      return "BGRA8Unorm";
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatB5G6R5Unorm:     return "B5G6R5Unorm";
+#endif
+        case MTLPixelFormatRGBA16Float:     return "RGBA16Float";
+        case MTLPixelFormatR16Float:        return "R16Float";
+        case MTLPixelFormatRG8Unorm:        return "RG8Unorm";
+        case MTLPixelFormatRGB10A2Unorm:    return "RGB10A2Unorm";
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatABGR4Unorm:      return "ABGR4Unorm";
+#endif
+        case MTLPixelFormatRGBA32Float:     return "RGBA32Float";
+        case MTLPixelFormatRGBA8Unorm_sRGB: return "RGBA8Unorm_sRGB";
+        case MTLPixelFormatR16Unorm:        return "R16Unorm";
+        case MTLPixelFormatRG16Unorm:       return "RG16Unorm";
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatETC2_RGB8:      return "ETC2_RGB8";
+#endif
+        case MTLPixelFormatRGBA16Unorm:    return "RGBA16Unorm";
+        case MTLPixelFormatRG16Float:      return "RG16Float";
+
+        default:                           return "Unknown";
+    }
+}
+
+#endif
+
+
 

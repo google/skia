@@ -246,6 +246,58 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     return false;
 }
 
+#if GR_TEST_UTILS
+#include "include/core/SkString.h"
+#include "src/gpu/GrTestUtils.h"
+
+#ifdef SK_GL
+#include "src/gpu/gl/GrGLUtil.h"
+#endif
+#ifdef SK_VULKAN
+#include "src/gpu/vk/GrVkUtil.h"
+#endif
+
+SkString GrBackendFormat::toStr() const {
+    SkString str;
+
+    if (!fValid) {
+        str.append("invalid");
+        return str;
+    }
+
+    str.appendf("%s-", GrBackendApiToStr(fBackend));
+
+    switch (fBackend) {
+        case GrBackendApi::kOpenGL:
+#ifdef SK_GL
+            str.append(GrGLFormatToStr(fGLFormat));
+#endif
+            break;
+        case GrBackendApi::kVulkan:
+#ifdef SK_VULKAN
+            str.append(GrVkFormatToStr(fVk.fFormat));
+#endif
+            break;
+        case GrBackendApi::kMetal:
+#ifdef SK_METAL
+            str.append(GrMtlFormatToStr(fMtlFormat));
+#endif
+            break;
+        case GrBackendApi::kDawn:
+#ifdef SK_DAWN
+            str.appendU32(fDawnFormat);
+#endif
+            break;
+        case GrBackendApi::kMock:
+            str.append(GrColorTypeToStr(fMockColorType));
+            break;
+    }
+
+    return str;
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef SK_DAWN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
