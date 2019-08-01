@@ -154,12 +154,14 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
              isProtectedContent, backendFormat, grColorType](GrResourceProvider* resourceProvider)
                     -> GrSurfaceProxy::LazyInstantiationResult {
                 GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
-                GrAHardwareBufferUtils::DeleteImageCtx deleteImageCtx = nullptr;
+                GrAHardwareBufferUtils::UpdateImageProc updateImageProc = nullptr;
+                GrAHardwareBufferUtils::TexImageCtx deleteImageCtx = nullptr;
 
                 GrBackendTexture backendTex =
                         GrAHardwareBufferUtils::MakeBackendTexture(direct, buffer.get(),
                                                                    width, height,
                                                                    &deleteImageProc,
+                                                                   &updateImageProc,
                                                                    &deleteImageCtx,
                                                                    isProtectedContent,
                                                                    backendFormat,

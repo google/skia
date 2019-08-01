@@ -27,13 +27,24 @@ SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat);
 GrBackendFormat GetBackendFormat(GrContext* context, AHardwareBuffer* hardwareBuffer,
                                  uint32_t bufferFormat, bool requireKnownFormat);
 
-typedef void* DeleteImageCtx;
-typedef void (*DeleteImageProc)(DeleteImageCtx);
+typedef void* TexImageCtx;
+typedef void (*DeleteImageProc)(TexImageCtx);
+typedef void (*UpdateImageProc)(TexImageCtx, GrContext*);
+
+//TODO: delete this function after clients stop using it.
+GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwareBuffer,
+                                    int width, int height,
+                                    DeleteImageProc* deleteProc,
+                                    TexImageCtx* imageCtx,
+                                    bool isProtectedContent,
+                                    const GrBackendFormat& backendFormat,
+                                    bool isRenderable);
 
 GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwareBuffer,
                                     int width, int height,
                                     DeleteImageProc* deleteProc,
-                                    DeleteImageCtx* deleteCtx,
+                                    UpdateImageProc* updateProc,
+                                    TexImageCtx* imageCtx,
                                     bool isProtectedContent,
                                     const GrBackendFormat& backendFormat,
                                     bool isRenderable);
