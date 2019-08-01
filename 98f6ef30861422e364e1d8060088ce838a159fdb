@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e8c46a8_2fffa4cd",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-01T19:13:29Z",
+      "side": 1,
+      "message": "This is the only interesting change I\u0027ve made since you last looked.\n\nIn retrospect, I can\u0027t believe it\u0027s taken me this long to realize that scale() is the way to express this 888 -\u003e 565 conversion.  You want to map a value in 0...255 to 0..31?  That\u0027s the same as multiplying the two unorms together!  I feel like I\u0027ve learned something today...",
+      "range": {
+        "startLine": 83,
+        "startChar": 11,
+        "endLine": 85,
+        "endChar": 48
+      },
+      "revId": "98f6ef30861422e364e1d8060088ce838a159fdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
