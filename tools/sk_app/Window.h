@@ -182,7 +182,7 @@ protected:
     SkTDArray<Layer*>      fLayers;
     DisplayParams          fRequestedDisplayParams;
 
-    WindowContext* fWindowContext = nullptr;
+    std::unique_ptr<WindowContext> fWindowContext;
 
     virtual void onInval() = 0;
 

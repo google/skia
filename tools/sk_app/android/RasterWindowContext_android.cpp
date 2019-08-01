@@ -95,10 +95,10 @@ void RasterWindowContext_android::swapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewRasterForAndroid(ANativeWindow* window, const DisplayParams& params) {
-    WindowContext* ctx = new RasterWindowContext_android(window, params);
+std::unique_ptr<WindowContext> MakeRasterForAndroid(ANativeWindow* window,
+                                                    const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_android(window, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

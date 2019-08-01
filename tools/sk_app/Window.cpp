@@ -15,10 +15,7 @@ namespace sk_app {
 
 Window::Window() {}
 
-void Window::detach() {
-    delete fWindowContext;
-    fWindowContext = nullptr;
-}
+void Window::detach() { fWindowContext = nullptr; }
 
 void Window::visitLayers(std::function<void(Layer*)> visitor) {
     for (int i = 0; i < fLayers.count(); ++i) {

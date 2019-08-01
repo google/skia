@@ -87,10 +87,9 @@ void RasterWindowContext_win::swapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewRasterForWin(HWND wnd, const DisplayParams& params) {
-    WindowContext* ctx = new RasterWindowContext_win(wnd, params);
+std::unique_ptr<WindowContext> MakeRasterForWin(HWND wnd, const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_win(wnd, params));
     if (!ctx->isValid()) {
-        delete ctx;
         ctx = nullptr;
     }
     return ctx;
