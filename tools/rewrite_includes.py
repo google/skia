@@ -63,7 +63,7 @@ def to_rewrite():
           yield os.path.join(path, file_name)
 
 # Rewrite any #includes relative to Skia's top-level directory.
-rc = 0
+need_rewriting = []
 for file_path in to_rewrite():
   if 'generated' in file_path:
     continue
@@ -99,7 +99,14 @@ for file_path in to_rewrite():
         print >>output, line.strip('\n')
 
     if args.dry_run and output.getvalue() != open(file_path).read():
-      print file_path, 'has #includes that need rewriting.'
+      need_rewriting.append(file_path)
       rc = 1
     output.close()
-sys.exit(rc)
+
+if need_rewriting:
+  print 'Some files need rewritten #includes:'
+  for path in need_rewriting:
+    print '\t' + path
+  print 'To do this automatically, run'
+  print 'python tools/rewrite_includes.py ' + ' '.join(need_rewriting)
+  sys.exit(1)
