@@ -180,8 +180,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     bool makeTight = !caps->readPixelsRowBytesSupport() && tightRowBytes != rowBytes;
 
     bool convert = unpremul || premul || needColorConversion || flip || makeTight ||
-                   (dstInfo.colorType() != supportedRead.fColorType) ||
-                   supportedRead.fSwizzle != GrSwizzle::RGBA();
+                   (dstInfo.colorType() != supportedRead.fColorType);
 
     std::unique_ptr<char[]> tmpPixels;
     GrPixelInfo tmpInfo;
@@ -209,8 +208,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     }
 
     if (convert) {
-        return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, readDst, readRB, flip,
-                               supportedRead.fSwizzle);
+        return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, readDst, readRB, flip);
     }
     return true;
 }
@@ -629,14 +627,14 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);
     auto at = this->colorSpaceInfo().alphaType();
-    if (supportedRead.fColorType != dstCT || supportedRead.fSwizzle != GrSwizzle("rgba") || flip) {
+    if (supportedRead.fColorType != dstCT || flip) {
         result.fPixelConverter = [w = rect.width(), h = rect.height(), dstCT, supportedRead, at](
                 void* dst, const void* src) {
               GrPixelInfo srcInfo(supportedRead.fColorType, at, nullptr, w, h);
               GrPixelInfo dstInfo(dstCT,                    at, nullptr, w, h);
               GrConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
                               srcInfo, src, srcInfo.minRowBytes(),
-                              /* flipY = */ false, supportedRead.fSwizzle);
+                              /* flipY = */ false);
         };
     }
     return result;

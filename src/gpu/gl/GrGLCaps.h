@@ -611,10 +611,6 @@ private:
             GrGLenum fExternalType = 0;
             GrGLenum fExternalTexImageFormat = 0;
             GrGLenum fExternalReadFormat = 0;
-
-            // This is the swizzle to apply to the data after it is read back using the
-            // fExternalReadFormat so that the data is in the form expected by fColorType.
-            GrSwizzle fReadSwizzle = GrSwizzle::RGBA();
         };
 
         GrGLenum externalFormat(GrColorType externalColorType, ExternalFormatUsage usage) const {

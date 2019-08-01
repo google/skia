@@ -290,7 +290,7 @@
    Memcheck:Cond
    ...
    fun:_ZNK16SkRasterPipeline3runEmmmm
-   fun:_Z15GrConvertPixelsRK11GrPixelInfoPvmS1_PKvmb9GrSwizzle
+   fun:_Z15GrConvertPixelsRK11GrPixelInfoPvmS1_PKvmb
    ...
 }
 {
@@ -298,6 +298,6 @@
    Memcheck:Value8
    ...
    fun:_ZNK16SkRasterPipeline3runEmmmm
-   fun:_Z15GrConvertPixelsRK11GrPixelInfoPvmS1_PKvmb9GrSwizzle
+   fun:_Z15GrConvertPixelsRK11GrPixelInfoPvmS1_PKvmb
    ...
 }
