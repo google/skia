@@ -90,7 +90,8 @@ shared_library("libGLESv2") {
     ":commit_id",
   ]
   libs = []
-  sources = rebase_path(
+  sources =
+      rebase_path(
           angle_preprocessor_sources + angle_translator_sources +
               angle_translator_essl_sources + angle_translator_glsl_sources +
               angle_translator_hlsl_sources + libangle_sources +
@@ -98,7 +99,7 @@ shared_library("libGLESv2") {
               libglesv2_sources + libangle_gl_sources +
               angle_system_utils_sources + xxhash_sources,
           ".",
-          angle_root)
+          angle_root) + [ "$angle_root/src/libANGLE/FrameCapture.cpp" ]
   if (is_win) {
     sources += [ "$angle_root/src/libGLESv2/libGLESv2_autogen.def" ]
   }
