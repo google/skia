@@ -117,9 +117,6 @@ public:
 protected:
     SkColorFilter() {}
 
-    virtual bool onAsAColorMatrix(float[20]) const;
-    virtual bool onAsAColorMode(SkColor* color, SkBlendMode* bmode) const;
-
 private:
     /*
      *  Returns 1 if this is a single filter (not a composition of other filters), otherwise it
@@ -130,7 +127,10 @@ private:
      */
     virtual int privateComposedFilterCount() const { return 1; }
 
+    virtual bool onAsAColorMatrix(float[20]) const;
+    virtual bool onAsAColorMode(SkColor* color, SkBlendMode* bmode) const;
     virtual bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
+    virtual SkAlphaType onAlphaType() const;
 
     friend class SkComposeColorFilter;
 
