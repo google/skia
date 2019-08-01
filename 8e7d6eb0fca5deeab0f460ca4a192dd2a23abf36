@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93a60f1e_67a11905",
+        "filename": "experimental/editor/editor_application.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T17:10:47Z",
+      "side": 1,
+      "message": "Viewer uses an AnimTimer for this sort of thing.",
+      "range": {
+        "startLine": 319,
+        "startChar": 11,
+        "endLine": 319,
+        "endChar": 20
+      },
+      "revId": "8e7d6eb0fca5deeab0f460ca4a192dd2a23abf36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
