@@ -118,7 +118,7 @@ static DEFINE_bool(simpleCodec, false,
                    "Runs of a subset of the codec tests, "
                    "with no scaling or subsetting, always using the canvas color type.");
 
-static DEFINE_string2(match, m, nullptr,
+static DEFINE_string2(match, m, "GrSurfaceRenderability",
                "[~][^]substring[$] [...] of name to run.\n"
                "Multiple matches may be separated by spaces.\n"
                "~ causes a matching name to always be skipped\n"
@@ -851,13 +851,13 @@ static bool gather_srcs() {
         push_src("gm", "", new GMSrc(f));
     }
 
-    gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
-    gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
+    //gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
+    //gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
 #if defined(SK_ENABLE_SKOTTIE)
-    gather_file_srcs<SkottieSrc>(FLAGS_lotties, "json", "lottie");
+    //gather_file_srcs<SkottieSrc>(FLAGS_lotties, "json", "lottie");
 #endif
 #if defined(SK_XML)
-    gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
+    //gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
 #endif
     if (!FLAGS_bisect.isEmpty()) {
         // An empty l/r trail string will draw all the paths.
@@ -870,19 +870,19 @@ static bool gather_srcs() {
         return false;
     }
 
-    for (auto image : images) {
-        push_codec_srcs(image);
-    }
+//    for (auto image : images) {
+//        push_codec_srcs(image);
+//    }
 
     SkTArray<SkString> colorImages;
     if (!CollectImages(FLAGS_colorImages, &colorImages)) {
         return false;
     }
 
-    for (auto colorImage : colorImages) {
-        push_src("colorImage", "decode_native", new ColorCodecSrc(colorImage, false));
-        push_src("colorImage", "decode_to_dst", new ColorCodecSrc(colorImage,  true));
-    }
+    //for (auto colorImage : colorImages) {
+        //push_src("colorImage", "decode_native", new ColorCodecSrc(colorImage, false));
+        //push_src("colorImage", "decode_to_dst", new ColorCodecSrc(colorImage,  true));
+//    }
 
     return true;
 }
