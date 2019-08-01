@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     canvas->drawCircle(31, 21, 8, bluePaint);
     SkMatrix matrix;
     matrix.setScale(4, 4);
-    auto scaler = SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr);
+    auto scaler = SkImageFilters::MatrixTransform(matrix, kNone_SkFilterQuality, nullptr);
     SkCanvas::SaveLayerRec saveLayerRec(nullptr, nullptr, scaler.get(), 0);
     canvas->saveLayer(saveLayerRec);
     canvas->drawCircle(125, 85, 8, redPaint);

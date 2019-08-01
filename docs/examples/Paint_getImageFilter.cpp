@@ -3,12 +3,12 @@
 #include "tools/fiddle/examples.h"
 // HASH=c11f8eaa1dd149bc18db21e23ce26904
 REG_FIDDLE(Paint_getImageFilter, 256, 256, true, 0) {
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 void draw(SkCanvas* canvas) {
    SkPaint paint;
    SkDebugf("nullptr %c= image filter\n", paint.getImageFilter() ? '!' : '=');
-   paint.setImageFilter(SkBlurImageFilter::Make(kOuter_SkBlurStyle, 3, nullptr, nullptr));
+   paint.setImageFilter(SkImageFilters::Blur(3, 3, nullptr, nullptr));
    SkDebugf("nullptr %c= image filter\n", paint.getImageFilter() ? '!' : '=');
 }
 }  // END FIDDLE
