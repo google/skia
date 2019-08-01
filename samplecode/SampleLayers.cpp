@@ -174,9 +174,7 @@ DEF_SAMPLE( return new LayersView; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
-#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 #include "tools/Resources.h"
 
@@ -190,7 +188,7 @@ public:
         fCenter.set(200, 150);
         fAngle = 0;
         fImage = GetResourceAsImage("images/mandrill_512.png");
-        fFilter = SkDilateImageFilter::Make(8, 8, nullptr);
+        fFilter = SkImageFilters::Dilate(8, 8, nullptr);
     }
 
 protected:
