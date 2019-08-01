@@ -27,29 +27,25 @@ int main(int argc, char**argv) {
 
     // Get the file descriptor for the X display
     int x11_fd = ConnectionNumber(display);
-    int count = x11_fd + 1;
+    // Create a file description set containing x11_fd
+    fd_set in_fds;
+    FD_ZERO(&in_fds);
+    FD_SET(x11_fd, &in_fds);
 
     SkTHashSet<sk_app::Window_unix*> pendingWindows;
     bool done = false;
     while (!done) {
-        // Create a file description set containing x11_fd
-        fd_set in_fds;
-        FD_ZERO(&in_fds);
-        FD_SET(x11_fd, &in_fds);
-
         // Set a sleep timer
         struct timeval tv;
         tv.tv_usec = 100;
         tv.tv_sec = 0;
 
-        while (!XPending(display)) {
-            // Wait for an event on the file descriptor or for timer expiration
-            (void) select(count, &in_fds, nullptr, nullptr, &tv);
-        }
+        // Wait for an event on the file descriptor or for timer expiration
+        (void)select(1, &in_fds, nullptr, nullptr, &tv);
 
         // Handle XEvents (if any) and flush the input
-        int count = XPending(display);
-        while (count-- && !done) {
+        int pendingCount = XPending(display);
+        while (pendingCount-- && !done) {
             XEvent event;
             XNextEvent(display, &event);
 
@@ -78,12 +74,11 @@ int main(int argc, char**argv) {
         }
 
         pendingWindows.foreach(finishWindow);
-        if (pendingWindows.count() > 0) {
-            app->onIdle();
-        }
         pendingWindows.reset();
 
         XFlush(display);
+
+        app->onIdle();
     }
 
     delete app;
