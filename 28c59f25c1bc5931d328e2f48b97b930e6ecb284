@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "056cb534_0cb57e7e",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-01T20:02:17Z",
+      "side": 1,
+      "message": "Okay, one last change before landing this first draft... I\u0027ve implemented scale() in terms of div255(), and made div255() perfect.  This means you can use scale() without really having to ever think about any caveats.  This _really_ helps cut down the diffs against existing Skia, especially 565.\n\nAs is div255() is 4 cheap instructions (add - shift - add - shift) and with NEON specialization that can get down to two.  Not sure if there\u0027s any way to beat 4 instructions on x86, but there\u0027s always a hope.",
+      "revId": "28c59f25c1bc5931d328e2f48b97b930e6ecb284",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
