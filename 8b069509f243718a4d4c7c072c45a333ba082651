@@ -102,6 +102,24 @@
     },
     {
       "key": {
+        "uuid": "dd022d57_6d4739d6",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-01T20:58:07Z",
+      "side": 1,
+      "message": "Nope.  You just separately tag each function.\n\n    SK_API sk_sp\u003cSkImageFilter\u003e AlphaThreshold(.....",
+      "parentUuid": "7bb7b68b_eedfd04d",
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e8e4b0ca_1aa432c9",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 4
