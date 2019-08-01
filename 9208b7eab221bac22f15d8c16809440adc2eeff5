@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70e13fcf_8cd3276c",
+        "filename": "tools/sk_app/DawnWindowContext.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "intptr_t?",
+      "range": {
+        "startLine": 39,
+        "startChar": 52,
+        "endLine": 39,
+        "endChar": 59
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fed09fcc_296be24f",
+        "filename": "tools/sk_app/DawnWindowContext.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "No one overrides these, do they need to be virtual?",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 36
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e56ad93a_313a077f",
+        "filename": "tools/sk_app/DawnWindowContext.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "Is this needed? It seems to be a temporary used to create fSwapChain.",
+      "range": {
+        "startLine": 48,
+        "startChar": 4,
+        "endLine": 48,
+        "endChar": 58
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "184d6fe1_cb8bc66b",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "Nit: can make this just {}",
+      "range": {
+        "startLine": 47,
+        "startChar": 31,
+        "endLine": 48,
+        "endChar": 5
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe71015a_fda2a50f",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "Nit: Can make this just {}",
+      "range": {
+        "startLine": 55,
+        "startChar": 24,
+        "endLine": 56,
+        "endChar": 5
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23ec996e_db22e8bb",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "override? Also, Skia uses a leading capital letter to indicate a static method, so this is a little confusing.",
+      "range": {
+        "startLine": 58,
+        "startChar": 23,
+        "endLine": 59,
+        "endChar": 44
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2b2de89_ef0c2aaa",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "Same here",
+      "range": {
+        "startLine": 69,
+        "startChar": 23,
+        "endLine": 69,
+        "endChar": 37
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d12b502b_57a7bdff",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "Same here",
+      "range": {
+        "startLine": 77,
+        "startChar": 23,
+        "endLine": 77,
+        "endChar": 30
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f4f2320_d86f2cda",
+        "filename": "tools/sk_app/unix/DawnVulkanWindowContext_unix.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "Nit: indent 4 additional spaces",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 8
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ce8780f_5ea4b17d",
+        "filename": "tools/sk_app/win/DawnD3D12WindowContext_win.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-01T21:34:58Z",
+      "side": 1,
+      "message": "Nit: indent 4 additional spaces",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 8
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
