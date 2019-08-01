@@ -2119,16 +2119,12 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         bool lum16FSupported = false;
 
         if (GR_IS_GR_GL(standard)) {
-            if (version >= GR_GL_VER(3, 0)) {
-                lum16FSupported = true;
-            } else if (ctxInfo.hasExtension("GL_ARB_texture_float")) {
+            if (ctxInfo.hasExtension("GL_ARB_texture_float")) {
                 lum16FSupported = true;
             }
         } else if (GR_IS_GR_GL_ES(standard)) {
-            if (version >= GR_GL_VER(3, 0)) {
-                lum16FSupported = true;
-            } else if (ctxInfo.hasExtension("GL_OES_texture_float_linear") &&
-                       ctxInfo.hasExtension("GL_OES_texture_float")) {
+            if (ctxInfo.hasExtension("GL_OES_texture_float_linear") &&
+                ctxInfo.hasExtension("GL_OES_texture_float")) {
                 lum16FSupported = true;
             } else if (ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
                        ctxInfo.hasExtension("GL_OES_texture_half_float")) {
@@ -2151,13 +2147,12 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
         if (lum16FSupported) {
             info.fFlags = FormatInfo::kTextureable_Flag;
-        }
-        if (texStorageSupported &&
-            !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2) {
-            info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
-        }
 
-        if (lum16FSupported) {
+            if (texStorageSupported &&
+                !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2) {
+                info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
+            }
+
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
@@ -3581,7 +3576,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // On the Intel Iris 6100, interacting with LUM16F seems to confuse the driver. After
     // writing to/reading from a LUM16F texture reads from/writes to other formats behave
     // erratically.
-    formatWorkarounds->fDisableLuminance16F = kIntelBroadwell_GrGLRenderer == ctxInfo.renderer();
+    // For the Nexus5x/Adreno418 LUM16F should be supported but doesn't appear to actually be.
+    formatWorkarounds->fDisableLuminance16F = kIntelBroadwell_GrGLRenderer == ctxInfo.renderer() ||
+                                              kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer();
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
@@ -3924,6 +3921,9 @@ static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGL
                 return kRGB_888_GrPixelConfig;
             } else if (GR_GL_RGBA8 == format) {
                 return kRGB_888X_GrPixelConfig;
+            } else if (GR_GL_COMPRESSED_RGB8_ETC2 == format ||
+                       GR_GL_COMPRESSED_ETC1_RGB8 == format) {
+                return kRGB_ETC1_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_88:
@@ -4188,3 +4188,73 @@ GrSwizzle GrGLCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType 
     return get_swizzle(format, colorType, true);
 }
 
+#if GR_TEST_UTILS
+std::vector<GrCaps::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinations() const {
+    std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
+        { GrColorType::kAlpha_8,
+          GrBackendFormat::MakeGL(GR_GL_ALPHA8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kAlpha_8,
+          GrBackendFormat::MakeGL(GR_GL_R8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kBGR_565,
+          GrBackendFormat::MakeGL(GR_GL_RGB565, GR_GL_TEXTURE_2D) },
+        { GrColorType::kABGR_4444,
+          GrBackendFormat::MakeGL(GR_GL_RGBA4, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGBA_8888,
+          GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGBA_8888_SRGB,
+          GrBackendFormat::MakeGL(GR_GL_SRGB8_ALPHA8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGB_888x,
+          GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGB_888x,
+          GrBackendFormat::MakeGL(GR_GL_RGB8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGB_888x,
+          GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGB8_ETC2, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGB_888x,
+          GrBackendFormat::MakeGL(GR_GL_COMPRESSED_ETC1_RGB8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRG_88,
+          GrBackendFormat::MakeGL(GR_GL_RG8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGBA_1010102,
+          GrBackendFormat::MakeGL(GR_GL_RGB10_A2, GR_GL_TEXTURE_2D) },
+        { GrColorType::kGray_8,
+          GrBackendFormat::MakeGL(GR_GL_LUMINANCE8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kGray_8,
+          GrBackendFormat::MakeGL(GR_GL_R8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kAlpha_F16,
+          GrBackendFormat::MakeGL(GR_GL_R16F, GR_GL_TEXTURE_2D) },
+        { GrColorType::kAlpha_F16,
+          GrBackendFormat::MakeGL(GR_GL_LUMINANCE16F, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGBA_F16,
+          GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGBA_F16_Clamped,
+          GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGBA_F32,
+          GrBackendFormat::MakeGL(GR_GL_RGBA32F, GR_GL_TEXTURE_2D) },
+        { GrColorType::kR_16,
+          GrBackendFormat::MakeGL(GR_GL_R16, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRG_1616,
+          GrBackendFormat::MakeGL(GR_GL_RG16, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGBA_16161616,
+          GrBackendFormat::MakeGL(GR_GL_RGBA16, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRG_F16,
+          GrBackendFormat::MakeGL(GR_GL_RG16F, GR_GL_TEXTURE_2D) },
+    };
+
+    if (GR_IS_GR_GL(fStandard)) {
+        combos.push_back({ GrColorType::kBGRA_8888,
+                           GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D) });
+    } else {
+        SkASSERT(GR_IS_GR_GL_ES(fStandard) || GR_IS_GR_WEBGL(fStandard));
+
+        combos.push_back({ GrColorType::kBGRA_8888,
+                           GrBackendFormat::MakeGL(GR_GL_BGRA8, GR_GL_TEXTURE_2D) });
+    }
+
+#ifdef SK_DEBUG
+    for (auto combo : combos) {
+        SkASSERT(this->onAreColorTypeAndFormatCompatible(combo.fColorType, combo.fFormat));
+    }
+#endif
+
+    return combos;
+}
+#endif

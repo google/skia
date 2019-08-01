@@ -453,6 +453,8 @@ public:
 
 #if GR_TEST_UTILS
     GrGLStandard standard() const { return fStandard; }
+
+    std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
 
 private:

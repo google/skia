@@ -445,6 +445,15 @@ public:
     static bool AreConfigsCompatible(GrPixelConfig genericConfig, GrPixelConfig specificConfig);
 #endif
 
+#if GR_TEST_UTILS
+    struct TestFormatColorTypeCombination {
+        GrColorType fColorType;
+        GrBackendFormat fFormat;
+    };
+
+    virtual std::vector<TestFormatColorTypeCombination> getTestingCombinations() const = 0;
+#endif
+
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
         overrides requested by the client. Note that overrides will only reduce the caps never
