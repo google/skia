@@ -265,9 +265,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                          kBlendEquationSupportNames[fBlendEquationSupport]);
     writer->appendString("Map Buffer Support", map_flags_to_string(fMapBufferFlags).c_str());
 
-    SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig));
-    SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
-
     writer->beginArray("configs");
 
     for (size_t i = 1; i < kGrPixelConfigCnt; ++i) {

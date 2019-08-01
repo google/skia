@@ -617,7 +617,7 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     id<MTLTexture> mtlTexture = grMtlTexture->mtlTexture();
 
     // Automatic mipmap generation is only supported by color-renderable formats
-    if (!fMtlCaps->isConfigRenderable(texture->config()) &&
+    if (!fMtlCaps->isFormatRenderable(mtlTexture.pixelFormat) &&
         // We have pixel configs marked as textureable-only that use RGBA8 as the internal format
         MTLPixelFormatRGBA8Unorm != mtlTexture.pixelFormat) {
         return false;

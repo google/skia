@@ -20,18 +20,20 @@ using PathInstance = GrCCPathProcessor::Instance;
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageType* coverageType) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
+    GrBackendFormat defaultA8Format = caps.getDefaultBackendFormat(GrColorType::kAlpha_8,
+                                                                   GrRenderable::kYes);
     if (caps.driverBlacklistCCPR() || !shaderCaps.integerSupport() ||
         !caps.instanceAttribSupport() || !shaderCaps.floatIs32Bits() ||
         GrCaps::kNone_MapFlags == caps.mapBufferFlags() ||
-        !caps.isConfigTexturable(kAlpha_8_GrPixelConfig) ||
-        !caps.isConfigRenderable(kAlpha_8_GrPixelConfig) ||
+        !defaultA8Format.isValid() || // This checks both texturable and renderable
         !caps.halfFloatVertexAttributeSupport()) {
         return false;
     }
 
+    GrBackendFormat defaultAHalfFormat = caps.getDefaultBackendFormat(GrColorType::kAlpha_F16,
+                                                                      GrRenderable::kYes);
     if (caps.allowCoverageCounting() &&
-        caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
-        caps.isConfigRenderable(kAlpha_half_GrPixelConfig)) {
+        defaultAHalfFormat.isValid()) { // This checks both texturable and renderable
         if (coverageType) {
             *coverageType = CoverageType::kFP16_CoverageCount;
         }

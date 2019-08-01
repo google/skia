@@ -114,13 +114,15 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     // getImageData in "legacy" mode are round-trippable we use the GPU to do the complementary
     // unpremul step to writeSurfacePixels's premul step (which is determined empirically in
     // fContext->vaildaPMUPMConversionExists()).
+    GrBackendFormat defaultRGBAFormat = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                      GrRenderable::kYes);
     bool canvas2DFastPath = unpremul && !needColorConversion &&
                             (GrColorType::kRGBA_8888 == dstInfo.colorType() ||
                              GrColorType::kBGRA_8888 == dstInfo.colorType()) &&
                             SkToBool(srcProxy->asTextureProxy()) &&
                             (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
                              srcProxy->config() == kBGRA_8888_GrPixelConfig) &&
-                            caps->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
+                            defaultRGBAFormat.isValid() &&
                             direct->priv().validPMUPMConversionExists();
 
     auto readFlag = caps->surfaceSupportsReadPixels(srcSurface);

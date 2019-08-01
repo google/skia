@@ -3054,10 +3054,11 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
            this->canCopyAsDraw(dstConfig, SkToBool(srcTex));
 }
 
-GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTargetProxy* src) const {
+GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTargetProxy* src,
+                                                             GrColorType colorType) const {
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
-    if (src->asTextureProxy() && !this->isConfigRenderable(src->config())) {
+    if (src->asTextureProxy() && !this->isFormatRenderable(colorType, src->backendFormat())) {
         return {};
     }
 

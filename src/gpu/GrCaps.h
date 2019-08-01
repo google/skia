@@ -175,10 +175,6 @@ public:
         return SkTMin(fInternalMultisampleCount, this->maxRenderTargetSampleCount(config));
     }
 
-    bool isConfigRenderable(GrPixelConfig config) const {
-        return this->maxRenderTargetSampleCount(config) > 0;
-    }
-
     bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format) const {
         return this->maxRenderTargetSampleCount(ct, format) > 0;
     }
@@ -358,7 +354,8 @@ public:
         GrSurfaceProxy::RectsMustMatch fRectsMustMatch = GrSurfaceProxy::RectsMustMatch::kNo;
         bool fMustCopyWholeSrc = false;
     };
-    virtual DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src) const {
+    virtual DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src,
+                                                       GrColorType ct) const {
         return {};
     }
 

@@ -455,7 +455,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                         // Ganesh can't perform the blends correctly when rendering this format
                         continue;
                     }
-                    if (!caps->isConfigRenderable(combo.fConfig)) {
+                    if (!caps->getDefaultBackendFormat(SkColorTypeToGrColorType(colorType),
+                                                       renderable).isValid()) {
                         continue;
                     }
                 }

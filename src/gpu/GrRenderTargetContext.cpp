@@ -2392,7 +2392,8 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
 
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
-    GrCaps::DstCopyRestrictions restrictions = this->caps()->getDstCopyRestrictions(rtProxy);
+    GrCaps::DstCopyRestrictions restrictions = this->caps()->getDstCopyRestrictions(
+            rtProxy, this->colorSpaceInfo().colorType());
 
     if (!restrictions.fMustCopyWholeSrc) {
         copyRect = clippedRect;
