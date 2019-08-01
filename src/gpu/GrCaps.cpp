@@ -361,11 +361,13 @@ GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrColorType srcColorT
     if (GrColorType::kRGB_888x == read.fColorType) {
         read.fOffsetAlignmentForTransferBuffer = 0;
     }
-    // It's very convenient to access 1 byte-per-channel 32 bitvRGB/RGBA color types as uint32_t.
+    // It's very convenient to access 1 byte-per-channel 32 bit color types as uint32_t on the CPU.
     // Make those aligned reads out of the buffer even if the underlying API doesn't require it.
     auto componentFlags = GrColorTypeComponentFlags(read.fColorType);
     if ((componentFlags == kRGBA_SkColorTypeComponentFlags ||
-         componentFlags == kRGB_SkColorTypeComponentFlags) &&
+         componentFlags == kRGB_SkColorTypeComponentFlags  ||
+         componentFlags == kAlpha_SkColorTypeComponentFlag ||
+         componentFlags == kGray_SkColorTypeComponentFlag) &&
         GrColorTypeBytesPerPixel(read.fColorType) == 4) {
         switch (read.fOffsetAlignmentForTransferBuffer & 0b11) {
             // offset alignment already a multiple of 4
