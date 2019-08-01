@@ -3576,9 +3576,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // On the Intel Iris 6100, interacting with LUM16F seems to confuse the driver. After
     // writing to/reading from a LUM16F texture reads from/writes to other formats behave
     // erratically.
-    // For the Nexus5x/Adreno418 LUM16F should be supported but doesn't appear to actually be.
+    // All Adrenos claim to support LUM16F but don't appear to actually do so.
     formatWorkarounds->fDisableLuminance16F = kIntelBroadwell_GrGLRenderer == ctxInfo.renderer() ||
-                                              kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer();
+                                              ctxInfo.vendor() == kQualcomm_GrGLVendor;
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
