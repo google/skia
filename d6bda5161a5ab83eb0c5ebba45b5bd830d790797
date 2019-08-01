@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "f004b71b_8a416e47",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-01T20:15:31Z",
+      "side": 1,
+      "message": "Looks like we need it here. GrRenderTask::addDependency calls makeClosed.",
+      "parentUuid": "02bd16ca_a1e41cd1",
+      "revId": "d6bda5161a5ab83eb0c5ebba45b5bd830d790797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e121ddf7_f872f4cb",
         "filename": "src/gpu/GrRenderTask.h",
         "patchSetId": 5
@@ -165,6 +183,30 @@
       "revId": "d6bda5161a5ab83eb0c5ebba45b5bd830d790797",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29744ea7_2c424664",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-01T20:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fa9ca3c_c6cf3ae9",
+      "range": {
+        "startLine": 57,
+        "startChar": 22,
+        "endLine": 57,
+        "endChar": 30
+      },
+      "revId": "d6bda5161a5ab83eb0c5ebba45b5bd830d790797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
