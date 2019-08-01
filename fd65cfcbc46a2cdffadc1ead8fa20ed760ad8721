@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "058b8f39_4701ca46",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-01T16:43:36Z",
+      "side": 1,
+      "message": "groovy",
+      "range": {
+        "startLine": 134,
+        "startChar": 18,
+        "endLine": 134,
+        "endChar": 23
+      },
+      "revId": "fd65cfcbc46a2cdffadc1ead8fa20ed760ad8721",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
