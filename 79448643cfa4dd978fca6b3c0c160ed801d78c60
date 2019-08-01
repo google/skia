@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc5ed414_79d10b27",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-01T19:46:43Z",
+      "side": 1,
+      "message": "This gets removed in a small follow up CL.",
+      "range": {
+        "startLine": 398,
+        "startChar": 23,
+        "endLine": 398,
+        "endChar": 50
+      },
+      "revId": "79448643cfa4dd978fca6b3c0c160ed801d78c60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
