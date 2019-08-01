@@ -17,6 +17,7 @@ public:
                                      sk_sp<SkImageFilter> input,
                                      const SkImageFilter::CropRect* cropRect = nullptr);
 
+    // Registers all morphology filter implementations
     static void RegisterFlattenables();
 
 private:
@@ -29,8 +30,6 @@ public:
     static sk_sp<SkImageFilter> Make(int radiusX, int radiusY,
                                      sk_sp<SkImageFilter> input,
                                      const SkImageFilter::CropRect* cropRect = nullptr);
-
-    static void RegisterFlattenables();
 
 private:
     SkErodeImageFilter() = delete;

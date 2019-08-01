@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/effects/SkXfermodeImageFilter.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkArithmeticImageFilter.h"
-#include "include/effects/SkXfermodeImageFilter.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -30,10 +31,14 @@
 #endif
 #include "src/core/SkClipOpPriv.h"
 
-class SkXfermodeImageFilter_Base : public SkImageFilter {
+namespace {
+
+class SkXfermodeImageFilterImpl : public SkImageFilter {
 public:
-    SkXfermodeImageFilter_Base(SkBlendMode mode, sk_sp<SkImageFilter> inputs[2],
-                               const CropRect* cropRect);
+    SkXfermodeImageFilterImpl(SkBlendMode mode, sk_sp<SkImageFilter> inputs[2],
+                              const CropRect* cropRect)
+          : INHERITED(inputs, 2, cropRect)
+          , fMode(mode) {}
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
@@ -61,31 +66,31 @@ protected:
 #endif
 
 private:
-    SK_FLATTENABLE_HOOKS(SkXfermodeImageFilter_Base)
+    friend void SkXfermodeImageFilter::RegisterFlattenables();
+    SK_FLATTENABLE_HOOKS(SkXfermodeImageFilterImpl)
 
     SkBlendMode fMode;
-
-    friend class SkXfermodeImageFilter;
 
     typedef SkImageFilter INHERITED;
 };
 
-///////////////////////////////////////////////////////////////////////////////
+} // end namespace
 
 sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(SkBlendMode mode,
                                                  sk_sp<SkImageFilter> background,
                                                  sk_sp<SkImageFilter> foreground,
                                                  const SkImageFilter::CropRect* cropRect) {
     sk_sp<SkImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
-    return sk_sp<SkImageFilter>(new SkXfermodeImageFilter_Base(mode, inputs, cropRect));
+    return sk_sp<SkImageFilter>(new SkXfermodeImageFilterImpl(mode, inputs, cropRect));
 }
 
-SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(SkBlendMode mode,
-                                                       sk_sp<SkImageFilter> inputs[2],
-                                                       const CropRect* cropRect)
-    : INHERITED(inputs, 2, cropRect)
-    , fMode(mode)
-{}
+void SkXfermodeImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkXfermodeImageFilterImpl);
+    // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
+    SkFlattenable::Register("SkXfermodeImageFilter_Base", SkXfermodeImageFilterImpl::CreateProc);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static unsigned unflatten_blendmode(SkReadBuffer& buffer) {
     unsigned mode = buffer.read32();
@@ -93,7 +98,7 @@ static unsigned unflatten_blendmode(SkReadBuffer& buffer) {
     return mode;
 }
 
-sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkXfermodeImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
     unsigned mode = unflatten_blendmode(buffer);
     if (!buffer.isValid()) {
@@ -103,14 +108,14 @@ sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer
                                        common.getInput(1), &common.cropRect());
 }
 
-void SkXfermodeImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
+void SkXfermodeImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.write32((unsigned)fMode);
 }
 
-sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* source,
-                                                                const Context& ctx,
-                                                                SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::onFilterImage(SkSpecialImage* source,
+                                                               const Context& ctx,
+                                                               SkIPoint* offset) const {
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> background(this->filterInput(0, source, ctx, &backgroundOffset));
 
@@ -175,10 +180,10 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
     return surf->makeImageSnapshot();
 }
 
-SkIRect SkXfermodeImageFilter_Base::onFilterBounds(const SkIRect& src,
-                                                   const SkMatrix& ctm,
-                                                   MapDirection dir,
-                                                   const SkIRect* inputRect) const {
+SkIRect SkXfermodeImageFilterImpl::onFilterBounds(const SkIRect& src,
+                                                  const SkMatrix& ctm,
+                                                  MapDirection dir,
+                                                  const SkIRect* inputRect) const {
     if (kReverse_MapDirection == dir) {
         return SkImageFilter::onFilterBounds(src, ctm, dir, inputRect);
     }
@@ -220,8 +225,8 @@ SkIRect SkXfermodeImageFilter_Base::onFilterBounds(const SkIRect& src,
     }
 }
 
-void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
-                                                const SkIRect& fgBounds) const {
+void SkXfermodeImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
+                                               const SkIRect& fgBounds) const {
     SkPaint paint;
     paint.setBlendMode(fMode);
     if (img) {
@@ -238,7 +243,7 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
 
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 
-sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
+sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
                                                    SkSpecialImage* source,
                                                    sk_sp<SkSpecialImage> background,
                                                    const SkIPoint& backgroundOffset,
@@ -330,14 +335,9 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
             renderTargetContext->colorSpaceInfo().refColorSpace());
 }
 
-std::unique_ptr<GrFragmentProcessor> SkXfermodeImageFilter_Base::makeFGFrag(
+std::unique_ptr<GrFragmentProcessor> SkXfermodeImageFilterImpl::makeFGFrag(
         std::unique_ptr<GrFragmentProcessor> bgFP) const {
     return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(bgFP), fMode);
 }
 
 #endif
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-void SkXfermodeImageFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkXfermodeImageFilter_Base);
-}
