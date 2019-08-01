@@ -18,6 +18,87 @@
 #include "src/gpu/GrStyle.h"
 #include "src/utils/SkDashPathPriv.h"
 
+#if GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
+
+const char* GrBackendApiToStr(GrBackendApi backend) {
+    static const char* kBackendStr[] = {
+        "Metal",
+        "Dawn",
+        "OpenGL",
+        "Vulkan",
+        "Mock",
+    };
+    GR_STATIC_ASSERT(0 == (unsigned)GrBackendApi::kMetal);
+    GR_STATIC_ASSERT(1 == (unsigned)GrBackendApi::kDawn);
+    GR_STATIC_ASSERT(2 == (unsigned)GrBackendApi::kOpenGL);
+    GR_STATIC_ASSERT(3 == (unsigned)GrBackendApi::kVulkan);
+    GR_STATIC_ASSERT(4 == (unsigned)GrBackendApi::kMock);
+    return kBackendStr[(unsigned) backend];
+}
+
+const char* GrPixelConfigToStr(GrPixelConfig config) {
+    switch (config) {
+        case kUnknown_GrPixelConfig:           return "Unknown";
+        case kAlpha_8_GrPixelConfig:           return "Alpha8";
+        case kAlpha_8_as_Alpha_GrPixelConfig:  return "Alpha8_asAlpha";
+        case kAlpha_8_as_Red_GrPixelConfig:    return "Alpha8_asRed";
+        case kGray_8_GrPixelConfig:            return "Gray8";
+        case kGray_8_as_Lum_GrPixelConfig:     return "Gray8_asLum";
+        case kGray_8_as_Red_GrPixelConfig:     return "Gray8_asRed";
+        case kRGB_565_GrPixelConfig:           return "RGB565";
+        case kRGBA_4444_GrPixelConfig:         return "RGBA444";
+        case kRGBA_8888_GrPixelConfig:         return "RGBA8888";
+        case kRGB_888_GrPixelConfig:           return "RGB888";
+        case kRGB_888X_GrPixelConfig:          return "RGB888X";
+        case kRG_88_GrPixelConfig:             return "RG88";
+        case kBGRA_8888_GrPixelConfig:         return "BGRA8888";
+        case kSRGBA_8888_GrPixelConfig:        return "SRGBA8888";
+        case kRGBA_1010102_GrPixelConfig:      return "RGBA1010102";
+        case kRGBA_float_GrPixelConfig:        return "RGBAFloat";
+        case kAlpha_half_GrPixelConfig:        return "AlphaHalf";
+        case kAlpha_half_as_Lum_GrPixelConfig: return "AlphaHalf_asLum";
+        case kAlpha_half_as_Red_GrPixelConfig: return "AlphaHalf_asRed";
+        case kRGBA_half_GrPixelConfig:         return "RGBAHalf";
+        case kRGBA_half_Clamped_GrPixelConfig: return "RGBAHalfClamped";
+        case kRGB_ETC1_GrPixelConfig:          return "RGBETC1";
+        case kR_16_GrPixelConfig:              return "R16";
+        case kRG_1616_GrPixelConfig:           return "RG1616";
+        case kRGBA_16161616_GrPixelConfig:     return "RGBA16161616";
+        case kRG_half_GrPixelConfig:           return "RGHalf";
+    }
+    SkUNREACHABLE;
+}
+
+const char* GrColorTypeToStr(GrColorType ct) {
+    switch (ct) {
+        case GrColorType::kUnknown:          return "kUnknown";
+        case GrColorType::kAlpha_8:          return "kAlpha_8";
+        case GrColorType::kBGR_565:          return "kRGB_565";
+        case GrColorType::kABGR_4444:        return "kARGB_4444";
+        case GrColorType::kRGBA_8888:        return "kRGBA_8888";
+        case GrColorType::kRGBA_8888_SRGB:   return "kRGBA_8888_SRGB";
+        case GrColorType::kRGB_888x:         return "kRGB_888x";
+        case GrColorType::kRG_88:            return "kRG_88";
+        case GrColorType::kBGRA_8888:        return "kBGRA_8888";
+        case GrColorType::kRGBA_1010102:     return "kRGBA_1010102";
+        case GrColorType::kGray_8:           return "kGray_8";
+        case GrColorType::kAlpha_F16:        return "kAlpha_F16";
+        case GrColorType::kRGBA_F16:         return "kRGBA_F16";
+        case GrColorType::kRGBA_F16_Clamped: return "kRGBA_F16_Clamped";
+        case GrColorType::kRGBA_F32:         return "kRGBA_F32";
+        case GrColorType::kAlpha_8xxx:       return "kAlpha_8xxx";
+        case GrColorType::kAlpha_F32xxx:     return "kAlpha_F32xxx";
+        case GrColorType::kGray_8xxx:        return "kGray_8xxx";
+        case GrColorType::kR_16:             return "kR_16";
+        case GrColorType::kRG_1616:          return "kRG_1616";
+        case GrColorType::kRGBA_16161616:    return "kRGBA_16161616";
+        case GrColorType::kRG_F16:           return "kRG_F16";
+    }
+    SkUNREACHABLE;
+}
+
+#endif
+
 #if GR_TEST_UTILS
 
 static const SkMatrix& test_matrix(SkRandom* random,

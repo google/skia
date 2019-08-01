@@ -10,6 +10,14 @@
 
 #include "include/core/SkTypes.h"
 
+
+#if GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
+#include "include/private/GrTypesPriv.h"
+const char* GrBackendApiToStr(GrBackendApi);
+const char* GrPixelConfigToStr(GrPixelConfig);
+const char* GrColorTypeToStr(GrColorType);
+#endif
+
 #if GR_TEST_UTILS
 
 #include "include/core/SkPathEffect.h"
