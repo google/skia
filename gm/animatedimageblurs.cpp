@@ -16,7 +16,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/utils/SkRandom.h"
 #include "tools/timer/TimeUtils.h"
 
@@ -52,9 +52,8 @@ protected:
 
         for (int i = 0; i < kNumNodes; ++i) {
             SkPaint layerPaint;
-            layerPaint.setImageFilter(SkBlurImageFilter::Make(fNodes[i].sigma(),
-                                                              fNodes[i].sigma(),
-                                                              nullptr));
+            layerPaint.setImageFilter(SkImageFilters::Blur(fNodes[i].sigma(), fNodes[i].sigma(),
+                                                           nullptr));
 
             canvas->saveLayer(nullptr, &layerPaint);
                 // The rect is outset to block the circle case

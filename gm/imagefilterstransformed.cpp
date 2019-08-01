@@ -23,13 +23,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkDisplacementMapEffect.h"
-#include "include/effects/SkDropShadowImageFilter.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkImageSource.h"
-#include "include/effects/SkMorphologyImageFilter.h"
-#include "include/effects/SkXfermodeImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -79,19 +74,15 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkImageFilter> gradient(SkImageSource::Make(fGradientCircle));
-        sk_sp<SkImageFilter> checkerboard(SkImageSource::Make(fCheckerboard));
+        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle));
+        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard));
         sk_sp<SkImageFilter> filters[] = {
-            SkBlurImageFilter::Make(12, 0, nullptr),
-            SkDropShadowImageFilter::Make(0, 15, 8, 0, SK_ColorGREEN,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
-            SkDisplacementMapEffect::Make(SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                          SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                          12,
-                                          std::move(gradient),
-                                          checkerboard),
-            SkDilateImageFilter::Make(2, 2, checkerboard),
-            SkErodeImageFilter::Make(2, 2, checkerboard),
+            SkImageFilters::Blur(12, 0, nullptr),
+            SkImageFilters::DropShadow(0, 15, 8, 0, SK_ColorGREEN, nullptr),
+            SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kR, 12,
+                                            std::move(gradient), checkerboard),
+            SkImageFilters::Dilate(2, 2, checkerboard),
+            SkImageFilters::Erode(2, 2, checkerboard),
         };
 
         const SkScalar margin = SkIntToScalar(20);
@@ -141,8 +132,8 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
 
     sk_sp<SkImageFilter> filters[] = {
         nullptr,
-        SkBlurImageFilter::Make(6, 0, nullptr),
-        SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver, nullptr),
+        SkImageFilters::Blur(6, 0, nullptr),
+        SkImageFilters::Xfermode(SkBlendMode::kSrcOver, nullptr),
     };
 
     for (auto& filter : filters) {
