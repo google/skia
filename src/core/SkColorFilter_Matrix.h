@@ -13,8 +13,9 @@
 
 class SkColorFilter_Matrix : public SkColorFilter {
 public:
-    SkColorFilter_Matrix() {}
-    explicit SkColorFilter_Matrix(const float array[20]);
+    enum class Domain : uint8_t { kRGBA, kHSLA };
+
+    explicit SkColorFilter_Matrix(const float array[20], Domain);
 
     uint32_t getFlags() const override;
 
@@ -35,9 +36,8 @@ private:
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
     float       fMatrix[20];
-    uint32_t    fFlags;
-
-    void initState();
+    uint16_t    fFlags;
+    Domain      fDomain;
 
     typedef SkColorFilter INHERITED;
 };
