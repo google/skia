@@ -32,24 +32,6 @@ namespace {
 
 class SkMagnifierImageFilterImpl final : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(const SkRect& srcRect, SkScalar inset,
-                                     sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr) {
-        if (!SkScalarIsFinite(inset) || !SkIsValidRect(srcRect)) {
-            return nullptr;
-        }
-        if (inset < 0) {
-            return nullptr;
-        }
-        // Negative numbers in src rect are not supported
-        if (srcRect.fLeft < 0 || srcRect.fTop < 0) {
-            return nullptr;
-        }
-        return sk_sp<SkImageFilter>(new SkMagnifierImageFilterImpl(
-                srcRect, inset, std::move(input), cropRect));
-    }
-
-protected:
     SkMagnifierImageFilterImpl(const SkRect& srcRect, SkScalar inset, sk_sp<SkImageFilter> input,
                                const CropRect* cropRect)
             : INHERITED(&input, 1, cropRect)
@@ -58,6 +40,7 @@ protected:
         SkASSERT(srcRect.left() >= 0 && srcRect.top() >= 0 && inset >= 0);
     }
 
+protected:
     void flatten(SkWriteBuffer&) const override;
 
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
@@ -78,7 +61,18 @@ private:
 sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScalar inset,
                                                   sk_sp<SkImageFilter> input,
                                                   const SkImageFilter::CropRect* cropRect) {
-    return SkMagnifierImageFilterImpl::Make(srcRect, inset, std::move(input), cropRect);
+    if (!SkScalarIsFinite(inset) || !SkIsValidRect(srcRect)) {
+        return nullptr;
+    }
+    if (inset < 0) {
+        return nullptr;
+    }
+    // Negative numbers in src rect are not supported
+    if (srcRect.fLeft < 0 || srcRect.fTop < 0) {
+        return nullptr;
+    }
+    return sk_sp<SkImageFilter>(new SkMagnifierImageFilterImpl(srcRect, inset, std::move(input),
+                                                               cropRect));
 }
 
 void SkMagnifierImageFilter::RegisterFlattenables() {
@@ -93,7 +87,8 @@ sk_sp<SkFlattenable> SkMagnifierImageFilterImpl::CreateProc(SkReadBuffer& buffer
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkRect src;
     buffer.readRect(&src);
-    return Make(src, buffer.readScalar(), common.getInput(0), &common.cropRect());
+    return SkMagnifierImageFilter::Make(src, buffer.readScalar(), common.getInput(0),
+                                        &common.cropRect());
 }
 
 void SkMagnifierImageFilterImpl::flatten(SkWriteBuffer& buffer) const {

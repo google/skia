@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/effects/SkTileImageFilter.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
@@ -12,7 +14,6 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkOffsetImageFilter.h"
-#include "include/effects/SkTileImageFilter.h"
 #include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -24,24 +25,10 @@ namespace {
 
 class SkTileImageFilterImpl final : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(const SkRect& srcRect, const SkRect& dstRect,
-                                     sk_sp<SkImageFilter> input) {
-        if (!SkIsValidRect(srcRect) || !SkIsValidRect(dstRect)) {
-            return nullptr;
-        }
-        if (srcRect.width() == dstRect.width() && srcRect.height() == dstRect.height()) {
-            SkRect ir = dstRect;
-            if (!ir.intersect(srcRect)) {
-                return input;
-            }
-            CropRect cropRect(ir);
-            return SkOffsetImageFilter::Make(dstRect.x() - srcRect.x(),
-                                             dstRect.y() - srcRect.y(),
-                                             std::move(input),
-                                             &cropRect);
-        }
-        return sk_sp<SkImageFilter>(new SkTileImageFilterImpl(srcRect, dstRect, std::move(input)));
-    }
+    SkTileImageFilterImpl(const SkRect& srcRect, const SkRect& dstRect, sk_sp<SkImageFilter> input)
+            : INHERITED(&input, 1, nullptr)
+            , fSrcRect(srcRect)
+            , fDstRect(dstRect) {}
 
     SkIRect onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                            MapDirection, const SkIRect* inputRect) const override;
@@ -59,9 +46,6 @@ private:
     friend void SkTileImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkTileImageFilterImpl)
 
-    SkTileImageFilterImpl(const SkRect& srcRect, const SkRect& dstRect, sk_sp<SkImageFilter> input)
-        : INHERITED(&input, 1, nullptr), fSrcRect(srcRect), fDstRect(dstRect) {}
-
     SkRect fSrcRect;
     SkRect fDstRect;
 
@@ -72,7 +56,21 @@ private:
 
 sk_sp<SkImageFilter> SkTileImageFilter::Make(const SkRect& srcRect, const SkRect& dstRect,
                                              sk_sp<SkImageFilter> input) {
-    return SkTileImageFilterImpl::Make(srcRect, dstRect, std::move(input));
+    if (!SkIsValidRect(srcRect) || !SkIsValidRect(dstRect)) {
+        return nullptr;
+    }
+    if (srcRect.width() == dstRect.width() && srcRect.height() == dstRect.height()) {
+        SkRect ir = dstRect;
+        if (!ir.intersect(srcRect)) {
+            return input;
+        }
+        SkImageFilter::CropRect cropRect(ir);
+        return SkOffsetImageFilter::Make(dstRect.x() - srcRect.x(),
+                                         dstRect.y() - srcRect.y(),
+                                         std::move(input),
+                                         &cropRect);
+    }
+    return sk_sp<SkImageFilter>(new SkTileImageFilterImpl(srcRect, dstRect, std::move(input)));
 }
 
 void SkTileImageFilter::RegisterFlattenables() {
@@ -88,7 +86,7 @@ sk_sp<SkFlattenable> SkTileImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);
-    return Make(src, dst, common.getInput(0));
+    return SkTileImageFilter::Make(src, dst, common.getInput(0));
 }
 
 void SkTileImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
