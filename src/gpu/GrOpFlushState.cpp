@@ -97,16 +97,23 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
         }
         GrCaps::SupportedWrite supportedWrite =
                 fGpu->caps()->supportedWritePixelsColorType(dstSurface->config(), srcColorType);
-        if (supportedWrite.fColorType != srcColorType) {
-            return false;
-        }
-        size_t tightRB = width * GrColorTypeToSkColorType(srcColorType);
+        size_t tightRB = width * GrColorTypeBytesPerPixel(supportedWrite.fColorType);
+        SkASSERT(rowBytes >= tightRB);
         std::unique_ptr<char[]> tmpPixels;
-        if (!fGpu->caps()->writePixelsRowBytesSupport() && rowBytes > tightRB) {
-            tmpPixels.reset(new char[tightRB * height]);
-            SkRectMemcpy(tmpPixels.get(), tightRB, buffer, rowBytes, tightRB, height);
-            buffer = tmpPixels.get();
+        if (supportedWrite.fColorType != srcColorType ||
+            (!fGpu->caps()->writePixelsRowBytesSupport() && rowBytes != tightRB)) {
+            tmpPixels.reset(new char[height * tightRB]);
+            // Use kUnpremul to ensure no alpha type conversions or clamping occur.
+            static constexpr auto kAT = kUnpremul_SkAlphaType;
+            GrPixelInfo srcInfo(srcColorType, kAT, nullptr, width, height);
+            GrPixelInfo tmpInfo(supportedWrite.fColorType, kAT, nullptr, width,
+                                height);
+            if (!GrConvertPixels(tmpInfo, tmpPixels.get(), tightRB, srcInfo, buffer, rowBytes)) {
+                return false;
+            }
+            srcColorType = supportedWrite.fColorType;
             rowBytes = tightRB;
+            buffer = tmpPixels.get();
         }
         return this->fGpu->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,
                                        rowBytes);
