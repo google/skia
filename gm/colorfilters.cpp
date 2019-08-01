@@ -20,6 +20,10 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/Resources.h"
+
+#include <vector>
+#include <tuple>
 
 static sk_sp<SkShader> make_shader(const SkRect& bounds) {
     const SkPoint pts[] = {
@@ -78,3 +82,104 @@ class ColorFiltersGM : public skiagm::GM {
 };
 
 DEF_GM(return new ColorFiltersGM;)
+
+class HSLColorFilterGM : public skiagm::GM {
+protected:
+    SkString onShortName() override { return SkString("hslcolorfilter"); }
+
+    SkISize onISize() override { return { 840, 1100 }; }
+
+    void onOnceBeforeDraw() override {
+        sk_sp<SkImage> mandrill = GetResourceAsImage("images/mandrill_256.png");
+        const auto lm = SkMatrix::MakeRectToRect(SkRect::MakeWH(mandrill->width(),
+                                                                mandrill->height()),
+                                                 SkRect::MakeWH(kWheelSize, kWheelSize),
+                                                 SkMatrix::kFill_ScaleToFit);
+        fShaders.push_back(mandrill->makeShader(&lm));
+
+        static constexpr SkColor gGrads[][4] = {
+            { 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffff0000 },
+            { 0xdfc08040, 0xdf8040c0, 0xdf40c080, 0xdfc08040 },
+        };
+
+        for (const auto& cols : gGrads) {
+            fShaders.push_back(SkGradientShader::MakeSweep(kWheelSize / 2, kWheelSize / 2,
+                                                           cols, nullptr, SK_ARRAY_COUNT(cols),
+                                                           SkTileMode::kRepeat, -90, 270, 0,
+                                                           nullptr));
+        }
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        using std::make_tuple;
+
+        static constexpr struct {
+            std::tuple<float, float> h, s, l;
+        } gTests[] = {
+            { make_tuple(-0.5f, 0.5f), make_tuple( 0.0f, 0.0f), make_tuple( 0.0f, 0.0f) },
+            { make_tuple( 0.0f, 0.0f), make_tuple(-1.0f, 1.0f), make_tuple( 0.0f, 0.0f) },
+            { make_tuple( 0.0f, 0.0f), make_tuple( 0.0f, 0.0f), make_tuple(-1.0f, 1.0f) },
+        };
+
+        const auto rect = SkRect::MakeWH(kWheelSize, kWheelSize);
+
+        canvas->drawColor(0xffcccccc);
+        SkPaint paint;
+
+        for (const auto& shader : fShaders) {
+            paint.setShader(shader);
+
+            for (const auto& tst: gTests) {
+                canvas->translate(0, kWheelSize * 0.1f);
+
+                const auto dh = (std::get<1>(tst.h) - std::get<0>(tst.h)) / (kSteps - 1),
+                           ds = (std::get<1>(tst.s) - std::get<0>(tst.s)) / (kSteps - 1),
+                           dl = (std::get<1>(tst.l) - std::get<0>(tst.l)) / (kSteps - 1);
+                auto h = std::get<0>(tst.h),
+                     s = std::get<0>(tst.s),
+                     l = std::get<0>(tst.l);
+                {
+                    SkAutoCanvasRestore acr(canvas, true);
+                    for (size_t i = 0; i < kSteps; ++i) {
+                        paint.setColorFilter(make_filter(h, s, l));
+                        canvas->translate(kWheelSize * 0.1f, 0);
+                        canvas->drawRect(rect, paint);
+                        canvas->translate(kWheelSize * 1.1f, 0);
+                        h += dh;
+                        s += ds;
+                        l += dl;
+                    }
+                }
+                canvas->translate(0, kWheelSize * 1.1f);
+            }
+            canvas->translate(0, kWheelSize * 0.1f);
+        }
+    }
+
+private:
+    static constexpr SkScalar kWheelSize  = 100;
+    static constexpr size_t   kSteps = 7;
+
+    static sk_sp<SkColorFilter> make_filter(float h, float s, float l) {
+        // These are roughly AE semantics.
+        const auto h_bias  = h,
+                   h_scale = 1.0f,
+                   s_bias  = std::max(s, 0.0f),
+                   s_scale = 1 - std::abs(s),
+                   l_bias  = std::max(l, 0.0f),
+                   l_scale = 1 - std::abs(l);
+
+        const float cm[20] = {
+            h_scale,       0,       0, 0, h_bias,
+                  0, s_scale,       0, 0, s_bias,
+                  0,       0, l_scale, 0, l_bias,
+                  0,       0,       0, 1,      0,
+        };
+
+        return SkColorFilters::HSLAMatrix(cm);
+    }
+
+    std::vector<sk_sp<SkShader>> fShaders;
+};
+
+DEF_GM(return new HSLColorFilterGM;)
