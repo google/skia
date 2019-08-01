@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c708b42_073c3f4d",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-01T18:21:22Z",
+      "side": 1,
+      "message": "we can\u0027t be flipping y here, or remove it from the if check above",
+      "range": {
+        "startLine": 522,
+        "startChar": 8,
+        "endLine": 522,
+        "endChar": 20
+      },
+      "revId": "34dfcaecf62501c1f7cc216acbe89f17167a21e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7b8e347_45d800a1",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-01T18:21:22Z",
+      "side": 1,
+      "message": "I assume picking both unpremul here vs both premul doesn\u0027t matter, we just don\u0027t want a conversion to happen? Maybe put a comment here that we aren\u0027t actually expecting unpremul data.",
+      "range": {
+        "startLine": 106,
+        "startChar": 46,
+        "endLine": 106,
+        "endChar": 66
+      },
+      "revId": "34dfcaecf62501c1f7cc216acbe89f17167a21e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
