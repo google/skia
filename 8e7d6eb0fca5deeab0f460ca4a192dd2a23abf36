@@ -46,6 +46,30 @@
       "revId": "8e7d6eb0fca5deeab0f460ca4a192dd2a23abf36",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72417b0f_cd527de2",
+        "filename": "experimental/editor/editor_application.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-01T20:27:10Z",
+      "side": 1,
+      "message": "The idea is to demonstrate the simplest bit of code that implements the editor functionality.  The simpler our app code is, the easier it is to duplicate it.",
+      "parentUuid": "30517a54_a170c9de",
+      "range": {
+        "startLine": 319,
+        "startChar": 11,
+        "endLine": 319,
+        "endChar": 20
+      },
+      "revId": "8e7d6eb0fca5deeab0f460ca4a192dd2a23abf36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
