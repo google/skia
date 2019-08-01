@@ -4,6 +4,16 @@
 #include "include/core/SkFontMetrics.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include <algorithm>
+#include "src/utils/SkUTF.h"
+#include <uchar.h>
+
+namespace {
+
+SkUnichar utf8_next(const char** ptr, const char* end) {
+    SkUnichar val = SkUTF::NextUTF8(ptr, end);
+    return val < 0 ? 0xFFFD : val;
+}
+}
 
 namespace skia {
 namespace textlayout {
@@ -198,14 +208,21 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
 }
 
 void Cluster::setIsWhiteSpaces() {
-    auto text = fMaster->text();
-    auto pos = fTextRange.end;
-    while (--pos >= fTextRange.start) {
-        auto ch = text[pos];
-        if (!u_isspace(ch) && u_charType(ch) != U_CONTROL_CHAR &&
-            u_charType(ch) != U_NON_SPACING_MARK) {
+
+    fWhiteSpaces = false;
+
+    auto span = fMaster->text(fTextRange);
+    const char* ch = span.begin();
+    while (ch < span.end()) {
+        auto unichar = utf8_next(&ch, span.end());
+        if (!u_isWhitespace(unichar)) {
             return;
         }
+        //if (!u_isspace(*ch) && u_charType(*ch) != U_CONTROL_CHAR &&
+        //    u_charType(*ch) != U_NON_SPACING_MARK) {
+        //    return;
+        //}
+
     }
     fWhiteSpaces = true;
 }
