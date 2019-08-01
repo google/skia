@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c49d8746_52c631ae",
+        "filename": "modules/sksg/include/SkSGRenderEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-01T19:48:56Z",
+      "side": 1,
+      "message": "nit: maybe tab-align this back to match",
+      "range": {
+        "startLine": 225,
+        "startChar": 37,
+        "endLine": 225,
+        "endChar": 63
+      },
+      "revId": "5d7b1927cfc1b955c34604e5b490f33dd9ff7c0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
