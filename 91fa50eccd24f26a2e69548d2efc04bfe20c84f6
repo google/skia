@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cb01e51_8d436990",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-01T16:29:51Z",
+      "side": 1,
+      "message": "We could avoid the virtual if we make alphatype an SkColorFilter field, initialized in the ctor.  Not sure it matters much.",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 44
+      },
+      "revId": "91fa50eccd24f26a2e69548d2efc04bfe20c84f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
