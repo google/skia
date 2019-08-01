@@ -12,6 +12,7 @@
 
 #include <climits>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 class SkCanvas;
@@ -20,6 +21,8 @@ class SkShaper;
 // TODO: modulize this; editor::Editor becomes SkEditor ?
 
 namespace editor {
+
+using StringView = std::pair<const char*, size_t>;
 
 class Editor {
     struct TextLine;
@@ -36,20 +39,22 @@ public:
     const SkFont& font() const { return fFont; }
     void setFont(SkFont font);
 
-    size_t lineCount() const { return fLines.size(); }
-    const StringSlice& line(size_t i) const { return SkASSERT(i < fLines.size()), fLines[i].fText; }
-
     struct Text {
         const std::vector<TextLine>& fLines;
         struct Iterator {
             std::vector<TextLine>::const_iterator fPtr;
-            const StringSlice& operator*() { return fPtr->fText; }
+            StringView operator*() { return MakeView(fPtr->fText); }
             void operator++() { ++fPtr; }
             bool operator!=(const Iterator& other) const { return fPtr != other.fPtr; }
         };
         Iterator begin() const { return Iterator{fLines.begin()}; }
         Iterator end() const { return Iterator{fLines.end()}; }
     };
+    // Loop over all the lines of text.  The lines are not '\0'- or '\n'-terminated.
+    // For example, to dump the entire file to standard output:
+    //     for (editor::StringView str : editor.text()) {
+    //         std::cout.write(str.first, str.second) << '\n';
+    //     }
     Text text() const { return Text{fLines}; }
 
     // get size of line in canvas display units.
@@ -78,7 +83,13 @@ public:
     // remove text between two positions
     TextPosition remove(TextPosition, TextPosition);
 
-    StringSlice copy(TextPosition, TextPosition) const;
+    // If dst is nullptr, returns size of given selection.
+    // Otherwise, fill dst with a copy of the selection, and return the amount copied.
+    size_t copy(TextPosition pos1, TextPosition pos2, char* dst = nullptr) const;
+    size_t lineCount() const { return fLines.size(); }
+    StringView line(size_t i) const {
+        return i < fLines.size() ? MakeView(fLines[i].fText) : StringView{nullptr, 0};
+    }
 
     struct PaintOpts {
         SkColor4f fBackgroundColor = {1, 1, 1, 1};
@@ -120,6 +131,7 @@ private:
     void markDirty(TextLine*);
     void markAllDirty() { for (auto& l : fLines) { this->markDirty(&l); } }
     void reshapeAll();
+    static StringView MakeView(const StringSlice& s) { return {s.begin(), s.size()}; }
 };
 }  // namespace editor
 
