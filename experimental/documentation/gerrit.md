@@ -90,9 +90,17 @@ Updating a Change
 
     If you want to set a comment message for this patch set, do this instead:
 
-        git push origin @:refs/for/master%m=this_is_the_patch_set_comment_message
+        M=$(experimental/tools/gerrit_percent_encode 'This is the patch set comment message!')
+        git push origin @:refs/for/master%m=$M
 
-    The title of this patch set will be "this is the patch set comment message".
+    The title of this patch set will be "This is the patch set comment message!".
+
+
+Triggering Commit-Queue Dry Run when you upload a patch
+-------------------------------------------------------
+
+    M=$(experimental/tools/gerrit_percent_encode 'This is the patch set comment message!')
+    git push origin @:refs/for/master%l=Commit-Queue+1,m=$M
 
 
 Using `git cl try`
