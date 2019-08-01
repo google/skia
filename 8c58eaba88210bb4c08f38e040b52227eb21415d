@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "79f03fbe_624f0d1b",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2019-08-01T18:22:56Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "c26fa271_b53de20d",
+      "range": {
+        "startLine": 158,
+        "startChar": 52,
+        "endLine": 158,
+        "endChar": 58
+      },
+      "revId": "8c58eaba88210bb4c08f38e040b52227eb21415d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72d573a4_acd0432c",
         "filename": "src/gpu/GrAHardwareBufferUtils.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7d3278a2_ce1ebd74",
+        "filename": "src/gpu/GrAHardwareBufferUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2019-08-01T18:22:56Z",
+      "side": 1,
+      "message": "renamed to GLTextureHelper",
+      "parentUuid": "72d573a4_acd0432c",
+      "range": {
+        "startLine": 160,
+        "startChar": 6,
+        "endLine": 160,
+        "endChar": 21
+      },
+      "revId": "8c58eaba88210bb4c08f38e040b52227eb21415d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4eff7aa1_759e9ed6",
         "filename": "src/gpu/GrAHardwareBufferUtils.h",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "8c58eaba88210bb4c08f38e040b52227eb21415d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1b2b251_56c650df",
+        "filename": "src/gpu/GrAHardwareBufferUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2019-08-01T18:22:56Z",
+      "side": 1,
+      "message": "added function comments for all arguments.",
+      "parentUuid": "4eff7aa1_759e9ed6",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 21
+      },
+      "revId": "8c58eaba88210bb4c08f38e040b52227eb21415d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
