@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 
 #include "include/gpu/GrTexture.h"
@@ -233,31 +234,21 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
 //////////////////////////////////////////////////////////////////////////////
 
 bool GrBicubicEffect::ShouldUseBicubic(const SkMatrix& matrix, GrSamplerState::Filter* filterMode) {
-    if (matrix.isIdentity()) {
-        *filterMode = GrSamplerState::Filter::kNearest;
-        return false;
-    }
-
-    SkScalar scales[2];
-    if (!matrix.getMinMaxScales(scales) || scales[0] < SK_Scalar1) {
-        // Bicubic doesn't handle arbitrary minimization well, as src texels can be skipped
-        // entirely,
-        *filterMode = GrSamplerState::Filter::kMipMap;
-        return false;
-    }
-    // At this point if scales[1] == SK_Scalar1 then the matrix doesn't do any scaling.
-    if (scales[1] == SK_Scalar1) {
-        if (matrix.rectStaysRect() && SkScalarIsInt(matrix.getTranslateX()) &&
-            SkScalarIsInt(matrix.getTranslateY())) {
+    switch (SkMatrixPriv::ShouldUseBicubic(matrix)) {
+        case kNone_SkFilterQuality:
             *filterMode = GrSamplerState::Filter::kNearest;
-        } else {
-            // Use bilerp to handle rotation or fractional translation.
+            break;
+        case kLow_SkFilterQuality:
             *filterMode = GrSamplerState::Filter::kBilerp;
-        }
-        return false;
+            break;
+        case kMedium_SkFilterQuality:
+            *filterMode = GrSamplerState::Filter::kMipMap;
+            break;
+        case kHigh_SkFilterQuality:
+            // When we use the bicubic filtering effect each sample is read from the texture using
+            // nearest neighbor sampling.
+            *filterMode = GrSamplerState::Filter::kNearest;
+            return true;
     }
-    // When we use the bicubic filtering effect each sample is read from the texture using
-    // nearest neighbor sampling.
-    *filterMode = GrSamplerState::Filter::kNearest;
-    return true;
+    return false;
 }
