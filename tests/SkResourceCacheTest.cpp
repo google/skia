@@ -11,10 +11,10 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkBitmapProvider.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkResourceCache.h"
+#include "src/image/SkImage_Base.h"
 #include "src/lazy/SkDiscardableMemoryPool.h"
 #include "tests/Test.h"
 
@@ -45,13 +45,12 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
     src.allocN32Pixels(5, 5);
     src.setImmutable();
     sk_sp<SkImage> img = SkImage::MakeFromBitmap(src);
-    SkBitmapProvider provider(img.get());
-    const auto desc = provider.makeCacheDesc();
+    const auto desc = SkBitmapCacheDesc::Make(img.get());
 
     const SkMipMap* mipmap = SkMipMapCache::FindAndRef(desc, cache);
     REPORTER_ASSERT(reporter, nullptr == mipmap);
 
-    mipmap = SkMipMapCache::AddAndRef(provider, cache);
+    mipmap = SkMipMapCache::AddAndRef(as_IB(img.get()), cache);
     REPORTER_ASSERT(reporter, mipmap);
 
     {
@@ -88,9 +87,8 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
         src[i].allocN32Pixels(5, 5);
         src[i].setImmutable();
         img[i] = SkImage::MakeFromBitmap(src[i]);
-        SkBitmapProvider provider(img[i].get());
-        SkMipMapCache::AddAndRef(provider, cache)->unref();
-        desc[i] = provider.makeCacheDesc();
+        SkMipMapCache::AddAndRef(as_IB(img[i].get()), cache)->unref();
+        desc[i] = SkBitmapCacheDesc::Make(img[i].get());
     }
 
     for (int i = 0; i < N; ++i) {

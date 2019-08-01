@@ -14,7 +14,7 @@
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkMipMap.h"
 
-class SkBitmapProvider;
+class SkImage_Base;
 
 /**
  *  Handles request to scale, filter, and lock a bitmap to be rasterized.
@@ -23,15 +23,15 @@ class SkBitmapController : ::SkNoncopyable {
 public:
     class State : ::SkNoncopyable {
     public:
-        State(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality);
+        State(const SkImage_Base*, const SkMatrix& inv, SkFilterQuality);
 
         const SkPixmap& pixmap() const { return fPixmap; }
         const SkMatrix& invMatrix() const { return fInvMatrix; }
         SkFilterQuality quality() const { return fQuality; }
 
     private:
-        bool processHighRequest(const SkBitmapProvider&);
-        bool processMediumRequest(const SkBitmapProvider&);
+        bool processHighRequest(const SkImage_Base*);
+        bool processMediumRequest(const SkImage_Base*);
 
         SkPixmap              fPixmap;
         SkMatrix              fInvMatrix;
@@ -43,7 +43,7 @@ public:
 
     };
 
-    static State* RequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
+    static State* RequestBitmap(const SkImage_Base*, const SkMatrix& inverse, SkFilterQuality,
                                 SkArenaAlloc*);
 
 private:
