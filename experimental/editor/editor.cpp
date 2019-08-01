@@ -167,20 +167,9 @@ static const StringSlice remove_newline(const char* str, size_t len) {
            StringSlice(str, (len > 0 && str[len - 1] == '\n') ? len - 1 : len);
 }
 
-void Editor::setText(const char* data, size_t length) {
-    std::vector<Editor::TextLine> lines;
-    if (data && length && valid_utf8(data, length)) {
-        readlines(data, length, [&lines](const char* p, size_t s) {
-            lines.push_back(remove_newline(p, s));
-        });
-    }
-    fLines = std::move(lines);
-    this->markAllDirty();
-}
-
 void Editor::setFont(SkFont font) {
     if (font != fFont) {
-        fFont = font;
+        fFont = std::move(font);
         auto shaper = SkShaper::Make();
         const char kSpace[] = " ";
         TextLine textLine(StringSlice(kSpace, strlen(kSpace)));
