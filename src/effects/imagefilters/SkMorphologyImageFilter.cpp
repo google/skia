@@ -10,7 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
@@ -42,7 +42,7 @@ enum class MorphType {
 
 enum class MorphDirection { kX, kY };
 
-class SkMorphologyImageFilterImpl final : public SkImageFilter {
+class SkMorphologyImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkMorphologyImageFilterImpl(MorphType type, int radiusX, int radiusY,
                                 sk_sp<SkImageFilter> input, const CropRect* cropRect)
@@ -91,7 +91,7 @@ private:
     MorphType fType;
     SkISize   fRadius;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace
@@ -547,7 +547,7 @@ static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
 static sk_sp<SkSpecialImage> apply_morphology(
         GrRecordingContext* context, SkSpecialImage* input, const SkIRect& rect,
         MorphType morphType, SkISize radius,
-        const SkImageFilter::OutputProperties& outputProperties) {
+        const SkImageFilter_Base::OutputProperties& outputProperties) {
     sk_sp<GrTextureProxy> srcTexture(input->asTextureProxyRef(context));
     SkASSERT(srcTexture);
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());

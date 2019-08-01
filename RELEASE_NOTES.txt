@@ -13,4 +13,4 @@ SkDrawLooper is no longer supported in SkPaint or SkCanvas.
 SkImageFilter API refactor started:
  - Consolidated enum types to use SkTileMode and SkColorChannel
  - Hide filter implementation classes
- - Bumps SkPicture version number
+ - Hide previously public functions on SkImageFilter that were intended for internal use only

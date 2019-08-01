@@ -20,6 +20,7 @@
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkPictureData.h"
@@ -176,11 +177,11 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
     if (colorType == kUnknown_SkColorType) {
         colorType = kRGBA_8888_SkColorType;
     }
-    SkImageFilter::OutputProperties outputProperties(
+    SkImageFilter_Base::OutputProperties outputProperties(
             colorType, fRenderTargetContext->colorSpaceInfo().colorSpace());
-    SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
+    SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
 
-    return filter->filterImage(srcImg, ctx, offset);
+    return as_IFB(filter)->filterImage(srcImg, ctx, offset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -9,7 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRegion.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
@@ -29,7 +29,7 @@
 
 namespace {
 
-class SkAlphaThresholdFilterImpl final : public SkImageFilter {
+class SkAlphaThresholdFilterImpl final : public SkImageFilter_Base {
 public:
     SkAlphaThresholdFilterImpl(const SkRegion& region, SkScalar innerThreshold,
                                SkScalar outerThreshold, sk_sp<SkImageFilter> input,
@@ -59,7 +59,7 @@ private:
     SkScalar fInnerThreshold;
     SkScalar fOuterThreshold;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 }; // end namespace
