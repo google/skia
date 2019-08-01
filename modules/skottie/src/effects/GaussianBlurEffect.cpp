@@ -7,7 +7,6 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "include/effects/SkBlurImageFilter.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
@@ -63,9 +62,9 @@ private:
         fBlur->setSigma({ sigma * kDimensionsMap[dim_index].x(),
                           sigma * kDimensionsMap[dim_index].y() });
 
-        static constexpr SkBlurImageFilter::TileMode kRepeatEdgeMap[] = {
-            SkBlurImageFilter::kClampToBlack_TileMode, // 0 -> repeat edge pixels: off
-            SkBlurImageFilter::       kClamp_TileMode, // 1 -> repeat edge pixels: on
+        static constexpr SkTileMode kRepeatEdgeMap[] = {
+            SkTileMode::kDecal, // 0 -> repeat edge pixels: off
+            SkTileMode::kClamp, // 1 -> repeat edge pixels: on
         };
 
         const auto repeat_index = SkTPin<size_t>(static_cast<size_t>(fRepeatEdge),
