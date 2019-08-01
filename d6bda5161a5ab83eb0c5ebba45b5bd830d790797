@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "02bf7785_1bc4128b",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-01T19:22:58Z",
+      "side": 1,
+      "message": "Mainly just because kClosed is in with the topo sort flags.\n\nShould we make it a separate bool and move it to GrOpList?",
+      "parentUuid": "fddf04ce_bde35c4b",
+      "revId": "d6bda5161a5ab83eb0c5ebba45b5bd830d790797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e121ddf7_f872f4cb",
         "filename": "src/gpu/GrRenderTask.h",
         "patchSetId": 5
@@ -71,6 +89,30 @@
       "writtenOn": "2019-08-01T19:19:08Z",
       "side": 1,
       "message": "The purgeOpsWithUninstantiatedProxies is used in allocation failure mode. The generalization would be something like: handleInternalAllocationFailure.\n\nIf the proxy that is the target of a GrRenderTask doesn\u0027t get allocated we drop the entire render task. If there is a allocation failure w/in an opList we just drop the effected ops.",
+      "parentUuid": "e121ddf7_f872f4cb",
+      "range": {
+        "startLine": 57,
+        "startChar": 22,
+        "endLine": 57,
+        "endChar": 30
+      },
+      "revId": "d6bda5161a5ab83eb0c5ebba45b5bd830d790797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a51085bf_a29d3a5a",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-01T19:22:58Z",
+      "side": 1,
+      "message": "endFlush eventually needs to be deleted completely. I\u0027m not sure if we still have opLists that survive flushes or not. (We shouldn\u0027t)\n\nAlso suggestions about making purgeOpsWithUninstantiatedProxies more generic sounds like a good thing. Rob? :-)",
       "parentUuid": "e121ddf7_f872f4cb",
       "range": {
         "startLine": 57,
