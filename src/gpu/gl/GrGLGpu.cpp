@@ -3899,7 +3899,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     }
     this->handleDirtyContext();
     auto format = this->glCaps().getFormatFromColorType(colorType);
-    if (!this->glCaps().maxRenderTargetSampleCount(colorType, format)) {
+    if (!this->glCaps().isFormatRenderable(format)) {
         return {};
     }
     bool useTexture = false;
