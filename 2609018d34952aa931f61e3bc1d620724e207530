@@ -22,6 +22,30 @@
       "revId": "2609018d34952aa931f61e3bc1d620724e207530",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cd143ce_3105e521",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-01T14:15:08Z",
+      "side": 1,
+      "message": "bool is too mainstream, man...\n\n(done)",
+      "parentUuid": "1c0f92f4_a7ace9b6",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "2609018d34952aa931f61e3bc1d620724e207530",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
