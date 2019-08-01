@@ -29,8 +29,12 @@ T ParseEnum(const TArray& arr, const skjson::Value& jenum,
         return arr[idx - 1];
     }
 
-    abuilder->log(Logger::Level::kWarning, nullptr,
-                  "Ignoring unknown range selector %s '%d'", warn_name, idx);
+    // For animators without selectors, BM emits dummy selector entries with 0 (inval) props.
+    // Supress warnings for these as they are "normal".
+    if (idx != 0) {
+        abuilder->log(Logger::Level::kWarning, nullptr,
+                      "Ignoring unknown range selector %s '%d'", warn_name, idx);
+    }
 
     static_assert(SK_ARRAY_COUNT(arr) > 0, "");
     return arr[0];
