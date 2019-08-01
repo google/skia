@@ -213,13 +213,13 @@ void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
     this->flushSurfaces(proxy ? &proxy : nullptr, proxy ? 1 : 0, {});
 }
 
-void GrContextPriv::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
-    fContext->drawingManager()->moveOpListsToDDL(ddl);
+void GrContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
+    fContext->drawingManager()->moveRenderTasksToDDL(ddl);
 }
 
-void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
-                                       GrRenderTargetProxy* newDest) {
-    fContext->drawingManager()->copyOpListsFromDDL(ddl, newDest);
+void GrContextPriv::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
+                                           GrRenderTargetProxy* newDest) {
+    fContext->drawingManager()->copyRenderTasksFromDDL(ddl, newDest);
 }
 
 //////////////////////////////////////////////////////////////////////////////
