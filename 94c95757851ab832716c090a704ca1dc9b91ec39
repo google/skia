@@ -46,6 +46,30 @@
       "revId": "94c95757851ab832716c090a704ca1dc9b91ec39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daea25a9_16e139fc",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-01T20:32:10Z",
+      "side": 1,
+      "message": "Ah, I didn\u0027t catch that the GrSurfaceProxy is now storing last rendertask now.",
+      "parentUuid": "21accc3c_ca231ef2",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 76
+      },
+      "revId": "94c95757851ab832716c090a704ca1dc9b91ec39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
