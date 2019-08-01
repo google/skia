@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5e866911_762af629",
+        "filename": "tools/sk_app/DawnWindowContext.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "It would make sense, but it\u0027s declared as int64_t in the Dawn API. (Admittedly, all of this Dawn swap chain stuff is gross and needs a rewrite; Corentin is aware.)",
+      "parentUuid": "70e13fcf_8cd3276c",
+      "range": {
+        "startLine": 39,
+        "startChar": 52,
+        "endLine": 39,
+        "endChar": 59
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fed09fcc_296be24f",
         "filename": "tools/sk_app/DawnWindowContext.h",
         "patchSetId": 27
@@ -45,6 +69,30 @@
       "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c59d5e48_12471e08",
+        "filename": "tools/sk_app/DawnWindowContext.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "The GL backends do, but I can always re-virtualize them in my local CLs. Fixed.",
+      "parentUuid": "fed09fcc_296be24f",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 36
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e7b3a0e1_1c5447f2",
+        "filename": "tools/sk_app/DawnWindowContext.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "It needs to be persistent, since CreateSwapChain() takes a raw pointer to it, but doesn\u0027t own it.",
+      "parentUuid": "e56ad93a_313a077f",
+      "range": {
+        "startLine": 48,
+        "startChar": 4,
+        "endLine": 48,
+        "endChar": 58
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "184d6fe1_cb8bc66b",
         "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
         "patchSetId": 27
@@ -91,6 +163,30 @@
       "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4004895_e4849638",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "184d6fe1_cb8bc66b",
+      "range": {
+        "startLine": 47,
+        "startChar": 31,
+        "endLine": 48,
+        "endChar": 5
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "c8c198ff_61ab748f",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe71015a_fda2a50f",
+      "range": {
+        "startLine": 55,
+        "startChar": 24,
+        "endLine": 56,
+        "endChar": 5
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23ec996e_db22e8bb",
         "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
         "patchSetId": 27
@@ -137,6 +257,30 @@
       "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82501eeb_90dde2bd",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "Can\u0027t use override, since it doesn\u0027t override anything. It\u0027s used with the templated CreateSwapChainImplementation function below, so the template contract requires these method names.",
+      "parentUuid": "23ec996e_db22e8bb",
+      "range": {
+        "startLine": 58,
+        "startChar": 23,
+        "endLine": 59,
+        "endChar": 44
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "ca735985_028fb7f8",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e2b2de89_ef0c2aaa",
+      "range": {
+        "startLine": 69,
+        "startChar": 23,
+        "endLine": 69,
+        "endChar": 37
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d12b502b_57a7bdff",
         "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
         "patchSetId": 27
@@ -183,6 +351,30 @@
       "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f72c17f9_5be4b006",
+        "filename": "tools/sk_app/mac/DawnMTLWindowContext_mac.mm",
+        "patchSetId": 27
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d12b502b_57a7bdff",
+      "range": {
+        "startLine": 77,
+        "startChar": 23,
+        "endLine": 77,
+        "endChar": 30
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "9be2d59a_3041e95c",
+        "filename": "tools/sk_app/unix/DawnVulkanWindowContext_unix.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f4f2320_d86f2cda",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 8
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ce8780f_5ea4b17d",
         "filename": "tools/sk_app/win/DawnD3D12WindowContext_win.cpp",
         "patchSetId": 27
@@ -229,6 +445,30 @@
       "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91b7f54f_9c4e09d6",
+        "filename": "tools/sk_app/win/DawnD3D12WindowContext_win.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-01T22:08:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ce8780f_5ea4b17d",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 8
+      },
+      "revId": "9208b7eab221bac22f15d8c16809440adc2eeff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
