@@ -22,6 +22,23 @@
       "revId": "5d7b1927cfc1b955c34604e5b490f33dd9ff7c0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1c33e36_580c0009",
+        "filename": "modules/sksg/include/SkSGRenderEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:11:04Z",
+      "side": 1,
+      "message": "Move this guy back to keep alignment too?",
+      "revId": "5d7b1927cfc1b955c34604e5b490f33dd9ff7c0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
