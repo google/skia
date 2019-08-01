@@ -4,6 +4,7 @@
 #define editor_DEFINED
 
 #include "experimental/editor/stringslice.h"
+#include "experimental/editor/stringview.h"
 
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
@@ -12,6 +13,7 @@
 
 #include <climits>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 class SkCanvas;
@@ -34,28 +36,30 @@ public:
     const SkFont& font() const { return fFont; }
     void setFont(SkFont font);
 
-    size_t lineCount() const { return fLines.size(); }
-    const StringSlice& line(size_t i) const { return SkASSERT(i < fLines.size()), fLines[i].fText; }
-
     struct Text {
         const std::vector<TextLine>& fLines;
         struct Iterator {
             std::vector<TextLine>::const_iterator fPtr;
-            const StringSlice& operator*() { return fPtr->fText; }
+            StringView operator*() { return fPtr->fText.view(); }
             void operator++() { ++fPtr; }
             bool operator!=(const Iterator& other) const { return fPtr != other.fPtr; }
         };
         Iterator begin() const { return Iterator{fLines.begin()}; }
         Iterator end() const { return Iterator{fLines.end()}; }
     };
+    // Loop over all the lines of text.  The lines are not '\0'- or '\n'-terminated.
+    // For example, to dump the entire file to standard output:
+    //     for (editor::StringView str : editor.text()) {
+    //         std::cout.write(str.data, str.size) << '\n';
+    //     }
     Text text() const { return Text{fLines}; }
 
     // get size of line in canvas display units.
     int lineHeight(size_t index) const { return fLines[index].fHeight; }
 
     struct TextPosition {
-        size_t fTextByteIndex = SIZE_MAX;  // index into UTF-8 representation of line.
-        size_t fParagraphIndex = SIZE_MAX;    // logical line, based on hard newline characters.
+        size_t fTextByteIndex = SIZE_MAX;   // index into UTF-8 representation of line.
+        size_t fParagraphIndex = SIZE_MAX;  // logical line, based on hard newline characters.
     };
     enum class Movement {
         kNowhere,
@@ -76,7 +80,13 @@ public:
     // remove text between two positions
     TextPosition remove(TextPosition, TextPosition);
 
-    StringSlice copy(TextPosition, TextPosition) const;
+    // If dst is nullptr, returns size of given selection.
+    // Otherwise, fill dst with a copy of the selection, and return the amount copied.
+    size_t copy(TextPosition pos1, TextPosition pos2, char* dst = nullptr) const;
+    size_t lineCount() const { return fLines.size(); }
+    StringView line(size_t i) const {
+        return i < fLines.size() ? fLines[i].fText.view() : StringView{nullptr, 0};
+    }
 
     struct PaintOpts {
         SkColor4f fBackgroundColor = {1, 1, 1, 1};

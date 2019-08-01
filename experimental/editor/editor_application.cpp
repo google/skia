@@ -16,8 +16,8 @@
 
 #include "third_party/icu/SkLoadICU.h"
 
-#include <memory>
 #include <fstream>
+#include <memory>
 
 #ifdef SK_EDITOR_DEBUG_OUT
 static const char* key_name(sk_app::Window::Key k) {
@@ -78,7 +78,7 @@ struct Timer {
 struct EditorLayer : public sk_app::Window::Layer {
     SkString fPath;
     sk_app::Window* fParent = nullptr;
-    editor::StringSlice fClipboard;
+    std::vector<char> fClipboard;
     editor::Editor fEditor;
     editor::Editor::TextPosition fTextPos{0, 0};
     editor::Editor::TextPosition fMarkPos;
@@ -185,39 +185,39 @@ struct EditorLayer : public sk_app::Window::Layer {
         if (modifiers == ModifierKey::kControl) {
             switch (c) {
                 case 'p':
-                    for (const editor::StringSlice& str : fEditor.text()) {
-                        SkDebugf(">>  '%.*s'\n", str.size(), str.begin());
+                    for (editor::StringView str : fEditor.text()) {
+                        SkDebugf(">>  '%.*s'\n", str.size, str.data);
                     }
                     return true;
                 case 's':
                     {
                         std::ofstream out(fPath.c_str());
-                        for (const editor::StringSlice& str : fEditor.text()) {
-                            out.write(str.begin(), str.size());
-                            out.write("\n", 1);
+                        for (editor::StringView str : fEditor.text()) {
+                            out.write(str.data, str.size) << '\n';
                         }
                     }
                     return true;
                 case 'c':
                     if (fMarkPos != editor::Editor::TextPosition()) {
-                        fClipboard = fEditor.copy(fMarkPos, fTextPos);
+                        fClipboard.resize(fEditor.copy(fMarkPos, fTextPos, nullptr));
+                        fEditor.copy(fMarkPos, fTextPos, fClipboard.data());
                         return true;
                     }
                 case 'x':
                     if (fMarkPos != editor::Editor::TextPosition()) {
-                        fClipboard = fEditor.copy(fMarkPos, fTextPos);
+                        fClipboard.resize(fEditor.copy(fMarkPos, fTextPos, nullptr));
+                        fEditor.copy(fMarkPos, fTextPos, fClipboard.data());
                         fTextPos = fEditor.remove(fMarkPos, fTextPos);
                         this->inval();
                         return true;
                     }
                 case 'v':
                     if (fClipboard.size()) {
-                        fEditor.insert(fTextPos, fClipboard.begin(), fClipboard.size());
+                        fEditor.insert(fTextPos, fClipboard.data(), fClipboard.size());
                         this->inval();
                         return true;
                     }
             }
-
         }
         #ifdef SK_EDITOR_DEBUG_OUT
         debug_on_char(c, modifiers);

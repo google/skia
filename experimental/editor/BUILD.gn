@@ -10,6 +10,7 @@ if (skia_use_icu && skia_use_harfbuzz) {
     public = [
       "editor.h",
       "stringslice.h",
+      "stringview.h",
     ]
     sources = [
       "editor.cpp",

@@ -314,35 +314,45 @@ Editor::TextPosition Editor::remove(TextPosition pos1, TextPosition pos2) {
     return start;
 }
 
-StringSlice Editor::copy(TextPosition pos1, TextPosition pos2) const {
-    StringSlice result;
+static void append(char** dst, size_t* count, const char* src, size_t n) {
+    if (*dst) {
+        ::memcpy(*dst, src, n);
+        *dst += n;
+    }
+    *count += n;
+}
+
+size_t Editor::copy(TextPosition pos1, TextPosition pos2, char* dst) const {
+    size_t size = 0;
     pos1 = this->move(Editor::Movement::kNowhere, pos1);
     pos2 = this->move(Editor::Movement::kNowhere, pos2);
     auto cmp = [](const Editor::TextPosition& u, const Editor::TextPosition& v) { return u < v; };
     Editor::TextPosition start = std::min(pos1, pos2, cmp);
     Editor::TextPosition end = std::max(pos1, pos2, cmp);
     if (start == end || start.fParagraphIndex == fLines.size()) {
-        return result;
+        return size;
     }
     if (start.fParagraphIndex == end.fParagraphIndex) {
         SkASSERT(end.fTextByteIndex > start.fTextByteIndex);
         auto& str = fLines[start.fParagraphIndex].fText;
-        result.insert(0, str.begin() + start.fTextByteIndex, end.fTextByteIndex - start.fTextByteIndex);
-    } else {
-        SkASSERT(end.fParagraphIndex < fLines.size());
-        auto& str = fLines[start.fParagraphIndex].fText;
-        result.insert(0, str.begin() + start.fTextByteIndex, str.size() - start.fTextByteIndex);
-        for (const TextLine* line = &fLines.begin()[start.fParagraphIndex + 1];
-             line < &fLines.begin()[end.fParagraphIndex];
-             ++line) {
-            result.insert(result.size(), "\n", 1);
-            result.insert(result.size(), line->fText.begin(), line->fText.size());
-        }
-        result.insert(result.size(), "\n", 1);
-        const auto& last = fLines.begin()[end.fParagraphIndex].fText;
-        result.insert(result.size(), last.begin(), end.fTextByteIndex);
+        append(&dst, &size, str.begin() + start.fTextByteIndex,
+               end.fTextByteIndex - start.fTextByteIndex);
+        return size;
     }
-    return result;
+    SkASSERT(end.fParagraphIndex < fLines.size());
+    const std::vector<TextLine>::const_iterator firstP = fLines.begin() + start.fParagraphIndex;
+    const std::vector<TextLine>::const_iterator lastP  = fLines.begin() + end.fParagraphIndex;
+    const auto& first = firstP->fText;
+    const auto& last  = lastP->fText;
+
+    append(&dst, &size, first.begin() + start.fTextByteIndex, first.size() - start.fTextByteIndex);
+    for (auto line = firstP + 1; line < lastP; ++line) {
+        append(&dst, &size, "\n", 1);
+        append(&dst, &size, line->fText.begin(), line->fText.size());
+    }
+    append(&dst, &size, "\n", 1);
+    append(&dst, &size, last.begin(), end.fTextByteIndex);
+    return size;
 }
 
 static inline const char* begin(const StringSlice& s) { return s.begin(); }
