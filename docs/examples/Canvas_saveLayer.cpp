@@ -3,11 +3,11 @@
 #include "tools/fiddle/examples.h"
 // HASH=42318b18d403e17e07a541652da91ee2
 REG_FIDDLE(Canvas_saveLayer, 256, 128, false, 0) {
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 void draw(SkCanvas* canvas) {
     SkPaint paint, blur;
-    blur.setImageFilter(SkBlurImageFilter::Make(3, 3, nullptr));
+    blur.setImageFilter(SkImageFilters::Blur(3, 3, nullptr));
     canvas->saveLayer(nullptr, &blur);
     SkRect rect = { 25, 25, 50, 50};
     canvas->drawRect(rect, paint);
