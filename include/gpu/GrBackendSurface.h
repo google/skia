@@ -123,6 +123,10 @@ public:
     // Returns true if the backend format has been initialized.
     bool isValid() const { return fValid; }
 
+#if GR_TEST_UTILS
+    SkString toStr() const;
+#endif
+
 private:
     GrBackendFormat(GrGLenum format, GrGLenum target);
 

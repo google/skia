@@ -22,34 +22,6 @@
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
-static constexpr const char* GrColorTypeToStr(GrColorType ct) {
-    switch (ct) {
-        case GrColorType::kUnknown:          return "kUnknown";
-        case GrColorType::kAlpha_8:          return "kAlpha_8";
-        case GrColorType::kBGR_565:          return "kRGB_565";
-        case GrColorType::kABGR_4444:        return "kARGB_4444";
-        case GrColorType::kRGBA_8888:        return "kRGBA_8888";
-        case GrColorType::kRGBA_8888_SRGB:   return "kRGBA_8888_SRGB";
-        case GrColorType::kRGB_888x:         return "kRGB_888x";
-        case GrColorType::kRG_88:            return "kRG_88";
-        case GrColorType::kBGRA_8888:        return "kBGRA_8888";
-        case GrColorType::kRGBA_1010102:     return "kRGBA_1010102";
-        case GrColorType::kGray_8:           return "kGray_8";
-        case GrColorType::kAlpha_F16:        return "kAlpha_F16";
-        case GrColorType::kRGBA_F16:         return "kRGBA_F16";
-        case GrColorType::kRGBA_F16_Clamped: return "kRGBA_F16_Clamped";
-        case GrColorType::kRGBA_F32:         return "kRGBA_F32";
-        case GrColorType::kAlpha_8xxx:       return "kAlpha_8xxx";
-        case GrColorType::kAlpha_F32xxx:     return "kAlpha_F32xxx";
-        case GrColorType::kGray_8xxx:        return "kGray_8xxx";
-        case GrColorType::kR_16:             return "kR_16";
-        case GrColorType::kRG_1616:          return "kRG_1616";
-        case GrColorType::kRGBA_16161616:    return "kRGBA_16161616";
-        case GrColorType::kRG_F16:           return "kRG_F16";
-    }
-    SkUNREACHABLE;
-}
-
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
 // and render targets to GrSurface all work as expected.
 DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
@@ -176,18 +148,24 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 sk_sp<GrSurface> tex = createTexture(kW, kH, config,
                                                      GrRenderable::kNo, resourceProvider);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isTexturable,
-                                "ct:%s config:%d, tex:%d, isTexturable:%d",
+                                "ct:%s format:%s, tex:%d, isTexturable:%d",
                                 GrColorTypeToStr(combo.fColorType),
-                                config, SkToBool(tex), isTexturable);
+                                combo.fFormat.toStr().c_str(),
+                                SkToBool(tex), isTexturable);
 
                 // Check that the lack of mipmap support blocks the creation of mipmapped
                 // proxies
+                bool expectedMipMapability = isTexturable && caps->mipMapSupport() &&
+                                              !caps->isFormatCompressed(combo.fFormat);
+
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createMipMapProxy(
                             combo.fFormat, desc, GrRenderable::kNo, 1, origin,
                             SkBudgeted::kNo, GrProtected::kNo);
-                REPORTER_ASSERT(reporter, SkToBool(proxy.get()) ==
-                                            (isTexturable && caps->mipMapSupport() &&
-                                                !caps->isFormatCompressed(combo.fFormat)));
+                REPORTER_ASSERT(reporter, SkToBool(proxy.get()) == expectedMipMapability,
+                                "ct:%s format:%s, tex:%d, expectedMipMapability:%d",
+                                GrColorTypeToStr(combo.fColorType),
+                                combo.fFormat.toStr().c_str(),
+                                SkToBool(proxy.get()), expectedMipMapability);
             }
 
             // Check if 'isFormatRenderable' agrees with 'createTexture' (w/o MSAA)
@@ -198,9 +176,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                                                                        1, SkBudgeted::kNo,
                                                                        GrProtected::kNo);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
-                                "ct:%s config:%d, tex:%d, isRenderable:%d",
+                                "ct:%s format:%s, tex:%d, isRenderable:%d",
                                 GrColorTypeToStr(combo.fColorType),
-                                config, SkToBool(tex), isRenderable);
+                                combo.fFormat.toStr().c_str(),
+                                SkToBool(tex), isRenderable);
             }
 
             // Check if 'isFormatRenderable' agrees with 'createTexture' w/ MSAA
@@ -211,9 +190,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                                                                        2, SkBudgeted::kNo,
                                                                        GrProtected::kNo);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
-                                "ct:%s config:%d, tex:%d, isRenderable:%d",
+                                "ct:%s format:%s, tex:%d, isRenderable:%d",
                                 GrColorTypeToStr(combo.fColorType),
-                                config, SkToBool(tex), isRenderable);
+                                combo.fFormat.toStr().c_str(),
+                                SkToBool(tex), isRenderable);
             }
         }
     }
