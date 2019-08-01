@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33c4e853_109d3232",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-01T16:39:57Z",
+      "side": 1,
+      "message": "brief doc? // the matrix does ..., assuming ....",
+      "range": {
+        "startLine": 148,
+        "startChar": 32,
+        "endLine": 148,
+        "endChar": 42
+      },
+      "revId": "8a949101db9df5fa1ee5b901a4333aa997830f77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
