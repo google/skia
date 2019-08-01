@@ -1,0 +1,99 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "816ad1bb_08d35e68",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-08-01T16:45:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1457dd56_a8e461c0",
+      "revId": "80bb7e79c9922636667b42d8e75823887f1c4bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8df79cc7_18bab369",
+        "filename": "infra/bots/recipe_modules/flavor/chromebook.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-08-01T16:45:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "395dd796_47d6f71e",
+      "revId": "80bb7e79c9922636667b42d8e75823887f1c4bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae4f4717_5910a884",
+        "filename": "infra/bots/recipe_modules/flavor/chromecast.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-08-01T16:45:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e2d47355_a82477f2",
+      "revId": "80bb7e79c9922636667b42d8e75823887f1c4bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd6d705d_52043b6a",
+        "filename": "infra/bots/recipe_modules/flavor/win_ssh.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-08-01T16:45:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1a07095c_fe0a7476",
+      "revId": "80bb7e79c9922636667b42d8e75823887f1c4bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "efd1fde7_940dfd65",
+        "filename": "infra/bots/recipes/skpbench.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-08-01T16:45:41Z",
+      "side": 1,
+      "message": "Do the Mskp tasks run both SKPs and MSKPs?  The logic above makes it seem like they don\u0027t; can we skip pushing the SKPs to the device in this case?",
+      "range": {
+        "startLine": 135,
+        "startChar": 23,
+        "endLine": 135,
+        "endChar": 73
+      },
+      "revId": "80bb7e79c9922636667b42d8e75823887f1c4bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
