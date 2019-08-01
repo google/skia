@@ -123,8 +123,6 @@ skia_core_sources = [
   "$_src/core/SkBitmapProcState.cpp",
   "$_src/core/SkBitmapProcState.h",
   "$_src/core/SkBitmapProcState_matrixProcs.cpp",
-  "$_src/core/SkBitmapProvider.cpp",
-  "$_src/core/SkBitmapProvider.h",
   "$_src/core/SkBlendMode.cpp",
   "$_src/core/SkBlitBWMaskTemplate.h",
   "$_src/core/SkBlitRow.h",

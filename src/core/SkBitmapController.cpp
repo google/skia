@@ -11,21 +11,21 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkBitmapController.h"
-#include "src/core/SkBitmapProvider.h"
 #include "src/core/SkMipMap.h"
+#include "src/image/SkImage_Base.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkBitmapController::State* SkBitmapController::RequestBitmap(const SkBitmapProvider& provider,
+SkBitmapController::State* SkBitmapController::RequestBitmap(const SkImage_Base* image,
                                                              const SkMatrix& inv,
                                                              SkFilterQuality quality,
                                                              SkArenaAlloc* alloc) {
-    auto* state = alloc->make<SkBitmapController::State>(provider, inv, quality);
+    auto* state = alloc->make<SkBitmapController::State>(image, inv, quality);
 
     return state->pixmap().addr() ? state : nullptr;
 }
 
-bool SkBitmapController::State::processHighRequest(const SkBitmapProvider& provider) {
+bool SkBitmapController::State::processHighRequest(const SkImage_Base* image) {
     if (fQuality != kHigh_SkFilterQuality) {
         return false;
     }
@@ -52,7 +52,7 @@ bool SkBitmapController::State::processHighRequest(const SkBitmapProvider& provi
 
     // Confirmed that we can use HQ (w/ rasterpipeline)
     fQuality = kHigh_SkFilterQuality;
-    (void)provider.asBitmap(&fResultBitmap);
+    (void)image->getROPixels(&fResultBitmap);
     return true;
 }
 
@@ -60,7 +60,7 @@ bool SkBitmapController::State::processHighRequest(const SkBitmapProvider& provi
  *  Modulo internal errors, this should always succeed *if* the matrix is downscaling
  *  (in this case, we have the inverse, so it succeeds if fInvMatrix is upscaling)
  */
-bool SkBitmapController::State::processMediumRequest(const SkBitmapProvider& provider) {
+bool SkBitmapController::State::processMediumRequest(const SkImage_Base* image) {
     SkASSERT(fQuality <= kMedium_SkFilterQuality);
     if (fQuality != kMedium_SkFilterQuality) {
         return false;
@@ -76,9 +76,9 @@ bool SkBitmapController::State::processMediumRequest(const SkBitmapProvider& pro
     }
 
     if (invScaleSize.width() > SK_Scalar1 || invScaleSize.height() > SK_Scalar1) {
-        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc()));
+        fCurrMip.reset(SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(image)));
         if (nullptr == fCurrMip.get()) {
-            fCurrMip.reset(SkMipMapCache::AddAndRef(provider));
+            fCurrMip.reset(SkMipMapCache::AddAndRef(image));
             if (nullptr == fCurrMip.get()) {
                 return false;
             }
@@ -104,16 +104,16 @@ bool SkBitmapController::State::processMediumRequest(const SkBitmapProvider& pro
     return false;
 }
 
-SkBitmapController::State::State(const SkBitmapProvider& provider,
+SkBitmapController::State::State(const SkImage_Base* image,
                                  const SkMatrix& inv,
                                  SkFilterQuality qual) {
     fInvMatrix = inv;
     fQuality = qual;
 
-    if (this->processHighRequest(provider) || this->processMediumRequest(provider)) {
+    if (this->processHighRequest(image) || this->processMediumRequest(image)) {
         SkASSERT(fResultBitmap.getPixels());
     } else {
-        (void)provider.asBitmap(&fResultBitmap);
+        (void)image->getROPixels(&fResultBitmap);
     }
 
     // fResultBitmap.getPixels() may be null, but our caller knows to check fPixmap.addr()

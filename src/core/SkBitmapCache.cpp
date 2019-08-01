@@ -9,9 +9,9 @@
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkRect.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkBitmapProvider.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkResourceCache.h"
+#include "src/image/SkImage_Base.h"
 
 /**
  *  Use this for bitmapcache and mipmapcache entries.
@@ -284,18 +284,17 @@ static SkResourceCache::DiscardableFactory get_fact(SkResourceCache* localCache)
                       : SkResourceCache::GetDiscardableFactory();
 }
 
-const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmapProvider& provider,
-                                         SkResourceCache* localCache) {
+const SkMipMap* SkMipMapCache::AddAndRef(const SkImage_Base* image, SkResourceCache* localCache) {
     SkBitmap src;
-    if (!provider.asBitmap(&src)) {
+    if (!image->getROPixels(&src)) {
         return nullptr;
     }
 
     SkMipMap* mipmap = SkMipMap::Build(src, get_fact(localCache));
     if (mipmap) {
-        MipMapRec* rec = new MipMapRec(provider.makeCacheDesc(), mipmap);
+        MipMapRec* rec = new MipMapRec(SkBitmapCacheDesc::Make(image), mipmap);
         CHECK_LOCAL(localCache, add, Add, rec);
-        provider.notifyAddedToCache();
+        image->notifyAddedToRasterCache();
     }
     return mipmap;
 }

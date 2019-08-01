@@ -10,14 +10,14 @@
 #include "src/core/SkImagePriv.h"
 #include "src/shaders/SkShaderBase.h"
 
-class SkBitmapProvider;
+class SkImage_Base;
 
 class SkBitmapProcLegacyShader : public SkShaderBase {
 private:
     friend class SkImageShader;
 
     static Context* MakeContext(const SkShaderBase&, SkTileMode tmx, SkTileMode tmy,
-                                const SkBitmapProvider&, const ContextRec&, SkArenaAlloc* alloc);
+                                const SkImage_Base*, const ContextRec&, SkArenaAlloc* alloc);
 
     typedef SkShaderBase INHERITED;
 };
