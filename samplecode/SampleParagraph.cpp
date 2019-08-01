@@ -972,7 +972,7 @@ protected:
         canvas->drawColor(background);
 
         const char* line =
-                "World domination is such an ugly phrase - I prefer to call it world optimisation";
+                "World domination is such an ugly phrase - I prefer to call it world optimisation.";
 
         ParagraphStyle paragraphStyle;
         paragraphStyle.setTextAlign(TextAlign::kLeft);
@@ -1033,7 +1033,7 @@ private:
 
 class ParagraphView8 : public ParagraphView_Base {
 protected:
-    SkString name() override { return SkString("Paragraph7"); }
+    SkString name() override { return SkString("Paragraph8"); }
 
     void drawText(SkCanvas* canvas, SkColor background, SkScalar wordSpace, SkScalar w,
                   SkScalar h) {
@@ -1042,7 +1042,7 @@ protected:
         canvas->drawColor(background);
 
         const char* line =
-                "World domination is such an ugly phrase - I prefer to call it world optimisation";
+                "World domination is such an ugly phrase - I prefer to call it world optimisation.";
 
         ParagraphStyle paragraphStyle;
         paragraphStyle.setTextAlign(TextAlign::kLeft);
