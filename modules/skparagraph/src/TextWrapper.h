@@ -34,9 +34,9 @@ class TextWrapper {
     };
     class TextStretch {
     public:
-        TextStretch() : fStart(), fEnd(), fWidth(0) {}
-        TextStretch(Cluster* s, Cluster* e)
-                : fStart(s, 0), fEnd(e, e->endPos()), fMetrics(), fWidth(0) {
+        TextStretch() : fStart(), fEnd(), fWidth(0), fWidthWithGhostSpaces(0) {}
+        TextStretch(Cluster* s, Cluster* e, bool forceStrut)
+                : fStart(s, 0), fEnd(e, e->endPos()), fMetrics(forceStrut), fWidth(0), fWidthWithGhostSpaces(0) {
             for (auto c = s; c <= e; ++c) {
                 if (c->run() != nullptr) {
                     fMetrics.add(c->run());
@@ -45,12 +45,14 @@ class TextWrapper {
         }
 
         inline SkScalar width() const { return fWidth; }
+        SkScalar withWithGhostSpaces() const { return fWidthWithGhostSpaces; }
         inline Cluster* startCluster() const { return fStart.cluster(); }
         inline Cluster* endCluster() const { return fEnd.cluster(); }
         inline Cluster* breakCluster() const { return fBreak.cluster(); }
         inline LineMetrics& metrics() { return fMetrics; }
         inline size_t startPos() const { return fStart.position(); }
         inline size_t endPos() const { return fEnd.position(); }
+        inline size_t breakPos() const { return fBreak.position(); }
         bool endOfCluster() { return fEnd.position() == fEnd.cluster()->endPos(); }
         bool endOfWord() {
             return endOfCluster() &&
@@ -89,15 +91,22 @@ class TextWrapper {
             fWidth = 0;
         }
 
-        void nextPos() {
-            if (fEnd.position() == fEnd.cluster()->endPos()) {
-                fEnd.move(true);
+        void nextBreakPos(Cluster* endOfClusters) {
+            if (fBreak.position() == fBreak.cluster()->endPos()) {
+                if (fBreak.cluster() < endOfClusters) {
+                    fBreak.move(true);
+                } else {
+                    fBreak.setPosition(0);
+                }
             } else {
-                fEnd.setPosition(fEnd.cluster()->endPos());
+                fBreak.setPosition(fBreak.cluster()->endPos());
             }
         }
 
-        void saveBreak() { fBreak = fEnd; }
+        void saveBreak() {
+            fWidthWithGhostSpaces = fWidth;
+            fBreak = fEnd;
+        }
 
         void restoreBreak() { fEnd = fBreak; }
 
@@ -128,6 +137,7 @@ class TextWrapper {
         ClusterPos fBreak;
         LineMetrics fMetrics;
         SkScalar fWidth;
+        SkScalar fWidthWithGhostSpaces;
     };
 
 public:
@@ -136,6 +146,8 @@ public:
     using AddLineToParagraph = std::function<void(TextRange text,
                                                   TextRange textWithSpaces,
                                                   ClusterRange clusters,
+                                                  ClusterRange clustersWithGhosts,
+                                                  SkScalar AddLineToParagraph,
                                                   size_t startClip,
                                                   size_t endClip,
                                                   SkVector offset,
@@ -175,8 +187,8 @@ private:
 
     void lookAhead(SkScalar maxWidth, Cluster* endOfClusters);
     void moveForward();
-    void trimEndSpaces();
-    void trimStartSpaces(Cluster* endOfClusters);
+    void trimEndSpaces(TextAlign align);
+    std::tuple<Cluster*, size_t, SkScalar> trimStartSpaces(Cluster* endOfClusters);
     SkScalar getClustersTrimmedWidth();
 };
 }  // namespace textlayout
