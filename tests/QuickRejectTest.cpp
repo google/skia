@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkLightingImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkArenaAlloc.h"
 #include "tests/Test.h"
 
@@ -111,7 +111,7 @@ DEF_TEST(QuickReject_MatrixState, reporter) {
     canvas.setMatrix(matrix);
 
     SkPaint paint;
-    sk_sp<SkImageFilter> filter = SkLightingImageFilter::MakeDistantLitDiffuse(
+    sk_sp<SkImageFilter> filter = SkImageFilters::DistantLitDiffuse(
             SkPoint3::Make(1.0f, 1.0f, 1.0f), 0xFF0000FF, 2.0f, 0.5f, nullptr);
     REPORTER_ASSERT(reporter, filter);
     paint.setImageFilter(filter);
