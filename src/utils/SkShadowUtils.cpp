@@ -48,7 +48,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override {}
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool onAppendStages(const SkStageRec& rec, bool /*shaderIsOpaque*/) const override {
         rec.fPipeline->append(SkRasterPipeline::gauss_a_to_rgba);
         return true;
     }
