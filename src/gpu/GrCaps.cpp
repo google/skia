@@ -267,11 +267,13 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
 
     writer->beginArray("configs");
 
+    // TODO: Either move this logic into individual backends dump and do it based on format and
+    // colorType, or have a loop printing out the defaults for given GrColorTypes. Or both.
     for (size_t i = 1; i < kGrPixelConfigCnt; ++i) {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         writer->beginObject(nullptr, false);
         writer->appendString("name", pixel_config_name(config));
-        writer->appendS32("max sample count", this->maxRenderTargetSampleCount(config));
+        //writer->appendS32("max sample count", this->maxRenderTargetSampleCount(config));
         writer->appendBool("texturable", this->isConfigTexturable(config));
         writer->endObject();
     }
@@ -437,3 +439,4 @@ GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType grColorType,
 
     return format;
 }
+
