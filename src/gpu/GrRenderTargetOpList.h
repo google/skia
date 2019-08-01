@@ -61,9 +61,11 @@ public:
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
 
-    void addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p, GrMipMapped) {
-            this->addDependency(p, caps);
+    void addOp(std::unique_ptr<GrOp> op, GrTextureResolveManager textureResolveManager,
+               const GrCaps& caps) {
+        auto addDependency = [ textureResolveManager, &caps, this ] (
+                GrSurfaceProxy* p, GrMipMapped mipmapped) {
+            this->addDependency(p, mipmapped, textureResolveManager, caps);
         };
 
         op->visitProxies(addDependency);
@@ -71,15 +73,18 @@ public:
         this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
     }
 
-    void addWaitOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
-        fHasWaitOp= true;
-        this->addOp(std::move(op), caps);
+    void addWaitOp(std::unique_ptr<GrOp> op, GrTextureResolveManager textureResolveManager,
+                   const GrCaps& caps) {
+        fHasWaitOp = true;
+        this->addOp(std::move(op), textureResolveManager, caps);
     }
 
     void addDrawOp(std::unique_ptr<GrDrawOp> op, const GrProcessorSet::Analysis& processorAnalysis,
-                   GrAppliedClip&& clip, const DstProxy& dstProxy, const GrCaps& caps) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p, GrMipMapped) {
-            this->addDependency(p, caps);
+                   GrAppliedClip&& clip, const DstProxy& dstProxy,
+                   GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
+        auto addDependency = [ textureResolveManager, &caps, this ] (
+                GrSurfaceProxy* p, GrMipMapped mipmapped) {
+            this->addDependency(p, mipmapped, textureResolveManager, caps);
         };
 
         op->visitProxies(addDependency);
