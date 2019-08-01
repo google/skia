@@ -120,7 +120,10 @@ public:
     }
 
     void setHeight(SkScalar height) { fHeight = height; }
-    SkScalar getHeight() const { return fHeight; }
+    SkScalar getHeight() const { return fHeightOverride ? fHeight : 0; }
+
+    void setHeightOverride(bool heightOverride) { fHeightOverride = heightOverride; }
+    bool getHeightOverride() const { return fHeightOverride; }
 
     void setLetterSpacing(SkScalar letterSpacing) { fLetterSpacing = letterSpacing; }
     SkScalar getLetterSpacing() const { return fLetterSpacing; }
@@ -138,15 +141,7 @@ public:
     TextBaseline getTextBaseline() const { return fTextBaseline; }
     void setTextBaseline(TextBaseline baseline) { fTextBaseline = baseline; }
 
-    // TODO: Not to use SkFontMetrics class (it has different purpose and meaning)
-    void getFontMetrics(SkFontMetrics* metrics) const {
-        SkFont font(fTypeface, fFontSize);
-        font.getMetrics(metrics);
-        metrics->fAscent =
-                (metrics->fAscent - metrics->fLeading / 2) * (fHeight == 0 ? 1 : fHeight);
-        metrics->fDescent =
-                (metrics->fDescent + metrics->fLeading / 2) * (fHeight == 0 ? 1 : fHeight);
-    }
+    void getFontMetrics(SkFontMetrics* metrics) const;
 
 private:
     Decoration fDecoration;
@@ -156,6 +151,7 @@ private:
     std::vector<SkString> fFontFamilies;
     SkScalar fFontSize;
     SkScalar fHeight;
+    bool fHeightOverride;
     SkString fLocale;
     SkScalar fLetterSpacing;
     SkScalar fWordSpacing;
