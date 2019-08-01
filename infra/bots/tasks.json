@@ -791,6 +791,11 @@
         "Housekeeper-PerCommit-InfraTests_Win"
       ]
     },
+    "Housekeeper-PerCommit-IsolateMSKP": {
+      "tasks": [
+        "Housekeeper-PerCommit-IsolateMSKP"
+      ]
+    },
     "Housekeeper-PerCommit-IsolateSKP": {
       "tasks": [
         "Housekeeper-PerCommit-IsolateSKP"
@@ -945,6 +950,11 @@
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench": {
       "tasks": [
         "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench"
+      ]
+    },
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp": {
+      "tasks": [
+        "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp"
       ]
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
@@ -14375,6 +14385,30 @@
       "idempotent": true,
       "isolate": "empty.isolate"
     },
+    "Housekeeper-PerCommit-IsolateMSKP": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/mskp",
+          "path": "mskp",
+          "version": "version:2"
+        }
+      ],
+      "command": [
+        "/bin/cp",
+        "-rL",
+        "mskp",
+        "${ISOLATED_OUTDIR}"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.8",
+        "pool:Skia"
+      ],
+      "idempotent": true,
+      "isolate": "empty.isolate"
+    },
     "Housekeeper-PerCommit-IsolateSKP": {
       "cipd_packages": [
         {
@@ -16256,7 +16290,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "device_os:PPR1.180610.009",
@@ -16320,7 +16355,73 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
+      ],
+      "dimensions": [
+        "device_os:PPR1.180610.009",
+        "device_type:sailfish",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "skpbench_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "skpbench",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "device_os:PPR1.180610.009",
@@ -16450,7 +16551,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "device_os:PPR1.180610.009",
@@ -16580,7 +16682,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "device_os:PPR1.180610.009",
@@ -16644,7 +16747,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "device_os:PPR1.180610.009",
@@ -16774,7 +16878,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "device_os:PPR1.180610.009",
@@ -16904,7 +17009,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "device_os:PQ1A.190105.004",
@@ -16968,7 +17074,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "device_os:PQ1A.190105.004",
@@ -17098,7 +17205,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "device_os:PQ1A.190105.004",
@@ -21765,7 +21873,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-Clang-x86_64-Release-Vulkan",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
@@ -21833,7 +21942,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-Clang-x86_64-Release-Vulkan",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
@@ -21901,7 +22011,8 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-Clang-x86_64-Release-Vulkan",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateMSKP"
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
@@ -50052,6 +50163,72 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.8",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "upload_nano_results",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",

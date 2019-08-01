@@ -81,6 +81,8 @@ def skpbench_steps(api):
         '--pr', 'ccpr', '--cc', '--nocache',
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_*svg.skp'),
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_chalkboard.skp')]
+  elif 'Mskp' in api.vars.builder_name:
+    skpbench_args += [api.flavor.device_dirs.mskp_dir]
   else:
     skpbench_args += [api.flavor.device_dirs.skp_dir]
 
@@ -130,7 +132,8 @@ def RunSteps(api):
   api.flavor.setup()
 
   try:
-    api.flavor.install(skps=True)
+    mksp_mode = ('Mskp' in api.vars.builder_name)
+    api.flavor.install(skps=not mksp_mode, mskps=mksp_mode)
     skpbench_steps(api)
   finally:
     api.flavor.cleanup_steps()
@@ -138,6 +141,8 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
+   'Android_Skpbench_Mskp'),
   ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
    'Android_CCPR_Skpbench'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench',
