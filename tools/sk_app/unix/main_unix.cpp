@@ -27,7 +27,6 @@ int main(int argc, char**argv) {
 
     // Get the file descriptor for the X display
     int x11_fd = ConnectionNumber(display);
-    int count = x11_fd + 1;
 
     SkTHashSet<sk_app::Window_unix*> pendingWindows;
     bool done = false;
@@ -42,10 +41,8 @@ int main(int argc, char**argv) {
         tv.tv_usec = 100;
         tv.tv_sec = 0;
 
-        while (!XPending(display)) {
-            // Wait for an event on the file descriptor or for timer expiration
-            (void) select(count, &in_fds, nullptr, nullptr, &tv);
-        }
+        // Wait for an event on the file descriptor or for timer expiration
+        (void)select(1, &in_fds, nullptr, nullptr, &tv);
 
         // Handle XEvents (if any) and flush the input
         int count = XPending(display);
@@ -78,12 +75,11 @@ int main(int argc, char**argv) {
         }
 
         pendingWindows.foreach(finishWindow);
-        if (pendingWindows.count() > 0) {
-            app->onIdle();
-        }
         pendingWindows.reset();
 
         XFlush(display);
+
+        app->onIdle();
     }
 
     delete app;

@@ -86,6 +86,7 @@ struct EditorLayer : public sk_app::Window::Layer {
     int fWidth = 0;  // window width
     int fHeight = 0;  // window height
     bool fShiftDown = false;
+    bool fBlink = false;
 
     EditorLayer() {
         fEditor.setFont(SkFont(SkTypeface::MakeFromName("monospace", SkFontStyle()), 18));
@@ -108,6 +109,7 @@ struct EditorLayer : public sk_app::Window::Layer {
         editor::Editor::PaintOpts options;
         options.fCursor = fTextPos;
         options.fBackgroundColor = SkColor4f{0.8f, 0.8f, 0.8f, 1};
+        options.fCursorColor = {1, 0, 0, fBlink ? 0.0f : 1.0f};
         if (fMarkPos != editor::Editor::TextPosition()) {
             options.fSelectionBegin = fMarkPos;
             options.fSelectionEnd = fTextPos;
@@ -314,6 +316,7 @@ struct EditorLayer : public sk_app::Window::Layer {
 struct EditorApplication : public sk_app::Application {
     std::unique_ptr<sk_app::Window> fWindow;
     EditorLayer fLayer;
+    double fNextTime = -DBL_MAX;
 
     EditorApplication(const char* path, void* platformData)
         : fWindow(sk_app::Window::CreateNativeWindow(platformData))
@@ -334,7 +337,15 @@ struct EditorApplication : public sk_app::Application {
     }
     ~EditorApplication() override { fWindow->detach(); }
 
-    void onIdle() override {}
+    void onIdle() override {
+        double now = SkTime::GetNSecs();
+        if (now >= fNextTime) {
+            constexpr double kHalfPeriodNanoSeconds = 0.5 * 1e9;
+            fNextTime = now + kHalfPeriodNanoSeconds;
+            fLayer.fBlink = !fLayer.fBlink;
+            fWindow->inval();
+        }
+    }
 };
 }  // namespace
 
