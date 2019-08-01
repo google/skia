@@ -174,10 +174,10 @@ void RasterWindowContext_mac::resize(int w, int h) {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewRasterForMac(const MacWindowInfo& info, const DisplayParams& params) {
-    WindowContext* ctx = new RasterWindowContext_mac(info, params);
+std::unique_ptr<WindowContext> MakeRasterForMac(const MacWindowInfo& info,
+                                                const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_mac(info, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;
