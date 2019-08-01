@@ -3716,15 +3716,18 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
     return fallbackRead;
 }
 
-GrCaps::SupportedWrite GrGLCaps::supportedWritePixelsColorType(GrPixelConfig config,
+GrCaps::SupportedWrite GrGLCaps::supportedWritePixelsColorType(GrColorType surfaceColorType,
+                                                               const GrBackendFormat& surfaceFormat,
                                                                GrColorType srcColorType) const {
-    GrGLFormat surfaceFormat = this->pixelConfigToFormat(config);
-    GrColorType surfaceColorType = GrPixelConfigToColorType(config);
-
     // We first try to find a supported write pixels GrColorType that matches the data's
     // srcColorType. If that doesn't exists we will use any supported GrColorType.
     GrColorType fallbackCT = GrColorType::kUnknown;
-    const auto& formatInfo = this->getFormatInfo(surfaceFormat);
+    const GrGLenum* glEnum = surfaceFormat.getGLFormat();
+    if (!glEnum) {
+        return {GrColorType::kUnknown, 0};
+    }
+    auto glFormat = GrGLFormatFromGLEnum(*glEnum);
+    const auto& formatInfo = this->getFormatInfo(glFormat);
     bool foundSurfaceCT = false;
     for (int i = 0; !foundSurfaceCT && i < formatInfo.fColorTypeInfoCount; ++i) {
         if (formatInfo.fColorTypeInfos[i].fColorType == surfaceColorType) {
