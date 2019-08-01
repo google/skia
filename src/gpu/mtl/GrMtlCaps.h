@@ -46,7 +46,8 @@ public:
     int maxRenderTargetSampleCount(GrPixelConfig) const override;
     int maxRenderTargetSampleCount(MTLPixelFormat) const;
 
-    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+    SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
+                                                 const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override;
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
