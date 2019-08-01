@@ -13,9 +13,8 @@
 
 class SkColorFilter_Matrix : public SkColorFilter {
 public:
-    enum class Domain : uint8_t { kRGBA, kHSLA };
-
-    explicit SkColorFilter_Matrix(const float array[20], Domain);
+    SkColorFilter_Matrix() {}
+    explicit SkColorFilter_Matrix(const float array[20]);
 
     uint32_t getFlags() const override;
 
@@ -35,8 +34,9 @@ private:
     SkAlphaType onAlphaType() const override { return kUnpremul_SkAlphaType; }
 
     float       fMatrix[20];
-    uint16_t    fFlags;
-    Domain      fDomain;
+    uint32_t    fFlags;
+
+    void initState();
 
     typedef SkColorFilter INHERITED;
 };

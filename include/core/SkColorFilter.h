@@ -149,10 +149,6 @@ public:
     static sk_sp<SkColorFilter> Matrix(const SkColorMatrix&);
     static sk_sp<SkColorFilter> Matrix(const float rowMajor[20]);
 
-    // A version of Matrix which operates in HSLA space instead of RGBA.
-    // I.e. HSLA-to-RGBA(Matrix(RGBA-to-HSLA(input))).
-    static sk_sp<SkColorFilter> HSLAMatrix(const float rowMajor[20]);
-
     static sk_sp<SkColorFilter> LinearToSRGBGamma();
     static sk_sp<SkColorFilter> SRGBToLinearGamma();
     static sk_sp<SkColorFilter> Lerp(float t, sk_sp<SkColorFilter> dst, sk_sp<SkColorFilter> src);
