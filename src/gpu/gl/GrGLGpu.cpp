@@ -864,9 +864,9 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
     this->bindTextureToScratchUnit(glTex->target(), glTex->textureID());
 
     SkASSERT(!GrPixelConfigIsCompressed(glTex->config()));
-    return this->uploadTexData(glTex->format(), surfaceColorType, glTex->config(), glTex->width(),
-                               glTex->height(), glTex->target(), kWrite_UploadType, left, top,
-                               width, height, srcColorType, texels, mipLevelCount);
+    return this->uploadTexData(glTex->format(), surfaceColorType, glTex->width(), glTex->height(),
+                               glTex->target(), kWrite_UploadType, left, top,width,
+                               height, srcColorType, texels, mipLevelCount);
 }
 
 bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
@@ -955,7 +955,7 @@ bool GrGLGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
 /**
  * Creates storage space for the texture and fills it with texels.
  *
- * @param config         Pixel config of the texture.
+ * @param format         The format of the texture.
  * @param interface      The GL interface in use.
  * @param caps           The capabilities of the GL device.
  * @param target         Which bound texture to target (GR_GL_TEXTURE_2D, e.g.)
@@ -963,12 +963,13 @@ bool GrGLGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
  * @param internalFormatForTexStorage The data format used for the TexStorage API. Must be sized.
  * @param externalFormat The data format used for the external storage of the texture.
  * @param externalType   The type of the data used for the external storage of the texture.
+ * @param dataBpp        The bytes per pixel of the data in texels.
  * @param texels         The texel data of the texture being created.
  * @param mipLevelCount  Number of mipmap levels
  * @param baseWidth      The width of the texture's base mipmap level
  * @param baseHeight     The height of the texture's base mipmap level
  */
-static bool allocate_and_populate_texture(GrPixelConfig config,
+static bool allocate_and_populate_texture(GrGLFormat format,
                                           const GrGLInterface& interface,
                                           const GrGLCaps& caps,
                                           GrGLenum target,
@@ -976,6 +977,7 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                           GrGLenum internalFormatForTexStorage,
                                           GrGLenum externalFormat,
                                           GrGLenum externalType,
+                                          size_t dataBpp,
                                           const GrMipLevel texels[],
                                           int mipLevelCount,
                                           int baseWidth,
@@ -984,7 +986,7 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                           GrMipMapsStatus* mipMapsStatus) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
 
-    if (caps.configSupportsTexStorage(config)) {
+    if (caps.formatSupportsTexStorage(format)) {
         // We never resize or change formats of textures.
         GL_ALLOC_CALL(&interface,
                       TexStorage2D(target, SkTMax(mipLevelCount, 1), internalFormatForTexStorage,
@@ -993,7 +995,6 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
         if (error != GR_GL_NO_ERROR) {
             return  false;
         } else {
-            size_t bpp = GrBytesPerPixel(config);
             for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
                 const void* currentMipData = texels[currentMipLevel].fPixels;
                 if (currentMipData == nullptr) {
@@ -1007,11 +1008,11 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 const int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
 
                 if (texels[currentMipLevel].fPixels) {
-                    const size_t trimRowBytes = currentWidth * bpp;
+                    const size_t trimRowBytes = currentWidth * dataBpp;
                     const size_t rowBytes = texels[currentMipLevel].fRowBytes;
                     if (rowBytes != trimRowBytes) {
                         SkASSERT(caps.writePixelsRowBytesSupport());
-                        GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
+                        GrGLint rowLength = static_cast<GrGLint>(rowBytes / dataBpp);
                         GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
                         *changedUnpackRowLength = true;
                     } else if (*changedUnpackRowLength) {
@@ -1049,7 +1050,6 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 return false;
             }
         } else {
-            size_t bpp = GrBytesPerPixel(config);
             for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
                 int twoToTheMipLevel = 1 << currentMipLevel;
                 const int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
@@ -1057,11 +1057,11 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
 
                 const void* currentMipData = texels[currentMipLevel].fPixels;
                 if (currentMipData) {
-                    const size_t trimRowBytes = currentWidth * bpp;
+                    const size_t trimRowBytes = currentWidth * dataBpp;
                     const size_t rowBytes = texels[currentMipLevel].fRowBytes;
                     if (rowBytes != trimRowBytes) {
                         SkASSERT(caps.writePixelsRowBytesSupport());
-                        GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
+                        GrGLint rowLength = static_cast<GrGLint>(rowBytes / dataBpp);
                         GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
                         *changedUnpackRowLength = true;
                     } else if (*changedUnpackRowLength) {
@@ -1120,10 +1120,10 @@ void GrGLGpu::unbindCpuToGpuXferBuffer() {
 }
 
 bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorType,
-                            GrPixelConfig textureConfig, int texWidth, int texHeight,
-                            GrGLenum target, UploadType uploadType, int left, int top, int width,
-                            int height, GrColorType srcColorType, const GrMipLevel texels[],
-                            int mipLevelCount, GrMipMapsStatus* mipMapsStatus) {
+                            int texWidth, int texHeight, GrGLenum target, UploadType uploadType,
+                            int left, int top, int width, int height, GrColorType srcColorType,
+                            const GrMipLevel texels[],int mipLevelCount,
+                            GrMipMapsStatus* mipMapsStatus) {
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrGLFormatIsCompressed(textureFormat));
 
@@ -1158,8 +1158,7 @@ bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorTy
         return false;
     }
 
-    // TODO: Make this format based, possibly move to getTexImageFormats.
-    GrGLenum internalFormatForTexStorage = this->glCaps().configSizedInternalFormat(textureConfig);
+    GrGLenum internalFormatForTexStorage = this->glCaps().getSizedInternalFormat(textureFormat);
 
     /*
      *  Check whether to allocate a temporary buffer for flipping y or
@@ -1185,8 +1184,8 @@ bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorTy
     if (kNewTexture_UploadType == uploadType) {
         if (0 == left && 0 == top && texWidth == width && texHeight == height) {
             succeeded = allocate_and_populate_texture(
-                    textureConfig, *interface, caps, target, internalFormat,
-                    internalFormatForTexStorage, externalFormat, externalType, texels,
+                    textureFormat, *interface, caps, target, internalFormat,
+                    internalFormatForTexStorage, externalFormat, externalType, bpp, texels,
                     mipLevelCount, width, height, &restoreGLRowLength, mipMapsStatus);
         } else {
             succeeded = false;
@@ -1689,7 +1688,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
     // TODO: Take these as parameters.
     auto textureColorType = GrPixelConfigToColorType(desc.fConfig);
     auto srcColorType = GrPixelConfigToColorType(desc.fConfig);
-    if (!this->uploadTexData(format, textureColorType, desc.fConfig, desc.fWidth, desc.fHeight,
+    if (!this->uploadTexData(format, textureColorType, desc.fWidth, desc.fHeight,
                              info->fTarget, kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight,
                              srcColorType, texels, mipLevelCount, mipMapsStatus)) {
         GL_CALL(DeleteTextures(1, &(info->fID)));
