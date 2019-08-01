@@ -610,13 +610,14 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     }
 
     GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
-    GrAHardwareBufferUtils::DeleteImageCtx deleteImageCtx = nullptr;
+    GrAHardwareBufferUtils::UpdateImageProc updateImageProc = nullptr;
+    GrAHardwareBufferUtils::TexImageCtx deleteImageCtx = nullptr;
 
     GrBackendTexture backendTexture =
             GrAHardwareBufferUtils::MakeBackendTexture(context, hardwareBuffer,
                                                        bufferDesc.width, bufferDesc.height,
-                                                       &deleteImageProc, &deleteImageCtx,
-                                                       false, backendFormat, true);
+                                                       &deleteImageProc, &updateImageProc,
+                                                       &deleteImageCtx, false, backendFormat, true);
     if (!backendTexture.isValid()) {
         return nullptr;
     }
