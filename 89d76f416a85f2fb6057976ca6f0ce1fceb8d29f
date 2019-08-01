@@ -1,0 +1,181 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ccbdb3d_824c2606",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:08:32Z",
+      "side": 1,
+      "message": "I don\u0027t know if it is worth documenting the rotation craziness here",
+      "revId": "89d76f416a85f2fb6057976ca6f0ce1fceb8d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69e8bd67_129b7851",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:08:32Z",
+      "side": 1,
+      "message": "this cropRect\u0027s ?",
+      "range": {
+        "startLine": 49,
+        "startChar": 64,
+        "endLine": 49,
+        "endChar": 72
+      },
+      "revId": "89d76f416a85f2fb6057976ca6f0ce1fceb8d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09610931_e313040d",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:08:32Z",
+      "side": 1,
+      "message": "*",
+      "range": {
+        "startLine": 125,
+        "startChar": 5,
+        "endLine": 125,
+        "endChar": 7
+      },
+      "revId": "89d76f416a85f2fb6057976ca6f0ce1fceb8d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3909fa5a_83b0d380",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:08:32Z",
+      "side": 1,
+      "message": "line these up ?",
+      "revId": "89d76f416a85f2fb6057976ca6f0ce1fceb8d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99661e51_1f92602e",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:08:32Z",
+      "side": 1,
+      "message": "odd indenting",
+      "revId": "89d76f416a85f2fb6057976ca6f0ce1fceb8d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "169b3824_300b0ff6",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:08:32Z",
+      "side": 1,
+      "message": "Out of date comment ?",
+      "range": {
+        "startLine": 193,
+        "startChar": 11,
+        "endLine": 193,
+        "endChar": 18
+      },
+      "revId": "89d76f416a85f2fb6057976ca6f0ce1fceb8d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30d633f3_c629de96",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:08:32Z",
+      "side": 1,
+      "message": "returns ?",
+      "range": {
+        "startLine": 254,
+        "startChar": 25,
+        "endLine": 254,
+        "endChar": 31
+      },
+      "revId": "89d76f416a85f2fb6057976ca6f0ce1fceb8d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cb0b234_37ddb2a3",
+        "filename": "src/effects/imagefilters/SkBlurImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:08:32Z",
+      "side": 1,
+      "message": "wdyt about adding SK_DoublePI to SkFloatingPoint.h ?",
+      "revId": "89d76f416a85f2fb6057976ca6f0ce1fceb8d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49ec5a26_7e66e89d",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T20:08:32Z",
+      "side": 1,
+      "message": "line these guys up ?",
+      "revId": "89d76f416a85f2fb6057976ca6f0ce1fceb8d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
