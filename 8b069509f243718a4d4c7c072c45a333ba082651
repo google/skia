@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "7bb7b68b_eedfd04d",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-01T18:41:46Z",
+      "side": 1,
+      "message": "Looks like if they\u0027re going to be tagged as SK_API, it\u0027ll have to be set up as a class like this.",
+      "parentUuid": "512fad8d_96ae5011",
+      "revId": "8b069509f243718a4d4c7c072c45a333ba082651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e8e4b0ca_1aa432c9",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 4
