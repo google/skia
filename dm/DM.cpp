@@ -118,7 +118,7 @@ static DEFINE_bool(simpleCodec, false,
                    "Runs of a subset of the codec tests, "
                    "with no scaling or subsetting, always using the canvas color type.");
 
-static DEFINE_string2(match, m, nullptr,
+static DEFINE_string2(match, m, "GrSurfaceRenderability",
                "[~][^]substring[$] [...] of name to run.\n"
                "Multiple matches may be separated by spaces.\n"
                "~ causes a matching name to always be skipped\n"
@@ -850,6 +850,7 @@ static bool gather_srcs() {
     for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
         push_src("gm", "", new GMSrc(f));
     }
+    if (!FLAGS_bisect.isEmpty()) {
 
     gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
@@ -862,7 +863,7 @@ static bool gather_srcs() {
     if (!FLAGS_bisect.isEmpty()) {
         // An empty l/r trail string will draw all the paths.
         push_src("bisect", "",
-                 new BisectSrc(FLAGS_bisect[0], FLAGS_bisect.count() > 1 ? FLAGS_bisect[1] : ""));
+            new BisectSrc(FLAGS_bisect[0], FLAGS_bisect.count() > 1 ? FLAGS_bisect[1] : ""));
     }
 
     SkTArray<SkString> images;
@@ -870,9 +871,9 @@ static bool gather_srcs() {
         return false;
     }
 
-    for (auto image : images) {
-        push_codec_srcs(image);
-    }
+        for (auto image : images) {
+            push_codec_srcs(image);
+        }
 
     SkTArray<SkString> colorImages;
     if (!CollectImages(FLAGS_colorImages, &colorImages)) {
@@ -882,6 +883,7 @@ static bool gather_srcs() {
     for (auto colorImage : colorImages) {
         push_src("colorImage", "decode_native", new ColorCodecSrc(colorImage, false));
         push_src("colorImage", "decode_to_dst", new ColorCodecSrc(colorImage,  true));
+    }
     }
 
     return true;
