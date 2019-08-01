@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebd34ff4_62307003",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-01T20:18:32Z",
+      "side": 1,
+      "message": "Maybe if I stop promising it\u0027s my last tweak, I\u0027ll actually stop.\n\nAnyway, PS 9 gets rid of scale(), favoring div255(mul(x,y)) directly.\n\nThe main beneficiary of this is mix(), which can do one div255() instead of two, and that might even keep a little more precision than the previous version that rounds twice.",
+      "revId": "71745fc5ad79e9be22a7175129080bdd2b6b007c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
