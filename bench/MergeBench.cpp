@@ -9,8 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkImageSource.h"
-#include "include/effects/SkMergeImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 #define FILTER_WIDTH_SMALL  SkIntToScalar(32)
 #define FILTER_HEIGHT_SMALL SkIntToScalar(32)
@@ -80,8 +79,8 @@ protected:
 
 private:
     sk_sp<SkImageFilter> mergeBitmaps() {
-        return SkMergeImageFilter::Make(SkImageSource::Make(fCheckerboard),
-                                        SkImageSource::Make(fImage));
+        return SkImageFilters::Merge(SkImageFilters::Image(fCheckerboard),
+                                     SkImageFilters::Image(fImage));
     }
 
     bool fIsSmall;
