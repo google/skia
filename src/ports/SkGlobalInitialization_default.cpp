@@ -139,7 +139,6 @@
         SkDilateImageFilter::RegisterFlattenables();
         SkDisplacementMapEffect::RegisterFlattenables();
         SkDropShadowImageFilter::RegisterFlattenables();
-        SkErodeImageFilter::RegisterFlattenables();
         SkImageSource::RegisterFlattenables();
         SkLightingImageFilter::RegisterFlattenables();
         SkMagnifierImageFilter::RegisterFlattenables();

@@ -71,6 +71,7 @@ public:
     // V68: Paint doesn't serialize font-related stuff
     // V69: Clean up duplicated and redundant SkImageFilter related enums
     // V70: Image filters definitions hidden, registered names updated to include "Impl"
+    // V71: Unify erode and dilate image filters
     enum Version {
         kTileModeInBlurImageFilter_Version = 56,
         kTileInfoInSweepGradient_Version   = 57,
@@ -87,10 +88,11 @@ public:
         kPaintDoesntSerializeFonts_Version = 68,
         kCleanupImageFilterEnums_Version   = 69,
         kHideImageFilterImpls_Version      = 70,
+        kUnifyErodeDilateImpls_Version     = 71,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kTileModeInBlurImageFilter_Version,
-        kCurrent_Version = kHideImageFilterImpls_Version
+        kCurrent_Version = kUnifyErodeDilateImpls_Version
     };
 
     static_assert(kMin_Version <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
