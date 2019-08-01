@@ -30,6 +30,10 @@ class GrGLTextureParameters;
 #include "include/gpu/mtl/GrMtlTypes.h"
 #endif
 
+#if GR_TEST_UTILS
+class SkString;
+#endif
+
 #if !SK_SUPPORT_GPU
 
 // SkSurface and SkImage rely on a minimal version of these always being available
@@ -122,6 +126,10 @@ public:
 
     // Returns true if the backend format has been initialized.
     bool isValid() const { return fValid; }
+
+#if GR_TEST_UTILS
+    SkString toStr() const;
+#endif
 
 private:
     GrBackendFormat(GrGLenum format, GrGLenum target);
