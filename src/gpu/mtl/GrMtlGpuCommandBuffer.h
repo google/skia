@@ -32,10 +32,12 @@ public:
     void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
         fGpu->copySurface(fTexture, src, srcRect, dstPoint);
     }
-    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
-                      GrGpuBuffer* transferBuffer, size_t offset) override {
+    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                      size_t offset) override {
         fGpu->transferPixelsFrom(fTexture, srcRect.fLeft, srcRect.fTop, srcRect.width(),
-                                 srcRect.height(), bufferColorType, transferBuffer, offset);
+                                 srcRect.height(), surfaceColorType, bufferColorType,
+                                 transferBuffer, offset);
     }
     void insertEventMarker(const char* msg) override {}
 
@@ -65,8 +67,9 @@ public:
         // TODO: this could be more efficient
         state->doUpload(upload);
     }
-    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
-                      GrGpuBuffer* transferBuffer, size_t offset) override;
+    void transferFrom(const SkIRect& srcRect, GrColorType textureColorType,
+                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                      size_t offset) override;
     void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
     void submit();
