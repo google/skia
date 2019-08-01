@@ -107,6 +107,6 @@ private:
 // Swizzle param is applied after loading and before converting from srcInfo to dstInfo.
 bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
                      const GrPixelInfo& srcInfo, const void* src, size_t srcRB,
-                     bool flipY = false, GrSwizzle swizzle = GrSwizzle{});
+                     bool flipY = false);
 
 #endif
