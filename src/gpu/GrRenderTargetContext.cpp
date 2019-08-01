@@ -820,7 +820,7 @@ void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
         // mixed samples.
         SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
         numRequiredSamples = this->caps()->internalMultisampleCount(
-                this->asSurfaceProxy()->config());
+                this->asSurfaceProxy()->backendFormat());
     }
     SkASSERT(numRequiredSamples > 0);
 

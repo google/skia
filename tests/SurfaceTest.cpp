@@ -192,7 +192,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
 
     static constexpr int kSize = 10;
 
-    for (int ct = 0; ct < kLastEnum_SkColorType; ++ct) {
+    for (int ct = 9; ct < 10; ++ct) {
+    //for (int ct = 0; ct < kLastEnum_SkColorType; ++ct) {
 
         SkColorType colorType = static_cast<SkColorType>(ct);
         int max = context->maxSurfaceSampleCountForColorType(colorType);
