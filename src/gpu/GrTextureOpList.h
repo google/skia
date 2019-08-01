@@ -70,7 +70,7 @@ private:
     void deleteOp(int index);
     void deleteOps();
 
-    void purgeOpsWithUninstantiatedProxies() override;
+    void handleInternalAllocationFailure() override;
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
