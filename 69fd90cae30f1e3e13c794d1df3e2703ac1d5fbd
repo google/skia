@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c870a6c_b95d1dd4",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T18:29:50Z",
+      "side": 1,
+      "message": "Can we remove \u0027colorType\u0027 and just fold the constants into the getDefaultBackendFormat calls?",
+      "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64549421_e1765b83",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T18:29:50Z",
+      "side": 1,
+      "message": "We shouldn\u0027t need this guard",
+      "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d783584_139685e6",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T18:29:50Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e661e66a_a331680c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3782,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-01T18:29:50Z",
+      "side": 1,
+      "message": "Don\u0027t we need a check here for 888X \u0026\u0026 GR_GL_RGB8 ?",
+      "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
