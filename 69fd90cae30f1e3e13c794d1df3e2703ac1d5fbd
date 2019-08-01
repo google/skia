@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1464847c_f804e35b",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-01T18:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c870a6c_b95d1dd4",
+      "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "64549421_e1765b83",
         "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2019-08-01T18:29:50Z",
       "side": 1,
       "message": "We shouldn\u0027t need this guard",
+      "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aebf6028_c61488ed",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-01T18:37:09Z",
+      "side": 1,
+      "message": "woops, I had originally added a variable inside the guard but then deleted it and forgot to removed the guard.",
+      "parentUuid": "64549421_e1765b83",
       "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a17cda29_b7885cc3",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-01T18:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d783584_139685e6",
+      "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e661e66a_a331680c",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2019-08-01T18:29:50Z",
       "side": 1,
       "message": "Don\u0027t we need a check here for 888X \u0026\u0026 GR_GL_RGB8 ?",
+      "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d02b924d_bf5aaa9a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3782,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-01T18:37:09Z",
+      "side": 1,
+      "message": "Nope. The joy of the FormatTable. We already coded that into not setting the ColorTypeInfo::kRenderable_Flag for the format/ct pair. This is one of the reasons I want to move all the backeds to a table filled out at init time so we don\u0027t have to think about these sort of things in these calls.",
+      "parentUuid": "e661e66a_a331680c",
       "revId": "69fd90cae30f1e3e13c794d1df3e2703ac1d5fbd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
