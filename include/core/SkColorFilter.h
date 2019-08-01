@@ -145,6 +145,7 @@ public:
     static sk_sp<SkColorFilter> Blend(SkColor c, SkBlendMode mode);
     static sk_sp<SkColorFilter> Matrix(const SkColorMatrix&);
     static sk_sp<SkColorFilter> Matrix(const float rowMajor[20]);
+    static sk_sp<SkColorFilter> HSLAMatrix(const float rowMajor[20]);
 
     static sk_sp<SkColorFilter> LinearToSRGBGamma();
     static sk_sp<SkColorFilter> SRGBToLinearGamma();
