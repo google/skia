@@ -22,6 +22,30 @@
       "revId": "94c95757851ab832716c090a704ca1dc9b91ec39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21accc3c_ca231ef2",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-01T20:27:20Z",
+      "side": 1,
+      "message": "I\u0027m not intimately familiar with the purpose of these, but they do appear to be in use here:\n\nhttps://cs.chromium.org/search/?q\u003df:src/third_party/skia+asRenderTargetOpList\u0026type\u003dcs\n\nSo.. debug code in GrDrawingManager and casting fLastRenderTask in GrSurfaceProxy::getLastRenderTargetOpList.",
+      "parentUuid": "3bf44003_3cff604d",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 76
+      },
+      "revId": "94c95757851ab832716c090a704ca1dc9b91ec39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
