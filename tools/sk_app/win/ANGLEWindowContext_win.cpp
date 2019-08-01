@@ -167,10 +167,9 @@ void ANGLEGLWindowContext_win::onSwapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewANGLEForWin(HWND wnd, const DisplayParams& params) {
-    ANGLEGLWindowContext_win* ctx = new ANGLEGLWindowContext_win(wnd, params);
+std::unique_ptr<WindowContext> MakeANGLEForWin(HWND wnd, const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new ANGLEGLWindowContext_win(wnd, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

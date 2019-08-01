@@ -23,7 +23,7 @@
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewVulkanForWin(HWND hwnd, const DisplayParams& params) {
+std::unique_ptr<WindowContext> MakeVulkanForWin(HWND hwnd, const DisplayParams& params) {
     PFN_vkGetInstanceProcAddr instProc;
     PFN_vkGetDeviceProcAddr devProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
@@ -69,10 +69,9 @@ WindowContext* NewVulkanForWin(HWND hwnd, const DisplayParams& params) {
         return (VK_FALSE != check);
     };
 
-    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent,
-                                                 instProc, devProc);
+    std::unique_ptr<WindowContext> ctx(
+            new VulkanWindowContext(params, createVkSurface, canPresent, instProc, devProc));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;
