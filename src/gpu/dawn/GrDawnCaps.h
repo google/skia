@@ -25,7 +25,8 @@ public:
 
     bool isConfigTexturable(GrPixelConfig config) const override;
 
-    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+    SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
+                                                 const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override {
         GrColorType ct = GrPixelConfigToColorType(config);
         return {ct, GrColorTypeBytesPerPixel(ct)};

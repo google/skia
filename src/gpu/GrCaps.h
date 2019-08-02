@@ -229,7 +229,8 @@ public:
      * Given a dst pixel config and a src color type what color type must the caller coax the
      * the data into in order to use GrGpu::writePixels().
      */
-    virtual SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+    virtual SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
+                                                         const GrBackendFormat& surfaceFormat,
                                                          GrColorType srcColorType) const = 0;
 
     struct SupportedRead {
