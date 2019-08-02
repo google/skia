@@ -22,6 +22,12 @@ GrPixelConfig GrDawnFormatToPixelConfig(dawn::TextureFormat format) {
     }
 }
 
+bool GrDawnFormatIsRenderable(dawn::TextureFormat format) {
+    // For now, all the formats above are renderable. If a non-renderable format is added
+    // (see dawn/src/dawn_native/Format.cpp), an exception should be added here.
+    return true;
+}
+
 bool GrPixelConfigToDawnFormat(GrPixelConfig config, dawn::TextureFormat* format) {
     switch (config) {
         case kRGBA_8888_GrPixelConfig:
@@ -40,3 +46,21 @@ bool GrPixelConfigToDawnFormat(GrPixelConfig config, dawn::TextureFormat* format
             return false;
     }
 }
+
+#if GR_TEST_UTILS
+const char* GrDawnFormatToStr(dawn::TextureFormat format) {
+    switch (format) {
+        case dawn::TextureFormat::RGBA8Unorm:
+            return "RGBA8Unorm";
+        case dawn::TextureFormat::BGRA8Unorm:
+            return "BGRA8Unorm";
+        case dawn::TextureFormat::R8Unorm:
+            return "R8Unorm";
+        case dawn::TextureFormat::Depth24PlusStencil8:
+            return "Depth24PlusStencil8";
+        default:
+            SkASSERT(false);
+            return "Unknown";
+    }
+}
+#endif
