@@ -31,15 +31,6 @@ typedef void* TexImageCtx;
 typedef void (*DeleteImageProc)(TexImageCtx);
 typedef void (*UpdateImageProc)(TexImageCtx, GrContext*);
 
-//TODO: delete this function after clients stop using it.
-GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwareBuffer,
-                                    int width, int height,
-                                    DeleteImageProc* deleteProc,
-                                    TexImageCtx* imageCtx,
-                                    bool isProtectedContent,
-                                    const GrBackendFormat& backendFormat,
-                                    bool isRenderable);
-
 /**
  * Create a GrBackendTexture from AHardwareBuffer
  *
