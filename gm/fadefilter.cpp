@@ -12,7 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 #include <utility>
 
@@ -24,6 +24,6 @@ DEF_SIMPLE_GM(fadefilter, canvas, 256, 256) {
                          0, 0, 0, 1, 0 };
     sk_sp<SkColorFilter> colorFilter(SkColorFilters::Matrix(matrix));
     SkPaint layerPaint;
-    layerPaint.setImageFilter(SkColorFilterImageFilter::Make(std::move(colorFilter), nullptr));
+    layerPaint.setImageFilter(SkImageFilters::ColorFilter(std::move(colorFilter), nullptr));
     canvas->drawRect(SkRect::MakeLTRB(64, 64, 192, 192), layerPaint);
 }

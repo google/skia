@@ -23,9 +23,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkColorFilterImageFilter.h"
-#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/utils/SkTextUtils.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkSpecialImage.h"
@@ -190,15 +188,12 @@ protected:
             nullptr,
             IdentityImageFilter::Make(nullptr),
             FailImageFilter::Make(),
-            SkColorFilterImageFilter::Make(std::move(cf), nullptr),
-            // The strage 0.29 value tickles an edge case where crop rect calculates
-            // a small border, but the blur really needs no border. This tickels
+            SkImageFilters::ColorFilter(std::move(cf), nullptr),
+            // The strange 0.29 value tickles an edge case where crop rect calculates
+            // a small border, but the blur really needs no border. This tickles
             // an msan uninitialized value bug.
-            SkBlurImageFilter::Make(12.0f, 0.29f, nullptr),
-            SkDropShadowImageFilter::Make(
-                                    10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,
-                                    SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-                                    nullptr),
+            SkImageFilters::Blur(12.0f, 0.29f, nullptr),
+            SkImageFilters::DropShadow(10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
@@ -300,7 +295,7 @@ public:
     ImageFiltersText_IF() : ImageFiltersTextBaseGM("image") {}
 
     void installFilter(SkPaint* paint) override {
-        paint->setImageFilter(SkBlurImageFilter::Make(1.5f, 1.5f, nullptr));
+        paint->setImageFilter(SkImageFilters::Blur(1.5f, 1.5f, nullptr));
     }
 };
 DEF_GM( return new ImageFiltersText_IF; )

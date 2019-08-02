@@ -18,7 +18,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
 
 #include <initializer_list>
@@ -101,18 +101,15 @@ protected:
         for (auto sigma: { 0.6f, 3.0f, 8.0f, 20.0f }) {
             canvas->save();
             sk_sp<SkImageFilter> filter(
-                  SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
-                                          SkBlurImageFilter::kRepeat_TileMode));
+                  SkImageFilters::Blur(sigma, 0.0f, SkTileMode::kRepeat, nullptr));
             draw_image(canvas, image[0], std::move(filter));
             canvas->translate(image[0]->width() + 20, 0);
 
-            filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kRepeat_TileMode);
+            filter = SkImageFilters::Blur(0.0f, sigma, SkTileMode::kRepeat, nullptr);
             draw_image(canvas, image[1], std::move(filter));
             canvas->translate(image[1]->width() + 20, 0);
 
-            filter = SkBlurImageFilter::Make(sigma, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kRepeat_TileMode);
+            filter = SkImageFilters::Blur(sigma, sigma, SkTileMode::kRepeat, nullptr);
             draw_image(canvas, image[2], std::move(filter));
             canvas->translate(image[2]->width() + 20, 0);
 
