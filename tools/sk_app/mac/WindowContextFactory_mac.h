@@ -36,6 +36,10 @@ inline std::unique_ptr<WindowContext> MakeVulkanForMac(const MacWindowInfo&, con
 
 std::unique_ptr<WindowContext> MakeGLForMac(const MacWindowInfo&, const DisplayParams&);
 
+#ifdef SK_DAWN
+std::unique_ptr<WindowContext> MakeDawnMTLForMac(const MacWindowInfo&, const DisplayParams&);
+#endif
+
 std::unique_ptr<WindowContext> MakeRasterForMac(const MacWindowInfo&, const DisplayParams&);
 #ifdef SK_METAL
 std::unique_ptr<WindowContext> MakeMetalForMac(const MacWindowInfo&, const DisplayParams&);
