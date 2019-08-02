@@ -69,7 +69,8 @@ namespace skvm {
                           vpsubw, vpmullw,
                   vaddps, vsubps, vmulps, vdivps,
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
-                  vpackusdw, vpackuswb;
+                  vpackusdw, vpackuswb,
+                  vpcmpeqd, vpcmpgtd;
 
         using DstEqXOpImm = void(Ymm dst, Ymm x, int imm);
         DstEqXOpImm vpslld, vpsrld, vpsrad,
@@ -78,6 +79,8 @@ namespace skvm {
 
         using DstEqOpX = void(Ymm dst, Ymm x);
         DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq;
+
+        void vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z);
 
         struct Label {
             int                                 offset = 0;

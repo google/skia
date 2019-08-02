@@ -399,6 +399,21 @@ namespace skvm {
     void Assembler::vpackusdw(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x2b, dst,x,y); }
     void Assembler::vpackuswb(Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0x67, dst,x,y); }
 
+    void Assembler::vpcmpeqd(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0x76, dst,x,y); }
+    void Assembler::vpcmpgtd(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0x66, dst,x,y); }
+
+    void Assembler::vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z) {
+        int prefix = 0x66,
+            map    = 0x3a0f,
+            opcode = 0x4c;
+        VEX v = vex(0, dst>>3, 0, y>>3,
+                    map, x, /*ymm?*/1, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Direct, dst&7, y&7));
+        this->byte(z << 4);
+    }
+
     // dst = x op /opcode_ext imm
     void Assembler::op(int prefix, int map, int opcode, int opcode_ext, Ymm dst, Ymm x, int imm) {
         // This is a little weird, but if we pass the opcode_ext as if it were the dst register,
@@ -1467,10 +1482,15 @@ namespace skvm {
                 case Op::bit_or   : a->vpor  (dst(), r[x], r[y]); break;
                 case Op::bit_xor  : a->vpxor (dst(), r[x], r[y]); break;
                 case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // N.B. Y then X.
+                case Op::select   : a->vpblendvb(dst(), r[z], r[y], r[x]); break;
 
                 case Op::shl_i32: a->vpslld(dst(), r[x], imm); break;
                 case Op::shr_i32: a->vpsrld(dst(), r[x], imm); break;
                 case Op::sra_i32: a->vpsrad(dst(), r[x], imm); break;
+
+                case Op::eq_i32: a->vpcmpeqd(dst(), r[x], r[y]); break;
+                case Op::lt_i32: a->vpcmpgtd(dst(), r[y], r[x]); break;
+                case Op::gt_i32: a->vpcmpgtd(dst(), r[x], r[y]); break;
 
                 case Op::extract: if (imm == 0) { a->vpand (dst(),  r[x], r[y]); }
                                   else          { a->vpsrld(tmp(),  r[x], imm);
