@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e13c3293_c359e550",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T20:45:43Z",
+      "side": 1,
+      "message": "line this up ?",
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c6b2ff9_e2eba7ed",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T20:45:43Z",
+      "side": 1,
+      "message": "The pattern seems to be:\n\nconst dawn::TextureFormat* dawnFormat \u003d format.getDawnFormat();\nif (!dawnFormat) {\n    return kUnknown_GrPixelConfig;\n}\n\nand then \"dawn::TextureFormat textureFormat \u003d *dawnFormat;\"",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 5
+      },
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed6d8071_9b504825",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T20:45:43Z",
+      "side": 1,
+      "message": "The pattern seems to be to use getDawnFormat here rather than isValid",
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e3756f2_dc736037",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T20:45:43Z",
+      "side": 1,
+      "message": "Should have this check here:\n\n#ifdef SK_DEBUG\n    for (auto combo : combos) {\n        SkASSERT(this-\u003eonAreColorTypeAndFormatCompatible(combo.fColorType, combo.fFormat));\n    }\n#endif",
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c945ace4_d9c5c0b9",
+        "filename": "src/gpu/dawn/GrDawnUtil.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T20:45:43Z",
+      "side": 1,
+      "message": "RGBA8Unorm",
+      "range": {
+        "startLine": 54,
+        "startChar": 20,
+        "endLine": 54,
+        "endChar": 25
+      },
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08355459_cbd1c701",
+        "filename": "src/gpu/dawn/GrDawnUtil.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T20:45:43Z",
+      "side": 1,
+      "message": "BGRA8Unorm",
+      "range": {
+        "startLine": 56,
+        "startChar": 20,
+        "endLine": 56,
+        "endChar": 30
+      },
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b86934c_b2e7b86c",
+        "filename": "src/gpu/dawn/GrDawnUtil.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T20:45:43Z",
+      "side": 1,
+      "message": "\"Unknown\"",
+      "range": {
+        "startLine": 63,
+        "startChar": 19,
+        "endLine": 63,
+        "endChar": 21
+      },
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
