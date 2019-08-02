@@ -22,6 +22,30 @@
       "revId": "08151be564aba88d9eb92d3a441bd868bb4580bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0352fde4_a5c00978",
+        "filename": "experimental/tools/gerrit_percent_encode",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-02T14:20:28Z",
+      "side": 1,
+      "message": "The space is done.\n\nIt\u0027s bad characters plus non-ascii characters.  Easier this way.",
+      "parentUuid": "8890b8c2_167c20e5",
+      "range": {
+        "startLine": 15,
+        "startChar": 29,
+        "endLine": 15,
+        "endChar": 37
+      },
+      "revId": "08151be564aba88d9eb92d3a441bd868bb4580bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
