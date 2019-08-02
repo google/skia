@@ -355,7 +355,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     sk_sp<GrTextureProxy> proxies[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
         GrColorType colorType = context->priv().caps()->getYUVAColorTypeFromBackendFormat(
-                                                                            yuvaFormats[texIdx]);
+                                                                yuvaFormats[texIdx],
+                                                                yuvaIndices[3].fIndex == texIdx);
         if (GrColorType::kUnknown == colorType) {
             return nullptr;
         }
