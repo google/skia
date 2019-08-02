@@ -1634,7 +1634,9 @@ namespace skvm {
                 }
             }
             for (int i = 0; i < (int)fStrides.size(); i++) {
-                add(arg[i], K*fStrides[i]);
+                if (fStrides[i]) {
+                    add(arg[i], K*fStrides[i]);
+                }
             }
             sub(N, K);
             jump(&body);
@@ -1650,7 +1652,9 @@ namespace skvm {
                 }
             }
             for (int i = 0; i < (int)fStrides.size(); i++) {
-                add(arg[i], 1*fStrides[i]);
+                if (fStrides[i]) {
+                    add(arg[i], 1*fStrides[i]);
+                }
             }
             sub(N, 1);
             jump(&tail);
