@@ -911,10 +911,10 @@ static inline size_t align_to_4(size_t v) {
     }
 }
 
-GrCaps::SupportedWrite GrVkCaps::supportedWritePixelsColorType(GrPixelConfig config,
+GrCaps::SupportedWrite GrVkCaps::supportedWritePixelsColorType(GrColorType surfaceColorType,
+                                                               const GrBackendFormat& surfaceFormat,
                                                                GrColorType srcColorType) const {
-    GrColorType ct = GrPixelConfigToColorType(config);
-    return {ct, align_to_4(GrColorTypeBytesPerPixel(ct))};
+    return {surfaceColorType, align_to_4(GrColorTypeBytesPerPixel(surfaceColorType))};
 }
 
 GrCaps::SurfaceReadPixelsSupport GrVkCaps::surfaceSupportsReadPixels(

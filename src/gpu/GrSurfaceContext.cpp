@@ -366,7 +366,9 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
     }
 
     GrColorType allowedColorType =
-            caps->supportedWritePixelsColorType(dstProxy->config(), srcInfo.colorType()).fColorType;
+            caps->supportedWritePixelsColorType(this->colorSpaceInfo().colorType(),
+                                                dstProxy->backendFormat(),
+                                                srcInfo.colorType()).fColorType;
     bool flip = dstProxy->origin() == kBottomLeft_GrSurfaceOrigin;
     bool makeTight = !caps->writePixelsRowBytesSupport() && rowBytes != tightRowBytes;
     bool convert = premul || unpremul || needColorConversion || makeTight ||

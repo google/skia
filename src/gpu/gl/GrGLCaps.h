@@ -353,7 +353,8 @@ public:
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
 
-    SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
+    SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
+                                                 const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
