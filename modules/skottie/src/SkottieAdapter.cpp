@@ -29,6 +29,24 @@
 
 namespace skottie {
 
+namespace internal {
+
+DiscardableAdaptorBase::DiscardableAdaptorBase() = default;
+
+void DiscardableAdaptorBase::setAnimators(sksg::AnimatorList&& animators) {
+    fAnimators = std::move(animators);
+}
+
+void DiscardableAdaptorBase::onTick(float t) {
+    for (auto& animator : fAnimators) {
+        animator->tick(t);
+    }
+
+    this->onSync();
+}
+
+} // namespace internal
+
 RRectAdapter::RRectAdapter(sk_sp<sksg::RRect> wrapped_node)
     : fRRectNode(std::move(wrapped_node)) {}
 
