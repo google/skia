@@ -81,10 +81,12 @@ void GrDawnGpuRTCommandBuffer::insertEventMarker(const char* msg) {
     SkASSERT(!"unimplemented");
 }
 
-void GrDawnGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+void GrDawnGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                                            GrColorType bufferColorType,
                                             GrGpuBuffer* transferBuffer, size_t offset) {
     fGpu->transferPixelsFrom(fRenderTarget, srcRect.fLeft, srcRect.fTop, srcRect.width(),
-                             srcRect.height(), bufferColorType, transferBuffer, offset);
+                             srcRect.height(), surfaceColorType, bufferColorType, transferBuffer,
+                             offset);
 }
 
 void GrDawnGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
