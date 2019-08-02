@@ -83,6 +83,29 @@
     },
     {
       "key": {
+        "uuid": "0be268c1_83514ca5",
+        "filename": "gm/localmatriximagefilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-02T16:11:49Z",
+      "side": 1,
+      "message": "Remove these cases",
+      "range": {
+        "startLine": 53,
+        "startChar": 41,
+        "endLine": 53,
+        "endChar": 48
+      },
+      "revId": "4546f6f86471cb1be0c42c36a2fb34c4d686828d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cfcf376f_09531de5",
         "filename": "gm/xfermodeimagefilter.cpp",
         "patchSetId": 4
