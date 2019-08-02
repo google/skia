@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "078b283a_51c8cf04",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T18:01:41Z",
+      "side": 1,
+      "message": "I propose moving this comment (and the copy in GrTextureOpList.h) to GrOpList.h",
+      "revId": "69d1f1288eebd7c9af72d68ed0c01b9b55190b42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b30ef86b_2bd995ea",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T18:01:41Z",
+      "side": 1,
+      "message": "a proxy into this opList\u0027s target ?",
+      "range": {
+        "startLine": 98,
+        "startChar": 37,
+        "endLine": 98,
+        "endChar": 59
+      },
+      "revId": "69d1f1288eebd7c9af72d68ed0c01b9b55190b42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34a4ea39_c2cd0e14",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T18:01:41Z",
+      "side": 1,
+      "message": "this opList\u0027s target ?",
+      "range": {
+        "startLine": 101,
+        "startChar": 15,
+        "endLine": 101,
+        "endChar": 18
+      },
+      "revId": "69d1f1288eebd7c9af72d68ed0c01b9b55190b42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64c0d246_e6140b30",
+        "filename": "src/gpu/GrTextureOpList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T18:01:41Z",
+      "side": 1,
+      "message": "mv comment to GrOpList ?",
+      "revId": "69d1f1288eebd7c9af72d68ed0c01b9b55190b42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
