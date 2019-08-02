@@ -976,12 +976,18 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vbroadcastss(A::ymm13, A::r14,   7);
         a.vbroadcastss(A::ymm8,  A::rdx, -12);
         a.vbroadcastss(A::ymm8,  A::rdx, 400);
+
+        a.vbroadcastss(A::ymm8,  A::xmm0);
+        a.vbroadcastss(A::ymm0,  A::xmm13);
     },{
         /*   VEX    */ /*op*/     /*ModRM*/   /*offset*/
         0xc4,0xe2,0x7d, 0x18,   0b00'000'111,
         0xc4,0x42,0x7d, 0x18,   0b01'101'110,  0x07,
         0xc4,0x62,0x7d, 0x18,   0b01'000'010,  0xf4,
         0xc4,0x62,0x7d, 0x18,   0b10'000'010,  0x90,0x01,0x00,0x00,
+
+        0xc4,0x62,0x7d, 0x18,   0b11'000'000,
+        0xc4,0xc2,0x7d, 0x18,   0b11'000'101,
     });
 
     test_asm(r, [&](A& a) {
@@ -1025,9 +1031,11 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        a.movzbl(A::rax, A::rsi);   // Low registers for src and dst.
-        a.movzbl(A::rax, A::r8);    // High src register.
-        a.movzbl(A::r8 , A::rsi);   // High dst register.
+        a.movzbl(A::rax, A::rsi, 0);   // Low registers for src and dst.
+        a.movzbl(A::rax, A::r8,  0);   // High src register.
+        a.movzbl(A::r8 , A::rsi, 0);   // High dst register.
+        a.movzbl(A::r8,  A::rsi, 12);
+        a.movzbl(A::r8,  A::rsi, 400);
 
         a.vmovd(A::rax, A::xmm0);
         a.vmovd(A::rax, A::xmm8);
@@ -1052,6 +1060,8 @@ DEF_TEST(SkVM_Assembler, r) {
         0x0f,0xb6,0x06,
         0x41,0x0f,0xb6,0x00,
         0x44,0x0f,0xb6,0x06,
+        0x44,0x0f,0xb6,0x46, 12,
+        0x44,0x0f,0xb6,0x86, 0x90,0x01,0x00,0x00,
 
         0xc5,0xf9,0x7e,0x00,
         0xc5,0x79,0x7e,0x00,
