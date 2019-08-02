@@ -335,18 +335,15 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     auto ycbcrFeatures =
             get_extension_feature_struct<VkPhysicalDeviceSamplerYcbcrConversionFeatures>(
-                    features,
-                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES);
+                    features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES);
     if (ycbcrFeatures && ycbcrFeatures->samplerYcbcrConversion &&
-        fSupportsAndroidHWBExternalMemory &&
         (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
          (extensions.hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1) &&
-          this->supportsMaintenance1() &&
-          this->supportsBindMemory2() &&
-          this->supportsMemoryRequirements2() &&
-          this->supportsPhysicalDeviceProperties2()))) {
+          this->supportsMaintenance1() && this->supportsBindMemory2() &&
+          this->supportsMemoryRequirements2() && this->supportsPhysicalDeviceProperties2()))) {
         fSupportsYcbcrConversion = true;
     }
+
     // We always push back the default GrVkYcbcrConversionInfo so that the case of no conversion
     // will return a key of 0.
     fYcbcrInfos.push_back(GrVkYcbcrConversionInfo());
@@ -656,6 +653,8 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
     VK_FORMAT_R16_UNORM,
     VK_FORMAT_R16G16_UNORM,
+    VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM,
+    VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
     // Experimental (for Y416 and mutant P016/P010)
     VK_FORMAT_R16G16B16A16_UNORM,
     VK_FORMAT_R16G16_SFLOAT,
@@ -1262,21 +1261,24 @@ bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
 }
 
 static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool hasYcbcrConversion) {
-    if (format == VK_FORMAT_UNDEFINED) {
-        // If the format is undefined then it is only valid as an external image which requires that
-        // we have a valid VkYcbcrConversion.
-        if (hasYcbcrConversion) {
+    if (hasYcbcrConversion) {
+        if (VK_FORMAT_G8_B8R8_2PLANE_420_UNORM == format ||
+            VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM == format) {
+            return kRGB_888X_GrPixelConfig;
+        }
+
+        // Format may be undefined for external images, which are required to have YCbCr conversion.
+        if (VK_FORMAT_UNDEFINED == format) {
             // We don't actually care what the color type or config are since we won't use those
             // values for external textures. However, for read pixels we will draw to a non ycbcr
             // texture of this config so we set RGBA here for that.
             return kRGBA_8888_GrPixelConfig;
-        } else {
-            return kUnknown_GrPixelConfig;
         }
+
+        return kUnknown_GrPixelConfig;
     }
 
-    if (hasYcbcrConversion) {
-        // We only support having a ycbcr conversion for external images.
+    if (VK_FORMAT_UNDEFINED == format) {
         return kUnknown_GrPixelConfig;
     }
 
