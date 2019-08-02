@@ -363,7 +363,8 @@ bool GrCaps::AreConfigsCompatible(GrPixelConfig genericConfig, GrPixelConfig spe
         case kGray_8_GrPixelConfig:
             compatible = kGray_8_GrPixelConfig == specificConfig ||  // here bc of the mock context
                          kGray_8_as_Lum_GrPixelConfig == specificConfig ||
-                         kGray_8_as_Red_GrPixelConfig == specificConfig;
+                         kGray_8_as_Red_GrPixelConfig == specificConfig ||
+                         kGray_8_as_Alpha_GrPixelConfig == specificConfig;
             break;
         case kAlpha_half_GrPixelConfig:
             compatible = kAlpha_half_GrPixelConfig == specificConfig || // bc of the mock context
