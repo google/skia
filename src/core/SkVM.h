@@ -95,6 +95,7 @@ namespace skvm {
         void cmp(GP64, int imm);
 
         void vbroadcastss(Ymm dst, Label*);
+        void vbroadcastss(Ymm dst, Xmm src);
         void vbroadcastss(Ymm dst, GP64 ptr, int off);  // dst = *(ptr+off)
 
         void vpshufb(Ymm dst, Ymm x, Label*);
@@ -107,8 +108,8 @@ namespace skvm {
         void vmovq  (GP64 ptr, Xmm src);     // *ptr = src,  64-bit
         void vmovd  (GP64 ptr, Xmm src);     // *ptr = src,  32-bit
 
-        void movzbl(GP64 dst, GP64 ptr);     // dst = *ptr, 8-bit, uint8_t expanded to int
-        void movb  (GP64 ptr, GP64 src);     // *ptr = src, 8-bit
+        void movzbl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint8_t -> int
+        void movb  (GP64 ptr, GP64 src);           // *ptr = src, 8-bit
 
         void vmovd_direct(GP64 dst, Xmm src);  // dst = src, 32-bit
         void vmovd_direct(Xmm dst, GP64 src);  // dst = src, 32-bit
@@ -194,9 +195,6 @@ namespace skvm {
 
         // dst = op(x,label) or op(label)
         void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label* l);
-        void op(int prefix, int map, int opcode, Ymm dst,        Label* l) {
-            this->op(prefix, map, opcode, dst, (Ymm)0, l);
-        }
 
         // *ptr = ymm or ymm = *ptr, depending on opcode.
         void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);

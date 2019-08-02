@@ -460,9 +460,10 @@ namespace skvm {
         this->word(this->disp32(l));
     }
 
-    void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst,l); }
     void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
 
+    void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst, (Ymm)0, l); }
+    void Assembler::vbroadcastss(Ymm dst, Xmm src)  { this->op(0x66,0x380f,0x18, dst, (Ymm)src); }
     void Assembler::vbroadcastss(Ymm dst, GP64 ptr, int off) {
         int prefix = 0x66,
                map = 0x380f,
@@ -562,13 +563,14 @@ namespace skvm {
         this->byte(mod_rm(Mod::Direct, dst&7, src&7));
     }
 
-    void Assembler::movzbl(GP64 dst, GP64 src) {
+    void Assembler::movzbl(GP64 dst, GP64 src, int off) {
         if ((dst>>3) || (src>>3)) {
             this->byte(rex(0,dst>>3,0,src>>3));
         }
         this->byte(0x0f);
         this->byte(0xb6);
-        this->byte(mod_rm(Mod::Indirect, dst&7, src&7));
+        this->byte(mod_rm(mod(off), dst&7, src&7));
+        this->bytes(&off, imm_bytes(mod(off)));
     }
 
 
@@ -1345,7 +1347,7 @@ namespace skvm {
             switch (op) {
                 default:
                 #if 0
-                    SkDEBUGFAILF("%d not yet implemented\n", op);
+                    SkDEBUGFAILF("\n%d not yet implemented\n", op);
                 #endif
                     return false;  // TODO: many new ops
 
@@ -1374,6 +1376,11 @@ namespace skvm {
                 case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), arg[imm]); }
                                  else        { a->vmovups(        dst(), arg[imm]); }
                                  break;
+
+                case Op::uniform8: a->movzbl(A::rax, arg[imm&0xffff], imm>>16);
+                                   a->vmovd_direct((A::Xmm)dst(), A::rax);
+                                   a->vbroadcastss(dst(), (A::Xmm)dst());
+                                   break;
 
                 case Op::uniform32: a->vbroadcastss(dst(), arg[imm&0xffff], imm>>16);
                                     break;
