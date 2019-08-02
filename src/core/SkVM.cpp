@@ -1355,6 +1355,26 @@ namespace skvm {
                 return tmp_reg;
             };
 
+            // TODO: this next bit of logic that prevents us from recycling hoisted() registers
+            // is too simplistic: it prevents us from recycling those registers outside the loop!
+            // E.g. unpacking a uniform 8888, we load the uniform into ymm0 but never use it again.
+            //
+            //  c4 e2 7d 18 06                vbroadcastss (%rsi),%ymm0
+            //  c4 e2 7d 18 0d f2 01 00 00    vbroadcastss 0x1f2(%rip),%ymm1
+            //  c5 fd db d1                   vpand  %ymm1,%ymm0,%ymm2
+            //  c5 e5 72 d0 08                vpsrld $0x8,%ymm0,%ymm3
+            //  c5 e5 db d9                   vpand  %ymm1,%ymm3,%ymm3
+            //  c5 dd 72 d0 10                vpsrld $0x10,%ymm0,%ymm4
+            //  c5 dd db e1                   vpand  %ymm1,%ymm4,%ymm4
+            //  c5 d5 72 d0 18                vpsrld $0x18,%ymm0,%ymm5          // ymm0 dies here.
+            //  c5 d5 db e9                   vpand  %ymm1,%ymm5,%ymm5
+            //  c5 f5 fa f5                   vpsubd %ymm5,%ymm1,%ymm6
+            //  c4 e2 7d 18 3d c2 01 00 00    vbroadcastss 0x1c2(%rip),%ymm7
+            //  48 83 ff 08                   cmp    $0x8,%rdi
+            //  0f 8c d4 00 00 00             jl     158
+            //  c5 7c 10 02                   vmovups (%rdx),%ymm8              // Loop starts here.
+            //  ...
+
             // Now make available any registers that are consumed by this instruction.
             // (The register pool we can pick dst from is >= the pool for tmp, adding any of these.)
             if (x != NA && instructions[x].death == id && !hoisted(x)) { avail |= 1 << r[x]; }
