@@ -116,6 +116,24 @@
       "revId": "e1c838d27914b3d38a66a4f7ca32d425bbff8e6a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cef07651_eafe1ece",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-02T20:43:15Z",
+      "side": 1,
+      "message": "Yeah, \"rgba\" is the only logical default.",
+      "parentUuid": "2e33878c_a18f2b72",
+      "revId": "e1c838d27914b3d38a66a4f7ca32d425bbff8e6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
