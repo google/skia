@@ -234,7 +234,7 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
 //////////////////////////////////////////////////////////////////////////////
 
 bool GrBicubicEffect::ShouldUseBicubic(const SkMatrix& matrix, GrSamplerState::Filter* filterMode) {
-    switch (SkMatrixPriv::ShouldUseBicubic(matrix)) {
+    switch (SkMatrixPriv::AdjustHighQualityFilterLevel(matrix)) {
         case kNone_SkFilterQuality:
             *filterMode = GrSamplerState::Filter::kNearest;
             break;
