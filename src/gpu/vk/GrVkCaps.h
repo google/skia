@@ -214,12 +214,34 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
 
+    // ColorTypeInfo for a specific format
+    struct ColorTypeInfo {
+        GrColorType fColorType = GrColorType::kUnknown;
+        enum {
+            kUploadData_Flag = 0x1,
+            // Does Ganesh itself support rendering to this colorType & format pair. Renderability
+            // still additionally depends on if the format itself is renderable.
+            kRenderable_Flag = 0x2,
+        };
+        uint32_t fFlags = 0;
+
+        GrSwizzle fTextureSwizzle = GrSwizzle::RGBA();
+        GrSwizzle fOutputSwizzle = GrSwizzle::RGBA();
+    };
+
     struct FormatInfo {
-        FormatInfo() : fOptimalFlags(0), fLinearFlags(0) {}
+        uint32_t colorTypeFlags(GrColorType colorType) const {
+            for (int i = 0; i < fColorTypeInfoCount; ++i) {
+                if (fColorTypeInfos[i].fColorType == colorType) {
+                    return fColorTypeInfos[i].fFlags;
+                }
+            }
+            return 0;
+        }
 
         void init(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&,
                   VkFormat);
-        static void InitConfigFlags(VkFormatFeatureFlags, uint16_t* flags);
+        static void InitFormatFlags(VkFormatFeatureFlags, uint16_t* flags);
         void initSampleCounts(const GrVkInterface*, VkPhysicalDevice,
                               const VkPhysicalDeviceProperties&, VkFormat);
 
@@ -230,14 +252,18 @@ private:
             kBlitDst_Flag     = 0x8,
         };
 
-        uint16_t fOptimalFlags;
-        uint16_t fLinearFlags;
+        uint16_t fOptimalFlags = 0;
+        uint16_t fLinearFlags = 0;
 
         SkTDArray<int> fColorSampleCounts;
+
+        std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
+        int fColorTypeInfoCount = 0;
     };
     static const size_t kNumVkFormats = 18;
     FormatInfo fFormatTable[kNumVkFormats];
 
+    FormatInfo& getFormatInfo(VkFormat);
     const FormatInfo& getFormatInfo(VkFormat) const;
 
     StencilFormat fPreferredStencilFormat;
