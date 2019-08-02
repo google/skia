@@ -11,6 +11,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkBitmapController.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMipMap.h"
 #include "src/image/SkImage_Base.h"
 
@@ -29,9 +30,9 @@ bool SkBitmapController::State::processHighRequest(const SkImage_Base* image) {
     if (fQuality != kHigh_SkFilterQuality) {
         return false;
     }
-
     fQuality = kMedium_SkFilterQuality;
 
+#ifdef SK_SUPPORT_LEGACY_BICUBIC_FILTERING
     SkScalar invScaleX = fInvMatrix.getScaleX();
     SkScalar invScaleY = fInvMatrix.getScaleY();
     if (fInvMatrix.getType() & SkMatrix::kAffine_Mask) {
@@ -49,6 +50,11 @@ bool SkBitmapController::State::processHighRequest(const SkImage_Base* image) {
         // we're down-scaling so abort HQ
         return false;
     }
+#else
+    if (SkMatrixPriv::AdjustHighQualityFilterLevel(fInvMatrix, true) != kHigh_SkFilterQuality) {
+        return false;
+    }
+#endif
 
     // Confirmed that we can use HQ (w/ rasterpipeline)
     fQuality = kHigh_SkFilterQuality;
