@@ -22,11 +22,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkColorFilterImageFilter.h"
 #include "include/effects/SkColorMatrix.h"
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
-#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -68,7 +65,7 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
         canvas->translate(10, 10);
 
         // just need an imagefilter to trigger the code-path (which creates a tmp layer)
-        sk_sp<SkImageFilter> imf(SkImageFilter::MakeMatrixFilter(SkMatrix::I(),
+        sk_sp<SkImageFilter> imf(SkImageFilters::MatrixTransform(SkMatrix::I(),
                                                                  kNone_SkFilterQuality,
                                                                  nullptr));
 
@@ -105,7 +102,7 @@ DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
     canvas->translate(10, 10);
     for (SkScalar sigma = 8; sigma <= 128; sigma *= 2) {
         SkPaint paint;
-        paint.setImageFilter(SkBlurImageFilter::Make(sigma, sigma, nullptr));
+        paint.setImageFilter(SkImageFilters::Blur(sigma, sigma, nullptr));
 
         canvas->save();
         // we outset the clip by 1, to fall out of the fast-case in drawImage
@@ -153,13 +150,11 @@ DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
     sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(cm));
     const SkScalar kernel[] = { 4, 0, 4, 0, -15, 0, 4, 0, 4 };
     sk_sp<SkImageFilter> filters[] = {
-        SkBlurImageFilter::Make(10, 10, nullptr),
-        SkDilateImageFilter::Make(8, 8, nullptr),
-        SkMatrixConvolutionImageFilter::Make(
-                                           { 3, 3 }, kernel, 1, 0, { 0, 0 },
-                                           SkMatrixConvolutionImageFilter::kClampToBlack_TileMode,
-                                           true, nullptr),
-        SkColorFilterImageFilter::Make(std::move(cf), nullptr),
+        SkImageFilters::Blur(10, 10, nullptr),
+        SkImageFilters::Dilate(8, 8, nullptr),
+        SkImageFilters::MatrixConvolution({ 3, 3 }, kernel, 1, 0, { 0, 0 },
+                                          SkTileMode::kDecal, true, nullptr),
+        SkImageFilters::ColorFilter(std::move(cf), nullptr),
     };
 
     const struct {

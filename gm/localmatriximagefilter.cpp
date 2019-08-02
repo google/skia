@@ -17,9 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkMorphologyImageFilter.h"
-#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -59,10 +57,10 @@ DEF_SIMPLE_GM(localmatriximagefilter, canvas, 640, 640) {
     sk_sp<SkImage> image0(make_image(canvas));
 
     const ImageFilterFactory factories[] = {
-        IFCCast([]{ return SkBlurImageFilter::Make(8, 8, nullptr); }),
-        IFCCast([]{ return SkDilateImageFilter::Make(8, 8, nullptr); }),
-        IFCCast([]{ return SkErodeImageFilter::Make(8, 8, nullptr); }),
-        IFCCast([]{ return SkOffsetImageFilter::Make(8, 8, nullptr); }),
+        IFCCast([]{ return SkImageFilters::Blur(8, 8, nullptr); }),
+        IFCCast([]{ return SkImageFilters::Dilate(8, 8, nullptr); }),
+        IFCCast([]{ return SkImageFilters::Erode(8, 8, nullptr); }),
+        IFCCast([]{ return SkImageFilters::Offset(8, 8, nullptr); }),
     };
 
     const SkMatrix matrices[] = {

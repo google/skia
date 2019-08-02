@@ -18,9 +18,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkDropShadowImageFilter.h"
-#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 #define RESIZE_FACTOR_X SkIntToScalar(2)
 #define RESIZE_FACTOR_Y SkIntToScalar(5)
@@ -67,12 +65,10 @@ protected:
         resizeMatrix.setScale(RESIZE_FACTOR_X, RESIZE_FACTOR_Y);
 
         sk_sp<SkImageFilter> filters[] = {
-            SkBlurImageFilter::Make(5, 5, nullptr),
-            SkDropShadowImageFilter::Make(10, 10, 3, 3, SK_ColorGREEN,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-                nullptr),
-            SkOffsetImageFilter::Make(-16, 32, nullptr),
-            SkImageFilter::MakeMatrixFilter(resizeMatrix, kNone_SkFilterQuality, nullptr),
+            SkImageFilters::Blur(5, 5, nullptr),
+            SkImageFilters::DropShadow(10, 10, 3, 3, SK_ColorGREEN, nullptr),
+            SkImageFilters::Offset(-16, 32, nullptr),
+            SkImageFilters::MatrixTransform(resizeMatrix, kNone_SkFilterQuality, nullptr),
         };
 
         SkRect r = SkRect::MakeWH(64, 64);

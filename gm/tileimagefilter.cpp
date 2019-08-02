@@ -19,9 +19,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkColorFilterImageFilter.h"
-#include "include/effects/SkImageSource.h"
-#include "include/effects/SkTileImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
 
 #include <stddef.h>
@@ -78,10 +76,9 @@ protected:
                                                   SkIntToScalar(i * 4),
                                                   SkIntToScalar(image->width() - i * 12),
                                                   SkIntToScalar(image->height()) - i * 12);
-                sk_sp<SkImageFilter> tileInput(SkImageSource::Make(image));
-                sk_sp<SkImageFilter> filter(SkTileImageFilter::Make(srcRect,
-                                                                    dstRect,
-                                                                    std::move(tileInput)));
+                sk_sp<SkImageFilter> tileInput(SkImageFilters::Image(image));
+                sk_sp<SkImageFilter> filter(SkImageFilters::Tile(srcRect, dstRect,
+                                                                 std::move(tileInput)));
                 canvas->save();
                 canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
                 SkPaint paint;
@@ -108,11 +105,11 @@ protected:
                                             SkIntToScalar(fBitmap->height()));
             SkRect dstRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width() * 2),
                                             SkIntToScalar(fBitmap->height() * 2));
-            sk_sp<SkImageFilter> tile(SkTileImageFilter::Make(srcRect, dstRect, nullptr));
+            sk_sp<SkImageFilter> tile(SkImageFilters::Tile(srcRect, dstRect, nullptr));
             sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(matrix));
 
             SkPaint paint;
-            paint.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), std::move(tile)));
+            paint.setImageFilter(SkImageFilters::ColorFilter(std::move(cf), std::move(tile)));
             canvas->save();
             canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
             canvas->clipRect(dstRect);
@@ -130,14 +127,14 @@ protected:
 
             SkRect srcRect = SkRect::MakeXYWH(0, 0, 50, 50);
             SkRect dstRect = SkRect::MakeXYWH(0, 0, 100, 100);
-            SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(5, 5, 40, 40));
+            SkIRect cropRect = SkIRect::MakeXYWH(5, 5, 40, 40);
             sk_sp<SkColorFilter> greenCF = SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kSrc);
-            sk_sp<SkImageFilter> green(SkColorFilterImageFilter::Make(std::move(greenCF),
+            sk_sp<SkImageFilter> green(SkImageFilters::ColorFilter(std::move(greenCF),
                                                                       nullptr,
                                                                       &cropRect));
             SkPaint paint;
             paint.setColor(SK_ColorRED);
-            paint.setImageFilter(SkTileImageFilter::Make(srcRect, dstRect, std::move(green)));
+            paint.setImageFilter(SkImageFilters::Tile(srcRect, dstRect, std::move(green)));
             canvas->drawRect(dstRect, paint);
         }
     }
