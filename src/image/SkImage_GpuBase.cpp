@@ -253,9 +253,7 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
             return false;
         }
 
-        GrColorType grColorType = caps->getYUVAColorTypeFromBackendFormat(
-                                                        backendFormat,
-                                                        yuvaIndices[3].fIndex == textureIndex);
+        GrColorType grColorType = caps->getYUVAColorTypeFromBackendFormat(backendFormat);
         if (GrColorType::kUnknown == grColorType) {
             return false;
         }

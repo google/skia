@@ -60,8 +60,7 @@ public:
 
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
-    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
-                                                  bool isAlphaChannel) const override;
+    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
 
 private:
     bool onSurfaceSupportsWritePixels(const GrSurface* surface) const override {

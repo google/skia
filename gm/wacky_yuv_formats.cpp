@@ -163,7 +163,7 @@ static void setup_yuv_indices(YUVFormat yuvFormat, bool addExtraAlpha, SkYUVAInd
             break;
         case kNV12_YUVFormat:
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = SkColorChannel::kR;
+            yuvaIndices[0].fChannel = SkColorChannel::kA;
             yuvaIndices[1].fIndex = 1;
             yuvaIndices[1].fChannel = SkColorChannel::kR;
             yuvaIndices[2].fIndex = 1;
@@ -177,7 +177,7 @@ static void setup_yuv_indices(YUVFormat yuvFormat, bool addExtraAlpha, SkYUVAInd
             break;
         case kNV21_YUVFormat:
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = SkColorChannel::kR;
+            yuvaIndices[0].fChannel = SkColorChannel::kA;
             yuvaIndices[1].fIndex = 1;
             yuvaIndices[1].fChannel = SkColorChannel::kG;
             yuvaIndices[2].fIndex = 1;
@@ -191,11 +191,11 @@ static void setup_yuv_indices(YUVFormat yuvFormat, bool addExtraAlpha, SkYUVAInd
             break;
         case kI420_YUVFormat:
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = SkColorChannel::kR;
+            yuvaIndices[0].fChannel = SkColorChannel::kA;
             yuvaIndices[1].fIndex = 1;
-            yuvaIndices[1].fChannel = SkColorChannel::kR;
+            yuvaIndices[1].fChannel = SkColorChannel::kA;
             yuvaIndices[2].fIndex = 2;
-            yuvaIndices[2].fChannel = SkColorChannel::kR;
+            yuvaIndices[2].fChannel = SkColorChannel::kA;
             if (addExtraAlpha) {
                 yuvaIndices[3].fIndex = 3;
                 yuvaIndices[3].fChannel = SkColorChannel::kA;
@@ -205,11 +205,11 @@ static void setup_yuv_indices(YUVFormat yuvFormat, bool addExtraAlpha, SkYUVAInd
             break;
         case kYV12_YUVFormat:
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = SkColorChannel::kR;
+            yuvaIndices[0].fChannel = SkColorChannel::kA;
             yuvaIndices[1].fIndex = 2;
-            yuvaIndices[1].fChannel = SkColorChannel::kR;
+            yuvaIndices[1].fChannel = SkColorChannel::kA;
             yuvaIndices[2].fIndex = 1;
-            yuvaIndices[2].fChannel = SkColorChannel::kR;
+            yuvaIndices[2].fChannel = SkColorChannel::kA;
             if (addExtraAlpha) {
                 yuvaIndices[3].fIndex = 3;
                 yuvaIndices[3].fChannel = SkColorChannel::kA;
@@ -1074,8 +1074,6 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
             }
         }
 
-        // TODO: SkColorType needs to be expanded to allow this to be done via the
-        // GrContext::createBackendTexture API
         tex = gpu->createBackendTexture(bm.width(), bm.height(), format,
                                         GrMipMapped::kNo, GrRenderable::kNo,
                                         pixels, rowBytes, nullptr, GrProtected::kNo);

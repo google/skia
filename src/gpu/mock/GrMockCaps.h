@@ -137,8 +137,7 @@ public:
         return SurfaceReadPixelsSupport::kSupported;
     }
 
-    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
-                                                  bool isAlphaChannel) const override {
+    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const override {
         if (!format.getMockColorType()) {
             return GrColorType::kUnknown;
         }
