@@ -188,7 +188,7 @@
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench",
-  "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp",
+  "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Mskp_Skpbench",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan_Skpbench",
   "Perf-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android",
