@@ -221,7 +221,8 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                     range.fOffset += pos;
                     auto op = TestOp::Make(context.get(), value, range, result, &combinable);
                     op->writeResult(validResult);
-                    opList.addOp(std::move(op), *context->priv().caps());
+                    opList.addOp(std::move(op), context->priv().drawingManager(),
+                                 *context->priv().caps());
                 }
                 opList.makeClosed(*context->priv().caps());
                 opList.prepare(&flushState);
