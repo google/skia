@@ -106,6 +106,7 @@ namespace skvm {
         void vmovd    (Xmm dst, GP64 ptr);   // dst = *ptr,  32-bit
 
         void vmovups(GP64 ptr, Ymm src);     // *ptr = src, 256-bit
+        void vmovups(GP64 ptr, Xmm src);     // *ptr = src, 128-bit
         void vmovq  (GP64 ptr, Xmm src);     // *ptr = src,  64-bit
         void vmovd  (GP64 ptr, Xmm src);     // *ptr = src,  32-bit
 
@@ -117,6 +118,8 @@ namespace skvm {
 
         void vpinsrw(Xmm dst, Xmm src, GP64 ptr, int imm);  // dst = src; dst[imm] = *ptr, 16-bit
         void vpinsrb(Xmm dst, Xmm src, GP64 ptr, int imm);  // dst = src; dst[imm] = *ptr,  8-bit
+
+        void vpextrw(GP64 ptr, Xmm src, int imm);           // *dst = src[imm]           , 16-bit
         void vpextrb(GP64 ptr, Xmm src, int imm);           // *dst = src[imm]           ,  8-bit
 
         // aarch64

@@ -1017,6 +1017,8 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vmovups(A::ymm5, A::rsi);
         a.vmovups(A::rsi, A::ymm5);
 
+        a.vmovups(A::rsi, A::xmm5);
+
         a.vpmovzxwd(A::ymm4, A::rsi);
         a.vpmovzxbd(A::ymm4, A::rsi);
 
@@ -1025,6 +1027,8 @@ DEF_TEST(SkVM_Assembler, r) {
         /*    VEX    */  /*Op*/  /*  ModRM  */
         0xc5,     0xfc,   0x10,  0b00'101'110,
         0xc5,     0xfc,   0x11,  0b00'101'110,
+
+        0xc5,     0xf8,   0x11,  0b00'101'110,
 
         0xc4,0xe2,0x7d,   0x33,  0b00'100'110,
         0xc4,0xe2,0x7d,   0x31,  0b00'100'110,
@@ -1093,6 +1097,9 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vpinsrb(A::xmm1, A::xmm8, A::rsi, 4);
         a.vpinsrb(A::xmm8, A::xmm1, A::r8, 12);
 
+        a.vpextrw(A::rsi, A::xmm8, 7);
+        a.vpextrw(A::r8,  A::xmm1, 15);
+
         a.vpextrb(A::rsi, A::xmm8, 7);
         a.vpextrb(A::r8,  A::xmm1, 15);
     },{
@@ -1101,6 +1108,9 @@ DEF_TEST(SkVM_Assembler, r) {
 
         0xc4,0xe3,0x39, 0x20, 0x0e,  4,
         0xc4,0x43,0x71, 0x20, 0x00, 12,
+
+        0xc4,0x63,0x79, 0x15, 0x06,  7,
+        0xc4,0xc3,0x79, 0x15, 0x08, 15,
 
         0xc4,0x63,0x79, 0x14, 0x06,  7,
         0xc4,0xc3,0x79, 0x14, 0x08, 15,
