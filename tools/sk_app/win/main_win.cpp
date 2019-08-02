@@ -60,7 +60,7 @@ int main(int argc, char**argv) {
 
 static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {
 
-    Application* app = Application::Create(argc, argv, (void*)hInstance);
+    std::unique_ptr<Application> app = Application::Make(argc, argv, (void*)hInstance);
 
     MSG msg;
     memset(&msg, 0, sizeof(msg));
@@ -87,7 +87,7 @@ static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {
         }
     }
 
-    delete app;
+    app = nullptr;
 
     return (int)msg.wParam;
 }
