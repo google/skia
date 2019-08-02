@@ -417,13 +417,11 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
              caps->makeConfigSpecific(this->asSurfaceProxy()->config(),
                                       this->asSurfaceProxy()->backendFormat()));
 
-    GrSurfaceProxy* dst = this->asSurfaceProxy();
-
-    if (!caps->canCopySurface(dst, src, srcRect, dstPoint)) {
+    if (!caps->canCopySurface(this->asSurfaceProxy(), src, srcRect, dstPoint)) {
         return false;
     }
 
-    return this->getOpList()->copySurface(fContext, dst, src, srcRect, dstPoint);
+    return this->getOpList()->copySurface(fContext, src, srcRect, dstPoint);
 }
 
 sk_sp<GrRenderTargetContext> GrSurfaceContext::rescale(const SkImageInfo& info,
