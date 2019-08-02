@@ -81,10 +81,12 @@ private:
     const sk_sp<NodeT> fNode;
 };
 
+namespace internal { class TextAdapter; }
 class TransformAdapter2D;
 
 using ColorPropertyHandle     = PropertyHandle<ColorPropertyValue    , sksg::Color         >;
 using OpacityPropertyHandle   = PropertyHandle<OpacityPropertyValue  , sksg::OpacityEffect >;
+using TextPropertyHandle      = PropertyHandle<TextPropertyValue     , internal::TextAdapter >;
 using TransformPropertyHandle = PropertyHandle<TransformPropertyValue, TransformAdapter2D  >;
 
 /**
@@ -104,6 +106,8 @@ public:
                                      const LazyHandle<ColorPropertyHandle>&);
     virtual void onOpacityProperty  (const char node_name[],
                                      const LazyHandle<OpacityPropertyHandle>&);
+    virtual void onTextProperty     (const char node_name[],
+                                     const LazyHandle<TextPropertyHandle>&);
     virtual void onTransformProperty(const char node_name[],
                                      const LazyHandle<TransformPropertyHandle>&);
 };
