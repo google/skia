@@ -12,7 +12,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMatrix.h"
-#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkSpecialImage.h"
 
@@ -30,7 +30,7 @@ static SkBitmap create_bm() {
 static sk_sp<SkImageFilter> make_filter() {
     sk_sp<SkColorFilter> filter(SkColorFilters::Blend(SK_ColorBLUE,
                                                               SkBlendMode::kSrcIn));
-    return SkColorFilterImageFilter::Make(std::move(filter), nullptr, nullptr);
+    return SkImageFilters::ColorFilter(std::move(filter), nullptr, nullptr);
 }
 
 // Ensure the cache can return a cached image
