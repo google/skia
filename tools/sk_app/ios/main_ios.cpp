@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Application* app = Application::Create(argc, argv, nullptr);
+    std::unique_ptr<Application> app = Application::Make(argc, argv, nullptr);
 
     SDL_Event event;
     bool done = false;
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 
         app->onIdle();
     }
-    delete app;
+    app = nullptr;
 
     SDL_Quit();
 

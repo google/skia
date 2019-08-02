@@ -8,11 +8,13 @@
 #ifndef Application_DEFINED
 #define Application_DEFINED
 
+#include <memory>
+
 namespace sk_app {
 
 class Application {
 public:
-    static Application* Create(int argc, char** argv, void* platformData);
+    static std::unique_ptr<Application> Make(int argc, char** argv, void* platformData);
 
     virtual ~Application() {}
 

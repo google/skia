@@ -46,7 +46,7 @@ struct Message {
 };
 
 struct SkiaAndroidApp {
-    Application* fApp;
+    std::unique_ptr<Application> fApp;
     Window* fWindow;
     jobject fAndroidApp;
 
