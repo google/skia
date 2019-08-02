@@ -1357,9 +1357,16 @@ namespace skvm {
 
             // Now make available any registers that are consumed by this instruction.
             // (The register pool we can pick dst from is >= the pool for tmp, adding any of these.)
-            if (x != NA && instructions[x].death == id && !hoisted(x)) { avail |= 1 << r[x]; }
-            if (y != NA && instructions[y].death == id && !hoisted(y)) { avail |= 1 << r[y]; }
-            if (z != NA && instructions[z].death == id && !hoisted(z)) { avail |= 1 << r[z]; }
+            auto can_recycle = [&](Val arg) {
+                // Generally, is this a real argument, and is this the last time it'll be needed?
+                // (Hoisted arguments can only be consumed by hoisted instructions themselves.)
+                return arg != NA
+                    && instructions[arg].death == id
+                    && (hoisted(id) == hoisted(arg));
+            };
+            if (can_recycle(x)) { avail |= 1 << r[x]; }
+            if (can_recycle(y)) { avail |= 1 << r[y]; }
+            if (can_recycle(z)) { avail |= 1 << r[z]; }
             // set_dst() and dst() will work read/write with this perhaps-just-updated avail.
 
             // Some ops may decide dst on their own to best fit the instruction (see Op::mad_f32).
