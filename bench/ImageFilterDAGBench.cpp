@@ -8,11 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkDisplacementMapEffect.h"
-#include "include/effects/SkMergeImageFilter.h"
-#include "include/effects/SkOffsetImageFilter.h"
-#include "include/effects/SkXfermodeImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/Resources.h"
 
 // Exercise a blur filter connected to 5 inputs of the same merge filter.
@@ -31,13 +27,13 @@ protected:
         const SkRect rect = SkRect::Make(SkIRect::MakeWH(400, 400));
 
         for (int j = 0; j < loops; j++) {
-            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(20.0f, 20.0f, nullptr));
+            sk_sp<SkImageFilter> blur(SkImageFilters::Blur(20.0f, 20.0f, nullptr));
             sk_sp<SkImageFilter> inputs[kNumInputs];
             for (int i = 0; i < kNumInputs; ++i) {
                 inputs[i] = blur;
             }
             SkPaint paint;
-            paint.setImageFilter(SkMergeImageFilter::Make(inputs, kNumInputs));
+            paint.setImageFilter(SkImageFilters::Merge(inputs, kNumInputs));
             canvas->drawRect(rect, paint);
         }
     }
@@ -68,12 +64,12 @@ protected:
         sk_sp<SkImage> image = fImage;
 
         for (int j = 0; j < loops; j++) {
-            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(20.0f, 20.0f, nullptr));
+            sk_sp<SkImageFilter> blur(SkImageFilters::Blur(20.0f, 20.0f, nullptr));
             sk_sp<SkImageFilter> inputs[kNumInputs];
             for (int i = 0; i < kNumInputs; ++i) {
                 inputs[i] = blur;
             }
-            sk_sp<SkImageFilter> mergeFilter = SkMergeImageFilter::Make(inputs, kNumInputs);
+            sk_sp<SkImageFilter> mergeFilter = SkImageFilters::Merge(inputs, kNumInputs);
             image = image->makeWithFilter(mergeFilter.get(), subset, subset, &discardSubset,
                                           &offset);
             SkASSERT(image && image->dimensions() == fImage->dimensions());
@@ -100,14 +96,14 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int j = 0; j < loops; j++) {
-            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(4.0f, 4.0f, nullptr));
-            auto xSelector = SkDisplacementMapEffect::kR_ChannelSelectorType;
-            auto ySelector = SkDisplacementMapEffect::kB_ChannelSelectorType;
+            sk_sp<SkImageFilter> blur(SkImageFilters::Blur(4.0f, 4.0f, nullptr));
+            auto xSelector = SkColorChannel::kR;
+            auto ySelector = SkColorChannel::kB;
             SkScalar scale = 2;
 
             SkPaint paint;
-            paint.setImageFilter(SkDisplacementMapEffect::Make(xSelector, ySelector, scale,
-                                                               blur, blur));
+            paint.setImageFilter(SkImageFilters::DisplacementMap(xSelector, ySelector, scale,
+                                                                 blur, blur));
 
             SkRect rect = SkRect::Make(SkIRect::MakeWH(400, 400));
             canvas->drawRect(rect, paint);
@@ -128,11 +124,11 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int j = 0; j < loops; j++) {
-            auto blur = SkBlurImageFilter::Make(20.0f, 20.0f, nullptr);
-            auto offset1 = SkOffsetImageFilter::Make(100.0f, 100.0f, blur);
-            auto offset2 = SkOffsetImageFilter::Make(-100.0f, -100.0f, blur);
+            auto blur = SkImageFilters::Blur(20.0f, 20.0f, nullptr);
+            auto offset1 = SkImageFilters::Offset(100.0f, 100.0f, blur);
+            auto offset2 = SkImageFilters::Offset(-100.0f, -100.0f, blur);
             auto xfermode =
-                    SkXfermodeImageFilter::Make(SkBlendMode::kSrcIn, offset1, offset2, nullptr);
+                    SkImageFilters::Xfermode(SkBlendMode::kSrcIn, offset1, offset2, nullptr);
 
             SkPaint paint;
             paint.setImageFilter(xfermode);
