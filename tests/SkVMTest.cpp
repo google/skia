@@ -972,6 +972,19 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.vbroadcastss(A::ymm0,  A::rdi,   0);
+        a.vbroadcastss(A::ymm13, A::r14,   7);
+        a.vbroadcastss(A::ymm8,  A::rdx, -12);
+        a.vbroadcastss(A::ymm8,  A::rdx, 400);
+    },{
+        /*   VEX    */ /*op*/     /*ModRM*/   /*offset*/
+        0xc4,0xe2,0x7d, 0x18,   0b00'000'111,
+        0xc4,0x42,0x7d, 0x18,   0b01'101'110,  0x07,
+        0xc4,0x62,0x7d, 0x18,   0b01'000'010,  0xf4,
+        0xc4,0x62,0x7d, 0x18,   0b10'000'010,  0x90,0x01,0x00,0x00,
+    });
+
+    test_asm(r, [&](A& a) {
         A::Label l = a.here();
         a.jne(&l);
         a.jne(&l);
