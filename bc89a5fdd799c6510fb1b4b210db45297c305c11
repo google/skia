@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "877562b4_49cb5bf9",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-02T15:57:27Z",
+      "side": 1,
+      "message": "agreed, changed to AdjustHighQualityFilterLevel",
+      "parentUuid": "d9610999_1a55110a",
+      "range": {
+        "startLine": 54,
+        "startChar": 8,
+        "endLine": 54,
+        "endChar": 38
+      },
+      "revId": "bc89a5fdd799c6510fb1b4b210db45297c305c11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad0f46dc_fe4e447a",
         "filename": "src/core/SkMatrix.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-08-02T15:50:36Z",
       "side": 1,
       "message": "Unrelated to this CL, but I totally expected \"ShouldUseBicubic\" to return a bool.",
+      "range": {
+        "startLine": 1804,
+        "startChar": 0,
+        "endLine": 1804,
+        "endChar": 15
+      },
+      "revId": "bc89a5fdd799c6510fb1b4b210db45297c305c11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9e2ff14_87b7a7e2",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1804,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-02T15:57:27Z",
+      "side": 1,
+      "message": "agreed, changed to AdjustHighQualityFilterLevel",
+      "parentUuid": "ad0f46dc_fe4e447a",
       "range": {
         "startLine": 1804,
         "startChar": 0,
@@ -68,6 +116,30 @@
       "revId": "bc89a5fdd799c6510fb1b4b210db45297c305c11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9ddb3ef_f39f693c",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1809,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-02T15:57:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4af4e715_bc7f4e6d",
+      "range": {
+        "startLine": 1809,
+        "startChar": 26,
+        "endLine": 1809,
+        "endChar": 41
+      },
+      "revId": "bc89a5fdd799c6510fb1b4b210db45297c305c11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
