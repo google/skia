@@ -475,6 +475,11 @@
       ],
       "trigger": "master"
     },
+    "Build-Mac-Clang-x86_64-Debug-Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-Goma"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Debug-Metal": {
       "tasks": [
         "Build-Mac-Clang-x86_64-Debug-Metal"
@@ -3100,6 +3105,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -3169,6 +3179,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -3236,6 +3251,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -3317,6 +3337,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/cast_toolchain",
           "path": "cast_toolchain",
           "version": "version:4"
@@ -3391,6 +3416,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -3458,6 +3488,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/android_ndk_linux",
@@ -3529,6 +3564,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -3596,6 +3636,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/android_ndk_linux",
@@ -3667,6 +3712,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -3734,6 +3784,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -3813,6 +3868,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/cast_toolchain",
@@ -3916,6 +3976,11 @@
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -3982,6 +4047,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/android_ndk_linux",
@@ -4053,6 +4123,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -4120,6 +4195,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/android_ndk_linux",
@@ -4191,6 +4271,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -4260,6 +4345,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -4327,6 +4417,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/android_ndk_linux",
@@ -4518,6 +4613,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -4585,6 +4685,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/android_ndk_linux",
@@ -4656,6 +4761,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -4723,6 +4833,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/android_ndk_linux",
@@ -4794,6 +4909,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -4863,6 +4983,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:15"
@@ -4930,6 +5055,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/android_ndk_linux",
@@ -5030,6 +5160,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -5093,6 +5228,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -5164,6 +5304,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -5233,6 +5378,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -5300,6 +5450,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -5376,6 +5531,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -5443,6 +5603,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -5524,6 +5689,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -5591,6 +5761,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -5662,6 +5837,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -5729,6 +5909,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -5805,6 +5990,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -5879,6 +6069,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -5946,6 +6141,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -6017,6 +6217,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -6084,6 +6289,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -6155,6 +6365,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -6224,6 +6439,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -6291,6 +6511,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -6393,6 +6618,11 @@
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -6460,6 +6690,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -6534,6 +6769,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -6626,6 +6866,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -6723,6 +6968,11 @@
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -6789,6 +7039,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -6860,6 +7115,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -6927,6 +7187,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -6998,6 +7263,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -7067,6 +7337,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -7134,6 +7409,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -7210,6 +7490,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -7277,6 +7562,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -7348,6 +7638,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:14"
@@ -7415,6 +7710,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -7488,6 +7788,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -7557,6 +7862,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -7626,6 +7936,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -7695,6 +8010,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -7764,6 +8084,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -7833,6 +8158,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -7902,6 +8232,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -7971,6 +8306,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -8036,6 +8376,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/mips64el_toolchain_linux",
@@ -8107,6 +8452,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
           "version": "version:4"
@@ -8174,6 +8524,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/mips64el_toolchain_linux",
@@ -8245,6 +8600,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
           "version": "version:4"
@@ -8312,6 +8672,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -8376,6 +8741,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -8440,6 +8810,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -8504,6 +8879,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -8568,6 +8948,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -8632,6 +9017,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -8696,6 +9086,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -8760,6 +9155,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -8828,6 +9228,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -8902,6 +9307,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -8968,6 +9378,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/android_ndk_darwin",
@@ -9042,6 +9457,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -9112,6 +9532,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -9186,6 +9611,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -9256,6 +9686,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -9330,6 +9765,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -9400,6 +9840,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -9474,6 +9919,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -9544,6 +9994,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -9645,6 +10100,11 @@
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -9688,6 +10148,87 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
+    "Build-Mac-Clang-x86_64-Debug-Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-Goma\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.13.6",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
     "Build-Mac-Clang-x86_64-Debug-Metal": {
       "caches": [
         {
@@ -9714,6 +10255,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -9786,6 +10332,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -9865,6 +10416,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -9937,6 +10493,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -10007,6 +10568,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -10108,6 +10674,11 @@
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -10177,6 +10748,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -10249,6 +10825,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -10328,6 +10909,11 @@
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
@@ -10398,6 +10984,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -10471,6 +11062,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_win",
@@ -10549,6 +11145,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -10623,6 +11224,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_win",
@@ -10701,6 +11307,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -10777,6 +11388,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/android_ndk_windows",
           "path": "n",
           "version": "version:10"
@@ -10850,6 +11466,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_win",
@@ -10928,6 +11549,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -11002,6 +11628,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_win",
@@ -11080,6 +11711,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -11156,6 +11792,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -11230,6 +11871,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_win",
@@ -11313,6 +11959,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -11387,6 +12038,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_win",
@@ -11465,6 +12121,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -11539,6 +12200,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_win",
@@ -11617,6 +12283,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -11691,6 +12362,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         },
         {
           "name": "skia/bots/clang_win",
@@ -11769,6 +12445,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -11845,6 +12526,11 @@
           "version": "version:2.7.15.chromium14"
         },
         {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
+        },
+        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:10"
@@ -11919,6 +12605,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -11990,6 +12681,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12061,6 +12757,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12132,6 +12833,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12203,6 +12909,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12274,6 +12985,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12345,6 +13061,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12416,6 +13137,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12487,6 +13213,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12558,6 +13289,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12629,6 +13365,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12700,6 +13441,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12771,6 +13517,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
@@ -12842,6 +13593,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra_internal/goma/client/${platform}",
+          "path": "goma_client",
+          "version": "release"
         }
       ],
       "command": [
