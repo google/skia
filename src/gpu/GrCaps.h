@@ -384,11 +384,10 @@ public:
     }
 
     /**
-     * Special method only for YUVA images. Returns a colortype that matches the backend format or
-     * kUnknown if a colortype could not be determined.
+     * Special method only for YUVA images. Returns a config that matches the backend format or
+     * kUnknown if a config could not be determined.
      */
-    virtual GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
-                                                          bool isAlphaChannel) const = 0;
+    virtual GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const = 0;
 
     /** These are used when creating a new texture internally. */
     GrBackendFormat getDefaultBackendFormat(GrColorType, GrRenderable) const;

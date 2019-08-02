@@ -724,8 +724,7 @@ GrPixelConfig GrMtlCaps::onGetConfigFromBackendFormat(const GrBackendFormat& for
     return validate_sized_format(*mtlFormat, ct);
 }
 
-GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
-                                                         bool isAlphaChannel) const {
+GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const {
     const GrMTLPixelFormat* grMtlFormat = format.getMtlFormat();
     if (!grMtlFormat) {
         return GrColorType::kUnknown;
@@ -733,11 +732,9 @@ GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& 
 
     MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*grMtlFormat);
 
-
     switch (mtlFormat) {
         case MTLPixelFormatA8Unorm:           // fall through
-        case MTLPixelFormatR8Unorm:           return isAlphaChannel ? GrColorType::kAlpha_8
-                                                                    : GrColorType::kGray_8;
+        case MTLPixelFormatR8Unorm:           return GrColorType::kAlpha_8;
         case MTLPixelFormatRG8Unorm:          return GrColorType::kRG_88;
         case MTLPixelFormatRGBA8Unorm:        return GrColorType::kRGBA_8888;
         case MTLPixelFormatBGRA8Unorm:        return GrColorType::kBGRA_8888;
