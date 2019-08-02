@@ -718,6 +718,8 @@ skia_dawn_sources = [
   "$_src/gpu/dawn/GrDawnGpuCommandBuffer.h",
   "$_src/gpu/dawn/GrDawnProgramDataManager.cpp",
   "$_src/gpu/dawn/GrDawnProgramDataManager.h",
+  "$_src/gpu/dawn/GrDawnProgramBuilder.cpp",
+  "$_src/gpu/dawn/GrDawnProgramBuilder.h",
   "$_src/gpu/dawn/GrDawnRenderTarget.cpp",
   "$_src/gpu/dawn/GrDawnRenderTarget.h",
   "$_src/gpu/dawn/GrDawnUniformHandler.cpp",
