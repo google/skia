@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0082300b_e11efc60",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1611,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-02T20:35:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "310d9d2a_d1abf9c5",
+      "range": {
+        "startLine": 1611,
+        "startChar": 55,
+        "endLine": 1611,
+        "endChar": 56
+      },
+      "revId": "e1c838d27914b3d38a66a4f7ca32d425bbff8e6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd06712d_96f8bce1",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "081b65b8_42dc679e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4102,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-02T20:35:27Z",
+      "side": 1,
+      "message": "used the direct from backendFormat call instead.",
+      "parentUuid": "dd06712d_96f8bce1",
+      "revId": "e1c838d27914b3d38a66a4f7ca32d425bbff8e6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "01f4b14b_95b64b89",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 1
@@ -53,6 +95,24 @@
       "writtenOn": "2019-08-02T19:56:23Z",
       "side": 1,
       "message": "You don\u0027t necessarily need to explicitly initializes these, they default initialize to \"rgba\".",
+      "revId": "e1c838d27914b3d38a66a4f7ca32d425bbff8e6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e33878c_a18f2b72",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-02T20:35:27Z",
+      "side": 1,
+      "message": "Done. I originally added them more as a documentation thing so its obvious that is what the default ctor does. But I don\u0027t think its really necessary.",
+      "parentUuid": "01f4b14b_95b64b89",
       "revId": "e1c838d27914b3d38a66a4f7ca32d425bbff8e6a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
