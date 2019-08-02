@@ -45,6 +45,29 @@
       "revId": "bc89a5fdd799c6510fb1b4b210db45297c305c11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4af4e715_bc7f4e6d",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1809,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-02T15:52:52Z",
+      "side": 1,
+      "message": "Maybe clearer to just use [\u0026] here?  Closing over it like [matrixIsInverse] makes it seem like the copy is important, as if matrixIsInverse will change or go out of scope.",
+      "range": {
+        "startLine": 1809,
+        "startChar": 26,
+        "endLine": 1809,
+        "endChar": 41
+      },
+      "revId": "bc89a5fdd799c6510fb1b4b210db45297c305c11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
