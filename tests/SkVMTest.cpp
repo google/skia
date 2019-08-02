@@ -778,6 +778,27 @@ DEF_TEST(SkVM_hoist, r) {
     });
 }
 
+DEF_TEST(SkVM_select, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg buf = b.varying<int>();
+
+        skvm::I32 x = b.load32(buf);
+
+        x = b.select( b.gt(x, b.splat(4)), x, b.splat(42) );
+
+        b.store32(buf, x);
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+        int buf[] = { 0,1,2,3,4,5,6,7,8 };
+        program.eval(SK_ARRAY_COUNT(buf), buf);
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
+            REPORTER_ASSERT(r, buf[i] == (i > 4 ? i : 42));
+        }
+    });
+}
+
 DEF_TEST(SkVM_NewOps, r) {
     // Exercise a somewhat arbitrary set of new ops.
     skvm::Builder b;
@@ -930,6 +951,20 @@ DEF_TEST(SkVM_Assembler, r) {
         0xc4, 0xc1, 0x75, 0xfe, 0xc0,
         0xc4, 0xe2, 0x75, 0x40, 0xc2,
         0xc5,       0xf5, 0xfa, 0xc2,
+    });
+
+    test_asm(r, [&](A& a) {
+        a.vpcmpeqd(A::ymm0, A::ymm1, A::ymm2);
+        a.vpcmpgtd(A::ymm0, A::ymm1, A::ymm2);
+    },{
+        0xc5,0xf5,0x76,0xc2,
+        0xc5,0xf5,0x66,0xc2,
+    });
+
+    test_asm(r, [&](A& a) {
+        a.vpblendvb(A::ymm0, A::ymm1, A::ymm2, A::ymm3);
+    },{
+        0xc4,0xe3,0x75, 0x4c, 0xc2, 0x30,
     });
 
     test_asm(r, [&](A& a) {
