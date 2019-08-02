@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6ae4d6e6_3be09914",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T13:55:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f36471d0_d7049acf",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 11
+      },
+      "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ac600ef_a2d7d32b",
         "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8d8145d_987155dc",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T13:55:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ac600ef_a2d7d32b",
+      "range": {
+        "startLine": 117,
+        "startChar": 30,
+        "endLine": 117,
+        "endChar": 50
+      },
+      "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "839c54e9_3f165858",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T13:55:20Z",
+      "side": 1,
+      "message": "I think it\u0027s a good idea to pull it out into its own file. I\u0027ll do that in a followup CL.",
+      "parentUuid": "2853889f_a7012b8f",
+      "range": {
+        "startLine": 20,
+        "startChar": 7,
+        "endLine": 20,
+        "endChar": 38
+      },
+      "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40b36f43_6e471429",
         "filename": "src/gpu/dawn/GrDawnProgramBuilder.h",
         "patchSetId": 6
@@ -91,6 +163,30 @@
       "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d6afb98_476d55b9",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T13:55:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40b36f43_6e471429",
+      "range": {
+        "startLine": 102,
+        "startChar": 23,
+        "endLine": 102,
+        "endChar": 24
+      },
+      "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
