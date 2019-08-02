@@ -608,6 +608,9 @@ private:
         };
         uint32_t fFlags = 0;
 
+        GrSwizzle fTextureSwizzle = GrSwizzle::RGBA();
+        GrSwizzle fOutputSwizzle = GrSwizzle::RGBA();
+
         struct ExternalIOFormats {
             GrColorType fColorType = GrColorType::kUnknown;
 
