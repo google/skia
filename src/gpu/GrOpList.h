@@ -13,6 +13,7 @@
 #include "include/private/SkTDArray.h"
 #include "src/gpu/GrRenderTask.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/GrTextureResolveManager.h"
 
 class GrAuditTrail;
 class GrOpMemoryPool;
