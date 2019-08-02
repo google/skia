@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f36471d0_d7049acf",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-02T13:29:53Z",
+      "side": 1,
+      "message": "why did you decide to have some of these helpers in an anonymous namespace and others declared static. I feel like the rest of Ganesh tends to stick with just using statics so maybe go with that for consistency?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 11
+      },
+      "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ac600ef_a2d7d32b",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-02T13:29:53Z",
+      "side": 1,
+      "message": "this and the other statics declared in the cpp should be lower case in with \"_\"s. make_bind_group_binding",
+      "range": {
+        "startLine": 117,
+        "startChar": 30,
+        "endLine": 117,
+        "endChar": 50
+      },
+      "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2853889f_a7012b8f",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-02T13:29:53Z",
+      "side": 1,
+      "message": "Personally I think I would have a separate header for the GrDawnProgram and GrDawnProgramBuilder, but it is not a big deal to have them in the same file. Though I think I would make the file be named GrDrawnProgram.h since that is the main object we want here and the builder is just a helper class to create one for us.",
+      "range": {
+        "startLine": 20,
+        "startChar": 7,
+        "endLine": 20,
+        "endChar": 38
+      },
+      "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40b36f43_6e471429",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-02T13:29:53Z",
+      "side": 1,
+      "message": "lower case c",
+      "range": {
+        "startLine": 102,
+        "startChar": 23,
+        "endLine": 102,
+        "endChar": 24
+      },
+      "revId": "bc16e23d1986e2568014f5c383d163400d1055cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
