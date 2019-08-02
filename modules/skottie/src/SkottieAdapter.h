@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/sksg/include/SkSGScene.h"
 
 namespace sksg {
 
@@ -41,6 +42,27 @@ namespace skjson {
 }
 
 namespace skottie {
+namespace internal {
+
+class DiscardableAdaptorBase : public sksg::Animator {
+protected:
+    DiscardableAdaptorBase();
+
+    void onTick(float t) final;
+
+    virtual void onSync() = 0;
+
+private:
+    friend class AnimationBuilder;
+    void setAnimators(sksg::AnimatorList&&);
+
+    sksg::AnimatorList fAnimators;
+
+    using INHERITED = sksg::Animator;
+};
+
+
+} // namespace internal
 
 #define ADAPTER_PROPERTY(p_name, p_type, p_default) \
     const p_type& get##p_name() const {             \
