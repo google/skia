@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad0f46dc_fe4e447a",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1804,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-02T15:50:36Z",
+      "side": 1,
+      "message": "Unrelated to this CL, but I totally expected \"ShouldUseBicubic\" to return a bool.",
+      "range": {
+        "startLine": 1804,
+        "startChar": 0,
+        "endLine": 1804,
+        "endChar": 15
+      },
+      "revId": "bc89a5fdd799c6510fb1b4b210db45297c305c11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
