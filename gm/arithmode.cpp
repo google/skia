@@ -24,9 +24,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkArithmeticImageFilter.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkImageSource.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -88,8 +87,8 @@ class ArithmodeGM : public skiagm::GM {
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkImage> src = make_src();
         sk_sp<SkImage> dst = make_dst();
-        sk_sp<SkImageFilter> srcFilter = SkImageSource::Make(src);
-        sk_sp<SkImageFilter> dstFilter = SkImageSource::Make(dst);
+        sk_sp<SkImageFilter> srcFilter = SkImageFilters::Image(src);
+        sk_sp<SkImageFilter> dstFilter = SkImageFilters::Image(dst);
 
         constexpr SkScalar one = SK_Scalar1;
         constexpr SkScalar K[] = {
@@ -118,8 +117,8 @@ class ArithmodeGM : public skiagm::GM {
                 canvas->drawImage(dst, 0, 0);
                 canvas->translate(gap, 0);
                 SkPaint paint;
-                paint.setImageFilter(SkArithmeticImageFilter::Make(k[0], k[1], k[2], k[3], true,
-                                                                   dstFilter, srcFilter, nullptr));
+                paint.setImageFilter(SkImageFilters::Arithmetic(k[0], k[1], k[2], k[3], true,
+                                                                dstFilter, srcFilter, nullptr));
                 canvas->saveLayer(&rect, &paint);
                 canvas->restore();
 
@@ -146,11 +145,11 @@ class ArithmodeGM : public skiagm::GM {
                 canvas->translate(gap, 0);
 
                 sk_sp<SkImageFilter> bg =
-                        SkArithmeticImageFilter::Make(0, 0, -one / 2, 1, enforcePMColor, dstFilter,
-                                                      nullptr, nullptr);
+                        SkImageFilters::Arithmetic(0, 0, -one / 2, 1, enforcePMColor, dstFilter,
+                                                   nullptr, nullptr);
                 SkPaint p;
-                p.setImageFilter(SkArithmeticImageFilter::Make(0, one / 2, -one, 1, true,
-                                                               std::move(bg), dstFilter, nullptr));
+                p.setImageFilter(SkImageFilters::Arithmetic(0, one / 2, -one, 1, true,
+                                                            std::move(bg), dstFilter, nullptr));
                 canvas->saveLayer(&rect, &p);
                 canvas->restore();
                 canvas->translate(gap, 0);

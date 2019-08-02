@@ -19,7 +19,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkImageSource.h"
+#include "include/effects/SkImageFilters.h"
 
 #include <utility>
 
@@ -51,7 +51,7 @@ protected:
         canvas->translate(-rect.x(), -rect.y());
         SkMatrix matrix;
         matrix.setScale(SkScalarInvert(deviceScaleX), SkScalarInvert(deviceScaleY));
-        sk_sp<SkImageFilter> filter(SkImageFilter::MakeMatrixFilter(matrix,
+        sk_sp<SkImageFilter> filter(SkImageFilters::MatrixTransform(matrix,
                                                                     filterQuality,
                                                                     std::move(input)));
         SkPaint filteredPaint;
@@ -102,7 +102,7 @@ protected:
             SkRect inRect = SkRect::MakeXYWH(-4, -4, 20, 20);
             SkRect outRect = SkRect::MakeXYWH(-24, -24, 120, 120);
             sk_sp<SkImageFilter> source(
-                SkImageSource::Make(std::move(image), inRect, outRect, kHigh_SkFilterQuality));
+                SkImageFilters::Image(std::move(image), inRect, outRect, kHigh_SkFilterQuality));
             canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
             this->draw(canvas, srcRect, deviceSize, kHigh_SkFilterQuality, std::move(source));
         }

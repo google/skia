@@ -31,8 +31,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
@@ -219,7 +219,7 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
     static const PaintMakerFunc kPaintMakers[] = {
         []() -> SkPaint { return SkPaint(); },
         []() -> SkPaint {
-            SkPaint p; p.setImageFilter(SkBlurImageFilter::Make(2, 2, nullptr)); return p;
+            SkPaint p; p.setImageFilter(SkImageFilters::Blur(2, 2, nullptr)); return p;
         },
         []() -> SkPaint { SkPaint p; p.setBlendMode(SkBlendMode::kSrcOut); return p; },
     };

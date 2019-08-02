@@ -16,7 +16,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 #include <utility>
 
@@ -81,7 +81,7 @@ protected:
         int dy = 10;
 
         SkScalar sigma = 8;
-        sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(sigma, sigma, nullptr));
+        sk_sp<SkImageFilter> filter(SkImageFilters::Blur(sigma, sigma, nullptr));
 
         draw_1_bitmap(canvas, bm, false, dx, dy, nullptr);
         dy += bm.height() + 20;

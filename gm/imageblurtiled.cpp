@@ -16,7 +16,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
 
 #define WIDTH 640
@@ -41,7 +41,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setImageFilter(SkBlurImageFilter::Make(fSigmaX, fSigmaY, nullptr));
+        paint.setImageFilter(SkImageFilters::Blur(fSigmaX, fSigmaY, nullptr));
         const SkScalar tileSize = SkIntToScalar(128);
         SkRect bounds = canvas->getLocalClipBounds();
         for (SkScalar y = bounds.top(); y < bounds.bottom(); y += tileSize) {

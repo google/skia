@@ -13,7 +13,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/utils/SkRandom.h"
 #include "tools/ToolUtils.h"
 
@@ -22,7 +22,7 @@
 
 void imageblurgm_draw(SkScalar fSigmaX, SkScalar fSigmaY, SkCanvas* canvas) {
         SkPaint paint;
-        paint.setImageFilter(SkBlurImageFilter::Make(fSigmaX, fSigmaY, nullptr));
+        paint.setImageFilter(SkImageFilters::Blur(fSigmaX, fSigmaY, nullptr));
         canvas->saveLayer(nullptr, &paint);
         const char* str = "The quick brown fox jumped over the lazy dog.";
 

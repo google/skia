@@ -19,7 +19,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkImageSource.h"
+#include "include/effects/SkImageFilters.h"
 
 namespace skiagm {
 
@@ -77,7 +77,7 @@ protected:
         const SkRect dstRect = SkRect::MakeLTRB(0.75f, 0.75f, 225.75f, 225.75f);
 
         SkPaint p;
-        p.setImageFilter(SkImageSource::Make(fImage, srcRect, dstRect, fFilter));
+        p.setImageFilter(SkImageFilters::Image(fImage, srcRect, dstRect, fFilter));
 
         canvas->saveLayer(nullptr, &p);
         canvas->restore();

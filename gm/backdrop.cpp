@@ -16,8 +16,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 
 #include <initializer_list>
 
@@ -54,7 +54,7 @@ static void do_draw(SkCanvas* canvas, bool useClip, bool useHintRect) {
     if (useClip) {
         canvas->clipRect(r);
     }
-    auto blur = SkBlurImageFilter::Make(sigma, sigma, nullptr);
+    auto blur = SkImageFilters::Blur(sigma, sigma, nullptr);
     auto rec = SkCanvas::SaveLayerRec(drawrptr, nullptr, blur.get(), 0);
     canvas->saveLayer(rec);
         // draw something inside, just to demonstrate that we don't blur the new contents,

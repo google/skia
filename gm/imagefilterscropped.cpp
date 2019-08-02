@@ -21,11 +21,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkColorFilterImageFilter.h"
-#include "include/effects/SkMergeImageFilter.h"
-#include "include/effects/SkMorphologyImageFilter.h"
-#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
 
@@ -128,37 +124,31 @@ protected:
 
         sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorBLUE,
                                                               SkBlendMode::kSrcIn));
-        SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
-                                         SkImageFilter::CropRect::kHasAll_CropEdge);
-        SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)),
-                                          SkImageFilter::CropRect::kHasAll_CropEdge);
+        SkIRect cropRect = SkIRect::MakeXYWH(10, 10, 44, 44);
+        SkIRect bogusRect = SkIRect::MakeXYWH(-100, -100, 10, 10);
 
-        sk_sp<SkImageFilter> offset(SkOffsetImageFilter::Make(SkIntToScalar(-10),
-                                                              SkIntToScalar(-10),
-                                                              nullptr));
+        sk_sp<SkImageFilter> offset(SkImageFilters::Offset(-10, -10, nullptr));
 
-        sk_sp<SkImageFilter> cfOffset(SkColorFilterImageFilter::Make(cf, std::move(offset)));
+        sk_sp<SkImageFilter> cfOffset(SkImageFilters::ColorFilter(cf, std::move(offset)));
 
-        sk_sp<SkImageFilter> erodeX(SkErodeImageFilter::Make(8, 0, nullptr, &cropRect));
-        sk_sp<SkImageFilter> erodeY(SkErodeImageFilter::Make(0, 8, nullptr, &cropRect));
+        sk_sp<SkImageFilter> erodeX(SkImageFilters::Erode(8, 0, nullptr, &cropRect));
+        sk_sp<SkImageFilter> erodeY(SkImageFilters::Erode(0, 8, nullptr, &cropRect));
 
         sk_sp<SkImageFilter> filters[] = {
             nullptr,
-            SkColorFilterImageFilter::Make(cf, nullptr, &cropRect),
-            SkBlurImageFilter::Make(0.0f, 0.0f, nullptr, &cropRect),
-            SkBlurImageFilter::Make(1.0f, 1.0f, nullptr, &cropRect),
-            SkBlurImageFilter::Make(8.0f, 0.0f, nullptr, &cropRect),
-            SkBlurImageFilter::Make(0.0f, 8.0f, nullptr, &cropRect),
-            SkBlurImageFilter::Make(8.0f, 8.0f, nullptr, &cropRect),
-            SkErodeImageFilter::Make(1, 1, nullptr, &cropRect),
-            SkErodeImageFilter::Make(8, 0, std::move(erodeY), &cropRect),
-            SkErodeImageFilter::Make(0, 8, std::move(erodeX), &cropRect),
-            SkErodeImageFilter::Make(8, 8, nullptr, &cropRect),
-            SkMergeImageFilter::Make(nullptr,
-                                     std::move(cfOffset),
-                                     &cropRect),
-            SkBlurImageFilter::Make(8.0f, 8.0f, nullptr, &bogusRect),
-            SkColorFilterImageFilter::Make(cf, nullptr, &bogusRect),
+            SkImageFilters::ColorFilter(cf, nullptr, &cropRect),
+            SkImageFilters::Blur(0.0f, 0.0f, nullptr, &cropRect),
+            SkImageFilters::Blur(1.0f, 1.0f, nullptr, &cropRect),
+            SkImageFilters::Blur(8.0f, 0.0f, nullptr, &cropRect),
+            SkImageFilters::Blur(0.0f, 8.0f, nullptr, &cropRect),
+            SkImageFilters::Blur(8.0f, 8.0f, nullptr, &cropRect),
+            SkImageFilters::Erode(1, 1, nullptr, &cropRect),
+            SkImageFilters::Erode(8, 0, std::move(erodeY), &cropRect),
+            SkImageFilters::Erode(0, 8, std::move(erodeX), &cropRect),
+            SkImageFilters::Erode(8, 8, nullptr, &cropRect),
+            SkImageFilters::Merge(nullptr, std::move(cfOffset), &cropRect),
+            SkImageFilters::Blur(8.0f, 8.0f, nullptr, &bogusRect),
+            SkImageFilters::ColorFilter(cf, nullptr, &bogusRect),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));

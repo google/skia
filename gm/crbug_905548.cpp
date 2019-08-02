@@ -15,11 +15,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkArithmeticImageFilter.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkImageSource.h"
-#include "include/effects/SkMorphologyImageFilter.h"
-#include "include/effects/SkXfermodeImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 DEF_SIMPLE_GM(crbug_905548, canvas, 100, 200) {
     auto surface = canvas->makeSurface(SkImageInfo::MakeN32Premul(100, 100));
@@ -28,17 +24,17 @@ DEF_SIMPLE_GM(crbug_905548, canvas, 100, 200) {
     }
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawCircle(50, 50, 45, SkPaint());
-    auto imageSource = SkImageSource::Make(surface->makeImageSnapshot());
+    auto imageSource = SkImageFilters::Image(surface->makeImageSnapshot());
 
-    auto blurred = SkBlurImageFilter::Make(15, 15, imageSource);
-    auto eroded = SkErodeImageFilter::Make(0, 0, blurred);
-    auto blended = SkXfermodeImageFilter::Make(SkBlendMode::kDstOut, eroded, imageSource, nullptr);
+    auto blurred = SkImageFilters::Blur(15, 15, imageSource);
+    auto eroded = SkImageFilters::Erode(0, 0, blurred);
+    auto blended = SkImageFilters::Xfermode(SkBlendMode::kDstOut, eroded, imageSource, nullptr);
 
     SkPaint paint;
     paint.setImageFilter(blended);
     canvas->drawRect(SkRect::MakeWH(100, 100), paint);
 
-    auto mult = SkArithmeticImageFilter::Make(1, 0, 0, 0, false, eroded, imageSource, nullptr);
+    auto mult = SkImageFilters::Arithmetic(1, 0, 0, 0, false, eroded, imageSource, nullptr);
     paint.setImageFilter(mult);
     canvas->translate(0, 100);
     canvas->drawRect(SkRect::MakeWH(100, 100), paint);

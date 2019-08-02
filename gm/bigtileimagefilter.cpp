@@ -18,8 +18,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkImageSource.h"
-#include "include/effects/SkTileImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 #include <utility>
 
@@ -68,12 +67,11 @@ protected:
             SkPaint p;
 
             const SkRect bound = SkRect::MakeIWH(kWidth, kHeight);
-            sk_sp<SkImageFilter> imageSource(SkImageSource::Make(fRedImage));
+            sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(fRedImage));
 
-            sk_sp<SkImageFilter> tif(SkTileImageFilter::Make(
-                                                    SkRect::MakeIWH(kBitmapSize, kBitmapSize),
-                                                    SkRect::MakeIWH(kWidth, kHeight),
-                                                    std::move(imageSource)));
+            sk_sp<SkImageFilter> tif(SkImageFilters::Tile(
+                    SkRect::MakeIWH(kBitmapSize, kBitmapSize), SkRect::MakeIWH(kWidth, kHeight),
+                    std::move(imageSource)));
 
             p.setImageFilter(std::move(tif));
 
@@ -86,10 +84,10 @@ protected:
 
             const SkRect bound2 = SkRect::MakeIWH(kBitmapSize, kBitmapSize);
 
-            sk_sp<SkImageFilter> tif(SkTileImageFilter::Make(
-                                                        SkRect::MakeIWH(kBitmapSize, kBitmapSize),
-                                                        SkRect::MakeIWH(kBitmapSize, kBitmapSize),
-                                                        nullptr));
+            sk_sp<SkImageFilter> tif(SkImageFilters::Tile(
+                    SkRect::MakeIWH(kBitmapSize, kBitmapSize),
+                    SkRect::MakeIWH(kBitmapSize, kBitmapSize),
+                    nullptr));
 
             p2.setImageFilter(std::move(tif));
 

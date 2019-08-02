@@ -7,11 +7,11 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
-typedef sk_sp<SkImageFilter> (*FilterFactory)(const SkImageFilter::CropRect* crop);
+typedef sk_sp<SkImageFilter> (*FilterFactory)(const SkIRect* crop);
 
 static void draw_backdrop_filter_gm(SkCanvas* canvas, float outsetX, float outsetY,
                                     FilterFactory factory) {
@@ -25,7 +25,7 @@ static void draw_backdrop_filter_gm(SkCanvas* canvas, float outsetX, float outse
     // the layer's image space.
     SkRect cropInLocal = SkRect::MakeLTRB(50.f, 10.f, 250.f, 40.f);
 
-    SkImageFilter::CropRect cropRect(cropInLocal.makeOutset(outsetX, outsetY));
+    SkIRect cropRect = cropInLocal.makeOutset(outsetX, outsetY).roundOut();
     sk_sp<SkImageFilter> imageFilter = factory(&cropRect);
 
     SkPaint p;
@@ -68,17 +68,17 @@ static void draw_backdrop_filter_gm(SkCanvas* canvas, float outsetX, float outse
     }
 }
 
-static sk_sp<SkImageFilter> make_invert_filter(const SkImageFilter::CropRect* crop) {
+static sk_sp<SkImageFilter> make_invert_filter(const SkIRect* crop) {
     static const float matrix[20] = {-1.f, 0.f, 0.f, 0.f, 1.f,
                                       0.f, -1.f, 0.f, 0.f, 1.f,
                                       0.f, 0.f, -1.f, 0.f, 1.f,
                                       0.f, 0.f, 0.f, 1.f, 0.f};
-    return SkColorFilterImageFilter::Make(SkColorFilters::Matrix(matrix), nullptr, crop);
+    return SkImageFilters::ColorFilter(SkColorFilters::Matrix(matrix), nullptr, crop);
 }
 
-static sk_sp<SkImageFilter> make_blur_filter(const SkImageFilter::CropRect* crop) {
+static sk_sp<SkImageFilter> make_blur_filter(const SkIRect* crop) {
     // Use different sigmas for x and y so rotated CTM is apparent
-    return SkBlurImageFilter::Make(16.f, 4.f, nullptr, crop);
+    return SkImageFilters::Blur(16.f, 4.f, nullptr, crop);
 }
 
 // This draws correctly if there's a small cyan rectangle above a much larger magenta rectangle.

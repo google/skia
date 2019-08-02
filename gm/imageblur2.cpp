@@ -13,7 +13,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/utils/SkRandom.h"
 #include "tools/ToolUtils.h"
 
@@ -47,7 +47,7 @@ DEF_SIMPLE_GM(imageblur2, canvas, kWidth, kHeight) {
             SkScalar sigmaY = kBlurSigmas[y];
 
             SkPaint paint;
-            paint.setImageFilter(SkBlurImageFilter::Make(sigmaX, sigmaY, nullptr));
+            paint.setImageFilter(SkImageFilters::Blur(sigmaX, sigmaY, nullptr));
             canvas->saveLayer(nullptr, &paint);
 
             SkRandom rand;
