@@ -80,24 +80,24 @@ sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrDawnGpu::onWritePixels(GrSurface* surface,
-                              int left, int top, int width, int height,
-                              GrColorType colorType,
+bool GrDawnGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
+                              GrColorType textureColorType, GrColorType bufferColorType,
                               const GrMipLevel texels[], int mipLevelCount) {
     SkASSERT(!"unimplemented");
     return false;
 }
 
-bool GrDawnGpu::onTransferPixelsTo(GrTexture* texture,
-                                  int left, int top, int width, int height,
-                                  GrColorType colorType, GrGpuBuffer* transferBuffer,
-                                  size_t bufferOffset, size_t rowBytes) {
+bool GrDawnGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
+                                   GrColorType textureColorType, GrColorType bufferColorType,
+                                   GrGpuBuffer* transferBuffer, size_t bufferOffset,
+                                   size_t rowBytes) {
     SkASSERT(!"unimplemented");
     return false;
 }
 
 bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
-                                     GrColorType, GrGpuBuffer* transferBuffer, size_t offset) {
+                                     GrColorType surfaceColorType, GrColorType bufferColorType,
+                                     GrGpuBuffer* transferBuffer, size_t offset) {
     SkASSERT(!"unimplemented");
     return false;
 }
@@ -224,10 +224,8 @@ bool GrDawnGpu::onCopySurface(GrSurface* dst,
     return false;
 }
 
-bool GrDawnGpu::onReadPixels(GrSurface* surface,
-                             int left, int top, int width, int height,
-                             GrColorType colorType,
-                             void* buffer,
+bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
+                             GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
                              size_t rowBytes) {
     SkASSERT(!"unimplemented");
     return false;
