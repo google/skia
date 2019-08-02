@@ -738,8 +738,11 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
     }
     int w = surface->width();
     int h = surface->height();
-    std::unique_ptr<uint32_t[]> pixels(new uint32_t[w * h]);
-    sk_memset32(pixels.get(), ~expectedValue, w * h);
+
+    SkImageInfo ii = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    SkAutoPixmapStorage readback;
+    readback.alloc(ii);
 
     sk_sp<GrSurfaceContext> grSurfaceContext(grSurfaceGetter(surface.get()));
     if (!grSurfaceContext) {
@@ -748,11 +751,12 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
     }
     surface.reset();
 
-    SkImageInfo ii = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    grSurfaceContext->readPixels(ii, pixels.get(), 0, {0, 0});
+    readback.erase(~expectedValue);
+    grSurfaceContext->readPixels(readback.info(), readback.writable_addr(), readback.rowBytes(),
+                                 {0, 0});
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
-            uint32_t pixel = pixels.get()[y * w + x];
+            uint32_t pixel = readback.addr32()[y * w + x];
             if (pixel != expectedValue) {
                 SkString msg;
                 if (expectedValue) {
@@ -812,13 +816,17 @@ static void test_surface_draw_partially(
     SkPaint paint;
     const SkColor kRectColor = ~origColor | 0xFF000000;
     paint.setColor(kRectColor);
-    surface->getCanvas()->drawRect(SkRect::MakeWH(SkIntToScalar(kW), SkIntToScalar(kH)/2),
-                                   paint);
-    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kW * kH]);
-    sk_memset32(pixels.get(), ~origColor, kW * kH);
+    surface->getCanvas()->drawRect(SkRect::MakeIWH(kW, kH/2), paint);
+
     // Read back RGBA to avoid format conversions that may not be supported on all platforms.
     SkImageInfo readInfo = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    SkAssertResult(surface->readPixels(readInfo, pixels.get(), kW * sizeof(uint32_t), 0, 0));
+
+    SkAutoPixmapStorage readback;
+    readback.alloc(readInfo);
+
+    readback.erase(~origColor);
+    SkAssertResult(surface->readPixels(readback.info(), readback.writable_addr(),
+                                       readback.rowBytes(), 0, 0));
     bool stop = false;
 
     SkPMColor origColorPM = SkPackARGB_as_RGBA((origColor >> 24 & 0xFF),
@@ -832,10 +840,10 @@ static void test_surface_draw_partially(
 
     for (int y = 0; y < kH/2 && !stop; ++y) {
        for (int x = 0; x < kW && !stop; ++x) {
-            REPORTER_ASSERT(reporter, rectColorPM == pixels[x + y * kW]);
-            if (rectColorPM != pixels[x + y * kW]) {
+            REPORTER_ASSERT(reporter, rectColorPM == readback.addr32()[x + y * kW]);
+            if (rectColorPM != readback.addr32()[x + y * kW]) {
                 SkDebugf("--- got [%x] expected [%x], x = %d, y = %d\n",
-                         pixels[x + y * kW], rectColorPM, x, y);
+                         readback.addr32()[x + y * kW], rectColorPM, x, y);
                 stop = true;
             }
         }
@@ -843,10 +851,10 @@ static void test_surface_draw_partially(
     stop = false;
     for (int y = kH/2; y < kH && !stop; ++y) {
         for (int x = 0; x < kW && !stop; ++x) {
-            REPORTER_ASSERT(reporter, origColorPM == pixels[x + y * kW]);
-            if (origColorPM != pixels[x + y * kW]) {
+            REPORTER_ASSERT(reporter, origColorPM == readback.addr32()[x + y * kW]);
+            if (origColorPM != readback.addr32()[x + y * kW]) {
                 SkDebugf("--- got [%x] expected [%x], x = %d, y = %d\n",
-                         pixels[x + y * kW], origColorPM, x, y);
+                         readback.addr32()[x + y * kW], origColorPM, x, y);
                 stop = true;
             }
         }
