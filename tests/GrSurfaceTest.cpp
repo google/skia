@@ -228,11 +228,15 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
     GrContextOptions options = baseOptions;
     options.fClearAllTextures = true;
+
     static constexpr int kSize = 100;
-    std::unique_ptr<uint32_t[]> data(new uint32_t[kSize * kSize]);
+    static constexpr SkColor kClearColor = 0xABABABAB;
 
     const SkImageInfo info = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
                                                kPremul_SkAlphaType);
+
+    SkAutoPixmapStorage readback;
+    readback.alloc(info);
 
     GrSurfaceDesc desc;
     desc.fWidth = desc.fHeight = kSize;
@@ -292,15 +296,16 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                             auto texCtx = context->priv().makeWrappedSurfaceContext(
                                     std::move(proxy), combo.fColorType, kPremul_SkAlphaType);
 
-                            memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
-                            if (texCtx->readPixels(info, data.get(), 0, {0, 0})) {
+                            readback.erase(kClearColor);
+                            if (texCtx->readPixels(readback.info(), readback.writable_addr(),
+                                                   readback.rowBytes(), {0, 0})) {
                                 for (int i = 0; i < kSize * kSize; ++i) {
-                                    if (expectedClearColor != data.get()[i]) {
+                                    if (expectedClearColor != readback.addr32()[i]) {
                                         ERRORF(reporter,
                                                "Failed on ct %s conf %d 0x%x != 0x%x",
                                                GrColorTypeToStr(combo.fColorType),
                                                desc.fConfig, expectedClearColor,
-                                               data.get()[i]);
+                                               readback.addr32()[i]);
                                         break;
                                     }
                                 }
@@ -327,13 +332,14 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                             continue;
                         }
 
-                        memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
-                        if (surfCtx->readPixels(info, data.get(), 0, {0, 0})) {
+                        readback.erase(kClearColor);
+                        if (surfCtx->readPixels(readback.info(), readback.writable_addr(),
+                                                readback.rowBytes(), {0, 0})) {
                             for (int i = 0; i < kSize * kSize; ++i) {
-                                if (expectedClearColor != data.get()[i]) {
+                                if (expectedClearColor != readback.addr32()[i]) {
                                     ERRORF(reporter, "Failed on ct %s conf %d 0x%x != 0x%x",
                                            GrColorTypeToStr(combo.fColorType),
-                                           desc.fConfig, expectedClearColor, data.get()[i]);
+                                           desc.fConfig, expectedClearColor, readback.addr32()[i]);
                                     break;
                                 }
                             }
