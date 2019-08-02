@@ -21,9 +21,9 @@ namespace internal {
 
 namespace  {
 
-class VenetialBlindsAdapter final : public MaskFilterEffectBase {
+class VenetianBlindsAdapter final : public MaskFilterEffectBase {
 public:
-    VenetialBlindsAdapter(sk_sp<sksg::RenderNode> layer, const SkSize& ls)
+    VenetianBlindsAdapter(sk_sp<sksg::RenderNode> layer, const SkSize& ls)
         : INHERITED(std::move(layer), ls) {}
 
     ADAPTER_PROPERTY(Completion, float, 0)
@@ -144,7 +144,7 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachVenetianBlindsEffect(
         kFeather_Index    = 3,
     };
 
-    auto adapter = sk_make_sp<VenetialBlindsAdapter>(std::move(layer), fLayerSize);
+    auto adapter = sk_make_sp<VenetianBlindsAdapter>(std::move(layer), fLayerSize);
 
     fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index),
         [adapter](const ScalarValue& c) {
