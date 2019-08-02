@@ -1529,6 +1529,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             auto& ctInfo = info.fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kRGB_888x;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            ctInfo.fTextureSwizzle = GrSwizzle::RGB1();
 
             // External IO ColorTypes:
             ctInfo.fExternalIOFormatCount = 1;
@@ -1574,6 +1575,8 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kAlpha_8;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+                ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
                 this->setColorTypeFormat(GrColorType::kAlpha_8, GrGLFormat::kR8);
 
                 // External IO ColorTypes:
@@ -1605,6 +1608,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kGray_8;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+                ctInfo.fTextureSwizzle = GrSwizzle("rrr1");
                 this->setColorTypeFormat(GrColorType::kGray_8, GrGLFormat::kR8);
 
                 // External IO ColorTypes:
@@ -1676,6 +1680,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     ctInfo.fColorType = GrColorType::kAlpha_8;
                     ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag |
                                     ColorTypeInfo::kRenderable_Flag;
+                    ctInfo.fTextureSwizzle = GrSwizzle::AAAA();
                     int idx = static_cast<int>(GrColorType::kAlpha_8);
                     if (fColorTypeToFormatTable[idx] == GrGLFormat::kUnknown) {
                         this->setColorTypeFormat(GrColorType::kAlpha_8, GrGLFormat::kALPHA8);
@@ -2084,6 +2089,8 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kAlpha_F16;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+                ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
                 this->setColorTypeFormat(GrColorType::kAlpha_F16, GrGLFormat::kR16F);
 
                 // External IO ColorTypes:
@@ -2161,6 +2168,8 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kAlpha_F16;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+                ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+                ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
 
                 int idx = static_cast<int>(GrColorType::kAlpha_F16);
                 if (fColorTypeToFormatTable[idx] == GrGLFormat::kUnknown) {
@@ -3898,7 +3907,6 @@ GrGLFormat GrGLCaps::pixelConfigToFormat(GrPixelConfig config) const {
     return GrGLFormat::kUnknown;
 }
 
-// A near clone of format_color_type_valid_pair
 static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandard standard) {
     switch (ct) {
         case GrColorType::kUnknown:
@@ -4091,118 +4099,29 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
 
 bool GrGLCaps::canClearTextureOnCreation() const { return fClearTextureSupport; }
 
-#ifdef SK_DEBUG
-static constexpr bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType) {
-    switch (colorType) {
-        case GrColorType::kUnknown:
-            return false;
-        case GrColorType::kAlpha_8:
-            return GR_GL_ALPHA8 == format || GR_GL_R8 == format;
-        case GrColorType::kBGR_565:
-            return GR_GL_RGB565 == format;
-        case GrColorType::kABGR_4444:
-            return GR_GL_RGBA4 == format;
-        case GrColorType::kRGBA_8888:
-            return GR_GL_RGBA8 == format;
-        case GrColorType::kRGBA_8888_SRGB:
-            return GR_GL_SRGB8_ALPHA8 == format;
-        case GrColorType::kRGB_888x:
-            GR_STATIC_ASSERT(GrCompressionTypeClosestColorType(SkImage::kETC1_CompressionType) ==
-                             GrColorType::kRGB_888x);
-            return GR_GL_RGB8 == format || GR_GL_RGBA8 == format ||
-                   GR_GL_COMPRESSED_RGB8_ETC2 == format || GR_GL_COMPRESSED_ETC1_RGB8 == format;
-        case GrColorType::kRG_88:
-            return GR_GL_RG8 == format;
-        case GrColorType::kBGRA_8888:
-            return GR_GL_RGBA8 == format || GR_GL_BGRA8 == format || GR_GL_SRGB8_ALPHA8 == format;
-        case GrColorType::kRGBA_1010102:
-            return GR_GL_RGB10_A2 == format;
-        case GrColorType::kGray_8:
-            return GR_GL_LUMINANCE8 == format || GR_GL_R8 == format;
-        case GrColorType::kAlpha_F16:
-            return GR_GL_R16F == format || GR_GL_LUMINANCE16F == format;
-        case GrColorType::kRGBA_F16:
-            return GR_GL_RGBA16F == format;
-        case GrColorType::kRGBA_F16_Clamped:
-            return GR_GL_RGBA16F == format;
-        case GrColorType::kRGBA_F32:
-            return GR_GL_RGBA32F == format;
-        case GrColorType::kR_16:
-            return GR_GL_R16 == format;
-        case GrColorType::kRG_1616:
-            return GR_GL_RG16 == format;
-        // Experimental (for Y416 and mutant P016/P010)
-        case GrColorType::kRGBA_16161616:
-            return GR_GL_RGBA16 == format;
-        case GrColorType::kRG_F16:
-            return GR_GL_RG16F == format;
-
-        // These have no equivalent config:
-        case GrColorType::kAlpha_8xxx:
-        case GrColorType::kAlpha_F32xxx:
-        case GrColorType::kGray_8xxx:
-            return false;
-    }
-    SkUNREACHABLE;
-}
-#endif
-
-static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
-                             bool forOutput) {
+GrSwizzle GrGLCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     SkASSERT(format.getGLFormat());
-    GrGLenum glFormat = *format.getGLFormat();
-
-    SkASSERT(format_color_type_valid_pair(glFormat, colorType));
-
-    // When picking a swizzle for output, we will pick to use RGBA if possible so that it creates
-    // less variations of shaders and those shaders can be used by different configs.
-    switch (colorType) {
-        case GrColorType::kAlpha_8:
-            if (glFormat == GR_GL_ALPHA8) {
-                if (!forOutput) {
-                    return GrSwizzle::AAAA();
-                }
-            } else {
-                SkASSERT(glFormat == GR_GL_R8);
-                if (forOutput) {
-                    return GrSwizzle::AAAA();
-                } else {
-                    return GrSwizzle::RRRR();
-                }
-            }
-            break;
-        case GrColorType::kAlpha_F16:
-            SkASSERT(glFormat == GR_GL_R16F || glFormat == GR_GL_LUMINANCE16F);
-            if (forOutput) {
-                return GrSwizzle::AAAA();
-            } else {
-                return GrSwizzle::RRRR();
-            }
-            break;
-        case GrColorType::kGray_8:
-            if (glFormat == GR_GL_R8) {
-                if (!forOutput) {
-                    return GrSwizzle::RRRA();
-                }
-            }
-            break;
-        case GrColorType::kRGB_888x:
-            if (!forOutput) {
-                return GrSwizzle::RGB1();
-            }
-            break;
-        default:
-            return GrSwizzle::RGBA();
+    GrGLFormat glFormat = GrGLBackendFormatToGLFormat(format);
+    const auto& info = this->getFormatInfo(glFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == colorType) {
+            return ctInfo.fTextureSwizzle;
+        }
     }
-
     return GrSwizzle::RGBA();
 }
-
-GrSwizzle GrGLCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    return get_swizzle(format, colorType, false);
-}
 GrSwizzle GrGLCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    return get_swizzle(format, colorType, true);
+    SkASSERT(format.getGLFormat());
+    GrGLFormat glFormat = GrGLBackendFormatToGLFormat(format);
+    const auto& info = this->getFormatInfo(glFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == colorType) {
+            return ctInfo.fOutputSwizzle;
+        }
+    }
+    return GrSwizzle::RGBA();
 }
 
 #if GR_TEST_UTILS

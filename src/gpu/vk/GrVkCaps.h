@@ -226,8 +226,8 @@ private:
         };
         uint32_t fFlags = 0;
 
-        GrSwizzle fTextureSwizzle = GrSwizzle::RGBA();
-        GrSwizzle fOutputSwizzle = GrSwizzle::RGBA();
+        GrSwizzle fTextureSwizzle;
+        GrSwizzle fOutputSwizzle;
     };
 
     struct FormatInfo {

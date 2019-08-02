@@ -609,6 +609,9 @@ private:
         };
         uint32_t fFlags = 0;
 
+        GrSwizzle fTextureSwizzle;
+        GrSwizzle fOutputSwizzle;
+
         struct ExternalIOFormats {
             GrColorType fColorType = GrColorType::kUnknown;
 
