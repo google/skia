@@ -274,19 +274,23 @@ SkTypeface* SkFontStyleSet::matchStyleCSS3(const SkFontStyle& pattern) {
         // 1000 is the 'heaviest' recognized weight
         if (pattern.weight() == current.weight()) {
             currentScore += 1000;
-        } else if (pattern.weight() <= 500) {
-            if (400 <= pattern.weight() && pattern.weight() < 450) {
-                if (450 <= current.weight() && current.weight() <= 500) {
-                    // Artificially boost the 500 weight.
-                    // TODO: determine correct number to use.
-                    currentScore += 500;
-                }
-            }
+        // less than 400 prefer lighter weights
+        } else if (pattern.weight() < 400) {
             if (current.weight() <= pattern.weight()) {
                 currentScore += 1000 - pattern.weight() + current.weight();
             } else {
                 currentScore += 1000 - current.weight();
             }
+        // between 400 and 500 prefer heavier up to 500, then lighter weights
+        } else if (pattern.weight() <= 500) {
+            if (current.weight() >= pattern.weight() && current.weight() <= 500) {
+                currentScore += 1000 + pattern.weight() - current.weight();
+            } else if (current.weight() <= pattern.weight()) {
+                currentScore += 500 + current.weight();
+            } else {
+                currentScore += 1000 - current.weight();
+            }
+        // greater than 500 prefer heavier weights
         } else if (pattern.weight() > 500) {
             if (current.weight() > pattern.weight()) {
                 currentScore += 1000 + pattern.weight() - current.weight();

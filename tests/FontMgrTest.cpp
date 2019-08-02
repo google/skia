@@ -221,6 +221,23 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
         std::vector<Case> cases;
     } tests[] = {
         {
+            { normal_normal_500, normal_normal_400 },
+            {
+                { normal_normal_400, normal_normal_400 },
+                { normal_normal_500, normal_normal_500 },
+            },
+        },
+
+        {
+            { normal_normal_500, normal_normal_300 },
+            {
+                { normal_normal_300, normal_normal_300 },
+                { normal_normal_400, normal_normal_500 },
+                { normal_normal_500, normal_normal_500 },
+            },
+        },
+
+        {
             { condensed_normal_100,condensed_normal_900,condensed_italic_100,condensed_italic_900,
                expanded_normal_100, expanded_normal_900, expanded_italic_100, expanded_italic_900 },
             {
