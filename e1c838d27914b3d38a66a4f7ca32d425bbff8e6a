@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "310d9d2a_d1abf9c5",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1611,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-02T19:56:23Z",
+      "side": 1,
+      "message": "1?",
+      "range": {
+        "startLine": 1611,
+        "startChar": 55,
+        "endLine": 1611,
+        "endChar": 56
+      },
+      "revId": "e1c838d27914b3d38a66a4f7ca32d425bbff8e6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd06712d_96f8bce1",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4102,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-02T19:56:23Z",
+      "side": 1,
+      "message": "I think you need:\nGrGLFormatFromEnum(glFormat) here and in the other function.",
+      "revId": "e1c838d27914b3d38a66a4f7ca32d425bbff8e6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01f4b14b_95b64b89",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-02T19:56:23Z",
+      "side": 1,
+      "message": "You don\u0027t necessarily need to explicitly initializes these, they default initialize to \"rgba\".",
+      "revId": "e1c838d27914b3d38a66a4f7ca32d425bbff8e6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
