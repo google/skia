@@ -112,11 +112,8 @@ const GrGLenum* GrBackendFormat::getGLTarget() const {
 }
 
 GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo) {
-#ifdef SK_BUILD_FOR_ANDROID
-    return GrBackendFormat(VK_FORMAT_UNDEFINED, ycbcrInfo);
-#else
-    return GrBackendFormat();
-#endif
+    SkASSERT(ycbcrInfo.isValid());
+    return GrBackendFormat(ycbcrInfo.fFormat, ycbcrInfo);
 }
 
 GrBackendFormat::GrBackendFormat(VkFormat vkFormat, const GrVkYcbcrConversionInfo& ycbcrInfo)
@@ -129,7 +126,7 @@ GrBackendFormat::GrBackendFormat(VkFormat vkFormat, const GrVkYcbcrConversionInf
         , fTextureType(GrTextureType::k2D) {
     fVk.fFormat = vkFormat;
     fVk.fYcbcrConversionInfo = ycbcrInfo;
-    if (fVk.fYcbcrConversionInfo.isValid()) {
+    if (fVk.fYcbcrConversionInfo.isValid() && fVk.fYcbcrConversionInfo.fExternalFormat) {
         fTextureType = GrTextureType::kExternal;
     }
 }
@@ -527,7 +524,7 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
         case GrBackendApi::kVulkan: {
             auto info = fVkInfo.snapImageInfo();
             if (info.fYcbcrConversionInfo.isValid()) {
-                SkASSERT(info.fFormat == VK_FORMAT_UNDEFINED);
+                SkASSERT(info.fFormat == info.fYcbcrConversionInfo.fFormat);
                 return GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
             }
             return GrBackendFormat::MakeVk(info.fFormat);
@@ -811,7 +808,7 @@ GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
         case GrBackendApi::kVulkan: {
             auto info = fVkInfo.snapImageInfo();
             if (info.fYcbcrConversionInfo.isValid()) {
-                SkASSERT(info.fFormat == VK_FORMAT_UNDEFINED);
+                SkASSERT(info.fFormat == info.fYcbcrConversionInfo.fFormat);
                 return GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
             }
             return GrBackendFormat::MakeVk(info.fFormat);

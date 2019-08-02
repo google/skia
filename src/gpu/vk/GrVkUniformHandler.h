@@ -45,6 +45,8 @@ public:
     };
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
 
+    ~GrVkUniformHandler() override;
+
     const GrShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toIndex()].fVariable;
     }

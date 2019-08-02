@@ -1131,7 +1131,7 @@ static bool check_image_info(const GrVkCaps& caps,
     }
 
     if (info.fYcbcrConversionInfo.isValid()) {
-        if (!caps.supportsYcbcrConversion() || info.fFormat != VK_NULL_HANDLE) {
+        if (!caps.supportsYcbcrConversion()) {
             return false;
         }
     }
@@ -2625,7 +2625,11 @@ uint32_t GrVkGpu::getExtraSamplerKeyForProgram(const GrSamplerState& samplerStat
     const GrVkSampler* sampler = this->resourceProvider().findOrCreateCompatibleSampler(
             samplerState, *ycbcrInfo);
 
-    return sampler->uniqueID();
+    uint32_t result = sampler->uniqueID();
+
+    sampler->unref(this);
+
+    return result;
 }
 
 void GrVkGpu::storeVkPipelineCacheData() {
