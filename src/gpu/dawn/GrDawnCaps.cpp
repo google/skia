@@ -167,7 +167,8 @@ bool GrDawnCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     return true;
 }
 
-GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const {
+GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
+                                                          bool isAlphaChannel) const {
     return GrColorType::kUnknown;
 }
 

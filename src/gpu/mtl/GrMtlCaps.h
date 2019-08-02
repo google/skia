@@ -69,7 +69,8 @@ public:
     bool canCopyAsResolve(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const;
 
-    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
+    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
+                                                  bool isAlphaChannel) const override;
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 

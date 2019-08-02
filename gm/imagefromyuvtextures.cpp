@@ -78,11 +78,14 @@ protected:
         canvas.drawPaint(paint);
         SkPMColor* rgbColors = static_cast<SkPMColor*>(rgbBmp.getPixels());
 
-        SkImageInfo yinfo = SkImageInfo::MakeA8(kBmpSize, kBmpSize);
+        SkImageInfo yinfo = SkImageInfo::Make(kBmpSize, kBmpSize, kGray_8_SkColorType,
+                                              kUnpremul_SkAlphaType);
         fYUVBmps[0].allocPixels(yinfo);
-        SkImageInfo uinfo = SkImageInfo::MakeA8(kBmpSize / 2, kBmpSize / 2);
+        SkImageInfo uinfo = SkImageInfo::Make(kBmpSize / 2, kBmpSize / 2, kGray_8_SkColorType,
+                                              kUnpremul_SkAlphaType);
         fYUVBmps[1].allocPixels(uinfo);
-        SkImageInfo vinfo = SkImageInfo::MakeA8(kBmpSize / 2, kBmpSize / 2);
+        SkImageInfo vinfo = SkImageInfo::Make(kBmpSize / 2, kBmpSize / 2, kGray_8_SkColorType,
+                                              kUnpremul_SkAlphaType);
         fYUVBmps[2].allocPixels(vinfo);
         unsigned char* yPixels;
         signed char* uvPixels[2];

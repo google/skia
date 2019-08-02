@@ -51,7 +51,8 @@ public:
 
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
-    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
+    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
+                                                  bool isAlphaChannel) const override;
 
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
