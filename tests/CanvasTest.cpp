@@ -32,8 +32,7 @@
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkPaintImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkNWayCanvas.h"
@@ -640,7 +639,7 @@ DEF_TEST(Canvas_degenerate_dimension, reporter) {
     // Need a paint that will sneak us past the quickReject in SkCanvas, so we can test the
     // raster code further downstream.
     SkPaint paint;
-    paint.setImageFilter(SkPaintImageFilter::Make(SkPaint(), nullptr));
+    paint.setImageFilter(SkImageFilters::Paint(SkPaint(), nullptr));
     REPORTER_ASSERT(reporter, !paint.canComputeFastBounds());
 
     const int big = 100 * 1024; // big enough to definitely trigger tiling
@@ -658,7 +657,7 @@ DEF_TEST(Canvas_ClippedOutImageFilter, reporter) {
 
     SkPaint p;
     p.setColor(SK_ColorGREEN);
-    p.setImageFilter(SkBlurImageFilter::Make(3.0f, 3.0f, nullptr, nullptr));
+    p.setImageFilter(SkImageFilters::Blur(3.0f, 3.0f, nullptr, nullptr));
 
     SkRect blurredRect = SkRect::MakeXYWH(60, 10, 30, 30);
 
