@@ -22,6 +22,30 @@
       "revId": "664cc66be0f5e43d3302998b32c6fde46d789711",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2fd5305_b852184d",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 8675
+      },
+      "writtenOn": "2019-08-02T00:31:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a01356c3_aa91311a",
+      "range": {
+        "startLine": 492,
+        "startChar": 17,
+        "endLine": 492,
+        "endChar": 23
+      },
+      "revId": "664cc66be0f5e43d3302998b32c6fde46d789711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
