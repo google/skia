@@ -61,6 +61,7 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             *format = VK_FORMAT_R8_UNORM;
             return true;
         case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Alpha_GrPixelConfig:
             return false;
         case kRGBA_float_GrPixelConfig:
             *format = VK_FORMAT_R32G32B32A32_SFLOAT;

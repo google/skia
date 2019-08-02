@@ -3863,6 +3863,8 @@ GrGLFormat GrGLCaps::pixelConfigToFormat(GrPixelConfig config) const {
             return GrGLFormat::kLUMINANCE8;
         case kGray_8_as_Red_GrPixelConfig:
             return GrGLFormat::kR8;
+        case kGray_8_as_Alpha_GrPixelConfig:
+            return GrGLFormat::kALPHA8;
         case kAlpha_half_as_Lum_GrPixelConfig:
             return GrGLFormat::kLUMINANCE16F;
         case kAlpha_half_as_Red_GrPixelConfig:
@@ -3966,6 +3968,8 @@ static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGL
                 return kGray_8_as_Lum_GrPixelConfig;
             } else if (GR_GL_R8 == format) {
                 return kGray_8_as_Red_GrPixelConfig;
+            } else if (GR_GL_ALPHA8 == format) {
+                return kGray_8_as_Alpha_GrPixelConfig;
             }
             break;
         case GrColorType::kAlpha_F16:
@@ -4048,7 +4052,7 @@ GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
     switch (grGLFormat) {
         case GrGLFormat::kLUMINANCE8: // <missing kAlpha_8_as_Lum>/kGray_8_as_Lum_GrPixelConfig
         case GrGLFormat::kR8:         // kAlpha_8_as_Red_GrPixelConfig/kGray_8_as_Red_GrPixelConfig
-        case GrGLFormat::kALPHA8:     // kAlpha_8_as_Alpha_GrPixelConfig/<missing kGray_8_as_Alpha>
+        case GrGLFormat::kALPHA8:     // kAlpha_8_as_Alpha_GrPixelConfig/kGray_8_as_Alpha_GrPixelConfig
                                         return isAlphaChannel ? GrColorType::kAlpha_8
                                                               : GrColorType::kGray_8;
         case GrGLFormat::kRG8:          return GrColorType::kRG_88;
