@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ec50f4d_1fadd9ce",
+        "filename": "gm/imagealphathreshold.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T15:09:02Z",
+      "side": 1,
+      "message": "add \\n ?",
+      "revId": "4546f6f86471cb1be0c42c36a2fb34c4d686828d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2808e44a_9082365d",
+        "filename": "gm/imagefiltersgraph.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T15:09:02Z",
+      "side": 1,
+      "message": "0.0f ?",
+      "range": {
+        "startLine": 122,
+        "startChar": 41,
+        "endLine": 122,
+        "endChar": 57
+      },
+      "revId": "4546f6f86471cb1be0c42c36a2fb34c4d686828d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f3e8864_65a282d5",
+        "filename": "gm/imagefiltersgraph.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T15:09:02Z",
+      "side": 1,
+      "message": "Can we just put this in the call to MatrixConvolution ?",
+      "revId": "4546f6f86471cb1be0c42c36a2fb34c4d686828d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfcf376f_09531de5",
+        "filename": "gm/xfermodeimagefilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-02T15:09:02Z",
+      "side": 1,
+      "message": "Can we remove \u0027mode\u0027 and just move the blendMode into the function calls ?",
+      "revId": "4546f6f86471cb1be0c42c36a2fb34c4d686828d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
