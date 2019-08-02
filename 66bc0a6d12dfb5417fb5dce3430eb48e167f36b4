@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c96cc91f_8f47dc59",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4042,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-02T15:29:07Z",
+      "side": 1,
+      "message": "It seems weird to me to have a GrColorType::kAlpha_8 returned for a plane that is in format GrGLFormat::kR8 for YUV data. Would this get better if we had a GrColorType::kR_8 and then we had something like:\n\nLUMINANCE8 -\u003e kGray8\nR8 -\u003e kR_8\nALPHA8 -\u003e kA_8\n\n?",
+      "range": {
+        "startLine": 4041,
+        "startChar": 40,
+        "endLine": 4042,
+        "endChar": 85
+      },
+      "revId": "66bc0a6d12dfb5417fb5dce3430eb48e167f36b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
