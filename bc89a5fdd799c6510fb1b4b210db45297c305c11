@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d9610999_1a55110a",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-02T15:51:05Z",
+      "side": 1,
+      "message": "This name\u0027s a bit confusing?  Seems like it returns a bool?",
+      "range": {
+        "startLine": 54,
+        "startChar": 8,
+        "endLine": 54,
+        "endChar": 38
+      },
+      "revId": "bc89a5fdd799c6510fb1b4b210db45297c305c11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad0f46dc_fe4e447a",
         "filename": "src/core/SkMatrix.cpp",
         "patchSetId": 1
