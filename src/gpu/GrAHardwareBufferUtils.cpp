@@ -550,18 +550,6 @@ GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwar
     }
 }
 
-GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwareBuffer,
-                                    int width, int height,
-                                    DeleteImageProc* deleteProc,
-                                    TexImageCtx* imageCtx,
-                                    bool isProtectedContent,
-                                    const GrBackendFormat& backendFormat,
-                                    bool isRenderable) {
-    UpdateImageProc updateProc;
-    return MakeBackendTexture(context, hardwareBuffer, width, height, deleteProc, &updateProc,
-                              imageCtx, isProtectedContent, backendFormat, isRenderable);
-}
-
 } // GrAHardwareBufferUtils
 
 #endif
