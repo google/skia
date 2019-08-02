@@ -62,8 +62,9 @@ public:
     void begin() override { }
     void end() override;
 
-    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
-                      GrGpuBuffer* transferBuffer, size_t offset) override;
+    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                      size_t offset) override;
     void insertEventMarker(const char*) override;
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
