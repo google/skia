@@ -635,6 +635,11 @@ static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, 
             if (MTLPixelFormatRGBA8Unorm == format) {
                 return kRGB_888X_GrPixelConfig;
             }
+#ifdef SK_BUILD_FOR_IOS
+            else if (MTLPixelFormatETC2_RGB8 == format) {
+                return kRGB_ETC1_GrPixelConfig;
+            }
+#endif
             break;
         case GrColorType::kRG_88:
             if (MTLPixelFormatRG8Unorm == format) {
