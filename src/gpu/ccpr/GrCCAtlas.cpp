@@ -52,31 +52,28 @@ private:
 
 sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(
         const LazyInstantiateAtlasCallback& callback, CoverageType coverageType, const GrCaps& caps) {
-    GrColorType colorType;
     GrPixelConfig pixelConfig;
     int sampleCount;
 
+    GrBackendFormat format;
     switch (coverageType) {
         case CoverageType::kFP16_CoverageCount:
-            colorType = GrColorType::kAlpha_F16;
+            format = caps.getDefaultBackendFormat(GrColorType::kAlpha_F16, GrRenderable::kYes);
             pixelConfig = kAlpha_half_GrPixelConfig;
             sampleCount = 1;
             break;
         case CoverageType::kA8_Multisample:
-            SkASSERT(caps.internalMultisampleCount(kAlpha_8_GrPixelConfig) > 1);
-            colorType = GrColorType::kAlpha_8;
+            format = caps.getDefaultBackendFormat(GrColorType::kAlpha_8, GrRenderable::kYes);
+            SkASSERT(caps.internalMultisampleCount(format) > 1);
             pixelConfig = kAlpha_8_GrPixelConfig;
-            sampleCount = (caps.mixedSamplesSupport())
-                    ? 1 : caps.internalMultisampleCount(pixelConfig);
+            sampleCount = (caps.mixedSamplesSupport()) ? 1 : caps.internalMultisampleCount(format);
             break;
         case CoverageType::kA8_LiteralCoverage:
-            colorType = GrColorType::kAlpha_8;
+            format = caps.getDefaultBackendFormat(GrColorType::kAlpha_8, GrRenderable::kYes);
             pixelConfig = kAlpha_8_GrPixelConfig;
             sampleCount = 1;
             break;
     }
-
-    auto format = caps.getDefaultBackendFormat(colorType, GrRenderable::kYes);
 
     sk_sp<GrTextureProxy> proxy = GrProxyProvider::MakeFullyLazyProxy(
             std::bind(callback, std::placeholders::_1, pixelConfig, sampleCount), format,

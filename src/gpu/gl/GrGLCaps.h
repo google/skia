@@ -120,6 +120,13 @@ public:
         return this->isFormatTexturable(ct, format);
     }
 
+    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
+                            int sampleCount = 1) const override;
+
+    bool isFormatRenderable(GrGLFormat format) const {
+        return this->maxRenderTargetSampleCount(format) > 0;
+    }
+
     int getRenderTargetSampleCount(int requestedCount, GrColorType ct,
                                    const GrBackendFormat& format) const override {
         return this->getRenderTargetSampleCount(requestedCount, ct,
@@ -132,15 +139,10 @@ public:
 
     }
 
-    int maxRenderTargetSampleCount(GrColorType ct, const GrBackendFormat& format) const override {
-        return this->maxRenderTargetSampleCount(ct, GrGLBackendFormatToGLFormat(format));
+    int maxRenderTargetSampleCount(const GrBackendFormat& format) const override {
+        return this->maxRenderTargetSampleCount(GrGLBackendFormatToGLFormat(format));
     }
-    int maxRenderTargetSampleCount(GrPixelConfig config) const override {
-        GrColorType ct = GrPixelConfigToColorType(config);
-        auto format = this->pixelConfigToFormat(config);
-        return this->maxRenderTargetSampleCount(ct, format);
-    }
-    int maxRenderTargetSampleCount(GrColorType, GrGLFormat) const;
+    int maxRenderTargetSampleCount(GrGLFormat) const;
 
     bool isFormatCopyable(const GrBackendFormat&) const override;
 

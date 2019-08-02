@@ -622,11 +622,7 @@ bool validate_backend_render_target(const GrCaps* caps, const GrBackendRenderTar
         return false;
     }
 
-    if (rt.sampleCnt() > 1) {
-        if (caps->maxRenderTargetSampleCount(grCT, rt.getBackendFormat()) <= 1) {
-            return false;
-        }
-    } else if (!caps->isFormatRenderable(grCT, rt.getBackendFormat())) {
+    if (!caps->isFormatRenderable(grCT, rt.getBackendFormat(), rt.sampleCnt())) {
         return false;
     }
     if (!SkSurface_Gpu::Valid(caps, rt.getBackendFormat())) {

@@ -814,6 +814,22 @@ bool GrVkCaps::isConfigTexturable(GrPixelConfig config) const {
     return this->isVkFormatTexturable(format);
 }
 
+bool GrVkCaps::isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
+                                  int sampleCount) const {
+    if (!format.getVkFormat()) {
+        return false;
+    }
+
+    VkFormat vkFormat = *format.getVkFormat();
+    if (ct == GrColorType::kRGB_888x && vkFormat != VK_FORMAT_R8G8B8_UNORM) {
+        // Only kRGB_888x/R8G8B8 is consider renderable, regardless of the renderability
+        // of the underlying backend format (e.g., R8G8B8A8), due to blending considerations.
+        return false;
+    }
+
+    return sampleCount <= this->maxRenderTargetSampleCount(vkFormat);
+}
+
 bool GrVkCaps::isFormatRenderable(VkFormat format) const {
     return this->maxRenderTargetSampleCount(format) > 0;
 }
@@ -866,33 +882,12 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) co
     return 0;
 }
 
-int GrVkCaps::maxRenderTargetSampleCount(GrColorType ct, const GrBackendFormat& format) const {
+int GrVkCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const {
     if (!format.getVkFormat()) {
         return 0;
     }
 
-    VkFormat vkFormat = *format.getVkFormat();
-    if (ct == GrColorType::kRGB_888x && vkFormat != VK_FORMAT_R8G8B8_UNORM) {
-        // Only kRGB_888x/R8G8B8 is consider renderable, regardless of the renderability
-        // of the underlying backend format (e.g., R8G8B8A8), due to blending considerations.
-        return 0;
-    }
-
-    return this->maxRenderTargetSampleCount(vkFormat);
-}
-
-int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
-    // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
-    // blends that reference dst alpha when the values in the dst alpha channel are uninitialized.
-    if (config == kRGB_888X_GrPixelConfig) {
-        return 0;
-    }
-
-    VkFormat format;
-    if (!GrPixelConfigToVkFormat(config, &format)) {
-        return 0;
-    }
-    return this->maxRenderTargetSampleCount(format);
+    return this->maxRenderTargetSampleCount(*format.getVkFormat());
 }
 
 int GrVkCaps::maxRenderTargetSampleCount(VkFormat format) const {

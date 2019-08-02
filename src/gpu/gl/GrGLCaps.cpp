@@ -3778,6 +3778,17 @@ bool GrGLCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format)
     return this->isFormatTexturable(ct, GrGLBackendFormatToGLFormat(format));
 }
 
+bool GrGLCaps::isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
+                                  int sampleCount) const {
+    auto glFormat = GrGLBackendFormatToGLFormat(format);
+    const FormatInfo& info = this->getFormatInfo(glFormat);
+    if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
+        return false;
+    }
+
+    return sampleCount <= this->maxRenderTargetSampleCount(glFormat);
+}
+
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grCT,
                                          GrGLFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
@@ -3808,11 +3819,8 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grCT,
 
 }
 
-int GrGLCaps::maxRenderTargetSampleCount(GrColorType grCT, GrGLFormat format) const {
+int GrGLCaps::maxRenderTargetSampleCount(GrGLFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
-    if (!SkToBool(info.colorTypeFlags(grCT) & ColorTypeInfo::kRenderable_Flag)) {
-        return 0;
-    }
     const auto& table = info.fColorSampleCounts;
     if (!table.count()) {
         return 0;

@@ -35,6 +35,8 @@ public:
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
+    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
+                            int sampleCount = 1) const override;
     bool isFormatRenderable(MTLPixelFormat) const;
 
     int getRenderTargetSampleCount(int requestedCount,
@@ -42,8 +44,7 @@ public:
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
     int getRenderTargetSampleCount(int requestedCount, MTLPixelFormat) const;
 
-    int maxRenderTargetSampleCount(GrColorType, const GrBackendFormat&) const override;
-    int maxRenderTargetSampleCount(GrPixelConfig) const override;
+    int maxRenderTargetSampleCount(const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(MTLPixelFormat) const;
 
     SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,
