@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkString.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -17,7 +18,7 @@
 
 namespace {
 
-class SkImageSourceImpl final : public SkImageFilter {
+class SkImageSourceImpl final : public SkImageFilter_Base {
 public:
     SkImageSourceImpl(sk_sp<SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
                       SkFilterQuality filterQuality)
@@ -46,7 +47,7 @@ private:
     SkRect           fSrcRect, fDstRect;
     SkFilterQuality  fFilterQuality;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace
@@ -160,7 +161,7 @@ SkIRect SkImageSourceImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix
                                               MapDirection direction,
                                               const SkIRect* inputRect) const {
     if (kReverse_MapDirection == direction) {
-        return SkImageFilter::onFilterNodeBounds(src, ctm, direction, inputRect);
+        return INHERITED::onFilterNodeBounds(src, ctm, direction, inputRect);
     }
 
     SkRect dstRect = fDstRect;

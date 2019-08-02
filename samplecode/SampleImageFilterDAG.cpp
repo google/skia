@@ -23,7 +23,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkSpecialImage.h"
 
 #include "tools/ToolUtils.h"
@@ -122,9 +122,8 @@ private:
 
             // For isolated forward filtering, it uses the same input but should not be propagated
             // to the inputs, so get the filter node bounds directly.
-            fForwardIsolatedBounds = SkFilterNodeBounds(
-                    fFilter.get(), srcRect, fLocalCTM,
-                    SkImageFilter::kForward_MapDirection, nullptr);
+            fForwardIsolatedBounds = as_IFB(fFilter)->filterNodeBounds(
+                    srcRect, fLocalCTM, SkImageFilter::kForward_MapDirection, nullptr);
         } else {
             fForwardBounds = srcRect;
             fForwardIsolatedBounds = srcRect;
@@ -138,9 +137,8 @@ private:
 
     void computeReverseLocalIsolatedBounds(const SkIRect& srcRect) {
         if (fFilter) {
-            fReverseLocalIsolatedBounds = SkFilterNodeBounds(
-                    fFilter.get(), srcRect, fLocalCTM,
-                    SkImageFilter::kReverse_MapDirection, &srcRect);
+            fReverseLocalIsolatedBounds = as_IFB(fFilter)->filterNodeBounds(
+                    srcRect, fLocalCTM, SkImageFilter::kReverse_MapDirection, &srcRect);
         } else {
             fReverseLocalIsolatedBounds = srcRect;
         }
@@ -182,9 +180,8 @@ private:
                 // To calculate the appropriate intermediate reverse bounds for the children, we
                 // need this node's onFilterNodeBounds() results based on its parents' bounds (the
                 // current 'srcRect').
-                nextSrcRect = SkFilterNodeBounds(
-                    fFilter.get(), srcRect, fLocalCTM,
-                    SkImageFilter::kReverse_MapDirection, &srcRect);
+                nextSrcRect = as_IFB(fFilter)->filterNodeBounds(
+                    srcRect, fLocalCTM, SkImageFilter::kReverse_MapDirection, &srcRect);
             }
 
             // Fill in the children. The union of these bounds should equal the value calculated
@@ -242,14 +239,14 @@ static FilterNode build_dag(const SkMatrix& ctm, const SkRect& rect,
                             const SkImageFilter* rootFilter) {
     // Emulate SkCanvas::internalSaveLayer's decomposition of the CTM.
     SkMatrix local;
-    sk_sp<SkImageFilter> finalFilter = SkApplyCTMToFilter(rootFilter, ctm, &local);
+    sk_sp<SkImageFilter> finalFilter = as_IFB(rootFilter)->applyCTM(ctm, &local);
 
     // In ApplyCTMToFilter, the CTM is decomposed such that CTM = remainder * local. The matrix
     // that is embedded in 'finalFilter' is actually local^-1*remainder*local to account for
     // how SkMatrixImageFilter is specified, but we want the true remainder since it is what should
     // transform the results to put in the correct place after filtering.
     SkMatrix invLocal, remaining;
-    if (!SkIsSameFilter(finalFilter.get(), rootFilter) && local.invert(&invLocal)) {
+    if (as_IFB(rootFilter)->uniqueID() != as_IFB(finalFilter)->uniqueID()) {
         remaining = SkMatrix::Concat(ctm, invLocal);
     } else {
         remaining = SkMatrix::I();

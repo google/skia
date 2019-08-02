@@ -17,7 +17,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkGpuBlurUtils.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -29,11 +29,9 @@
 #include "src/gpu/SkGr.h"
 #endif
 
-static constexpr double kPi = 3.14159265358979323846264338327950288;
-
 namespace {
 
-class SkBlurImageFilterImpl final : public SkImageFilter {
+class SkBlurImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkBlurImageFilterImpl(SkScalar sigmaX, SkScalar sigmaY,  SkTileMode tileMode,
                           sk_sp<SkImageFilter> input, const CropRect* cropRect)
@@ -64,7 +62,7 @@ private:
     SkSize     fSigma;
     SkTileMode fTileMode;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace
@@ -168,7 +166,7 @@ static int calculate_window(double sigma) {
     //   window = floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5)
     //   For window <= 255, the largest value for sigma is 136.
     sigma = SkTPin(sigma, 0.0, 136.0);
-    auto possibleWindow = static_cast<int>(floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5));
+    auto possibleWindow = static_cast<int>(floor(sigma * 3 * sqrt(2 * SK_DoublePI) / 4 + 0.5));
     return std::max(1, possibleWindow);
 }
 

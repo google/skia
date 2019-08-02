@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkBlurImageFilter.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -17,7 +17,7 @@
 
 namespace {
 
-class SkDropShadowImageFilterImpl final : public SkImageFilter {
+class SkDropShadowImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkDropShadowImageFilterImpl(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY,
                                 SkColor color, bool shadowOnly, sk_sp<SkImageFilter> input,
@@ -47,7 +47,7 @@ private:
     SkColor  fColor;
     bool     fShadowOnly;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace

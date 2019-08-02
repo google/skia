@@ -11,7 +11,7 @@
 #include "include/core/SkPoint3.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
@@ -398,7 +398,7 @@ enum BoundaryMode {
     kBoundaryModeCount,
 };
 
-class SkLightingImageFilterInternal : public SkImageFilter {
+class SkLightingImageFilterInternal : public SkImageFilter_Base {
 protected:
     SkLightingImageFilterInternal(sk_sp<SkImageFilterLight> light,
                                   SkScalar surfaceScale,
@@ -448,7 +448,7 @@ private:
     sk_sp<SkImageFilterLight> fLight;
     SkScalar fSurfaceScale;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 #if SK_SUPPORT_GPU

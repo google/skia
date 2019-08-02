@@ -11,6 +11,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkDiscardableMemory.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkOpts.h"
@@ -566,7 +567,7 @@ size_t SkGraphics::SetResourceCacheSingleAllocationByteLimit(size_t newLimit) {
 }
 
 void SkGraphics::PurgeResourceCache() {
-    SkImageFilter::PurgeCache();
+    SkImageFilter_Base::PurgeCache();
     return SkResourceCache::PurgeAll();
 }
 

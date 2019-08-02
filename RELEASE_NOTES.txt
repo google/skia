@@ -14,6 +14,6 @@ Milestone 78
    - Provide new factory API in include/effects/SkImageFilters
    - Consolidated enum types to use SkTileMode and SkColorChannel
    - Hide filter implementation classes
-   - Bumps SkPicture version number
+   - Hide previously public functions on SkImageFilter that were intended for internal use only
 
  * SkColorFilters::HSLAMatrix - new matrix color filter operating in HSLA space.

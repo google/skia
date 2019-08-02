@@ -18,6 +18,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSpecialImage.h"
@@ -613,10 +614,11 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
             SkMatrix::MakeTrans(SkIntToScalar(-x), SkIntToScalar(-y)), this->ctm());
         const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-        SkImageFilter::OutputProperties outputProperties(fBitmap.colorType(), fBitmap.colorSpace());
-        SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
+        SkImageFilter_Base::OutputProperties outputProperties(fBitmap.colorType(),
+                                                              fBitmap.colorSpace());
+        SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
 
-        filteredImage = filter->filterImage(src, ctx, &offset);
+        filteredImage = as_IFB(filter)->filterImage(src, ctx, &offset);
         if (!filteredImage) {
             return;
         }

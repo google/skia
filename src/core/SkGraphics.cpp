@@ -8,7 +8,6 @@
 #include "include/core/SkGraphics.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkImageFilter.h"
 #include "include/core/SkMath.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
@@ -20,6 +19,7 @@
 #include "src/core/SkBlitter.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkScalerContext.h"
@@ -46,7 +46,7 @@ void SkGraphics::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
 void SkGraphics::PurgeAllCaches() {
     SkGraphics::PurgeFontCache();
     SkGraphics::PurgeResourceCache();
-    SkImageFilter::PurgeCache();
+    SkImageFilter_Base::PurgeCache();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

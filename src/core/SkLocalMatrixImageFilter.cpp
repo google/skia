@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkString.h"
-#include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkLocalMatrixImageFilter.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -19,7 +18,7 @@ sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localM,
     if (localM.isIdentity()) {
         return input;
     }
-    if (!input->canHandleComplexCTM() && !localM.isScaleTranslate()) {
+    if (!as_IFB(input)->canHandleComplexCTM() && !localM.isScaleTranslate()) {
         // Nothing we can do at this point
         return nullptr;
     }

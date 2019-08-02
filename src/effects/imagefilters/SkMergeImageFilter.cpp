@@ -8,6 +8,7 @@
 #include "include/effects/SkMergeImageFilter.h"
 
 #include "include/core/SkCanvas.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -16,7 +17,7 @@
 
 namespace {
 
-class SkMergeImageFilterImpl final : public SkImageFilter {
+class SkMergeImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkMergeImageFilterImpl(sk_sp<SkImageFilter>* const filters, int count,
                            const CropRect* cropRect)
@@ -33,7 +34,7 @@ private:
     friend void SkMergeImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkMergeImageFilterImpl)
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace

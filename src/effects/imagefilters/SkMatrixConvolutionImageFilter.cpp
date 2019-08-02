@@ -12,7 +12,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
@@ -25,7 +25,7 @@
 
 namespace {
 
-class SkMatrixConvolutionImageFilterImpl final : public SkImageFilter {
+class SkMatrixConvolutionImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkMatrixConvolutionImageFilterImpl(const SkISize& kernelSize, const SkScalar* kernel,
                                        SkScalar gain, SkScalar bias, const SkIPoint& kernelOffset,
@@ -95,7 +95,7 @@ private:
                             const SkIRect& rect,
                             const SkIRect& bounds) const;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 class UncheckedPixelFetcher {
