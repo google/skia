@@ -74,7 +74,7 @@ int main(int argc, char * argv[]) {
     AppDelegate* appDelegate = [[AppDelegate alloc] init];
     [NSApp setDelegate:appDelegate];
 
-    Application* app = Application::Create(argc, argv, nullptr);
+    std::unique_ptr<Application> app = Application::Make(argc, argv, nullptr);
 
     // This will run until the application finishes launching, then lets us take over
     [NSApp run];
@@ -101,7 +101,7 @@ int main(int argc, char * argv[]) {
         app->onIdle();
     }
 
-    delete app;
+    app = nullptr;
 
     [NSApp setDelegate:nil];
     [appDelegate release];
