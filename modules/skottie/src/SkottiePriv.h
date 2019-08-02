@@ -116,8 +116,25 @@ public:
         AnimatorScope*          fPrevScope;
     };
 
-    // TODO: delete
-    AnimatorScope* currentScope() const { return fCurrentAnimatorScope; }
+    template <typename T,  typename... Args>
+    sk_sp<sksg::RenderNode> attachDiscardableAdapter(Args&&... args) const {
+        AutoScope ascope(this);
+        auto adapter = T::Make(std::forward<Args>(args)...);
+        auto adapter_animators = ascope.release();
+
+        if (!adapter) { return nullptr; }
+
+        const auto& node = adapter->renderNode();
+        if (adapter_animators.empty()) {
+            // Fire off a synthetic tick to force a single SG sync before discarding the adapter.
+            adapter->tick(0);
+        } else {
+            adapter->setAnimators(std::move(adapter_animators));
+            fCurrentAnimatorScope->push_back(std::move(adapter));
+        }
+
+        return node;
+    }
 
     class AutoPropertyTracker {
     public:
