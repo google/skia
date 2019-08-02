@@ -160,7 +160,8 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
         }
         case kGray_8_GrPixelConfig:                             // fall through
         case kGray_8_as_Lum_GrPixelConfig:                      // fall through
-        case kGray_8_as_Red_GrPixelConfig: {
+        case kGray_8_as_Red_GrPixelConfig:                      // fall through
+        case kGray_8_as_Alpha_GrPixelConfig: {
             uint8_t gray8 = SkComputeLuminance(r, g, b);
 
             memset(dest, gray8, width * height);

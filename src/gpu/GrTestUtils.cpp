@@ -45,6 +45,7 @@ const char* GrPixelConfigToStr(GrPixelConfig config) {
         case kGray_8_GrPixelConfig:            return "Gray8";
         case kGray_8_as_Lum_GrPixelConfig:     return "Gray8_asLum";
         case kGray_8_as_Red_GrPixelConfig:     return "Gray8_asRed";
+        case kGray_8_as_Alpha_GrPixelConfig:   return "Gray8_asAlpha";
         case kRGB_565_GrPixelConfig:           return "RGB565";
         case kRGBA_4444_GrPixelConfig:         return "RGBA444";
         case kRGBA_8888_GrPixelConfig:         return "RGBA8888";
