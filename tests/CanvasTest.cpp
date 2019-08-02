@@ -39,6 +39,7 @@
 #include "include/utils/SkNWayCanvas.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkClipOpPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/utils/SkCanvasStack.h"
 #include "tests/Test.h"
@@ -595,7 +596,7 @@ DEF_TEST(Canvas_LegacyColorBehavior, r) {
 
 namespace {
 
-class ZeroBoundsImageFilter : public SkImageFilter {
+class ZeroBoundsImageFilter : public SkImageFilter_Base {
 public:
     static sk_sp<SkImageFilter> Make() { return sk_sp<SkImageFilter>(new ZeroBoundsImageFilter); }
 
@@ -613,7 +614,7 @@ private:
 
     ZeroBoundsImageFilter() : INHERITED(nullptr, 0, nullptr) {}
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 sk_sp<SkFlattenable> ZeroBoundsImageFilter::CreateProc(SkReadBuffer& buffer) {

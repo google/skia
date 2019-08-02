@@ -31,6 +31,7 @@
 
 constexpr float SK_FloatSqrt2 = 1.41421356f;
 constexpr float SK_FloatPI    = 3.14159265f;
+constexpr double SK_DoublePI  = 3.14159265358979323846264338327950288;
 
 // C++98 cmath std::pow seems to be the earliest portable way to get float pow.
 // However, on Linux including cmath undefines isfinite.

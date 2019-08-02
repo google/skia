@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -17,7 +17,7 @@
 
 namespace {
 
-class SkColorFilterImageFilterImpl final : public SkImageFilter {
+class SkColorFilterImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkColorFilterImageFilterImpl(sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input,
                                  const CropRect* cropRect)
@@ -38,7 +38,7 @@ private:
 
     sk_sp<SkColorFilter> fColorFilter;
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 } // end namespace

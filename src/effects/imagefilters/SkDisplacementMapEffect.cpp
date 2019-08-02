@@ -10,7 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
@@ -34,7 +34,7 @@
 
 namespace {
 
-class SkDisplacementMapEffectImpl final : public SkImageFilter {
+class SkDisplacementMapEffectImpl final : public SkImageFilter_Base {
 public:
     SkDisplacementMapEffectImpl(SkColorChannel xChannelSelector, SkColorChannel yChannelSelector,
                                 SkScalar scale, sk_sp<SkImageFilter> inputs[2],
@@ -68,7 +68,7 @@ private:
     const SkImageFilter* getDisplacementInput() const { return getInput(0); }
     const SkImageFilter* getColorInput() const { return getInput(1); }
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 // Shift values to extract channels from an SkColor (SkColorGetR, SkColorGetG, etc)

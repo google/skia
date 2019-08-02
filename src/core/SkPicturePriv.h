@@ -73,6 +73,7 @@ public:
     // V70: Image filters definitions hidden, registered names updated to include "Impl"
     // V71: Unify erode and dilate image filters
     // V72: SkColorFilter_Matrix domain (rgba vs. hsla)
+
     enum Version {
         kTileModeInBlurImageFilter_Version  = 56,
         kTileInfoInSweepGradient_Version    = 57,
