@@ -164,7 +164,8 @@ public:
     bool canCopyAsResolve(GrPixelConfig dstConfig, int dstSampleCnt, bool dstHasYcbcr,
                           GrPixelConfig srcConfig, int srcSamplecnt, bool srcHasYcbcr) const;
 
-    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&) const override;
+    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
+                                                  bool isAlphaChannel) const override;
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
