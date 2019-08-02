@@ -12,7 +12,7 @@
 #include "src/core/SkTDynamicHash.h"
 #include "tools/sk_app/Window.h"
 
-#include "SDL.h"
+#import <UIKit/UIKit.h>
 
 namespace sk_app {
 
@@ -20,10 +20,7 @@ class Window_ios : public Window {
 public:
     Window_ios()
             : INHERITED()
-            , fWindow(nullptr)
-            , fWindowID(0)
-            , fGLContext(nullptr)
-            , fMSAASampleCount(1) {}
+            , fWindow(nil) {}
     ~Window_ios() override { this->closeWindow(); }
 
     bool initWindow();
@@ -35,28 +32,28 @@ public:
 
     void onInval() override;
 
-    static bool HandleWindowEvent(const SDL_Event& event);
+    UIWindow* uiWindow() { return fWindow; }
 
-    static const Uint32& GetKey(const Window_ios& w) {
-        return w.fWindowID;
-    }
-
-    static uint32_t Hash(const Uint32& winID) {
-        return winID;
-    }
+    static Window_ios* MainWindow() { return gWindow; }
+//
+//    static bool HandleWindowEvent(const SDL_Event& event);
+//
+//    static const Uint32& GetKey(const Window_ios& w) {
+//        return w.fWindowID;
+//    }
+//
+//    static uint32_t Hash(const Uint32& winID) {
+//        return winID;
+//    }
 
 private:
-    bool handleEvent(const SDL_Event& event);
+//    bool handleEvent(const SDL_Event& event);
 
     void closeWindow();
 
-    static SkTDynamicHash<Window_ios, Uint32> gWindowMap;
+    UIWindow*    fWindow;
 
-    SDL_Window*   fWindow;
-    Uint32        fWindowID;
-    SDL_GLContext fGLContext;
-
-    int          fMSAASampleCount;
+    static Window_ios* gWindow; // there should be only one
 
     typedef Window INHERITED;
 };

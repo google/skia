@@ -9,7 +9,7 @@
 #ifndef WindowContextFactory_ios_DEFINED
 #define WindowContextFactory_ios_DEFINED
 
-#include "SDL.h"
+#import <UIKit/UIKit.h>
 
 namespace sk_app {
 
@@ -19,12 +19,16 @@ struct DisplayParams;
 namespace window_context_factory {
 
 struct IOSWindowInfo {
-    SDL_Window*   fWindow;
-    SDL_GLContext fGLContext;
+    UIView*   fMainView;
 };
 
 inline WindowContext* NewVulkanForIOS(const IOSWindowInfo&, const DisplayParams&) {
-    // No Vulkan support on iOS.
+    // No Vulkan support on iOS yet.
+    return nullptr;
+}
+
+inline WindowContext* NewMetalForIOS(const IOSWindowInfo&, const DisplayParams&) {
+    // No Metal support on iOS yet.
     return nullptr;
 }
 

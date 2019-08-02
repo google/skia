@@ -5,17 +5,35 @@
 * found in the LICENSE file.
 */
 
-#include "src/core/SkUtils.h"
-#include "tools/ModifierKey.h"
 #include "tools/sk_app/ios/WindowContextFactory_ios.h"
 #include "tools/sk_app/ios/Window_ios.h"
-#include "tools/timer/Timer.h"
+
+@interface WindowViewController : UIViewController
+
+- (WindowViewController*)initWithWindow:(sk_app::Window_ios*)initWindow;
+
+@end
+
+@interface MainView : UIView
+
+- (MainView*)initWithWindow:(sk_app::Window_ios*)initWindow;
+
+@end
+
+///////////////////////////////////////////////////////////////////////////////
+
+using sk_app::Window;
 
 namespace sk_app {
 
-SkTDynamicHash<Window_ios, Uint32> Window_ios::gWindowMap;
+Window_ios* Window_ios::gWindow = nullptr;
 
 Window* Window::CreateNativeWindow(void*) {
+    // already have a window
+    if (Window_ios::MainWindow()) {
+        return nullptr;
+    }
+
     Window_ios* window = new Window_ios();
     if (!window->initWindow()) {
         delete window;
@@ -26,76 +44,137 @@ Window* Window::CreateNativeWindow(void*) {
 }
 
 bool Window_ios::initWindow() {
-    if (fRequestedDisplayParams.fMSAASampleCount != fMSAASampleCount) {
-        this->closeWindow();
-    }
     // we already have a window
     if (fWindow) {
         return true;
     }
 
-    constexpr int initialWidth = 1280;
-    constexpr int initialHeight = 960;
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-
-    if (fRequestedDisplayParams.fMSAASampleCount > 1) {
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fRequestedDisplayParams.fMSAASampleCount);
-    } else {
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-    }
-    // TODO: handle other display params
-
-    uint32_t windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI;
-    fWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                               initialWidth, initialHeight, windowFlags);
-
-    if (!fWindow) {
+    // Create a delegate to track certain events
+    WindowViewController* viewController = [[WindowViewController alloc] initWithWindow:this];
+    if (nil == viewController) {
         return false;
     }
 
-    fMSAASampleCount = fRequestedDisplayParams.fMSAASampleCount;
-
-    // add to hashtable of windows
-    fWindowID = SDL_GetWindowID(fWindow);
-    gWindowMap.add(this);
-
-    fGLContext = SDL_GL_CreateContext(fWindow);
-    if (!fGLContext) {
-        SkDebugf("%s\n", SDL_GetError());
-        this->closeWindow();
+    fWindow = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    if (nil == fWindow) {
+        [viewController release];
         return false;
     }
+    fWindow.backgroundColor = [UIColor whiteColor];
+
+    // create view
+    MainView* view = [[MainView alloc] initWithWindow:this] ;
+    if (nil == view) {
+        [fWindow release];
+        [viewController release];
+        return false;
+    }
+
+    viewController.view = view;
+    [fWindow setRootViewController:viewController];
+    [fWindow makeKeyAndVisible];
+
+    // Should be retained by window now
+    [view release];
+
+    gWindow = this;
 
     return true;
 }
 
 void Window_ios::closeWindow() {
-    if (fGLContext) {
-        SDL_GL_DeleteContext(fGLContext);
-        fGLContext = nullptr;
-    }
-
-    if (fWindow) {
-        gWindowMap.remove(fWindowID);
-        SDL_DestroyWindow(fWindow);
-        fWindowID = 0;
-        fWindow = nullptr;
+    if (nil != fWindow) {
+        gWindow = nullptr;
+        //*** release?
+        fWindow = nil;
+        //*** viewController?
     }
 }
 
+void Window_ios::setTitle(const char* title) {
+//    SDL_SetWindowTitle(fWindow, title);
+}
+
+void Window_ios::show() {
+//    SDL_ShowWindow(fWindow);
+}
+
+bool Window_ios::attach(BackendType attachType) {
+    this->initWindow();
+
+    window_context_factory::IOSWindowInfo info;
+    info.fMainView = fWindow.rootViewController.view;
+    switch (attachType) {
+        case kRaster_BackendType:
+            fWindowContext = NewRasterForIOS(info, fRequestedDisplayParams);
+            break;
+//#ifdef SK_METAL
+//        case kMetal_BackendType:
+//            fWindowContext = NewMetalForMac(info, fRequestedDisplayParams);
+//            break;
+//#endif
+        case kNativeGL_BackendType:
+        default:
+            fWindowContext = NewGLForIOS(info, fRequestedDisplayParams);
+            break;
+    }
+    this->onBackendCreated();
+
+    return (SkToBool(fWindowContext));
+}
+
+void Window_ios::onInval() {
+//    SDL_Event sdlevent;
+//    sdlevent.type = SDL_WINDOWEVENT;
+//    sdlevent.window.windowID = fWindowID;
+//    sdlevent.window.event = SDL_WINDOWEVENT_EXPOSED;
+//    SDL_PushEvent(&sdlevent);
+}
+
+}   // namespace sk_app
+
+///////////////////////////////////////////////////////////////////////////////
+
+@implementation WindowViewController {
+    sk_app::Window_ios* fWindow;
+}
+
+- (WindowViewController*)initWithWindow:(sk_app::Window_ios *)initWindow {
+    fWindow = initWindow;
+
+    return self;
+}
+
+//- (void)windowDidResize:(NSNotification *)notification {
+//    const NSRect mainRect = [fWindow->window().contentView bounds];
+//
+//    fWindow->onResize(mainRect.size.width, mainRect.size.height);
+//    fWindow->inval();
+//}
+//
+//- (BOOL)windowShouldClose:(NSWindow*)sender {
+//    fWindow->closeWindow();
+//
+//    return FALSE;
+//}
+
+@end
+
+///////////////////////////////////////////////////////////////////////////////
+
+@implementation MainView {
+    sk_app::Window_ios* fWindow;
+}
+
+- (MainView*)initWithWindow:(sk_app::Window_ios *)initWindow {
+    self = [super init];
+
+    fWindow = initWindow;
+
+    return self;
+}
+
+#if 0
 static Window::Key get_key(const SDL_Keysym& keysym) {
     static const struct {
         SDL_Keycode fSDLK;
@@ -245,42 +324,7 @@ bool Window_ios::handleEvent(const SDL_Event& event) {
 
     return false;
 }
+#endif
 
-void Window_ios::setTitle(const char* title) {
-    SDL_SetWindowTitle(fWindow, title);
-}
+@end
 
-void Window_ios::show() {
-    SDL_ShowWindow(fWindow);
-}
-
-bool Window_ios::attach(BackendType attachType) {
-    this->initWindow();
-
-    window_context_factory::IOSWindowInfo info;
-    info.fWindow = fWindow;
-    info.fGLContext = fGLContext;
-    switch (attachType) {
-        case kRaster_BackendType:
-            fWindowContext = NewRasterForIOS(info, fRequestedDisplayParams);
-            break;
-
-        case kNativeGL_BackendType:
-        default:
-            fWindowContext = NewGLForIOS(info, fRequestedDisplayParams);
-            break;
-    }
-    this->onBackendCreated();
-
-    return (SkToBool(fWindowContext));
-}
-
-void Window_ios::onInval() {
-    SDL_Event sdlevent;
-    sdlevent.type = SDL_WINDOWEVENT;
-    sdlevent.window.windowID = fWindowID;
-    sdlevent.window.event = SDL_WINDOWEVENT_EXPOSED;
-    SDL_PushEvent(&sdlevent);
-}
-
-}   // namespace sk_app
