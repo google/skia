@@ -52,8 +52,7 @@ public:
                                MapDirection, const SkIRect* inputRect) const override;
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
     void flatten(SkWriteBuffer&) const override;
 
@@ -276,11 +275,10 @@ static void compute_displacement(Extractor ex, const SkVector& scale, SkBitmap* 
     }
 }
 
-sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage* source,
-                                                                 const Context& ctx,
+sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& ctx,
                                                                  SkIPoint* offset) const {
     SkIPoint colorOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> color(this->filterInput(1, source, ctx, &colorOffset));
+    sk_sp<SkSpecialImage> color(this->filterInput(1, ctx, &colorOffset));
     if (!color) {
         return nullptr;
     }
@@ -296,9 +294,9 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage*
     // With a more complex DAG attached to this input, it's not clear that working in ANY specific
     // color space makes sense, so we ignore color spaces (and gamma) entirely. This may not be
     // ideal, but it's at least consistent and predictable.
-    Context displContext(ctx.ctm(), ctx.clipBounds(), ctx.cache(),
-                         OutputProperties(kN32_SkColorType, nullptr));
-    sk_sp<SkSpecialImage> displ(this->filterInput(0, source, displContext, &displOffset));
+    Context displContext(ctx.layerCTM(), ctx.clipBounds(), ctx.cache(), kN32_SkColorType, nullptr,
+                         ctx.sourceImage());
+    sk_sp<SkSpecialImage> displ(this->filterInput(0, displContext, &displOffset));
     if (!displ) {
         return nullptr;
     }
@@ -331,11 +329,11 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage*
     }
 
     SkVector scale = SkVector::Make(fScale, fScale);
-    ctx.ctm().mapVectors(&scale, 1);
+    ctx.layerCTM().mapVectors(&scale, 1);
 
 #if SK_SUPPORT_GPU
-    if (source->isTextureBacked()) {
-        auto context = source->getContext();
+    if (ctx.sourceImage()->isTextureBacked()) {
+        auto context = ctx.sourceImage()->getContext();
 
         sk_sp<GrTextureProxy> colorProxy(color->asTextureProxyRef(context));
         sk_sp<GrTextureProxy> displProxy(displ->asTextureProxyRef(context));
@@ -346,7 +344,6 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage*
 
         SkMatrix offsetMatrix = SkMatrix::MakeTrans(SkIntToScalar(colorOffset.fX - displOffset.fX),
                                                     SkIntToScalar(colorOffset.fY - displOffset.fY));
-        SkColorSpace* colorSpace = ctx.outputProperties().colorSpace();
 
         std::unique_ptr<GrFragmentProcessor> fp =
                 GrDisplacementMapEffect::Make(fXChannelSelector,
@@ -358,21 +355,21 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage*
                                               std::move(colorProxy),
                                               color->subset());
         fp = GrColorSpaceXformEffect::Make(std::move(fp), color->getColorSpace(),
-                                           color->alphaType(), colorSpace);
+                                           color->alphaType(), ctx.colorSpace());
 
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
-        GrColorType colorType = SkColorTypeToGrColorType(ctx.outputProperties().colorType());
+        GrColorType colorType = SkColorTypeToGrColorType(ctx.colorType());
 
         sk_sp<GrRenderTargetContext> renderTargetContext(
                 context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                                 bounds.width(),
                                                                 bounds.height(),
                                                                 colorType,
-                                                                sk_ref_sp(colorSpace),
+                                                                sk_ref_sp(ctx.colorSpace()),
                                                                 1,
                                                                 GrMipMapped::kNo,
                                                                 kBottomLeft_GrSurfaceOrigin,
