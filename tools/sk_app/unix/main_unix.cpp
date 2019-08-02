@@ -16,7 +16,7 @@ int main(int argc, char**argv) {
     XInitThreads();
     Display* display = XOpenDisplay(nullptr);
 
-    sk_app::Application* app = sk_app::Application::Create(argc, argv, (void*)display);
+    std::unique_ptr<Application> app = Application::Make(argc, argv, (void*)display);
 
     // Get the file descriptor for the X display
     const int x11_fd = ConnectionNumber(display);
@@ -84,7 +84,7 @@ int main(int argc, char**argv) {
         XFlush(display);
     }
 
-    delete app;
+    app = nullptr;
 
     XCloseDisplay(display);
 

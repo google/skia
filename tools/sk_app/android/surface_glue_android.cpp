@@ -87,9 +87,6 @@ SkiaAndroidApp::~SkiaAndroidApp() {
         ANativeWindow_release(fNativeWindow);
         fNativeWindow = nullptr;
     }
-    if (fApp) {
-        delete fApp;
-    }
 }
 
 void SkiaAndroidApp::setTitle(const char* title) const {
@@ -214,9 +211,9 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
         // "--atrace",
     };
 
-    skiaAndroidApp->fApp = Application::Create(SK_ARRAY_COUNT(gCmdLine),
-                                               const_cast<char**>(gCmdLine),
-                                               skiaAndroidApp);
+    skiaAndroidApp->fApp = Application::Make(SK_ARRAY_COUNT(gCmdLine),
+                                             const_cast<char**>(gCmdLine),
+                                             skiaAndroidApp);
 
     while (true) {
         const int ident = ALooper_pollAll(0, nullptr, nullptr, nullptr);

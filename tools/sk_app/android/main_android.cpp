@@ -33,9 +33,9 @@ void android_main(struct android_app* state) {
         // "--atrace",
     };
 
-    std::unique_ptr<Application> vkApp(Application::Create(SK_ARRAY_COUNT(gCmdLine),
-                                                           const_cast<char**>(gCmdLine),
-                                                           state));
+    std::unique_ptr<Application> vkApp(Application::Make(SK_ARRAY_COUNT(gCmdLine),
+                                                         const_cast<char**>(gCmdLine),
+                                                         state));
 
     // loop waiting for stuff to do.
     while (1) {

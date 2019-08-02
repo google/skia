@@ -349,9 +349,9 @@ struct EditorApplication : public sk_app::Application {
 };
 }  // namespace
 
-sk_app::Application* sk_app::Application::Create(int argc, char** argv, void* dat) {
+std::unique_ptr<sk_app::Application> sk_app::Application::Make(int argc, char** argv, void* dat) {
     if (!SkLoadICU()) {
         SK_ABORT("SkLoadICU failed.");
     }
-    return new EditorApplication(argc > 1 ? argv[1] : nullptr, dat);
+    return std::unique_ptr<Application>(new EditorApplication(argc > 1 ? argv[1] : nullptr, dat));
 }
