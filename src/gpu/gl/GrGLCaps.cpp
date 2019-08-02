@@ -4041,13 +4041,16 @@ GrPixelConfig GrGLCaps::onGetConfigFromBackendFormat(const GrBackendFormat& form
     return validate_sized_format(*glFormat, ct, fStandard);
 }
 
-GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format) const {
+GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
+                                                        bool isAlphaChannel) const {
     GrGLFormat grGLFormat = GrGLBackendFormatToGLFormat(format);
 
     switch (grGLFormat) {
-        case GrGLFormat::kLUMINANCE8:   // fall through
-        case GrGLFormat::kR8:           return GrColorType::kGray_8;
-        case GrGLFormat::kALPHA8:       return GrColorType::kAlpha_8;
+        case GrGLFormat::kLUMINANCE8: // <missing kAlpha_8_as_Lum>/kGray_8_as_Lum_GrPixelConfig
+        case GrGLFormat::kR8:         // kAlpha_8_as_Red_GrPixelConfig/kGray_8_as_Red_GrPixelConfig
+        case GrGLFormat::kALPHA8:     // kAlpha_8_as_Alpha_GrPixelConfig/<missing kGray_8_as_Alpha>
+                                        return isAlphaChannel ? GrColorType::kAlpha_8
+                                                              : GrColorType::kGray_8;
         case GrGLFormat::kRG8:          return GrColorType::kRG_88;
         case GrGLFormat::kRGBA8:        return GrColorType::kRGBA_8888;
         case GrGLFormat::kRGB8:         return GrColorType::kRGB_888x;
