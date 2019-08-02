@@ -148,7 +148,7 @@ public:
                                                const SkPoint3 src[], size_t srcStride, int count);
 
     // Returns the recommended filterquality, assuming the caller originally wanted kHigh (bicubic)
-    static SkFilterQuality ShouldUseBicubic(const SkMatrix& ctm);
+    static SkFilterQuality ShouldUseBicubic(const SkMatrix&, bool matrixIsInverse = false);
 };
 
 #endif
