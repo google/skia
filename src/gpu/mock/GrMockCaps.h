@@ -67,6 +67,20 @@ public:
         return false;
     }
 
+    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
+                            int sampleCount = 1) const override {
+        if (!format.getMockColorType()) {
+            return false;
+        }
+        // Currently we don't allow RGB_888X to be renderable because we don't have a way to
+        // handle blends that reference dst alpha when the values in the dst alpha channel are
+        // uninitialized.
+        if (ct == GrColorType::kRGB_888x) {
+            return false;
+        }
+        return sampleCount <= this->maxRenderTargetSampleCount(*format.getMockColorType());
+    }
+
     int getRenderTargetSampleCount(int requestCount, GrColorType ct) const {
         requestCount = SkTMax(requestCount, 1);
 
@@ -106,16 +120,11 @@ public:
         return 0;
     }
 
-    int maxRenderTargetSampleCount(GrColorType, const GrBackendFormat& format) const override {
+    int maxRenderTargetSampleCount(const GrBackendFormat& format) const override {
         if (!format.getMockColorType()) {
             return 0;
         }
         return this->maxRenderTargetSampleCount(*format.getMockColorType());
-    }
-
-    int maxRenderTargetSampleCount(GrPixelConfig config) const override {
-        GrColorType ct = GrPixelConfigToColorType(config);
-        return this->maxRenderTargetSampleCount(ct);
     }
 
     SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,

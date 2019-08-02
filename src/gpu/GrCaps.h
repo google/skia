@@ -164,20 +164,20 @@ public:
     // Returns whether a texture of the given format can be copied to a texture of the same format.
     virtual bool isFormatCopyable(const GrBackendFormat&) const = 0;
 
-    // Returns the maximum supported sample count for a config. 0 means the config is not renderable
-    // 1 means the config is renderable but doesn't support MSAA.
-    virtual int maxRenderTargetSampleCount(GrColorType, const GrBackendFormat&) const = 0;
-    virtual int maxRenderTargetSampleCount(GrPixelConfig) const = 0;
+    // Returns the maximum supported sample count for a format. 0 means the format is not renderable
+    // 1 means the format is renderable but doesn't support MSAA. This call only refers to the
+    // format itself. A caller should also confirm if the format is renderable with a given
+    // GrColorType by calling isFormatRenderable.
+    virtual int maxRenderTargetSampleCount(const GrBackendFormat&) const = 0;
 
     // Returns the number of samples to use when performing internal draws to the given config with
     // MSAA or mixed samples. If 0, Ganesh should not attempt to use internal multisampling.
-    int internalMultisampleCount(GrPixelConfig config) const {
-        return SkTMin(fInternalMultisampleCount, this->maxRenderTargetSampleCount(config));
+    int internalMultisampleCount(const GrBackendFormat& format) const {
+        return SkTMin(fInternalMultisampleCount, this->maxRenderTargetSampleCount(format));
     }
 
-    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format) const {
-        return this->maxRenderTargetSampleCount(ct, format) > 0;
-    }
+    virtual bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
+                                    int sampleCount = 1) const = 0;
 
     // Find a sample count greater than or equal to the requested count which is supported for a
     // color buffer of the given config or 0 if no such sample count is supported. If the requested

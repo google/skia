@@ -41,7 +41,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
     }
 
     if (!caps.driverBlacklistMSAACCPR() &&
-        caps.internalMultisampleCount(kAlpha_8_GrPixelConfig) > 1 &&
+        caps.internalMultisampleCount(defaultA8Format) > 1 &&
         caps.sampleLocationsSupport() &&
         shaderCaps.sampleVariablesStencilSupport()) {
         if (coverageType) {

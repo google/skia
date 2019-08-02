@@ -42,6 +42,8 @@ public:
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
+    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
+                            int sampleCount = 1) const override;
     bool isFormatRenderable(VkFormat) const;
 
     int getRenderTargetSampleCount(int requestedCount,
@@ -49,8 +51,7 @@ public:
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
     int getRenderTargetSampleCount(int requestedCount, VkFormat) const;
 
-    int maxRenderTargetSampleCount(GrColorType, const GrBackendFormat&) const override;
-    int maxRenderTargetSampleCount(GrPixelConfig config) const override;
+    int maxRenderTargetSampleCount(const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(VkFormat format) const;
 
     SupportedWrite supportedWritePixelsColorType(GrPixelConfig config,

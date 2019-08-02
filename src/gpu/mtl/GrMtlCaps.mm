@@ -310,40 +310,34 @@ bool GrMtlCaps::isFormatTexturable(MTLPixelFormat format) const {
     return SkToBool(FormatInfo::kTextureable_Flag && formatInfo.fFlags);
 }
 
-bool GrMtlCaps::isFormatRenderable(MTLPixelFormat format) const {
-    return this->maxRenderTargetSampleCount(format) > 0;
-}
-
-int GrMtlCaps::maxRenderTargetSampleCount(GrColorType grColorType,
-                                          const GrBackendFormat& format) const {
+bool GrMtlCaps::isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
+                                   int sampleCount) const {
     if (!format.getMtlFormat()) {
-        return 0;
+        return false;
     }
 
     // Currently we don't allow RGB_888X to be renderable because we don't have a way to
     // handle blends that reference dst alpha when the values in the dst alpha channel are
     // uninitialized.
-    if (GrColorType::kRGB_888x == grColorType) {
+    if (ct == GrColorType::kRGB_888x) {
+        return false;
+    }
+
+    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    return sampleCount <= this->maxRenderTargetSampleCount(mtlFormat);
+}
+
+bool GrMtlCaps::isFormatRenderable(MTLPixelFormat format) const {
+    return this->maxRenderTargetSampleCount(format) > 0;
+}
+
+int GrMtlCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const {
+    if (!format.getMtlFormat()) {
         return 0;
     }
 
     MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
     return this->maxRenderTargetSampleCount(mtlFormat);
-}
-
-int GrMtlCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
-    // Currently we don't allow RGB_888X or RGB_888 to be renderable because we don't have a way to
-    // handle blends that reference dst alpha when the values in the dst alpha channel are
-    // uninitialized.
-    if (config == kRGB_888X_GrPixelConfig || config == kRGB_888_GrPixelConfig) {
-        return 0;
-    }
-
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(config, &format)) {
-        return 0;
-    }
-    return this->maxRenderTargetSampleCount(format);
 }
 
 int GrMtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
