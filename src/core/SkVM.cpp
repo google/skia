@@ -220,6 +220,22 @@ namespace skvm {
         return _233((int)mod, reg, rm);
     }
 
+    static Mod mod(int imm) {
+        if (imm == 0)               { return Mod::Indirect; }
+        if (SkTFitsIn<int8_t>(imm)) { return Mod::OneByteImm; }
+        return Mod::FourByteImm;
+    }
+
+    static int imm_bytes(Mod mod) {
+        switch (mod) {
+            case Mod::Indirect:    return 0;
+            case Mod::OneByteImm:  return 1;
+            case Mod::FourByteImm: return 4;
+            case Mod::Direct: SkUNREACHABLE;
+        }
+        SkUNREACHABLE;
+    }
+
 #if 0
     // SIB byte encodes a memory address, base + (index * scale).
     enum class Scale { One, Two, Four, Eight };
@@ -445,8 +461,20 @@ namespace skvm {
     }
 
     void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst,l); }
-
     void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
+
+    void Assembler::vbroadcastss(Ymm dst, GP64 ptr, int off) {
+        int prefix = 0x66,
+               map = 0x380f,
+            opcode = 0x18;
+        VEX v = vex(0, dst>>3, 0, ptr>>3,
+                    map, 0, /*ymm?*/1, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+
+        this->byte(mod_rm(mod(off), dst&7, ptr&7));
+        this->bytes(&off, imm_bytes(mod(off)));
+    }
 
     void Assembler::jump(uint8_t condition, Label* l) {
         // These conditional jumps can be either 2 bytes (short) or 6 bytes (near):
@@ -744,10 +772,14 @@ namespace skvm {
         const int nargs = (int)fStrides.size();
 
         if (fJITBuf) {
+            void** a = args;
+            const void* b = fJITBuf;
             switch (nargs) {
-                case 0: return ((void(*)(int              ))fJITBuf)(n                  );
-                case 1: return ((void(*)(int, void*       ))fJITBuf)(n, args[0]         );
-                case 2: return ((void(*)(int, void*, void*))fJITBuf)(n, args[0], args[1]);
+                case 0: return ((void(*)(int                        ))b)(n                    );
+                case 1: return ((void(*)(int,void*                  ))b)(n,a[0]               );
+                case 2: return ((void(*)(int,void*,void*            ))b)(n,a[0],a[1]          );
+                case 3: return ((void(*)(int,void*,void*,void*      ))b)(n,a[0],a[1],a[2]     );
+                case 4: return ((void(*)(int,void*,void*,void*,void*))b)(n,a[0],a[1],a[2],a[3]);
                 default: SkUNREACHABLE;  // TODO
             }
         }
@@ -1311,7 +1343,11 @@ namespace skvm {
             //
             // Now let's actually assemble the instruction!
             switch (op) {
-                default:  return false;  // TODO: many new ops
+                default:
+                #if 0
+                    SkDEBUGFAILF("%d not yet implemented\n", op);
+                #endif
+                    return false;  // TODO: many new ops
 
             #if defined(__x86_64__)
                 case Op::store8: if (scalar) { a->vpextrb  (arg[imm], (A::Xmm)r[x], 0); }
@@ -1338,6 +1374,9 @@ namespace skvm {
                 case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), arg[imm]); }
                                  else        { a->vmovups(        dst(), arg[imm]); }
                                  break;
+
+                case Op::uniform32: a->vbroadcastss(dst(), arg[imm&0xffff], imm>>16);
+                                    break;
 
                 case Op::splat: a->vbroadcastss(dst(), &splats.find(imm)->label);
                                 break;
