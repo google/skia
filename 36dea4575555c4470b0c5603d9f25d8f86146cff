@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9dcb7838_43084dfa",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T21:01:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e13c3293_c359e550",
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c6b2ff9_e2eba7ed",
         "filename": "src/gpu/dawn/GrDawnCaps.cpp",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "03463444_a28df086",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T21:01:48Z",
+      "side": 1,
+      "message": "Yeah, I find that ugly, but.. done.",
+      "parentUuid": "6c6b2ff9_e2eba7ed",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 5
+      },
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed6d8071_9b504825",
         "filename": "src/gpu/dawn/GrDawnCaps.cpp",
         "patchSetId": 2
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "dc9ce7e3_fffaa672",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T21:01:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed6d8071_9b504825",
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e3756f2_dc736037",
         "filename": "src/gpu/dawn/GrDawnCaps.cpp",
         "patchSetId": 2
@@ -73,6 +133,24 @@
       "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b1ff17d_bd95ff91",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T21:01:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e3756f2_dc736037",
+      "revId": "36dea4575555c4470b0c5603d9f25d8f86146cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
