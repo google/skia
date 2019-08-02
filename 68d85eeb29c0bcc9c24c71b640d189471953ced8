@@ -22,6 +22,30 @@
       "revId": "68d85eeb29c0bcc9c24c71b640d189471953ced8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ffa8036_50d46f51",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-02T19:39:05Z",
+      "side": 1,
+      "message": "I guess the 1 is more explicit about what is happening even though the A will be 1. Changed it.",
+      "parentUuid": "e574ae68_6b41b74e",
+      "range": {
+        "startLine": 737,
+        "startChar": 52,
+        "endLine": 737,
+        "endChar": 56
+      },
+      "revId": "68d85eeb29c0bcc9c24c71b640d189471953ced8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
