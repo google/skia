@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18895fe7_93ab5c8c",
+        "filename": "experimental/documentation/gerrit.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-02T14:32:40Z",
+      "side": 1,
+      "message": "followed by \u0027!\u0027",
+      "range": {
+        "startLine": 96,
+        "startChar": 77,
+        "endLine": 96,
+        "endChar": 78
+      },
+      "revId": "44c6f9aeb67f7408523605301025f694b1989a52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd648c2b_3b8be5dc",
+        "filename": "experimental/documentation/gerrit.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-02T14:32:40Z",
+      "side": 1,
+      "message": "Cap?",
+      "range": {
+        "startLine": 96,
+        "startChar": 41,
+        "endLine": 96,
+        "endChar": 42
+      },
+      "revId": "44c6f9aeb67f7408523605301025f694b1989a52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
