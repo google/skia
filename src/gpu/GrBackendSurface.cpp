@@ -285,7 +285,7 @@ SkString GrBackendFormat::toStr() const {
             break;
         case GrBackendApi::kDawn:
 #ifdef SK_DAWN
-            str.appendU32(fDawnFormat);
+            str.append(GrDawnFormatToStr(fDawnFormat));
 #endif
             break;
         case GrBackendApi::kMock:
