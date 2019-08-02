@@ -1017,6 +1017,7 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vmovups(A::ymm5, A::rsi);
         a.vmovups(A::rsi, A::ymm5);
 
+        a.vpmovzxwd(A::ymm4, A::rsi);
         a.vpmovzxbd(A::ymm4, A::rsi);
 
         a.vmovq(A::rdx, A::xmm15);
@@ -1025,6 +1026,7 @@ DEF_TEST(SkVM_Assembler, r) {
         0xc5,     0xfc,   0x10,  0b00'101'110,
         0xc5,     0xfc,   0x11,  0b00'101'110,
 
+        0xc4,0xe2,0x7d,   0x33,  0b00'100'110,
         0xc4,0xe2,0x7d,   0x31,  0b00'100'110,
 
         0xc5,     0x79,   0xd6,  0b00'111'010,
@@ -1085,12 +1087,18 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.vpinsrw(A::xmm1, A::xmm8, A::rsi, 4);
+        a.vpinsrw(A::xmm8, A::xmm1, A::r8, 12);
+
         a.vpinsrb(A::xmm1, A::xmm8, A::rsi, 4);
         a.vpinsrb(A::xmm8, A::xmm1, A::r8, 12);
 
         a.vpextrb(A::rsi, A::xmm8, 7);
         a.vpextrb(A::r8,  A::xmm1, 15);
     },{
+        0xc5,0xb9,      0xc4, 0x0e,  4,
+        0xc4,0x41,0x71, 0xc4, 0x00, 12,
+
         0xc4,0xe3,0x39, 0x20, 0x0e,  4,
         0xc4,0x43,0x71, 0x20, 0x00, 12,
 

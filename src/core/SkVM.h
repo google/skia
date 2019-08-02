@@ -101,7 +101,8 @@ namespace skvm {
         void vpshufb(Ymm dst, Ymm x, Label*);
 
         void vmovups  (Ymm dst, GP64 ptr);   // dst = *ptr, 256-bit
-        void vpmovzxbd(Ymm dst, GP64 ptr);   // dst = *ptr,  64-bit, each uint8_t expanded to int
+        void vpmovzxwd(Ymm dst, GP64 ptr);   // dst = *ptr, 128-bit, each uint16_t expanded to int
+        void vpmovzxbd(Ymm dst, GP64 ptr);   // dst = *ptr,  64-bit, each uint8_t  expanded to int
         void vmovd    (Xmm dst, GP64 ptr);   // dst = *ptr,  32-bit
 
         void vmovups(GP64 ptr, Ymm src);     // *ptr = src, 256-bit
@@ -114,8 +115,9 @@ namespace skvm {
         void vmovd_direct(GP64 dst, Xmm src);  // dst = src, 32-bit
         void vmovd_direct(Xmm dst, GP64 src);  // dst = src, 32-bit
 
-        void vpinsrb(Xmm dst, Xmm src, GP64 ptr, int imm);  // dst = src; dst[imm] = *ptr, 8-bit
-        void vpextrb(GP64 ptr, Xmm src, int imm);           // *dst = src[imm]           , 8-bit
+        void vpinsrw(Xmm dst, Xmm src, GP64 ptr, int imm);  // dst = src; dst[imm] = *ptr, 16-bit
+        void vpinsrb(Xmm dst, Xmm src, GP64 ptr, int imm);  // dst = src; dst[imm] = *ptr,  8-bit
+        void vpextrb(GP64 ptr, Xmm src, int imm);           // *dst = src[imm]           ,  8-bit
 
         // aarch64
 

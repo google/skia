@@ -505,7 +505,9 @@ namespace skvm {
     }
 
     void Assembler::vmovups  (Ymm dst, GP64 src) { this->load_store(0   ,  0x0f,0x10, dst,src); }
+    void Assembler::vpmovzxwd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x33, dst,src); }
     void Assembler::vpmovzxbd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x31, dst,src); }
+
     void Assembler::vmovups  (GP64 dst, Ymm src) { this->load_store(0   ,  0x0f,0x11, src,dst); }
 
     void Assembler::vmovq(GP64 dst, Xmm src) {
@@ -580,6 +582,18 @@ namespace skvm {
         }
         this->byte(0x88);
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
+    }
+
+    void Assembler::vpinsrw(Xmm dst, Xmm src, GP64 ptr, int imm) {
+        int prefix = 0x66,
+            map    = 0x0f,
+            opcode = 0xc4;
+        VEX v = vex(0, dst>>3, 0, ptr>>3,
+                    map, src, /*ymm?*/0, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Indirect, dst&7, ptr&7));
+        this->byte(imm);
     }
 
     void Assembler::vpinsrb(Xmm dst, Xmm src, GP64 ptr, int imm) {
@@ -1371,6 +1385,13 @@ namespace skvm {
                                      a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), arg[imm], 0);
                                  } else {
                                      a->vpmovzxbd(dst(), arg[imm]);
+                                 } break;
+
+                case Op::load16: if (scalar) {
+                                     a->vpxor  (dst(), dst(), dst());
+                                     a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), arg[imm], 0);
+                                 } else {
+                                     a->vpmovzxwd(dst(), arg[imm]);
                                  } break;
 
                 case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), arg[imm]); }
