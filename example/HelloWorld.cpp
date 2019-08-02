@@ -15,8 +15,8 @@
 
 using namespace sk_app;
 
-Application* Application::Create(int argc, char** argv, void* platformData) {
-    return new HelloWorld(argc, argv, platformData);
+std::unique_ptr<Application> Application::Make(int argc, char** argv, void* platformData) {
+    return std::unique_ptr<Application>(new HelloWorld(argc, argv, platformData));
 }
 
 HelloWorld::HelloWorld(int argc, char** argv, void* platformData)

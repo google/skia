@@ -74,8 +74,8 @@ using namespace sk_app;
 
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
 
-Application* Application::Create(int argc, char** argv, void* platformData) {
-    return new Viewer(argc, argv, platformData);
+std::unique_ptr<Application> Application::Make(int argc, char** argv, void* platformData) {
+    return std::unique_ptr<Application>(new Viewer(argc, argv, platformData));
 }
 
 static DEFINE_string(slide, "", "Start on this sample.");
