@@ -81,7 +81,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
     //--------------
     // Test that draw restricts itself to the subset
-    SkImageFilter::OutputProperties outProps(kN32_SkColorType, img->getColorSpace());
+    SkImageFilter_Base::OutputProperties outProps(kN32_SkColorType, img->getColorSpace());
     sk_sp<SkSpecialSurface> surf(img->makeSurface(outProps, SkISize::Make(kFullSize, kFullSize),
                                                   kPremul_SkAlphaType));
 
@@ -118,7 +118,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
         REPORTER_ASSERT(reporter, isGPUBacked != !!tightImg->peekPixels(&tmpPixmap));
     }
     {
-        SkImageFilter::OutputProperties outProps(kN32_SkColorType, img->getColorSpace());
+        SkImageFilter_Base::OutputProperties outProps(kN32_SkColorType, img->getColorSpace());
         sk_sp<SkSurface> tightSurf(img->makeTightSurface(outProps, subset.size()));
 
         REPORTER_ASSERT(reporter, tightSurf->width() == subset.width());

@@ -27,7 +27,7 @@
 #include "include/effects/SkColorFilterImageFilter.h"
 #include "include/effects/SkDropShadowImageFilter.h"
 #include "include/utils/SkTextUtils.h"
-#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkSpecialImage.h"
 #include "tools/ToolUtils.h"
 
@@ -35,7 +35,7 @@
 
 class SkReadBuffer;
 
-class FailImageFilter : public SkImageFilter {
+class FailImageFilter : public SkImageFilter_Base {
 public:
     static sk_sp<SkImageFilter> Make() {
         return sk_sp<SkImageFilter>(new FailImageFilter);
@@ -52,7 +52,7 @@ protected:
 
 private:
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -60,7 +60,7 @@ sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
     return FailImageFilter::Make();
 }
 
-class IdentityImageFilter : public SkImageFilter {
+class IdentityImageFilter : public SkImageFilter_Base {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> input) {
         return sk_sp<SkImageFilter>(new IdentityImageFilter(std::move(input)));
@@ -78,7 +78,7 @@ protected:
 private:
     IdentityImageFilter(sk_sp<SkImageFilter> input) : INHERITED(&input, 1, nullptr) {}
 
-    typedef SkImageFilter INHERITED;
+    typedef SkImageFilter_Base INHERITED;
 };
 
 // Register these image filters as deserializable before main().

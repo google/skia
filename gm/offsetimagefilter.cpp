@@ -20,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkImageSource.h"
 #include "include/effects/SkOffsetImageFilter.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -128,8 +129,9 @@ protected:
             p.setStyle(SkPaint::kFill_Style);
         }
 
-        if (imgf && imgf->cropRectIsSet()) {
-            SkImageFilter::CropRect cr = imgf->getCropRect();
+        // Visualize the crop rect for debugging
+        if (imgf && as_IFB(imgf)->cropRectIsSet()) {
+            SkImageFilter::CropRect cr = as_IFB(imgf)->getCropRect();
 
             p.setColor(0x66FF00FF);
             p.setStyle(SkPaint::kStroke_Style);
