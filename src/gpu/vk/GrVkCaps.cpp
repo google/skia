@@ -835,8 +835,14 @@ bool GrVkCaps::isFormatRenderable(VkFormat format) const {
 }
 
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount,
-                                         GrColorType, const GrBackendFormat& format) const {
+                                         GrColorType colorType,
+                                         const GrBackendFormat& format) const {
     if (!format.getVkFormat()) {
+        return 0;
+    }
+    // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
+    // blends that reference dst alpha when the values in the dst alpha channel are uninitialized.
+    if (colorType == GrColorType::kRGB_888x) {
         return 0;
     }
 
