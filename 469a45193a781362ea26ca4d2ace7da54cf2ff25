@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bc68cfa_8cd273bf",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-03T06:21:46Z",
+      "side": 1,
+      "message": "I don\u0027t think we can static_cast the value without verifying that it\u0027s valid.",
+      "range": {
+        "startLine": 130,
+        "startChar": 48,
+        "endLine": 130,
+        "endChar": 94
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb53031e_ad23d05d",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-03T06:21:46Z",
+      "side": 1,
+      "message": "FYI: Currently system-ui is handled in blink directly by querying the system for the system UI font family name, see https://codesearch.chromium.org/chromium/src/third_party/blink/renderer/platform/fonts/font_cache.cc?l\u003d143 . Currently those queries will not reach SkFontMgr. We will need to update blink to handle this case correctly. I\u0027ve filed crbug.com/990571 to track this issue.",
+      "range": {
+        "startLine": 143,
+        "startChar": 36,
+        "endLine": 143,
+        "endChar": 45
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48f31fcb_9e206e29",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-03T06:21:46Z",
+      "side": 1,
+      "message": "std::optional is a C++17 feature. I don\u0027t think we can use it here.",
+      "range": {
+        "startLine": 148,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 13
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6941c81_e8da122d",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-03T06:21:46Z",
+      "side": 1,
+      "message": "Designated initialisers is a C++20 feature. We can\u0027t use it yet.",
+      "range": {
+        "startLine": 319,
+        "startChar": 47,
+        "endLine": 319,
+        "endChar": 55
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9665c53f_1d79e61f",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-03T06:21:46Z",
+      "side": 1,
+      "message": "Do we always need to set languages? The array may be empty if the caller doesn\u0027t have language preferences.",
+      "range": {
+        "startLine": 392,
+        "startChar": 40,
+        "endLine": 392,
+        "endChar": 65
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d8cdc40_3e1b0a9e",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-03T06:21:46Z",
+      "side": 1,
+      "message": "character may be zero, which means that the caller doesn\u0027t need a specific character. I don\u0027t think we want to set that field in that case.",
+      "range": {
+        "startLine": 393,
+        "startChar": 40,
+        "endLine": 393,
+        "endChar": 91
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
