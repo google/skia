@@ -575,6 +575,12 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
     }
 }
 
+void SkBitmapDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
+                               const SkRect tex[], const SkColor colors[], int count,
+                               SkBlendMode mode, const SkPaint& paint) {
+    BDDraw(this).drawAtlas(atlas, xform, tex, colors, count, mode, paint);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace {
