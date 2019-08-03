@@ -85,7 +85,7 @@ public:
                 ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kBGR_565,
                                                             GrRenderable::kNo);
             fProxy = GrProxyProvider::MakeFullyLazyProxy(
-                    [this, nullTexture](
+                    [this, format, nullTexture](
                             GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationResult {
                         REPORTER_ASSERT(fTest->fReporter, !fTest->fHasOpTexture);
                         fTest->fHasOpTexture = true;
@@ -97,8 +97,8 @@ public:
                             desc.fHeight = 567;
                             desc.fConfig = kRGB_565_GrPixelConfig;
                             sk_sp<GrTexture> texture = rp->createTexture(
-                                    desc, GrRenderable::kNo, 1, SkBudgeted::kYes, GrProtected::kNo,
-                                    GrResourceProvider::Flags::kNoPendingIO);
+                                    desc, format, GrRenderable::kNo, 1, SkBudgeted::kYes,
+                                    GrProtected::kNo, GrResourceProvider::Flags::kNoPendingIO);
                             REPORTER_ASSERT(fTest->fReporter, texture);
                             return std::move(texture);
                         }
@@ -330,13 +330,13 @@ private:
                                                         GrRenderable::kNo);
 
         fLazyProxy = proxyProvider->createLazyProxy(
-                [testExecuteValue, shouldFailInstantiation,
-                 desc](GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationResult {
+                [testExecuteValue, shouldFailInstantiation, desc,
+                 format](GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationResult {
                     if (shouldFailInstantiation) {
                         *testExecuteValue = 1;
                         return {};
                     }
-                    return {rp->createTexture(desc, GrRenderable::kNo, 1, SkBudgeted::kNo,
+                    return {rp->createTexture(desc, format, GrRenderable::kNo, 1, SkBudgeted::kNo,
                                               GrProtected::kNo,
                                               GrResourceProvider::Flags::kNoPendingIO),
                             GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};

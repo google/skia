@@ -53,14 +53,9 @@ static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
 static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    GrSurfaceDesc desc;
-    desc.fWidth = kWidthHeight;
-    desc.fHeight = kWidthHeight;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-
     return proxyProvider->testingOnly_createInstantiatedProxy(
-            desc, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrProtected::kNo);
+            {kWidthHeight, kWidthHeight}, GrColorType::kRGBA_8888, GrRenderable::kYes, 1,
+            kBottomLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
