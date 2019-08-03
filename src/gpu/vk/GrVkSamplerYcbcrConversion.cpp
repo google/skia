@@ -14,11 +14,9 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
     if (!gpu->vkCaps().supportsYcbcrConversion()) {
         return nullptr;
     }
-    // We only support creating ycbcr conversion for external formats;
-    SkASSERT(info.fExternalFormat);
 
 #ifdef SK_DEBUG
-    const VkFormatFeatureFlags& featureFlags = info.fExternalFormatFeatures;
+    const VkFormatFeatureFlags& featureFlags = info.fFormatFeatures;
     if (info.fXChromaOffset == VK_CHROMA_LOCATION_MIDPOINT ||
         info.fYChromaOffset == VK_CHROMA_LOCATION_MIDPOINT) {
         SkASSERT(featureFlags & VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT);
@@ -36,25 +34,41 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
     }
 #endif
 
-#ifdef SK_BUILD_FOR_ANDROID
-    VkExternalFormatANDROID externalFormat;
-    externalFormat.sType = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
-    externalFormat.pNext = nullptr;
-    externalFormat.externalFormat = info.fExternalFormat;
 
     VkSamplerYcbcrConversionCreateInfo ycbcrCreateInfo;
-    memset(&ycbcrCreateInfo, 0, sizeof(VkSamplerYcbcrConversionCreateInfo));
     ycbcrCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO;
-    ycbcrCreateInfo.pNext = &externalFormat;
-    ycbcrCreateInfo.format = VK_FORMAT_UNDEFINED;
+    ycbcrCreateInfo.pNext = nullptr;
+    ycbcrCreateInfo.format = info.fFormat;
     ycbcrCreateInfo.ycbcrModel = info.fYcbcrModel;
     ycbcrCreateInfo.ycbcrRange = info.fYcbcrRange;
-    // Componets is ignored for external format conversions;
-    // ycbcrCreateInfo.components = {0, 0, 0, 0};
+
+    // Components is ignored for external format conversions. For all other formats identity swizzle
+    // is used. It can be added to GrVkYcbcrConversionInfo if necessary.
+    ycbcrCreateInfo.components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
+                                  VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
     ycbcrCreateInfo.xChromaOffset = info.fXChromaOffset;
     ycbcrCreateInfo.yChromaOffset = info.fYChromaOffset;
     ycbcrCreateInfo.chromaFilter = info.fChromaFilter;
     ycbcrCreateInfo.forceExplicitReconstruction = info.fForceExplicitReconstruction;
+
+#ifdef SK_BUILD_FOR_ANDROID
+    VkExternalFormatANDROID externalFormat;
+    if (info.fExternalFormat) {
+        // Format must not be specified for external images.
+        SkASSERT(info.fFormat == VK_FORMAT_UNDEFINED);
+        externalFormat.sType = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
+        externalFormat.pNext = nullptr;
+        externalFormat.externalFormat = info.fExternalFormat;
+        ycbcrCreateInfo.pNext = &externalFormat;
+    }
+#else
+    // External images are supported only on Android;
+    SkASSERT(!info.fExternalFormat);
+#endif
+
+    if (!info.fExternalFormat) {
+        SkASSERT(info.fFormat != VK_FORMAT_UNDEFINED);
+    }
 
     VkSamplerYcbcrConversion conversion;
     GR_VK_CALL(gpu->vkInterface(), CreateSamplerYcbcrConversion(gpu->device(), &ycbcrCreateInfo,
@@ -62,10 +76,8 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
     if (conversion == VK_NULL_HANDLE) {
         return nullptr;
     }
+
     return new GrVkSamplerYcbcrConversion(conversion, GenerateKey(info));
-#else
-    return nullptr;
-#endif
 }
 
 void GrVkSamplerYcbcrConversion::freeGPUData(GrVkGpu* gpu) const {
@@ -96,6 +108,5 @@ GrVkSamplerYcbcrConversion::Key GrVkSamplerYcbcrConversion::GenerateKey(
     ycbcrKey |= (static_cast<uint8_t>(ycbcrInfo.fChromaFilter) << kChromaFilterShift);
     ycbcrKey |= (static_cast<uint8_t>(ycbcrInfo.fForceExplicitReconstruction) << kReconShift);
 
-    return {ycbcrInfo.fExternalFormat, ycbcrKey};
+    return Key{ycbcrInfo.fFormat, ycbcrInfo.fExternalFormat, ycbcrKey};
 }
-
