@@ -46,6 +46,8 @@ public:
                             int sampleCount = 1) const override;
     bool isFormatRenderable(VkFormat) const;
 
+    bool isYcbcrFormat(VkFormat) const;
+
     int getRenderTargetSampleCount(int requestedCount,
                                    GrColorType, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
@@ -260,7 +262,7 @@ private:
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
     };
-    static const size_t kNumVkFormats = 18;
+    static const size_t kNumVkFormats = 20;
     FormatInfo fFormatTable[kNumVkFormats];
 
     FormatInfo& getFormatInfo(VkFormat);
