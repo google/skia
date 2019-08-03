@@ -76,27 +76,83 @@ SkFontStyle::Slant FuchsiaToSkSlant(fuchsia::fonts::Slant slant) {
     }
 }
 
+fuchsia::fonts::Width SkToFuchsiaWidth(SkFontStyle::Width width) {
+    switch (width) {
+        case SkFontStyle::Width::kUltraCondensed_Width:
+            return fuchsia::fonts::Width::ULTRA_CONDENSED;
+        case SkFontStyle::Width::kExtraCondensed_Width:
+            return fuchsia::fonts::Width::EXTRA_CONDENSED;
+        case SkFontStyle::Width::kCondensed_Width:
+            return fuchsia::fonts::Width::CONDENSED;
+        case SkFontStyle::Width::kSemiCondensed_Width:
+            return fuchsia::fonts::Width::SEMI_CONDENSED;
+        case SkFontStyle::Width::kNormal_Width:
+            return fuchsia::fonts::Width::NORMAL;
+        case SkFontStyle::Width::kSemiExpanded_Width:
+            return fuchsia::fonts::Width::SEMI_EXPANDED;
+        case SkFontStyle::Width::kExpanded_Width:
+            return fuchsia::fonts::Width::EXPANDED;
+        case SkFontStyle::Width::kExtraExpanded_Width:
+            return fuchsia::fonts::Width::EXTRA_EXPANDED;
+        case SkFontStyle::Width::kUltraExpanded_Width:
+            return fuchsia::fonts::Width::ULTRA_EXPANDED;
+    }
+}
+
+SkFontStyle::Width FuchsiaToSkWidth(fuchsia::fonts::Width width) {
+    switch (width) {
+        case fuchsia::fonts::Width::ULTRA_CONDENSED:
+            return SkFontStyle::Width::kUltraCondensed_Width;
+        case fuchsia::fonts::Width::EXTRA_CONDENSED:
+            return SkFontStyle::Width::kExtraCondensed_Width;
+        case fuchsia::fonts::Width::CONDENSED:
+            return SkFontStyle::Width::kCondensed_Width;
+        case fuchsia::fonts::Width::SEMI_CONDENSED:
+            return SkFontStyle::Width::kSemiCondensed_Width;
+        case fuchsia::fonts::Width::NORMAL:
+            return SkFontStyle::Width::kNormal_Width;
+        case fuchsia::fonts::Width::SEMI_EXPANDED:
+            return SkFontStyle::Width::kSemiExpanded_Width;
+        case fuchsia::fonts::Width::EXPANDED:
+            return SkFontStyle::Width::kExpanded_Width;
+        case fuchsia::fonts::Width::EXTRA_EXPANDED:
+            return SkFontStyle::Width::kExtraExpanded_Width;
+        case fuchsia::fonts::Width::ULTRA_EXPANDED:
+            return SkFontStyle::Width::kUltraExpanded_Width;
+    }
+}
+
+fuchsia::fonts::Style2 SkToFuchsiaStyle(const SkFontStyle& style) {
+    return std::move(
+            fuchsia::fonts::Style2{}
+                    .set_slant(SkToFuchsiaSlant(style.slant()))
+                    .set_weight(style.weight())
+                    .set_width(SkToFuchsiaWidth(static_cast<SkFontStyle::Width>(style.width()))));
+}
+
 constexpr struct {
     const char* fName;
-    fuchsia::fonts::FallbackGroup fFallbackGroup;
-} kFallbackGroupsByName[] = {
-        {"serif", fuchsia::fonts::FallbackGroup::SERIF},
-        {"sans", fuchsia::fonts::FallbackGroup::SANS_SERIF},
-        {"sans-serif", fuchsia::fonts::FallbackGroup::SANS_SERIF},
-        {"mono", fuchsia::fonts::FallbackGroup::MONOSPACE},
-        {"monospace", fuchsia::fonts::FallbackGroup::MONOSPACE},
-        {"cursive", fuchsia::fonts::FallbackGroup::CURSIVE},
-        {"fantasy", fuchsia::fonts::FallbackGroup::FANTASY},
-};
+    fuchsia::fonts::GenericFontFamily fGenericFontFamily;
+} kGenericFontFamiliesByName[] = {{"serif", fuchsia::fonts::GenericFontFamily::SERIF},
+                                  {"sans", fuchsia::fonts::GenericFontFamily::SANS_SERIF},
+                                  {"sans-serif", fuchsia::fonts::GenericFontFamily::SANS_SERIF},
+                                  {"mono", fuchsia::fonts::GenericFontFamily::MONOSPACE},
+                                  {"monospace", fuchsia::fonts::GenericFontFamily::MONOSPACE},
+                                  {"cursive", fuchsia::fonts::GenericFontFamily::CURSIVE},
+                                  {"fantasy", fuchsia::fonts::GenericFontFamily::FANTASY},
+                                  {"system-ui", fuchsia::fonts::GenericFontFamily::SYSTEM_UI},
+                                  {"emoji", fuchsia::fonts::GenericFontFamily::EMOJI},
+                                  {"math", fuchsia::fonts::GenericFontFamily::MATH},
+                                  {"fangsong", fuchsia::fonts::GenericFontFamily::FANGSONG}};
 
-fuchsia::fonts::FallbackGroup GetFallbackGroupByName(const char* name) {
-    if (!name) return fuchsia::fonts::FallbackGroup::NONE;
-    for (auto& group : kFallbackGroupsByName) {
-        if (strcasecmp(group.fName, name) == 0) {
-            return group.fFallbackGroup;
+std::optional<fuchsia::fonts::GenericFontFamily> GetGenericFontFamilyByName(const char* name) {
+    if (!name) return {};
+    for (auto& genericFamily : kGenericFontFamiliesByName) {
+        if (strcasecmp(genericFamily.fName, name) == 0) {
+            return genericFamily.fGenericFontFamily;
         }
     }
-    return fuchsia::fonts::FallbackGroup::NONE;
+    return {};
 }
 
 struct TypefaceId {
@@ -259,16 +315,18 @@ SkFontStyleSet* SkFontMgr_Fuchsia::onCreateStyleSet(int index) const {
 }
 
 SkFontStyleSet* SkFontMgr_Fuchsia::onMatchFamily(const char familyName[]) const {
-    fuchsia::fonts::FamilyInfoPtr familyInfo;
-    int result = fFontProvider->GetFamilyInfo(familyName, &familyInfo);
-    if (result != ZX_OK || !familyInfo) return nullptr;
+    fuchsia::fonts::FontFamilyInfo familyInfo;
+    fuchsia::fonts::FamilyName typedFamilyName{.name = familyName};
+    int result = fFontProvider->GetFontFamilyInfo(typedFamilyName, &familyInfo);
+    if (result != ZX_OK || !familyInfo.has_styles() || familyInfo.styles().empty()) return nullptr;
 
     std::vector<SkFontStyle> styles;
-    for (auto& style : familyInfo->styles) {
-        styles.push_back(SkFontStyle(style.weight, style.width, FuchsiaToSkSlant(style.slant)));
+    for (auto& style : familyInfo.styles()) {
+        styles.push_back(SkFontStyle(style.weight(), FuchsiaToSkWidth(style.width()),
+                                     FuchsiaToSkSlant(style.slant())));
     }
 
-    return new SkFontStyleSet_Fuchsia(sk_ref_sp(this), familyInfo->name, std::move(styles));
+    return new SkFontStyleSet_Fuchsia(sk_ref_sp(this), familyInfo.name().name, std::move(styles));
 }
 
 SkTypeface* SkFontMgr_Fuchsia::onMatchFamilyStyle(const char familyName[],
@@ -323,37 +381,43 @@ sk_sp<SkTypeface> SkFontMgr_Fuchsia::FetchTypeface(const char familyName[],
                                                    int bcp47Count, SkUnichar character,
                                                    bool allow_fallback,
                                                    bool exact_style_match) const {
-    fuchsia::fonts::Request request;
-    request.weight = style.weight();
-    request.width = style.width();
-    request.slant = SkToFuchsiaSlant(style.slant());
-    request.language.reset(std::vector<std::string>(bcp47, bcp47 + bcp47Count));
-    request.character = character;
-    request.fallback_group = GetFallbackGroupByName(familyName);
-
-    // If family name is not specified or it is a generic fallback group name (e.g. "serif") then
-    // enable fallback, otherwise pass the family name as is.
-    if (!familyName || *familyName == '\0' ||
-        request.fallback_group != fuchsia::fonts::FallbackGroup::NONE) {
-        request.family = "";
-        allow_fallback = true;
-    } else {
-        request.family = familyName;
+    std::vector<fuchsia::intl::LocaleId> languages{};
+    for (int i = 0; i < bcp47Count; i++) {
+        languages.push_back(fuchsia::intl::LocaleId{.id = bcp47[i]});
     }
 
-    request.flags = 0;
-    if (!allow_fallback) request.flags |= fuchsia::fonts::REQUEST_FLAG_NO_FALLBACK;
-    if (exact_style_match) request.flags |= fuchsia::fonts::REQUEST_FLAG_EXACT_MATCH;
+    fuchsia::fonts::TypefaceRequest request;
+    request.set_query(std::move(fuchsia::fonts::TypefaceQuery()
+                                        .set_style(SkToFuchsiaStyle(style))
+                                        .set_languages(languages)
+                                        .set_code_points({static_cast<uint32_t>(character)})));
 
-    fuchsia::fonts::ResponsePtr response;
-    int result = fFontProvider->GetFont(std::move(request), &response);
+    // If family name is not specified or is a generic family name (e.g. "serif"), then enable
+    // fallback; otherwise, pass the family name as is.
+    auto genericFontFamily = GetGenericFontFamilyByName(familyName);
+    if (!familyName || *familyName == '\0' || genericFontFamily) {
+        if (genericFontFamily) {
+            request.mutable_query()->set_fallback_family(genericFontFamily.value());
+        }
+        allow_fallback = true;
+    } else {
+        request.mutable_query()->set_family(fuchsia::fonts::FamilyName{.name = familyName});
+    }
+
+    fuchsia::fonts::TypefaceRequestFlags flags{};
+    if (!allow_fallback) flags |= fuchsia::fonts::TypefaceRequestFlags::EXACT_FAMILY;
+    if (exact_style_match) flags |= fuchsia::fonts::TypefaceRequestFlags::EXACT_STYLE;
+    request.set_flags(flags);
+
+    fuchsia::fonts::TypefaceResponse response;
+    int result = fFontProvider->GetTypeface(std::move(request), &response);
     if (result != ZX_OK) return nullptr;
 
-    // The service may return null response if there is no font matching the request.
-    if (!response) return nullptr;
+    // The service may return an empty response if there is no font matching the request.
+    if (response.IsEmpty()) return nullptr;
 
-    return GetOrCreateTypeface(TypefaceId{response->buffer_id, response->font_index},
-                               response->buffer);
+    return GetOrCreateTypeface(TypefaceId{response.buffer_id(), response.font_index()},
+                               response.buffer());
 }
 
 sk_sp<SkData> SkFontMgr_Fuchsia::GetOrCreateSkData(int bufferId,
@@ -365,8 +429,8 @@ sk_sp<SkData> SkFontMgr_Fuchsia::GetOrCreateSkData(int bufferId,
         return sk_ref_sp(iter->second);
     }
     auto font_mgr = sk_ref_sp(this);
-    auto data = MakeSkDataFromBuffer(buffer,
-                                     [font_mgr, bufferId]() { font_mgr->OnSkDataDeleted(bufferId); });
+    auto data = MakeSkDataFromBuffer(
+            buffer, [font_mgr, bufferId]() { font_mgr->OnSkDataDeleted(bufferId); });
     if (!data) {
         return nullptr;
     }
