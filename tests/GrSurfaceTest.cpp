@@ -32,8 +32,10 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
+    auto format = context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                  GrRenderable::kYes);
     sk_sp<GrSurface> texRT1 = resourceProvider->createTexture(
-            desc, GrRenderable::kYes, 1, SkBudgeted::kNo, GrProtected::kNo,
+            desc, format, GrRenderable::kYes, 1, SkBudgeted::kNo, GrProtected::kNo,
             GrResourceProvider::Flags::kNoPendingIO);
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
@@ -46,7 +48,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     sk_sp<GrTexture> tex1 = resourceProvider->createTexture(
-            desc, GrRenderable::kNo, 1, SkBudgeted::kNo, GrProtected::kNo,
+            desc, format, GrRenderable::kNo, 1, SkBudgeted::kNo, GrProtected::kNo,
             GrResourceProvider::Flags::kNoPendingIO);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
@@ -79,9 +81,14 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
     const GrCaps* caps = context->priv().caps();
 
-    auto createTexture = [](int width, int height, GrPixelConfig config, GrRenderable renderable,
+    // TODO: Should only need format here but need to determine compression type from format
+    // without config.
+    auto createTexture = [](int width, int height, GrColorType colorType,
+                            const GrBackendFormat& format, GrRenderable renderable,
                             GrResourceProvider* rp) -> sk_sp<GrTexture> {
-        if (GrPixelConfigIsCompressed(config)) {
+        GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
+        bool compressed = rp->caps()->isFormatCompressed(format);
+        if (compressed) {
             if (renderable == GrRenderable::kYes) {
                 return nullptr;
             }
@@ -107,7 +114,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             desc.fWidth = width;
             desc.fHeight = height;
             desc.fConfig = config;
-            return rp->createTexture(desc, renderable, 1, SkBudgeted::kNo, GrProtected::kNo);
+            return rp->createTexture(desc, format, renderable, 1, SkBudgeted::kNo, GrProtected::kNo,
+                                     GrResourceProvider::Flags::kNone);
         }
     };
 
@@ -130,22 +138,18 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         }
 
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-
-            GrPixelConfig config = caps->getConfigFromBackendFormat(combo.fFormat,
-                                                                    combo.fColorType);
-            SkASSERT(config != kUnknown_GrPixelConfig);
-
             GrSurfaceDesc desc;
             desc.fWidth = kW;
             desc.fHeight = kH;
-            desc.fConfig = config;
+            desc.fConfig = caps->getConfigFromBackendFormat(combo.fFormat, combo.fColorType);
+            SkASSERT(desc.fConfig != kUnknown_GrPixelConfig);
 
             // Check if 'isFormatTexturable' agrees with 'createTexture' and that the mipmap
             // support check is working
             {
                 bool isTexturable = caps->isFormatTexturable(combo.fColorType, combo.fFormat);
 
-                sk_sp<GrSurface> tex = createTexture(kW, kH, config,
+                sk_sp<GrSurface> tex = createTexture(kW, kH, combo.fColorType, combo.fFormat,
                                                      GrRenderable::kNo, resourceProvider);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isTexturable,
                                 "ct:%s format:%s, tex:%d, isTexturable:%d",
@@ -172,9 +176,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             {
                 bool isRenderable = caps->isFormatRenderable(combo.fColorType, combo.fFormat);
 
-                sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, GrRenderable::kYes,
-                                                                       1, SkBudgeted::kNo,
-                                                                       GrProtected::kNo);
+                sk_sp<GrSurface> tex = resourceProvider->createTexture(
+                        desc, combo.fFormat, GrRenderable::kYes, 1, SkBudgeted::kNo,
+                        GrProtected::kNo, GrResourceProvider::Flags::kNone);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                                 "ct:%s format:%s, tex:%d, isRenderable:%d",
                                 GrColorTypeToStr(combo.fColorType),
@@ -184,11 +188,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 
             // Check if 'isFormatRenderable' agrees with 'createTexture' w/ MSAA
             {
-                bool isRenderable = SkToBool(caps->getRenderTargetSampleCount(2, config));
+                bool isRenderable = SkToBool(
+                        caps->getRenderTargetSampleCount(2, combo.fColorType, combo.fFormat));
 
-                sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, GrRenderable::kYes,
-                                                                       2, SkBudgeted::kNo,
-                                                                       GrProtected::kNo);
+                sk_sp<GrSurface> tex = resourceProvider->createTexture(
+                        desc, combo.fFormat, GrRenderable::kYes, 2, SkBudgeted::kNo,
+                        GrProtected::kNo, GrResourceProvider::Flags::kNone);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                                 "ct:%s format:%s, tex:%d, isRenderable:%d",
                                 GrColorTypeToStr(combo.fColorType),
@@ -270,8 +275,8 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                     // Does directly allocating a texture clear it?
                     {
                         auto proxy = proxyProvider->testingOnly_createInstantiatedProxy(
-                                desc, renderable, 1, kTopLeft_GrSurfaceOrigin, fit,
-                                SkBudgeted::kYes, GrProtected::kNo);
+                                {kSize, kSize}, combo.fColorType, combo.fFormat, renderable, 1,
+                                kTopLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes, GrProtected::kNo);
                         if (proxy) {
                             auto texCtx = context->priv().makeWrappedSurfaceContext(
                                     std::move(proxy), combo.fColorType, kPremul_SkAlphaType);
@@ -477,8 +482,10 @@ static sk_sp<GrTexture> make_normal_texture(GrContext* context, GrRenderable ren
     GrSurfaceDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = desc.fHeight = kSurfSize;
+    auto format =
+            context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
     return context->priv().resourceProvider()->createTexture(
-            desc, renderable, 1, SkBudgeted::kNo, GrProtected::kNo,
+            desc, format, renderable, 1, SkBudgeted::kNo, GrProtected::kNo,
             GrResourceProvider::Flags::kNoPendingIO);
 }
 
