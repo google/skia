@@ -108,3 +108,46 @@ DEF_SIMPLE_GM(bigrect, canvas, 325, 125) {
         }
     }
 }
+
+#include "include/core/SkRRect.h"
+#include "include/core/SkSurface.h"
+
+DEF_SIMPLE_GM(bigsurf, canvas, 512, 512) {
+    const int big = 17 * 1014;
+    auto info = SkImageInfo::MakeN32Premul({big, 40});
+    auto surf = canvas->makeSurface(info);
+    if (!surf) {
+        return;
+    }
+
+    auto can = surf->getCanvas();
+    can->drawColor(SK_ColorRED);
+    canvas->drawImageRect(surf->makeImageSnapshot(), {10, 10, 1000, 30 }, nullptr);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorBLUE);
+    can->drawOval({0, 0, big, 40}, paint);
+    canvas->drawImageRect(surf->makeImageSnapshot(), {10, 40, 1000, 60 }, nullptr);
+
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorGREEN);
+    can->drawOval({0, 0, big, 40}, paint);
+    canvas->drawImageRect(surf->makeImageSnapshot(), {10, 70, 1000, 90 }, nullptr);
+
+    can->drawColor(SK_ColorRED);
+
+    SkRRect rr;
+    rr.setOval({0, 0, big, 40});
+    can->save();
+    can->clipRRect(rr, false);
+    can->drawColor(SK_ColorBLUE);
+    canvas->drawImageRect(surf->makeImageSnapshot(), {10, 110, 1000, 130 }, nullptr);
+    can->restore();
+
+    can->save();
+    can->clipRRect(rr, true);
+    can->drawColor(SK_ColorGREEN);
+    canvas->drawImageRect(surf->makeImageSnapshot(), {10, 140, 1000, 160 }, nullptr);
+    can->restore();
+}
+
