@@ -34,7 +34,7 @@ public:
 
 private:
     struct FreeWrapper { void operator()(void*); };
-    std::unique_ptr<char, FreeWrapper> fPtr;
+    std::unique_ptr<char[], FreeWrapper> fPtr;
     std::size_t fLength = 0;
     std::size_t fCapacity = 0;
     void realloc(std::size_t);
