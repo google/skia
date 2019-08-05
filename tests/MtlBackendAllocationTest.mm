@@ -53,7 +53,6 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kAlpha_8,          MTLPixelFormatA8Unorm,         kTransCol            },
         { GrColorType::kAlpha_8,          MTLPixelFormatR8Unorm,         kTransCol            },
-
         { GrColorType::kGray_8,           MTLPixelFormatR8Unorm,         SkColors::kDkGray    },
 
         { GrColorType::kRGBA_F32,         MTLPixelFormatRGBA32Float,     SkColors::kRed       },
@@ -96,11 +95,10 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
             for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
 
                 if (GrRenderable::kYes == renderable) {
-                    if (GrColorType::kRGB_888x == combo.fColorType) {
-                        // Ganesh can't perform the blends correctly when rendering this format
-                        continue;
-                    }
-                    if (!mtlCaps->isFormatRenderable(combo.fFormat)) {
+                    // We must also check whether we allow rendering to the format using the
+                    // color type.
+                    if (!mtlCaps->isFormatRenderable(combo.fColorType,
+                                                     GrBackendFormat::MakeMtl(combo.fFormat), 1)) {
                         continue;
                     }
                 }
