@@ -137,11 +137,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = resourceProvider->createApproxTexture(
-                                            desc, GrRenderable::kYes, numSamples, GrProtected::kNo,
+                                            desc, format, GrRenderable::kYes, numSamples,
+                                            GrProtected::kNo,
                                             GrResourceProvider::Flags::kNoPendingIO);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                            desc, GrRenderable::kYes, numSamples, budgeted,
+                                            desc, format, GrRenderable::kYes, numSamples, budgeted,
                                             GrProtected::kNo,
                                             GrResourceProvider::Flags::kNoPendingIO);
                                 }
@@ -175,11 +176,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = resourceProvider->createApproxTexture(
-                                            desc, GrRenderable::kNo, numSamples, GrProtected::kNo,
+                                            desc, format, GrRenderable::kNo, numSamples,
+                                            GrProtected::kNo,
                                             GrResourceProvider::Flags::kNoPendingIO);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                            desc, GrRenderable::kNo, numSamples, budgeted,
+                                            desc, format, GrRenderable::kNo, numSamples, budgeted,
                                             GrProtected::kNo,
                                             GrResourceProvider::Flags::kNoPendingIO);
                                 }

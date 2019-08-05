@@ -750,6 +750,12 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     if (!vkCaps->isFormatRenderable(combo.fFormat)) {
                         continue;
                     }
+                    // We must also check whether we allow rendering to the format using the
+                    // color type.
+                    if (!vkCaps->isFormatRenderable(combo.fColorType,
+                                                    GrBackendFormat::MakeVk(combo.fFormat), 1)) {
+                        continue;
+                    }
                 }
 
                 // We current disallow uninitialized compressed textures in the Vulkan backend

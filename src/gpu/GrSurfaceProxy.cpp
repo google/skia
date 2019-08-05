@@ -130,7 +130,8 @@ bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvi
 }
 
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
-                                                   int sampleCnt, int minStencilSampleCount,
+                                                   int sampleCnt,
+                                                   int minStencilSampleCount,
                                                    GrRenderable renderable,
                                                    GrMipMapped mipMapped) const {
     SkASSERT(GrSurfaceProxy::LazyState::kNot == this->lazyInstantiationState());
@@ -160,7 +161,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
             texels[i].fPixels = nullptr;
             texels[i].fRowBytes = 0;
         }
-        surface = resourceProvider->createTexture(desc, renderable, sampleCnt, fBudgeted,
+        surface = resourceProvider->createTexture(desc, fFormat, renderable, sampleCnt, fBudgeted,
                                                   fIsProtected, texels.get(), mipCount);
 #ifdef SK_DEBUG
         if (surface) {
@@ -176,11 +177,12 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
 #endif
     } else {
         if (SkBackingFit::kApprox == fFit) {
-            surface = resourceProvider->createApproxTexture(desc, renderable, sampleCnt,
+            surface = resourceProvider->createApproxTexture(desc, fFormat, renderable, sampleCnt,
                                                             fIsProtected, resourceProviderFlags);
         } else {
-            surface = resourceProvider->createTexture(desc, renderable, sampleCnt, fBudgeted,
-                                                      fIsProtected, resourceProviderFlags);
+            surface =
+                    resourceProvider->createTexture(desc, fFormat, renderable, sampleCnt, fBudgeted,
+                                                    fIsProtected, resourceProviderFlags);
         }
     }
     if (!surface) {
