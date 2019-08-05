@@ -22,6 +22,30 @@
       "revId": "2a558f5675f7d68361636127c0b0caa66b7c0800",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4a1891d_dc5ebef8",
+        "filename": "modules/skottie/src/SkottieTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-05T21:35:30Z",
+      "side": 1,
+      "message": "Avinash - so I guess the options are\n\n1) don\u0027t check the typeface in the returned value\n\n2) set up a dummy ResourceProvider to control the SkTypeface used in Skottie (loadFont override)\n\n(if we go with #2, we should probably also use ToolUtils::create_portable_typeface() instead of MakeDefault)",
+      "parentUuid": "b999114b_1cb22760",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 46
+      },
+      "revId": "2a558f5675f7d68361636127c0b0caa66b7c0800",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
