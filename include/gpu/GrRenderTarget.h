@@ -85,7 +85,7 @@ public:
     const GrRenderTargetPriv renderTargetPriv() const;
 
 protected:
-    GrRenderTarget(GrGpu*, const GrSurfaceDesc&, int sampleCount, GrProtected,
+    GrRenderTarget(GrGpu*, const SkISize&, GrPixelConfig, int sampleCount, GrProtected,
                    GrStencilAttachment* = nullptr);
     ~GrRenderTarget() override;
 

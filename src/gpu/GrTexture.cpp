@@ -36,9 +36,9 @@ size_t GrTexture::onGpuMemorySize() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrProtected isProtected,
+GrTexture::GrTexture(GrGpu* gpu, const SkISize& size, GrPixelConfig config, GrProtected isProtected,
                      GrTextureType textureType, GrMipMapsStatus mipMapsStatus)
-        : INHERITED(gpu, desc, isProtected)
+        : INHERITED(gpu, size, config, isProtected)
         , fTextureType(textureType)
         , fMipMapsStatus(mipMapsStatus) {
     if (GrMipMapsStatus::kNotAllocated == fMipMapsStatus) {

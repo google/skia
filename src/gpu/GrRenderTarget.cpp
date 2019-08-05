@@ -19,9 +19,10 @@
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStencilSettings.h"
 
-GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, int sampleCount,
-                               GrProtected isProtected, GrStencilAttachment* stencil)
-        : INHERITED(gpu, desc, isProtected)
+GrRenderTarget::GrRenderTarget(GrGpu* gpu, const SkISize& size, GrPixelConfig config,
+                               int sampleCount, GrProtected isProtected,
+                               GrStencilAttachment* stencil)
+        : INHERITED(gpu, size, config, isProtected)
         , fSampleCnt(sampleCount)
         , fSamplePatternKey(GrSamplePatternDictionary::kInvalidSamplePatternKey)
         , fStencilAttachment(stencil) {
