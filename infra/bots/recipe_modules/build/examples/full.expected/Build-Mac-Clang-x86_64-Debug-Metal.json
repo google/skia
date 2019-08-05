@@ -1,9 +1,22 @@
 [
   {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[START_DIR]/cache/Xcode.app"
+    ],
+    "infra_step": true,
+    "name": "clean xcode"
+  },
+  {
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
-      "@@@STEP_TEXT@Ensuring Xcode version 10g8 in [START_DIR]/cache/Xcode.app@@@"
+      "@@@STEP_TEXT@Ensuring Xcode version 10b61 in [START_DIR]/cache/Xcode.app@@@"
     ]
   },
   {
@@ -13,7 +26,7 @@
       "-kind",
       "ios",
       "-xcode-version",
-      "10g8",
+      "10b61",
       "-output-dir",
       "[START_DIR]/cache/Xcode.app"
     ],
@@ -53,7 +66,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-Metal/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_use_metal=true target_cpu=\"x86_64\" werror=true"
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10b61\", \"-mmacosx-version-min=10.0.0\", \"-O1\"] skia_use_metal=true target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
