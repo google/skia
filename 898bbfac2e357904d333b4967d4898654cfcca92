@@ -22,6 +22,30 @@
       "revId": "898bbfac2e357904d333b4967d4898654cfcca92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81467d18_17d957c6",
+        "filename": "gm/morphology.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-05T14:00:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "363b40c6_1e5f30ea",
+      "range": {
+        "startLine": 85,
+        "startChar": 57,
+        "endLine": 85,
+        "endChar": 63
+      },
+      "revId": "898bbfac2e357904d333b4967d4898654cfcca92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
