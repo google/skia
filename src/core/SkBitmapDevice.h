@@ -101,6 +101,8 @@ protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint& paint) override;
+    void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
+                   SkBlendMode, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
