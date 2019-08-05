@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc331b8e_33bea7ac",
+        "filename": "gm/imagefilterscropexpand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:10:43Z",
+      "side": 1,
+      "message": "So, if rect \u003d\u003d bigRect, why do we have two rects ?",
+      "revId": "084502389d9e34827d507bfbe943aedbe01a9acd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28cdcc5d_b085768b",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:10:43Z",
+      "side": 1,
+      "message": "Add a comment here about why kHigh - since I suggested the change to kNone it clearly wasn\u0027t obvious to me.",
+      "revId": "084502389d9e34827d507bfbe943aedbe01a9acd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
