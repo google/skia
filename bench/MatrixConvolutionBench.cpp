@@ -8,21 +8,23 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/core/SkTileMode.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/utils/SkRandom.h"
 
-static const char* name(SkMatrixConvolutionImageFilter::TileMode mode) {
+static const char* name(SkTileMode mode) {
     switch (mode) {
-        case SkMatrixConvolutionImageFilter::kClamp_TileMode:        return "clamp";
-        case SkMatrixConvolutionImageFilter::kRepeat_TileMode:       return "repeat";
-        case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode: return "clampToBlack";
+        case SkTileMode::kClamp:  return "clamp";
+        case SkTileMode::kRepeat: return "repeat";
+        case SkTileMode::kMirror: return "mirror";
+        case SkTileMode::kDecal:  return "clampToBlack";
     }
     return "oops";
 }
 
 class MatrixConvolutionBench : public Benchmark {
 public:
-    MatrixConvolutionBench(SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha)
+    MatrixConvolutionBench(SkTileMode tileMode, bool convolveAlpha)
         : fName(SkStringPrintf("matrixconvolution_%s%s",
                                name(tileMode),
                                convolveAlpha ? "" : "_noConvolveAlpha")) {
@@ -34,9 +36,8 @@ public:
         };
         SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkIPoint kernelOffset = SkIPoint::Make(1, 1);
-        fFilter = SkMatrixConvolutionImageFilter::Make(kernelSize, kernel, gain, bias,
-                                                       kernelOffset, tileMode, convolveAlpha,
-                                                       nullptr);
+        fFilter = SkImageFilters::MatrixConvolution(kernelSize, kernel, gain, bias,
+                                                    kernelOffset, tileMode, convolveAlpha, nullptr);
     }
 
 protected:
@@ -64,7 +65,8 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClamp_TileMode, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kRepeat_TileMode, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, false); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kClamp, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kRepeat, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kMirror, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kDecal, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kDecal, false); )
