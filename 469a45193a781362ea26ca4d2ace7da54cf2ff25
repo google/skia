@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "55c0c1cf_9ae55130",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 9999
+      },
+      "writtenOn": "2019-08-05T22:31:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bc68cfa_8cd273bf",
+      "range": {
+        "startLine": 130,
+        "startChar": 48,
+        "endLine": 130,
+        "endChar": 94
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb53031e_ad23d05d",
         "filename": "src/ports/SkFontMgr_fuchsia.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf8318ed_b9d02da4",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 9999
+      },
+      "writtenOn": "2019-08-05T22:31:26Z",
+      "side": 1,
+      "message": "We haven\u0027t yet implemented special handling for this in fuchsia.fonts.Provider, as it\u0027s not a common use case on Fuchsia. Filed I18N-35 and added both bugs to a comment here.",
+      "parentUuid": "fb53031e_ad23d05d",
+      "range": {
+        "startLine": 143,
+        "startChar": 36,
+        "endLine": 143,
+        "endChar": 45
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "afbcb839_476a76c1",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 9999
+      },
+      "writtenOn": "2019-08-05T22:31:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48f31fcb_9e206e29",
+      "range": {
+        "startLine": 148,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 13
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6941c81_e8da122d",
         "filename": "src/ports/SkFontMgr_fuchsia.cpp",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37ea8396_2369e573",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 9999
+      },
+      "writtenOn": "2019-08-05T22:31:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6941c81_e8da122d",
+      "range": {
+        "startLine": 319,
+        "startChar": 47,
+        "endLine": 319,
+        "endChar": 55
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -137,6 +233,30 @@
       "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13f18a19_94b4b3fd",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 9999
+      },
+      "writtenOn": "2019-08-05T22:31:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d8cdc40_3e1b0a9e",
+      "range": {
+        "startLine": 393,
+        "startChar": 40,
+        "endLine": 393,
+        "endChar": 91
+      },
+      "revId": "469a45193a781362ea26ca4d2ace7da54cf2ff25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
