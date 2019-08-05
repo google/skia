@@ -30,6 +30,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
+#include "src/gpu/GrTextureResolveRenderTask.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrTextContext.h"
@@ -81,8 +82,8 @@ bool GrDrawingManager::RenderTaskDAG::isUsed(GrSurfaceProxy* proxy) const {
     return false;
 }
 
-void GrDrawingManager::RenderTaskDAG::add(sk_sp<GrRenderTask> renderTask) {
-    fRenderTasks.emplace_back(std::move(renderTask));
+GrRenderTask* GrDrawingManager::RenderTaskDAG::add(sk_sp<GrRenderTask> renderTask) {
+    return fRenderTasks.emplace_back(std::move(renderTask)).get();
 }
 
 void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& opLists) {
@@ -499,17 +500,18 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
         if (!proxies[i]->isInstantiated()) {
             return result;
         }
-    }
-
-    for (int i = 0; i < numProxies; ++i) {
         GrSurface* surface = proxies[i]->peekSurface();
         if (auto* rt = surface->asRenderTarget()) {
             gpu->resolveRenderTarget(rt);
         }
-        if (auto* tex = surface->asTexture()) {
-            if (tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
-                tex->texturePriv().mipMapsAreDirty()) {
-                gpu->regenerateMipMapLevels(tex);
+        // If, after a flush, any of the proxies of interest have dirty mipmaps, regenerate them in
+        // case their backend textures are being stolen.
+        // (This special case is exercised by the ReimportImageTextureWithMipLevels test.)
+        // FIXME: It may be more ideal to plumb down a "we're going to steal the backends" flag.
+        if (auto* textureProxy = proxies[i]->asTextureProxy()) {
+            if (textureProxy->mipMapsAreDirty()) {
+                gpu->regenerateMipMapLevels(textureProxy->peekTexture());
+                textureProxy->markMipMapsClean();
             }
         }
     }
@@ -587,7 +589,13 @@ void GrDrawingManager::validate() const {
         if (fActiveOpList) {
             SkASSERT(!fDAG.empty());
             SkASSERT(!fActiveOpList->isClosed());
-            SkASSERT(fActiveOpList == fDAG.back());
+            // Ensure any render tasks created after fActiveOpList are one-off additions that
+            // are closed off and dependencies of fActiveOpList.
+            for (int i = fDAG.numRenderTasks() - 1; fActiveOpList != fDAG.renderTask(i); --i) {
+                SkASSERT(fDAG.renderTask(i)->isClosed() &&
+                         fActiveOpList->dependsOn(fDAG.renderTask(i)));
+                SkASSERT(i > 0);
+            }
         }
 
         for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
@@ -797,4 +805,20 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
                                                         colorType,
                                                         alphaType,
                                                         std::move(colorSpace)));
+}
+
+GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
+        sk_sp<GrTextureProxy> textureProxy, GrTextureResolveManager::ResolveFlags resolveFlags,
+        const GrCaps& caps) {
+    sk_sp<GrRenderTask> textureResolveTask = GrTextureResolveRenderTask::Make(
+            textureProxy, resolveFlags, caps);
+    return fDAG.add(std::move(textureResolveTask));
+}
+
+GrRenderTask* GrTextureResolveManager::newTextureResolveRenderTask(
+        sk_sp<GrTextureProxy> textureProxy, GrTextureResolveManager::ResolveFlags resolveFlags,
+        const GrCaps& caps) const {
+    SkASSERT(fDrawingManager);
+    return fDrawingManager->newTextureResolveRenderTask(
+            std::move(textureProxy), resolveFlags, caps);
 }
