@@ -1,0 +1,303 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba852c29_6e339d6c",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "I don\u0027t think Skia supports rendering to this formats. I think we want this just be kUploadData_Flag. We won\u0027t actually support uploading to these so we kind of need to lie since right now we\u0027ve tied together both the ability to be sampled and uploaded to as requirements for isTextureable. We\u0027re working on untangling them but for now to even support sampling I think you\u0027ll need it.",
+      "range": {
+        "startLine": 986,
+        "startChar": 32,
+        "endLine": 986,
+        "endChar": 64
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "877a18be_99e1fb49",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1001,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "same.",
+      "range": {
+        "startLine": 1001,
+        "startChar": 16,
+        "endLine": 1001,
+        "endChar": 62
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b30748fe_25517967",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1116,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "I don\u0027t think you\u0027ll need this check with the fixes to formats above.",
+      "range": {
+        "startLine": 1116,
+        "startChar": 3,
+        "endLine": 1116,
+        "endChar": 81
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5144926_c1d68693",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1126,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "yeah the general query about is a format textureable should just be more about capabilities not whether or not we have passed in a ycbcrInfo. That should be checked in a different part of the code (which I think it already should be?).",
+      "range": {
+        "startLine": 1126,
+        "startChar": 5,
+        "endLine": 1126,
+        "endChar": 31
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaa6430c_fc66eaa4",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "Again I\u0027m not sure what we want to be checked here is whether or not we have a ycbcrInfo. I think it would be best to just use IsYcbcrFormat helper.\n\nOn a side note that doesn\u0027t need to be changed for this CL, this has made me start thinking if its just wrong to have the ycbcrsampler on the GrBackendFormat. It made things a little easier to do that, but its a little vague on whether the sampling properties really should live here or just be passed in when you have a full GrBackendTexture.",
+      "range": {
+        "startLine": 1257,
+        "startChar": 4,
+        "endLine": 1257,
+        "endChar": 88
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9d9a6f2_e9a04fe5",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1315,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "if (IsYcbcrFormat(format))",
+      "range": {
+        "startLine": 1314,
+        "startChar": 12,
+        "endLine": 1315,
+        "endChar": 65
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56f272ed_b7ada71c",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "same comment as in the supportedWrite function",
+      "range": {
+        "startLine": 1544,
+        "startChar": 21,
+        "endLine": 1544,
+        "endChar": 32
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ccc11e0_6be6f2d7",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "Does this need to be a member. Seems like it could just be a static function. If you need it in multiple cpp files you should declare the static in GrVkUtils.h",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 39
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2238bb11_a682b44c",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 2640,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "wow nice catch!",
+      "range": {
+        "startLine": 2640,
+        "startChar": 4,
+        "endLine": 2640,
+        "endChar": 25
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74a28d3f_9582298e",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": ":( looks like our testing has a hole in it",
+      "range": {
+        "startLine": 396,
+        "startChar": 4,
+        "endLine": 399,
+        "endChar": 30
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16eb4878_a98bbcb8",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "missing the ycbcr unrefAndAbandon here.",
+      "range": {
+        "startLine": 464,
+        "startChar": 2,
+        "endLine": 466,
+        "endChar": 5
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d47f5169_5c0b032d",
+        "filename": "tests/VkYcbcrSamplerTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "nit: 100 chars",
+      "range": {
+        "startLine": 239,
+        "startChar": 3,
+        "endLine": 239,
+        "endChar": 102
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d053800_5a1ac9f8",
+        "filename": "tests/VkYcbcrSamplerTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-05T18:04:10Z",
+      "side": 1,
+      "message": "nit 100",
+      "range": {
+        "startLine": 409,
+        "startChar": 100,
+        "endLine": 409,
+        "endChar": 103
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
