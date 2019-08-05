@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88b2fb06_52a05e4a",
+        "filename": "experimental/editor/editor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-05T21:35:26Z",
+      "side": 1,
+      "message": "I don\u0027t want to expose SkSpan... but... but... std::span... why u wait 4 c++20?\n\nThe use of \u0027first\u0027 and \u0027second\u0027 below when we want \u0027data\u0027 and \u0027size\u0027 turns my smile upside down :-(",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 16
+      },
+      "revId": "919884406f986fb225a1a1f488d1b1385114b873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
