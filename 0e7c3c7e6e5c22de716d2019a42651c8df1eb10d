@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbf53b92_08c8fcf3",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-05T23:22:07Z",
+      "side": 1,
+      "message": "nit: I don\u0027t think we actually need this comment here as long as we have the bugs filed.",
+      "range": {
+        "startLine": 160,
+        "startChar": 34,
+        "endLine": 160,
+        "endChar": 94
+      },
+      "revId": "0e7c3c7e6e5c22de716d2019a42651c8df1eb10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
