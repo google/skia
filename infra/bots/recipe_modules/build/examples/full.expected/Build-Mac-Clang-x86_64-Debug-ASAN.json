@@ -3,7 +3,7 @@
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
-      "@@@STEP_TEXT@Ensuring Xcode version 10g8 in [START_DIR]/cache/Xcode.app@@@"
+      "@@@STEP_TEXT@Ensuring Xcode version 10b61 in [START_DIR]/cache/Xcode.app@@@"
     ]
   },
   {
@@ -13,7 +13,7 @@
       "-kind",
       "ios",
       "-xcode-version",
-      "10g8",
+      "10b61",
       "-output-dir",
       "[START_DIR]/cache/Xcode.app"
     ],
@@ -53,11 +53,12 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-ASAN/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] sanitize=\"ASAN\" skia_enable_spirv_validation=false target_cpu=\"x86_64\" werror=true"
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10b61\", \"-O1\"] sanitize=\"ASAN\" skia_enable_spirv_validation=false target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
+      "MACOSX_DEPLOYMENT_TARGET": "10.10.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
@@ -71,6 +72,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
+      "MACOSX_DEPLOYMENT_TARGET": "10.10.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
@@ -121,15 +123,15 @@
       "--json-output",
       "/path/to/tmp/json",
       "glob",
-      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.1/lib/darwin",
+      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/lib/darwin",
       "libclang_rt.*san_osx_dynamic.dylib"
     ],
     "infra_step": true,
     "name": "find xSAN dylibs",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.asan_osx_dynamic.dylib@@@",
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.tsan_osx_dynamic.dylib@@@",
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/lib/darwin/libclang_rt.asan_osx_dynamic.dylib@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/lib/darwin/libclang_rt.tsan_osx_dynamic.dylib@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -141,7 +143,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.asan_osx_dynamic.dylib",
+      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/lib/darwin/libclang_rt.asan_osx_dynamic.dylib",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Debug"
     ],
     "infra_step": true,
@@ -155,7 +157,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.tsan_osx_dynamic.dylib",
+      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/lib/darwin/libclang_rt.tsan_osx_dynamic.dylib",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Debug"
     ],
     "infra_step": true,
@@ -169,7 +171,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib",
+      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Debug"
     ],
     "infra_step": true,
