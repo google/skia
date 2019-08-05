@@ -407,7 +407,7 @@ private:
                                      GrGLenum target, const void* data);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, int sampleCount,
-                                   const GrGLTextureInfo& texInfo, GrGLRenderTarget::IDDesc*);
+                                   const GrGLTextureInfo& texInfo, GrGLRenderTarget::IDs*);
 
     enum TempFBOTarget {
         kSrc_TempFBOTarget,

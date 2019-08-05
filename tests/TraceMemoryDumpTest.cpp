@@ -141,7 +141,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, rep
     sd.fHeight = 64;
     sd.fConfig = kRGBA_8888_GrPixelConfig;
 
-    GrGLRenderTarget::IDDesc iddesc;
+    GrGLRenderTarget::IDs iddesc;
     iddesc.fRTFBOID = 20;
     iddesc.fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
     iddesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
@@ -161,7 +161,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, r
     sd.fHeight = 64;
     sd.fConfig = kRGBA_8888_GrPixelConfig;
 
-    GrGLRenderTarget::IDDesc iddesc;
+    GrGLRenderTarget::IDs iddesc;
     iddesc.fRTFBOID = 20;
     iddesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
     iddesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;

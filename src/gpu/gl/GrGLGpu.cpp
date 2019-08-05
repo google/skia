@@ -657,23 +657,28 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 }
 
 static bool check_backend_texture(const GrBackendTexture& backendTex, const GrGLCaps& caps,
-                                  GrGLTexture::IDDesc* idDesc) {
+                                  GrGLTexture::Desc* desc) {
     GrGLTextureInfo info;
     if (!backendTex.getGLTextureInfo(&info) || !info.fID || !info.fFormat) {
         return false;
     }
 
-    idDesc->fInfo = info;
+    desc->fFormat = GrGLFormatFromGLEnum(info.fFormat);
+    desc->fID = info.fID;
+    desc->fTarget = info.fTarget;
 
-    if (GR_GL_TEXTURE_EXTERNAL == idDesc->fInfo.fTarget) {
+    if (desc->fFormat == GrGLFormat::kUnknown) {
+        return false;
+    }
+    if (GR_GL_TEXTURE_EXTERNAL == desc->fTarget) {
         if (!caps.shaderCaps()->externalTextureSupport()) {
             return false;
         }
-    } else if (GR_GL_TEXTURE_RECTANGLE == idDesc->fInfo.fTarget) {
+    } else if (GR_GL_TEXTURE_RECTANGLE == desc->fTarget) {
         if (!caps.rectangleTextureSupport()) {
             return false;
         }
-    } else if (GR_GL_TEXTURE_2D != idDesc->fInfo.fTarget) {
+    } else if (GR_GL_TEXTURE_2D != desc->fTarget) {
         return false;
     }
     if (backendTex.isProtected()) {
@@ -686,30 +691,27 @@ static bool check_backend_texture(const GrBackendTexture& backendTex, const GrGL
 sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
                                                GrColorType grColorType, GrWrapOwnership ownership,
                                                GrWrapCacheable cacheable, GrIOType ioType) {
-    GrGLTexture::IDDesc idDesc;
-    if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
+    GrGLTexture::Desc desc;
+    if (!check_backend_texture(backendTex, this->glCaps(), &desc)) {
         return nullptr;
     }
 
     if (kBorrow_GrWrapOwnership == ownership) {
-        idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
+        desc.fOwnership = GrBackendObjectOwnership::kBorrowed;
     } else {
-        idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
+        desc.fOwnership = GrBackendObjectOwnership::kOwned;
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
-                                                                    grColorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
+    desc.fConfig = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
+                                                            grColorType);
+    SkASSERT(desc.fConfig != kUnknown_GrPixelConfig);
 
-    GrSurfaceDesc surfDesc;
-    surfDesc.fWidth = backendTex.width();
-    surfDesc.fHeight = backendTex.height();
-    surfDesc.fConfig = config;
+    desc.fSize = SkISize::Make(backendTex.width(), backendTex.height());
 
     GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kValid
                                                             : GrMipMapsStatus::kNotAllocated;
 
-    auto texture = GrGLTexture::MakeWrapped(this, surfDesc, mipMapsStatus, idDesc,
+    auto texture = GrGLTexture::MakeWrapped(this, mipMapsStatus, desc,
                                             backendTex.getGLTextureParams(), cacheable, ioType);
     // We don't know what parameters are already set on wrapped textures.
     texture->textureParamsModified();
@@ -721,32 +723,29 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
                                                          GrColorType colorType,
                                                          GrWrapOwnership ownership,
                                                          GrWrapCacheable cacheable) {
-    GrGLTexture::IDDesc idDesc;
-    if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
+    GrGLTexture::Desc desc;
+    if (!check_backend_texture(backendTex, this->glCaps(), &desc)) {
         return nullptr;
     }
 
     // We don't support rendering to a EXTERNAL texture.
-    if (GR_GL_TEXTURE_EXTERNAL == idDesc.fInfo.fTarget) {
+    if (GR_GL_TEXTURE_EXTERNAL == desc.fTarget) {
         return nullptr;
     }
 
     if (kBorrow_GrWrapOwnership == ownership) {
-        idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
+        desc.fOwnership = GrBackendObjectOwnership::kBorrowed;
     } else {
-        idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
+        desc.fOwnership = GrBackendObjectOwnership::kOwned;
     }
 
     const GrCaps* caps = this->caps();
 
-    GrPixelConfig config = caps->getConfigFromBackendFormat(backendTex.getBackendFormat(),
+    desc.fConfig = caps->getConfigFromBackendFormat(backendTex.getBackendFormat(),
                                                             colorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
+    SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
-    GrSurfaceDesc surfDesc;
-    surfDesc.fWidth = backendTex.width();
-    surfDesc.fHeight = backendTex.height();
-    surfDesc.fConfig = config;
+    desc.fSize = SkISize::Make(backendTex.width(), backendTex.height());
 
     sampleCnt =
             caps->getRenderTargetSampleCount(sampleCnt, colorType, backendTex.getBackendFormat());
@@ -754,8 +753,8 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    GrGLRenderTarget::IDDesc rtIDDesc;
-    if (!this->createRenderTargetObjects(surfDesc, sampleCnt, idDesc.fInfo, &rtIDDesc)) {
+    GrGLRenderTarget::IDs rtIDs;
+    if (!this->createRenderTargetObjects(surfDesc, sampleCnt, idDesc.fInfo, &rtIDs)) {
         return nullptr;
     }
 
@@ -763,7 +762,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
                                                             : GrMipMapsStatus::kNotAllocated;
 
     sk_sp<GrGLTextureRenderTarget> texRT(GrGLTextureRenderTarget::MakeWrapped(
-            this, surfDesc, sampleCnt, idDesc, backendTex.getGLTextureParams(), rtIDDesc, cacheable,
+            this, sampleCnt, desc, backendTex.getGLTextureParams(), rtIDs, cacheable,
             mipMapsStatus));
     texRT->baseLevelWasBoundToFBO();
     // We don't know what parameters are already set on wrapped textures.
@@ -783,7 +782,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    GrGLRenderTarget::IDDesc idDesc;
+    GrGLRenderTarget::IDs idDesc;
     idDesc.fRTFBOID = info.fFBOID;
     idDesc.fMSColorRenderbufferID = 0;
     idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
@@ -832,7 +831,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     int sampleCount = this->caps()->getRenderTargetSampleCount(sampleCnt, grColorType,
                                                                tex.getBackendFormat());
 
-    GrGLRenderTarget::IDDesc rtIDDesc;
+    GrGLRenderTarget::IDs rtIDDesc;
     if (!this->createRenderTargetObjects(surfDesc, sampleCount, info, &rtIDDesc)) {
         return nullptr;
     }
@@ -1318,7 +1317,7 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
 bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
                                         int sampleCount,
                                         const GrGLTextureInfo& texInfo,
-                                        GrGLRenderTarget::IDDesc* idDesc) {
+                                        GrGLRenderTarget::IDs* idDesc) {
     idDesc->fMSColorRenderbufferID = 0;
     idDesc->fRTFBOID = 0;
     idDesc->fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
@@ -1463,7 +1462,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     if (renderable == GrRenderable::kYes) {
         // unbind the texture from the texture unit before binding it to the frame buffer
         GL_CALL(BindTexture(idDesc.fInfo.fTarget, 0));
-        GrGLRenderTarget::IDDesc rtIDDesc;
+        GrGLRenderTarget::IDs rtIDDesc;
 
         if (!this->createRenderTargetObjects(desc, renderTargetSampleCnt, idDesc.fInfo,
                                              &rtIDDesc)) {
