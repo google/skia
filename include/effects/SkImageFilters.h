@@ -159,8 +159,11 @@ public:
      *  @param image The image that is output by the filter.
      */
     static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image) {
+        // Defaults to kHigh_SkFilterQuality because the dstRect of the image filter will be mapped
+        // by the layer matrix set during filtering. If that has a scale factor, then the image
+        // will not be drawn at a 1-to-1 pixel scale, even that is what this appears to create here.
         SkRect r = image ? SkRect::MakeWH(image->width(), image->height()) : SkRect::MakeEmpty();
-        return Image(std::move(image), r, r, kNone_SkFilterQuality);
+        return Image(std::move(image), r, r, kHigh_SkFilterQuality);
     }
 
     /**
