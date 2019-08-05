@@ -29,6 +29,7 @@ void GrGpuResource::registerWithCache(SkBudgeted budgeted) {
     SkASSERT(fBudgetedType == GrBudgetedType::kUnbudgetedUncacheable);
     fBudgetedType = budgeted == SkBudgeted::kYes ? GrBudgetedType::kBudgeted
                                                  : GrBudgetedType::kUnbudgetedUncacheable;
+    SkDebugf("rwc\n");
     this->computeScratchKey(&fScratchKey);
     get_resource_cache(fGpu)->resourceAccess().insertResource(this);
 }

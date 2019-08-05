@@ -1402,6 +1402,10 @@ int main(int argc, char** argv) {
     android::ProcessState::self()->startThreadPool();
 #endif
     CommandLineFlags::Parse(argc, argv);
+    FLAGS_match.fStrings.reset();
+    FLAGS_match.fStrings.push_back(SkString("makecolortypeandspace"));
+    FLAGS_config.fStrings.reset();
+    FLAGS_config.fStrings.push_back(SkString("vk"));
 
     initializeEventTracingForTools();
 

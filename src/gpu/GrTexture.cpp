@@ -86,6 +86,9 @@ void GrTexture::computeScratchKey(GrScratchKey* key) const {
             sampleCount = rt->numSamples();
             renderable = GrRenderable::kYes;
         }
+        if (sampleCount <= 0) {
+            SkDebugf("GrTexture::computeScratchKey fn\n");
+        }
         GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(), renderable,
                                          sampleCount, this->texturePriv().mipMapped(), key);
     }
@@ -97,6 +100,9 @@ void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int heigh
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
     SkASSERT(width > 0);
     SkASSERT(height > 0);
+    if (sampleCnt <= 0) {
+        SkDebugf("Config : %d, w: %d, h: %d, r: $d, sc: %d, mm: %d\n", config, width, height, (bool) renderable, sampleCnt, (bool) mipMapped);
+    }
     SkASSERT(sampleCnt > 0);
     SkASSERT(1 == sampleCnt || renderable == GrRenderable::kYes);
 
@@ -117,6 +123,9 @@ void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int heigh
 
 void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrRenderable renderable,
                                       int sampleCnt, GrScratchKey* key) {
+    if (sampleCnt <= 0) {
+        SkDebugf("static fn\n");
+    }
     // Note: the fOrigin field is not used in the scratch key
     return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight, renderable, sampleCnt,
                              GrMipMapped::kNo, key);
