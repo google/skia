@@ -614,10 +614,6 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
 
                 if (GrRenderable::kYes == renderable) {
-                    if (GrColorType::kRGB_888x == combo.fColorType) {
-                        // Ganesh can't perform the blends correctly when rendering this format
-                        continue;
-                    }
                     if (!glCaps->isFormatRenderable(combo.fColorType, format)) {
                         continue;
                     }
@@ -743,13 +739,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
             for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
 
                 if (GrRenderable::kYes == renderable) {
-                    if (GrColorType::kRGB_888x == combo.fColorType) {
-                        // Ganesh can't perform the blends correctly when rendering this format
-                        continue;
-                    }
-                    if (!vkCaps->isFormatRenderable(combo.fFormat)) {
-                        continue;
-                    }
                     // We must also check whether we allow rendering to the format using the
                     // color type.
                     if (!vkCaps->isFormatRenderable(combo.fColorType,
