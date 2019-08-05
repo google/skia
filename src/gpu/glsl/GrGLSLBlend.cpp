@@ -160,9 +160,8 @@ static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumF
         GrShaderVar("lumColor", kHalf3_GrSLType),
     };
     SkString setLumBody;
-    setLumBody.printf("half diff = %s(lumColor - hueSat);", getFunction.c_str());
-    setLumBody.append("half3 outColor = hueSat + diff;");
-    setLumBody.appendf("half outLum = %s(outColor);", getFunction.c_str());
+    setLumBody.printf("half outLum = %s(lumColor);", getFunction.c_str());
+    setLumBody.appendf("half3 outColor = outLum - %s(hueSat) + hueSat;", getFunction.c_str());
     setLumBody.append("half minComp = min(min(outColor.r, outColor.g), outColor.b);"
                       "half maxComp = max(max(outColor.r, outColor.g), outColor.b);"
                       "if (minComp < 0.0 && outLum != minComp) {"
