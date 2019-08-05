@@ -126,6 +126,24 @@ sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// SkImageFilter_Base::Context
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkSpecialSurface> SkImageFilter_Base::Context::makeSurface(
+        const SkISize& size, const SkSurfaceProps* props) const {
+    return fSource->makeSurface(fColorType, fColorSpace, size, kPremul_SkAlphaType, props);
+}
+
+bool SkImageFilter_Base::Context::useGPU() const {
+    return fSource->isTextureBacked();
+}
+
+GrRecordingContext* SkImageFilter_Base::Context::getGrContext() const {
+    SkASSERT(fSource->isTextureBacked());
+    return fSource->getContext();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // SkImageFilter_Base
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -199,16 +217,18 @@ void SkImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fCropRect.flags());
 }
 
-sk_sp<SkSpecialImage> SkImageFilter_Base::filterImage(SkSpecialImage* src, const Context& context,
+sk_sp<SkSpecialImage> SkImageFilter_Base::filterImage(const Context& context,
                                                       SkIPoint* offset) const {
-    SkASSERT(src && offset);
+    SkASSERT(offset);
     if (!context.isValid()) {
         return nullptr;
     }
 
-    uint32_t srcGenID = fUsesSrcInput ? src->uniqueID() : 0;
-    const SkIRect srcSubset = fUsesSrcInput ? src->subset() : SkIRect::MakeWH(0, 0);
-    SkImageFilterCacheKey key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID, srcSubset);
+    uint32_t srcGenID = fUsesSrcInput ? context.sourceImage()->uniqueID() : 0;
+    const SkIRect srcSubset = fUsesSrcInput ? context.sourceImage()->subset()
+                                            : SkIRect::MakeWH(0, 0);
+    SkImageFilterCacheKey key(fUniqueID, context.layerCTM(), context.clipBounds(), srcGenID,
+                              srcSubset);
     if (context.cache()) {
         sk_sp<SkSpecialImage> result = context.cache()->get(key, offset);
         if (result) {
@@ -216,14 +236,13 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::filterImage(SkSpecialImage* src, const
         }
     }
 
-    sk_sp<SkSpecialImage> result(this->onFilterImage(src, context, offset));
+    sk_sp<SkSpecialImage> result(this->onFilterImage(context, offset));
 
 #if SK_SUPPORT_GPU
-    if (src->isTextureBacked() && result && !result->isTextureBacked()) {
+    if (context.sourceImage()->isTextureBacked() && result && !result->isTextureBacked()) {
         // Keep the result on the GPU - this is still required for some
         // image filters that don't support GPU in all cases
-        auto context = src->getContext();
-        result = result->makeTextureImage(context);
+        result = result->makeTextureImage(context.sourceImage()->getContext());
     }
 #endif
 
@@ -289,8 +308,9 @@ void SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds, const SkMatrix
 
 bool SkImageFilter_Base::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
                                        SkIRect* dstBounds) const {
-    SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection, nullptr);
-    fCropRect.applyTo(tmpDst, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
+    SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.layerCTM(), kForward_MapDirection,
+                                              nullptr);
+    fCropRect.applyTo(tmpDst, ctx.layerCTM(), this->affectsTransparentBlack(), dstBounds);
     // Intersect against the clip bounds, in case the crop rect has
     // grown the bounds beyond the original clip. This can happen for
     // example in tiling, where the clip is much smaller than the filtered
@@ -301,14 +321,12 @@ bool SkImageFilter_Base::applyCropRect(const Context& ctx, const SkIRect& srcBou
 
 // Return a larger (newWidth x newHeight) copy of 'src' with black padding
 // around it.
-static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
-                                       const SkImageFilter_Base::OutputProperties& outProps,
+static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src, const SkImageFilter_Base::Context& ctx,
                                        int newWidth, int newHeight, int offX, int offY) {
     // We would like to operate in the source's color space (so that we return an "identical"
-    // image, other than the padding. To achieve that, we'd create new output properties:
-    //
-    // SkImageFilter::OutputProperties outProps(src->getColorSpace());
-    //
+    // image, other than the padding. To achieve that, we'd create a new context using
+    // src->getColorSpace() to replace ctx.colorSpace().
+
     // That fails in at least two ways. For formats that are texturable but not renderable (like
     // F16 on some ES implementations), we can't create a surface to do the work. For sRGB, images
     // may be tagged with an sRGB color space (which leads to an sRGB config in makeSurface). But
@@ -320,7 +338,7 @@ static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
     // switched to the destination space anyway. The one exception would be a filter that expected
     // to consume unclamped F16 data, but the padded version of the image is pre-clamped to 8888.
     // We can revisit this logic if that ever becomes an actual problem.
-    sk_sp<SkSpecialSurface> surf(src->makeSurface(outProps, SkISize::Make(newWidth, newHeight)));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(SkISize::Make(newWidth, newHeight)));
     if (!surf) {
         return nullptr;
     }
@@ -349,8 +367,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::applyCropRectAndPad(const Context& ctx
     if (srcBounds.contains(*bounds)) {
         return sk_sp<SkSpecialImage>(SkRef(src));
     } else {
-        sk_sp<SkSpecialImage> img(pad_image(src, ctx.outputProperties(),
-                                            bounds->width(), bounds->height(),
+        sk_sp<SkSpecialImage> img(pad_image(src, ctx, bounds->width(), bounds->height(),
                                             Sk32_sat_sub(srcOffset->x(), bounds->x()),
                                             Sk32_sat_sub(srcOffset->y(), bounds->y())));
         *srcOffset = SkIPoint::Make(bounds->x(), bounds->y());
@@ -384,47 +401,45 @@ SkIRect SkImageFilter_Base::onFilterNodeBounds(const SkIRect& src, const SkMatri
 }
 
 sk_sp<SkSpecialImage> SkImageFilter_Base::filterInput(int index,
-                                                      SkSpecialImage* src,
                                                       const Context& ctx,
                                                       SkIPoint* offset) const {
     const SkImageFilter* input = this->getInput(index);
     if (!input) {
-        return sk_sp<SkSpecialImage>(SkRef(src));
+        return sk_ref_sp(ctx.sourceImage());
     }
 
-    sk_sp<SkSpecialImage> result(as_IFB(input)->filterImage(src, this->mapContext(ctx), offset));
+    sk_sp<SkSpecialImage> result(as_IFB(input)->filterImage(this->mapContext(ctx), offset));
 
-    SkASSERT(!result || src->isTextureBacked() == result->isTextureBacked());
+    SkASSERT(!result || ctx.sourceImage()->isTextureBacked() == result->isTextureBacked());
 
     return result;
 }
 
 SkImageFilter_Base::Context SkImageFilter_Base::mapContext(const Context& ctx) const {
-    SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(),
+    SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.layerCTM(),
                                                   MapDirection::kReverse_MapDirection,
                                                   &ctx.clipBounds());
-    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.outputProperties());
+    return ctx.makeClipBounds(clipBounds);
 }
 
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context,
                                                      std::unique_ptr<GrFragmentProcessor> fp,
                                                      const SkIRect& bounds,
-                                                     const OutputProperties& outputProperties,
+                                                     SkColorType colorType,
+                                                     const SkColorSpace* colorSpace,
                                                      GrProtected isProtected) {
     GrPaint paint;
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
-    GrColorType colorType = SkColorTypeToGrColorType(outputProperties.colorType());
     sk_sp<GrRenderTargetContext> renderTargetContext(
             context->priv().makeDeferredRenderTargetContext(
                     SkBackingFit::kApprox,
                     bounds.width(),
                     bounds.height(),
-                    colorType,
-                    std::move(colorSpace),
+                    SkColorTypeToGrColorType(colorType),
+                    sk_ref_sp(colorSpace),
                     1,
                     GrMipMapped::kNo,
                     kBottomLeft_GrSurfaceOrigin,
@@ -449,21 +464,22 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
 }
 
 sk_sp<SkSpecialImage> SkImageFilter_Base::ImageToColorSpace(SkSpecialImage* src,
-                                                            const OutputProperties& outProps) {
+                                                            SkColorType colorType,
+                                                            SkColorSpace* colorSpace) {
     // There are several conditions that determine if we actually need to convert the source to the
     // destination's color space. Rather than duplicate that logic here, just try to make an xform
     // object. If that produces something, then both are tagged, and the source is in a different
     // gamut than the dest. There is some overhead to making the xform, but those are cached, and
     // if we get one back, that means we're about to use it during the conversion anyway.
     auto colorSpaceXform = GrColorSpaceXform::Make(src->getColorSpace(),  src->alphaType(),
-                                                   outProps.colorSpace(), kPremul_SkAlphaType);
+                                                   colorSpace, kPremul_SkAlphaType);
 
     if (!colorSpaceXform) {
         // No xform needed, just return the original image
         return sk_ref_sp(src);
     }
 
-    sk_sp<SkSpecialSurface> surf(src->makeSurface(outProps,
+    sk_sp<SkSpecialSurface> surf(src->makeSurface(colorType, colorSpace,
                                                   SkISize::Make(src->width(), src->height())));
     if (!surf) {
         return sk_ref_sp(src);
