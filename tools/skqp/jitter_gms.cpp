@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
         ++total;
         executor->add([factory, &mutex, &goodResults, &badResults,
                        &semaphore, &doNotRun, &testOnlyThese](){
-            std::unique_ptr<skiagm::GM> gm(factory(nullptr));
+            std::unique_ptr<skiagm::GM> gm(factory());
             const char* name = gm->getName();
             if (do_this_test(name, doNotRun, testOnlyThese)) {
                 bool success = test_jitter(gm.get());
