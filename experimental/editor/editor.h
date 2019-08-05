@@ -26,8 +26,6 @@ class Editor {
 public:
     // total height in canvas display units.
     int getHeight() const { return fHeight; }
-    // spacing around the text, in canvas display units.
-    int getMargin() const { return fMargin; }
 
     // set display width in canvas display units
     void setWidth(int w); // may force re-shape
@@ -108,7 +106,6 @@ private:
         TextLine() {}
     };
     std::vector<TextLine> fLines;
-    int fMargin = 10;
     int fWidth = 0;
     int fHeight = 0;
     SkFont fFont;

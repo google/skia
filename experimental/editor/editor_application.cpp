@@ -85,6 +85,7 @@ struct EditorLayer : public sk_app::Window::Layer {
     int fPos = 0;  // window pixel position in file
     int fWidth = 0;  // window width
     int fHeight = 0;  // window height
+    int fMargin = 10;
     bool fShiftDown = false;
     bool fBlink = false;
 
@@ -102,7 +103,7 @@ struct EditorLayer : public sk_app::Window::Layer {
         SkCanvas* canvas = surface->getCanvas();
         SkAutoCanvasRestore acr(canvas, true);
         canvas->clipRect({0, 0, (float)fWidth, (float)fHeight});
-        canvas->translate(0, -(float)fPos);
+        canvas->translate(fMargin, (float)(fMargin - fPos));
         editor::Editor::PaintOpts options;
         options.fCursor = fTextPos;
         options.fCursorColor = {1, 0, 0, fBlink ? 0.0f : 1.0f};
@@ -127,7 +128,7 @@ struct EditorLayer : public sk_app::Window::Layer {
             fHeight = height;
             if (width != fWidth) {
                 fWidth = width;
-                fEditor.setWidth(fWidth);
+                fEditor.setWidth(fWidth - 2 * fMargin);
             }
             this->inval();
         }
@@ -136,7 +137,7 @@ struct EditorLayer : public sk_app::Window::Layer {
     void onAttach(sk_app::Window* w) override { fParent = w; }
 
     bool scroll(int delta) {
-        int maxPos = std::max(0, fEditor.getHeight() - fHeight / 2);
+        int maxPos = std::max(0, fEditor.getHeight() + 2 * fMargin - fHeight / 2);
         int newpos = std::max(0, std::min(fPos + delta, maxPos));
         if (newpos != fPos) {
             fPos = newpos;
@@ -154,7 +155,8 @@ struct EditorLayer : public sk_app::Window::Layer {
 
     bool onMouse(int x, int y, InputState state, ModifierKey modifiers) override {
         if (InputState::kDown == state) {
-            y += fPos;
+            y += fPos - fMargin;
+            x -= fMargin;
             editor::Editor::TextPosition pos = fEditor.getPosition(SkIPoint{x, y});
             #ifdef SK_EDITOR_DEBUG_OUT
             SkDebugf("select:  line:%d column:%d \n", pos.fParagraphIndex, pos.fTextByteIndex);
@@ -231,10 +233,10 @@ struct EditorLayer : public sk_app::Window::Layer {
 
         // scroll if needed.
         SkIRect cursor = fEditor.getLocation(fTextPos).roundOut();
-        if (cursor.bottom() > fPos + fHeight) {
-            fPos = cursor.bottom() - fHeight + fEditor.getMargin();
+        if (fPos < cursor.bottom() - fHeight + 2 * fMargin) {
+            fPos = cursor.bottom() - fHeight + 2 * fMargin;
         } else if (cursor.top() < fPos) {
-            fPos = cursor.top() - fEditor.getMargin();
+            fPos = cursor.top();
         }
         this->inval();
         return true;

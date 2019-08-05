@@ -535,7 +535,7 @@ void Editor::markDirty(TextLine* line) {
 
 void Editor::reshapeAll() {
     if (fNeedsReshape) {
-        float shape_width = (float)(fWidth - 2 * fMargin);
+        float shape_width = (float)(fWidth);
         #ifdef SK_EDITOR_GO_FAST
         SkSemaphore semaphore;
         std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool(100);
@@ -564,12 +564,12 @@ void Editor::reshapeAll() {
             ++i;
         }
         #endif
-        int y = fMargin;
+        int y = 0;
         for (TextLine& line : fLines) {
-            line.fOrigin = {fMargin, y};
+            line.fOrigin = {0, y};
             y += line.fHeight;
         }
-        fHeight = y + fMargin;
+        fHeight = y;
         fNeedsReshape = false;
     }
 }
