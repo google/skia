@@ -98,10 +98,12 @@ def make_apk(architectures,
 
     # These are the locations in the tree where the gradle needs or will create
     # not-checked-in files.  Treat them specially to keep the tree clean.
+    aosp_mode = os.path.exists('MODULE_LICENSE_BSD')
     build_paths = [apps_dir + '/.gradle',
                    apps_dir + '/skqp/build',
-                   apps_dir + '/skqp/src/main/libs',
-                   apps_dir + '/skqp/src/main/assets/gmkb']
+                   apps_dir + '/skqp/src/main/libs']
+    if not aosp_mode:
+        build_paths.append(apps_dir + '/skqp/src/main/assets/gmkb')
     remove(build_dir + '/libs')
     for path in build_paths:
         remove(path)
@@ -113,21 +115,33 @@ def make_apk(architectures,
         except OSError:
             pass
 
-    resources_path = apps_dir + '/skqp/src/main/assets/resources'
-    remove(resources_path)
-    os.symlink('../../../../../../../resources', resources_path)
-    build_paths.append(resources_path)
+    if not aosp_mode:
+        resources_path = apps_dir + '/skqp/src/main/assets/resources'
+        remove(resources_path)
+        os.symlink('../../../../../../../resources', resources_path)
+        build_paths.append(resources_path)
 
     app = 'skqp'
     lib = 'libskqp_app.so'
 
     shutil.rmtree(apps_dir + '/%s/src/main/libs' % app, True)
 
-    if os.path.exists(apps_dir + '/skqp/src/main/assets/files.checksum'):
-        check_call([sys.executable, 'tools/skqp/download_model'])
-    else:
-        sys.stderr.write(
-                '\n* * *\n\nNote: SkQP models are missing!!!!\n\n* * *\n\n')
+    if not aosp_mode:
+        if os.path.exists(apps_dir + '/skqp/src/main/assets/files.checksum'):
+            check_call([sys.executable, 'tools/skqp/download_model'])
+        else:
+            sys.stderr.write(
+                    '\n* * *\n\nNote: SkQP models are missing!!!!\n\n* * *\n\n')
+    if aosp_mode:
+        with open('include/config/SkUserConfig.h') as f:
+            user_config = f.readlines()
+        with open('include/config/SkUserConfig.h', 'w') as o:
+            for line in user_config:
+                m = re.match(r'^#define\s+([A-Za-z0-9_]+)(|\s.*)$', line)
+                if m:
+                    o.write('#ifndef %s\n%s\n#endif\n' % (m.group(1), m.group(0).strip()))
+                else:
+                    o.write(line)
 
     for arch in architectures:
         build = os.path.join(build_dir, arch)
@@ -144,6 +158,9 @@ def make_apk(architectures,
         if not os.path.isdir(dst):
             os.makedirs(dst)
         shutil.copy(os.path.join(build, lib), dst)
+
+    if aosp_mode:
+        subprocess.call('git', 'checkout', 'HEAD', 'include/config/SkUserConfig.h')
 
     apk_build_dir = apps_dir + '/%s/build/outputs/apk' % app
     shutil.rmtree(apk_build_dir, True)  # force rebuild
