@@ -30,7 +30,7 @@ namespace {
 
 void make_checkerboard(SkBitmap* bitmap);
 sk_sp<SkImage> make_gradient_circle(int width, int height);
-void draw(SkCanvas* canvas, const SkBitmap& bitmap, const SkRect& rect,
+void draw(SkCanvas* canvas, const SkBitmap& bitmap, const SkIRect& rect,
                  sk_sp<SkImageFilter> filter);
 
 };
@@ -68,36 +68,35 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
     canvas->translate(MARGIN, MARGIN);
     for (int outset = -15; outset <= 20; outset += 5) {
         canvas->save();
-        SkRect rect = SkRect::Make(cropRect);
         SkIRect bigRect = cropRect;
         bigRect.outset(outset, outset);
 
-        draw(canvas, checkerboard, rect, SkImageFilters::ColorFilter(
-                cfAlphaTrans, noopCropped,  &bigRect));
+        draw(canvas, checkerboard, bigRect,
+             SkImageFilters::ColorFilter(cfAlphaTrans, noopCropped,  &bigRect));
 
-        draw(canvas, checkerboard, rect, SkImageFilters::Blur(
-                0.3f, 0.3f,  noopCropped, &bigRect));
+        draw(canvas, checkerboard, bigRect,
+             SkImageFilters::Blur(0.3f, 0.3f,  noopCropped, &bigRect));
 
-        draw(canvas, checkerboard, rect, SkImageFilters::Blur(
-                8.0f, 8.0f,  noopCropped, &bigRect));
+        draw(canvas, checkerboard, bigRect,
+             SkImageFilters::Blur(8.0f, 8.0f,  noopCropped, &bigRect));
 
-        draw(canvas, checkerboard, rect, SkImageFilters::Dilate(
-                2, 2, noopCropped, &bigRect));
+        draw(canvas, checkerboard, bigRect,
+             SkImageFilters::Dilate(2, 2, noopCropped, &bigRect));
 
-        draw(canvas, checkerboard, rect, SkImageFilters::Erode(
-                2, 2, noopCropped, &bigRect));
+        draw(canvas, checkerboard, bigRect,
+             SkImageFilters::Erode(2, 2, noopCropped, &bigRect));
 
-        draw(canvas, checkerboard, rect,
+        draw(canvas, checkerboard, bigRect,
              SkImageFilters::DropShadow(10, 10, 3, 3, SK_ColorBLUE, noopCropped, &bigRect));
 
-        draw(canvas, checkerboard, rect,
+        draw(canvas, checkerboard, bigRect,
              SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kR, 12,
                                              gradientCircleSource, noopCropped, &bigRect));
 
-        draw(canvas, checkerboard, rect,
+        draw(canvas, checkerboard, bigRect,
              SkImageFilters::Offset(SkIntToScalar(-8), SkIntToScalar(16), noopCropped, &bigRect));
 
-        draw(canvas, checkerboard, rect,
+        draw(canvas, checkerboard, bigRect,
              SkImageFilters::PointLitDiffuse(pointLocation, SK_ColorWHITE, surfaceScale, kd,
                                              noopCropped, &bigRect));
 
@@ -146,8 +145,11 @@ namespace {
         return surface->makeImageSnapshot();
     }
 
-    void draw(SkCanvas* canvas, const SkBitmap& bitmap, const SkRect& rect,
+    void draw(SkCanvas* canvas, const SkBitmap& bitmap, const SkIRect& layerRect,
                      sk_sp<SkImageFilter> filter) {
+        // Convert SkIRect to SkRect since that's what saveLayer and drawRect need
+        SkRect rect = SkRect::Make(layerRect);
+
         SkPaint paint;
         paint.setImageFilter(std::move(filter));
         canvas->saveLayer(&rect, &paint);
