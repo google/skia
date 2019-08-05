@@ -81,7 +81,7 @@ private:
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
     mutable sk_sp<GrTextureProxy>    fProxies[4];
     int                              fNumProxies;
-    SkYUVAIndex                      fYUVAIndices[4];
+    SkYUVAIndex1                      fYUVAIndices[4];
     const SkYUVColorSpace            fYUVColorSpace;
     GrSurfaceOrigin                  fOrigin;
     // If this is non-null then the planar data should be converted from fFromColorSpace to

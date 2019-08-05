@@ -107,6 +107,7 @@ static bool format_cant_be_represented_with_pixmaps(YUVFormat yuvFormat) {
            kNV21_YUVFormat == yuvFormat;        // bc missing SkColorType::kRG_88
 }
 
+#if 0
 // Helper to setup the SkYUVAIndex array correctly
 // Skia allows the client to tack an additional alpha plane onto any of the standard opaque
 // formats (via the addExtraAlpha) flag. In this case it is assumed to be a stand-alone single-
@@ -219,6 +220,7 @@ static void setup_yuv_indices(YUVFormat yuvFormat, bool addExtraAlpha, SkYUVAInd
             break;
     }
 }
+#endif
 
 // All the planes we need to construct the various YUV formats
 struct PlaneData {

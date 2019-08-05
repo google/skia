@@ -48,7 +48,7 @@ public:
                                             SkColorSpace* srcColorSpace,
                                             SkColorSpace* dstColorSpace);
 
-    sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
+    sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex1[SkYUVAIndex1::kIndexCount],
                                   SkYUVColorSpace*, const void* planes[SkYUVASizeInfo::kMaxCount]);
 
 private:
@@ -66,7 +66,7 @@ private:
      *  @param colorSpace  Output parameter.
      */
     virtual bool onQueryYUVA8(SkYUVASizeInfo* sizeInfo,
-                              SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                              SkYUVAIndex1 yuvaIndices[SkYUVAIndex1::kIndexCount],
                               SkYUVColorSpace* colorSpace) const = 0;
 
     /**
@@ -81,7 +81,7 @@ private:
      *  @param planes      Memory for each of the Y, U, V, and A planes.
      */
     virtual bool onGetYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
-                                  const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                                  const SkYUVAIndex1 yuvaIndices[SkYUVAIndex1::kIndexCount],
                                   void* planes[]) = 0;
 
     // This is used as release callback for the YUV data that we capture in an SkImage when

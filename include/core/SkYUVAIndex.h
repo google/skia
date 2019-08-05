@@ -17,12 +17,12 @@
     SkYUVAIndex contains a index for which image source to read from and a enum for which channel
     to read from.
 */
-struct SK_API SkYUVAIndex {
-    bool operator==(const SkYUVAIndex& that) const {
+struct SK_API SkYUVAIndex1 {
+    bool operator==(const SkYUVAIndex1& that) const {
         return this->fIndex == that.fIndex && this->fChannel == that.fChannel;
     }
 
-    bool operator!=(const SkYUVAIndex& that) const {
+    bool operator!=(const SkYUVAIndex1& that) const {
         return !(*this == that);
     }
 
@@ -46,7 +46,7 @@ struct SK_API SkYUVAIndex {
      * YUV and NV12 and channel info is ignored. */
     SkColorChannel fChannel;
 
-    static bool AreValidIndices(const SkYUVAIndex yuvaIndices[4], int* numPlanes) {
+    static bool AreValidIndices(const SkYUVAIndex1 yuvaIndices[4], int* numPlanes) {
         // Note that 'numPlanes' is always filled in even if the indices are not valid.
         // This means it can always be used to process the backing resources (but be careful
         // of empty intervening slots).
@@ -55,7 +55,7 @@ struct SK_API SkYUVAIndex {
         bool valid = true;
         for (int i = 0; i < 4; ++i) {
             if (yuvaIndices[i].fIndex < 0) {
-                if (SkYUVAIndex::kA_Index != i) {
+                if (SkYUVAIndex1::kA_Index != i) {
                     valid = false; // only the 'A' plane can be omitted
                 }
             } else if (yuvaIndices[i].fIndex > 3) {

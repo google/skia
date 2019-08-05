@@ -36,15 +36,15 @@ static const float kRec709ConversionMatrix[16] = {
 };
 
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextureProxy> proxies[],
-                                                            const SkYUVAIndex yuvaIndices[4],
+                                                            const SkYUVAIndex1 yuvaIndices[4],
                                                             SkYUVColorSpace yuvColorSpace,
                                                             GrSamplerState::Filter filterMode,
                                                             const SkMatrix& localMatrix,
                                                             const SkRect* domain) {
     int numPlanes;
-    SkAssertResult(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
+    SkAssertResult(SkYUVAIndex1::AreValidIndices(yuvaIndices, &numPlanes));
 
-    const SkISize YSize = proxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex]->isize();
+    const SkISize YSize = proxies[yuvaIndices[SkYUVAIndex1::kY_Index].fIndex]->isize();
 
     GrSamplerState::Filter minimizeFilterMode = GrSamplerState::Filter::kMipMap == filterMode ?
                                                 GrSamplerState::Filter::kMipMap :

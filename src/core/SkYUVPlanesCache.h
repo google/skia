@@ -26,7 +26,7 @@ public:
      */
     struct Info {
         SkYUVASizeInfo  fSizeInfo;
-        SkYUVAIndex     fYUVAIndices[SkYUVAIndex::kIndexCount];
+        SkYUVAIndex1     fYUVAIndices[SkYUVAIndex1::kIndexCount];
         SkYUVColorSpace fColorSpace;
     };
     /**

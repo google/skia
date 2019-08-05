@@ -92,7 +92,7 @@ public:
      *  @param colorSpace  Output parameter.
      */
     bool queryYUVA8(SkYUVASizeInfo* sizeInfo,
-                    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                    SkYUVAIndex1 yuvaIndices[SkYUVAIndex1::kIndexCount],
                     SkYUVColorSpace* colorSpace) const;
 
     /**
@@ -108,7 +108,7 @@ public:
      *                     settings in yuvaIndices, anywhere from 1..4 planes could be returned.
      */
     bool getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
-                        const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                        const SkYUVAIndex1 yuvaIndices[SkYUVAIndex1::kIndexCount],
                         void* planes[]);
 
 #if SK_SUPPORT_GPU
@@ -170,9 +170,9 @@ protected:
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrContext*) const { return true; }
-    virtual bool onQueryYUVA8(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
+    virtual bool onQueryYUVA8(SkYUVASizeInfo*, SkYUVAIndex1[SkYUVAIndex1::kIndexCount],
                               SkYUVColorSpace*) const { return false; }
-    virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
+    virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex1[SkYUVAIndex1::kIndexCount],
                                   void*[4] /*planes*/) { return false; }
 #if SK_SUPPORT_GPU
     enum class TexGenType {

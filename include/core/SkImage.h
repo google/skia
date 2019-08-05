@@ -397,6 +397,14 @@ public:
             const GrBackendTexture& backendTexture,
             sk_sp<SkColorSpace> imageColorSpace = nullptr);
 
+    static sk_sp<SkImage> MakeFromYUVATextures(GrContext* context,
+                                               SkYUVAFormat format,
+                                               SkYUVColorSpace colorSpace,
+                                               const GrBackendTexture yuvaTextures[],
+                                               SkISize imageSize,
+                                               GrSurfaceOrigin imageOrigin,
+                                               sk_sp<SkColorSpace> imageColorSpace = nullptr);
+
     /** Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
         via multitexturing.
 

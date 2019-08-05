@@ -177,10 +177,10 @@ private:
         void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
 
         void setYUVData(sk_sp<SkCachedData> yuvData,
-                        SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                        SkYUVAFormat format,
                         SkYUVColorSpace cs) {
             fYUVData = yuvData;
-            memcpy(fYUVAIndices, yuvaIndices, sizeof(fYUVAIndices));
+            fYUVAFormat = format;
             fYUVColorSpace = cs;
         }
         void addYUVPlane(int index, const SkImageInfo& ii, const void* plane, size_t widthBytes) {
@@ -201,7 +201,7 @@ private:
         // CPU-side cache of a YUV SkImage's contents
         sk_sp<SkCachedData>                fYUVData;       // when !null, this is a YUV image
         SkYUVColorSpace                    fYUVColorSpace = kJPEG_SkYUVColorSpace;
-        SkYUVAIndex                        fYUVAIndices[SkYUVAIndex::kIndexCount];
+        SkYUVAFormat                       fYUVAFormat;
         SkPixmap                           fYUVPlanes[SkYUVASizeInfo::kMaxCount];
 
         // Up to SkYUVASizeInfo::kMaxCount for a YUVA image. Only one for a normal image.

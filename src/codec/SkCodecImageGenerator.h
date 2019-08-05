@@ -28,9 +28,9 @@ protected:
         const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts) override;
 
     bool onQueryYUVA8(
-        SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount], SkYUVColorSpace*) const override;
+        SkYUVASizeInfo*, SkYUVAIndex1[SkYUVAIndex1::kIndexCount], SkYUVColorSpace*) const override;
 
-    bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
+    bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex1[SkYUVAIndex1::kIndexCount],
                           void* planes[]) override;
 
 private:

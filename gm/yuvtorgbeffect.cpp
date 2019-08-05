@@ -120,7 +120,7 @@ protected:
                                        {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
             for (int i = 0; i < 6; ++i) {
-                SkYUVAIndex yuvaIndices[4] = {
+                SkYUVAIndex1 yuvaIndices[4] = {
                     { indices[i][0], SkColorChannel::kR },
                     { indices[i][1], SkColorChannel::kR },
                     { indices[i][2], SkColorChannel::kR },
@@ -227,7 +227,7 @@ protected:
             }
         }
 
-        SkYUVAIndex yuvaIndices[4] = {
+        SkYUVAIndex1 yuvaIndices[4] = {
             {  0, SkColorChannel::kR },
             {  1, SkColorChannel::kR },
             {  1, SkColorChannel::kG },
@@ -330,10 +330,10 @@ protected:
                 GrSamplerState::Filter::kNearest, GrSamplerState::Filter::kBilerp };
         static const SkRect kGreenRect = SkRect::MakeLTRB(2.f, 2.f, 6.f, 6.f);
 
-        SkYUVAIndex yuvaIndices[4] = {
-            { SkYUVAIndex::kY_Index, SkColorChannel::kR },
-            { SkYUVAIndex::kU_Index, SkColorChannel::kR },
-            { SkYUVAIndex::kV_Index, SkColorChannel::kR },
+        SkYUVAIndex1 yuvaIndices[4] = {
+            { SkYUVAIndex1::kY_Index, SkColorChannel::kR },
+            { SkYUVAIndex1::kU_Index, SkColorChannel::kR },
+            { SkYUVAIndex1::kV_Index, SkColorChannel::kR },
             { -1, SkColorChannel::kA }
         };
         SkRect rect = SkRect::MakeWH(YSIZE, YSIZE);

@@ -34,7 +34,7 @@ private:
     // Decoded YUV data
     SkYUVASizeInfo fSizeInfo;
     SkYUVColorSpace fColorSpace;
-    SkYUVAIndex fComponents[SkYUVAIndex::kIndexCount];
+    SkYUVAIndex1 fComponents[SkYUVAIndex1::kIndexCount];
     SkAutoMalloc fPlaneData;
     SkPixmap fPlanes[SkYUVASizeInfo::kMaxCount];
 

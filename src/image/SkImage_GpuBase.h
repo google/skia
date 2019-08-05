@@ -65,10 +65,28 @@ public:
                                        GrSurfaceOrigin imageOrigin,
                                        sk_sp<GrTextureProxy> tempTextureProxies[4]);
 
+#if 0
     static SkAlphaType GetAlphaTypeFromYUVAIndices(const SkYUVAIndex yuvaIndices[4]) {
         return -1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex ? kPremul_SkAlphaType
                                                                : kOpaque_SkAlphaType;
     }
+#else
+    static SkAlphaType GetAlphaTypeFromYUVAFormat(SkYUVAFormat format) {
+        switch (format) {
+            case SkYUVAFormat::kP016: return kOpaque_SkAlphaType;
+            case SkYUVAFormat::kP010: return kOpaque_SkAlphaType;
+            case SkYUVAFormat::kY416: return kPremul_SkAlphaType;
+            case SkYUVAFormat::kAYUV: return kPremul_SkAlphaType;
+            case SkYUVAFormat::kY410: return kPremul_SkAlphaType;
+            case SkYUVAFormat::kNV12: return kOpaque_SkAlphaType;
+            case SkYUVAFormat::kNV21: return kOpaque_SkAlphaType;
+            case SkYUVAFormat::kI420: return kOpaque_SkAlphaType;
+            case SkYUVAFormat::kYV12: return kOpaque_SkAlphaType;
+        }
+
+        SkUNREACHABLE;
+    }
+#endif
 
     using PromiseImageTextureContext = SkDeferredDisplayListRecorder::PromiseImageTextureContext;
     using PromiseImageTextureFulfillProc =

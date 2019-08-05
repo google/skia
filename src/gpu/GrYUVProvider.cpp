@@ -24,7 +24,7 @@
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
 sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVASizeInfo* size,
-                                             SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                                             SkYUVAIndex1 yuvaIndices[SkYUVAIndex1::kIndexCount],
                                              SkYUVColorSpace* colorSpace,
                                              const void* constPlanes[SkYUVASizeInfo::kMaxCount]) {
     sk_sp<SkCachedData> data;
@@ -109,7 +109,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
                                                        SkColorSpace* srcColorSpace,
                                                        SkColorSpace* dstColorSpace) {
     SkYUVASizeInfo yuvSizeInfo;
-    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
+    SkYUVAIndex1 yuvaIndices[SkYUVAIndex1::kIndexCount];
     SkYUVColorSpace yuvColorSpace;
     const void* planes[SkYUVASizeInfo::kMaxCount];
 
