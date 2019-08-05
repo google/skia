@@ -95,7 +95,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new MakeCSGM;)
+DEF_GM(MakeCSGM)
 
 DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE) {
     sk_sp<SkImage> images[] = {

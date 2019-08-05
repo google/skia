@@ -368,6 +368,6 @@ class DegenerateSegmentsGM : public GM {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new DegenerateSegmentsGM; )
+DEF_GM(DegenerateSegmentsGM)
 
 }

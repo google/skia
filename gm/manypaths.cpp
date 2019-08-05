@@ -122,7 +122,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new ManyCirclesGM; )
-DEF_GM( return new ManyRRectsGM; )
+DEF_GM(ManyCirclesGM)
+DEF_GM(ManyRRectsGM)
 
 }

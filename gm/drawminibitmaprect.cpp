@@ -148,5 +148,5 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return new DrawMiniBitmapRectGM(true); )
-DEF_GM( return new DrawMiniBitmapRectGM(false); )
+DEF_GM(DrawMiniBitmapRectGM, true)
+DEF_GM(DrawMiniBitmapRectGM, false)

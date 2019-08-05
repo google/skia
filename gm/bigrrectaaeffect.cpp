@@ -133,11 +133,11 @@ private:
 // the shader
 constexpr int kSize = 700;
 
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeRect(SkRect::MakeIWH(kSize, kSize)), "rect"); )
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeOval(SkRect::MakeIWH(kSize, kSize)), "circle"); )
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeOval(SkRect::MakeIWH(kSize - 1, kSize - 10)), "ellipse"); )
+DEF_GM(BigRRectAAEffectGM, SkRRect::MakeRect(SkRect::MakeIWH(kSize, kSize)), "rect")
+DEF_GM(BigRRectAAEffectGM, SkRRect::MakeOval(SkRect::MakeIWH(kSize, kSize)), "circle")
+DEF_GM(BigRRectAAEffectGM, SkRRect::MakeOval(SkRect::MakeIWH(kSize - 1, kSize - 10)), "ellipse")
 // The next two have small linear segments between the corners
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeRectXY(SkRect::MakeIWH(kSize - 1, kSize - 10), kSize/2.f - 10.f, kSize/2.f - 10.f), "circular_corner"); )
-DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeRectXY(SkRect::MakeIWH(kSize - 1, kSize - 10), kSize/2.f - 10.f, kSize/2.f - 15.f), "elliptical_corner"); )
+DEF_GM(BigRRectAAEffectGM, SkRRect::MakeRectXY(SkRect::MakeIWH(kSize - 1, kSize - 10), kSize/2.f - 10.f, kSize/2.f - 10.f), "circular_corner")
+DEF_GM(BigRRectAAEffectGM, SkRRect::MakeRectXY(SkRect::MakeIWH(kSize - 1, kSize - 10), kSize/2.f - 10.f, kSize/2.f - 15.f), "elliptical_corner")
 
 }

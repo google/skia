@@ -122,7 +122,7 @@ private:
 };
 
 } // namespace
-DEF_GM( return new MixerCFGM(SkSize::Make(200, 250), 5); )
+DEF_GM(MixerCFGM, SkSize::Make(200, 250), 5)
 
 static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
     auto img = GetResourceAsImage(path);
@@ -203,4 +203,4 @@ protected:
 private:
     using INHERITED = skiagm::GM;
 };
-DEF_GM( return new ShaderMixerGM; )
+DEF_GM(ShaderMixerGM)

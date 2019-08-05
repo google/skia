@@ -207,8 +207,8 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 // rects
-DEF_GM( return new SimpleClipGM(SimpleClipGM::kRect_GeomType); )
-DEF_GM( return new SimpleClipGM(SimpleClipGM::kPath_GeomType); )
-DEF_GM( return new SimpleClipGM(SimpleClipGM::kAAClip_GeomType); )
+DEF_GM(SimpleClipGM, SimpleClipGM::kRect_GeomType)
+DEF_GM(SimpleClipGM, SimpleClipGM::kPath_GeomType)
+DEF_GM(SimpleClipGM, SimpleClipGM::kAAClip_GeomType)
 
 }

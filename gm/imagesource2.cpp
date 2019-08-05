@@ -95,8 +95,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ImageSourceGM("none", kNone_SkFilterQuality);)
-DEF_GM(return new ImageSourceGM("low", kLow_SkFilterQuality);)
-DEF_GM(return new ImageSourceGM("med", kMedium_SkFilterQuality);)
-DEF_GM(return new ImageSourceGM("high", kHigh_SkFilterQuality);)
+DEF_GM(ImageSourceGM, "none", kNone_SkFilterQuality)
+DEF_GM(ImageSourceGM, "low", kLow_SkFilterQuality)
+DEF_GM(ImageSourceGM, "med", kMedium_SkFilterQuality)
+DEF_GM(ImageSourceGM, "high", kHigh_SkFilterQuality)
 }

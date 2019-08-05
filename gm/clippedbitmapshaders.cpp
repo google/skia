@@ -120,10 +120,10 @@ private:
 };
 }  // namespace
 
-DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kRepeat); )
-DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kMirror); )
-DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kClamp); )
+DEF_GM(ClippedBitmapShadersGM, SkTileMode::kRepeat)
+DEF_GM(ClippedBitmapShadersGM, SkTileMode::kMirror)
+DEF_GM(ClippedBitmapShadersGM, SkTileMode::kClamp)
 
-DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kRepeat, true); )
-DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kMirror, true); )
-DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kClamp, true); )
+DEF_GM(ClippedBitmapShadersGM, SkTileMode::kRepeat, true)
+DEF_GM(ClippedBitmapShadersGM, SkTileMode::kMirror, true)
+DEF_GM(ClippedBitmapShadersGM, SkTileMode::kClamp, true)

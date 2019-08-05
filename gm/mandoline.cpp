@@ -196,6 +196,6 @@ protected:
     }
 };
 
-DEF_GM(return new SliverPathsGM;)
+DEF_GM(SliverPathsGM)
 
 }

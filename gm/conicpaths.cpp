@@ -137,7 +137,7 @@ private:
     SkPath           fGiantCircle;
     typedef skiagm::GM INHERITED;
 };
-DEF_GM(return new ConicPathsGM;)
+DEF_GM(ConicPathsGM)
 
 //////////////////////////////////////////////////////////////////////////////
 

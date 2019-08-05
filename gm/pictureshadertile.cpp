@@ -162,4 +162,4 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new PictureShaderTileGM;)
+DEF_GM(PictureShaderTileGM)

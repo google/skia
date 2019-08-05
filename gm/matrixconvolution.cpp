@@ -123,7 +123,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new MatrixConvolutionGM(0xFFFFFFFF, 0x40404040, "");)
-DEF_GM(return new MatrixConvolutionGM(0xFFFF0000, 0xFF00FF00, "_color");)
+DEF_GM(MatrixConvolutionGM, 0xFFFFFFFF, 0x40404040, "")
+DEF_GM(MatrixConvolutionGM, 0xFFFF0000, 0xFF00FF00, "_color")
 
 }

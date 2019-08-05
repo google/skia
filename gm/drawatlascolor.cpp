@@ -173,4 +173,4 @@ private:
 
     typedef GM INHERITED;
 };
-DEF_GM( return new DrawAtlasColorsGM; )
+DEF_GM(DrawAtlasColorsGM)

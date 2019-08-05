@@ -96,6 +96,6 @@ class SimpleBlurRoundRectGM : public skiagm::GM {
 // TODO(scroggo): Disabled in an attempt to rememdy
 // https://code.google.com/p/skia/issues/detail?id=1801 ('Win7 Test bots all failing GenerateGMs:
 // ran wrong number of tests')
-//DEF_GM(return new BlurRoundRectGM(600, 5514, 6);)
+// DEF_GM(BlurRoundRectGM, 600, 5514, 6)
 
-DEF_GM(return new SimpleBlurRoundRectGM();)
+DEF_GM(SimpleBlurRoundRectGM)

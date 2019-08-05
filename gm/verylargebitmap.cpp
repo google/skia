@@ -124,5 +124,5 @@ private:
     }
 };
 
-DEF_GM( return new VeryLargeBitmapGM(make_raster_image, "verylargebitmap"); )
-DEF_GM( return new VeryLargeBitmapGM(make_picture_image, "verylarge_picture_image"); )
+DEF_GM(VeryLargeBitmapGM, make_raster_image, "verylargebitmap")
+DEF_GM(VeryLargeBitmapGM, make_picture_image, "verylarge_picture_image")

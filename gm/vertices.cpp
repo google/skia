@@ -205,8 +205,8 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new VerticesGM(1);)
-DEF_GM(return new VerticesGM(1 / kShaderSize);)
+DEF_GM(VerticesGM, 1)
+DEF_GM(VerticesGM, 1 / kShaderSize)
 
 static void draw_batching(SkCanvas* canvas) {
     // Triangle fans can't batch so we convert to regular triangles,

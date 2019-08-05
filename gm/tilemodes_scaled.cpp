@@ -256,7 +256,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new ScaledTilingGM(true); )
-DEF_GM( return new ScaledTilingGM(false); )
-DEF_GM( return new ScaledTiling2GM(make_bm, "scaled_tilemode_bitmap"); )
-DEF_GM( return new ScaledTiling2GM(make_grad, "scaled_tilemode_gradient"); )
+DEF_GM(ScaledTilingGM, true)
+DEF_GM(ScaledTilingGM, false)
+DEF_GM(ScaledTiling2GM, make_bm, "scaled_tilemode_bitmap")
+DEF_GM(ScaledTiling2GM, make_grad, "scaled_tilemode_gradient")

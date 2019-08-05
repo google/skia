@@ -135,4 +135,4 @@ class BitmapCopyGM : public skiagm::GM {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new BitmapCopyGM; )
+DEF_GM(BitmapCopyGM)

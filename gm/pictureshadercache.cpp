@@ -96,4 +96,4 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new PictureShaderCacheGM(100);)
+DEF_GM(PictureShaderCacheGM, 100)

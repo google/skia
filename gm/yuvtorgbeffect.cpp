@@ -157,7 +157,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new YUVtoRGBEffect;)
+DEF_GM(YUVtoRGBEffect)
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -269,7 +269,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new YUVNV12toRGBEffect;)
+DEF_GM(YUVNV12toRGBEffect)
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -380,5 +380,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new YUVtoRGBDomainEffect;)
+DEF_GM(YUVtoRGBDomainEffect)
 }

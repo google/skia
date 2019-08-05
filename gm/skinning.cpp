@@ -205,7 +205,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new SkinningGM(true, true);)
-DEF_GM(return new SkinningGM(false, true);)
-DEF_GM(return new SkinningGM(true, false);)
-DEF_GM(return new SkinningGM(false, false);)
+DEF_GM(SkinningGM, true, true)
+DEF_GM(SkinningGM, false, true)
+DEF_GM(SkinningGM, true, false)
+DEF_GM(SkinningGM, false, false)

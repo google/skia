@@ -291,4 +291,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new SmallPathsGM;)
+DEF_GM(SmallPathsGM)

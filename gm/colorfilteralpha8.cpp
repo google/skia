@@ -51,4 +51,4 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ColorFilterAlpha8; )
+DEF_GM(ColorFilterAlpha8)

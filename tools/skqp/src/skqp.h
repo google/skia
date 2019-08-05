@@ -47,7 +47,7 @@ public:
         kGLES,
         kVulkan,
     };
-    using GMFactory = skiagm::GM* (*)(void*);
+    using GMFactory = std::unique_ptr<skiagm::GM> (*)();
     using UnitTest = const skiatest::Test*;
 
     ////////////////////////////////////////////////////////////////////////////

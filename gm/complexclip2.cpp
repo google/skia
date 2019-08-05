@@ -219,13 +219,13 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 // bw
-DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kRect_Clip, false); )
-DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kRRect_Clip, false); )
-DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kPath_Clip, false); )
+DEF_GM(ComplexClip2GM, ComplexClip2GM::kRect_Clip, false)
+DEF_GM(ComplexClip2GM, ComplexClip2GM::kRRect_Clip, false)
+DEF_GM(ComplexClip2GM, ComplexClip2GM::kPath_Clip, false)
 
 // aa
-DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kRect_Clip, true); )
-DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kRRect_Clip, true); )
-DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kPath_Clip, true); )
+DEF_GM(ComplexClip2GM, ComplexClip2GM::kRect_Clip, true)
+DEF_GM(ComplexClip2GM, ComplexClip2GM::kRRect_Clip, true)
+DEF_GM(ComplexClip2GM, ComplexClip2GM::kPath_Clip, true)
 
 }

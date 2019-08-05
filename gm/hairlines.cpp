@@ -264,6 +264,6 @@ DEF_SIMPLE_GM(squarehair, canvas, 240, 360) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new HairlinesGM; )
+DEF_GM(HairlinesGM)
 
 }

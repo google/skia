@@ -114,5 +114,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new BitmapPremulGM; )
+DEF_GM(BitmapPremulGM)
 }

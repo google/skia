@@ -157,4 +157,4 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ColorMatrixGM; )
+DEF_GM(ColorMatrixGM)

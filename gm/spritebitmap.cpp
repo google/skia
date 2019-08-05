@@ -95,4 +95,4 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new SpriteBitmapGM; )
+DEF_GM(SpriteBitmapGM)

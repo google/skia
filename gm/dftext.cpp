@@ -247,4 +247,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new DFTextGM;)
+DEF_GM(DFTextGM)

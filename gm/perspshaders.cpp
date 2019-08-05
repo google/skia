@@ -181,6 +181,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new PerspShadersGM(true);)
-DEF_GM(return new PerspShadersGM(false);)
+DEF_GM(PerspShadersGM, true)
+DEF_GM(PerspShadersGM, false)
 }

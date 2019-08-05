@@ -587,9 +587,9 @@ DEF_SIMPLE_GM(dash_line_zero_off_interval, canvas, 160, 330) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new DashingGM;)
-DEF_GM(return new Dashing2GM;)
-DEF_GM(return new Dashing3GM;)
-DEF_GM(return new Dashing4GM;)
-DEF_GM(return new Dashing5GM(true);)
-DEF_GM(return new Dashing5GM(false);)
+DEF_GM(DashingGM)
+DEF_GM(Dashing2GM)
+DEF_GM(Dashing3GM)
+DEF_GM(Dashing4GM)
+DEF_GM(Dashing5GM, true)
+DEF_GM(Dashing5GM, false)

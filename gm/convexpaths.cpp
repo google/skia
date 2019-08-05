@@ -302,4 +302,4 @@ class ConvexPathsGM : public skiagm::GM {
 };
 }  // namespace
 
-DEF_GM( return new ConvexPathsGM; )
+DEF_GM(ConvexPathsGM)

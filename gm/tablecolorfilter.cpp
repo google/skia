@@ -207,7 +207,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new TableColorFilterGM; )
+DEF_GM(TableColorFilterGM)
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -289,7 +289,7 @@ const SkBlendMode gModes0[] = {
     SkBlendMode::kColorBurn,
     SkBlendMode::kExclusion,
 };
-DEF_GM( return new ComposeColorFilterGM(gColors0, gModes0, "colorcomposefilter_wacky"); )
+DEF_GM(ComposeColorFilterGM, gColors0, gModes0, "colorcomposefilter_wacky")
 
 const SkColor gColors1[] = { 0x80FF0000, 0x8000FF00, 0x800000FF };
 const SkBlendMode gModes1[] = {
@@ -298,4 +298,4 @@ const SkBlendMode gModes1[] = {
     SkBlendMode::kDstOut,
     SkBlendMode::kSrcATop,
 };
-DEF_GM( return new ComposeColorFilterGM(gColors1, gModes1, "colorcomposefilter_alpha"); )
+DEF_GM(ComposeColorFilterGM, gColors1, gModes1, "colorcomposefilter_alpha")

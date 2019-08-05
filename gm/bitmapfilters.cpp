@@ -114,7 +114,7 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new FilterGM; )
+DEF_GM(FilterGM)
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -161,4 +161,4 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new TestExtractAlphaGM; )
+DEF_GM(TestExtractAlphaGM)

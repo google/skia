@@ -160,4 +160,4 @@ private:
     SkScalar fTime;
 };
 
-DEF_GM(return new PosterCircleGM();)
+DEF_GM(PosterCircleGM)

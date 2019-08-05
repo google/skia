@@ -218,7 +218,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new ImageFiltersBaseGM; )
+DEF_GM(ImageFiltersBaseGM)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -298,7 +298,7 @@ public:
         paint->setImageFilter(SkImageFilters::Blur(1.5f, 1.5f, nullptr));
     }
 };
-DEF_GM( return new ImageFiltersText_IF; )
+DEF_GM(ImageFiltersText_IF)
 
 class ImageFiltersText_CF : public ImageFiltersTextBaseGM {
 public:
@@ -308,4 +308,4 @@ public:
         paint->setColorFilter(SkColorFilters::Blend(SK_ColorBLUE, SkBlendMode::kSrcIn));
     }
 };
-DEF_GM( return new ImageFiltersText_CF; )
+DEF_GM(ImageFiltersText_CF)

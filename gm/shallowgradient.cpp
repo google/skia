@@ -74,7 +74,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define M(PROC, DITHER) DEF_GM( return new ShallowGradientGM(shader_ ## PROC, #PROC, DITHER); )
+#define M(PROC, DITHER) DEF_GM(ShallowGradientGM, shader_ ## PROC, #PROC, DITHER)
 M(linear,  true)
 M(radial,  true)
 M(conical, true)

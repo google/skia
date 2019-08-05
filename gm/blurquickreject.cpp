@@ -88,4 +88,4 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new BlurQuickRejectGM(); )
+DEF_GM(BlurQuickRejectGM)

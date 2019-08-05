@@ -63,4 +63,4 @@ class OverdrawColorFilter : public skiagm::GM {
     }
 };
 
-DEF_GM(return new OverdrawColorFilter;)
+DEF_GM(OverdrawColorFilter)

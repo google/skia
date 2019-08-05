@@ -166,7 +166,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new VariedTextGM(false, false);)
-DEF_GM(return new VariedTextGM(true, false);)
-DEF_GM(return new VariedTextGM(false, true);)
-DEF_GM(return new VariedTextGM(true, true);)
+DEF_GM(VariedTextGM, false, false)
+DEF_GM(VariedTextGM, true, false)
+DEF_GM(VariedTextGM, false, true)
+DEF_GM(VariedTextGM, true, true)

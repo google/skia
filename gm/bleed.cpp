@@ -449,12 +449,12 @@ private:
 };
 
 
-DEF_GM( return new BleedGM(kUseBitmap_BleedTest); )
-DEF_GM( return new BleedGM(kUseImage_BleedTest); )
-DEF_GM( return new BleedGM(kUseAlphaBitmap_BleedTest); )
-DEF_GM( return new BleedGM(kUseAlphaImage_BleedTest); )
-DEF_GM( return new BleedGM(kUseAlphaBitmapShader_BleedTest); )
-DEF_GM( return new BleedGM(kUseAlphaImageShader_BleedTest); )
+DEF_GM(BleedGM, kUseBitmap_BleedTest)
+DEF_GM(BleedGM, kUseImage_BleedTest)
+DEF_GM(BleedGM, kUseAlphaBitmap_BleedTest)
+DEF_GM(BleedGM, kUseAlphaImage_BleedTest)
+DEF_GM(BleedGM, kUseAlphaBitmapShader_BleedTest)
+DEF_GM(BleedGM, kUseAlphaImageShader_BleedTest)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

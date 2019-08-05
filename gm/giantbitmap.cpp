@@ -131,16 +131,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new GiantBitmapGM(SkTileMode::kClamp, false, false); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kRepeat, false, false); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kMirror, false, false); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kClamp, true, false); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kRepeat, true, false); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kMirror, true, false); )
+DEF_GM(GiantBitmapGM, SkTileMode::kClamp, false, false)
+DEF_GM(GiantBitmapGM, SkTileMode::kRepeat, false, false)
+DEF_GM(GiantBitmapGM, SkTileMode::kMirror, false, false)
+DEF_GM(GiantBitmapGM, SkTileMode::kClamp, true, false)
+DEF_GM(GiantBitmapGM, SkTileMode::kRepeat, true, false)
+DEF_GM(GiantBitmapGM, SkTileMode::kMirror, true, false)
 
-DEF_GM( return new GiantBitmapGM(SkTileMode::kClamp, false, true); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kRepeat, false, true); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kMirror, false, true); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kClamp, true, true); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kRepeat, true, true); )
-DEF_GM( return new GiantBitmapGM(SkTileMode::kMirror, true, true); )
+DEF_GM(GiantBitmapGM, SkTileMode::kClamp, false, true)
+DEF_GM(GiantBitmapGM, SkTileMode::kRepeat, false, true)
+DEF_GM(GiantBitmapGM, SkTileMode::kMirror, false, true)
+DEF_GM(GiantBitmapGM, SkTileMode::kClamp, true, true)
+DEF_GM(GiantBitmapGM, SkTileMode::kRepeat, true, true)
+DEF_GM(GiantBitmapGM, SkTileMode::kMirror, true, true)

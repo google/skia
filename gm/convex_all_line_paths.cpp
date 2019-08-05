@@ -410,6 +410,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ConvexLineOnlyPathsGM(false);)
-DEF_GM(return new ConvexLineOnlyPathsGM(true);)
+DEF_GM(ConvexLineOnlyPathsGM, false)
+DEF_GM(ConvexLineOnlyPathsGM, true)
 }

@@ -209,4 +209,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new PictureGeneratorGM;)
+DEF_GM(PictureGeneratorGM)

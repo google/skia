@@ -187,4 +187,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new AnalyticGradientShaderGM;)
+DEF_GM(AnalyticGradientShaderGM)

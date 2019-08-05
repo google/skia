@@ -158,4 +158,4 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new ImageScaleAlignedGM();)
+DEF_GM(ImageScaleAlignedGM)

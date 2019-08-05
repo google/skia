@@ -113,10 +113,10 @@ static SkBitmap make_text(SkImageInfo info) {
 
     return bm;
 }
-DEF_GM( return new DownsampleBitmapGM(make_text, "text",   kHigh_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapGM(make_text, "text", kMedium_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapGM(make_text, "text",    kLow_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapGM(make_text, "text",   kNone_SkFilterQuality); )
+DEF_GM(DownsampleBitmapGM, make_text, "text",   kHigh_SkFilterQuality)
+DEF_GM(DownsampleBitmapGM, make_text, "text", kMedium_SkFilterQuality)
+DEF_GM(DownsampleBitmapGM, make_text, "text",    kLow_SkFilterQuality)
+DEF_GM(DownsampleBitmapGM, make_text, "text",   kNone_SkFilterQuality)
 
 
 static SkBitmap make_checkerboard(SkImageInfo info) {
@@ -139,10 +139,10 @@ static SkBitmap make_checkerboard(SkImageInfo info) {
     }
     return convert_bitmap_format(bm, info);
 }
-DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard",   kHigh_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard", kMedium_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard",    kLow_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard",   kNone_SkFilterQuality); )
+DEF_GM(DownsampleBitmapGM, make_checkerboard, "checkerboard",   kHigh_SkFilterQuality)
+DEF_GM(DownsampleBitmapGM, make_checkerboard, "checkerboard", kMedium_SkFilterQuality)
+DEF_GM(DownsampleBitmapGM, make_checkerboard, "checkerboard",    kLow_SkFilterQuality)
+DEF_GM(DownsampleBitmapGM, make_checkerboard, "checkerboard",   kNone_SkFilterQuality)
 
 
 static SkBitmap make_image(SkImageInfo info) {
@@ -153,7 +153,7 @@ static SkBitmap make_image(SkImageInfo info) {
     }
     return convert_bitmap_format(bm, info);
 }
-DEF_GM( return new DownsampleBitmapGM(make_image, "image",   kHigh_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapGM(make_image, "image", kMedium_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapGM(make_image, "image",    kLow_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapGM(make_image, "image",   kNone_SkFilterQuality); )
+DEF_GM(DownsampleBitmapGM, make_image, "image",   kHigh_SkFilterQuality)
+DEF_GM(DownsampleBitmapGM, make_image, "image", kMedium_SkFilterQuality)
+DEF_GM(DownsampleBitmapGM, make_image, "image",    kLow_SkFilterQuality)
+DEF_GM(DownsampleBitmapGM, make_image, "image",   kNone_SkFilterQuality)

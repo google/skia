@@ -71,7 +71,7 @@ private:
     SkScalar fRotate;
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new AddArcGM; )
+DEF_GM(AddArcGM)
 
 ///////////////////////////////////////////////////
 
@@ -158,7 +158,7 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new StrokeCircleGM; )
+DEF_GM(StrokeCircleGM)
 
 //////////////////////
 
@@ -211,7 +211,7 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new FillCircleGM; )
+DEF_GM(FillCircleGM)
 
 //////////////////////
 

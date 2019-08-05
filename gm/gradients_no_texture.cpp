@@ -292,7 +292,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new GradientsNoTextureGM(true);)
-DEF_GM(return new GradientsNoTextureGM(false);)
-DEF_GM(return new GradientsManyColorsGM(true);)
-DEF_GM(return new GradientsManyColorsGM(false);)
+DEF_GM(GradientsNoTextureGM, true)
+DEF_GM(GradientsNoTextureGM, false)
+DEF_GM(GradientsManyColorsGM, true)
+DEF_GM(GradientsManyColorsGM, false)

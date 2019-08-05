@@ -193,5 +193,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new ConstColorProcessor;)
+DEF_GM(ConstColorProcessor)
 }

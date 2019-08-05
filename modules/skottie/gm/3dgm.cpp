@@ -222,5 +222,5 @@ protected:
     }
 };
 
-DEF_GM(return new GM3d;)
+DEF_GM(GM3d)
 

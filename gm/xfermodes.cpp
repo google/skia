@@ -296,4 +296,4 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new XfermodesGM; )
+DEF_GM(XfermodesGM)

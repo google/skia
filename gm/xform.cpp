@@ -102,6 +102,6 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new XformGM; )
+DEF_GM(XformGM)
 
 #endif

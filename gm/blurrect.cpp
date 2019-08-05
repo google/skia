@@ -236,4 +236,4 @@ DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new BlurRectGM("blurrects", 0xFF);)
+DEF_GM(BlurRectGM, "blurrects", 0xFF)

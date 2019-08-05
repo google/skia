@@ -166,9 +166,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new SimpleShapesGM(true); )
-DEF_GM( return new SimpleShapesGM(false); )
-DEF_GM( return new InnerShapesGM(true); )
-DEF_GM( return new InnerShapesGM(false); )
+DEF_GM(SimpleShapesGM, true)
+DEF_GM(SimpleShapesGM, false)
+DEF_GM(InnerShapesGM, true)
+DEF_GM(InnerShapesGM, false)
 
 }

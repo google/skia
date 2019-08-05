@@ -141,7 +141,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 // Simple clip first
-DEF_GM( return new ComplexClip3GM(true); )
+DEF_GM(ComplexClip3GM, true)
 // Complex clip first
-DEF_GM( return new ComplexClip3GM(false); )
+DEF_GM(ComplexClip3GM, false)
 }

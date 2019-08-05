@@ -99,8 +99,8 @@ class ChromeGradTextGM2 : public skiagm::GM {
 };
 }  // namespace
 
-DEF_GM( return new ChromeGradTextGM1; )
-DEF_GM( return new ChromeGradTextGM2; )
+DEF_GM(ChromeGradTextGM1)
+DEF_GM(ChromeGradTextGM2)
 
 DEF_SIMPLE_GM(gradtext, canvas, 500, 480) {
     static constexpr float kTextSize = 26.0f;

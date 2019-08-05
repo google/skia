@@ -120,5 +120,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new BigBlursGM;)
+DEF_GM(BigBlursGM)
 }

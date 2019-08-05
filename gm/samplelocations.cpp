@@ -311,9 +311,9 @@ DrawResult SampleLocationsGM::onDraw(
     return skiagm::DrawResult::kOk;
 }
 
-DEF_GM( return new SampleLocationsGM(GradType::kHW, kTopLeft_GrSurfaceOrigin); )
-DEF_GM( return new SampleLocationsGM(GradType::kHW, kBottomLeft_GrSurfaceOrigin); )
-DEF_GM( return new SampleLocationsGM(GradType::kSW, kTopLeft_GrSurfaceOrigin); )
-DEF_GM( return new SampleLocationsGM(GradType::kSW, kBottomLeft_GrSurfaceOrigin); )
+DEF_GM(SampleLocationsGM, GradType::kHW, kTopLeft_GrSurfaceOrigin)
+DEF_GM(SampleLocationsGM, GradType::kHW, kBottomLeft_GrSurfaceOrigin)
+DEF_GM(SampleLocationsGM, GradType::kSW, kTopLeft_GrSurfaceOrigin)
+DEF_GM(SampleLocationsGM, GradType::kSW, kBottomLeft_GrSurfaceOrigin)
 
 }

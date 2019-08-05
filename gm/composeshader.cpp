@@ -78,7 +78,7 @@ protected:
 private:
     typedef GM INHERITED ;
 };
-DEF_GM( return new ComposeShaderGM; )
+DEF_GM(ComposeShaderGM)
 
 class ComposeShaderAlphaGM : public skiagm::GM {
 public:
@@ -125,7 +125,7 @@ protected:
 private:
     typedef GM INHERITED ;
 };
-DEF_GM( return new ComposeShaderAlphaGM; )
+DEF_GM(ComposeShaderAlphaGM)
 
 // creates a square bitmap with red background and a green circle in the center
 static void draw_color_bm(SkBitmap* bm, int length) {
@@ -242,8 +242,8 @@ private:
 
     typedef GM INHERITED;
 };
-DEF_GM( return new ComposeShaderBitmapGM(false); )
-DEF_GM( return new ComposeShaderBitmapGM(true); )
+DEF_GM(ComposeShaderBitmapGM, false)
+DEF_GM(ComposeShaderBitmapGM, true)
 
 DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
     int width = 255;

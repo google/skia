@@ -192,6 +192,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new TextBlobMixedSizes(false); )
-DEF_GM( return new TextBlobMixedSizes(true); )
+DEF_GM(TextBlobMixedSizes, false)
+DEF_GM(TextBlobMixedSizes, true)
 }

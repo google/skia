@@ -249,7 +249,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return new DrawBitmapRectGM(bitmapproc      , nullptr); )
-DEF_GM( return new DrawBitmapRectGM(bitmapsubsetproc, "-subset"); )
-DEF_GM( return new DrawBitmapRectGM(imageproc       , "-imagerect"); )
-DEF_GM( return new DrawBitmapRectGM(imagesubsetproc , "-imagerect-subset"); )
+DEF_GM(DrawBitmapRectGM, bitmapproc      , nullptr)
+DEF_GM(DrawBitmapRectGM, bitmapsubsetproc, "-subset")
+DEF_GM(DrawBitmapRectGM, imageproc       , "-imagerect")
+DEF_GM(DrawBitmapRectGM, imagesubsetproc , "-imagerect-subset")

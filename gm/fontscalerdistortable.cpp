@@ -113,6 +113,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new FontScalerDistortableGM; )
+DEF_GM(FontScalerDistortableGM)
 
 }

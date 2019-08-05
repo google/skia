@@ -85,4 +85,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new ClipErrorGM;)
+DEF_GM(ClipErrorGM)

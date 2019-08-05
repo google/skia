@@ -117,4 +117,4 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new NinePatchStretchGM; )
+DEF_GM(NinePatchStretchGM)

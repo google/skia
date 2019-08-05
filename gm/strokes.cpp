@@ -523,14 +523,14 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new StrokesGM; )
-DEF_GM( return new Strokes2GM; )
-DEF_GM( return new Strokes3GM; )
-DEF_GM( return new Strokes4GM; )
-DEF_GM( return new Strokes5GM; )
+DEF_GM(StrokesGM)
+DEF_GM(Strokes2GM)
+DEF_GM(Strokes3GM)
+DEF_GM(Strokes4GM)
+DEF_GM(Strokes5GM)
 
-DEF_GM( return new ZeroLenStrokesGM; )
-DEF_GM( return new TeenyStrokesGM; )
+DEF_GM(ZeroLenStrokesGM)
+DEF_GM(TeenyStrokesGM)
 
 DEF_SIMPLE_GM(zerolinedash, canvas, 256, 256) {
     canvas->clear(SK_ColorWHITE);

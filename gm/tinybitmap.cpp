@@ -35,4 +35,4 @@ class TinyBitmapGM : public skiagm::GM {
 };
 }
 
-DEF_GM( return new TinyBitmapGM; )
+DEF_GM(TinyBitmapGM)
