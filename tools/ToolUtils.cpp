@@ -86,6 +86,16 @@ const char* colortype_depth(SkColorType ct) {
     return "unexpected colortype";
 }
 
+const char* tilemode_name(SkTileMode mode) {
+    switch (mode) {
+        case SkTileMode::kClamp:  return "clamp";
+        case SkTileMode::kRepeat: return "repeat";
+        case SkTileMode::kMirror: return "mirror";
+        case SkTileMode::kDecal:  return "decal";
+    }
+    SkASSERT(false);
+    return "unexpected tilemode";
+}
 
 SkColor color_to_565(SkColor color) {
     // Not a good idea to use this function for greyscale colors...

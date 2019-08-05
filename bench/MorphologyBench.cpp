@@ -10,7 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/utils/SkRandom.h"
 
 #define SMALL   SkIntToScalar(2)
@@ -66,14 +66,12 @@ protected:
                 sk_sp<SkImageFilter> mf;
                 switch (fStyle) {
                 case kDilate_MT:
-                    mf = SkDilateImageFilter::Make(SkScalarFloorToInt(fRadius),
-                                                   SkScalarFloorToInt(fRadius),
-                                                   nullptr);
+                    mf = SkImageFilters::Dilate(
+                            SkScalarFloorToInt(fRadius), SkScalarFloorToInt(fRadius), nullptr);
                     break;
                 case kErode_MT:
-                    mf = SkErodeImageFilter::Make(SkScalarFloorToInt(fRadius),
-                                                  SkScalarFloorToInt(fRadius),
-                                                  nullptr);
+                    mf = SkImageFilters::Erode(
+                            SkScalarFloorToInt(fRadius), SkScalarFloorToInt(fRadius), nullptr);
                     break;
                 }
                 paint.setImageFilter(std::move(mf));

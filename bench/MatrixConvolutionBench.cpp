@@ -8,23 +8,17 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/core/SkTileMode.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/utils/SkRandom.h"
 
-static const char* name(SkMatrixConvolutionImageFilter::TileMode mode) {
-    switch (mode) {
-        case SkMatrixConvolutionImageFilter::kClamp_TileMode:        return "clamp";
-        case SkMatrixConvolutionImageFilter::kRepeat_TileMode:       return "repeat";
-        case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode: return "clampToBlack";
-    }
-    return "oops";
-}
+#include "tools/ToolUtils.h"
 
 class MatrixConvolutionBench : public Benchmark {
 public:
-    MatrixConvolutionBench(SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha)
+    MatrixConvolutionBench(SkTileMode tileMode, bool convolveAlpha)
         : fName(SkStringPrintf("matrixconvolution_%s%s",
-                               name(tileMode),
+                               ToolUtils::tilemode_name(tileMode),
                                convolveAlpha ? "" : "_noConvolveAlpha")) {
         SkISize kernelSize = SkISize::Make(3, 3);
         SkScalar kernel[9] = {
@@ -34,25 +28,25 @@ public:
         };
         SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkIPoint kernelOffset = SkIPoint::Make(1, 1);
-        fFilter = SkMatrixConvolutionImageFilter::Make(kernelSize, kernel, gain, bias,
-                                                       kernelOffset, tileMode, convolveAlpha,
-                                                       nullptr);
+        fFilter = SkImageFilters::MatrixConvolution(kernelSize, kernel, gain, bias,
+                                                    kernelOffset, tileMode, convolveAlpha, nullptr);
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    virtual void onDraw(int loops, SkCanvas* canvas) {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         this->setupPaint(&paint);
+        paint.setImageFilter(fFilter);
         paint.setAntiAlias(true);
+
         SkRandom rand;
         for (int i = 0; i < loops; i++) {
             SkRect r = SkRect::MakeWH(rand.nextUScalar1() * 400,
                                       rand.nextUScalar1() * 400);
-            paint.setImageFilter(fFilter);
             canvas->drawOval(r, paint);
         }
     }
@@ -64,7 +58,8 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClamp_TileMode, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kRepeat_TileMode, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, false); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kClamp, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kRepeat, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kMirror, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kDecal, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kDecal, false); )
