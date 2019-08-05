@@ -32,7 +32,8 @@ public:
 
 private:
     GrLumaColorFilterEffect()
-            : INHERITED(kGrLumaColorFilterEffect_ClassID, kNone_OptimizationFlags) {}
+            : INHERITED(kGrLumaColorFilterEffect_ClassID,
+                        (OptimizationFlags)kConstantOutputForConstantInput_OptimizationFlag) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
