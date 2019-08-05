@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b999114b_1cb22760",
+        "filename": "modules/skottie/src/SkottieTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-05T20:13:38Z",
+      "side": 1,
+      "message": "Looking up a typeface (especially the default one) by name is likely not to work the way you expect. It is not only not specified to get you back the same typeface, it\u0027s not even specified that you can do this and get back any typeface (it may be an invalid name on macOS, so you\u0027re later lookup won\u0027t find any font with that name). Don\u0027t try this with the default typeface, you\u0027ll at the very least need to control the SkFontMgr if you want to be able to round trip this sort of thing.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 46
+      },
+      "revId": "2a558f5675f7d68361636127c0b0caa66b7c0800",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
