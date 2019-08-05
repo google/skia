@@ -69,7 +69,8 @@ void GrRenderTask::addDependency(GrRenderTask* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrRenderTask one
-void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
+void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped, GrTextureResolveManager,
+                                 const GrCaps& caps) {
     if (dependedOn->getLastRenderTask()) {
         // If it is still receiving dependencies, this GrRenderTask shouldn't be closed
         SkASSERT(!this->isClosed());
