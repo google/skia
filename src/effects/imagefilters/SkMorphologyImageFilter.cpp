@@ -65,9 +65,7 @@ public:
                          int width, int height, int srcStride, int dstStride);
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source,
-                                        const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     void flatten(SkWriteBuffer&) const override;
 
     SkISize radius() const { return fRadius; }
@@ -546,13 +544,10 @@ static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
 
 static sk_sp<SkSpecialImage> apply_morphology(
         GrRecordingContext* context, SkSpecialImage* input, const SkIRect& rect,
-        MorphType morphType, SkISize radius,
-        const SkImageFilter_Base::OutputProperties& outputProperties) {
+        MorphType morphType, SkISize radius, SkColorType colorType, SkColorSpace* colorSpace) {
     sk_sp<GrTextureProxy> srcTexture(input->asTextureProxyRef(context));
     SkASSERT(srcTexture);
-    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
-    GrColorType colorType = SkColorTypeToGrColorType(outputProperties.colorType());
-
+    sk_sp<SkColorSpace> cs = sk_ref_sp(colorSpace);
     // setup new clip
     const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));
 
@@ -566,8 +561,8 @@ static sk_sp<SkSpecialImage> apply_morphology(
                 SkBackingFit::kApprox,
                 rect.width(),
                 rect.height(),
-                colorType,
-                colorSpace,
+                SkColorTypeToGrColorType(colorType),
+                cs,
                 1,
                 GrMipMapped::kNo,
                 kBottomLeft_GrSurfaceOrigin,
@@ -594,8 +589,8 @@ static sk_sp<SkSpecialImage> apply_morphology(
                 SkBackingFit::kApprox,
                 rect.width(),
                 rect.height(),
-                colorType,
-                colorSpace,
+                SkColorTypeToGrColorType(colorType),
+                cs,
                 1,
                 GrMipMapped::kNo,
                 kBottomLeft_GrSurfaceOrigin,
@@ -615,7 +610,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
     return SkSpecialImage::MakeDeferredFromGpu(context,
                                                SkIRect::MakeWH(rect.width(), rect.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               std::move(srcTexture), std::move(colorSpace),
+                                               std::move(srcTexture), std::move(cs),
                                                &input->props());
 }
 #endif
@@ -735,11 +730,10 @@ namespace {
 #endif
 }  // namespace
 
-sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                                 const Context& ctx,
+sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& ctx,
                                                                  SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -752,7 +746,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(SkSpecialImage*
 
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
                                      SkIntToScalar(this->radius().height()));
-    ctx.ctm().mapVectors(&radius, 1);
+    ctx.layerCTM().mapVectors(&radius, 1);
     int width = SkScalarFloorToInt(radius.fX);
     int height = SkScalarFloorToInt(radius.fY);
 
@@ -770,18 +764,18 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(SkSpecialImage*
     }
 
 #if SK_SUPPORT_GPU
-    if (source->isTextureBacked()) {
-        auto context = source->getContext();
+    if (ctx.sourceImage()->isTextureBacked()) {
+        auto context = ctx.sourceImage()->getContext();
 
         // Ensure the input is in the destination color space. Typically applyCropRect will have
         // called pad_image to account for our dilation of bounds, so the result will already be
         // moved to the destination color space. If a filter DAG avoids that, then we use this
         // fall-back, which saves us from having to do the xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.outputProperties());
+        input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
 
         sk_sp<SkSpecialImage> result(apply_morphology(context, input.get(), srcBounds, fType,
                                                       SkISize::Make(width, height),
-                                                      ctx.outputProperties()));
+                                                      ctx.colorType(), ctx.colorSpace()));
         if (result) {
             offset->fX = bounds.left();
             offset->fY = bounds.top();
@@ -841,5 +835,5 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(SkSpecialImage*
     offset->fY = bounds.top();
 
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                          dst, &source->props());
+                                          dst, &ctx.sourceImage()->props());
 }
