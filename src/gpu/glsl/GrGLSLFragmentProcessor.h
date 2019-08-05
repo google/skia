@@ -12,6 +12,7 @@
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/sksl/SkSLString.h"
 
 class GrProcessor;
 class GrProcessorKeyBuilder;
@@ -137,8 +138,9 @@ public:
     }
 
     // Invoke the child with the default input color (solid white)
-    inline void invokeChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs) {
-        this->invokeChild(childIndex, nullptr, outputColor, parentArgs);
+    inline void invokeChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs,
+                            SkSL::String skslCoords = "") {
+        this->invokeChild(childIndex, nullptr, outputColor, parentArgs, skslCoords);
     }
 
     /** Invokes a child proc in its own scope. Pass in the parent's EmitArgs and invokeChild will
@@ -150,17 +152,18 @@ public:
      *  color.
      */
     void invokeChild(int childIndex, const char* inputColor, SkString* outputColor,
-                     EmitArgs& parentArgs);
+                     EmitArgs& parentArgs, SkSL::String skslCoords = "");
 
     // Use the parent's output color to hold child's output, and use the
     // default input color of solid white
-    inline void invokeChild(int childIndex, EmitArgs& args) {
+    inline void invokeChild(int childIndex, EmitArgs& args, SkSL::String skslCoords = "") {
         // null pointer cast required to disambiguate the function call
-        this->invokeChild(childIndex, (const char*) nullptr, args);
+        this->invokeChild(childIndex, (const char*) nullptr, args, skslCoords);
     }
 
     /** Variation that uses the parent's output color variable to hold the child's output.*/
-    void invokeChild(int childIndex, const char* inputColor, EmitArgs& parentArgs);
+    void invokeChild(int childIndex, const char* inputColor, EmitArgs& parentArgs,
+                     SkSL::String skslCoords = "");
 
     /**
      * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of
@@ -189,7 +192,7 @@ protected:
     virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) {}
 
 private:
-    void internalInvokeChild(int, const char*, const char*, EmitArgs&);
+    void internalInvokeChild(int, const char*, const char*, EmitArgs&, SkSL::String);
 
     // one per child; either not present or empty string if not yet emitted
     SkTArray<SkString> fFunctionNames;

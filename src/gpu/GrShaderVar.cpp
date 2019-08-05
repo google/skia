@@ -59,4 +59,9 @@ void GrShaderVar::appendDecl(const GrShaderCaps* shaderCaps, SkString* out) cons
     } else {
         out->appendf("%s %s", GrGLSLTypeString(effectiveType), this->getName().c_str());
     }
+    if (this->getTypeModifier() == kIn_TypeModifier &&
+        strstr(this->getName().c_str(), "TransformedCoords")) {
+        out->appendf(";\n%s %s_override = %s\n", GrGLSLTypeString(this->getType()),
+                     this->getName().c_str(), this->getName().c_str());
+    }
 }

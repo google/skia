@@ -72,7 +72,8 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         SkString strUniName;
         strUniName.printf("CoordTransformMatrix_%d", i);
         const char* uniName;
-        fInstalledTransforms.push_back().fHandle = uniformHandler->addUniform(kVertex_GrShaderFlag,
+        fInstalledTransforms.push_back().fHandle = uniformHandler->addUniform(kVertex_GrShaderFlag |
+                                                                              kFragment_GrShaderFlag,
                                                                               kFloat3x3_GrSLType,
                                                                               strUniName.c_str(),
                                                                               &uniName).toIndex();
