@@ -160,9 +160,11 @@ bool GrTextureOpList::copySurface(GrRecordingContext* context,
         return false;
     }
 
+    GrTextureResolveManager textureResolveManager(context->priv().drawingManager());
     const GrCaps* caps = context->priv().caps();
-    auto addDependency = [ caps, this ] (GrSurfaceProxy* p, GrMipMapped) {
-        this->addDependency(p, *caps);
+    auto addDependency = [ textureResolveManager, caps, this ] (
+            GrSurfaceProxy* p, GrMipMapped mipmapped) {
+        this->addDependency(p, mipmapped, textureResolveManager, *caps);
     };
     op->visitProxies(addDependency);
 

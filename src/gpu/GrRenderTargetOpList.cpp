@@ -594,7 +594,8 @@ bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
         return false;
     }
 
-    this->addOp(std::move(op), *context->priv().caps());
+    this->addOp(std::move(op), GrTextureResolveManager(context->priv().drawingManager()),
+                *context->priv().caps());
     return true;
 }
 
@@ -606,7 +607,8 @@ void GrRenderTargetOpList::transferFrom(GrRecordingContext* context,
                                         size_t dstOffset) {
     auto op = GrTransferFromOp::Make(context, srcRect, surfaceColorType, dstColorType,
                                      std::move(dst), dstOffset);
-    this->addOp(std::move(op), *context->priv().caps());
+    this->addOp(std::move(op), GrTextureResolveManager(context->priv().drawingManager()),
+                *context->priv().caps());
 }
 
 void GrRenderTargetOpList::handleInternalAllocationFailure() {

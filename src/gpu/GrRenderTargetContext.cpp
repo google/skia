@@ -323,8 +323,8 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
                             GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
                                                         rtRect));
         } else {
-            opList->addOp(GrClearOp::Make(fContext, SkIRect::MakeEmpty(), color,
-                                          /* fullscreen */ true), *this->caps());
+            this->addOp(GrClearOp::Make(
+                    fContext, SkIRect::MakeEmpty(), color, /* fullscreen */ true));
         }
     } else {
         if (this->caps()->performPartialClearsAsDraws()) {
@@ -343,7 +343,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
             if (!op) {
                 return;
             }
-            this->getRTOpList()->addOp(std::move(op), *this->caps());
+            this->addOp(std::move(op));
         }
     }
 }
@@ -390,10 +390,8 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
             // Must use the ClearOp factory that takes a boolean (false) instead of a surface
             // proxy. The surface proxy variant would intersect the clip rect with its logical
             // bounds, which is not desired in this special case.
-            fRenderTargetContext->getRTOpList()->addOp(
-                    GrClearOp::Make(fRenderTargetContext->fContext, rtRect, color,
-                                    /* fullscreen */ false),
-                    *fRenderTargetContext->caps());
+            fRenderTargetContext->addOp(GrClearOp::Make(
+                    fRenderTargetContext->fContext, rtRect, color, /* fullscreen */ false));
         }
     } else {
         // Reset the oplist like in internalClear(), but do not rely on a load op for the clear
@@ -412,10 +410,9 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
                                                 SkMatrix::I(), SkRect::Make(rtRect)));
         } else {
             // Nothing special about this path in absClear compared to internalClear()
-            fRenderTargetContext->getRTOpList()->addOp(
-                    GrClearOp::Make(fRenderTargetContext->fContext, SkIRect::MakeEmpty(), color,
-                                    /* fullscreen */ true),
-                    *fRenderTargetContext->caps());
+            fRenderTargetContext->addOp(GrClearOp::Make(
+                    fRenderTargetContext->fContext, SkIRect::MakeEmpty(), color,
+                    /* fullscreen */ true));
         }
     }
 }
@@ -872,7 +869,7 @@ void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool i
         if (!op) {
             return;
         }
-        this->getRTOpList()->addOp(std::move(op), *this->caps());
+        this->addOp(std::move(op));
     }
 }
 
@@ -914,7 +911,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     op->setClippedBounds(bounds);
 
     fRenderTargetContext->setNeedsStencil(GrAA::kYes == doStencilMSAA);
-    fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+    fRenderTargetContext->addOp(std::move(op));
 }
 
 void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetEntry set[], int cnt,
@@ -1565,7 +1562,7 @@ void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHand
                                          const SkRect& bounds) {
     std::unique_ptr<GrOp> op(GrDrawableOp::Make(fContext, std::move(drawable), bounds));
     SkASSERT(op);
-    this->getRTOpList()->addOp(std::move(op), *this->caps());
+    this->addOp(std::move(op));
 }
 
 void GrRenderTargetContext::asyncRescaleAndReadPixels(
@@ -2013,14 +2010,15 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
                 kAdopt_GrWrapOwnership);
         std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(fContext, std::move(sema),
                                                              fRenderTargetProxy.get()));
-        this->getRTOpList()->addWaitOp(std::move(waitOp), *this->caps());
+        this->getRTOpList()->addWaitOp(
+                std::move(waitOp), GrTextureResolveManager(this->drawingManager()), *this->caps());
     }
     return true;
 }
 
 void GrRenderTargetContext::insertEventMarker(const SkString& str) {
     std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fContext, fRenderTargetProxy.get(), str));
-    this->getRTOpList()->addOp(std::move(op), *this->caps());
+    this->addOp(std::move(op));
 }
 
 void GrRenderTargetContext::drawPath(const GrClip& clip,
@@ -2288,6 +2286,11 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
+void GrRenderTargetContext::addOp(std::unique_ptr<GrOp> op) {
+    this->getRTOpList()->addOp(
+            std::move(op), GrTextureResolveManager(this->drawingManager()), *this->caps());
+}
+
 void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDrawOp> op,
                                       const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
@@ -2344,7 +2347,8 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     if (willAddFn) {
         willAddFn(op.get(), opList->uniqueID());
     }
-    opList->addDrawOp(std::move(op), analysis, std::move(appliedClip), dstProxy, *this->caps());
+    opList->addDrawOp(std::move(op), analysis, std::move(appliedClip), dstProxy,
+                      GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
 bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,

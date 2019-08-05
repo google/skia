@@ -599,6 +599,8 @@ private:
     void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,
                                     const GrShape&);
 
+    void addOp(std::unique_ptr<GrOp>);
+
     // Allows caller of addDrawOp to know which op list an op will be added to.
     using WillAddOpFn = void(GrOp*, uint32_t opListID);
     // These perform processing specific to GrDrawOp-derived ops before recording them into an
