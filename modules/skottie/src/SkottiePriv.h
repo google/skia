@@ -42,8 +42,6 @@ class TransformAdapter3D;
 
 namespace internal {
 
-class TextAdapter;
-
 using AnimatorScope = sksg::AnimatorList;
 
 class AnimationBuilder final : public SkNoncopyable {
@@ -196,7 +194,6 @@ private:
 
     bool dispatchColorProperty(const sk_sp<sksg::Color>&) const;
     bool dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&) const;
-    bool dispatchTextProperty(const sk_sp<TextAdapter>&) const;
     bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;
 
     // Delay resolving the fontmgr until it is actually needed.
