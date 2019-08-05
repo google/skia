@@ -1,0 +1,273 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6839b0e6_b922485b",
+        "filename": "bench/ImageFilterDAGBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "Everything out of the loop except for the drawRect ?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 76
+      },
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0b0c931_7b301aff",
+        "filename": "bench/ImageFilterDAGBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "Would it make sense to pull all this out of the loop but put \u0027image\u0027 inside the loop ?",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 89
+      },
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "264a03c1_045528cb",
+        "filename": "bench/ImageFilterDAGBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "Can we just put these in the DisplacementMap call now (since they\u0027re shorter) ?",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 48
+      },
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "696d3b63_f6e40fec",
+        "filename": "bench/ImageFilterDAGBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "Pull this out of the loop ? Actually, can we pull everything out of the loop except for the drawRect call ?",
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6f64cce_5bebf2cd",
+        "filename": "bench/ImageFilterDAGBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "All out of the loop ?",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 43
+      },
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e39559b_e9f6d427",
+        "filename": "bench/MatrixConvolutionBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "It looks like we have three copies of this method. Move it to ToolUtils.h/.cpp ?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 42
+      },
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb90adf3_3058b697",
+        "filename": "bench/MatrixConvolutionBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "override here and below ?",
+      "range": {
+        "startLine": 44,
+        "startChar": 4,
+        "endLine": 44,
+        "endChar": 11
+      },
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6845bc1_5dae2a35",
+        "filename": "bench/MatrixConvolutionBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "Seems like this line could be pulled out of the loop",
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6806e56e_4ed778bc",
+        "filename": "bench/MergeBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "Just do this in \u0027onDraw\u0027 ?",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 5
+      },
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8edae27b_3f65f23c",
+        "filename": "bench/MorphologyBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "at the end of the prior line ?",
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bb4234f_b4dea3ed",
+        "filename": "bench/MorphologyBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "initializer list ?",
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a9b737f_073a0a72",
+        "filename": "bench/MorphologyBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e5df4f8_d8f666df",
+        "filename": "bench/MorphologyBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T14:05:58Z",
+      "side": 1,
+      "message": "Can this be done outside the loop ?",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 13
+      },
+      "revId": "d8ad1365863bc8ad381dc9e3c2ad084a34b4d136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
