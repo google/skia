@@ -177,6 +177,7 @@ skia_core_sources = [
   "$_src/core/SkDistanceFieldGen.h",
   "$_src/core/SkDocument.cpp",
   "$_src/core/SkDraw.cpp",
+  "$_src/core/SkDraw_atlas.cpp",
   "$_src/core/SkDraw_text.cpp",
   "$_src/core/SkDraw_vertices.cpp",
   "$_src/core/SkDraw.h",
