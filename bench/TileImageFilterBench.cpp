@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkTileImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 
 #define WIDTH 512
 #define HEIGHT 512
@@ -37,9 +37,8 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setImageFilter(SkTileImageFilter::Make(SkRect::MakeWH(50, 50),
-                                                     SkRect::MakeWH(WIDTH, HEIGHT),
-                                                     nullptr));
+        paint.setImageFilter(SkImageFilters::Tile(
+                SkRect::MakeWH(50, 50), SkRect::MakeWH(WIDTH, HEIGHT), nullptr));
 
         for (int i = 0; i < loops; i++) {
             if (fTileSize > 0) {

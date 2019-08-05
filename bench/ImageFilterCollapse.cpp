@@ -9,9 +9,9 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImageFilter.h"
-#include "include/effects/SkColorFilterImageFilter.h"
 #include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/effects/SkTableColorFilter.h"
 
 // Chains several matrix color filters image filter or several
@@ -30,7 +30,7 @@ protected:
 
         // Create a chain of ImageFilters from colorFilters
         for(int i = nFilters; i --> 0;) {
-            fImageFilter = SkColorFilterImageFilter::Make(colorFilters[i], fImageFilter);
+            fImageFilter = SkImageFilters::ColorFilter(colorFilters[i], fImageFilter);
         }
     }
 
