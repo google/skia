@@ -86,7 +86,7 @@ namespace DM {
 GMSrc::GMSrc(skiagm::GMFactory factory) : fFactory(factory) {}
 
 Error GMSrc::draw(SkCanvas* canvas) const {
-    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
+    std::unique_ptr<skiagm::GM> gm(fFactory());
     SkString errorMsg;
     skiagm::DrawResult drawResult = gm->draw(canvas, &errorMsg);
     if (skiagm::DrawResult::kSkip == drawResult) {
@@ -96,17 +96,17 @@ Error GMSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize GMSrc::size() const {
-    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
+    std::unique_ptr<skiagm::GM> gm(fFactory());
     return gm->getISize();
 }
 
 Name GMSrc::name() const {
-    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
+    std::unique_ptr<skiagm::GM> gm(fFactory());
     return gm->getName();
 }
 
 void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
-    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
+    std::unique_ptr<skiagm::GM> gm(fFactory());
     gm->modifyGrContextOptions(options);
 }
 
