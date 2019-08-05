@@ -19,7 +19,7 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  const GrGLTexture::IDDesc& texIDDesc,
                                                  const GrGLRenderTarget::IDDesc& rtIDDesc,
                                                  GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, desc, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrGLTexture(gpu, desc, texIDDesc, nullptr, mipMapsStatus)
         , GrGLRenderTarget(gpu, desc, sampleCount, texIDDesc.fInfo.fFormat, rtIDDesc) {
     this->registerWithCache(budgeted);
@@ -33,7 +33,7 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  const GrGLRenderTarget::IDDesc& rtIDDesc,
                                                  GrWrapCacheable cacheable,
                                                  GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, desc, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrGLTexture(gpu, desc, texIDDesc, std::move(parameters), mipMapsStatus)
         , GrGLRenderTarget(gpu, desc, sampleCount, texIDDesc.fInfo.fFormat, rtIDDesc) {
     this->registerWithCacheWrapped(cacheable);

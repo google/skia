@@ -25,9 +25,10 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          sk_sp<GrVkImageLayout> layout,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, desc, info.fProtected)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected)
         , GrVkImage(info, std::move(layout), GrBackendObjectOwnership::kOwned)
-        , INHERITED(gpu, desc, info.fProtected, GrTextureType::k2D, mipMapsStatus)
+        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected,
+                    GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     this->registerWithCache(budgeted);
@@ -40,9 +41,10 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu, const GrSurfaceDesc& desc, const GrVkImag
                          sk_sp<GrVkImageLayout> layout, const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus, GrBackendObjectOwnership ownership,
                          GrWrapCacheable cacheable, GrIOType ioType)
-        : GrSurface(gpu, desc, info.fProtected)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected)
         , GrVkImage(info, std::move(layout), ownership)
-        , INHERITED(gpu, desc, info.fProtected, GrTextureType::k2D, mipMapsStatus)
+        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected,
+                    GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     if (ioType == kRead_GrIOType) {
@@ -59,9 +61,10 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus,
                          GrBackendObjectOwnership ownership)
-        : GrSurface(gpu, desc, info.fProtected)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected)
         , GrVkImage(info, layout, ownership)
-        , INHERITED(gpu, desc, info.fProtected, GrTextureType::k2D, mipMapsStatus)
+        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected,
+                    GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
 }

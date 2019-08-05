@@ -111,11 +111,11 @@ protected:
     // Provides access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
 
-    GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc, GrProtected isProtected)
+    GrSurface(GrGpu* gpu, const SkISize& size, GrPixelConfig config, GrProtected isProtected)
             : INHERITED(gpu)
-            , fConfig(desc.fConfig)
-            , fWidth(desc.fWidth)
-            , fHeight(desc.fHeight)
+            , fConfig(config)
+            , fWidth(size.width())
+            , fHeight(size.height())
             , fSurfaceFlags(GrInternalSurfaceFlags::kNone)
             , fIsProtected(isProtected) {}
 
