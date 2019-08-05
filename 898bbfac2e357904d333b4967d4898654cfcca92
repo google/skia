@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "363b40c6_1e5f30ea",
+        "filename": "gm/morphology.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:27:41Z",
+      "side": 1,
+      "message": "Dilate",
+      "range": {
+        "startLine": 85,
+        "startChar": 57,
+        "endLine": 85,
+        "endChar": 63
+      },
+      "revId": "898bbfac2e357904d333b4967d4898654cfcca92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
