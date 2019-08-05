@@ -44,15 +44,18 @@ public:
         }
     }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(const float matrix[20], bool unpremulInput,
-                                                     bool clampRGBOutput, bool premulOutput) {
+    static std::unique_ptr<GrFragmentProcessor> Make(const float matrix[20],
+                                                     bool unpremulInput,
+                                                     bool clampRGBOutput,
+                                                     bool premulOutput,
+                                                     bool hslaMatrix = false) {
         SkMatrix44 m44;
         m44.set4x4(matrix[0], matrix[5], matrix[10], matrix[15], matrix[1], matrix[6], matrix[11],
                    matrix[16], matrix[2], matrix[7], matrix[12], matrix[17], matrix[3], matrix[8],
                    matrix[13], matrix[18]);
         auto v4 = SkVector4(matrix[4], matrix[9], matrix[14], matrix[19]);
         return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(
-                m44, v4, unpremulInput, clampRGBOutput, premulOutput));
+                m44, v4, unpremulInput, clampRGBOutput, premulOutput, hslaMatrix));
     }
     GrColorMatrixFragmentProcessor(const GrColorMatrixFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -62,17 +65,19 @@ public:
     bool unpremulInput;
     bool clampRGBOutput;
     bool premulOutput;
+    bool hslaMatrix;
 
 private:
     GrColorMatrixFragmentProcessor(SkMatrix44 m, SkVector4 v, bool unpremulInput,
-                                   bool clampRGBOutput, bool premulOutput)
+                                   bool clampRGBOutput, bool premulOutput, bool hslaMatrix)
             : INHERITED(kGrColorMatrixFragmentProcessor_ClassID,
                         (OptimizationFlags)kConstantOutputForConstantInput_OptimizationFlag)
             , m(m)
             , v(v)
             , unpremulInput(unpremulInput)
             , clampRGBOutput(clampRGBOutput)
-            , premulOutput(premulOutput) {}
+            , premulOutput(premulOutput)
+            , hslaMatrix(hslaMatrix) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

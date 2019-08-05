@@ -34,20 +34,39 @@ public:
         (void)clampRGBOutput;
         auto premulOutput = _outer.premulOutput;
         (void)premulOutput;
+        auto hslaMatrix = _outer.hslaMatrix;
+        (void)hslaMatrix;
         mVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType, "m");
         vVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "v");
         fragBuilder->codeAppendf(
                 "half4 inputColor = %s;\n@if (%s) {\n    half nonZeroAlpha = max(inputColor.w, "
                 "9.9999997473787516e-05);\n    inputColor = half4(inputColor.xyz / nonZeroAlpha, "
-                "nonZeroAlpha);\n}\n%s = %s * inputColor + %s;\n@if (%s) {\n    %s = clamp(%s, "
-                "0.0, 1.0);\n} else {\n    %s.w = clamp(%s.w, 0.0, 1.0);\n}\n@if (%s) {\n    "
-                "%s.xyz *= %s.w;\n}\n",
-                args.fInputColor, (_outer.unpremulInput ? "true" : "false"), args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(mVar),
-                args.fUniformHandler->getUniformCStr(vVar),
-                (_outer.clampRGBOutput ? "true" : "false"), args.fOutputColor, args.fOutputColor,
-                args.fOutputColor, args.fOutputColor, (_outer.premulOutput ? "true" : "false"),
-                args.fOutputColor, args.fOutputColor);
+                "nonZeroAlpha);\n}\n@if (%s) {\n    half3 c = half3(inputColor.x, inputColor.y, "
+                "inputColor.z);\n    half4 p = mix(half4(c.zy, half4(0.0, -0.33333333333333331, "
+                "0.66666666666666663, -1.0).wz), half4(c.yz, half4(0.0, -0.33333333333333331, "
+                "0.66666666666666663, -1.0).xy), step(c.z, c.y));\n    half4 q = mix(half4(p.xyw, "
+                "c.x), half4(c.x, p.yzx), step(p.x, c.x",
+                args.fInputColor, (_outer.unpremulInput ? "true" : "false"),
+                (_outer.hslaMatrix ? "true" : "false"));
+        fragBuilder->codeAppendf(
+                "));\n    half d = q.x - min(q.w, q.y);\n    half3 hsv = half3(abs(q.z + (q.w - "
+                "q.y) / (6.0 * d + 9.9999997473787516e-05)), d / (q.x + 9.9999997473787516e-05), "
+                "q.x);\n    inputColor.x = hsv.x;\n    inputColor.z = hsv.z * (1.0 - hsv.y * "
+                "0.5);\n    half cmin = min(inputColor.z, 1.0 - inputColor.z);\n    inputColor.y = "
+                "cmin != 0.0 ? (hsv.z - inputColor.z) / cmin : 0.0;\n}\n%s = %s * inputColor + "
+                "%s;\n@if (%s) {\n    half3 hsl = %s.xyz;\n    half3 p = abs(fract(hsl.xxx + "
+                "half3(0.0, 0.66666666666666663, 0.3333333",
+                args.fOutputColor, args.fUniformHandler->getUniformCStr(mVar),
+                args.fUniformHandler->getUniformCStr(vVar), (_outer.hslaMatrix ? "true" : "false"),
+                args.fOutputColor);
+        fragBuilder->codeAppendf(
+                "3333333331).xyz) * 6.0 - 3.0);\n    half3 rgb = clamp(p - 1.0, 0.0, 1.0);\n    "
+                "half C = (1.0 - abs(2.0 * hsl.z - 1.0)) * hsl.y;\n    %s.xyz = (rgb - 0.5) * C + "
+                "hsl.z;\n}\n{\n}\n@if (%s) {\n    %s = clamp(%s, 0.0, 1.0);\n} else {\n    %s.w = "
+                "clamp(%s.w, 0.0, 1.0);\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
+                args.fOutputColor, (_outer.clampRGBOutput ? "true" : "false"), args.fOutputColor,
+                args.fOutputColor, args.fOutputColor, args.fOutputColor,
+                (_outer.premulOutput ? "true" : "false"), args.fOutputColor, args.fOutputColor);
     }
 
 private:
@@ -80,6 +99,7 @@ void GrColorMatrixFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& c
     b->add32((int32_t)unpremulInput);
     b->add32((int32_t)clampRGBOutput);
     b->add32((int32_t)premulOutput);
+    b->add32((int32_t)hslaMatrix);
 }
 bool GrColorMatrixFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrColorMatrixFragmentProcessor& that = other.cast<GrColorMatrixFragmentProcessor>();
@@ -89,6 +109,7 @@ bool GrColorMatrixFragmentProcessor::onIsEqual(const GrFragmentProcessor& other)
     if (unpremulInput != that.unpremulInput) return false;
     if (clampRGBOutput != that.clampRGBOutput) return false;
     if (premulOutput != that.premulOutput) return false;
+    if (hslaMatrix != that.hslaMatrix) return false;
     return true;
 }
 GrColorMatrixFragmentProcessor::GrColorMatrixFragmentProcessor(
@@ -98,7 +119,8 @@ GrColorMatrixFragmentProcessor::GrColorMatrixFragmentProcessor(
         , v(src.v)
         , unpremulInput(src.unpremulInput)
         , clampRGBOutput(src.clampRGBOutput)
-        , premulOutput(src.premulOutput) {}
+        , premulOutput(src.premulOutput)
+        , hslaMatrix(src.hslaMatrix) {}
 std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(*this));
 }
@@ -113,6 +135,7 @@ std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::TestCreate(
     bool unpremul = d->fRandom->nextBool();
     bool clampRGB = d->fRandom->nextBool();
     bool premul = d->fRandom->nextBool();
-    return Make(m, unpremul, clampRGB, premul);
+    bool hsla = d->fRandom->nextBool();
+    return Make(m, unpremul, clampRGB, premul, hsla);
 }
 #endif
