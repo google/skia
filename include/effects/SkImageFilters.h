@@ -160,7 +160,7 @@ public:
      */
     static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image) {
         SkRect r = image ? SkRect::MakeWH(image->width(), image->height()) : SkRect::MakeEmpty();
-        return Image(std::move(image), r, r, kNone_SkFilterQuality);
+        return Image(std::move(image), r, r, kHigh_SkFilterQuality);
     }
 
     /**

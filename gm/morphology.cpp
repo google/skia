@@ -82,7 +82,7 @@ protected:
                     paint.setImageFilter(SkImageFilters::Erode(
                             samples[i].fRadiusX, samples[i].fRadiusY, nullptr, cr));
                 } else {
-                    paint.setImageFilter(SkImageFilters::Erode(
+                    paint.setImageFilter(SkImageFilters::Dilate(
                             samples[i].fRadiusX, samples[i].fRadiusY, nullptr, cr));
                 }
                 this->drawClippedBitmap(canvas, paint, i * 140, j * 140);

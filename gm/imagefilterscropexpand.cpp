@@ -68,9 +68,9 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
     canvas->translate(MARGIN, MARGIN);
     for (int outset = -15; outset <= 20; outset += 5) {
         canvas->save();
-        SkRect rect = SkRect::Make(cropRect);
         SkIRect bigRect = cropRect;
         bigRect.outset(outset, outset);
+        SkRect rect = SkRect::Make(bigRect);
 
         draw(canvas, checkerboard, rect, SkImageFilters::ColorFilter(
                 cfAlphaTrans, noopCropped,  &bigRect));
