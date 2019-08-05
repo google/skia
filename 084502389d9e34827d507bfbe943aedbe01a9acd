@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "889ce15e_30942513",
+        "filename": "gm/imagefilterscropexpand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-05T14:15:54Z",
+      "side": 1,
+      "message": "SkIRect -\u003e SkRect, but I updated the draw() function to just take SkIRect instead so the calling code is simpler.",
+      "parentUuid": "bc331b8e_33bea7ac",
+      "revId": "084502389d9e34827d507bfbe943aedbe01a9acd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28cdcc5d_b085768b",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "084502389d9e34827d507bfbe943aedbe01a9acd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e7a4e53_99602b41",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-05T14:15:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28cdcc5d_b085768b",
+      "revId": "084502389d9e34827d507bfbe943aedbe01a9acd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
