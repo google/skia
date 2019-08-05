@@ -113,8 +113,8 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
-DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kClipped);)
-DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kUnclipped);)
+DEF_GM(UnclippedSaveLayerGM, UnclippedSaveLayerGM::Mode::kClipped)
+DEF_GM(UnclippedSaveLayerGM, UnclippedSaveLayerGM::Mode::kUnclipped)
 
 DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     SkPaint paint1, paint2, paint3;

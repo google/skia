@@ -223,6 +223,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new XfermodeImageFilterGM; );
+DEF_GM(XfermodeImageFilterGM)
 
 }

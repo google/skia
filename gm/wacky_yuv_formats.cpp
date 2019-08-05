@@ -1341,9 +1341,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ false);)
-DEF_GM(return new WackyYUVFormatsGM(/* cs */ true,  /* domain */ false);)
-DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ true);)
+DEF_GM(WackyYUVFormatsGM, /* cs */ false, /* domain */ false)
+DEF_GM(WackyYUVFormatsGM, /* cs */ true,  /* domain */ false)
+DEF_GM(WackyYUVFormatsGM, /* cs */ false, /* domain */ true)
 
 class YUVMakeColorSpaceGM : public GpuGM {
 public:
@@ -1482,7 +1482,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new YUVMakeColorSpaceGM();)
+DEF_GM(YUVMakeColorSpaceGM)
 
 }
 
@@ -1606,4 +1606,4 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new YUVSplitterGM; )
+DEF_GM(YUVSplitterGM)

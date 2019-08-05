@@ -161,6 +161,6 @@ protected:
     SkPaint fFillPaint;
 };
 
-DEF_GM(return new SharedCornersGM;)
+DEF_GM(SharedCornersGM)
 
 }

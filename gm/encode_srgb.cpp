@@ -147,7 +147,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kPNG); )
-DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kWEBP); )
-DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kJPEG); )
+DEF_GM(EncodeSRGBGM, SkEncodedImageFormat::kPNG)
+DEF_GM(EncodeSRGBGM, SkEncodedImageFormat::kWEBP)
+DEF_GM(EncodeSRGBGM, SkEncodedImageFormat::kJPEG)
 }

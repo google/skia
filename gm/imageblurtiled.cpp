@@ -76,6 +76,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new  ImageBlurTiledGM(3.0f, 3.0f);)
+DEF_GM(ImageBlurTiledGM, 3.0f, 3.0f)
 
 }

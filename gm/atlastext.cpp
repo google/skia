@@ -194,6 +194,6 @@ constexpr int AtlasTextGM::kSize;
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new AtlasTextGM;)
+DEF_GM(AtlasTextGM)
 
 #endif

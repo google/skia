@@ -88,7 +88,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new StringArtGM; )
+DEF_GM(StringArtGM)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -158,6 +158,6 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new SkottieGM; )
+DEF_GM(SkottieGM)
 #endif
 

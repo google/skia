@@ -74,4 +74,4 @@ private:
 };
 
 // Register the GM
-DEF_GM( return new TestGradientGM; )
+DEF_GM(TestGradientGM)

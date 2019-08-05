@@ -272,15 +272,15 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new BitmapRectRounding; )
+DEF_GM(BitmapRectRounding)
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new DrawBitmapRect2(false); )
-DEF_GM( return new DrawBitmapRect2(true); )
-DEF_GM( return new DrawBitmapRect3(); )
+DEF_GM(DrawBitmapRect2, false)
+DEF_GM(DrawBitmapRect2, true)
+DEF_GM(DrawBitmapRect3)
 
 #ifndef SK_BUILD_FOR_ANDROID
-DEF_GM( return new DrawBitmapRect4(false); )
-DEF_GM( return new DrawBitmapRect4(true); )
+DEF_GM(DrawBitmapRect4, false)
+DEF_GM(DrawBitmapRect4, true)
 #endif

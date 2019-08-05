@@ -140,5 +140,5 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
-DEF_GM(return new RuntimeCF(false);)
-//DEF_GM(return new RuntimeCF(true);)
+DEF_GM(RuntimeCF, false)
+//DEF_GM(RuntimeCF, true)

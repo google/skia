@@ -355,8 +355,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new FontMgrGM;)
-DEF_GM(return new FontMgrMatchGM;)
-DEF_GM(return new FontMgrBoundsGM(1, 0);)
-DEF_GM(return new FontMgrBoundsGM(0.75f, 0);)
-DEF_GM(return new FontMgrBoundsGM(1, -0.25f);)
+DEF_GM(FontMgrGM)
+DEF_GM(FontMgrMatchGM)
+DEF_GM(FontMgrBoundsGM, 1, 0)
+DEF_GM(FontMgrBoundsGM, 0.75f, 0)
+DEF_GM(FontMgrBoundsGM, 1, -0.25f)

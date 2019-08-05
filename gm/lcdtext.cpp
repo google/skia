@@ -103,5 +103,5 @@ class LcdTextSizeGM : public skiagm::GM {
         }
     }
 };
-DEF_GM( return new LcdTextGM; )
-DEF_GM( return new LcdTextSizeGM; )
+DEF_GM(LcdTextGM)
+DEF_GM(LcdTextSizeGM)

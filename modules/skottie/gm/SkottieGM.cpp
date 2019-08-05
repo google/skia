@@ -89,7 +89,7 @@ private:
     using INHERITED = skiagm::GM;
 };
 
-DEF_GM(return new SkottieWebFontGM;)
+DEF_GM(SkottieWebFontGM)
 
 using namespace skottie_utils;
 
@@ -165,7 +165,7 @@ private:
     using INHERITED = skiagm::GM;
 };
 
-DEF_GM(return new SkottieColorizeGM;)
+DEF_GM(SkottieColorizeGM)
 
 class SkottieMultiFrameGM : public skiagm::GM {
 public:
@@ -223,4 +223,4 @@ private:
     using INHERITED = skiagm::GM;
 };
 
-DEF_GM(return new SkottieMultiFrameGM;)
+DEF_GM(SkottieMultiFrameGM)

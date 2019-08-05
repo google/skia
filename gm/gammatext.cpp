@@ -92,7 +92,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return new GammaTextGM; )
+DEF_GM(GammaTextGM)
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -159,4 +159,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return new GammaShaderTextGM; )
+DEF_GM(GammaShaderTextGM)

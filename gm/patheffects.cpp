@@ -174,7 +174,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new PathEffectGM; )
+DEF_GM(PathEffectGM)
 
 }
 
@@ -235,5 +235,5 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM(return new ComboPathEfectsGM;)
+DEF_GM(ComboPathEfectsGM)
 

@@ -128,7 +128,7 @@ protected:
         return false;
     }
 };
-DEF_GM(return new MacAAFontsGM;)
+DEF_GM(MacAAFontsGM)
 
 #endif
 

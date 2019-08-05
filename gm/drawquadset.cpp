@@ -239,6 +239,6 @@ private:
     }
 };
 
-DEF_GM(return new DrawQuadSetGM();)
+DEF_GM(DrawQuadSetGM)
 
 } // namespace skiagm

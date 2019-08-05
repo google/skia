@@ -546,33 +546,33 @@ namespace skiagm {
         typedef GM INHERITED;
     };
 
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kNoClipSingle_Content,
-                                       MultiPictureDraw::kSimple_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kRectClipMulti_Content,
-                                       MultiPictureDraw::kSimple_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kRRectClipMulti_Content,
-                                       MultiPictureDraw::kSimple_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kPathClipMulti_Content,
-                                       MultiPictureDraw::kSimple_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kInvPathClipMulti_Content,
-                                       MultiPictureDraw::kSimple_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kSierpinski_Content,
-                                       MultiPictureDraw::kSimple_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kBigLayer_Content,
-                                       MultiPictureDraw::kSimple_Layout);)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kNoClipSingle_Content,
+                                       MultiPictureDraw::kSimple_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kRectClipMulti_Content,
+                                       MultiPictureDraw::kSimple_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kRRectClipMulti_Content,
+                                       MultiPictureDraw::kSimple_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kPathClipMulti_Content,
+                                       MultiPictureDraw::kSimple_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kInvPathClipMulti_Content,
+                                       MultiPictureDraw::kSimple_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kSierpinski_Content,
+                                       MultiPictureDraw::kSimple_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kBigLayer_Content,
+                                       MultiPictureDraw::kSimple_Layout)
 
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kNoClipSingle_Content,
-                                       MultiPictureDraw::kTiled_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kRectClipMulti_Content,
-                                       MultiPictureDraw::kTiled_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kRRectClipMulti_Content,
-                                       MultiPictureDraw::kTiled_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kPathClipMulti_Content,
-                                       MultiPictureDraw::kTiled_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kInvPathClipMulti_Content,
-                                       MultiPictureDraw::kTiled_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kSierpinski_Content,
-                                       MultiPictureDraw::kTiled_Layout);)
-    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kBigLayer_Content,
-                                       MultiPictureDraw::kTiled_Layout);)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kNoClipSingle_Content,
+                                       MultiPictureDraw::kTiled_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kRectClipMulti_Content,
+                                       MultiPictureDraw::kTiled_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kRRectClipMulti_Content,
+                                       MultiPictureDraw::kTiled_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kPathClipMulti_Content,
+                                       MultiPictureDraw::kTiled_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kInvPathClipMulti_Content,
+                                       MultiPictureDraw::kTiled_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kSierpinski_Content,
+                                       MultiPictureDraw::kTiled_Layout)
+DEF_GM(MultiPictureDraw, MultiPictureDraw::kBigLayer_Content,
+                                       MultiPictureDraw::kTiled_Layout)
 }

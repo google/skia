@@ -219,6 +219,6 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new ClockwiseGM(); )
+DEF_GM(ClockwiseGM)
 
 }

@@ -85,4 +85,4 @@ class FilterIndiaBoxGM : public skiagm::GM {
 };
 }  // namespace
 
-DEF_GM( return new FilterIndiaBoxGM(); )
+DEF_GM(FilterIndiaBoxGM)

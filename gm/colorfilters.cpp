@@ -81,7 +81,7 @@ class ColorFiltersGM : public skiagm::GM {
     }
 };
 
-DEF_GM(return new ColorFiltersGM;)
+DEF_GM(ColorFiltersGM)
 
 class HSLColorFilterGM : public skiagm::GM {
 protected:
@@ -182,4 +182,4 @@ private:
     std::vector<sk_sp<SkShader>> fShaders;
 };
 
-DEF_GM(return new HSLColorFilterGM;)
+DEF_GM(HSLColorFilterGM)

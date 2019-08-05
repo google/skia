@@ -165,9 +165,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ImageAlphaThresholdGM(true);)
-DEF_GM(return new ImageAlphaThresholdGM(false);)
-DEF_GM(return new ImageAlphaThresholdSurfaceGM();)
+DEF_GM(ImageAlphaThresholdGM, true)
+DEF_GM(ImageAlphaThresholdGM, false)
+DEF_GM(ImageAlphaThresholdSurfaceGM)
 
 //////////////////////////////////////////////////////////////////////////////
 

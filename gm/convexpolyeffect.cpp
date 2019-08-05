@@ -306,5 +306,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new ConvexPolyEffect;)
+DEF_GM(ConvexPolyEffect)
 }

@@ -102,4 +102,4 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new TrickyCubicStrokesGM; )
+DEF_GM(TrickyCubicStrokesGM)

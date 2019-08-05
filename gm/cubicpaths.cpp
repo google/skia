@@ -397,7 +397,7 @@ DEF_SIMPLE_GM(bug6083, canvas, 100, 50) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new CubicPathGM; )
-DEF_GM( return new CubicClosePathGM; )
-DEF_GM( return new ClippedCubicGM; )
-DEF_GM( return new ClippedCubic2GM; )
+DEF_GM(CubicPathGM)
+DEF_GM(CubicClosePathGM)
+DEF_GM(ClippedCubicGM)
+DEF_GM(ClippedCubic2GM)

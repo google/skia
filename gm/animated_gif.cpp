@@ -175,7 +175,7 @@ private:
         return true;
     }
 };
-DEF_GM(return new AnimatedGifGM);
+DEF_GM(AnimatedGifGM)
 
 
 static std::unique_ptr<SkCodec> load_codec(const char filename[]) {
@@ -229,4 +229,4 @@ private:
         return true;
     }
 };
-DEF_GM(return new AnimCodecPlayerGM);
+DEF_GM(AnimCodecPlayerGM)

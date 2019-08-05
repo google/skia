@@ -214,7 +214,7 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new LatticeGM; )
+DEF_GM(LatticeGM)
 
 
 // LatticeGM2 exercises code paths that draw fixed color and 1x1 rectangles.
@@ -348,7 +348,7 @@ public:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new LatticeGM2; )
+DEF_GM(LatticeGM2)
 
 // Code paths that incorporate the paint color when drawing the lattice (using an alpha image)
 DEF_SIMPLE_GM_BG(lattice_alpha, canvas, 120, 120, SK_ColorWHITE) {

@@ -312,5 +312,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new ConvexPolyClip;)
+DEF_GM(ConvexPolyClip)
 }

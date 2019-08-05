@@ -144,6 +144,6 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new BitmapShaderGM; )
+DEF_GM(BitmapShaderGM)
 
 }

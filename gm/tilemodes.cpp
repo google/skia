@@ -162,8 +162,8 @@ private:
     bool fPowerOfTwoSize;
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new TilingGM(true); )
-DEF_GM( return new TilingGM(false); )
+DEF_GM(TilingGM, true)
+DEF_GM(TilingGM, false)
 
 constexpr int gWidth = 32;
 constexpr int gHeight = 32;
@@ -259,8 +259,8 @@ private:
     }
 };
 
-DEF_GM( return new Tiling2GM(make_bm,   "tilemode_bitmap"); )
-DEF_GM( return new Tiling2GM(make_grad, "tilemode_gradient"); )
+DEF_GM(Tiling2GM, make_bm,   "tilemode_bitmap")
+DEF_GM(Tiling2GM, make_grad, "tilemode_gradient")
 
 ////////////////////
 

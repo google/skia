@@ -190,7 +190,7 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-DEF_GM(return new PointSnapGM;)
-DEF_GM(return new LineSnapGM;)
-DEF_GM(return new RectSnapGM;)
-DEF_GM(return new ComboSnapGM;)
+DEF_GM(PointSnapGM)
+DEF_GM(LineSnapGM)
+DEF_GM(RectSnapGM)
+DEF_GM(ComboSnapGM)

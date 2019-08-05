@@ -147,7 +147,7 @@ private:
     const int fStarSize;
 };
 
-DEF_GM( return new PreserveFillRuleGM(true); )
-DEF_GM( return new PreserveFillRuleGM(false); )
+DEF_GM(PreserveFillRuleGM, true)
+DEF_GM(PreserveFillRuleGM, false)
 
 }

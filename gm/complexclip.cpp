@@ -200,12 +200,12 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ComplexClipGM(false, false, false);)
-DEF_GM(return new ComplexClipGM(false, false, true);)
-DEF_GM(return new ComplexClipGM(false, true, false);)
-DEF_GM(return new ComplexClipGM(false, true, true);)
-DEF_GM(return new ComplexClipGM(true, false, false);)
-DEF_GM(return new ComplexClipGM(true, false, true);)
-DEF_GM(return new ComplexClipGM(true, true, false);)
-DEF_GM(return new ComplexClipGM(true, true, true);)
+DEF_GM(ComplexClipGM, false, false, false)
+DEF_GM(ComplexClipGM, false, false, true)
+DEF_GM(ComplexClipGM, false, true, false)
+DEF_GM(ComplexClipGM, false, true, true)
+DEF_GM(ComplexClipGM, true, false, false)
+DEF_GM(ComplexClipGM, true, false, true)
+DEF_GM(ComplexClipGM, true, true, false)
+DEF_GM(ComplexClipGM, true, true, true)
 }

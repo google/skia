@@ -280,4 +280,4 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new AAXfermodesGM; )
+DEF_GM(AAXfermodesGM)

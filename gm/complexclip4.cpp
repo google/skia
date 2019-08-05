@@ -100,6 +100,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ComplexClip4GM(false);)
-DEF_GM(return new ComplexClip4GM(true);)
+DEF_GM(ComplexClip4GM, false)
+DEF_GM(ComplexClip4GM, true)
 }

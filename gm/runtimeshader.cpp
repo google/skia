@@ -62,4 +62,4 @@ class RuntimeShader : public skiagm::GM {
         canvas->drawRect({0, 0, 256, 256}, p);
     }
 };
-DEF_GM(return new RuntimeShader;)
+DEF_GM(RuntimeShader)

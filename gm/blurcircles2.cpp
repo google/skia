@@ -168,4 +168,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new BlurCircles2GM();)
+DEF_GM(BlurCircles2GM)

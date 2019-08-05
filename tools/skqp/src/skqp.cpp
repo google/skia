@@ -227,7 +227,7 @@ const char* SkQP::GetBackendName(SkQP::SkiaBackend b) {
 }
 
 std::string SkQP::GetGMName(SkQP::GMFactory f) {
-    std::unique_ptr<skiagm::GM> gm(f ? f(nullptr) : nullptr);
+    std::unique_ptr<skiagm::GM> gm(f ? f() : nullptr);
     return std::string(gm ? gm->getName() : "");
 }
 
@@ -270,7 +270,7 @@ std::tuple<SkQP::RenderOutcome, std::string> SkQP::evaluateGM(SkQP::SkiaBackend 
     testCtx->makeCurrent();
 
     SkASSERT(gmFact);
-    std::unique_ptr<skiagm::GM> gm(gmFact(nullptr));
+    std::unique_ptr<skiagm::GM> gm(gmFact());
     SkASSERT(gm);
     const char* const name = gm->getName();
     const SkISize size = gm->getISize();

@@ -264,10 +264,10 @@ const SkVector RRectGM::gRadii[kNumComplexCases][4] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new RRectGM(RRectGM::kAA_Draw_Type); )
-DEF_GM( return new RRectGM(RRectGM::kBW_Draw_Type); )
-DEF_GM( return new RRectGM(RRectGM::kAA_Clip_Type); )
-DEF_GM( return new RRectGM(RRectGM::kBW_Clip_Type); )
-DEF_GM( return new RRectGM(RRectGM::kEffect_Type); )
+DEF_GM(RRectGM, RRectGM::kAA_Draw_Type)
+DEF_GM(RRectGM, RRectGM::kBW_Draw_Type)
+DEF_GM(RRectGM, RRectGM::kAA_Clip_Type)
+DEF_GM(RRectGM, RRectGM::kBW_Clip_Type)
+DEF_GM(RRectGM, RRectGM::kEffect_Type)
 
 }

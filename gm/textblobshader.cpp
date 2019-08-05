@@ -122,4 +122,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new TextBlobShaderGM;)
+DEF_GM(TextBlobShaderGM)

@@ -185,7 +185,7 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ReadPixelsGM; )
+DEF_GM(ReadPixelsGM)
 
 class ReadPixelsCodecGM : public skiagm::GM {
 public:
@@ -249,7 +249,7 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ReadPixelsCodecGM; )
+DEF_GM(ReadPixelsCodecGM)
 
 class ReadPixelsPictureGM : public skiagm::GM {
 public:
@@ -315,4 +315,4 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ReadPixelsPictureGM; )
+DEF_GM(ReadPixelsPictureGM)

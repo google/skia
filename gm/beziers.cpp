@@ -96,4 +96,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return new BeziersGM; )
+DEF_GM(BeziersGM)

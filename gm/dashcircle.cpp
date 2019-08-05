@@ -118,7 +118,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new DashCircleGM; )
+DEF_GM(DashCircleGM)
 
 class DashCircle2GM : public skiagm::GM {
 public:
@@ -235,7 +235,7 @@ protected:
     SkScalar fPhaseDegrees = 12.f;
 };
 
-DEF_GM(return new DashCircle2GM;)
+DEF_GM(DashCircle2GM)
 
 DEF_SIMPLE_GM(maddash, canvas, 1600, 1600) {
     canvas->drawRect({0, 0, 1600, 1600}, SkPaint());

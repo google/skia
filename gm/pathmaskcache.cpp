@@ -117,4 +117,4 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new PathMaskCache(); )
+DEF_GM(PathMaskCache)

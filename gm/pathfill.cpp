@@ -437,8 +437,8 @@ DEF_SIMPLE_GM(rotatedcubicpath, canvas, 200, 200) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new PathFillGM; )
-DEF_GM( return new PathInverseFillGM; )
+DEF_GM(PathFillGM)
+DEF_GM(PathInverseFillGM)
 
 DEF_SIMPLE_GM(bug7792, canvas, 800, 800) {
     // from skbug.com/7792 bug description

@@ -1054,8 +1054,8 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_filtered_renderers() {
     return renderers;
 }
 
-DEF_GM(return new CompositorGM("debug", make_debug_renderers());)
-DEF_GM(return new CompositorGM("color", SolidColorRenderer::Make({.2f, .8f, .3f, 1.f}));)
-DEF_GM(return new CompositorGM("shader", make_shader_renderers());)
-DEF_GM(return new CompositorGM("image", make_image_renderers());)
-DEF_GM(return new CompositorGM("filter", make_filtered_renderers());)
+DEF_GM(CompositorGM, "debug",  make_debug_renderers())
+DEF_GM(CompositorGM, "color",  SolidColorRenderer::Make({.2f, .8f, .3f, 1.f}))
+DEF_GM(CompositorGM, "shader", make_shader_renderers())
+DEF_GM(CompositorGM, "image",  make_image_renderers())
+DEF_GM(CompositorGM, "filter", make_filtered_renderers())

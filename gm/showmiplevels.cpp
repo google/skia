@@ -195,8 +195,8 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ShowMipLevels(255); )
-DEF_GM( return new ShowMipLevels(256); )
+DEF_GM(ShowMipLevels, 255)
+DEF_GM(ShowMipLevels, 256)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -308,7 +308,7 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ShowMipLevels2(255, 255); )
-DEF_GM( return new ShowMipLevels2(256, 255); )
-DEF_GM( return new ShowMipLevels2(255, 256); )
-DEF_GM( return new ShowMipLevels2(256, 256); )
+DEF_GM(ShowMipLevels2, 255, 255)
+DEF_GM(ShowMipLevels2, 256, 255)
+DEF_GM(ShowMipLevels2, 255, 256)
+DEF_GM(ShowMipLevels2, 256, 256)

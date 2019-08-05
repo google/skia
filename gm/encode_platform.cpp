@@ -130,5 +130,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new EncodePlatformGM; )
+DEF_GM(EncodePlatformGM)
 }

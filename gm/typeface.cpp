@@ -149,8 +149,8 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return new TypefaceStylesGM(false); )
-DEF_GM( return new TypefaceStylesGM(true); )
+DEF_GM(TypefaceStylesGM, false)
+DEF_GM(TypefaceStylesGM, true)
 
 ////////////////////////////////////////////////////////////////////////////////
 

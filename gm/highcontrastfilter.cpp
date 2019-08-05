@@ -163,4 +163,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new HighContrastFilterGM;)
+DEF_GM(HighContrastFilterGM)

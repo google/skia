@@ -126,7 +126,7 @@ DrawResult WindowRectanglesGM::onCoverClipStack(const SkClipStack& stack, SkCanv
     return DrawResult::kOk;
 }
 
-DEF_GM( return new WindowRectanglesGM(); )
+DEF_GM(WindowRectanglesGM, )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -296,6 +296,6 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
     }
 }
 
-DEF_GM( return new WindowRectanglesMaskGM(); )
+DEF_GM(WindowRectanglesMaskGM)
 
 }

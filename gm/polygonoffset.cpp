@@ -621,6 +621,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new PolygonOffsetGM(true);)
-DEF_GM(return new PolygonOffsetGM(false);)
+DEF_GM(PolygonOffsetGM, true)
+DEF_GM(PolygonOffsetGM, false)
 }

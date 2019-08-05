@@ -171,4 +171,4 @@ private:
 };
 }  // namespace
 
-DEF_GM( return new ColorEmojiBlendModesGM; )
+DEF_GM(ColorEmojiBlendModesGM)

@@ -284,8 +284,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new QuadPathGM; )
+DEF_GM(QuadPathGM)
 
-DEF_GM( return new QuadClosePathGM; )
+DEF_GM(QuadClosePathGM)
 
 }

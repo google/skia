@@ -147,7 +147,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ScaledEmojiGM;)
-DEF_GM(return new ScaledEmojiPosGM;)
+DEF_GM(ScaledEmojiGM)
+DEF_GM(ScaledEmojiPosGM)
 
 }

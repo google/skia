@@ -120,7 +120,7 @@ private:
     sk_sp<SkImage> fGradientCircle;
     typedef GM INHERITED;
 };
-DEF_GM( return new ImageFiltersTransformedGM; )
+DEF_GM(ImageFiltersTransformedGM)
 }
 
 //////////////////////////////////////////////////////////////////////////////

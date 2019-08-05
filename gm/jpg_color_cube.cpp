@@ -68,5 +68,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new ColorCubeGM; )
+DEF_GM(ColorCubeGM)
 }

@@ -221,5 +221,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new ImageFromYUVTextures;)
+DEF_GM(ImageFromYUVTextures)
 }

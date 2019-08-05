@@ -54,7 +54,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new EncodeGM; )
+DEF_GM(EncodeGM)
 }
 
 ///////////

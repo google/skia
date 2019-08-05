@@ -175,5 +175,5 @@ class PerlinNoiseGM2 : public skiagm::GM {
 
 } // namespace
 
-DEF_GM( return new PerlinNoiseGM; )
-DEF_GM( return new PerlinNoiseGM2; )
+DEF_GM(PerlinNoiseGM)
+DEF_GM(PerlinNoiseGM2)

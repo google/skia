@@ -137,5 +137,5 @@ constexpr SkScalar FontCacheGM::kSize;
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kNo))
-DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kYes))
+DEF_GM(FontCacheGM, GrContextOptions::Enable::kNo)
+DEF_GM(FontCacheGM, GrContextOptions::Enable::kYes)

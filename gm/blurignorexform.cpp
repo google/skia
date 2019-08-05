@@ -148,9 +148,9 @@ const BlurIgnoreXformGM::MatrixScale BlurIgnoreXformGM::kMatrixScales[] = {
     {2.0f, "Scale = 2.0"}
 };
 
-DEF_GM(return new BlurIgnoreXformGM(BlurIgnoreXformGM::DrawType::kCircle);)
-DEF_GM(return new BlurIgnoreXformGM(BlurIgnoreXformGM::DrawType::kRect);)
-DEF_GM(return new BlurIgnoreXformGM(BlurIgnoreXformGM::DrawType::kRRect);)
+DEF_GM(BlurIgnoreXformGM, BlurIgnoreXformGM::DrawType::kCircle)
+DEF_GM(BlurIgnoreXformGM, BlurIgnoreXformGM::DrawType::kRect)
+DEF_GM(BlurIgnoreXformGM, BlurIgnoreXformGM::DrawType::kRRect)
 
 
 

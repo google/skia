@@ -113,6 +113,6 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new CroppedRectsGM(); )
+DEF_GM(CroppedRectsGM)
 
 }

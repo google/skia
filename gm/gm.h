@@ -16,15 +16,17 @@
 #include "include/private/SkMacros.h"
 #include "tools/Registry.h"
 
+#include <memory>
+
 class GrContext;
 class GrRenderTargetContext;
 class SkCanvas;
 class SkMetaData;
 struct GrContextOptions;
 
-#define DEF_GM(code) \
-    static skiagm::GM*          SK_MACRO_APPEND_LINE(F_)(void*) { code; } \
-    static skiagm::GMRegistry   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
+#define DEF_GM(T, ...) \
+    static skiagm::GMRegistry SK_MACRO_APPEND_LINE(REG_)(\
+            [](){return std::unique_ptr<skiagm::GM>(new T(__VA_ARGS__));});
 
 // A Simple GM is a rendering test that does not store state between rendering calls or make use of
 // the onOnceBeforeDraw() virtual; it consists of:
@@ -50,7 +52,7 @@ struct GrContextOptions;
     DEF_SIMPLE_GM_BG_NAME_CAN_FAIL(NAME, CANVAS, ERR_MSG, W, H, BGCOLOR, SkString(#NAME))
 #define DEF_SIMPLE_GM_BG_NAME_CAN_FAIL(NAME, CANVAS, ERR_MSG, W, H, BGCOLOR, NAME_STR) \
     static skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)(SkCanvas*, SkString*); \
-    DEF_GM(return new skiagm::SimpleGM(BGCOLOR, NAME_STR, {W,H}, SK_MACRO_CONCAT(NAME,_GM));) \
+    DEF_GM(skiagm::SimpleGM, BGCOLOR, NAME_STR, {W,H}, SK_MACRO_CONCAT(NAME,_GM)) \
     skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)(SkCanvas* CANVAS, SkString* ERR_MSG)
 
 
@@ -75,8 +77,7 @@ struct GrContextOptions;
                                       H, BGCOLOR) \
     static skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)( \
             GrContext*, GrRenderTargetContext*, SkCanvas*, SkString*); \
-    DEF_GM(return new skiagm::SimpleGpuGM(BGCOLOR, SkString(#NAME), {W,H}, \
-                                          SK_MACRO_CONCAT(NAME,_GM));) \
+    DEF_GM(skiagm::SimpleGpuGM, BGCOLOR, SkString(#NAME), {W,H}, SK_MACRO_CONCAT(NAME,_GM)) \
     skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)( \
             GrContext* GR_CONTEXT, GrRenderTargetContext* RENDER_TARGET_CONTEXT, SkCanvas* CANVAS, \
             SkString* ERR_MSG)
@@ -171,8 +172,8 @@ namespace skiagm {
         bool     fHaveCalledOnceBeforeDraw;
     };
 
-    typedef GM*(*GMFactory)(void*) ;
-    typedef sk_tools::Registry<GMFactory> GMRegistry;
+    using GMFactory = std::unique_ptr<skiagm::GM> (*)();
+    using GMRegistry = sk_tools::Registry<GMFactory>;
 
     // A GpuGM replaces the onDraw method with one that also accepts GPU objects alongside the
     // SkCanvas. Its onDraw is only invoked on GPU configs; on non-GPU configs it will automatically
@@ -223,7 +224,6 @@ namespace skiagm {
         const SkISize fSize;
         const DrawProc fDrawProc;
     };
-
 }
 
 void MarkGMGood(SkCanvas*, SkScalar x, SkScalar y);

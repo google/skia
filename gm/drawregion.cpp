@@ -58,4 +58,4 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new DrawRegionGM; )
+DEF_GM(DrawRegionGM)

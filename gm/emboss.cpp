@@ -87,4 +87,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new EmbossGM;)
+DEF_GM(EmbossGM)

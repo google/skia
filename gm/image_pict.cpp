@@ -122,7 +122,7 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ImagePictGM; )
+DEF_GM(ImagePictGM)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -326,6 +326,6 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new ImageCacheratorGM("picture", make_pic_generator); )
-DEF_GM( return new ImageCacheratorGM("raster", make_ras_generator); )
-DEF_GM( return new ImageCacheratorGM("texture", make_tex_generator); )
+DEF_GM(ImageCacheratorGM, "picture", make_pic_generator)
+DEF_GM(ImageCacheratorGM, "raster", make_ras_generator)
+DEF_GM(ImageCacheratorGM, "texture", make_tex_generator)

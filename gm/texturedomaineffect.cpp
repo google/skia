@@ -173,8 +173,8 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kNearest);)
-DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kBilerp);)
-DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kMipMap);)
+DEF_GM(TextureDomainEffect, GrSamplerState::Filter::kNearest)
+DEF_GM(TextureDomainEffect, GrSamplerState::Filter::kBilerp)
+DEF_GM(TextureDomainEffect, GrSamplerState::Filter::kMipMap)
 
 }

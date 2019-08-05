@@ -116,7 +116,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new SurfacePropsGM )
+DEF_GM(SurfacePropsGM)
 
 #ifdef SK_DEBUG
 static bool equal(const SkSurfaceProps& a, const SkSurfaceProps& b) {
@@ -163,7 +163,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new NewSurfaceGM )
+DEF_GM(NewSurfaceGM)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

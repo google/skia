@@ -232,8 +232,8 @@ private:
 
     SkISize onISize() override { return {840, 815}; }
 };
-DEF_GM( return new GradientsGM(true); )
-DEF_GM( return new GradientsGM(false); )
+DEF_GM(GradientsGM, true)
+DEF_GM(GradientsGM, false)
 
 // Like the original gradients GM, but using the SkColor4f shader factories. Should be identical.
 class Gradients4fGM : public skiagm::GM {
@@ -282,8 +282,8 @@ private:
 
     bool fDither;
 };
-DEF_GM(return new Gradients4fGM(true); )
-DEF_GM(return new Gradients4fGM(false); )
+DEF_GM(Gradients4fGM, true)
+DEF_GM(Gradients4fGM, false)
 
 // Based on the original gradient slide, but with perspective applied to the
 // gradient shaders' local matrices
@@ -333,8 +333,8 @@ private:
 
     bool fDither;
 };
-DEF_GM( return new GradientsLocalPerspectiveGM(true); )
-DEF_GM( return new GradientsLocalPerspectiveGM(false); )
+DEF_GM(GradientsLocalPerspectiveGM, true)
+DEF_GM(GradientsLocalPerspectiveGM, false)
 
 // Based on the original gradient slide, but with perspective applied to
 // the view matrix
@@ -362,8 +362,8 @@ private:
 private:
     typedef GradientsGM INHERITED;
 };
-DEF_GM( return new GradientsViewPerspectiveGM(true); )
-DEF_GM( return new GradientsViewPerspectiveGM(false); )
+DEF_GM(GradientsViewPerspectiveGM, true)
+DEF_GM(GradientsViewPerspectiveGM, false)
 
 /*
  Inspired by this <canvas> javascript, where we need to detect that we are not
@@ -413,8 +413,8 @@ private:
 
     bool fDither;
 };
-DEF_GM( return new GradientsDegenrate2PointGM(true); )
-DEF_GM( return new GradientsDegenrate2PointGM(false); )
+DEF_GM(GradientsDegenrate2PointGM, true)
+DEF_GM(GradientsDegenrate2PointGM, false)
 
 /* bug.skia.org/517
 <canvas id="canvas"></canvas>
@@ -485,8 +485,8 @@ private:
 
     bool fDither;
 };
-DEF_GM( return new ClampedGradientsGM(true); )
-DEF_GM( return new ClampedGradientsGM(false); )
+DEF_GM(ClampedGradientsGM, true)
+DEF_GM(ClampedGradientsGM, false)
 
 /// Checks quality of large radial gradients, which may display
 /// some banding.
@@ -519,7 +519,7 @@ class RadialGradientGM : public skiagm::GM {
         canvas->drawRect(r, paint);
     }
 };
-DEF_GM( return new RadialGradientGM; )
+DEF_GM(RadialGradientGM)
 
 class RadialGradient2GM : public skiagm::GM {
 public:
@@ -581,8 +581,8 @@ private:
 
     typedef GM INHERITED;
 };
-DEF_GM( return new RadialGradient2GM(true); )
-DEF_GM( return new RadialGradient2GM(false); )
+DEF_GM(RadialGradient2GM, true)
+DEF_GM(RadialGradient2GM, false)
 
 // Shallow radial (shows banding on raster)
 class RadialGradient3GM : public skiagm::GM {
@@ -619,8 +619,8 @@ private:
 
     typedef GM INHERITED;
 };
-DEF_GM( return new RadialGradient3GM(true); )
-DEF_GM( return new RadialGradient3GM(false); )
+DEF_GM(RadialGradient3GM, true)
+DEF_GM(RadialGradient3GM, false)
 
 class RadialGradient4GM : public skiagm::GM {
 public:
@@ -657,8 +657,8 @@ private:
 
     typedef GM INHERITED;
 };
-DEF_GM( return new RadialGradient4GM(true); )
-DEF_GM( return new RadialGradient4GM(false); )
+DEF_GM(RadialGradient4GM, true)
+DEF_GM(RadialGradient4GM, false)
 
 class LinearGradientGM : public skiagm::GM {
 public:
@@ -709,8 +709,8 @@ private:
 
     typedef GM INHERITED;
 };
-DEF_GM( return new LinearGradientGM(true); )
-DEF_GM( return new LinearGradientGM(false); )
+DEF_GM(LinearGradientGM, true)
+DEF_GM(LinearGradientGM, false)
 
 class LinearGradientTinyGM : public skiagm::GM {
     static constexpr uint32_t kFlags = 0;
@@ -757,7 +757,7 @@ class LinearGradientTinyGM : public skiagm::GM {
     }
 };
 
-DEF_GM( return new LinearGradientTinyGM; )
+DEF_GM(LinearGradientTinyGM)
 }  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -479,6 +479,6 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new BezierConicEffects;)
-DEF_GM(return new BezierQuadEffects;)
+DEF_GM(BezierConicEffects)
+DEF_GM(BezierQuadEffects)
 }

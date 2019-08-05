@@ -43,7 +43,7 @@ class CopyTo4444GM : public skiagm::GM {
 };
 }  // namespace
 
-DEF_GM( return new CopyTo4444GM; )
+DEF_GM(CopyTo4444GM)
 
 //////////////////////////////////////////////////////////////////////////////
 

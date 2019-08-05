@@ -391,20 +391,20 @@ private:
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, true); )
-DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, true); )
-DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, true); )
+DEF_GM(ConicalGradientsGM, kInside_GradCaseType, true)
+DEF_GM(ConicalGradientsGM, kOutside_GradCaseType, true)
+DEF_GM(ConicalGradientsGM, kEdge_GradCaseType, true)
 
-DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, true, SkTileMode::kRepeat); )
-DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, true, SkTileMode::kRepeat); )
-DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, true, SkTileMode::kRepeat); )
+DEF_GM(ConicalGradientsGM, kInside_GradCaseType, true, SkTileMode::kRepeat)
+DEF_GM(ConicalGradientsGM, kOutside_GradCaseType, true, SkTileMode::kRepeat)
+DEF_GM(ConicalGradientsGM, kEdge_GradCaseType, true, SkTileMode::kRepeat)
 
-DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, true, SkTileMode::kMirror); )
-DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, true, SkTileMode::kMirror); )
-DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, true, SkTileMode::kMirror); )
+DEF_GM(ConicalGradientsGM, kInside_GradCaseType, true, SkTileMode::kMirror)
+DEF_GM(ConicalGradientsGM, kOutside_GradCaseType, true, SkTileMode::kMirror)
+DEF_GM(ConicalGradientsGM, kEdge_GradCaseType, true, SkTileMode::kMirror)
 
-DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, false); )
-DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, false); )
-DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, false); )
+DEF_GM(ConicalGradientsGM, kInside_GradCaseType, false)
+DEF_GM(ConicalGradientsGM, kOutside_GradCaseType, false)
+DEF_GM(ConicalGradientsGM, kEdge_GradCaseType, false)
 
 }

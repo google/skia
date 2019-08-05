@@ -217,5 +217,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new RectangleTexture;)
+DEF_GM(RectangleTexture)
 }

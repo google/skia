@@ -55,4 +55,4 @@ private:
 
     typedef GM INHERITED;
 };
-DEF_GM(return new SimpleRectGM;)
+DEF_GM(SimpleRectGM)

@@ -114,7 +114,7 @@ class EmptyPathGM : public GM {
         canvas->restore();
     }
 };
-DEF_GM( return new EmptyPathGM; )
+DEF_GM(EmptyPathGM)
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -183,6 +183,6 @@ class EmptyStrokeGM : public GM {
         }
     }
 };
-DEF_GM( return new EmptyStrokeGM; )
+DEF_GM(EmptyStrokeGM)
 
 }

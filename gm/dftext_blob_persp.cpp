@@ -149,4 +149,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new DFTextBlobPerspGM;)
+DEF_GM(DFTextBlobPerspGM)

@@ -73,4 +73,4 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new DRRectGM; )
+DEF_GM(DRRectGM)

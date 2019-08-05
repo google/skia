@@ -69,4 +69,4 @@ class InternalLinksGM : public skiagm::GM {
 };
 }  // namespace
 
-DEF_GM( return new InternalLinksGM; )
+DEF_GM(InternalLinksGM)

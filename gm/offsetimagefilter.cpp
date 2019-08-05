@@ -100,7 +100,7 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new OffsetImageFilterGM; )
+DEF_GM(OffsetImageFilterGM)
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -209,4 +209,4 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new SimpleOffsetImageFilterGM; )
+DEF_GM(SimpleOffsetImageFilterGM)

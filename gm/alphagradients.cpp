@@ -84,4 +84,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new AlphaGradientsGM;)
+DEF_GM(AlphaGradientsGM)
