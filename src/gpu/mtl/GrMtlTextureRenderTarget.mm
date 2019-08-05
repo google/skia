@@ -20,7 +20,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    id<MTLTexture> colorTexture,
                                                    id<MTLTexture> resolveTexture,
                                                    GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, desc, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, resolveTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, sampleCnt, colorTexture, resolveTexture) {
     this->registerWithCache(budgeted);
@@ -31,7 +31,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    const GrSurfaceDesc& desc,
                                                    id<MTLTexture> colorTexture,
                                                    GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, desc, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, colorTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, colorTexture) {
     this->registerWithCache(budgeted);
@@ -44,7 +44,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    id<MTLTexture> resolveTexture,
                                                    GrMipMapsStatus mipMapsStatus,
                                                    GrWrapCacheable cacheable)
-        : GrSurface(gpu, desc, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, resolveTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, sampleCnt, colorTexture, resolveTexture) {
     this->registerWithCacheWrapped(cacheable);
@@ -55,7 +55,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    id<MTLTexture> colorTexture,
                                                    GrMipMapsStatus mipMapsStatus,
                                                    GrWrapCacheable cacheable)
-        : GrSurface(gpu, desc, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, colorTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, colorTexture) {
     this->registerWithCacheWrapped(cacheable);
