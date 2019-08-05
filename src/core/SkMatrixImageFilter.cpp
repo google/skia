@@ -44,22 +44,21 @@ void SkMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fFilterQuality);
 }
 
-sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
-                                                         const Context& ctx,
+sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(const Context& ctx,
                                                          SkIPoint* offset) const {
 
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
 
     SkMatrix matrix;
-    if (!ctx.ctm().invert(&matrix)) {
+    if (!ctx.layerCTM().invert(&matrix)) {
         return nullptr;
     }
     matrix.postConcat(fTransform);
-    matrix.postConcat(ctx.ctm());
+    matrix.postConcat(ctx.layerCTM());
 
     const SkIRect srcBounds = SkIRect::MakeXYWH(inputOffset.x(), inputOffset.y(),
                                                 input->width(), input->height());
@@ -70,7 +69,7 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
     SkIRect dstBounds;
     dstRect.roundOut(&dstBounds);
 
-    sk_sp<SkSpecialSurface> surf(input->makeSurface(ctx.outputProperties(), dstBounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(dstBounds.size()));
     if (!surf) {
         return nullptr;
     }
