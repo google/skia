@@ -89,17 +89,18 @@ DEF_TEST(Blend_byte_multiply, r) {
 namespace {
 static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
         GrContext* context, int sampleCnt, int width, int height, SkColorType colorType,
-        GrPixelConfig config, GrSurfaceOrigin origin,
-        sk_sp<GrTexture>* backingSurface) {
+        GrSurfaceOrigin origin, sk_sp<GrTexture>* backingSurface) {
     GrSurfaceDesc backingDesc;
     backingDesc.fWidth = width;
     backingDesc.fHeight = height;
-    backingDesc.fConfig = config;
+    auto ct = SkColorTypeToGrColorType(colorType);
+    backingDesc.fConfig = GrColorTypeToPixelConfig(ct);
+    auto format = context->priv().caps()->getDefaultBackendFormat(ct, GrRenderable::kYes);
 
     auto resourceProvider = context->priv().resourceProvider();
 
-    *backingSurface = resourceProvider->createTexture(backingDesc, GrRenderable::kYes, sampleCnt,
-                                                      SkBudgeted::kNo, GrProtected::kNo,
+    *backingSurface = resourceProvider->createTexture(backingDesc, format, GrRenderable::kYes,
+                                                      sampleCnt, SkBudgeted::kNo, GrProtected::kNo,
                                                       GrResourceProvider::Flags::kNoPendingIO);
     if (!(*backingSurface)) {
         return nullptr;
@@ -120,7 +121,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
     GrContext* context = ctxInfo.grContext();
     const int kWidth = 10;
     const int kHeight = 10;
-    const GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
     const SkColorType kColorType = kRGBA_8888_SkColorType;
 
     // Build our test cases:
@@ -163,7 +163,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
         sk_sp<GrTexture> backingSurface;
         // BGRA forces a framebuffer blit on ES2.
         sk_sp<SkSurface> surface = create_gpu_surface_backend_texture_as_render_target(
-                context, sampleCnt, kWidth, kHeight, kColorType, kConfig, origin, &backingSurface);
+                context, sampleCnt, kWidth, kHeight, kColorType, origin, &backingSurface);
 
         if (!surface && sampleCnt > 1) {
             // Some platforms don't support MSAA.

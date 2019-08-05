@@ -86,6 +86,7 @@ public:
      * or render targets can be checked using GrCaps.
      *
      * @param desc           describes the texture to be created.
+     * @param format         the format for the texture (not currently used).
      * @param renderable     should the resulting texture be renderable
      * @param renderTargetSampleCnt The number of samples to use for rendering if renderable is
      *                       kYes. If renderable is kNo then this must be 1.
@@ -107,15 +108,17 @@ public:
      *                       latter if GrCaps::createTextureMustSpecifyAllLevels() is true.
      * @return  The texture object if successful, otherwise nullptr.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                   int renderTargetSampleCnt, SkBudgeted, GrProtected isProtected,
-                                   const GrMipLevel texels[], int mipLevelCount);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, const GrBackendFormat& format,
+                                   GrRenderable renderable, int renderTargetSampleCnt, SkBudgeted,
+                                   GrProtected isProtected, const GrMipLevel texels[],
+                                   int mipLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrRenderable, int renderTargetSampleCnt,
-                                   SkBudgeted, GrProtected);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, const GrBackendFormat& format,
+                                   GrRenderable renderable, int renderTargetSampleCnt,
+                                   SkBudgeted budgeted, GrProtected isProtected);
 
     sk_sp<GrTexture> createCompressedTexture(int width, int height, SkImage::CompressionType,
                                              SkBudgeted, const void* data, size_t dataSize);

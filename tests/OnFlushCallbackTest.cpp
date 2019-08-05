@@ -305,7 +305,7 @@ public:
                                                                      GrRenderable::kYes);
 
         fAtlasProxy = GrProxyProvider::MakeFullyLazyProxy(
-                [](GrResourceProvider* resourceProvider)
+                [format](GrResourceProvider* resourceProvider)
                         -> GrSurfaceProxy::LazyInstantiationResult {
                     GrSurfaceDesc desc;
                     // TODO: until partial flushes in MDB lands we're stuck having
@@ -315,7 +315,7 @@ public:
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
                     auto texture = resourceProvider->createTexture(
-                            desc, GrRenderable::kYes, 1, SkBudgeted::kYes, GrProtected::kNo,
+                            desc, format, GrRenderable::kYes, 1, SkBudgeted::kYes, GrProtected::kNo,
                             GrResourceProvider::Flags::kNoPendingIO);
                     return std::move(texture);
                 },

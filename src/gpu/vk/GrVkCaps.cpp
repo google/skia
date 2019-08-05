@@ -1128,8 +1128,23 @@ bool GrVkCaps::isFormatRenderable(VkFormat format) const {
 }
 
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount,
-                                         GrColorType, const GrBackendFormat& format) const {
-    if (!format.getVkFormat()) {
+                                         GrColorType colorType,
+                                         const GrBackendFormat& format) const {
+    VkFormat vkFormat;
+    if (const auto* temp = format.getVkFormat()) {
+        vkFormat = *temp;
+    } else {
+        return 0;
+    }
+
+    // Currently we don't allow RGB_888X to be renderable with R8G8B8A8_UNORM because we don't have
+    // a way to handle blends that reference dst alpha when the values in the dst alpha channel are
+    // uninitialized.
+    if (colorType == GrColorType::kRGB_888x && vkFormat == VK_FORMAT_R8G8B8A8_UNORM) {
+        return 0;
+    }
+    // We also do not support rendering to kGray.
+    if (GrColorTypeComponentFlags(colorType) & kGray_SkColorTypeComponentFlag) {
         return 0;
     }
 

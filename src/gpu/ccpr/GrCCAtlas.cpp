@@ -75,9 +75,13 @@ sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(
             break;
     }
 
+    auto instantiate = [cb = std::move(callback), pixelConfig, format,
+                        sampleCount](GrResourceProvider* rp) {
+        return cb(rp, pixelConfig, format, sampleCount);
+    };
     sk_sp<GrTextureProxy> proxy = GrProxyProvider::MakeFullyLazyProxy(
-            std::bind(callback, std::placeholders::_1, pixelConfig, sampleCount), format,
-            GrRenderable::kYes, sampleCount, GrProtected::kNo, kTextureOrigin, pixelConfig, caps);
+            std::move(instantiate), format, GrRenderable::kYes, sampleCount, GrProtected::kNo,
+            kTextureOrigin, pixelConfig, caps);
 
     return proxy;
 }
@@ -109,19 +113,21 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
 
     fTopNode = skstd::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
 
-    fTextureProxy = MakeLazyAtlasProxy([this](
-            GrResourceProvider* resourceProvider, GrPixelConfig pixelConfig, int sampleCount) {
-        if (!fBackingTexture) {
-            GrSurfaceDesc desc;
-            desc.fWidth = fWidth;
-            desc.fHeight = fHeight;
-            desc.fConfig = pixelConfig;
-            fBackingTexture = resourceProvider->createTexture(
-                    desc, GrRenderable::kYes, sampleCount, SkBudgeted::kYes, GrProtected::kNo,
-                    GrResourceProvider::Flags::kNoPendingIO);
-        }
-        return fBackingTexture;
-    }, fCoverageType, caps);
+    fTextureProxy = MakeLazyAtlasProxy(
+            [this](GrResourceProvider* resourceProvider, GrPixelConfig pixelConfig,
+                   const GrBackendFormat& format, int sampleCount) {
+                if (!fBackingTexture) {
+                    GrSurfaceDesc desc;
+                    desc.fWidth = fWidth;
+                    desc.fHeight = fHeight;
+                    desc.fConfig = pixelConfig;
+                    fBackingTexture = resourceProvider->createTexture(
+                            desc, format, GrRenderable::kYes, sampleCount, SkBudgeted::kYes,
+                            GrProtected::kNo, GrResourceProvider::Flags::kNoPendingIO);
+                }
+                return fBackingTexture;
+            },
+            fCoverageType, caps);
 
     fTextureProxy->priv().setIgnoredByResourceAllocator();
 }

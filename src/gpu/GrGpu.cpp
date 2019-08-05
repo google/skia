@@ -144,10 +144,10 @@ static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLeve
     return levelsWithPixelsCnt == mipLevelCount;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderable renderable,
-                                      int renderTargetSampleCnt, SkBudgeted budgeted,
-                                      GrProtected isProtected, const GrMipLevel texels[],
-                                      int mipLevelCount) {
+sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, const GrBackendFormat& format,
+                                      GrRenderable renderable, int renderTargetSampleCnt,
+                                      SkBudgeted budgeted, GrProtected isProtected,
+                                      const GrMipLevel texels[], int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (GrPixelConfigIsCompressed(origDesc.fConfig)) {
         // Call GrGpu::createCompressedTexture.
@@ -191,15 +191,17 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, GrRenderabl
                 fStats.incTextureUploads();
             }
         }
+        //  TODO: Assert this once format is passed to onCreateTexture().
+        //  SkASSERT(tex->backendFormat() == format);
     }
     return tex;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                      int renderTargetSampleCnt, SkBudgeted budgeted,
-                                      GrProtected isProtected) {
-    return this->createTexture(desc, renderable, renderTargetSampleCnt, budgeted, isProtected,
-                               nullptr, 0);
+sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, const GrBackendFormat& format,
+                                      GrRenderable renderable, int renderTargetSampleCnt,
+                                      SkBudgeted budgeted, GrProtected isProtected) {
+    return this->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted,
+                               isProtected, nullptr, 0);
 }
 
 sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,

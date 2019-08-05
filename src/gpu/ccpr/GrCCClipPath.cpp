@@ -18,31 +18,34 @@ void GrCCClipPath::init(
         GrCCAtlas::CoverageType atlasCoverageType, const GrCaps& caps) {
     SkASSERT(!this->isInitialized());
 
-    fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy([this](
-            GrResourceProvider* resourceProvider, GrPixelConfig pixelConfig, int sampleCount) {
-        SkASSERT(fHasAtlas);
-        SkASSERT(!fHasAtlasTransform);
+    fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
+            [this](GrResourceProvider* resourceProvider, GrPixelConfig,
+                   const GrBackendFormat& format, int sampleCount) {
+                SkASSERT(fHasAtlas);
+                SkASSERT(!fHasAtlasTransform);
 
-        GrTextureProxy* textureProxy = fAtlas ? fAtlas->textureProxy() : nullptr;
+                GrTextureProxy* textureProxy = fAtlas ? fAtlas->textureProxy() : nullptr;
 
-        if (!textureProxy || !textureProxy->instantiate(resourceProvider)) {
-            fAtlasScale = fAtlasTranslate = {0, 0};
-            SkDEBUGCODE(fHasAtlasTransform = true);
-            return sk_sp<GrTexture>();
-        }
+                if (!textureProxy || !textureProxy->instantiate(resourceProvider)) {
+                    fAtlasScale = fAtlasTranslate = {0, 0};
+                    SkDEBUGCODE(fHasAtlasTransform = true);
+                    return sk_sp<GrTexture>();
+                }
 
-        sk_sp<GrTexture> texture = sk_ref_sp(textureProxy->peekTexture());
-        SkASSERT(texture);
-        SkASSERT(texture->asRenderTarget()->numSamples() == sampleCount);
-        SkASSERT(textureProxy->origin() == kTopLeft_GrSurfaceOrigin);
+                sk_sp<GrTexture> texture = sk_ref_sp(textureProxy->peekTexture());
+                SkASSERT(texture);
+                SkASSERT(texture->backendFormat() == format);
+                SkASSERT(texture->asRenderTarget()->numSamples() == sampleCount);
+                SkASSERT(textureProxy->origin() == kTopLeft_GrSurfaceOrigin);
 
-        fAtlasScale = {1.f / texture->width(), 1.f / texture->height()};
-        fAtlasTranslate.set(fDevToAtlasOffset.fX * fAtlasScale.x(),
-                            fDevToAtlasOffset.fY * fAtlasScale.y());
-        SkDEBUGCODE(fHasAtlasTransform = true);
+                fAtlasScale = {1.f / texture->width(), 1.f / texture->height()};
+                fAtlasTranslate.set(fDevToAtlasOffset.fX * fAtlasScale.x(),
+                                    fDevToAtlasOffset.fY * fAtlasScale.y());
+                SkDEBUGCODE(fHasAtlasTransform = true);
 
-        return texture;
-    }, atlasCoverageType, caps);
+                return texture;
+            },
+            atlasCoverageType, caps);
 
     fDeviceSpacePath = deviceSpacePath;
     fDeviceSpacePath.getBounds().roundOut(&fPathDevIBounds);

@@ -74,7 +74,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     GrSurfaceDesc desc;
     desc.fWidth = desc.fHeight = 10;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    auto tex = gpu->createTexture(desc, GrRenderable::kNo, 1, SkBudgeted::kNo, GrProtected::kNo);
+    auto format = gpu->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kNo);
+    auto tex = gpu->createTexture(desc, format, GrRenderable::kNo, 1, SkBudgeted::kNo,
+                                  GrProtected::kNo);
     REPORTER_ASSERT(reporter, tex);
     context->resetGLTextureBindings();
     checkBindings();

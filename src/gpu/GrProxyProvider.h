@@ -246,11 +246,28 @@ public:
 #if GR_TEST_UTILS
     /*
      * Create a texture proxy that is backed by an instantiated GrSurface.
+     * TODO: Remove GrColorType. Currently used to infer a GrPixelConfig.
      */
-    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const GrSurfaceDesc&, GrRenderable,
+    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const SkISize& size,
+                                                              GrColorType colorType,
+                                                              const GrBackendFormat& format,
+                                                              GrRenderable renderable,
                                                               int renderTargetSampleCnt,
-                                                              GrSurfaceOrigin, SkBackingFit,
-                                                              SkBudgeted, GrProtected);
+                                                              GrSurfaceOrigin origin,
+                                                              SkBackingFit fit,
+                                                              SkBudgeted budgeted,
+                                                              GrProtected isProtected);
+
+    /** Version of above that picks the default format for the color type. */
+    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const SkISize& size,
+                                                              GrColorType colorType,
+                                                              GrRenderable renderable,
+                                                              int renderTargetSampleCnt,
+                                                              GrSurfaceOrigin origin,
+                                                              SkBackingFit fit,
+                                                              SkBudgeted budgeted,
+                                                              GrProtected isProtected);
+
     sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 #endif
 

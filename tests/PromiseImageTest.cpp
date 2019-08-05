@@ -429,8 +429,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
         GrSurfaceDesc desc;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fWidth = desc.fHeight = 100;
+        auto format = ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                  GrRenderable::kNo);
         textures[i] = ctx->priv().resourceProvider()->createTexture(
-                desc, GrRenderable::kNo, 1, SkBudgeted::kYes, GrProtected::kNo,
+                desc, format, GrRenderable::kNo, 1, SkBudgeted::kYes, GrProtected::kNo,
                 GrResourceProvider::Flags::kNoPendingIO);
         REPORTER_ASSERT(reporter, textures[i]);
     }

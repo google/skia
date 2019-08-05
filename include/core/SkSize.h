@@ -14,9 +14,9 @@ struct SkISize {
     int32_t fWidth;
     int32_t fHeight;
 
-    static SkISize Make(int32_t w, int32_t h) { return {w, h}; }
+    static constexpr SkISize Make(int32_t w, int32_t h) { return {w, h}; }
 
-    static SkISize MakeEmpty() { return {0, 0}; }
+    static constexpr SkISize MakeEmpty() { return {0, 0}; }
 
     void set(int32_t w, int32_t h) { *this = SkISize{w, h}; }
 
