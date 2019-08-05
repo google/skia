@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbab904c_fa533b4b",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T15:22:31Z",
+      "side": 1,
+      "message": "Why do we need this - isn\u0027t this triggered in the DAG walk ?",
+      "range": {
+        "startLine": 507,
+        "startChar": 0,
+        "endLine": 510,
+        "endChar": 49
+      },
+      "revId": "914654399e506ed624f816fba59db322982b59c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f23dc1c2_631f42de",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T15:22:31Z",
+      "side": 1,
+      "message": "Hmmm - let me think about this a bit",
+      "range": {
+        "startLine": 588,
+        "startChar": 0,
+        "endLine": 594,
+        "endChar": 13
+      },
+      "revId": "914654399e506ed624f816fba59db322982b59c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbe2bf7e_5d1becb9",
+        "filename": "src/gpu/GrOpList.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T15:22:31Z",
+      "side": 1,
+      "message": "Do we need this here ?",
+      "revId": "914654399e506ed624f816fba59db322982b59c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f937c08_c8efcc1e",
+        "filename": "src/gpu/GrTextureResolveManager.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T15:22:31Z",
+      "side": 1,
+      "message": "// informative comment similar to the *Priv class comments (this is a privileged view ...)\n\n?",
+      "revId": "914654399e506ed624f816fba59db322982b59c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "001d7394_0e4a92e0",
+        "filename": "src/gpu/GrTextureResolveManager.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T15:22:31Z",
+      "side": 1,
+      "message": "// TODO: add MSAA resolution flags also\n\n?",
+      "revId": "914654399e506ed624f816fba59db322982b59c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47439e77_a5b7e288",
+        "filename": "src/gpu/GrTextureResolveRenderTask.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T15:22:31Z",
+      "side": 1,
+      "message": "tab over once more ?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 39
+      },
+      "revId": "914654399e506ed624f816fba59db322982b59c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
