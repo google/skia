@@ -486,99 +486,303 @@ size_t GrMtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
 void GrMtlCaps::initFormatTable() {
     FormatInfo* info;
 
-    // R8Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatR8Unorm)];
-    info->fFlags = FormatInfo::kAllFlags;
+    // Format: R8Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatR8Unorm)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 2;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: R8Unorm, Surface: kAlpha_8
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kAlpha_8;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+            ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
+        }
+        // Format: R8Unorm, Surface: kGray_8
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kGray_8;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            ctInfo.fTextureSwizzle = GrSwizzle::RRR1();
+        }
+    }
 
-    // A8Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatA8Unorm)];
-    info->fFlags = FormatInfo::kTextureable_Flag;
+    // Format: A8Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatA8Unorm)];
+        info->fFlags = FormatInfo::kTextureable_Flag;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: A8Unorm, Surface: kAlpha_8
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kAlpha_8;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            ctInfo.fTextureSwizzle = GrSwizzle::AAAA();
+        }
+    }
 
 #ifdef SK_BUILD_FOR_IOS
-    // B5G6R5Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
-    info->fFlags = FormatInfo::kAllFlags;
+    // Format: B5G6R5Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: B5G6R5Unorm, Surface: kBGR_565
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kBGR_565;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
 
-    // ABGR4Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatABGR4Unorm)];
-    info->fFlags = FormatInfo::kAllFlags;
+    // Format: ABGR4Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatABGR4Unorm)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: ABGR4Unorm, Surface: kABGR_4444
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kABGR_4444;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
 #endif
 
-    // RGBA8Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm)];
-    info->fFlags = FormatInfo::kAllFlags;
-
-    // RG8Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG8Unorm)];
-    info->fFlags = FormatInfo::kTextureable_Flag;
-
-    // BGRA_8888 uses BGRA8Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatBGRA8Unorm)];
-    info->fFlags = FormatInfo::kAllFlags;
-
-    // RGBA8Unorm_sRGB
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm_sRGB)];
-    info->fFlags = FormatInfo::kAllFlags;
-
-    // RGB10A2Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGB10A2Unorm)];
-    if (this->isMac() || fFamilyGroup >= 3) {
+    // Format: RGBA8Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
-    } else {
+        info->fColorTypeInfoCount = 2;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RGBA8Unorm, Surface: kRGBA_8888
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRGBA_8888;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+        // Format: RGBA8Unorm, Surface: kRGB_888x
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRGB_888x;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            ctInfo.fTextureSwizzle = GrSwizzle::RGB1();
+        }
+    }
+
+    // Format: RG8Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG8Unorm)];
         info->fFlags = FormatInfo::kTextureable_Flag;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RG8Unorm, Surface: kRG_88
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRG_88;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
     }
 
-    // RGBA32Float
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA32Float)];
-    if (this->isMac()) {
+    // Format: BGRA8Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatBGRA8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
-    } else {
-        info->fFlags = 0;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: BGRA8Unorm, Surface: kBGRA_8888
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kBGRA_8888;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
     }
 
-    // R16Float
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Float)];
-    info->fFlags = FormatInfo::kAllFlags;
-
-    // RGBA16Float
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Float)];
-    info->fFlags = FormatInfo::kAllFlags;
-
-    // R16Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Unorm)];
-    if (this->isMac()) {
+    // Format: RGBA8Unorm_sRGB
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm_sRGB)];
         info->fFlags = FormatInfo::kAllFlags;
-    } else {
-        info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RGBA8Unorm_sRGB, Surface: kRGBA_8888_SRGB
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRGBA_8888_SRGB;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
     }
 
-    // RG16Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG16Unorm)];
-    if (this->isMac()) {
+    // Format: RGB10A2Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGB10A2Unorm)];
+        if (this->isMac() || fFamilyGroup >= 3) {
+            info->fFlags = FormatInfo::kAllFlags;
+        } else {
+            info->fFlags = FormatInfo::kTextureable_Flag;
+        }
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RGB10A2Unorm, Surface: kRGBA_1010102
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRGBA_1010102;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
+    // Format: RGBA32Float
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA32Float)];
+        if (this->isMac()) {
+            info->fFlags = FormatInfo::kAllFlags;
+        } else {
+            info->fFlags = 0;
+        }
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RGBA32Float, Surface: kRGBA_F32
+        if (info->fFlags) {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRGBA_F32;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
+    // Format: R16Float
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Float)];
         info->fFlags = FormatInfo::kAllFlags;
-    } else {
-        info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: R16Float, Surface: kAlpha_F16
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kAlpha_F16;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+            ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
+        }
+    }
+
+    // Format: RGBA16Float
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Float)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 2;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RGBA16Float, Surface: kRGBA_F16
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRGBA_F16;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+        // Format: RGBA16Float, Surface: kRGBA_F16_Clamped
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRGBA_F16_Clamped;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
+    // Format: R16Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Unorm)];
+        if (this->isMac()) {
+            info->fFlags = FormatInfo::kAllFlags;
+        } else {
+            info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+        }
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: R16Unorm, Surface: kR_16
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kR_16;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
+    // Format: RG16Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG16Unorm)];
+        if (this->isMac()) {
+            info->fFlags = FormatInfo::kAllFlags;
+        } else {
+            info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+        }
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RG16Unorm, Surface: kRG_1616
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRG_1616;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
     }
 
 #ifdef SK_BUILD_FOR_IOS
-    // ETC2_RGB8
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
-    info->fFlags = FormatInfo::kTextureable_Flag;
+    // Format: ETC2_RGB8
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
+        info->fFlags = FormatInfo::kTextureable_Flag;
+        // No supported colorTypes
+    }
 #endif
 
     // Experimental (for Y416 and mutant P016/P010)
 
-    // RGBA16Unorm
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Unorm)];
-    if (this->isMac()) {
-        info->fFlags = FormatInfo::kAllFlags;
-    } else {
-        info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+    // Format: RGBA16Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Unorm)];
+        if (this->isMac()) {
+            info->fFlags = FormatInfo::kAllFlags;
+        } else {
+            info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+        }
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RGBA16Unorm, Surface: kRGBA_16161616
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRGBA_16161616;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
     }
 
-    // RG16Float
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG16Float)];
-    info->fFlags = FormatInfo::kAllFlags;
+    // Format: RG16Float
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG16Float)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RG16Float, Surface: kRG_F16
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kRG_F16;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
 }
 
 void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
