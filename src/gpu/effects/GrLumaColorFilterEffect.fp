@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+@optimizationFlags {
+    kConstantOutputForConstantInput_OptimizationFlag
+}
+
 @class {
     #include "include/private/SkColorData.h"
 
