@@ -21,7 +21,6 @@
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
-#include "modules/skottie/src/text/TextAdapter.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
 #include "modules/sksg/include/SkSGPaint.h"
@@ -360,20 +359,6 @@ bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&
             [&]() {
                 dispatched = true;
                 return std::unique_ptr<OpacityPropertyHandle>(new OpacityPropertyHandle(o));
-            });
-    }
-
-    return dispatched;
-}
-
-bool AnimationBuilder::dispatchTextProperty(const sk_sp<TextAdapter>& t) const {
-    bool dispatched = false;
-
-    if (fPropertyObserver) {
-        fPropertyObserver->onTextProperty(fPropertyObserverContext,
-            [&]() {
-                dispatched = true;
-                return std::unique_ptr<TextPropertyHandle>(new TextPropertyHandle(t));
             });
     }
 
