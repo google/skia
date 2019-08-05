@@ -1,0 +1,262 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30f53d83_08621596",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "I know this isn\u0027t your problem but is this supposed to be kDefaultBlurSigma ?",
+      "range": {
+        "startLine": 201,
+        "startChar": 20,
+        "endLine": 201,
+        "endChar": 30
+      },
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b11f01a_58dfed27",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "kQuarterSize ? or kRectSize ? also it could be a Scalar\n\n(again I know this isn\u0027t your problem really)",
+      "range": {
+        "startLine": 288,
+        "startChar": 14,
+        "endLine": 288,
+        "endChar": 15
+      },
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2aef617e_aaa165d9",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "Will this fit on one line ?",
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "238fbefb_d047d579",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "MakeWH ?",
+      "range": {
+        "startLine": 409,
+        "startChar": 40,
+        "endLine": 409,
+        "endChar": 42
+      },
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43455802_355274c8",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 871,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "MakeIWH ?",
+      "range": {
+        "startLine": 871,
+        "startChar": 31,
+        "endLine": 871,
+        "endChar": 37
+      },
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "567d498a_cc60fa2e",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1218,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "line up or otherwise re-indent ?",
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a24471c6_6d3dd68d",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1772,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "bgRect and fgRect ?",
+      "range": {
+        "startLine": 1772,
+        "startChar": 12,
+        "endLine": 1772,
+        "endChar": 19
+      },
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d21b3b5_8c051b36",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1777,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "unionRect ?",
+      "range": {
+        "startLine": 1777,
+        "startChar": 12,
+        "endLine": 1777,
+        "endChar": 22
+      },
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1ef611f_4e33f389",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1802,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "cropRect",
+      "range": {
+        "startLine": 1802,
+        "startChar": 12,
+        "endLine": 1802,
+        "endChar": 22
+      },
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dba7fdc3_61030b43",
+        "filename": "tests/PaintImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "kWidth, kHeight ?",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 23
+      },
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9924f4b_318216a1",
+        "filename": "tests/PaintImageFilterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b20c2b1_7f748147",
+        "filename": "tests/Skbug6389.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-05T13:37:05Z",
+      "side": 1,
+      "message": "kNone_SkFilterQuality ?",
+      "range": {
+        "startLine": 20,
+        "startChar": 70,
+        "endLine": 20,
+        "endChar": 89
+      },
+      "revId": "9ad47118d95a66af9924f0d23e6c6fb2facf75d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
