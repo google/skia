@@ -5,13 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSpinlock.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
+#include "src/core/SkLRUCache.h"
 #include "src/core/SkVM.h"
 
 namespace {
+
+    static SkSpinlock                          gProgramCacheLock;
+    static SkLRUCache<uint32_t, skvm::Program> gProgramCache{8};
 
     enum class Coverage { Full, UniformA8, MaskA8, MaskLCD16, Mask3D };
 
@@ -207,31 +212,72 @@ namespace {
             }
         }
 
+        ~Blitter() override {
+            if (gProgramCacheLock.tryAcquire()) {
+                auto cache = [](ProgramAndFingerprint&& x) {
+                    if (!x.program.empty()) {
+                        if (skvm::Program* found = gProgramCache.find(x.fingerprint)) {
+                            *found = std::move(x.program);
+                        } else {
+                            gProgramCache.insert(x.fingerprint, std::move(x.program));
+                        }
+                    }
+                };
+                cache(std::move(fBlitH));
+                cache(std::move(fBlitAntiH));
+                cache(std::move(fBlitMaskA8));
+                cache(std::move(fBlitMaskLCD16));
+                gProgramCacheLock.release();
+            }
+        }
+
     private:
         // TODO: I kind of forget whether these need to be copies or if they can be const&
         SkPixmap fDevice;
         SkPaint  fPaint;
 
-        Uniforms      fUniforms;
-        skvm::Program fBlitH,
-                      fBlitAntiH,
-                      fBlitMaskA8,
-                      fBlitMaskLCD16;
+        Uniforms fUniforms;
+        struct ProgramAndFingerprint {
+            skvm::Program program;
+            uint32_t      fingerprint;
+        } fBlitH, fBlitAntiH, fBlitMaskA8, fBlitMaskLCD16;
+
+        ProgramAndFingerprint buildProgram(Coverage coverage) {
+            Builder builder{fDevice, fPaint, coverage};
+            uint32_t fp = builder.fingerprint();
+            {
+                skvm::Program p;
+                if (gProgramCacheLock.tryAcquire()) {
+                    if (skvm::Program* found = gProgramCache.find(fp)) {
+                        p = std::move(*found);
+                    }
+                    gProgramCacheLock.release();
+                }
+                if (!p.empty()) {
+                    return {std::move(p), fp};
+                }
+            }
+            static std::atomic<int> done{0};
+            if (0 == done++) {
+                atexit([]{ SkDebugf("%d calls to done\n", done.load()); });
+            }
+            return {builder.done(), fp};
+        }
 
         void blitH(int x, int y, int w) override {
-            if (fBlitH.empty()) {
-                fBlitH = Builder{fDevice, fPaint, Coverage::Full}.done();
+            if (fBlitH.program.empty()) {
+                fBlitH = this->buildProgram(Coverage::Full);
             }
-            fBlitH.eval(w, &fUniforms, fDevice.addr(x,y));
+            fBlitH.program.eval(w, &fUniforms, fDevice.addr(x,y));
         }
 
         void blitAntiH(int x, int y, const SkAlpha cov[], const int16_t runs[]) override {
-            if (fBlitAntiH.empty()) {
-                fBlitAntiH = Builder{fDevice, fPaint, Coverage::UniformA8}.done();
+            if (fBlitAntiH.program.empty()) {
+                fBlitAntiH = this->buildProgram(Coverage::UniformA8);
             }
             for (int16_t run = *runs; run > 0; run = *runs) {
                 fUniforms.coverage = *cov;
-                fBlitAntiH.eval(run, &fUniforms, fDevice.addr(x,y));
+                fBlitAntiH.program.eval(run, &fUniforms, fDevice.addr(x,y));
 
                 x    += run;
                 runs += run;
@@ -251,17 +297,17 @@ namespace {
 
                 case SkMask::k3D_Format:    // TODO: the mul and add 3D mask planes too
                 case SkMask::kA8_Format:
-                    if (fBlitMaskA8.empty()) {
-                        fBlitMaskA8 = Builder{fDevice, fPaint, Coverage::MaskA8}.done();
+                    if (fBlitMaskA8.program.empty()) {
+                        fBlitMaskA8 = this->buildProgram(Coverage::MaskA8);
                     }
-                    program = &fBlitMaskA8;
+                    program = &fBlitMaskA8.program;
                     break;
 
                 case SkMask::kLCD16_Format:
-                    if (fBlitMaskLCD16.empty()) {
-                        fBlitMaskLCD16 = Builder{fDevice, fPaint, Coverage::MaskLCD16}.done();
+                    if (fBlitMaskLCD16.program.empty()) {
+                        fBlitMaskLCD16 = this->buildProgram(Coverage::MaskLCD16);
                     }
-                    program = &fBlitMaskLCD16;
+                    program = &fBlitMaskLCD16.program;
                     break;
             }
 
