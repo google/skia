@@ -63,20 +63,24 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-arm64-Debug-iOS',
   'Build-Mac-Clang-x86_64-Debug-ASAN',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
+  'Build-Mac-Clang-x86_64-Debug-Goma',
   'Build-Mac-Clang-x86_64-Debug-Metal',
   'Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan',
   'Build-Win-Clang-arm64-Release-Android',
   'Build-Win-Clang-x86-Debug-Exceptions',
+  'Build-Win-Clang-x86_64-Debug-ANGLE_Goma',
+  'Build-Win-Clang-x86_64-Debug-GomaNoFallback',
   'Build-Win-Clang-x86_64-Debug-OpenCL',
   'Build-Win-Clang-x86_64-Release-Vulkan',
   'Build-Win-MSVC-x86_64-Debug-MSRTC',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
 ]
 
 # Default properties used for TEST_BUILDERS.
 defaultProps = lambda buildername: dict(
   buildername=buildername,
+  gs_bucket='skia-external-compile-tasks',
   repository='https://skia.googlesource.com/skia.git',
   revision='abc123',
   path_config='kitchen',
@@ -93,3 +97,12 @@ def GenTests(api):
     if 'Win' in buildername and not 'LenovoYogaC630' in buildername:
       test += api.platform('win', 64)
     yield test
+
+  buildername = 'Build-Win-Clang-x86_64-Debug-GomaNoFallback'
+  yield (
+      api.test('goma-report') +
+      api.properties(**defaultProps(buildername)) +
+      api.step_data('ninja', retcode=1) +
+      api.step_data('get swarming task id',
+                    stdout=api.raw_io.output('123456'))
+  )
