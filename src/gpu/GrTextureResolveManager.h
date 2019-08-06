@@ -32,7 +32,8 @@ public:
         // TODO: kMSAA = 1 << 1
     };
 
-    GrRenderTask* newTextureResolveRenderTask(
+    // Defined inline in GrDrawingManager.h.
+    inline GrRenderTask* newTextureResolveRenderTask(
             sk_sp<GrTextureProxy>, ResolveFlags, const GrCaps&) const;
 
 private:
