@@ -34,6 +34,7 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
     GrBackendFormat backendFormat() const override;
+    dawn::Texture texture() const { return fInfo.fTexture; }
 
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
