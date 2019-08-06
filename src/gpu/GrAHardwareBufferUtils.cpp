@@ -138,7 +138,7 @@ GrBackendFormat GetBackendFormat(GrContext* context, AHardwareBuffer* hardwareBu
                     ycbcrConversion.fYChromaOffset = hwbFormatProps.suggestedYChromaOffset;
                     ycbcrConversion.fForceExplicitReconstruction = VK_FALSE;
                     ycbcrConversion.fExternalFormat = hwbFormatProps.externalFormat;
-                    ycbcrConversion.fExternalFormatFeatures = hwbFormatProps.formatFeatures;
+                    ycbcrConversion.fFormatFeatures = hwbFormatProps.formatFeatures;
                     if (VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT &
                         hwbFormatProps.formatFeatures) {
                         ycbcrConversion.fChromaFilter = VK_FILTER_LINEAR;
