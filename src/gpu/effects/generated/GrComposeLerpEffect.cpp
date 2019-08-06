@@ -27,22 +27,25 @@ public:
         (void)weight;
         weightVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType, "weight");
-        SkString _sample290("_sample290");
+        SkString _sample326("_sample326");
+        SkString sk_TransformedCoords2D_0 =
+                fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+        SkString _coords326 = SkStringPrintf("%s / 2.0", sk_TransformedCoords2D_0.c_str());
         if (_outer.child1_index >= 0) {
-            this->invokeChild(_outer.child1_index, &_sample290, args);
+            this->invokeChild(_outer.child1_index, &_sample326, args, _coords326.c_str());
         } else {
-            fragBuilder->codeAppendf("half4 %s;", _sample290.c_str());
+            fragBuilder->codeAppendf("half4 %s;", _sample326.c_str());
         }
-        SkString _sample358("_sample358");
+        SkString _sample425("_sample425");
         if (_outer.child2_index >= 0) {
-            this->invokeChild(_outer.child2_index, &_sample358, args);
+            this->invokeChild(_outer.child2_index, &_sample425, args);
         } else {
-            fragBuilder->codeAppendf("half4 %s;", _sample358.c_str());
+            fragBuilder->codeAppendf("half4 %s;", _sample425.c_str());
         }
         fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));\n",
                                  args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false",
-                                 _sample290.c_str(), args.fInputColor,
-                                 _outer.child2_index >= 0 ? "true" : "false", _sample358.c_str(),
+                                 _sample326.c_str(), args.fInputColor,
+                                 _outer.child2_index >= 0 ? "true" : "false", _sample425.c_str(),
                                  args.fInputColor, args.fUniformHandler->getUniformCStr(weightVar));
     }
 
@@ -67,6 +70,7 @@ bool GrComposeLerpEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrComposeLerpEffect::GrComposeLerpEffect(const GrComposeLerpEffect& src)
         : INHERITED(kGrComposeLerpEffect_ClassID, src.optimizationFlags())
+        , fCoordTransform0(src.fCoordTransform0)
         , child1_index(src.child1_index)
         , child2_index(src.child2_index)
         , weight(src.weight) {
@@ -76,6 +80,7 @@ GrComposeLerpEffect::GrComposeLerpEffect(const GrComposeLerpEffect& src)
     if (child2_index >= 0) {
         this->registerChildProcessor(src.childProcessor(child2_index).clone());
     }
+    this->addCoordTransform(&fCoordTransform0);
 }
 std::unique_ptr<GrFragmentProcessor> GrComposeLerpEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrComposeLerpEffect(*this));

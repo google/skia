@@ -9,8 +9,12 @@ in fragmentProcessor? child1;
 in fragmentProcessor? child2;
 in uniform float weight;
 
+@coordTransform {
+    SkMatrix()
+}
+
 void main() {
-    sk_OutColor = mix(child1 != null ? sample(child1) : sk_InColor,
+    sk_OutColor = mix(child1 != null ? sample(child1, sk_TransformedCoords2D[0] / 2) : sk_InColor,
                       child2 != null ? sample(child2) : sk_InColor,
                       half(weight));
 }
