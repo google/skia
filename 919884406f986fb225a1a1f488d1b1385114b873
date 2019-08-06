@@ -46,6 +46,30 @@
       "revId": "919884406f986fb225a1a1f488d1b1385114b873",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de833dc6_910217c9",
+        "filename": "experimental/editor/editor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-06T15:15:11Z",
+      "side": 1,
+      "message": "I would prefer the span version, it\u0027s just so much easier to reason about and re-uses the standard terminology.",
+      "parentUuid": "7df5ff4a_772160d0",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 16
+      },
+      "revId": "919884406f986fb225a1a1f488d1b1385114b873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
