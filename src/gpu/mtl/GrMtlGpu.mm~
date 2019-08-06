@@ -8,7 +8,10 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 
 #include "src/core/SkConvertPixels.h"
+<<<<<<< HEAD
+=======
 #include "src/core/SkMipMap.h"
+>>>>>>> git squash commit for mtl-color-init.
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexturePriv.h"
@@ -217,6 +220,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     // Either upload only the first miplevel or all miplevels
     SkASSERT(1 == mipLevelCount || mipLevelCount == (int)mtlTexture.mipmapLevelCount);
 
+<<<<<<< HEAD
     if (1 == mipLevelCount && !texels[0].fPixels) {
         return true;   // no data to upload
     }
@@ -236,6 +240,16 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
                                                                  &individualMipOffsets,
                                                                  mipLevelCount);
     SkASSERT(combinedBufferSize);
+=======
+    // TODO: implement some way of reusing transfer buffers?
+    size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
+
+    SkTArray<size_t> individualMipOffsets(mipLevelCount);
+
+    size_t combinedBufferSize = GrComputeTightCombinedBufferSize(bpp, width, height,
+                                                                 &individualMipOffsets,
+                                                                 mipLevelCount);
+>>>>>>> git squash commit for mtl-color-init.
 
     size_t bufferOffset;
     id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(combinedBufferSize,
