@@ -203,6 +203,14 @@ struct SK_API GrContextOptions {
      */
     int  fInternalMultisampleCount = 4;
 
+#ifdef SK_METAL
+    /**
+     * The maximum size the shared allocation used for dynamic buffers will grow to.
+     * Should be at least 1024*1204.
+     */
+    size_t fMaxDynamicBufferAllocationSize = 64*1024*1024;
+#endif
+
 #if GR_TEST_UTILS
     /**
      * Private options that are only meant for testing within Skia's tools.

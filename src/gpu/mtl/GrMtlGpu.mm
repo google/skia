@@ -100,7 +100,7 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
         , fQueue(queue)
         , fCmdBuffer(nullptr)
         , fCompiler(new SkSL::Compiler())
-        , fResourceProvider(this)
+        , fResourceProvider(this, options.fMaxDynamicBufferAllocationSize)
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
