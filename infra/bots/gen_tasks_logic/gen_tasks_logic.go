@@ -33,7 +33,7 @@ const (
 	ISOLATE_GCLOUD_LINUX_NAME  = "Housekeeper-PerCommit-IsolateGCloudLinux"
 	ISOLATE_SKIMAGE_NAME       = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME           = "Housekeeper-PerCommit-IsolateSKP"
-	ISOLATE_MSKP_NAME           = "Housekeeper-PerCommit-IsolateMSKP"
+	ISOLATE_MSKP_NAME          = "Housekeeper-PerCommit-IsolateMSKP"
 	ISOLATE_SVG_NAME           = "Housekeeper-PerCommit-IsolateSVG"
 	ISOLATE_NDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
@@ -85,6 +85,12 @@ var (
 		&specs.Cache{
 			Name: "gopath",
 			Path: "cache/gopath",
+		},
+	}
+	CACHES_GOMA = []*specs.Cache{
+		&specs.Cache{
+			Name: "goma",
+			Path: "cache/goma",
 		},
 	}
 	CACHES_WORKDIR = []*specs.Cache{
@@ -248,6 +254,9 @@ type Config struct {
 
 	// GCS bucket used for Calmbench results.
 	GsBucketCalm string `json:"gs_bucket_calm"`
+
+	// GCS bucket used for compile task failure info.
+	GsBucketCompile string `json:"gs_bucket_compile"`
 
 	// GCS bucket used for GM results.
 	GsBucketGm string `json:"gs_bucket_gm"`
@@ -805,8 +814,12 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		} else if d["os"] == DEFAULT_OS_WIN {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
-			// Use many-core machines for Build tasks.
-			d["machine_type"] = MACHINE_TYPE_LARGE
+			// Use many-core machines for Build tasks, except for Goma.
+			if strings.Contains(parts["extra_config"], "Goma") {
+				d["machine_type"] = MACHINE_TYPE_MEDIUM
+			} else {
+				d["machine_type"] = MACHINE_TYPE_LARGE
+			}
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
@@ -975,6 +988,15 @@ func (b *builder) usesGo(t *specs.TaskSpec, name string) {
 	t.CipdPackages = append(t.CipdPackages, pkg)
 }
 
+// usesGoma adds attributes to tasks which use Goma.
+func usesGoma(t *specs.TaskSpec, name string) {
+	if strings.Contains(name, "Goma") {
+		t.Caches = append(t.Caches, CACHES_GOMA...)
+	}
+	// We use gsutil to save reports from failed compiles.
+	t.CipdPackages = append(t.CipdPackages, CIPD_PKGS_GSUTIL...)
+}
+
 // usesDocker adds attributes to tasks which use docker.
 func usesDocker(t *specs.TaskSpec, name string) {
 	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "CMake") {
@@ -1011,7 +1033,9 @@ func attempts(name string) int {
 func (b *builder) compile(name string, parts map[string]string) string {
 	recipe := "compile"
 	isolate := "compile.isolate"
-	var props map[string]string
+	extraProps := map[string]string{
+		"gs_bucket": b.cfg.GsBucketCompile,
+	}
 	needSync := false
 	if strings.Contains(name, "NoDEPS") ||
 		strings.Contains(name, "CMake") ||
@@ -1021,16 +1045,19 @@ func (b *builder) compile(name string, parts map[string]string) string {
 		strings.Contains(name, "SKQP") {
 		recipe = "sync_and_compile"
 		isolate = "swarm_recipe.isolate"
-		props = EXTRA_PROPS
+		for k, v := range EXTRA_PROPS {
+			extraProps[k] = v
+		}
 		needSync = true
 	}
-	task := b.kitchenTask(name, recipe, isolate, b.cfg.ServiceAccountCompile, b.swarmDimensions(parts), props, OUTPUT_BUILD)
+	task := b.kitchenTask(name, recipe, isolate, b.cfg.ServiceAccountCompile, b.swarmDimensions(parts), extraProps, OUTPUT_BUILD)
 	if needSync {
 		b.usesGit(task, name)
 	} else {
 		task.Idempotent = true
 	}
 	usesDocker(task, name)
+	usesGoma(task, name)
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
