@@ -22,6 +22,30 @@
       "revId": "0e7c3c7e6e5c22de716d2019a42651c8df1eb10d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7ae7a31_fd9b36ba",
+        "filename": "src/ports/SkFontMgr_fuchsia.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 9999
+      },
+      "writtenOn": "2019-08-06T00:38:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbf53b92_08c8fcf3",
+      "range": {
+        "startLine": 160,
+        "startChar": 34,
+        "endLine": 160,
+        "endChar": 94
+      },
+      "revId": "0e7c3c7e6e5c22de716d2019a42651c8df1eb10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
