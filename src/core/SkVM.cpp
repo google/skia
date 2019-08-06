@@ -10,6 +10,7 @@
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkCpu.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 #include <string.h>
 #if defined(SKVM_JIT)
@@ -17,6 +18,13 @@
 #endif
 
 namespace skvm {
+
+    uint32_t Builder::fingerprint() const {
+        uint32_t fp = 0;
+        fp = SkOpts::hash(fProgram.data(), sizeof(fProgram[0])*fProgram.size(), fp);
+        fp = SkOpts::hash(fStrides.data(), sizeof(fStrides[0])*fStrides.size(), fp);
+        return fp;
+    }
 
     Program Builder::done(const char* debug_name) {
         // Basic liveness analysis:

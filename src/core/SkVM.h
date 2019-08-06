@@ -428,6 +428,8 @@ namespace skvm {
         I32 extract(I32 x, int bits, I32 y);   // (x >> bits) & y
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
 
+        uint32_t fingerprint() const;
+
     private:
         Val push(Op, Val x, Val y=NA, Val z=NA, int imm=0);
         bool isZero(Val) const;
