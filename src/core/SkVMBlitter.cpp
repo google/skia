@@ -178,7 +178,10 @@ namespace {
                                              break;
             }
 
-            bool force_opaque = false && key.alphaType == kOpaque_SkAlphaType;  // TODO: try this?
+            // When a destination is tagged opaque, we may assume it both starts and stays fully
+            // opaque, ignoring any math that disagrees.  So anything involving force_opaque is
+            // optional, and sometimes helps cut a small amount of work in these programs.
+            const bool force_opaque = true && key.alphaType == kOpaque_SkAlphaType;
             if (force_opaque) { dst.a = splat(0xff); }
 
             // We'd need to premul dst after loading and unpremul before storing.
