@@ -172,9 +172,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                                 SkToBool(proxy.get()), expectedMipMapability);
             }
 
-            // Check if 'isFormatRenderable' agrees with 'createTexture' (w/o MSAA)
+            // Check if 'isFormatAsColorTypeRenderable' agrees with 'createTexture' (w/o MSAA)
             {
-                bool isRenderable = caps->isFormatRenderable(combo.fColorType, combo.fFormat);
+                bool isRenderable = caps->isFormatAsColorTypeRenderable(combo.fColorType,
+                                                                        combo.fFormat);
 
                 sk_sp<GrSurface> tex = resourceProvider->createTexture(
                         desc, combo.fFormat, GrRenderable::kYes, 1, SkBudgeted::kNo,
@@ -186,7 +187,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                                 SkToBool(tex), isRenderable);
             }
 
-            // Check if 'isFormatRenderable' agrees with 'createTexture' w/ MSAA
+            // Check if 'isFormatAsColorTypeRenderable' agrees with 'createTexture' w/ MSAA
             {
                 bool isRenderable = SkToBool(
                         caps->getRenderTargetSampleCount(2, combo.fColorType, combo.fFormat));
@@ -266,7 +267,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
 
             for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
                 if (renderable == GrRenderable::kYes &&
-                    !caps->isFormatRenderable(combo.fColorType, combo.fFormat)) {
+                    !caps->isFormatAsColorTypeRenderable(combo.fColorType, combo.fFormat)) {
                     continue;
                 }
 

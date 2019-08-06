@@ -67,15 +67,19 @@ public:
         return false;
     }
 
-    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
-                            int sampleCount = 1) const override {
-        if (!format.getMockColorType()) {
-            return false;
-        }
+    bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                       int sampleCount = 1) const override {
         // Currently we don't allow RGB_888X to be renderable because we don't have a way to
         // handle blends that reference dst alpha when the values in the dst alpha channel are
         // uninitialized.
         if (ct == GrColorType::kRGB_888x) {
+            return false;
+        }
+        return this->isFormatRenderable(format, sampleCount);
+    }
+
+    bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const override {
+        if (!format.getMockColorType()) {
             return false;
         }
         return sampleCount <= this->maxRenderTargetSampleCount(*format.getMockColorType());

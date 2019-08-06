@@ -323,22 +323,30 @@ bool GrMtlCaps::isFormatTexturable(MTLPixelFormat format) const {
     return SkToBool(FormatInfo::kTextureable_Flag && formatInfo.fFlags);
 }
 
-bool GrMtlCaps::isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
-                                   int sampleCount) const {
-    if (!format.getMtlFormat()) {
+bool GrMtlCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                              int sampleCount) const {
+    if (!this->isFormatRenderable(format, sampleCount)) {
         return false;
     }
+    SkASSERT(format.getMtlFormat());
     MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
     const auto& info = this->getFormatInfo(mtlFormat);
     if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
         return false;
     }
-
-    return sampleCount <= this->maxRenderTargetSampleCount(mtlFormat);
+    return true;
 }
 
-bool GrMtlCaps::isFormatRenderable(MTLPixelFormat format) const {
-    return this->maxRenderTargetSampleCount(format) > 0;
+bool GrMtlCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount) const {
+    if (!format.getMtlFormat()) {
+        return false;
+    }
+    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    return this->isFormatRenderable(mtlFormat, sampleCount);
+}
+
+bool GrMtlCaps::isFormatRenderable(MTLPixelFormat format, int sampleCount) const {
+    return sampleCount <= this->maxRenderTargetSampleCount(format);
 }
 
 int GrMtlCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const {
