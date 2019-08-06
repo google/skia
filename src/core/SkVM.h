@@ -483,6 +483,7 @@ namespace skvm {
         std::vector<Instruction> instructions() const { return fInstructions; }
         int nregs() const { return fRegs; }
         int loop() const { return fLoop; }
+        bool empty() const { return fInstructions.empty(); }
 
         // If this Program has been JITted, drop it, forcing interpreter fallback.
         void dropJIT();
