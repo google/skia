@@ -18,8 +18,9 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
-    : fGpu(gpu) {
+GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu, size_t maxAllocationSize)
+    : fGpu(gpu)
+    , fBufferSuballocatorMaxSize(maxAllocationSize) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
     fBufferSuballocator.reset(new BufferSuballocator(gpu->device(), kBufferSuballocatorStartSize));
 }
@@ -261,7 +262,7 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
     // We grow up to a maximum size, and only grow if the requested allocation will
     // fit into half of the new buffer (to prevent very large transient buffers forcing
     // growth when they'll never fit anyway).
-    if (fBufferSuballocator->size() < kBufferSuballocatorMaxSize &&
+    if (fBufferSuballocator->size() < fBufferSuballocatorMaxSize &&
         size <= fBufferSuballocator->size()) {
         fBufferSuballocator.reset(new BufferSuballocator(fGpu->device(),
                                                          2*fBufferSuballocator->size()));
