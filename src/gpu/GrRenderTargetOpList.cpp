@@ -356,6 +356,12 @@ GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrOpMemoryPool> opMemoryPool,
         : INHERITED(std::move(opMemoryPool), std::move(proxy), auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
+    if (GrTextureProxy* textureProxy = fTarget->asTextureProxy()) {
+        if (GrMipMapped::kYes == textureProxy->mipMapped()) {
+            textureProxy->markMipMapsDirty();
+        }
+    }
+    fTarget->setLastRenderTask(this);
 }
 
 void GrRenderTargetOpList::deleteOps() {
