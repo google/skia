@@ -10,7 +10,8 @@
 GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(contextOptions) {
     fBufferMapThreshold = SK_MaxS32;  // FIXME: get this from Dawn?
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
-    fMaxTextureSize = 2048;
+    fMaxTextureSize = 2048; // FIXME
+    fMaxVertexAttributes = 16; // FIXME
     fPerformPartialClearsAsDraws = true;
 }
 
@@ -50,6 +51,10 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
         case GrColorType::kRGBA_8888:
             if (dawn::TextureFormat::RGBA8Unorm == dawnFormat) {
                 return kRGBA_8888_GrPixelConfig;
+            } else if (dawn::TextureFormat::BGRA8Unorm == *dawnFormat) {
+                // FIXME: This shouldn't be necessary, but on some platforms (Mac)
+                // Skia byte order is RGBA, while preferred swap format is BGRA.
+                return kBGRA_8888_GrPixelConfig;
             }
             break;
         case GrColorType::kRGB_888x:
@@ -57,6 +62,8 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
         case GrColorType::kBGRA_8888:
             if (dawn::TextureFormat::BGRA8Unorm == dawnFormat) {
                 return kBGRA_8888_GrPixelConfig;
+            } else if (dawn::TextureFormat::RGBA8Unorm == *dawnFormat) {
+                return kRGBA_8888_GrPixelConfig;
             }
             break;
         default:

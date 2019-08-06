@@ -17,6 +17,7 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/dawn/GrDawnBuffer.h"
 #include "src/gpu/dawn/GrDawnCaps.h"
 #include "src/gpu/dawn/GrDawnGpuCommandBuffer.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
@@ -75,8 +76,11 @@ GrGpuTextureCommandBuffer* GrDawnGpu::getCommandBuffer(GrTexture* texture,
 ///////////////////////////////////////////////////////////////////////////////
 sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
                                              GrAccessPattern accessPattern, const void* data) {
-    SkASSERT(!"unimplemented");
-    return nullptr;
+    sk_sp<GrGpuBuffer> b(new GrDawnBuffer(this, size, type, accessPattern));
+    if (data && b) {
+        b->updateData(data, size);
+    }
+    return b;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

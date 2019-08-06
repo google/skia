@@ -711,6 +711,7 @@ skia_vk_sources = [
 ]
 
 skia_dawn_sources = [
+  "$_include/gpu/dawn/GrDawnTypes.h",
   "$_src/gpu/dawn/GrDawnBuffer.cpp",
   "$_src/gpu/dawn/GrDawnBuffer.h",
   "$_src/gpu/dawn/GrDawnCaps.cpp",
