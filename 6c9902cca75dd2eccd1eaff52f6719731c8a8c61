@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e73f14e7_ff364202",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-06T13:35:02Z",
+      "side": 1,
+      "message": "Can we just cast fRenderTarget to an fDawnRenderTarget and directly grab the texture from there directly?",
+      "range": {
+        "startLine": 68,
+        "startChar": 3,
+        "endLine": 71,
+        "endChar": 41
+      },
+      "revId": "6c9902cca75dd2eccd1eaff52f6719731c8a8c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56488282_75dfcb0a",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-06T13:35:02Z",
+      "side": 1,
+      "message": "do dawn pipelines not need to be cached?",
+      "range": {
+        "startLine": 258,
+        "startChar": 57,
+        "endLine": 258,
+        "endChar": 77
+      },
+      "revId": "6c9902cca75dd2eccd1eaff52f6719731c8a8c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
