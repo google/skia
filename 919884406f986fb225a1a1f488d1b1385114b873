@@ -70,6 +70,30 @@
       "revId": "919884406f986fb225a1a1f488d1b1385114b873",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "195e7c43_de8ffdc4",
+        "filename": "experimental/editor/editor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-06T16:48:11Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "de833dc6_910217c9",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 16
+      },
+      "revId": "919884406f986fb225a1a1f488d1b1385114b873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
