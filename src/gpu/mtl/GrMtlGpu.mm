@@ -601,7 +601,7 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     id<MTLTexture> mtlTexture = grMtlTexture->mtlTexture();
 
     // Automatic mipmap generation is only supported by color-renderable formats
-    if (!fMtlCaps->isFormatRenderable(mtlTexture.pixelFormat) &&
+    if (!fMtlCaps->isFormatRenderable(mtlTexture.pixelFormat, 1) &&
         // We have pixel configs marked as textureable-only that use RGBA8 as the internal format
         MTLPixelFormatRGBA8Unorm != mtlTexture.pixelFormat) {
         return false;
@@ -627,7 +627,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
     if (texturable && !fMtlCaps->isFormatTexturable(format)) {
         return false;
     }
-    if (renderable && !fMtlCaps->isFormatRenderable(format)) {
+    if (renderable && !fMtlCaps->isFormatRenderable(format, 1)) {
         return false;
     }
     // Currently we don't support uploading pixel data when mipped.

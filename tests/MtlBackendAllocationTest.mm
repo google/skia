@@ -97,8 +97,8 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                 if (GrRenderable::kYes == renderable) {
                     // We must also check whether we allow rendering to the format using the
                     // color type.
-                    if (!mtlCaps->isFormatRenderable(combo.fColorType,
-                                                     GrBackendFormat::MakeMtl(combo.fFormat), 1)) {
+                    if (!mtlCaps->isFormatAsColorTypeRenderable(
+                            combo.fColorType, GrBackendFormat::MakeMtl(combo.fFormat), 1)) {
                         continue;
                     }
                 }

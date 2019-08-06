@@ -138,7 +138,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     // GL requires a texture to be framebuffer bindable to call glReadPixels. However, we have not
     // incorporated that test into surfaceSupportsReadPixels(). TODO: Remove this once we handle
     // drawing to a bindable format.
-    if (!caps->isFormatRenderable(colorType, tex->backendFormat())) {
+    if (!caps->isFormatAsColorTypeRenderable(colorType, tex->backendFormat())) {
         return;
     }
 
@@ -302,7 +302,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     // GL requires a texture to be framebuffer bindable to call glReadPixels. However, we have not
     // incorporated that test into surfaceSupportsReadPixels(). TODO: Remove this once we handle
     // drawing to a bindable format.
-    if (!caps->isFormatRenderable(colorType, tex->backendFormat())) {
+    if (!caps->isFormatAsColorTypeRenderable(colorType, tex->backendFormat())) {
         return;
     }
 

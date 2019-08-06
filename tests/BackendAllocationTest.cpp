@@ -614,7 +614,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
 
                 if (GrRenderable::kYes == renderable) {
-                    if (!glCaps->isFormatRenderable(combo.fColorType, format)) {
+                    if (!glCaps->isFormatAsColorTypeRenderable(combo.fColorType, format)) {
                         continue;
                     }
                 }
@@ -741,8 +741,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                 if (GrRenderable::kYes == renderable) {
                     // We must also check whether we allow rendering to the format using the
                     // color type.
-                    if (!vkCaps->isFormatRenderable(combo.fColorType,
-                                                    GrBackendFormat::MakeVk(combo.fFormat), 1)) {
+                    if (!vkCaps->isFormatAsColorTypeRenderable(
+                            combo.fColorType, GrBackendFormat::MakeVk(combo.fFormat), 1)) {
                         continue;
                     }
                 }

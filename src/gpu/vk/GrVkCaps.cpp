@@ -1109,22 +1109,30 @@ bool GrVkCaps::isConfigTexturable(GrPixelConfig config) const {
            SkToBool(ctFlags & ColorTypeInfo::kUploadData_Flag);
 }
 
-bool GrVkCaps::isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
-                                  int sampleCount) const {
-    if (!format.getVkFormat()) {
+bool GrVkCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                             int sampleCount) const {
+    if (!this->isFormatRenderable(format, sampleCount)) {
         return false;
     }
+    SkASSERT(format.getVkFormat());
     VkFormat vkFormat = *format.getVkFormat();
     const auto& info = this->getFormatInfo(vkFormat);
     if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
         return false;
     }
-
-    return sampleCount <= this->maxRenderTargetSampleCount(vkFormat);
+    return true;
 }
 
-bool GrVkCaps::isFormatRenderable(VkFormat format) const {
-    return this->maxRenderTargetSampleCount(format) > 0;
+bool GrVkCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount) const {
+    if (!format.getVkFormat()) {
+        return false;
+    }
+    VkFormat vkFormat = *format.getVkFormat();
+    return this->isFormatRenderable(vkFormat, sampleCount);
+}
+
+bool GrVkCaps::isFormatRenderable(VkFormat format, int sampleCount) const {
+    return sampleCount <= this->maxRenderTargetSampleCount(format);
 }
 
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount,

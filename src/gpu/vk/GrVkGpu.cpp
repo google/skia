@@ -715,7 +715,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         // First check that we'll be able to do the copy to the to the R8G8B8 image in the end via a
         // blit or draw.
         if (!this->vkCaps().formatCanBeDstofBlit(VK_FORMAT_R8G8B8_UNORM, tex->isLinearTiled()) &&
-            !this->vkCaps().isFormatRenderable(VK_FORMAT_R8G8B8_UNORM)) {
+            !this->vkCaps().isFormatRenderable(VK_FORMAT_R8G8B8_UNORM, 1)) {
             return false;
         }
         mipLevelCount = 1;
@@ -1160,7 +1160,7 @@ static bool check_tex_image_info(const GrVkCaps& caps, const GrVkImageInfo& info
 }
 
 static bool check_rt_image_info(const GrVkCaps& caps, const GrVkImageInfo& info) {
-    if (!caps.isFormatRenderable(info.fFormat)) {
+    if (!caps.isFormatRenderable(info.fFormat, 1)) {
         return false;
     }
     return true;
@@ -1567,7 +1567,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
         return false;
     }
 
-    if (renderable && !fVkCaps->isFormatRenderable(vkFormat)) {
+    if (renderable && !fVkCaps->isFormatRenderable(vkFormat, 1)) {
         return false;
     }
 

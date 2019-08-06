@@ -16,7 +16,7 @@ void SkSurfaceCharacterization::validate() const {
     const GrCaps* caps = fContextInfo->priv().caps();
 
     GrColorType grCT = SkColorTypeToGrColorType(this->colorType());
-    SkASSERT(fSampleCnt && caps->isFormatRenderable(grCT, fBackendFormat, fSampleCnt));
+    SkASSERT(fSampleCnt && caps->isFormatAsColorTypeRenderable(grCT, fBackendFormat, fSampleCnt));
 
     SkASSERT(caps->areColorTypeAndFormatCompatible(grCT, fBackendFormat));
 }

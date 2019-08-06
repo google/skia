@@ -35,9 +35,10 @@ public:
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
-    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
-                            int sampleCount = 1) const override;
-    bool isFormatRenderable(MTLPixelFormat) const;
+    bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                       int sampleCount = 1) const override;
+    bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const override;
+    bool isFormatRenderable(MTLPixelFormat, int sampleCount) const;
 
     int getRenderTargetSampleCount(int requestedCount,
                                    GrColorType, const GrBackendFormat&) const override;

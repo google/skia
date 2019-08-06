@@ -3067,7 +3067,8 @@ GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTarge
                                                              GrColorType colorType) const {
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
-    if (src->asTextureProxy() && !this->isFormatRenderable(colorType, src->backendFormat())) {
+    if (src->asTextureProxy() && !this->isFormatAsColorTypeRenderable(colorType,
+                                                                      src->backendFormat())) {
         return {};
     }
 
@@ -3790,15 +3791,20 @@ bool GrGLCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format)
     return this->isFormatTexturable(ct, GrGLBackendFormatToGLFormat(format));
 }
 
-bool GrGLCaps::isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
-                                  int sampleCount) const {
+bool GrGLCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                             int sampleCount) const {
     auto glFormat = GrGLBackendFormatToGLFormat(format);
     const FormatInfo& info = this->getFormatInfo(glFormat);
     if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
         return false;
     }
 
-    return sampleCount <= this->maxRenderTargetSampleCount(glFormat);
+    return this->isFormatRenderable(glFormat, sampleCount);
+}
+
+bool GrGLCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount) const {
+    auto glFormat = GrGLBackendFormatToGLFormat(format);
+    return this->isFormatRenderable(glFormat, sampleCount);
 }
 
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grCT,

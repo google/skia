@@ -399,7 +399,7 @@ GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType grColorType,
     }
 
     if (renderable == GrRenderable::kYes) {
-        if (!this->isFormatRenderable(grColorType, format)) {
+        if (!this->isFormatAsColorTypeRenderable(grColorType, format)) {
             return {};
         }
     }
