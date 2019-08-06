@@ -11,6 +11,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 
 ADD https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libGLESv2.so /usr/local/lib/libGLESv2.so
 ADD https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libEGL.so /usr/local/lib/libEGL.so
+ENV PATH="${PATH}:/tmp/depot_tools/"
 RUN cd /tmp \
   && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' \
   && git clone https://swiftshader.googlesource.com/SwiftShader swiftshader
