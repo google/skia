@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "363e9f9e_d45d6d4b",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 7719
+      },
+      "writtenOn": "2019-08-06T22:06:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cfd4642_80d2b05c",
+      "range": {
+        "startLine": 154,
+        "startChar": 67,
+        "endLine": 154,
+        "endChar": 75
+      },
+      "revId": "efdcf0c564726ef5803b4d61e8898d77b06dd357",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
