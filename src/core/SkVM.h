@@ -432,6 +432,8 @@ namespace skvm {
         Val push(Op, Val x, Val y=NA, Val z=NA, int imm=0);
         bool isZero(Val) const;
 
+        uint32_t fingerprint() const;
+
         SkTHashMap<Instruction, Val> fIndex;
         std::vector<Instruction>     fProgram;
         std::vector<int>             fStrides;
@@ -449,8 +451,9 @@ namespace skvm {
 
         Program(const std::vector<Builder::Instruction>& instructions,
                 const std::vector<int>                 & strides,
+                uint32_t fingerprint,
                 const char* debug_name);
-        Program() : Program({}, {}, nullptr) {}
+        Program() : Program({}, {}, 0, nullptr) {}
 
         ~Program();
         Program(Program&&);
@@ -487,6 +490,7 @@ namespace skvm {
         // Dump jit-*.dump files for perf inject.
         void dumpJIT(const char* debug_name, size_t size) const;
 
+        uint32_t                 fFingerprint;
         std::vector<Instruction> fInstructions;
         int                      fRegs;
         int                      fLoop;

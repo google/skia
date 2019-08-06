@@ -10,6 +10,7 @@
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkCpu.h"
+#include "src/core/SkLRUCache.h"
 #include "src/core/SkVM.h"
 #include <string.h>
 #if defined(SKVM_JIT)
@@ -18,7 +19,31 @@
 
 namespace skvm {
 
+    static SkSpinLock                    gProgramCacheLock;
+    static SkLRUCache<uint32_t, Program> gProgramCache;
+
+    uint32_t Builder::fingerprint() const {
+        uint32_t fp = 0;
+        fp ^= SkOpts::hash(fProgram.data(), sizeof(fProgram[0])*fProgram.size());
+        fp ^= SkOpts::hash(fStrides.data(), sizeof(fStrides[0])*fStrides.size());
+        return fp;
+    }
+
     Program Builder::done(const char* debug_name) {
+        uint32_t fp = this->fingerprint();
+        {
+            Program p;
+            if (gProgramCacheLock.tryAcquire()) {
+                if (Program* found = gProgramCache.find(fp)) {
+                    p = std::move(*found);
+                }
+                gProgramCacheLock.release();
+            }
+            if (!p.empty()) {
+                return std::move(p);
+            }
+        }
+
         // Basic liveness analysis:
         // an instruction is live until all live instructions that need its input have retired.
         for (Val id = fProgram.size(); id --> 0; ) {
@@ -53,7 +78,7 @@ namespace skvm {
             }
         }
 
-        return {fProgram, fStrides, debug_name};
+        return {fProgram, fStrides, fp, debug_name};
     }
 
     static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
