@@ -39,11 +39,12 @@ public:
         uint32_t                fVisibility;
         // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
         uint32_t                fUBOffset;
-        // The SamplerState, maxMipLevel, and ycbcrInfo are only valid if the GrSLType is a sampler
-        // and that sampler is used for sampling an external image with a ycbcr conversion.
+        // fImmutableSampler is used for sampling an image with a ycbcr conversion.
         const GrVkSampler*      fImmutableSampler = nullptr;
     };
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
+
+    ~GrVkUniformHandler() override;
 
     const GrShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toIndex()].fVariable;

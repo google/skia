@@ -17,3 +17,6 @@ Milestone 78
    - Hide previously public functions on SkImageFilter that were intended for internal use only
 
  * SkColorFilters::HSLAMatrix - new matrix color filter operating in HSLA space.
+
+ * Vulkan backend now supports YCbCr sampler for I420 Vulkan images that are not
+   backed by external images.
