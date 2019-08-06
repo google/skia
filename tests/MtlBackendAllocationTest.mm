@@ -121,20 +121,18 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                 }
 
                 // Not implemented for Metal yet
-#if 0
                 {
                     auto createWithColorMtd = [format](GrContext* context,
                                                        const SkColor4f& color,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
-                        return context->priv().createBackendTexture(32, 32, format, color,
-                                                                    mipMapped, renderable);
+                        return context->createBackendTexture(32, 32, format, color,
+                                                             mipMapped, renderable);
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
                                     combo.fColorType, combo.fColor, mipMapped, renderable);
                 }
-#endif
             }
         }
     }
