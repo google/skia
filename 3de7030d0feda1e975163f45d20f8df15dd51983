@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8dde6e68_761951fe",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba852c29_6e339d6c",
+      "range": {
+        "startLine": 986,
+        "startChar": 32,
+        "endLine": 986,
+        "endChar": 64
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "877a18be_99e1fb49",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5866160e_df45f84f",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1001,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "877a18be_99e1fb49",
+      "range": {
+        "startLine": 1001,
+        "startChar": 16,
+        "endLine": 1001,
+        "endChar": 62
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "93157707_b9611ca1",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1116,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b30748fe_25517967",
+      "range": {
+        "startLine": 1116,
+        "startChar": 3,
+        "endLine": 1116,
+        "endChar": 81
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f5144926_c1d68693",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 13
@@ -91,6 +163,30 @@
       "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d4922dd_19395163",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1126,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5144926_c1d68693",
+      "range": {
+        "startLine": 1126,
+        "startChar": 5,
+        "endLine": 1126,
+        "endChar": 31
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "d1e93522_ac18b056",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "\u003e Again I\u0027m not sure what we want to be checked here is whether or not we have a ycbcrInfo. I think it would be best to just use IsYcbcrFormat helper.\n\nDone.\n\n\n\u003e On a side note that doesn\u0027t need to be changed for this CL, this has made me start thinking if its just wrong to have the ycbcrsampler on the GrBackendFormat. It made things a little easier to do that, but its a little vague on whether the sampling properties really should live here or just be passed in when you have a full GrBackendTexture.\n\nYeah, I agree. It looks out of place there. I\u0027ll try removing it from there in a separate CL.",
+      "parentUuid": "eaa6430c_fc66eaa4",
+      "range": {
+        "startLine": 1257,
+        "startChar": 4,
+        "endLine": 1257,
+        "endChar": 88
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9d9a6f2_e9a04fe5",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 13
@@ -137,6 +257,30 @@
       "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1afb883_7f329e2e",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1315,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9d9a6f2_e9a04fe5",
+      "range": {
+        "startLine": 1314,
+        "startChar": 12,
+        "endLine": 1315,
+        "endChar": 65
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "88cbfee9_f4883afa",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56f272ed_b7ada71c",
+      "range": {
+        "startLine": 1544,
+        "startChar": 21,
+        "endLine": 1544,
+        "endChar": 32
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ccc11e0_6be6f2d7",
         "filename": "src/gpu/vk/GrVkCaps.h",
         "patchSetId": 13
@@ -183,6 +351,30 @@
       "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1f62e58_30b17b93",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ccc11e0_6be6f2d7",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 39
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "428e6e11_0d078441",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 2640,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2238bb11_a682b44c",
+      "range": {
+        "startLine": 2640,
+        "startChar": 4,
+        "endLine": 2640,
+        "endChar": 25
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74a28d3f_9582298e",
         "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
         "patchSetId": 13
@@ -229,6 +445,30 @@
       "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d287956a_f2a75b25",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "74a28d3f_9582298e",
+      "range": {
+        "startLine": 396,
+        "startChar": 4,
+        "endLine": 399,
+        "endChar": 30
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "047f46e1_75ad1c32",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16eb4878_a98bbcb8",
+      "range": {
+        "startLine": 464,
+        "startChar": 2,
+        "endLine": 466,
+        "endChar": 5
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d47f5169_5c0b032d",
         "filename": "tests/VkYcbcrSamplerTest.cpp",
         "patchSetId": 13
@@ -278,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "b233f17d_94d4c03c",
+        "filename": "tests/VkYcbcrSamplerTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d47f5169_5c0b032d",
+      "range": {
+        "startLine": 239,
+        "startChar": 3,
+        "endLine": 239,
+        "endChar": 102
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d053800_5a1ac9f8",
         "filename": "tests/VkYcbcrSamplerTest.cpp",
         "patchSetId": 13
@@ -298,6 +586,30 @@
       "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea55041e_d2891831",
+        "filename": "tests/VkYcbcrSamplerTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 8948
+      },
+      "writtenOn": "2019-08-06T19:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d053800_5a1ac9f8",
+      "range": {
+        "startLine": 409,
+        "startChar": 100,
+        "endLine": 409,
+        "endChar": 103
+      },
+      "revId": "3de7030d0feda1e975163f45d20f8df15dd51983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
