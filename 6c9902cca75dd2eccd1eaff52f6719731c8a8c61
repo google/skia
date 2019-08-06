@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9f298145_e1545c7e",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-06T15:17:17Z",
+      "side": 1,
+      "message": "Yeah, looking back on it I don\u0027t know why I did it this way.\n\nFixed.",
+      "parentUuid": "e73f14e7_ff364202",
+      "range": {
+        "startLine": 68,
+        "startChar": 3,
+        "endLine": 71,
+        "endChar": 41
+      },
+      "revId": "6c9902cca75dd2eccd1eaff52f6719731c8a8c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56488282_75dfcb0a",
         "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
         "patchSetId": 23
@@ -45,6 +69,30 @@
       "revId": "6c9902cca75dd2eccd1eaff52f6719731c8a8c61",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a4a92f2_384daef0",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-06T15:17:17Z",
+      "side": 1,
+      "message": "Yes, they definitely do. :) Historically, I implemented correctness first, then performance optimizations later. So caching of render pipelines is a few patches down the stack.",
+      "parentUuid": "56488282_75dfcb0a",
+      "range": {
+        "startLine": 258,
+        "startChar": 57,
+        "endLine": 258,
+        "endChar": 77
+      },
+      "revId": "6c9902cca75dd2eccd1eaff52f6719731c8a8c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
