@@ -450,8 +450,8 @@ namespace skvm {
         Program(const std::vector<Builder::Instruction>& instructions,
                 const std::vector<int>                 & strides,
                 const char* debug_name);
-        Program() : Program({}, {}, nullptr) {}
 
+        Program();
         ~Program();
         Program(Program&&);
         Program& operator=(Program&&);
@@ -488,8 +488,8 @@ namespace skvm {
         void dumpJIT(const char* debug_name, size_t size) const;
 
         std::vector<Instruction> fInstructions;
-        int                      fRegs;
-        int                      fLoop;
+        int                      fRegs = 0;
+        int                      fLoop = 0;
         std::vector<int>         fStrides;
 
         void*  fJITBuf  = nullptr;
