@@ -8,6 +8,7 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 
 #include "src/core/SkConvertPixels.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
@@ -215,42 +216,25 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     // Either upload only the first miplevel or all miplevels
     SkASSERT(1 == mipLevelCount || mipLevelCount == (int)mtlTexture.mipmapLevelCount);
 
+    if (1 == mipLevelCount && !texels[0].fPixels) {
+        return true;   // no data to upload
+    }
+
+    for (int i = 0; i < mipLevelCount; ++i) {
+        // We do not allow any gaps in the mip data
+        if (!texels[i].fPixels) {
+            return false;
+        }
+    }
+
     // TODO: implement some way of reusing transfer buffers?
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
-    individualMipOffsets.push_back(0);
-    size_t combinedBufferSize = width * bpp * height;
-    int currentWidth = width;
-    int currentHeight = height;
-    if (!texels[0].fPixels) {
-        combinedBufferSize = 0;
-    }
-
-    // The alignment must be at least 4 bytes and a multiple of the bytes per pixel of the image
-    // config. This works with the assumption that the bytes in pixel config is always a power of 2.
-    SkASSERT((bpp & (bpp - 1)) == 0);
-    const size_t alignmentMask = 0x3 | (bpp - 1);
-    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
-
-        if (texels[currentMipLevel].fPixels) {
-            const size_t trimmedSize = currentWidth * bpp * currentHeight;
-            const size_t alignmentDiff = combinedBufferSize & alignmentMask;
-            if (alignmentDiff != 0) {
-                combinedBufferSize += alignmentMask - alignmentDiff + 1;
-            }
-            individualMipOffsets.push_back(combinedBufferSize);
-            combinedBufferSize += trimmedSize;
-        } else {
-            individualMipOffsets.push_back(0);
-        }
-    }
-    if (0 == combinedBufferSize) {
-        // We don't actually have any data to upload so just return success
-        return true;
-    }
+    size_t combinedBufferSize = GrComputeTightCombinedBufferSize(bpp, width, height,
+                                                                 &individualMipOffsets,
+                                                                 mipLevelCount);
+    SkASSERT(combinedBufferSize);
 
     size_t bufferOffset;
     id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(combinedBufferSize,
@@ -260,8 +244,8 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     }
     char* buffer = (char*) transferBuffer.contents + bufferOffset;
 
-    currentWidth = width;
-    currentHeight = height;
+    int currentWidth = width;
+    int currentHeight = height;
     int layerHeight = tex->height();
     MTLOrigin origin = MTLOriginMake(left, top, 0);
 
