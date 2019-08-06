@@ -176,8 +176,10 @@ public:
         return SkTMin(fInternalMultisampleCount, this->maxRenderTargetSampleCount(format));
     }
 
-    virtual bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
-                                    int sampleCount = 1) const = 0;
+    virtual bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                               int sampleCount = 1) const = 0;
+
+    virtual bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const = 0;
 
     // Find a sample count greater than or equal to the requested count which is supported for a
     // color buffer of the given config or 0 if no such sample count is supported. If the requested

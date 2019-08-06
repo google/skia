@@ -120,11 +120,11 @@ public:
         return this->isFormatTexturable(ct, format);
     }
 
-    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
-                            int sampleCount = 1) const override;
-
-    bool isFormatRenderable(GrGLFormat format) const {
-        return this->maxRenderTargetSampleCount(format) > 0;
+    bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                       int sampleCount = 1) const override;
+    bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const override;
+    bool isFormatRenderable(GrGLFormat format, int sampleCount) const {
+        return sampleCount <= this->maxRenderTargetSampleCount(format);
     }
 
     int getRenderTargetSampleCount(int requestedCount, GrColorType ct,

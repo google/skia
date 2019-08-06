@@ -42,9 +42,10 @@ public:
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
-    bool isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
-                            int sampleCount = 1) const override;
-    bool isFormatRenderable(VkFormat) const;
+    bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                       int sampleCount = 1) const override;
+    bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const override;
+    bool isFormatRenderable(VkFormat, int sampleCount) const;
 
     int getRenderTargetSampleCount(int requestedCount,
                                    GrColorType, const GrBackendFormat&) const override;
