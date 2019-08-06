@@ -149,6 +149,18 @@ public:
                                                    SkPngChunkReader* = nullptr);
 
     /**
+     * This method is similar to MakeFromStream, except that for some container
+     * formats that contains both still images and image sequences, this method
+     * will instruct the decoder to prefer the image sequences (if availabe) or
+     * still pictures.
+     */
+    static std::unique_ptr<SkCodec> MakeFromStream(
+            std::unique_ptr<SkStream>,
+            bool preferAnimation,
+            Result* = nullptr,
+            SkPngChunkReader* = nullptr);
+
+    /**
      *  If this data represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
      *
@@ -851,6 +863,9 @@ private:
     int                                fCurrScanline;
 
     bool                               fStartedIncrementalDecode;
+
+    static std::unique_ptr<SkCodec> MakeFromStreamInner(
+            std::unique_ptr<SkStream>, Result*, SkPngChunkReader*, bool);
 
     bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha, bool srcIsOpaque);
 
