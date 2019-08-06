@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d632fdb7_f86afbe0",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-06T21:17:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c49d96e3_138391e4",
+      "range": {
+        "startLine": 416,
+        "startChar": 0,
+        "endLine": 417,
+        "endChar": 0
+      },
+      "revId": "bfcda93c84e3514401a0da7b51a0ba45839d2dfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
