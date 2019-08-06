@@ -16,6 +16,7 @@ cloud.google.com/go/logging v1.0.0/go.mod h1:V1cc3ogwobYzQq5f2R7DS/GvRIrI4FKj01G
 contrib.go.opencensus.io/exporter/ocagent v0.4.12/go.mod h1:450APlNTSR6FrvC3CTRqYosuDstRB9un7SOx2k/9ckA=
 contrib.go.opencensus.io/exporter/ocagent v0.5.0/go.mod h1:ImxhfLRpxoYiSq891pBrLVhN+qmP8BTVvdH2YLs7Gl0=
 contrib.go.opencensus.io/exporter/ocagent v0.5.1/go.mod h1:oGSyf701BHqn69lMacwJJuyGzrk5eiCj86DxXhG2gfk=
+contrib.go.opencensus.io/exporter/ocagent v0.6.0/go.mod h1:zmKjrJcdo0aYcVS7bmEeSEBLPA9YJp5bjrofdU3pIXs=
 contrib.go.opencensus.io/exporter/stackdriver v0.11.0/go.mod h1:hA7rlmtavV03FGxzWXAPBUnZeZBhWN/QYQAuMtxc9Bk=
 contrib.go.opencensus.io/exporter/stackdriver v0.11.1/go.mod h1:OVGcYsPSBQnQONDG+Gn3WiwIp6K+wL73TUjVEFb9iAI=
 contrib.go.opencensus.io/exporter/stackdriver v0.12.2/go.mod h1:iwB6wGarfphGGe/e5CWqyUk/cLzKnWsOKPVW3no6OTw=
@@ -87,6 +88,7 @@ github.com/aws/aws-sdk-go v1.21.6/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN
 github.com/aws/aws-sdk-go v1.21.7/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.21.8/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.21.9/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
+github.com/aws/aws-sdk-go v1.21.10/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0 h1:HWo1m869IqiPhD389kmkxeTalrjNbbJTC8LXupb+sl0=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
@@ -529,6 +531,8 @@ go.chromium.org/luci v0.0.0-20190801181208-ce8f76cc30b0 h1:89xSqCEoNdAU4gxy+9Tlh
 go.chromium.org/luci v0.0.0-20190801181208-ce8f76cc30b0/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.chromium.org/luci v0.0.0-20190803004214-4d0a890b1650 h1:yEP72Nnrx4gB7BAB2JBt9rbTztLi4+Pr0OdEFi9gqtc=
 go.chromium.org/luci v0.0.0-20190803004214-4d0a890b1650/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
+go.chromium.org/luci v0.0.0-20190806044745-fa560718a8ce h1:VypsneqpEh5OB64S/4O7SFWriXza+r7154Pe/2RwzyE=
+go.chromium.org/luci v0.0.0-20190806044745-fa560718a8ce/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
@@ -615,6 +619,8 @@ go.skia.org/infra v0.0.0-20190803052135-3fb7d4fb0dcb h1:S+EV/xLjlaoOe+ISbynMiIA8
 go.skia.org/infra v0.0.0-20190803052135-3fb7d4fb0dcb/go.mod h1:q1NXxk8Z0kkAUYG5Bdas/wl7eaIpPrxSgxl+0od/cJU=
 go.skia.org/infra v0.0.0-20190805173708-45a4eb6c07f0 h1:T1+0m3A66wIp6zfQHQg+j6vvAwCwDb4QMV5lYhlYtI0=
 go.skia.org/infra v0.0.0-20190805173708-45a4eb6c07f0/go.mod h1:M8ApbEPIFyPaBrXPPde+kJ9SrEbWEtbNq4W6GKbh1Q8=
+go.skia.org/infra v0.0.0-20190805211628-f214b493188a h1:XxzgTRXYZfV+V3ncilEU13/EazvdnVnaL1/lAueEjPY=
+go.skia.org/infra v0.0.0-20190805211628-f214b493188a/go.mod h1:M8ApbEPIFyPaBrXPPde+kJ9SrEbWEtbNq4W6GKbh1Q8=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a h1:+9xKwnzXTkTu+2ZVhffRu0A60Jx/gOETiNlKkzqbnRY=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a/go.mod h1:oVrxmr1FXbVQ7PeGtZ28Kg5wPvB+bNsnw1n2j5rtfTY=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
@@ -851,6 +857,8 @@ golang.org/x/tools v0.0.0-20190802003818-e9bb7d36c060/go.mod h1:jcCCGcm9btYwXyDq
 golang.org/x/tools v0.0.0-20190802220118-1d1727260058 h1:OsDcfiJHbqcv+S4eovUaiPY2ILzR76hXrjILS4sV4Wg=
 golang.org/x/tools v0.0.0-20190802220118-1d1727260058/go.mod h1:jcCCGcm9btYwXyDqrUWc6MKQKKGJCWEQ3AfLSRIbEuI=
 golang.org/x/tools v0.0.0-20190805165405-2756c524cc1c/go.mod h1:jcCCGcm9btYwXyDqrUWc6MKQKKGJCWEQ3AfLSRIbEuI=
+golang.org/x/tools v0.0.0-20190805222050-c5a2fd39b72a h1:0AGI+cC4FJwXNdClvHzfHhJf/yPjKwdo/+m0lPKrdJA=
+golang.org/x/tools v0.0.0-20190805222050-c5a2fd39b72a/go.mod h1:jcCCGcm9btYwXyDqrUWc6MKQKKGJCWEQ3AfLSRIbEuI=
 golang.org/x/tools/gopls v0.1.0/go.mod h1:p8Q0IUu6EEeGxqmoN/g6Et3gReLCGA7PtNRdyOxcWJE=
 golang.org/x/tools/gopls v0.1.1/go.mod h1:RYlHDmWjvTa1HuWNyEKa6/zzI2ums47cfsozmM0466w=
 golang.org/x/tools/gopls v0.1.3/go.mod h1:vrCQzOKxvuiZLjCKSmbbov04oeBQQOb4VQqwYK2PWIY=
