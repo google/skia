@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1926cd8_b50bdf6a",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-06T20:47:54Z",
+      "side": 1,
+      "message": "One more for completeness?",
+      "range": {
+        "startLine": 236,
+        "startChar": 34,
+        "endLine": 236,
+        "endChar": 37
+      },
+      "revId": "4654ef21af6f26a3fe884ec9579a47c439a33d8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
