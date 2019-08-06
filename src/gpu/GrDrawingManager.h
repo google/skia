@@ -151,6 +151,11 @@ private:
 
     void cleanup();
 
+    // Closes the target's dependent render tasks (or, if not in sorting/opList-splitting-reduction
+    // mode, closes fActiveOpList) in preparation for us opening a new opList that will write to
+    // 'target'.
+    void closeRenderTasksForNewOpList(GrSurfaceProxy* target);
+
     // return true if any opLists were actually executed; false otherwise
     bool executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState*,
                             int* numRenderTasksExecuted);

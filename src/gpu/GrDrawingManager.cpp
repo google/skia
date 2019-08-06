@@ -603,18 +603,14 @@ void GrDrawingManager::validate() const {
 }
 #endif
 
-sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetProxy> rtp,
-                                                          bool managedOpList) {
-    SkDEBUGCODE(this->validate());
-    SkASSERT(fContext);
-
+void GrDrawingManager::closeRenderTasksForNewOpList(GrSurfaceProxy* target) {
     if (fDAG.sortingRenderTasks() && fReduceOpListSplitting) {
-        // In this case we need to close all the opLists that rely on the current contents of
-        // 'rtp'. That is bc we're going to update the content of the proxy so they need to be
-        // split in case they use both the old and new content. (This is a bit of an overkill:
-        // they really only need to be split if they ever reference proxy's contents again but
-        // that is hard to predict/handle).
-        if (GrRenderTask* lastRenderTask = rtp->getLastRenderTask()) {
+        // In this case we need to close all the renderTasks that rely on the current contents of
+        // 'target'. That is bc we're going to update the content of the proxy so they need to be
+        // split in case they use both the old and new content. (This is a bit of an overkill: they
+        // really only need to be split if they ever reference proxy's contents again but that is
+        // hard to predict/handle).
+        if (GrRenderTask* lastRenderTask = target->getLastRenderTask()) {
             lastRenderTask->closeThoseWhoDependOnMe(*fContext->priv().caps());
         }
     } else if (fActiveOpList) {
@@ -625,6 +621,14 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetPr
         fActiveOpList->makeClosed(*fContext->priv().caps());
         fActiveOpList = nullptr;
     }
+}
+
+sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetProxy> rtp,
+                                                          bool managedOpList) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+
+    this->closeRenderTasksForNewOpList(rtp.get());
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                         fContext->priv().refOpMemoryPool(),
@@ -648,23 +652,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> 
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
-    if (fDAG.sortingRenderTasks() && fReduceOpListSplitting) {
-        // In this case we need to close all the opLists that rely on the current contents of
-        // 'texture'. That is bc we're going to update the content of the proxy so they need to
-        // be split in case they use both the old and new content. (This is a bit of an
-        // overkill: they really only need to be split if they ever reference proxy's contents
-        // again but that is hard to predict/handle).
-        if (GrRenderTask* lastRenderTask = textureProxy->getLastRenderTask()) {
-            lastRenderTask->closeThoseWhoDependOnMe(*fContext->priv().caps());
-        }
-    } else if (fActiveOpList) {
-        // This is  a temporary fix for the partial-MDB world. In that world we're not
-        // reordering so ops that (in the single opList world) would've just glommed onto the
-        // end of the single opList but referred to a far earlier RT need to appear in their
-        // own opList.
-        fActiveOpList->makeClosed(*fContext->priv().caps());
-        fActiveOpList = nullptr;
-    }
+    this->closeRenderTasksForNewOpList(textureProxy.get());
 
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->priv().refOpMemoryPool(),
                                                       textureProxy,
