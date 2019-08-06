@@ -12,6 +12,12 @@
 // http://clang.llvm.org/docs/ThreadSafetyAnalysis.html
 
 #if defined(__clang__) && (!defined(SWIG))
+    #warn __clang_major__
+    #warn __clang_minor__
+    #warn __clang_patchlevel__
+    #warn __clang_version__
+    #warn __APPLE__
+    #warn __APPLE_CC__
 #define SK_THREAD_ANNOTATION_ATTRIBUTE(x)   __attribute__((x))
 #else
 #define SK_THREAD_ANNOTATION_ATTRIBUTE(x)   // no-op
