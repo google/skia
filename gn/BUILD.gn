@@ -25,7 +25,11 @@ if (is_ios) {
       sdk = "iphonesimulator"
     }
   }
-  ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
+  xcode_sysroot = exec_script("find_xcode_sysroot.py", [ sdk ], "trim string")
+}
+if (is_mac) {
+  xcode_sysroot =
+      exec_script("find_xcode_sysroot.py", [ "macosx" ], "trim string")
 }
 
 config("default") {
@@ -156,20 +160,20 @@ config("default") {
     }
     asmflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
     ]
     cflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
     ]
     cflags_cc += [ "-stdlib=libc++" ]
     ldflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
       "-stdlib=libc++",
@@ -190,6 +194,18 @@ config("default") {
     #     /System/Library/Frameworks/foo.framework/foo are out of sync.
     #     Falling back to library file for linking.
     ldflags += [ "-Wl,-w" ]
+    asmflags += [
+      "-isysroot",
+      xcode_sysroot,
+    ]
+    cflags += [
+      "-isysroot",
+      xcode_sysroot,
+    ]
+    ldflags += [
+      "-isysroot",
+      xcode_sysroot,
+    ]
   }
 
   if (sanitize != "" && sanitize != "MSVC") {
