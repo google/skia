@@ -121,7 +121,6 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                 }
 
                 // Not implemented for Metal yet
-#if 0
                 {
                     auto createWithColorMtd = [format](GrContext* context,
                                                        const SkColor4f& color,
@@ -134,7 +133,6 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                     test_color_init(context, reporter, createWithColorMtd,
                                     combo.fColorType, combo.fColor, mipMapped, renderable);
                 }
-#endif
             }
         }
     }
