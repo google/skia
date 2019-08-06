@@ -193,7 +193,7 @@ template("gcc_like_toolchain") {
 
     tool("cc") {
       depfile = "{{output}}.d"
-      command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
+      command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
       outputs = [
         "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
@@ -203,7 +203,7 @@ template("gcc_like_toolchain") {
 
     tool("cxx") {
       depfile = "{{output}}.d"
-      command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+      command = "$cc_wrapper $cxx -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
       outputs = [
         "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
@@ -213,7 +213,7 @@ template("gcc_like_toolchain") {
 
     tool("objc") {
       depfile = "{{output}}.d"
-      command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
+      command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
       outputs = [
         "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
@@ -223,7 +223,7 @@ template("gcc_like_toolchain") {
 
     tool("objcxx") {
       depfile = "{{output}}.d"
-      command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} {{cflags_objcc}} -c {{source}} -o {{output}}"
+      command = "$cc_wrapper $cxx -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} {{cflags_objcc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
       outputs = [
         "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
@@ -233,7 +233,7 @@ template("gcc_like_toolchain") {
 
     tool("asm") {
       depfile = "{{output}}.d"
-      command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
+      command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
       outputs = [
         "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
