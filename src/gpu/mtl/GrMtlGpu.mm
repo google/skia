@@ -8,6 +8,7 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 
 #include "src/core/SkConvertPixels.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
@@ -219,6 +220,10 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
+
+#if 0
+    size_t combinedBufferSize = GrComputeTightCombinedBufferSize(bpp, width, height, individualMipOffsets, mipLevelCount);
+#else
     individualMipOffsets.push_back(0);
     size_t combinedBufferSize = width * bpp * height;
     int currentWidth = width;
@@ -251,6 +256,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         // We don't actually have any data to upload so just return success
         return true;
     }
+#endif
 
     size_t bufferOffset;
     id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(combinedBufferSize,
@@ -629,11 +635,13 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     return true;
 }
 
+#include "src/core/SkMipMap.h"
+
 bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
                                                int w, int h, bool texturable,
                                                bool renderable, GrMipMapped mipMapped,
                                                const void* srcData, size_t srcRowBytes,
-                                               GrMtlTextureInfo* info) {
+                                               const SkColor4f* color, GrMtlTextureInfo* info) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
@@ -654,6 +662,11 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
         return false;
     }
 
+    int mipLevelCount = 1;
+    if (GrMipMapped::kYes == mipMapped) {
+        mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
+    }
+
     bool mipmapped = mipMapped == GrMipMapped::kYes ? true : false;
     MTLTextureDescriptor* desc =
             [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: format
@@ -666,9 +679,9 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
     desc.usage |= renderable ? MTLTextureUsageRenderTarget : 0;
     id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
 
-    size_t bpp = GrMtlBytesPerFormat(format);
+    size_t bytesPerPixel = GrMtlBytesPerFormat(format);
     if (!srcRowBytes) {
-        srcRowBytes = w * bpp;
+        srcRowBytes = w * bytesPerPixel;
 #ifdef SK_BUILD_FOR_MAC
         if (!srcData) {
             // On MacOS, the fillBuffer command needs a range with a multiple of 4 bytes
@@ -676,7 +689,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
         }
 #endif
     }
-    size_t bufferSize = srcRowBytes * h;
+
     NSUInteger options = 0;  // TODO: consider other options here
 #ifdef SK_BUILD_FOR_MAC
     options |= MTLResourceStorageModeManaged;
@@ -684,34 +697,96 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
     options |= MTLResourceStorageModeShared;
 #endif
 
-    // TODO: Create GrMtlTransferBuffer
-    id<MTLBuffer> transferBuffer;
-    if (0 == bufferSize) {
+    size_t combinedBufferSize = 0;
+    SkTArray<size_t> individualMipOffsets(mipLevelCount);
+    if (srcData) {
+        individualMipOffsets.push_back(0);
+
+        combinedBufferSize = srcRowBytes * h;
+    } else if (color) {
+        combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, w, h, &individualMipOffsets, mipLevelCount);
+    }
+
+    sk_sp<GrMtlBuffer> transferBuffer1 = GrMtlBuffer::Make(this, combinedBufferSize,
+                                                          GrGpuBufferType::kXferCpuToGpu,
+                                                          kStream_GrAccessPattern);
+    if (!transferBuffer1) {
         return false;
     }
+
+    char* buffer = (char*) transferBuffer1->map();
+    size_t bufferOffset = transferBuffer1->offset();
+
+    int currentWidth = w;
+    int currentHeight = h;
+    int left = 0;
+    int top = 0;
+    MTLOrigin origin = MTLOriginMake(left, top, 0);
+
+    id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
+    id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
+
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        const size_t trimRowBytes = currentWidth * bytesPerPixel;
+
+        char* dst = buffer + individualMipOffsets[currentMipLevel];
+
+        if (srcData) {
+            SkASSERT(1 == mipLevelCount);
+            if (!srcRowBytes) {
+                srcRowBytes = trimRowBytes;
+            }
+
+            // copy data into the buffer, skipping the trailing bytes
+            const char* src = (const char*) srcData;
+            SkRectMemcpy(dst, trimRowBytes, src, srcRowBytes, trimRowBytes, currentHeight);
+
+            [blitCmdEncoder copyFromBuffer: transferBuffer1->mtlBuffer()
+                              sourceOffset: bufferOffset + individualMipOffsets[currentMipLevel]
+                         sourceBytesPerRow: trimRowBytes
+                       sourceBytesPerImage: trimRowBytes*currentHeight
+                                sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
+                                 toTexture: mtlTexture
+                          destinationSlice: 0
+                          destinationLevel: currentMipLevel
+                         destinationOrigin: origin];
+        } else if (color) {
+          GrFillInData(kUnknown_GrPixelConfig, currentWidth, currentHeight, individualMipOffsets, dst, *color);
+        } else {
+
+        }
+
+        currentWidth = SkTMax(1, currentWidth/2);
+        currentHeight = SkTMax(1, currentHeight/2);
+    }
+    transferBuffer1->unmap();
+
+
+
     if (srcData) {
-        transferBuffer = [fDevice newBufferWithBytes: srcData
-                                              length: bufferSize
+        transferBuffer1 = [fDevice newBufferWithBytes: srcData
+                                              length: combinedBufferSize
                                              options: options];
     } else {
-        transferBuffer = [fDevice newBufferWithLength: bufferSize
+        transferBuffer1 = [fDevice newBufferWithLength: combinedBufferSize
                                               options: options];
     }
-    if (nil == transferBuffer) {
+    if (nil == transferBuffer1) {
         return false;
     }
 
     id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
     id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
     if (!srcData) {
-        [blitCmdEncoder fillBuffer: transferBuffer
-                             range: NSMakeRange(0, bufferSize)
+        // TODO: does it even make sense to create an uninitialized buffer in Mtl?
+        [blitCmdEncoder fillBuffer: transferBuffer1
+                             range: NSMakeRange(0, combinedBufferSize)
                              value: 0];
     }
-    [blitCmdEncoder copyFromBuffer: transferBuffer
+    [blitCmdEncoder copyFromBuffer: transferBuffer1
                       sourceOffset: 0
                  sourceBytesPerRow: srcRowBytes
-               sourceBytesPerImage: bufferSize
+               sourceBytesPerImage: combinedBufferSize
                         sourceSize: MTLSizeMake(w, h, 1)
                          toTexture: testTexture
                   destinationSlice: 0
@@ -720,7 +795,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
     [blitCmdEncoder endEncoding];
     [cmdBuffer commit];
     [cmdBuffer waitUntilCompleted];
-    transferBuffer = nil;
+    transferBuffer1 = nil;
 
     info->fTexture.reset(GrRetainPtrFromId(testTexture));
 
@@ -746,7 +821,7 @@ GrBackendTexture GrMtlGpu::createBackendTexture(int w, int h,
     if (!this->createTestingOnlyMtlTextureInfo(static_cast<MTLPixelFormat>(*mtlFormat),
                                                w, h, true,
                                                GrRenderable::kYes == renderable, mipMapped,
-                                               pixels, rowBytes, &info)) {
+                                               pixels, rowBytes, color, &info)) {
         return {};
     }
 
@@ -788,7 +863,7 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
 
     GrMtlTextureInfo info;
     if (!this->createTestingOnlyMtlTextureInfo(format, w, h, false, true,
-                                               GrMipMapped::kNo, nullptr, 0, &info)) {
+                                               GrMipMapped::kNo, nullptr, 0, nullptr, &info)) {
         return {};
     }
 
