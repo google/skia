@@ -22,6 +22,30 @@
       "revId": "919884406f986fb225a1a1f488d1b1385114b873",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7df5ff4a_772160d0",
+        "filename": "experimental/editor/editor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-06T15:06:55Z",
+      "side": 1,
+      "message": "Which is better:\n\n    using StringView \u003d std::pair\u003cconst char*, size_t\u003e;\n\nor:\n\n    template \u003ctypename T\u003e\n    struct Span {\n        T* data;\n        size_t size;\n    };\n    using StringView \u003d Span\u003cconst char\u003e;\n\n?",
+      "parentUuid": "88b2fb06_52a05e4a",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 16
+      },
+      "revId": "919884406f986fb225a1a1f488d1b1385114b873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
