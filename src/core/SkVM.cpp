@@ -1088,6 +1088,8 @@ namespace skvm {
         return *this;
     }
 
+    Program::Program() {}
+
     Program::Program(const std::vector<Builder::Instruction>& instructions,
                      const std::vector<int>& strides,
                      const char* debug_name) : fStrides(strides) {
