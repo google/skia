@@ -9,6 +9,7 @@
 #define SkVM_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
 #include <vector>
 
@@ -230,7 +231,7 @@ namespace skvm {
         size_t   fSize;
     };
 
-    enum class Op : uint8_t {
+    enum class Op {
           store8,   store16,   store32,
     // ↑ side effects / no side effects ↓
 
@@ -280,6 +281,7 @@ namespace skvm {
 
     class Builder {
     public:
+        SK_BEGIN_REQUIRE_DENSE;
         struct Instruction {
             Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             Val x,y,z;      // Enough arguments for mad().
@@ -288,7 +290,9 @@ namespace skvm {
             // Not populated until done() has been called.
             int  death;     // Index of last live instruction taking this input; live if != 0.
             bool hoist;     // Value independent of all loop variables?
+            char pad[3] = {0,0,0};
         };
+        SK_END_REQUIRE_DENSE;
 
         Program done(const char* debug_name = nullptr);
 
@@ -425,28 +429,12 @@ namespace skvm {
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
 
     private:
-        struct InstructionHash {
-            template <typename T>
-            static size_t Hash(T val) {
-                return std::hash<T>{}(val);
-            }
-            size_t operator()(const Instruction& inst) const {
-                return Hash((uint8_t)inst.op)
-                     ^ Hash(inst.x)
-                     ^ Hash(inst.y)
-                     ^ Hash(inst.z)
-                     ^ Hash(inst.imm)
-                     ^ Hash(inst.death)
-                     ^ Hash(inst.hoist);
-            }
-        };
-
         Val push(Op, Val x, Val y=NA, Val z=NA, int imm=0);
         bool isZero(Val) const;
 
-        SkTHashMap<Instruction, Val, InstructionHash> fIndex;
-        std::vector<Instruction>                      fProgram;
-        std::vector<int>                              fStrides;
+        SkTHashMap<Instruction, Val> fIndex;
+        std::vector<Instruction>     fProgram;
+        std::vector<int>             fStrides;
     };
 
     using Reg = int;
