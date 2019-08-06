@@ -203,35 +203,32 @@ namespace {
 
             // Lerp with coverage if needed.
             bool apply_coverage = true;
-            skvm::I32 cr,cg,cb,ca;
+            Color cov;
             switch (key.coverage) {
                 case Coverage::Full: apply_coverage = false;
                                      break;
 
-                case Coverage::UniformA8: cr = cg = cb = ca =
+                case Coverage::UniformA8: cov.r = cov.g = cov.b = cov.a =
                                           uniform8(uniforms, offsetof(Uniforms, coverage));
                                           break;
 
-                case Coverage::MaskA8: cr = cg = cb = ca =
+                case Coverage::MaskA8: cov.r = cov.g = cov.b = cov.a =
                                        load8(varying<uint8_t>());
                                        break;
 
-                case Coverage::MaskLCD16: {
-                    Color cov = unpack_565(load16(varying<uint16_t>()));
-                    cr = cov.r;
-                    cg = cov.g;
-                    cb = cov.b;
-                    ca = select(lt(src.a, dst.a), min(cr, min(cg,cb))
-                                                , max(cr, max(cg,cb)));
-                } break;
+                case Coverage::MaskLCD16:
+                    cov = unpack_565(load16(varying<uint16_t>()));
+                    cov.a = select(lt(src.a, dst.a), min(cov.r, min(cov.g,cov.b))
+                                                   , max(cov.r, max(cov.g,cov.b)));
+                    break;
 
                 case Coverage::Mask3D: TODO;
             }
             if (apply_coverage) {
-                src.r = mix(dst.r, src.r, cr);
-                src.g = mix(dst.g, src.g, cg);
-                src.b = mix(dst.b, src.b, cb);
-                src.a = mix(dst.a, src.a, ca);
+                src.r = mix(dst.r, src.r, cov.r);
+                src.g = mix(dst.g, src.g, cov.g);
+                src.b = mix(dst.b, src.b, cov.b);
+                src.a = mix(dst.a, src.a, cov.a);
             }
 
             if (force_opaque) { src.a = splat(0xff); }
