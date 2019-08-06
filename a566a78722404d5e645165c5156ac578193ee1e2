@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4b0229ac_641f3bc3",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-08-06T15:32:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7195a34_292ec575",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 19
+      },
+      "revId": "a566a78722404d5e645165c5156ac578193ee1e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb4e763c_495f9189",
         "filename": "modules/skparagraph/src/Run.cpp",
         "patchSetId": 7
