@@ -307,6 +307,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
         }
     }
 
+    this->dispatchTextProperty(adapter);
+
     return std::move(text_root);
 }
 
