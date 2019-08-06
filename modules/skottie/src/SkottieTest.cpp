@@ -37,13 +37,25 @@ DEF_TEST(Skottie_OssFuzz8956, reporter) {
 }
 
 DEF_TEST(Skottie_Properties, reporter) {
-    static constexpr char json[] = R"({
+    auto test_typeface = ToolUtils::create_portable_typeface();
+    REPORTER_ASSERT(reporter, test_typeface);
+
+    static const char json[] = R"({
                                      "v": "5.2.1",
                                      "w": 100,
                                      "h": 100,
                                      "fr": 1,
                                      "ip": 0,
                                      "op": 1,
+                                     "fonts": {
+                                       "list": [
+                                         {
+                                           "fName": "test_font",
+                                           "fFamily": "test-family",
+                                           "fStyle": "TestFontStyle"
+                                         }
+                                       ]
+                                     },
                                      "layers": [
                                        {
                                          "ty": 4,
@@ -86,57 +98,141 @@ DEF_TEST(Skottie_Properties, reporter) {
                                              "s": { "a": 0, "k": [ 50, 50 ] }
                                            }
                                          ]
+                                       },
+                                       {
+                                         "ty": 5,
+                                         "nm": "layer_1",
+                                         "ip": 0,
+                                         "op": 1,
+                                         "ks": {
+                                           "p": { "a": 0, "k": [25, 25] }
+                                         },
+                                         "t": {
+                                           "d": {
+                                             "k": [
+                                                {
+                                                  "t": 0,
+                                                  "s": {
+                                                    "f": "test_font",
+                                                    "s": 100,
+                                                    "t": "inline_text",
+                                                    "lh": 120
+                                                  }
+                                                }
+                                             ]
+                                           }
+                                         }
                                        }
                                      ]
                                    })";
 
+
     class TestPropertyObserver final : public PropertyObserver {
     public:
         struct ColorInfo {
-            SkString node_name;
-            SkColor  color;
+            SkString                                      node_name;
+            std::unique_ptr<skottie::ColorPropertyHandle> handle;
         };
 
         struct OpacityInfo {
-            SkString node_name;
-            float    opacity;
+            SkString                                        node_name;
+            std::unique_ptr<skottie::OpacityPropertyHandle> handle;
+        };
+
+        struct TextInfo {
+            SkString                                     node_name;
+            std::unique_ptr<skottie::TextPropertyHandle> handle;
         };
 
         struct TransformInfo {
-            SkString                        node_name;
-            skottie::TransformPropertyValue transform;
+            SkString                                          node_name;
+            std::unique_ptr<skottie::TransformPropertyHandle> handle;
         };
 
         void onColorProperty(const char node_name[],
                 const PropertyObserver::LazyHandle<ColorPropertyHandle>& lh) override {
-            fColors.push_back({SkString(node_name), lh()->get()});
+            fColors.push_back({SkString(node_name), lh()});
         }
 
         void onOpacityProperty(const char node_name[],
                 const PropertyObserver::LazyHandle<OpacityPropertyHandle>& lh) override {
-            fOpacities.push_back({SkString(node_name), lh()->get()});
+            fOpacities.push_back({SkString(node_name), lh()});
+        }
+
+        void onTextProperty(const char node_name[],
+                            const PropertyObserver::LazyHandle<TextPropertyHandle>& lh) override {
+            fTexts.push_back({SkString(node_name), lh()});
         }
 
         void onTransformProperty(const char node_name[],
                 const PropertyObserver::LazyHandle<TransformPropertyHandle>& lh) override {
-            fTransforms.push_back({SkString(node_name), lh()->get()});
+            fTransforms.push_back({SkString(node_name), lh()});
         }
 
         const std::vector<ColorInfo>& colors() const { return fColors; }
         const std::vector<OpacityInfo>& opacities() const { return fOpacities; }
+        const std::vector<TextInfo>& texts() const { return fTexts; }
         const std::vector<TransformInfo>& transforms() const { return fTransforms; }
 
     private:
         std::vector<ColorInfo>     fColors;
         std::vector<OpacityInfo>   fOpacities;
+        std::vector<TextInfo>      fTexts;
         std::vector<TransformInfo> fTransforms;
     };
 
+    // Returns a single specified typeface for all requests.
+    class DummyFontMgr : public SkFontMgr {
+     public:
+        DummyFontMgr(sk_sp<SkTypeface> test_font) : fTestFont(test_font) {}
+
+        int onCountFamilies() const override { return 1; }
+        void onGetFamilyName(int index, SkString* familyName) const override {}
+        SkFontStyleSet* onCreateStyleSet(int index) const override { return nullptr; }
+        SkFontStyleSet* onMatchFamily(const char familyName[]) const override { return nullptr; }
+        SkTypeface* onMatchFamilyStyle(const char familyName[],
+                                      const SkFontStyle& fontStyle) const override {
+            return nullptr;
+        }
+        SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                const char* bcp47[], int bcp47Count,
+                                                SkUnichar character) const override {
+            return nullptr;
+        }
+        SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override {
+            return nullptr;
+        }
+        sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override {
+            return fTestFont;
+        }
+        sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
+                                                    int ttcIndex) const override {
+            return fTestFont;
+        }
+        sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>,
+                                                   const SkFontArguments&) const override {
+            return fTestFont;
+        }
+        sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData>) const override {
+            return fTestFont;
+        }
+        sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
+            return fTestFont;
+        }
+        sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const override {
+            return fTestFont;
+        }
+     private:
+        sk_sp<SkTypeface> fTestFont;
+    };
+
+    sk_sp<DummyFontMgr> test_font_manager = sk_make_sp<DummyFontMgr>(test_typeface);
     SkMemoryStream stream(json, strlen(json));
     auto observer = sk_make_sp<TestPropertyObserver>();
 
     auto animation = skottie::Animation::Builder()
             .setPropertyObserver(observer)
+            .setFontManager(test_font_manager)
             .make(&stream);
 
     REPORTER_ASSERT(reporter, animation);
@@ -144,21 +240,21 @@ DEF_TEST(Skottie_Properties, reporter) {
     const auto& colors = observer->colors();
     REPORTER_ASSERT(reporter, colors.size() == 2);
     REPORTER_ASSERT(reporter, colors[0].node_name.equals("fill_0"));
-    REPORTER_ASSERT(reporter, colors[0].color == 0xffff0000);
+    REPORTER_ASSERT(reporter, colors[0].handle->get() == 0xffff0000);
     REPORTER_ASSERT(reporter, colors[1].node_name.equals("fill_effect_0"));
-    REPORTER_ASSERT(reporter, colors[1].color == 0xff00ff00);
+    REPORTER_ASSERT(reporter, colors[1].handle->get() == 0xff00ff00);
 
     const auto& opacities = observer->opacities();
-    REPORTER_ASSERT(reporter, opacities.size() == 2);
+    REPORTER_ASSERT(reporter, opacities.size() == 3);
     REPORTER_ASSERT(reporter, opacities[0].node_name.equals("shape_transform_0"));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(opacities[0].opacity, 100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(opacities[0].handle->get(), 100));
     REPORTER_ASSERT(reporter, opacities[1].node_name.equals("layer_0"));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(opacities[1].opacity, 50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(opacities[1].handle->get(), 50));
 
     const auto& transforms = observer->transforms();
     REPORTER_ASSERT(reporter, transforms.size() == 2);
     REPORTER_ASSERT(reporter, transforms[0].node_name.equals("layer_0"));
-    REPORTER_ASSERT(reporter, transforms[0].transform == skottie::TransformPropertyValue({
+    REPORTER_ASSERT(reporter, transforms[0].handle->get() == skottie::TransformPropertyValue({
         SkPoint::Make(0, 0),
         SkPoint::Make(0, 0),
         SkVector::Make(100, 100),
@@ -167,13 +263,32 @@ DEF_TEST(Skottie_Properties, reporter) {
         0
     }));
     REPORTER_ASSERT(reporter, transforms[1].node_name.equals("shape_transform_0"));
-    REPORTER_ASSERT(reporter, transforms[1].transform == skottie::TransformPropertyValue({
+    REPORTER_ASSERT(reporter, transforms[1].handle->get() == skottie::TransformPropertyValue({
         SkPoint::Make(0, 0),
         SkPoint::Make(0, 0),
         SkVector::Make(50, 50),
         0,
         0,
         0
+    }));
+
+    const auto& texts = observer->texts();
+    REPORTER_ASSERT(reporter, texts.size() == 1);
+    REPORTER_ASSERT(reporter, texts[0].node_name.equals("layer_1"));
+    REPORTER_ASSERT(reporter, texts[0].handle->get() == skottie::TextPropertyValue({
+      test_typeface,
+      SkString("inline_text"),
+      100,
+      0,
+      120,
+      0,
+      SkTextUtils::kLeft_Align,
+      Shaper::VAlign::kTopBaseline,
+      SkRect::MakeEmpty(),
+      SK_ColorTRANSPARENT,
+      SK_ColorTRANSPARENT,
+      false,
+      false
     }));
 }
 
