@@ -19,3 +19,6 @@ Milestone 78
  * SkColorFilters::HSLAMatrix - new matrix color filter operating in HSLA space.
 
  * GrContextOptions - add option to set maximum size for Metal's shared dynamic buffer.
+
+ * Vulkan backend now supports YCbCr sampler for I420 Vulkan images that are not
+   backed by external images.
