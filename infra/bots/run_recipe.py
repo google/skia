@@ -31,7 +31,6 @@ cmd = [
     '-known-gerrit-host', 'llvm.googlesource.com',
     '-known-gerrit-host', 'skia.googlesource.com',
     '-known-gerrit-host', 'webrtc.googlesource.com',
-    '-output-result-json', os.path.join(sys.argv[1], 'build_result_filename'),
     '-workdir', '.',
     '-recipe', sys.argv[2],
     '-properties', sys.argv[3],
