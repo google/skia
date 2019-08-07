@@ -182,7 +182,6 @@ private:
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 
-    void addAdditionalCommandBuffer();
     void addAdditionalRenderPass();
 
     enum class LoadStoreState {
@@ -195,7 +194,7 @@ private:
     struct CommandBufferInfo {
         using SampledTexture = GrPendingIOResource<GrVkTexture, kRead_GrIOType>;
         const GrVkRenderPass* fRenderPass;
-        SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>> fCommandBuffers;
+        std::unique_ptr<GrVkSecondaryCommandBuffer> fCommandBuffer;
         int fNumPreCmds = 0;
         VkClearValue fColorClearValue;
         SkRect fBounds;
@@ -207,7 +206,7 @@ private:
         SkTArray<SampledTexture> fSampledTextures;
 
         GrVkSecondaryCommandBuffer* currentCmdBuf() {
-            return fCommandBuffers.back().get();
+            return fCommandBuffer.get();
         }
     };
 
