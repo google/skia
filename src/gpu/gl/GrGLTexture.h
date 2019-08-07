@@ -18,14 +18,18 @@ class GrGLGpu;
 
 class GrGLTexture : public GrTexture {
 public:
-    struct IDDesc {
-        GrGLTextureInfo             fInfo;
-        GrBackendObjectOwnership    fOwnership;
+    struct Desc {
+        SkISize fSize                       = {-1, -1};
+        GrGLenum fTarget                    = 0;
+        GrGLuint fID                        = 0;
+        GrGLFormat fFormat                  = GrGLFormat::kUnknown;
+        GrPixelConfig fConfig               = kUnknown_GrPixelConfig;
+        GrBackendObjectOwnership fOwnership = GrBackendObjectOwnership::kOwned;
     };
 
     static GrTextureType TextureTypeFromTarget(GrGLenum textureTarget);
 
-    GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&, GrMipMapsStatus);
+    GrGLTexture(GrGLGpu*, SkBudgeted, const Desc&, GrMipMapsStatus);
 
     ~GrGLTexture() override {}
 
@@ -42,27 +46,32 @@ public:
 
     GrGLenum target() const;
 
-    GrGLFormat format() const { return GrGLFormatFromGLEnum(fFormat); }
+    GrGLFormat format() const { return fFormat; }
 
     bool hasBaseLevelBeenBoundToFBO() const { return fBaseLevelHasBeenBoundToFBO; }
     void baseLevelWasBoundToFBO() { fBaseLevelHasBeenBoundToFBO = true; }
 
-    static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, GrMipMapsStatus,
-                                          const IDDesc&, sk_sp<GrGLTextureParameters>,
+    static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*,
+                                          GrMipMapsStatus,
+                                          const Desc&,
+                                          sk_sp<GrGLTextureParameters>,
                                           GrWrapCacheable, GrIOType);
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
 protected:
     // Constructor for subclasses.
-    GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, sk_sp<GrGLTextureParameters>,
-                GrMipMapsStatus);
+    GrGLTexture(GrGLGpu*, const Desc&, sk_sp<GrGLTextureParameters>, GrMipMapsStatus);
 
     // Constructor for instances wrapping backend objects.
-    GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, GrMipMapsStatus, const IDDesc&,
-                sk_sp<GrGLTextureParameters>, GrWrapCacheable, GrIOType);
+    GrGLTexture(GrGLGpu*,
+                const Desc&,
+                GrMipMapsStatus,
+                sk_sp<GrGLTextureParameters>,
+                GrWrapCacheable,
+                GrIOType);
 
-    void init(const GrSurfaceDesc&, const IDDesc&);
+    void init(const Desc&);
 
     void onAbandon() override;
     void onRelease() override;
@@ -72,7 +81,7 @@ protected:
 private:
     sk_sp<GrGLTextureParameters> fParameters;
     GrGLuint fID;
-    GrGLenum fFormat;
+    GrGLFormat fFormat;
     GrBackendObjectOwnership fTextureIDOwnership;
     bool fBaseLevelHasBeenBoundToFBO = false;
 

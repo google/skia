@@ -302,6 +302,35 @@ static constexpr GrGLFormat GrGLFormatFromGLEnum(GrGLenum glFormat) {
     }
 }
 
+/** Returns either the sized internal format or compressed internal format of the GrGLFormat. */
+static constexpr GrGLenum GrGLFormatToEnum(GrGLFormat format) {
+    switch (format) {
+        case GrGLFormat::kRGBA8:                return GR_GL_RGBA8;
+        case GrGLFormat::kR8:                   return GR_GL_R8;
+        case GrGLFormat::kALPHA8:               return GR_GL_ALPHA8;
+        case GrGLFormat::kLUMINANCE8:           return GR_GL_LUMINANCE8;
+        case GrGLFormat::kBGRA8:                return GR_GL_BGRA8;
+        case GrGLFormat::kRGB565:               return GR_GL_RGB565;
+        case GrGLFormat::kRGBA16F:              return GR_GL_RGBA16F;
+        case GrGLFormat::kLUMINANCE16F:         return GR_GL_LUMINANCE16F;
+        case GrGLFormat::kR16F:                 return GR_GL_R16F;
+        case GrGLFormat::kRGB8:                 return GR_GL_RGB8;
+        case GrGLFormat::kRG8:                  return GR_GL_RG8;
+        case GrGLFormat::kRGB10_A2:             return GR_GL_RGB10_A2;
+        case GrGLFormat::kRGBA4:                return GR_GL_RGBA4;
+        case GrGLFormat::kRGBA32F:              return GR_GL_RGBA32F;
+        case GrGLFormat::kSRGB8_ALPHA8:         return GR_GL_SRGB8_ALPHA8;
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return GR_GL_COMPRESSED_RGB8_ETC2;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return GR_GL_COMPRESSED_ETC1_RGB8;
+        case GrGLFormat::kR16:                  return GR_GL_R16;
+        case GrGLFormat::kRG16:                 return GR_GL_RG16;
+        case GrGLFormat::kRGBA16:               return GR_GL_RGBA16;
+        case GrGLFormat::kRG16F:                return GR_GL_RG16F;
+        case GrGLFormat::kUnknown:              return 0;
+    }
+    SkUNREACHABLE;
+}
+
 #if GR_TEST_UTILS
 static constexpr const char* GrGLFormatToStr(GrGLenum glFormat) {
     switch (glFormat) {

@@ -14,28 +14,28 @@
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  SkBudgeted budgeted,
-                                                 const GrSurfaceDesc& desc,
                                                  int sampleCount,
-                                                 const GrGLTexture::IDDesc& texIDDesc,
-                                                 const GrGLRenderTarget::IDDesc& rtIDDesc,
+                                                 const GrGLTexture::Desc& texDesc,
+                                                 const GrGLRenderTarget::IDs& rtIDs,
                                                  GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
-        , GrGLTexture(gpu, desc, texIDDesc, nullptr, mipMapsStatus)
-        , GrGLRenderTarget(gpu, desc, sampleCount, texIDDesc.fInfo.fFormat, rtIDDesc) {
+        : GrSurface(gpu, texDesc.fSize, texDesc.fConfig, GrProtected::kNo)
+        , GrGLTexture(gpu, texDesc, nullptr, mipMapsStatus)
+        , GrGLRenderTarget(gpu, texDesc.fSize, texDesc.fFormat, texDesc.fConfig, sampleCount,
+                           rtIDs) {
     this->registerWithCache(budgeted);
 }
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
-                                                 const GrSurfaceDesc& desc,
                                                  int sampleCount,
-                                                 const GrGLTexture::IDDesc& texIDDesc,
+                                                 const GrGLTexture::Desc& texDesc,
                                                  sk_sp<GrGLTextureParameters> parameters,
-                                                 const GrGLRenderTarget::IDDesc& rtIDDesc,
+                                                 const GrGLRenderTarget::IDs& rtIDs,
                                                  GrWrapCacheable cacheable,
                                                  GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
-        , GrGLTexture(gpu, desc, texIDDesc, std::move(parameters), mipMapsStatus)
-        , GrGLRenderTarget(gpu, desc, sampleCount, texIDDesc.fInfo.fFormat, rtIDDesc) {
+        : GrSurface(gpu, texDesc.fSize, texDesc.fConfig, GrProtected::kNo)
+        , GrGLTexture(gpu, texDesc, std::move(parameters), mipMapsStatus)
+        , GrGLRenderTarget(gpu, texDesc.fSize, texDesc.fFormat, texDesc.fConfig, sampleCount,
+                           rtIDs) {
     this->registerWithCacheWrapped(cacheable);
 }
 
@@ -60,13 +60,15 @@ bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
 }
 
 sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
-        GrGLGpu* gpu, const GrSurfaceDesc& desc, int sampleCount,
-        const GrGLTexture::IDDesc& texIDDesc, sk_sp<GrGLTextureParameters> parameters,
-        const GrGLRenderTarget::IDDesc& rtIDDesc, GrWrapCacheable cacheable,
+        GrGLGpu* gpu,
+        int sampleCount,
+        const GrGLTexture::Desc& texDesc,
+        sk_sp<GrGLTextureParameters> parameters,
+        const GrGLRenderTarget::IDs& rtIDs,
+        GrWrapCacheable cacheable,
         GrMipMapsStatus mipMapsStatus) {
-    return sk_sp<GrGLTextureRenderTarget>(
-            new GrGLTextureRenderTarget(gpu, desc, sampleCount, texIDDesc, std::move(parameters),
-                                        rtIDDesc, cacheable, mipMapsStatus));
+    return sk_sp<GrGLTextureRenderTarget>(new GrGLTextureRenderTarget(
+            gpu, sampleCount, texDesc, std::move(parameters), rtIDs, cacheable, mipMapsStatus));
 }
 
 size_t GrGLTextureRenderTarget::onGpuMemorySize() const {
