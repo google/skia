@@ -1,0 +1,233 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_win/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get clang_win VERSION"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cache/goma/client",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/cache/goma/data/Build-Win-Clang-x86_64-Debug-GomaNoFallback"
+    ],
+    "infra_step": true,
+    "name": "mkdir goma cache dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cache/goma/client/goma_ctl.py",
+      "ensure_start"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOMA_CACHE_DIR": "[START_DIR]/cache/goma/data/Build-Win-Clang-x86_64-Debug-GomaNoFallback",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "start goma"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cache/work/skia/bin/gn",
+      "gen",
+      "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback/Debug_x64",
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/cache/goma/client/gomacc\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"-DDUMMY_clang_win_version=42\"] target_cpu=\"x86_64\" werror=true win_sdk=\"[START_DIR]/win_toolchain/win_sdk\" win_vc=\"[START_DIR]/win_toolchain/VC\""
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOMA_CACHE_DIR": "[START_DIR]/cache/goma/data/Build-Win-Clang-x86_64-Debug-GomaNoFallback",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback/Debug_x64",
+      "-j",
+      "500"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOMA_CACHE_DIR": "[START_DIR]/cache/goma/data/Build-Win-Clang-x86_64-Debug-GomaNoFallback",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ninja",
+    "~followup_annotations": [
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cache/goma/client/goma_ctl.py",
+      "report"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOMA_CACHE_DIR": "[START_DIR]/cache/goma/data/Build-Win-Clang-x86_64-Debug-GomaNoFallback",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "goma report"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "GOMA_CACHE_DIR": "[START_DIR]/cache/goma/data/Build-Win-Clang-x86_64-Debug-GomaNoFallback",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_USE_LOCAL": "0"
+    },
+    "name": "get swarming task id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd_bin_packages/gsutil.py",
+      "cp",
+      "[START_DIR]/tmp/t/goma-report.tgz",
+      "gs://skia-external-compile-tasks/goma/123456/goma-report.tgz"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOMA_CACHE_DIR": "[START_DIR]/cache/goma/data/Build-Win-Clang-x86_64-Debug-GomaNoFallback",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "upload goma report"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cache/goma/client/goma_ctl.py",
+      "stat"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOMA_CACHE_DIR": "[START_DIR]/cache/goma/data/Build-Win-Clang-x86_64-Debug-GomaNoFallback",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "print goma stats"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cache/goma/client/goma_ctl.py",
+      "ensure_stop"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOMA_CACHE_DIR": "[START_DIR]/cache/goma/data/Build-Win-Clang-x86_64-Debug-GomaNoFallback",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stop goma"
+  },
+  {
+    "failure": {
+      "failure": {},
+      "humanReason": "Step('ninja') (retcode: 1)"
+    },
+    "name": "$result"
+  }
+]
