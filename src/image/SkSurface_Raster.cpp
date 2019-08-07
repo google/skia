@@ -26,6 +26,7 @@ public:
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
+    bool onReplaceBackendPixels(void* pixels) override;
 
 private:
     SkBitmap    fBitmap;
@@ -158,6 +159,21 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
         SkASSERT(this->getCachedCanvas());
         this->getCachedCanvas()->getDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
     }
+}
+
+bool SkSurface_Raster::onReplaceBackendPixels(void* pixels) {
+    SkASSERT(pixels);
+    SkASSERT(!fWeOwnThePixels);
+
+    SkBitmap prev(fBitmap);
+    fBitmap.installPixels(prev.info(), pixels, prev.rowBytes());
+    memcpy(fBitmap.getPixels(), prev.getPixels(), fBitmap.computeByteSize());
+    this->getCachedCanvas()->getDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
+
+    // It is illegal to access the previous pixels after this call. Make sure we release
+    // the last ref to it here.
+    SkASSERT(prev.pixelRef()->unique());
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
