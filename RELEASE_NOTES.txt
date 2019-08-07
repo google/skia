@@ -17,5 +17,3 @@ Milestone 78
    - Hide previously public functions on SkImageFilter that were intended for internal use only
 
  * SkColorFilters::HSLAMatrix - new matrix color filter operating in HSLA space.
-
- * GrContextOptions - add option to set maximum size for Metal's shared dynamic buffer.
