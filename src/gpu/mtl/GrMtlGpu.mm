@@ -533,20 +533,22 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    const GrCaps* caps = this->caps();
+    const GrMtlCaps& caps = this->mtlCaps();
 
-    GrPixelConfig config = caps->getConfigFromBackendFormat(backendTex.getBackendFormat(),
-                                                            colorType);
+    MTLPixelFormat format = mtlTexture.pixelFormat;
+    if (!caps.isFormatRenderable(format, sampleCnt)) {
+        return nullptr;
+    }
+
+    GrPixelConfig config = caps.getConfigFromBackendFormat(backendTex.getBackendFormat(),
+                                                           colorType);
     SkASSERT(kUnknown_GrPixelConfig != config);
 
     GrSurfaceDesc surfDesc;
     init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, config);
 
-    sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, colorType,
-                                                 backendTex.getBackendFormat());
-    if (!sampleCnt) {
-        return nullptr;
-    }
+    sampleCnt = caps.getRenderTargetSampleCount(sampleCnt, format);
+    SkASSERT(sampleCnt);
 
     return GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, sampleCnt,
                                                                     mtlTexture, cacheable);
@@ -581,14 +583,18 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
         return nullptr;
     }
 
+    MTLPixelFormat format = mtlTexture.pixelFormat;
+    if (!this->mtlCaps().isFormatRenderable(format, sampleCnt)) {
+        return nullptr;
+    }
+
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
                                                                     grColorType);
     SkASSERT(kUnknown_GrPixelConfig != config);
 
     GrSurfaceDesc surfDesc;
     init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, config);
-    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, grColorType,
-                                                         backendTex.getBackendFormat());
+    sampleCnt = this->mtlCaps().getRenderTargetSampleCount(sampleCnt, format);
     if (!sampleCnt) {
         return nullptr;
     }

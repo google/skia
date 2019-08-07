@@ -143,7 +143,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
             auto* rtc = ((SkSurface_Gpu*)(surf.get()))->getDevice()->accessRenderTargetContext();
             int storedCnt = rtc->numSamples();
             int allowedCnt = context->priv().caps()->getRenderTargetSampleCount(
-                    storedCnt, rtc->asSurfaceProxy()->config());
+                    storedCnt, backendTex.getBackendFormat());
             REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
                             "Should store an allowed sample count (%d vs %d)", allowedCnt,
                             storedCnt);
@@ -159,7 +159,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
             auto* rtc = ((SkSurface_Gpu*)(surf.get()))->getDevice()->accessRenderTargetContext();
             int storedCnt = rtc->numSamples();
             int allowedCnt = context->priv().caps()->getRenderTargetSampleCount(
-                    storedCnt, rtc->asSurfaceProxy()->config());
+                    storedCnt, backendTex.getBackendFormat());
             REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
                             "Should store an allowed sample count (%d vs %d)", allowedCnt,
                             storedCnt);

@@ -280,9 +280,10 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
     return this->onCanCopySurface(dst, src, srcRect, dstPoint);
 }
 
-bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                 int renderTargetSampleCnt, GrMipMapped mipped) const {
-    if (!this->isConfigTexturable(desc.fConfig)) {
+bool GrCaps::validateSurfaceParams(const SkISize& size, const GrBackendFormat& format,
+                                   GrPixelConfig config, GrRenderable renderable,
+                                   int renderTargetSampleCnt, GrMipMapped mipped) const {
+    if (!this->isConfigTexturable(config)) {
         return false;
     }
 
@@ -290,16 +291,16 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable rendera
         return false;
     }
 
-    if (desc.fWidth < 1 || desc.fHeight < 1) {
+    if (size.width() < 1 || size.height() < 1) {
         return false;
     }
 
     if (renderable == GrRenderable::kYes) {
-        if (0 == this->getRenderTargetSampleCount(renderTargetSampleCnt, desc.fConfig)) {
+        if (!this->isFormatRenderable(format, renderTargetSampleCnt)) {
             return false;
         }
         int maxRTSize = this->maxRenderTargetSize();
-        if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
+        if (size.width() > maxRTSize || size.height() > maxRTSize) {
             return false;
         }
     } else {
@@ -308,7 +309,7 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrRenderable rendera
             return false;
         }
         int maxSize = this->maxTextureSize();
-        if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+        if (size.width() > maxSize || size.height() > maxSize) {
             return false;
         }
     }

@@ -459,9 +459,9 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
 
         GrContextFactory factory(grContextOpts);
         if (const GrContext* ctx = factory.get(ctxType, ctxOverrides)) {
-            GrPixelConfig grPixConfig = SkColorType2GrPixelConfig(colorType);
+            GrBackendFormat format = ctx->defaultBackendFormat(colorType, GrRenderable::kYes);
             int supportedSampleCount =
-                    ctx->priv().caps()->getRenderTargetSampleCount(sampleCount, grPixConfig);
+                    ctx->priv().caps()->getRenderTargetSampleCount(sampleCount, format);
             if (sampleCount != supportedSampleCount) {
                 SkDebugf("Configuration '%s' sample count %d is not a supported sample count.\n",
                          config->getTag().c_str(), sampleCount);
