@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "828300b9_d8a9a594",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-07T19:32:17Z",
+      "side": 1,
+      "message": "Yes, there will be two entries for each one of these names. One Unicode, one Symbol.",
+      "parentUuid": "89b70d0f_79e6b9f6",
+      "range": {
+        "startLine": 80,
+        "startChar": 29,
+        "endLine": 80,
+        "endChar": 44
+      },
+      "revId": "ae04529b0862c61598ab040ff05c49660076e467",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f18124c_284ee1bd",
         "filename": "src/sfnt/SkOTUtils.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "023b8bf5_41187848",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-07T19:32:17Z",
+      "side": 1,
+      "message": "Not really in here. The ids are just really long.",
+      "parentUuid": "2f18124c_284ee1bd",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 101
+      },
+      "revId": "ae04529b0862c61598ab040ff05c49660076e467",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03ccd4bf_27482e01",
         "filename": "src/sfnt/SkOTUtils.cpp",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "ae04529b0862c61598ab040ff05c49660076e467",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88b2cddb_fe2f3ba5",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-07T19:32:17Z",
+      "side": 1,
+      "message": "The idea is that I\u0027m looping over the names, not the nameRecord index. I suppose I could change the index name and then subtract in the one place I need the name",
+      "parentUuid": "03ccd4bf_27482e01",
+      "range": {
+        "startLine": 141,
+        "startChar": 3,
+        "endLine": 141,
+        "endChar": 40
+      },
+      "revId": "ae04529b0862c61598ab040ff05c49660076e467",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
