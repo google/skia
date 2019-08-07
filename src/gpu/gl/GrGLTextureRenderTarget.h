@@ -26,22 +26,22 @@ public:
     // constructor must be explicitly called.
     GrGLTextureRenderTarget(GrGLGpu* gpu,
                             SkBudgeted budgeted,
-                            const GrSurfaceDesc& desc,
                             int sampleCount,
-                            const GrGLTexture::IDDesc& texIDDesc,
-                            const GrGLRenderTarget::IDDesc& rtIDDesc,
+                            const GrGLTexture::Desc& texDesc,
+                            const GrGLRenderTarget::IDs&,
                             GrMipMapsStatus);
 
     bool canAttemptStencilAttachment() const override;
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
-    static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+    static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu,
                                                       int sampleCount,
-                                                      const GrGLTexture::IDDesc& texIDDesc,
-                                                      sk_sp<GrGLTextureParameters> parameters,
-                                                      const GrGLRenderTarget::IDDesc& rtIDDesc,
-                                                      GrWrapCacheable cacheble, GrMipMapsStatus);
+                                                      const GrGLTexture::Desc&,
+                                                      sk_sp<GrGLTextureParameters>,
+                                                      const GrGLRenderTarget::IDs&,
+                                                      GrWrapCacheable,
+                                                      GrMipMapsStatus);
 
     GrBackendFormat backendFormat() const override {
         // It doesn't matter if we take the texture or render target path, so just pick texture.
@@ -62,11 +62,10 @@ protected:
 private:
     // Constructor for instances wrapping backend objects.
     GrGLTextureRenderTarget(GrGLGpu* gpu,
-                            const GrSurfaceDesc& desc,
                             int sampleCount,
-                            const GrGLTexture::IDDesc& texIDDesc,
+                            const GrGLTexture::Desc& texDesc,
                             sk_sp<GrGLTextureParameters> parameters,
-                            const GrGLRenderTarget::IDDesc& rtIDDesc,
+                            const GrGLRenderTarget::IDs& ids,
                             GrWrapCacheable,
                             GrMipMapsStatus);
 
