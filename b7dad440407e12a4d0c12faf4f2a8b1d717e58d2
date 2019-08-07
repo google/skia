@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8a21f80_742ca610",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-07T17:51:55Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this have been a bump-min-skp-version event?\n\nWe\u0027re discarding information, and I just got bitten by it trying to debug a Chromium issue...",
+      "revId": "b7dad440407e12a4d0c12faf4f2a8b1d717e58d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
