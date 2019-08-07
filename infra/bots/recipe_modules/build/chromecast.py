@@ -24,6 +24,8 @@ def compile_fn(api, checkout_root, out_dir):
     "-DSK_NO_COMMAND_BUFFER",
     # Avoid unused warning with yyunput
     '-Wno-error=unused-function',
+    # This bot's compiler's doesn't handle try_acquire_capability correctly.
+    '-Wno-thread-safety-analysis',
     # Makes the binary small enough to fit on the small disk.
     '-g0',
     ('-DDUMMY_cast_toolchain_version=%s' %
