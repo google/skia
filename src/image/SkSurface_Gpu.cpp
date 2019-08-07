@@ -414,9 +414,7 @@ static bool validate_backend_texture(const GrCaps* caps, const GrBackendTexture&
         return false;
     }
 
-    // We don't require that the client gave us an exact valid sample cnt. However, it must be
-    // less than the max supported sample count and 1 if MSAA is unsupported for the color type.
-    if (!caps->getRenderTargetSampleCount(sampleCnt, grCT, backendFormat)) {
+    if (!caps->isFormatAsColorTypeRenderable(grCT, backendFormat, sampleCnt)) {
         return false;
     }
 

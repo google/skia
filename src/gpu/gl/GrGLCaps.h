@@ -127,17 +127,12 @@ public:
         return sampleCount <= this->maxRenderTargetSampleCount(format);
     }
 
-    int getRenderTargetSampleCount(int requestedCount, GrColorType ct,
+    int getRenderTargetSampleCount(int requestedCount,
                                    const GrBackendFormat& format) const override {
-        return this->getRenderTargetSampleCount(requestedCount, ct,
+        return this->getRenderTargetSampleCount(requestedCount,
                                                 GrGLBackendFormatToGLFormat(format));
     }
-    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override {
-        GrColorType ct = GrPixelConfigToColorType(config);
-        auto format = this->pixelConfigToFormat(config);
-        return this->getRenderTargetSampleCount(requestedCount, ct, format);
-
-    }
+    int getRenderTargetSampleCount(int requestedCount, GrGLFormat) const;
 
     int maxRenderTargetSampleCount(const GrBackendFormat& format) const override {
         return this->maxRenderTargetSampleCount(GrGLBackendFormatToGLFormat(format));
@@ -515,8 +510,6 @@ private:
 
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
-
-    int getRenderTargetSampleCount(int requestedCount, GrColorType, GrGLFormat) const;
 
     GrGLStandard fStandard;
 
