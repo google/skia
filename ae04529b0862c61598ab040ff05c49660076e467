@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89b70d0f_79e6b9f6",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-08-07T18:38:15Z",
+      "side": 1,
+      "message": "Is the 2 * because we are making a symbol and a unicode version of each?",
+      "range": {
+        "startLine": 80,
+        "startChar": 29,
+        "endLine": 80,
+        "endChar": 44
+      },
+      "revId": "ae04529b0862c61598ab040ff05c49660076e467",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f18124c_284ee1bd",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-08-07T18:38:15Z",
+      "side": 1,
+      "message": "I don\u0027t know if you care about all the long lines. There are many.",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 101
+      },
+      "revId": "ae04529b0862c61598ab040ff05c49660076e467",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03ccd4bf_27482e01",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-08-07T18:38:15Z",
+      "side": 1,
+      "message": "for (int i \u003d namesCount; i \u003c namesCount + neamseCount; ++i) ?",
+      "range": {
+        "startLine": 141,
+        "startChar": 3,
+        "endLine": 141,
+        "endChar": 40
+      },
+      "revId": "ae04529b0862c61598ab040ff05c49660076e467",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
