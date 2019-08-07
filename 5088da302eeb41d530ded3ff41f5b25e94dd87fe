@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fd2ec76_2c1058f9",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-08-07T14:26:26Z",
+      "side": 1,
+      "message": "I think the syntax here is:\nstatic SkLRUCache\u003cKey, skvm::Program\u003e\u0026 acquire_program_cache() SK_ACQUIRE(gProgramCacheLock) {",
+      "range": {
+        "startLine": 51,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 68
+      },
+      "revId": "5088da302eeb41d530ded3ff41f5b25e94dd87fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8afdebd_af2f7ca4",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-08-07T14:26:26Z",
+      "side": 1,
+      "message": "static void release_program_cache() SK_RELEASE_CAPABILITY(gProgramCacheLock) { \n    gProgramCacheLock.release(); \n}",
+      "range": {
+        "startLine": 59,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 72
+      },
+      "revId": "5088da302eeb41d530ded3ff41f5b25e94dd87fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
