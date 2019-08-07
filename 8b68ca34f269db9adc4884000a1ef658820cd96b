@@ -81,6 +81,24 @@
       "revId": "8b68ca34f269db9adc4884000a1ef658820cd96b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10b95b19_500b4769",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-08-07T17:54:34Z",
+      "side": 1,
+      "message": "Should explain the change in the commit message. I can rubber-stamp if there\u0027s no one who knows this code better.",
+      "parentUuid": "385fcce9_905f69eb",
+      "revId": "8b68ca34f269db9adc4884000a1ef658820cd96b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
