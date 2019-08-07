@@ -46,18 +46,18 @@ namespace {
 
     static SkSpinlock gProgramCacheLock;
 
-    // TODO: switch this to try_acquire_program_cache() once I can get us off old compilers.
-
-    static SkLRUCache<Key, skvm::Program>& acquire_program_cache() SK_ACQUIRE(gProgramCacheLock) {
-        gProgramCacheLock.acquire();
-        static auto cache SK_GUARDED_BY(gProgramCacheLock)
-            = new SkLRUCache<Key, skvm::Program>{8};
-        return *cache;
+    SK_TRY_ACQUIRE(true, gProgramCacheLock)
+    static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
+        if (gProgramCacheLock.tryAcquire()) {
+            static auto cache SK_GUARDED_BY(gProgramCacheLock)
+                = new SkLRUCache<Key, skvm::Program>{8};
+            return cache;
+        }
+        return nullptr;
     }
 
-    static void release_program_cache() SK_RELEASE_CAPABILITY(gProgramCacheLock) {
-        gProgramCacheLock.release();
-    }
+    SK_RELEASE_CAPABILITY(gProgramCacheLock)
+    static void release_program_cache() { gProgramCacheLock.release(); }
 
 
     struct Uniforms {
@@ -272,24 +272,24 @@ namespace {
         }
 
         ~Blitter() override {
-            SkLRUCache<Key, skvm::Program>& cache = acquire_program_cache();
-
-            auto cache_program = [&](skvm::Program&& program, Coverage coverage) {
-                if (!program.empty()) {
-                    Key key = fKey.withCoverage(coverage);
-                    if (skvm::Program* found = cache.find(key)) {
-                        *found = std::move(program);
-                    } else {
-                        cache.insert(key, std::move(program));
+            if (SkLRUCache<Key, skvm::Program>* cache = try_acquire_program_cache()) {
+                auto cache_program = [&](skvm::Program&& program, Coverage coverage) {
+                    if (!program.empty()) {
+                        Key key = fKey.withCoverage(coverage);
+                        if (skvm::Program* found = cache->find(key)) {
+                            *found = std::move(program);
+                        } else {
+                            cache->insert(key, std::move(program));
+                        }
                     }
-                }
-            };
-            cache_program(std::move(fBlitH),         Coverage::Full);
-            cache_program(std::move(fBlitAntiH),     Coverage::UniformA8);
-            cache_program(std::move(fBlitMaskA8),    Coverage::MaskA8);
-            cache_program(std::move(fBlitMaskLCD16), Coverage::MaskLCD16);
+                };
+                cache_program(std::move(fBlitH),         Coverage::Full);
+                cache_program(std::move(fBlitAntiH),     Coverage::UniformA8);
+                cache_program(std::move(fBlitMaskA8),    Coverage::MaskA8);
+                cache_program(std::move(fBlitMaskLCD16), Coverage::MaskLCD16);
 
-            release_program_cache();
+                release_program_cache();
+            }
         }
 
     private:
@@ -305,9 +305,8 @@ namespace {
             Key key = fKey.withCoverage(coverage);
             {
                 skvm::Program p;
-                {
-                    SkLRUCache<Key, skvm::Program>& cache = acquire_program_cache();
-                    if (skvm::Program* found = cache.find(key)) {
+                if (SkLRUCache<Key, skvm::Program>* cache = try_acquire_program_cache()) {
+                    if (skvm::Program* found = cache->find(key)) {
                         p = std::move(*found);
                     }
                     release_program_cache();
