@@ -139,8 +139,8 @@ static void fillin_ETC1_with_color(int width, int height, const SkColor4f& color
     }
 }
 
-// Fill in the width x height 'dest' with the munged version of 'colorf' that matches 'config'
-static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
+// Fill in the width x height 'dest' with the munged version of 'colorf' that matches 'ct'
+static bool fill_buffer_with_color(GrColorType ct, int width, int height,
                                    const SkColor4f& colorf, void* dest) {
     SkASSERT(kRGB_ETC1_GrPixelConfig != config);
 
