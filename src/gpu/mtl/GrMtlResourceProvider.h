@@ -107,7 +107,6 @@ private:
         SkSpinlock    fMutex;
     };
     static constexpr size_t kBufferSuballocatorStartSize = 1024*1024;
-    static constexpr size_t kBufferSuballocatorMaxSize = 8*1024*1024;
 
     GrMtlGpu* fGpu;
 
@@ -121,6 +120,7 @@ private:
     // finishes. The completion handler will retain a reference to this so it won't get
     // deleted along with the GrContext.
     sk_sp<BufferSuballocator> fBufferSuballocator;
+    size_t fBufferSuballocatorMaxSize;
 };
 
 #endif
