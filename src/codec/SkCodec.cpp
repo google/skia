@@ -205,8 +205,21 @@ bool SkCodec::rewindIfNeeded() {
     return this->onRewind();
 }
 
+static SkIRect frame_rect_on_screen(SkIRect frameRect,
+                                    const SkIRect& screenRect) {
+    if (!frameRect.intersect(screenRect)) {
+        return SkIRect::MakeEmpty();
+    }
+
+    return frameRect;
+}
+
 bool zero_rect(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
                SkISize srcDimensions, SkIRect prevRect) {
+    prevRect = frame_rect_on_screen(prevRect, SkIRect::MakeSize(srcDimensions));
+    if (prevRect.isEmpty()) {
+        return true;
+    }
     const auto dimensions = dstInfo.dimensions();
     if (dimensions != srcDimensions) {
         SkRect src = SkRect::Make(srcDimensions);
@@ -222,12 +235,6 @@ bool zero_rect(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
             // so nothing to zero.
             return true;
         }
-    }
-
-    if (!prevRect.intersect(dstInfo.bounds())) {
-        SkCodecPrintf("rectangles do not intersect!");
-        SkASSERT(false);
-        return true;
     }
 
     const SkImageInfo info = dstInfo.makeWH(prevRect.width(), prevRect.height());
@@ -723,15 +730,6 @@ const char* SkCodec::ResultToString(Result result) {
             SkASSERT(false);
             return "bogus result value";
     }
-}
-
-static SkIRect frame_rect_on_screen(SkIRect frameRect,
-                                    const SkIRect& screenRect) {
-    if (!frameRect.intersect(screenRect)) {
-        return SkIRect::MakeEmpty();
-    }
-
-    return frameRect;
 }
 
 static bool independent(const SkFrame& frame) {
