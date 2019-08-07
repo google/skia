@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2cc4dc38_bf00c0c0",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-07T16:26:02Z",
+      "side": 0,
+      "message": "Doesn\u0027t removing the null check now make passing a null atlas unsafe?",
+      "revId": "5bf028e840777542d4ba2b14cf574b29c13a8bc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
