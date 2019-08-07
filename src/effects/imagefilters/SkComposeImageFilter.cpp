@@ -91,7 +91,7 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(const SkFilterCont
     SkIRect clipBounds = ctx.clipBounds();
     clipBounds.offset(-innerOffset.x(), -innerOffset.y());
     SkFilterContext outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.colorType(),
-                                 ctx.colorSpace(), inner.get());
+                                 ctx.colorSpace(), std::move(inner));
 
     SkIPoint outerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> outer(this->filterInput(0, outerContext, &outerOffset));

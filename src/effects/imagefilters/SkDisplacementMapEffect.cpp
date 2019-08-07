@@ -295,7 +295,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const SkFilterC
     // color space makes sense, so we ignore color spaces (and gamma) entirely. This may not be
     // ideal, but it's at least consistent and predictable.
     SkFilterContext displContext(ctx.layerCTM(), ctx.clipBounds(), ctx.cache(),
-                                 kN32_SkColorType, nullptr, ctx.sourceImage());
+                                 kN32_SkColorType, nullptr, ctx.source());
     sk_sp<SkSpecialImage> displ(this->filterInput(0, displContext, &displOffset));
     if (!displ) {
         return nullptr;

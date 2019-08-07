@@ -129,6 +129,8 @@ sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) 
 // SkImageFilter_Base
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
+
 static int32_t next_image_filter_unique_id() {
     static std::atomic<int32_t> nextID{1};
 
@@ -199,11 +201,11 @@ void SkImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fCropRect.flags());
 }
 
-sk_sp<SkSpecialImage> SkImageFilter_Base::filterImage(const SkFilterContext& context,
-                                                      SkIPoint* offset) const {
-    SkASSERT(offset);
+SkFilteredImage<As::kOutput> SkImageFilter_Base::filterImage(const SkFilterContext& context) const {
+    SkFilteredImage<As::kOutput> result;
+
     if (!context.isValid()) {
-        return nullptr;
+        return result;
     }
 
     uint32_t srcGenID = fUsesSrcInput ? context.sourceImage()->uniqueID() : 0;
@@ -211,25 +213,23 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::filterImage(const SkFilterContext& con
                                             : SkIRect::MakeWH(0, 0);
     SkImageFilterCacheKey key(fUniqueID, context.layerCTM(), context.clipBounds(), srcGenID,
                               srcSubset);
-    if (context.cache()) {
-        sk_sp<SkSpecialImage> result = context.cache()->get(key, offset);
-        if (result) {
-            return result;
-        }
+    if (context.cache() && context.cache()->get(key, &result)) {
+        return result;
     }
 
-    sk_sp<SkSpecialImage> result(this->onFilterImage(context, offset));
+    result = this->onFilterImage(context);
 
 #if SK_SUPPORT_GPU
-    if (context.sourceImage()->isTextureBacked() && result && !result->isTextureBacked()) {
+    if (context.useGPU() && result.image() && !result.image()->isTextureBacked()) {
         // Keep the result on the GPU - this is still required for some
         // image filters that don't support GPU in all cases
-        result = result->makeTextureImage(context.sourceImage()->getContext());
+        auto asTexture = result.image()->makeTextureImage(context.getGrContext());
+        result = SkFilteredImage<As::kOutput>(std::move(asTexture), result.origin());
     }
 #endif
 
-    if (result && context.cache()) {
-        context.cache()->set(key, result.get(), *offset, this);
+    if (context.cache()) {
+        context.cache()->set(key, this, result);
     }
 
     return result;
@@ -382,19 +382,32 @@ SkIRect SkImageFilter_Base::onFilterNodeBounds(const SkIRect& src, const SkMatri
     return src;
 }
 
-sk_sp<SkSpecialImage> SkImageFilter_Base::filterInput(int index, const SkFilterContext& ctx,
-                                                      SkIPoint* offset) const {
+template<SkFilterUsage kU>
+SkFilteredImage<kU> SkImageFilter_Base::filterInput(int index, const SkFilterContext& ctx) const {
+    // Sanity checks for the index-specific input usages
+    SkASSERT(kU != SkFilterUsage::kInput0 || index == 0);
+    SkASSERT(kU != SkFilterUsage::kInput1 || index == 1);
+
     const SkImageFilter* input = this->getInput(index);
     if (!input) {
-        return sk_ref_sp(ctx.sourceImage());
+        // Convert from the generic kInput of the source image to kU
+        return static_cast<SkFilteredImage<kU>>(ctx.source());
     }
 
-    sk_sp<SkSpecialImage> result(as_IFB(input)->filterImage(this->mapContext(ctx), offset));
+    SkFilteredImage<As::kOutput> result = as_IFB(input)->filterImage(this->mapContext(ctx));
+    SkASSERT(!result.image() || !ctx.useGPU() || result.image()->isTextureBacked());
 
-    SkASSERT(!result || ctx.sourceImage()->isTextureBacked() == result->isTextureBacked());
-
-    return result;
+    // Map the output result of the input image filter to the input usage requested for this filter
+    return static_cast<SkFilteredImage<kU>>(std::move(result));
 }
+// Instantiate filterInput() for kInput, kInput0, and kInput1. This does not provide a definition
+// for kOutput, which should never be used anyways, and this way the linker will fail for us then.
+template SkFilteredImage<As::kInput> SkImageFilter_Base::filterInput(
+        int, const SkFilterContext&) const;
+template SkFilteredImage<As::kInput0> SkImageFilter_Base::filterInput(
+        int, const SkFilterContext&) const;
+template SkFilteredImage<As::kInput1> SkImageFilter_Base::filterInput(
+        int, const SkFilterContext&) const;
 
 SkFilterContext SkImageFilter_Base::mapContext(const SkFilterContext& ctx) const {
     SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.layerCTM(),

@@ -10,10 +10,10 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
+#include "src/core/SkImageFilterTypes.h"
 
 struct SkIPoint;
 class SkImageFilter;
-class SkSpecialImage;
 
 struct SkImageFilterCacheKey {
     SkImageFilterCacheKey(const uint32_t uniqueID, const SkMatrix& matrix,
@@ -46,18 +46,23 @@ struct SkImageFilterCacheKey {
     }
 };
 
-// This cache maps from (filter's unique ID + CTM + clipBounds + src bitmap generation ID) to
-// (result, offset).
+// This cache maps from (filter's unique ID + CTM + clipBounds + src bitmap generation ID) to result
 class SkImageFilterCache : public SkRefCnt {
 public:
+    SK_USE_FLUENT_IMAGE_FILTER_TYPES_IN_CLASS
+
     enum { kDefaultTransientSize = 32 * 1024 * 1024 };
 
     virtual ~SkImageFilterCache() {}
     static SkImageFilterCache* Create(size_t maxBytes);
     static SkImageFilterCache* Get();
-    virtual sk_sp<SkSpecialImage> get(const SkImageFilterCacheKey& key, SkIPoint* offset) const = 0;
-    virtual void set(const SkImageFilterCacheKey& key, SkSpecialImage* image,
-                     const SkIPoint& offset, const SkImageFilter* filter) = 0;
+
+    // Returns true on cache hit and updates result to be cached result. Returns false when not in
+    // the cache, in which case result is not modified.
+    virtual bool get(const SkImageFilterCacheKey& key,
+                     SkFilteredImage<As::kOutput>* result) const = 0;
+    virtual void set(const SkImageFilterCacheKey& key, const SkImageFilter* filter,
+                     const SkFilteredImage<As::kOutput>& result) = 0;
     virtual void purge() = 0;
     virtual void purgeByImageFilter(const SkImageFilter*) = 0;
     SkDEBUGCODE(virtual int count() const = 0;)

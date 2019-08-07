@@ -86,13 +86,13 @@ SkSpecialImage::SkSpecialImage(const SkIRect& subset,
     , fUniqueID(kNeedNewImageUniqueID_SpecialImage == uniqueID ? SkNextID::ImageID() : uniqueID) {
 }
 
-sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* context) {
+sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* context) const {
 #if SK_SUPPORT_GPU
     if (!context) {
         return nullptr;
     }
     if (GrRecordingContext* curContext = as_SIB(this)->onGetContext()) {
-        return curContext->priv().matches(context) ? sk_sp<SkSpecialImage>(SkRef(this)) : nullptr;
+        return curContext->priv().matches(context) ? sk_ref_sp(this) : nullptr;
     }
 
     auto proxyProvider = context->priv().proxyProvider();
