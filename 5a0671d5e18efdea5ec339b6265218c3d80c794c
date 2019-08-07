@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b226c381_4f1ec8a0",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-07T20:23:04Z",
+      "side": 1,
+      "message": "And here is the chromium patch which uses this API: https://chromium-review.googlesource.com/c/chromium/src/+/1742785/2/third_party/blink/renderer/platform/graphics/canvas_resource_provider.cc#637.\n\nThe motivation for adding this, as opposed to create a new SkSurface for the new backing, is the same that the accelerated path has which uses the replaceBackendTexture API above. We want to preserve the SkCanvas state.",
+      "range": {
+        "startLine": 574,
+        "startChar": 4,
+        "endLine": 574,
+        "endChar": 44
+      },
+      "revId": "5a0671d5e18efdea5ec339b6265218c3d80c794c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
