@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5297f4a_90fe5a05",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-07T18:49:26Z",
+      "side": 1,
+      "message": "update?",
+      "range": {
+        "startLine": 184,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 92
+      },
+      "revId": "fcc2bec9383fd6f1608596a14d38a31b30877e70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "950fcbc1_5200dea2",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-07T18:49:26Z",
+      "side": 1,
+      "message": "surely getRenderTargetSampleCount() will return 0, right?",
+      "range": {
+        "startLine": 254,
+        "startChar": 0,
+        "endLine": 256,
+        "endChar": 17
+      },
+      "revId": "fcc2bec9383fd6f1608596a14d38a31b30877e70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

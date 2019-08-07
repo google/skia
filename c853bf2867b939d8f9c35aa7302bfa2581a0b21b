@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab474864_80828625",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1157,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-07T18:49:26Z",
+      "side": 0,
+      "message": "good luck with the bots :)\n\nI suggest the Galaxy S* with Mali try bots as they support VK_FORMAT_R8G8B8_UNORM",
+      "range": {
+        "startLine": 1147,
+        "startChar": 0,
+        "endLine": 1157,
+        "endChar": 5
+      },
+      "revId": "c853bf2867b939d8f9c35aa7302bfa2581a0b21b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
