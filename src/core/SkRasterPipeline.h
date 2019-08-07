@@ -259,6 +259,8 @@ public:
 
     bool empty() const { return fStages == nullptr; }
 
+    // call at your own risk
+    void unchecked_append(StockStage, void*);
 
 private:
     struct StageList {
@@ -270,8 +272,6 @@ private:
 
     using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, void** program);
     StartPipelineFn build_pipeline(void**) const;
-
-    void unchecked_append(StockStage, void*);
 
     // Used by old single-program void** style execution.
     SkArenaAlloc* fAlloc;
