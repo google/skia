@@ -277,10 +277,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     }
 
     if (renderable == GrRenderable::kYes) {
-        sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, grCT, format);
-        if (!sampleCnt) {
-            return nullptr;
-        }
+        sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, format);
+        SkASSERT(sampleCnt);
     }
 
     GrPixelConfig config = SkColorType2GrPixelConfig(ct);
@@ -499,7 +497,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
         }
     }
 
-    if (!caps->validateSurfaceDesc(desc, renderable, renderTargetSampleCnt, mipMapped)) {
+    if (!caps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
+                                     renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
     GrSurfaceDesc copyDesc = desc;
@@ -509,7 +508,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
     GrSwizzle texSwizzle = caps->getTextureSwizzle(format, colorType);
     if (renderable == GrRenderable::kYes) {
         renderTargetSampleCnt =
-                caps->getRenderTargetSampleCount(renderTargetSampleCnt, colorType, format);
+                caps->getRenderTargetSampleCount(renderTargetSampleCnt, format);
+        SkASSERT(renderTargetSampleCnt);
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
         GrSwizzle outSwizzle = caps->getOutputSwizzle(format, colorType);
@@ -629,11 +629,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
-    sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, colorType,
-                                                 backendTex.getBackendFormat());
-    if (!sampleCnt) {
+    // TODO: This should have been checked and validated before getting into GrProxyProvider.
+    if (!caps->isFormatAsColorTypeRenderable(colorType, backendTex.getBackendFormat(), sampleCnt)) {
         return nullptr;
     }
+
+    sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, backendTex.getBackendFormat());
+    SkASSERT(sampleCnt);
 
     sk_sp<GrTexture> tex = resourceProvider->wrapRenderableBackendTexture(backendTex, sampleCnt,
                                                                           colorType, ownership,

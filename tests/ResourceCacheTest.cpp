@@ -156,7 +156,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     }
 
     int smallSampleCount =
-            context->priv().caps()->getRenderTargetSampleCount(2, grColorType, format);
+            context->priv().caps()->getRenderTargetSampleCount(2, format);
     if (smallSampleCount > 1) {
         // An RT with a different sample count should not share.
         sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(resourceProvider, 4,
@@ -177,8 +177,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
         // But one with a larger sample count should not. (Also check that the two requests didn't
         // rounded up to the same actual sample count or else they could share.).
-        int bigSampleCount = context->priv().caps()->getRenderTargetSampleCount(
-                5, grColorType, format);
+        int bigSampleCount = context->priv().caps()->getRenderTargetSampleCount(5, format);
         if (bigSampleCount > 0 && bigSampleCount != smallSampleCount) {
             sk_sp<GrRenderTarget> smallMSAART2 = create_RT_with_SB(resourceProvider, 4,
                                                                    bigSampleCount,
@@ -1663,7 +1662,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
         size_t size = tex->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
 
-        size_t sampleCount = (size_t)caps->getRenderTargetSampleCount(4, kRGBA_8888_GrPixelConfig);
+        size_t sampleCount = (size_t)caps->getRenderTargetSampleCount(4, tex->backendFormat());
         if (sampleCount >= 4) {
             tex = make_normal_texture(resourceProvider, GrRenderable::kYes, kSize, kSize,
                                       sampleCount);
@@ -1687,7 +1686,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
         size_t size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
 
-        size_t sampleCount = (size_t)caps->getRenderTargetSampleCount(4, kRGBA_8888_GrPixelConfig);
+        size_t sampleCount = (size_t)caps->getRenderTargetSampleCount(4, proxy->backendFormat());
         if (sampleCount >= 4) {
             proxy = make_mipmap_proxy(context, GrRenderable::kYes, kSize, kSize, sampleCount);
             size = proxy->gpuMemorySize();
