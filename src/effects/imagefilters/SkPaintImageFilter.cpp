@@ -27,8 +27,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const SkFilterContext&, SkIPoint* offset) const override;
 
 private:
     friend void SkPaintImageFilter::RegisterFlattenables();
@@ -66,16 +65,16 @@ void SkPaintImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writePaint(fPaint);
 }
 
-sk_sp<SkSpecialImage> SkPaintImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                            const Context& ctx,
+sk_sp<SkSpecialImage> SkPaintImageFilterImpl::onFilterImage(const SkFilterContext& ctx,
                                                             SkIPoint* offset) const {
     SkIRect bounds;
-    const SkIRect srcBounds = SkIRect::MakeWH(source->width(), source->height());
+    const SkIRect srcBounds = SkIRect::MakeWH(ctx.sourceImage()->width(),
+                                              ctx.sourceImage()->height());
     if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
         return nullptr;
     }
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(bounds.size()));
     if (!surf) {
         return nullptr;
     }
@@ -85,7 +84,7 @@ sk_sp<SkSpecialImage> SkPaintImageFilterImpl::onFilterImage(SkSpecialImage* sour
 
     canvas->clear(0x0);
 
-    SkMatrix matrix(ctx.ctm());
+    SkMatrix matrix(ctx.layerCTM());
     matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
     SkRect rect = SkRect::MakeIWH(bounds.width(), bounds.height());
     SkMatrix inverse;

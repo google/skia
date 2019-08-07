@@ -1729,11 +1729,10 @@ void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPain
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
         // TODO: Should PDF be operating in a specified color type/space? For now, run the filter
         // in the same color space as the source (this is different from all other backends).
-        SkImageFilter_Base::OutputProperties outputProperties(
-                kN32_SkColorType, srcImg->getColorSpace());
-        SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
+        SkFilterContext ctx(matrix, clipBounds, cache.get(), kN32_SkColorType,
+                             srcImg->getColorSpace(), srcImg);
 
-        sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(srcImg, ctx, &offset));
+        sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx, &offset));
         if (resultImg) {
             SkPaint tmpUnfiltered(paint);
             tmpUnfiltered.setImageFilter(nullptr);

@@ -283,18 +283,16 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
 
     sk_sp<SkImageFilterCache> cache(
         SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
-    SkImageFilter_Base::OutputProperties outputProperties(fInfo.colorType(), fInfo.colorSpace());
 
     // The filters operate in the local space of the src image, where (0,0) corresponds to the
     // subset's top left corner. But the clip bounds and any crop rects on the filters are in the
     // original coordinate system, so configure the CTM to correct crop rects and explicitly adjust
     // the clip bounds (since it is assumed to already be in image space).
-    SkImageFilter_Base::Context context(SkMatrix::MakeTrans(-subset.x(), -subset.y()),
-                                        clipBounds.makeOffset(-subset.x(), -subset.y()),
-                                        cache.get(), outputProperties);
+    SkFilterContext context(SkMatrix::MakeTrans(-subset.x(), -subset.y()),
+                             clipBounds.makeOffset(-subset.x(), -subset.y()), cache.get(),
+                             fInfo.colorType(), fInfo.colorSpace(), srcSpecialImage.get());
 
-    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(srcSpecialImage.get(), context,
-                                                               offset);
+    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(context, offset);
     if (!result) {
         return nullptr;
     }

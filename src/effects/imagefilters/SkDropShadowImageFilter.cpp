@@ -34,8 +34,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const SkFilterContext&, SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
 
@@ -99,11 +98,10 @@ void SkDropShadowImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fShadowOnly);
 }
 
-sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                                 const Context& ctx,
+sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(const SkFilterContext& ctx,
                                                                  SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -115,7 +113,7 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(SkSpecialImage*
         return nullptr;
     }
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(bounds.size()));
     if (!surf) {
         return nullptr;
     }
@@ -126,7 +124,7 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(SkSpecialImage*
     canvas->clear(0x0);
 
     SkVector sigma = SkVector::Make(fSigmaX, fSigmaY);
-    ctx.ctm().mapVectors(&sigma, 1);
+    ctx.layerCTM().mapVectors(&sigma, 1);
     sigma.fX = SkMaxScalar(0, sigma.fX);
     sigma.fY = SkMaxScalar(0, sigma.fY);
 
@@ -136,7 +134,7 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(SkSpecialImage*
     paint.setColorFilter(SkColorFilters::Blend(fColor, SkBlendMode::kSrcIn));
 
     SkVector offsetVec = SkVector::Make(fDx, fDy);
-    ctx.ctm().mapVectors(&offsetVec, 1);
+    ctx.layerCTM().mapVectors(&offsetVec, 1);
 
     canvas->translate(SkIntToScalar(inputOffset.fX - bounds.fLeft),
                       SkIntToScalar(inputOffset.fY - bounds.fTop));

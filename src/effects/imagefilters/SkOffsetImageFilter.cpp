@@ -31,8 +31,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const SkFilterContext&, SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
 
@@ -83,16 +82,15 @@ static SkIPoint map_offset_vector(const SkMatrix& ctm, const SkVector& offset) {
     return SkIPoint::Make(SkScalarRoundToInt(vec.fX), SkScalarRoundToInt(vec.fY));
 }
 
-sk_sp<SkSpecialImage> SkOffsetImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                             const Context& ctx,
+sk_sp<SkSpecialImage> SkOffsetImageFilterImpl::onFilterImage(const SkFilterContext& ctx,
                                                              SkIPoint* offset) const {
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &srcOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &srcOffset));
     if (!input) {
         return nullptr;
     }
 
-    SkIPoint vec = map_offset_vector(ctx.ctm(), fOffset);
+    SkIPoint vec = map_offset_vector(ctx.layerCTM(), fOffset);
 
     if (!this->cropRectIsSet()) {
         offset->fX = Sk32_sat_add(srcOffset.fX, vec.fX);
@@ -106,7 +104,7 @@ sk_sp<SkSpecialImage> SkOffsetImageFilterImpl::onFilterImage(SkSpecialImage* sou
             return nullptr;
         }
 
-        sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+        sk_sp<SkSpecialSurface> surf(ctx.makeSurface(bounds.size()));
         if (!surf) {
             return nullptr;
         }

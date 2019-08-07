@@ -42,8 +42,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const SkFilterContext&, SkIPoint* offset) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> createMaskTexture(GrRecordingContext*,
@@ -132,11 +131,10 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingC
 }
 #endif
 
-sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                                const Context& ctx,
+sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const SkFilterContext& ctx,
                                                                 SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -150,8 +148,8 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
     }
 
 #if SK_SUPPORT_GPU
-    if (source->isTextureBacked()) {
-        auto context = source->getContext();
+    if (ctx.useGPU()) {
+        auto context = ctx.getGrContext();
 
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
@@ -162,7 +160,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
 
         bounds.offset(-inputOffset);
 
-        SkMatrix matrix(ctx.ctm());
+        SkMatrix matrix(ctx.layerCTM());
         matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
 
         sk_sp<GrTextureProxy> maskProxy(this->createMaskTexture(context, matrix, bounds));
@@ -170,12 +168,11 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
             return nullptr;
         }
 
-        const OutputProperties& outProps = ctx.outputProperties();
         auto textureFP = GrSimpleTextureEffect::Make(std::move(inputProxy),
                                                      SkMatrix::MakeTrans(input->subset().x(),
                                                                          input->subset().y()));
         textureFP = GrColorSpaceXformEffect::Make(std::move(textureFP), input->getColorSpace(),
-                                                  input->alphaType(), outProps.colorSpace());
+                                                  input->alphaType(), ctx.colorSpace());
         if (!textureFP) {
             return nullptr;
         }
@@ -192,7 +189,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
                                                             std::move(thresholdFP) };
         auto fp = GrFragmentProcessor::RunInSeries(fpSeries, 2);
 
-        return DrawWithFP(context, std::move(fp), bounds, outProps,
+        return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.colorSpace(),
                           isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif
@@ -213,7 +210,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
 
 
     SkMatrix localInverse;
-    if (!ctx.ctm().invert(&localInverse)) {
+    if (!ctx.layerCTM().invert(&localInverse)) {
         return nullptr;
     }
 

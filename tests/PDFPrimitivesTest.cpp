@@ -256,11 +256,11 @@ public:
     bool visited() const { return fVisited; }
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+    sk_sp<SkSpecialImage> onFilterImage(const SkFilterContext& ctx,
                                         SkIPoint* offset) const override {
         fVisited = true;
         offset->fX = offset->fY = 0;
-        return sk_ref_sp<SkSpecialImage>(source);
+        return sk_ref_sp(ctx.sourceImage());
     }
 
 private:

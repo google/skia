@@ -54,8 +54,7 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const SkFilterContext&, SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
     bool affectsTransparentBlack() const override;
@@ -402,11 +401,10 @@ static GrTextureDomain::Mode convert_tilemodes(SkTileMode tileMode) {
 }
 #endif
 
-sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                                        const Context& ctx,
+sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const SkFilterContext& ctx,
                                                                         SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -420,7 +418,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(SkSpecia
     const SkIRect originalSrcBounds = SkIRect::MakeXYWH(inputOffset.fX, inputOffset.fY,
                                                         input->width(), input->height());
 
-    SkIRect srcBounds = this->onFilterNodeBounds(dstBounds, ctx.ctm(), kReverse_MapDirection,
+    SkIRect srcBounds = this->onFilterNodeBounds(dstBounds, ctx.layerCTM(), kReverse_MapDirection,
                                                  &originalSrcBounds);
 
     if (SkTileMode::kRepeat == fTileMode || SkTileMode::kMirror == fTileMode) {
@@ -434,15 +432,15 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(SkSpecia
 
 #if SK_SUPPORT_GPU
     // Note: if the kernel is too big, the GPU path falls back to SW
-    if (source->isTextureBacked() &&
+    if (ctx.useGPU() &&
         fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE) {
-        auto context = source->getContext();
+        auto context = ctx.getGrContext();
 
         // Ensure the input is in the destination color space. Typically applyCropRect will have
         // called pad_image to account for our dilation of bounds, so the result will already be
         // moved to the destination color space. If a filter DAG avoids that, then we use this
         // fall-back, which saves us from having to do the xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.outputProperties());
+        input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
 
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
@@ -469,7 +467,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(SkSpecia
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), dstBounds, ctx.outputProperties(),
+        return DrawWithFP(context, std::move(fp), dstBounds, ctx.colorType(), ctx.colorSpace(),
                           isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif
