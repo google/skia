@@ -138,7 +138,7 @@ public:
         this->internalResolveRenderTarget(target, true);
     }
 
-    void submitSecondaryCommandBuffer(SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>>&,
+    void submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer>,
                                       const GrVkRenderPass*,
                                       const VkClearValue* colorClear,
                                       GrVkRenderTarget*, GrSurfaceOrigin,

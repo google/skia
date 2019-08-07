@@ -190,7 +190,7 @@ void GrVkGpuRTCommandBuffer::init() {
         cbInfo.fLoadStoreState = LoadStoreState::kStartsWithDiscard;
     }
 
-    cbInfo.fCommandBuffers.push_back(fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu));
+    cbInfo.fCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
     cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
 }
 
@@ -205,9 +205,8 @@ void GrVkGpuRTCommandBuffer::initWrapped() {
     cbInfo.fRenderPass->ref();
 
     cbInfo.fBounds.setEmpty();
-    std::unique_ptr<GrVkSecondaryCommandBuffer> scb(
+    cbInfo.fCommandBuffer.reset(
             GrVkSecondaryCommandBuffer::Create(vkRT->getExternalSecondaryCommandBuffer()));
-    cbInfo.fCommandBuffers.push_back(std::move(scb));
     cbInfo.currentCmdBuf()->begin(fGpu, nullptr, cbInfo.fRenderPass);
 }
 
@@ -317,7 +316,7 @@ void GrVkGpuRTCommandBuffer::submit() {
             SkIRect iBounds;
             cbInfo.fBounds.roundOut(&iBounds);
 
-            fGpu->submitSecondaryCommandBuffer(cbInfo.fCommandBuffers, cbInfo.fRenderPass,
+            fGpu->submitSecondaryCommandBuffer(std::move(cbInfo.fCommandBuffer), cbInfo.fRenderPass,
                                                &cbInfo.fColorClearValue, vkRT, fOrigin, iBounds);
         }
     }
@@ -358,10 +357,8 @@ void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
 void GrVkGpuRTCommandBuffer::reset() {
     for (int i = 0; i < fCommandBufferInfos.count(); ++i) {
         CommandBufferInfo& cbInfo = fCommandBufferInfos[i];
-        for (int j = 0; j < cbInfo.fCommandBuffers.count(); ++j) {
-            if (cbInfo.fCommandBuffers[j]) {
-                cbInfo.fCommandBuffers[j].release()->recycle(fGpu);
-            }
+        if (cbInfo.fCommandBuffer) {
+            cbInfo.fCommandBuffer.release()->recycle(fGpu);
         }
         cbInfo.fRenderPass->unref(fGpu);
     }
@@ -530,15 +527,6 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f&
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpuRTCommandBuffer::addAdditionalCommandBuffer() {
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
-
-    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
-    cbInfo.currentCmdBuf()->end(fGpu);
-    cbInfo.fCommandBuffers.push_back(fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu));
-    cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
-}
-
 void GrVkGpuRTCommandBuffer::addAdditionalRenderPass() {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
@@ -565,7 +553,7 @@ void GrVkGpuRTCommandBuffer::addAdditionalRenderPass() {
     }
     cbInfo.fLoadStoreState = LoadStoreState::kLoadAndStore;
 
-    cbInfo.fCommandBuffers.push_back(fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu));
+    cbInfo.fCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
     // It shouldn't matter what we set the clear color to here since we will assume loading of the
     // attachment.
     memset(&cbInfo.fColorClearValue, 0, sizeof(VkClearValue));
@@ -706,11 +694,6 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
         return pipelineState;
     }
 
-    if (!cbInfo.fIsEmpty &&
-        fLastPipelineState && fLastPipelineState != pipelineState &&
-        fGpu->vkCaps().newCBOnPipelineChange()) {
-        this->addAdditionalCommandBuffer();
-    }
     fLastPipelineState = pipelineState;
 
     pipelineState->bindPipeline(fGpu, cbInfo.currentCmdBuf());

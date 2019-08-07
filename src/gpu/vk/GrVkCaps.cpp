@@ -436,12 +436,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     }
 #endif
 
-    // AMD seems to have issues binding new VkPipelines inside a secondary command buffer.
-    // Current workaround is to use a different secondary command buffer for each new VkPipeline.
-    if (kAMD_VkVendor == properties.vendorID) {
-        fNewCBOnPipelineChange = true;
-    }
-
     // On Mali galaxy s7 we see lots of rendering issues when we suballocate VkImages.
     if (kARM_VkVendor == properties.vendorID) {
         fShouldAlwaysUseDedicatedImageMemory = true;
