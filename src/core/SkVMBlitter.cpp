@@ -6,7 +6,6 @@
  */
 
 #include "include/private/SkMacros.h"
-#include "include/private/SkSpinlock.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
@@ -44,20 +43,12 @@ namespace {
             && x.colorFilter == y.colorFilter;
     }
 
-    static SkSpinlock gProgramCacheLock;
-
-    SK_TRY_ACQUIRE(true, gProgramCacheLock)
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
-        if (gProgramCacheLock.tryAcquire()) {
-            static auto cache SK_GUARDED_BY(gProgramCacheLock)
-                = new SkLRUCache<Key, skvm::Program>{8};
-            return cache;
-        }
-        return nullptr;
+        thread_local static auto* cache = new SkLRUCache<Key, skvm::Program>{8};
+        return cache;
     }
 
-    SK_RELEASE_CAPABILITY(gProgramCacheLock)
-    static void release_program_cache() { gProgramCacheLock.release(); }
+    static void release_program_cache() { }
 
 
     struct Uniforms {
