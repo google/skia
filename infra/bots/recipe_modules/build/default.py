@@ -91,6 +91,10 @@ def compile_fn(api, checkout_root, out_dir):
   if os == 'Mac':
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
+    if XCODE_CLANG_VERSION.startswith('9.'):
+      # XCode 9 seems to handle try_acquire_capability wrong.
+      extra_cflags.append('-Wno-thread-safety-analysis')
+
     mac_toolchain_cmd = api.vars.slave_dir.join(
         'mac_toolchain', 'mac_toolchain')
     xcode_app_path = api.vars.cache_dir.join('Xcode.app')
