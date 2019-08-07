@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e393429e_fd911af6",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-07T14:37:30Z",
+      "side": 1,
+      "message": "Oh, sure, they can go either place I think.\n\nDone.",
+      "parentUuid": "1fd2ec76_2c1058f9",
+      "range": {
+        "startLine": 51,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 68
+      },
+      "revId": "5088da302eeb41d530ded3ff41f5b25e94dd87fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8afdebd_af2f7ca4",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 2
