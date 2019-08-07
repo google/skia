@@ -18,8 +18,4 @@ namespace skstd {
 template <> struct is_bitmask_enum<ModifierKey> : std::true_type {};
 }
 
-static inline bool ModifierKeyIsSet(ModifierKey m) {
-    return m != ModifierKey::kNone;
-}
-
 #endif  // ModifierKey_DEFINED

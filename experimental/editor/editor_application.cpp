@@ -148,31 +148,33 @@ struct EditorLayer : public sk_app::Window::Layer {
 
     void inval() { if (fParent) { fParent->inval(); } }
 
-    bool onMouseWheel(float delta, ModifierKey modifiers) override {
+    bool onMouseWheel(float delta, ModifierKey) override {
         this->scroll(-(int)(delta * fEditor.font().getSpacing()));
         return true;
     }
 
+    bool fMouseDown = false;
+
     bool onMouse(int x, int y, InputState state, ModifierKey modifiers) override {
-        if (InputState::kDown == state) {
-            y += fPos - fMargin;
-            x -= fMargin;
-            editor::Editor::TextPosition pos = fEditor.getPosition(SkIPoint{x, y});
-            #ifdef SK_EDITOR_DEBUG_OUT
-            SkDebugf("select:  line:%d column:%d \n", pos.fParagraphIndex, pos.fTextByteIndex);
-            #endif  // SK_EDITOR_DEBUG_OUT
-            if (pos != editor::Editor::TextPosition()) {
-                fTextPos = pos;
-                this->inval();
-            }
+        bool mouseDown = InputState::kDown == state;
+        if (mouseDown) {
+            fMouseDown = true;
+        } else if (InputState::kUp == state) {
+            fMouseDown = false;
         }
-        return true;
+        bool shiftOrDrag = skstd::Any(modifiers & ModifierKey::kShift) || !mouseDown;
+        if (fMouseDown) {
+            return this->move(fEditor.getPosition({x - fMargin, y + fPos - fMargin}), shiftOrDrag);
+        }
+        return false;
     }
 
-    bool onChar(SkUnichar c, ModifierKey modifiers) override {
-        if (!ModifierKeyIsSet(modifiers & (ModifierKey::kControl |
-                                           ModifierKey::kOption  |
-                                           ModifierKey::kCommand))) {
+    bool onChar(SkUnichar c, ModifierKey modi) override {
+        using skstd::Any;
+        modi &= ~ModifierKey::kFirstPress;
+        if (!Any(modi & (ModifierKey::kControl |
+                         ModifierKey::kOption  |
+                         ModifierKey::kCommand))) {
             if (((unsigned)c < 0x7F && (unsigned)c >= 0x20) || c == '\n') {
                 char ch = (char)c;
                 fEditor.insert(fTextPos, &ch, 1);
@@ -182,7 +184,9 @@ struct EditorLayer : public sk_app::Window::Layer {
                 return this->moveCursor(editor::Editor::Movement::kRight);
             }
         }
-        if (modifiers == ModifierKey::kControl) {
+        static constexpr ModifierKey kCommandOrControl = ModifierKey::kCommand |
+                                                         ModifierKey::kControl;
+        if (Any(modi & kCommandOrControl) && !Any(modi & ~kCommandOrControl)) {
             switch (c) {
                 case 'p':
                     for (editor::StringView str : fEditor.text()) {
@@ -208,6 +212,7 @@ struct EditorLayer : public sk_app::Window::Layer {
                         fClipboard.resize(fEditor.copy(fMarkPos, fTextPos, nullptr));
                         fEditor.copy(fMarkPos, fTextPos, fClipboard.data());
                         fTextPos = fEditor.remove(fMarkPos, fTextPos);
+                        fMarkPos = editor::Editor::TextPosition();
                         this->inval();
                         return true;
                     }
@@ -224,12 +229,20 @@ struct EditorLayer : public sk_app::Window::Layer {
         #endif  // SK_EDITOR_DEBUG_OUT
         return false;
     }
+
     bool moveCursor(editor::Editor::Movement m, bool shift = false) {
+        return this->move(fEditor.move(m, fTextPos), shift);
+    }
+
+    bool move(editor::Editor::TextPosition pos, bool shift) {
+        if (pos == fTextPos || pos == editor::Editor::TextPosition()) {
+            return false;
+        }
         if (shift != fShiftDown) {
-            fMarkPos = shift ? fTextPos :  editor::Editor::TextPosition();
+            fMarkPos = shift ? fTextPos : editor::Editor::TextPosition();
             fShiftDown = shift;
         }
-        fTextPos = fEditor.move(m, fTextPos);
+        fTextPos = pos;
 
         // scroll if needed.
         SkIRect cursor = fEditor.getLocation(fTextPos).roundOut();
@@ -249,10 +262,12 @@ struct EditorLayer : public sk_app::Window::Layer {
             return false;  // ignore keyup
         }
         // ignore other modifiers.
+        using skstd::Any;
         ModifierKey ctrlAltCmd = modifiers & (ModifierKey::kControl |
                                               ModifierKey::kOption  |
                                               ModifierKey::kCommand);
-        if (!ModifierKeyIsSet(ctrlAltCmd)) {
+        bool shift = Any(modifiers & (ModifierKey::kShift));
+        if (!Any(ctrlAltCmd)) {
             // no modifiers
             switch (key) {
                 case sk_app::Window::Key::kPageDown:
@@ -265,8 +280,7 @@ struct EditorLayer : public sk_app::Window::Layer {
                 case sk_app::Window::Key::kDown:
                 case sk_app::Window::Key::kHome:
                 case sk_app::Window::Key::kEnd:
-                    return this->moveCursor(convert(key),
-                                            (int)(modifiers & ModifierKey::kShift));
+                    return this->moveCursor(convert(key), shift);
                 case sk_app::Window::Key::kDelete:
                     if (fMarkPos != editor::Editor::TextPosition()) {
                         fTextPos = fEditor.remove(fMarkPos, fTextPos);
@@ -294,14 +308,12 @@ struct EditorLayer : public sk_app::Window::Layer {
                 default:
                     break;
             }
-        } else if (ModifierKeyIsSet(ctrlAltCmd & (ModifierKey::kControl | ModifierKey::kCommand))) {
+        } else if (skstd::Any(ctrlAltCmd & (ModifierKey::kControl | ModifierKey::kCommand))) {
             switch (key) {
                 case sk_app::Window::Key::kLeft:
-                    return this->moveCursor(editor::Editor::Movement::kWordLeft,
-                                            (int)(modifiers & ModifierKey::kShift));
+                    return this->moveCursor(editor::Editor::Movement::kWordLeft, shift);
                 case sk_app::Window::Key::kRight:
-                    return this->moveCursor(editor::Editor::Movement::kWordRight,
-                                            (int)(modifiers & ModifierKey::kShift));
+                    return this->moveCursor(editor::Editor::Movement::kWordRight, shift);
                 default:
                     break;
             }

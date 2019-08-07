@@ -11,6 +11,10 @@
 
 namespace skstd {
 template <typename T> struct is_bitmask_enum : std::false_type {};
+
+template <typename E> SK_WHEN(skstd::is_bitmask_enum<E>::value, bool) constexpr Any(E e) {
+    return static_cast<typename std::underlying_type<E>::type>(e) != 0;
+}
 }
 
 template <typename E> SK_WHEN(skstd::is_bitmask_enum<E>::value, E) constexpr operator|(E l, E r) {
@@ -29,6 +33,10 @@ template <typename E> SK_WHEN(skstd::is_bitmask_enum<E>::value, E) constexpr ope
 
 template <typename E> SK_WHEN(skstd::is_bitmask_enum<E>::value, E&) constexpr operator&=(E& l, E r) {
     return l = l & r;
+}
+
+template <typename E> SK_WHEN(skstd::is_bitmask_enum<E>::value, E) constexpr operator~(E e) {
+    return static_cast<E>(~static_cast<typename std::underlying_type<E>::type>(e));
 }
 
 #endif  // SkEnumOperators_DEFINED
