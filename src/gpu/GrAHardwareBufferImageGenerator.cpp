@@ -115,9 +115,9 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
     if (context->backend() == GrBackendApi::kOpenGL) {
         textureType = GrTextureType::kExternal;
     } else if (context->backend() == GrBackendApi::kVulkan) {
-        const VkFormat* format = backendFormat.getVkFormat();
-        SkASSERT(format);
-        if (*format == VK_FORMAT_UNDEFINED) {
+        VkFormat format;
+        SkAssertResult(backendFormat.asVkFormat(&format));
+        if (format == VK_FORMAT_UNDEFINED) {
             textureType = GrTextureType::kExternal;
         }
     }

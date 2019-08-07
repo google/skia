@@ -361,13 +361,6 @@ static constexpr const char* GrGLFormatToStr(GrGLenum glFormat) {
 }
 #endif
 
-static inline GrGLFormat GrGLBackendFormatToGLFormat(const GrBackendFormat& format) {
-    if (const GrGLenum* glFormat = format.getGLFormat()) {
-        return GrGLFormatFromGLEnum(*glFormat);
-    }
-    return GrGLFormat::kUnknown;
-}
-
 GrGLenum GrToGLStencilFunc(GrStencilTest test);
 
 /**

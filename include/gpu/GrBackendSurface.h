@@ -52,6 +52,8 @@ public:
 };
 #else
 
+enum class GrGLFormat;
+
 class SK_API GrBackendFormat {
 public:
     // Creates an invalid backend format.
@@ -94,30 +96,41 @@ public:
     GrBackendApi backend() const { return fBackend; }
     GrTextureType textureType() const { return fTextureType; }
 
-    // If the backend API is GL, these return a pointer to the format and target. Otherwise
-    // they return nullptr.
-    const GrGLenum* getGLFormat() const;
-    const GrGLenum* getGLTarget() const;
+    /**
+     * If the backend API is GL this gets the format as a GrGLFormat. Otherwise, returns
+     * GrGLFormat::kUnknown.
+     */
+    GrGLFormat asGLFormat() const;
 
-    // If the backend API is Vulkan, this returns a pointer to a VkFormat. Otherwise
-    // it returns nullptr
-    const VkFormat* getVkFormat() const;
+    /**
+     * If the backend API is Vulkan this gets the format as a VkFormat and returns true. Otherwise,
+     * returns false.
+     */
+    bool asVkFormat(VkFormat*) const;
 
     const GrVkYcbcrConversionInfo* getVkYcbcrConversionInfo() const;
 
 #ifdef SK_DAWN
-    const dawn::TextureFormat* getDawnFormat() const;
+    /**
+     * If the backend API is Dawn this gets the format as a dawn::TextureFormat and returns true.
+     * Otherwise, returns false.
+     */
+    bool asDawnFormat(dawn::TextureFormat*) const;
 #endif
 
 #ifdef SK_METAL
-    // If the backend API is Metal, this returns a pointer to a GrMTLPixelFormat. Otherwise
-    // it returns nullptr
-    const GrMTLPixelFormat* getMtlFormat() const;
+    /**
+     * If the backend API is Metal this gets the format as a GrMtlPixelFormat. Otherwise,
+     * Otherwise, returns MTLPixelFormatInvalid.
+     */
+    GrMTLPixelFormat asMtlFormat() const;
 #endif
 
-    // If the backend API is Mock, this returns a pointer to the colorType.
-    // Otherwise it returns nullptr.
-    const GrColorType* getMockColorType() const;
+    /**
+     * If the backend API is Mock this gets the format as a GrColorType. Otherwise, returns
+     * GrColorType::kUnknown.
+     */
+    GrColorType asMockColorType() const;
 
     // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D. If the
     // GrBackendFormat was for Vulkan and it originally had a GrVkYcbcrConversionInfo, we will
