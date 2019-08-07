@@ -9,34 +9,37 @@
 #
 #    You *must* run `tools/git-sync-deps` first.
 
-OUT="$(mktemp -d "${TMPDIR:-/tmp}/skqp_apk.XXXXXXXXXX")"
-BUILD="$(mktemp -d "${TMPDIR:-/tmp}/skqp_apk_build.XXXXXXXXXX")"
+if [ "$SKQP_OUTPUT_DIR" ]; then
+    mkdir -p "$SKQP_OUTPUT_DIR" || exit 1
+    OUT="$(cd "$SKQP_OUTPUT_DIR"; pwd)"
+else
+    OUT="$(mktemp -d "${TMPDIR:-/tmp}/skqp_apk.XXXXXXXXXX")"
+fi
 SKIA_ROOT="$(cd "$(dirname "$0")/../.."; pwd)"
 
 cd "${SKIA_ROOT}/infra/skqp/docker"
 
 docker build -t android-skqp ./android-skqp/
 
-docker run --rm -d --name android_em \
+NAME=$(date +android_em_%Y%m%d_%H%M%S)
+
+docker run --rm -d --name "$NAME" \
         --env=DEVICE="Samsung Galaxy S6" \
         --volume="$SKIA_ROOT":/SRC \
         --volume="$OUT":/OUT \
-        --volume="$BUILD":/BUILD \
         android-skqp
+
+BUILD="$(docker exec "$NAME" mktemp -d)"
 
 docker exec \
     --env=SKQP_OUTPUT_DIR=/OUT \
-    --env=SKQP_BUILD_DIR=/BUILD \
-    android_em /SRC/tools/skqp/make_universal_apk.py
-
-docker exec android_em find '/BUILD/.' '!' -name '.' -prune -exec rm -rf '{}' '+'
+    --env=SKQP_BUILD_DIR="$BUILD" \
+    "$NAME" /SRC/tools/skqp/make_universal_apk.py
 
 if [ -f "$OUT"/skqp-universal-debug.apk ]; then
-    docker exec android_em find /OUT -type f -exec chmod 0666 '{}' '+'
+    docker exec "$NAME" find /OUT -type f -exec chmod 0666 '{}' '+'
 fi
 
-docker kill android_em
-
-rmdir "$BUILD"
+docker kill "$NAME"
 
 ls -l "$OUT"/*.apk 2> /dev/null
