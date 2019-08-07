@@ -274,34 +274,43 @@ static bool format_is_srgb(MTLPixelFormat format) {
     }
 }
 
+static inline bool GrBackendFormatAsMTLPixelFormat(const GrBackendFormat& format, MTLPixelFormat* mtlFormat) {
+    GrMTLPixelFormat f;
+    if (!format.asMtlFormat(&f)) {
+        return false;
+    }
+    *mtlFormat = static_cast<MTLPixelFormat>(f);
+    return true;
+}
+
 bool GrMtlCaps::isFormatSRGB(const GrBackendFormat& format) const {
-    if (!format.getMtlFormat()) {
+    MTLPixelFormat mtlFormat;
+    if (!GrBackendFormatAsMTLPixelFormat(format, &mtlFormat)) {
         return false;
     }
 
-    return format_is_srgb(static_cast<MTLPixelFormat>(*format.getMtlFormat()));
+    return format_is_srgb(static_cast<MTLPixelFormat>(mtlFormat);
 }
 
 bool GrMtlCaps::isFormatCompressed(const GrBackendFormat& format) const {
 #ifdef SK_BUILD_FOR_MAC
     return false;
 #else
-    if (!format.getMtlFormat()) {
+    MTLPixelFormat mtlFormat;
+    if (!GrBackendFormatAsMTLPixelFormat(format, &mtlFormat)) {
         return false;
     }
-
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
 
     return mtlFormat == MTLPixelFormatETC2_RGB8;
 #endif
 }
 
 bool GrMtlCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format) const {
-    if (!format.getMtlFormat()) {
+    MTLPixelFormat mtlFormat;
+    if (!GrBackendFormatAsMTLPixelFormat(format, &mtlFormat)) {
         return false;
     }
 
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
     uint32_t ctFlags = this->getFormatInfo(mtlFormat).colorTypeFlags(ct);
     return this->isFormatTexturable(mtlFormat) &&
            SkToBool(ctFlags & ColorTypeInfo::kUploadData_Flag);
@@ -309,9 +318,10 @@ bool GrMtlCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format
 
 bool GrMtlCaps::isConfigTexturable(GrPixelConfig config) const {
     MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(config, &format)) {
+    if (!GrBackendFormatAsMTLPixelFormat(format, &format)) {
         return false;
     }
+
     GrColorType ct = GrPixelConfigToColorType(config);
     uint32_t ctFlags = this->getFormatInfo(format).colorTypeFlags(ct);
     return this->isFormatTexturable(format) &&
@@ -328,8 +338,8 @@ bool GrMtlCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFor
     if (!this->isFormatRenderable(format, sampleCount)) {
         return false;
     }
-    SkASSERT(format.getMtlFormat());
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    MTLPixelFormat mtlFormat;
+    SkAssertResultr(GrBackendFormatAsMTLPixelFormatmat(format, &mtlFormat));
     const auto& info = this->getFormatInfo(mtlFormat);
     if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
         return false;
@@ -338,10 +348,10 @@ bool GrMtlCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFor
 }
 
 bool GrMtlCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount) const {
-    if (!format.getMtlFormat()) {
+    MTLPixelFormat mtlFormat;
+    if (!GrBackendFormatAsMTLPixelFormatmat(format, &mtlFormat)) {
         return false;
     }
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
     return this->isFormatRenderable(mtlFormat, sampleCount);
 }
 
@@ -350,11 +360,10 @@ bool GrMtlCaps::isFormatRenderable(MTLPixelFormat format, int sampleCount) const
 }
 
 int GrMtlCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const {
-    if (!format.getMtlFormat()) {
+    MTLPixelFormat mtlFormat;
+    if (!GrBackendFormatAsMTLPixelFormatmat(format, &mtlFormat)) {
         return 0;
     }
-
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
     return this->maxRenderTargetSampleCount(mtlFormat);
 }
 
@@ -370,7 +379,8 @@ int GrMtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
 
 int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grColorType,
                                           const GrBackendFormat& format) const {
-    if (!format.getMtlFormat()) {
+    MTLPixelFormat mtlFormat;
+    if (!GrBackendFormatAsMTLPixelFormatmat(format, &mtlFormat)) {
         return 0;
     }
 
@@ -381,7 +391,6 @@ int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grColo
         return 0;
     }
 
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
     return this->getRenderTargetSampleCount(requestedCount, mtlFormat);
 }
 
@@ -944,22 +953,19 @@ bool GrMtlCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
 
 GrPixelConfig GrMtlCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                       GrColorType ct) const {
-    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
-    if (!mtlFormat) {
+    MTLPixelFormat mtlFormat;
+    if (!GrBackendFormatAsMTLPixelFormatmat(format, &mtlFormat)) {
         return kUnknown_GrPixelConfig;
     }
-    return validate_sized_format(*mtlFormat, ct);
+    return validate_sized_format(mtlFormat, ct);
 }
 
 GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
                                                          bool isAlphaChannel) const {
-    const GrMTLPixelFormat* grMtlFormat = format.getMtlFormat();
-    if (!grMtlFormat) {
+    MTLPixelFormat mtlFormat;
+    if (!GrBackendFormatAsMTLPixelFormatmat(format, &mtlFormat)) {
         return GrColorType::kUnknown;
     }
-
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*grMtlFormat);
-
 
     switch (mtlFormat) {
         case MTLPixelFormatA8Unorm:           // fall through
@@ -1008,8 +1014,8 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
 }
 
 GrSwizzle GrMtlCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    SkASSERT(format.getMtlFormat());
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    MTLPixelFormat mtlFormat;
+    SkAssertResult(GrBackendFormatAsMTLPixelFormatmat(format, &mtlFormat));
     const auto& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
@@ -1020,8 +1026,8 @@ GrSwizzle GrMtlCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorTyp
     return GrSwizzle::RGBA();
 }
 GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    SkASSERT(format.getMtlFormat());
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    MTLPixelFormat mtlFormat;
+    SkAssertResult(GrBackendFormatAsMTLPixelFormatmat(format, &mtlFormat));
     const auto& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
@@ -1035,11 +1041,10 @@ GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType
 GrCaps::SupportedWrite GrMtlCaps::supportedWritePixelsColorType(
         GrColorType surfaceColorType, const GrBackendFormat& surfaceFormat,
         GrColorType srcColorType) const {
-    const GrMTLPixelFormat* grMtlFormat = surfaceFormat.getMtlFormat();
-    if (!grMtlFormat) {
+    MTLPixelFormat mtlFormat;
+    if (!GrBackendFormatAsMTLPixelFormatmat(format, &mtlFormat)) {
         return {GrColorType::kUnknown, 0};
     }
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*grMtlFormat);
 
     // Metal requires the destination offset for copyFromTexture to be a multiple of the textures
     // pixels size.

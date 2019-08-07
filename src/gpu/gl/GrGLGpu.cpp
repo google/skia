@@ -1444,6 +1444,10 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     texDesc.fFormat = GrGLFormatFromGLEnum(glFormat);
     texDesc.fConfig = desc.fConfig;
     texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
+    if (texDesc.fFormat == GrGLFormat::kUnknown) {
+        return nullptr;
+    }
+
     // TODO: Take these as parameters.
     auto textureColorType = GrPixelConfigToColorType(desc.fConfig);
     auto srcColorType = GrPixelConfigToColorType(desc.fConfig);
@@ -1732,8 +1736,7 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(
 
     GrGLStencilAttachment::IDDesc sbDesc;
 
-    auto rtFormat = GrGLBackendFormatToGLFormat(rt->backendFormat());
-    int sIdx = this->getCompatibleStencilIndex(rtFormat);
+    int sIdx = this->getCompatibleStencilIndex(rt->backendFormat().asGLFormat());
     if (sIdx < 0) {
         return nullptr;
     }
@@ -2166,11 +2169,13 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
         return false;
     }
 
-    GrGLFormat surfaceFormat = GrGLBackendFormatToGLFormat(surface->backendFormat());
     GrGLenum externalFormat = 0;
     GrGLenum externalType = 0;
-    this->glCaps().getReadPixelsFormat(surfaceFormat, surfaceColorType, dstColorType,
-                                       &externalFormat, &externalType);
+    this->glCaps().getReadPixelsFormat(surface->backendFormat().asGLFormat(),
+                                       surfaceColorType,
+                                       dstColorType,
+                                       &externalFormat,
+                                       &externalType);
     if (!externalFormat || !externalType) {
         return false;
     }
@@ -3757,7 +3762,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
                                                GrProtected isProtected) {
     this->handleDirtyContext();
 
-    GrGLFormat glFormat = GrGLBackendFormatToGLFormat(format);
+    GrGLFormat glFormat = format.asGLFormat();
     if (glFormat == GrGLFormat::kUnknown) {
         return GrBackendTexture();  // invalid
     }
