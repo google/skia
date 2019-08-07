@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d116c0f4_6e512763",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-07T17:11:17Z",
+      "side": 1,
+      "message": "No, this was just wrong before. It didn\u0027t make much difference though, since this is just a quick check that we shouldn\u0027t go through the dlsym work.",
+      "parentUuid": "04af14f5_94777ad7",
+      "range": {
+        "startLine": 210,
+        "startChar": 38,
+        "endLine": 210,
+        "endChar": 39
+      },
+      "revId": "8b68ca34f269db9adc4884000a1ef658820cd96b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0a770a3b_8c14790c",
         "filename": "src/sfnt/SkOTUtils.cpp",
         "patchSetId": 9
@@ -36,6 +60,24 @@
       "writtenOn": "2019-08-07T16:43:10Z",
       "side": 1,
       "message": "I don\u0027t understand any of the changes in this file -- was this meant for a different CL?",
+      "revId": "8b68ca34f269db9adc4884000a1ef658820cd96b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "385fcce9_905f69eb",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-07T17:11:17Z",
+      "side": 1,
+      "message": "These changes are to make GDI pass the tests which have been corrected. We could land this separately I suppose since it does fix a bug.",
+      "parentUuid": "0a770a3b_8c14790c",
       "revId": "8b68ca34f269db9adc4884000a1ef658820cd96b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
