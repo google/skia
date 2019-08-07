@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d19e7903_ea8c95cb",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-07T14:18:15Z",
+      "side": 1,
+      "message": "Maybe put \"Mtl\" in the name to make it really clear that this only applies to Metal (and clarify in comment)? Or do you think we might broaden it to other backends?",
+      "revId": "0709d0adc67cda0160023e7dc4f06a2773509653",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
