@@ -1007,6 +1007,9 @@ static void make_RGBA_16(const GrCaps* caps,
     }
 
     *format = caps->getDefaultBackendFormat(GrColorType::kRGBA_16161616, GrRenderable::kNo);
+    if (!(*format).isValid()) {
+        SkDebugf("rgab16 is not valid\n");
+    }
     return;
 }
 
