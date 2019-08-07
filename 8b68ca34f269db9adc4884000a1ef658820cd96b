@@ -99,6 +99,24 @@
       "revId": "8b68ca34f269db9adc4884000a1ef658820cd96b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63a71ec3_2a90edce",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-07T20:11:35Z",
+      "side": 1,
+      "message": "Moved to https://skia-review.googlesource.com/c/skia/+/233079 .",
+      "parentUuid": "10b95b19_500b4769",
+      "revId": "8b68ca34f269db9adc4884000a1ef658820cd96b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
