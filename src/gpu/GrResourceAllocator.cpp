@@ -66,6 +66,7 @@ void GrResourceAllocator::markEndOfOpList(int opListIndex) {
 }
 
 GrResourceAllocator::~GrResourceAllocator() {
+    fResourceProvider->dumpFoo("after");
     SkASSERT(fIntvlList.empty());
     SkASSERT(fActiveIntvls.empty());
     SkASSERT(!fIntvlHash.count());

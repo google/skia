@@ -55,6 +55,8 @@ public:
 
     GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*);
 
+    void dumpFoo(const char* label);
+
     /**
      * Finds a resource in the cache, based on the specified key. Prior to calling this, the caller
      * must be sure that if a resource of exists in the cache with the given unique key then it is

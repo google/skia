@@ -589,3 +589,7 @@ sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemap
                                                                       wrapType,
                                                                       ownership);
 }
+
+void GrResourceProvider::dumpFoo(const char* label) {
+    fCache->dumpFoo(label);
+}

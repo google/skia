@@ -981,3 +981,40 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
 }
 
 #endif
+
+static void subFoo(GrGpuResource* resource) {
+    GrSurface* s = resource->asSurface();
+    if (!s) {
+        return;
+    }
+
+    SkDebugf("%d %d\n", s->width(), s->height());
+
+#if 0
+    if (resource->cacheAccess().isScratch()) {
+        SkDebugf("scratch\n");
+    }
+    if (resource->resourcePriv().refsWrappedObjects()) {
+        SkDebugf("wrapped\n");
+    }
+    if (GrBudgetedType::kBudgeted != resource->resourcePriv().budgetedType()) {
+        SkDebugf("unbudgeted\n");
+    }
+#endif
+}
+
+void GrResourceCache::dumpFoo(const char* label) {
+    SkDebugf("%s ---------------\n", label);
+    SkDebugf("fTotal = %d\n", this->getResourceCount());
+    SkDebugf("fNumNonPurgeable = %d\n", fNonpurgeableResources.count());
+    SkDebugf("fPurgeable = %d\n", fPurgeableQueue.count());
+
+    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        subFoo(fNonpurgeableResources[i]);
+    }
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        subFoo(fPurgeableQueue.at(i));
+    }
+
+
+}
