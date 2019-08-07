@@ -163,7 +163,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                     check_surface(reporter, proxy.get(), origin,
                                                   widthHeight, widthHeight, config, budgeted);
                                     int supportedSamples =
-                                            caps.getRenderTargetSampleCount(numSamples, config);
+                                            caps.getRenderTargetSampleCount(numSamples, format);
                                     check_rendertarget(reporter, caps, resourceProvider,
                                                        proxy->asRenderTargetProxy(),
                                                        supportedSamples,
@@ -250,8 +250,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             }
 
             for (auto numSamples : {1, 4}) {
-                int supportedNumSamples = caps.getRenderTargetSampleCount(numSamples, config);
-
+                auto beFormat = caps.getDefaultBackendFormat(grColorType, GrRenderable::kYes);
+                int supportedNumSamples = caps.getRenderTargetSampleCount(numSamples, beFormat);
                 if (!supportedNumSamples) {
                     continue;
                 }
@@ -259,7 +259,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 // Test wrapping FBO 0 (with made up properties). This tests sample count and the
                 // special case where FBO 0 doesn't support window rectangles.
                 if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
-                    auto beFormat = caps.getDefaultBackendFormat(grColorType, GrRenderable::kYes);
                     GrGLFramebufferInfo fboInfo;
                     fboInfo.fFBOID = 0;
                     SkASSERT(beFormat.getGLFormat());
