@@ -168,6 +168,7 @@ protected:
     }
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+        modi &= ~ModifierKey::kFirstPress;  // ignore this
         if (ModifierKey::kShift == modi) {
             return new PtClick(-1);
         }
