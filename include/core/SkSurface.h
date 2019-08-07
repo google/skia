@@ -561,6 +561,18 @@ public:
                                TextureReleaseProc textureReleaseProc = nullptr,
                                ReleaseContext releaseContext = nullptr);
 
+    /** If the surface was made via MakeRasterDirect then it's backing pixels may be
+        substituted with different memory buffer. The contents of the previous backing are
+        copied into the new buffer. SkCanvas state is preserved. The SkImageInfo and rowBytes
+        are assumed to be identical to the original memory.
+
+        The surface retains no reference to the previous backing pixels provided by the
+        client.
+
+        @param pixels      the new memory backing for the surface.
+     */
+    bool replaceBackendPixels(void* pixels);
+
     /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
         SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface
         is deleted.
