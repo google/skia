@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aeb79318_2cff7a0b",
+        "filename": "tests/VkYcbcrSamplerTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-07T14:59:37Z",
+      "side": 1,
+      "message": "This shouldn\u0027t be an error (that causes the test to fail). We just should not run the test on bots that don\u0027t support it.",
+      "range": {
+        "startLine": 172,
+        "startChar": 8,
+        "endLine": 172,
+        "endChar": 61
+      },
+      "revId": "553c31ce681953e1cb1fe9dbc4dc55fdf8228121",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
