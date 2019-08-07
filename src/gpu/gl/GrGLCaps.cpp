@@ -3807,12 +3807,8 @@ bool GrGLCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount
     return this->isFormatRenderable(glFormat, sampleCount);
 }
 
-int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grCT,
-                                         GrGLFormat format) const {
+int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrGLFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
-    if (!SkToBool(info.colorTypeFlags(grCT) & ColorTypeInfo::kRenderable_Flag)) {
-        return 0;
-    }
 
     int count = info.fColorSampleCounts.count();
     if (!count) {
@@ -3834,7 +3830,6 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grCT,
         }
     }
     return 0;
-
 }
 
 int GrGLCaps::maxRenderTargetSampleCount(GrGLFormat format) const {
