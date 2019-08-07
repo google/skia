@@ -21,24 +21,16 @@ void SkDraw::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRe
     p.setShader(nullptr);
     p.setMaskFilter(nullptr);
 
-    sk_sp<SkShader> atlasShader;
-    if (atlas) {
-        atlasShader = atlas->makeShader();
+    sk_sp<SkShader> atlasShader = atlas->makeShader();
+    if (!atlasShader) {
+        return;
     }
+    p.setShader(atlasShader);
 
     SkMatrix xf;
     for (int i = 0; i < count; ++i) {
         if (colors) {
-            if (atlasShader) {
-                p.setShader(SkShaders::Blend(bmode,
-                                             SkShaders::Color(colors[i]),
-                                             atlasShader));
-                p.setColor4f(paint.getColor4f(), nullptr);
-            } else {
-                p.setColor(colors[i]);  // modulate with paint.getAlpha()?
-            }
-        } else {
-            p.setShader(atlasShader);
+            p.setShader(SkShaders::Blend(bmode, SkShaders::Color(colors[i]), atlasShader));
         }
         xf.setRSXform(xform[i]);
         xf.preTranslate(-textures[i].fLeft, -textures[i].fTop);

@@ -2203,6 +2203,8 @@ public:
         Optional cullRect is a conservative bounds of all transformed sprites.
         If cullRect is outside of clip, canvas can skip drawing.
 
+        If atlas is nullptr, this draws nothing.
+
         @param atlas     SkImage containing sprites
         @param xform     SkRSXform mappings for sprites in atlas
         @param tex       SkRect locations of sprites in atlas
