@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3751c7e4_d8a36bf3",
+        "filename": "include/private/SkBitmaskEnum.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-07T22:01:40Z",
+      "side": 1,
+      "message": "I think this is a bit clearer as\n\nstatic_cast\u003ctypename std::underlying_type\u003cE\u003e::type\u003e(e) !\u003d 0\n\nsince we usually cast E to U first.",
+      "range": {
+        "startLine": 16,
+        "startChar": 11,
+        "endLine": 16,
+        "endChar": 74
+      },
+      "revId": "019077c4a5b3a6762ab3555370415366dd3dbb2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
