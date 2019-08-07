@@ -100,16 +100,11 @@ public:
     }
 
     int getRenderTargetSampleCount(int requestCount,
-                                   GrColorType, const GrBackendFormat& format) const override {
+                                   const GrBackendFormat& format) const override {
         if (!format.getMockColorType()) {
             return 0;
         }
         return this->getRenderTargetSampleCount(requestCount, *format.getMockColorType());
-    }
-
-    int getRenderTargetSampleCount(int requestCount, GrPixelConfig config) const override {
-        GrColorType ct = GrPixelConfigToColorType(config);
-        return this->getRenderTargetSampleCount(requestCount, ct);
     }
 
     int maxRenderTargetSampleCount(GrColorType ct) const {
