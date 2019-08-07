@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff7998f4_230265a4",
+        "filename": "modules/skparagraph/src/Iterators.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-07T16:02:01Z",
+      "side": 1,
+      "message": "Want to make forward progress, may just want to go to end and leave the fFont alone.",
+      "range": {
+        "startLine": 29,
+        "startChar": 8,
+        "endLine": 29,
+        "endChar": 27
+      },
+      "revId": "de2643a51bddebe99b12155bc6a2b4f209379fe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4ff3c63_ca35bae0",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-07T16:02:01Z",
+      "side": 1,
+      "message": "Just as a note (no need to do this right now) it may be simpler to name this Make and make the constructor private. Note that MakeHarfBuzz works something like that, but returns a std::unique_ptr so that failure is signaled by nullptr. In this case you really want std::optional so you can just return a value. The nice thing about doing this is that the class won\u0027t allow a non-fully-initialized instance to be floating about. (Of course this is an awkwardness of not being able to throw exceptions from the constructors.)",
+      "range": {
+        "startLine": 28,
+        "startChar": 9,
+        "endLine": 28,
+        "endChar": 19
+      },
+      "revId": "de2643a51bddebe99b12155bc6a2b4f209379fe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
