@@ -151,7 +151,7 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
     GrColorType ct = GrColorType::kRGBA_8888;
     const GrBackendFormat format = caps->getDefaultBackendFormat(ct, GrRenderable::kYes);
 
-    int sampleCnt = random->nextBool() ? caps->getRenderTargetSampleCount(2, ct, format) : 1;
+    int sampleCnt = random->nextBool() ? caps->getRenderTargetSampleCount(2, format) : 1;
     // Above could be 0 if msaa isn't supported.
     sampleCnt = SkTMax(1, sampleCnt);
 

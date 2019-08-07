@@ -176,10 +176,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2), test.fExpectation);
     }
 
-    int k2 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(
-                                                                    2, kRGBA_8888_GrPixelConfig);
-    int k4 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(
-                                                                    4, kRGBA_8888_GrPixelConfig);
+    auto beFormat = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kYes);
+    int k2 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(2, beFormat);
+    int k4 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(4, beFormat);
 
     //--------------------------------------------------------------------------------------------
     TestCase gNonOverlappingTests[] = {

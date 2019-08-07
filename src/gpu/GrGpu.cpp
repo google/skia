@@ -156,13 +156,14 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, const GrBac
     GrSurfaceDesc desc = origDesc;
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
-    if (!this->caps()->validateSurfaceDesc(desc, renderable, renderTargetSampleCnt, mipMapped)) {
+    if (!this->caps()->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig,
+                                             renderable, renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
 
     if (renderable == GrRenderable::kYes) {
         renderTargetSampleCnt =
-                this->caps()->getRenderTargetSampleCount(renderTargetSampleCnt, desc.fConfig);
+                this->caps()->getRenderTargetSampleCount(renderTargetSampleCnt, format);
     }
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(renderTargetSampleCnt > 0 && renderTargetSampleCnt <= 64);
@@ -260,7 +261,7 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
     const GrCaps* caps = this->caps();
 
     if (!caps->isFormatTexturable(colorType, backendTex.getBackendFormat()) ||
-        !caps->getRenderTargetSampleCount(sampleCnt, colorType, backendTex.getBackendFormat())) {
+        !caps->isFormatRenderable(backendTex.getBackendFormat(), sampleCnt)) {
         return nullptr;
     }
 
@@ -280,8 +281,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
 
     const GrCaps* caps = this->caps();
 
-    if (0 == caps->getRenderTargetSampleCount(backendRT.sampleCnt(), colorType,
-                                              backendRT.getBackendFormat())) {
+    if (!caps->isFormatRenderable(backendRT.getBackendFormat(), backendRT.sampleCnt())) {
         return nullptr;
     }
 
@@ -300,8 +300,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTex
         return nullptr;
     }
 
-    if (0 == caps->getRenderTargetSampleCount(sampleCnt, colorType,
-                                              backendTex.getBackendFormat())) {
+    if (!caps->isFormatRenderable(backendTex.getBackendFormat(), sampleCnt)) {
         return nullptr;
     }
 

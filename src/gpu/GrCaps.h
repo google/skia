@@ -182,12 +182,10 @@ public:
     virtual bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const = 0;
 
     // Find a sample count greater than or equal to the requested count which is supported for a
-    // color buffer of the given config or 0 if no such sample count is supported. If the requested
+    // render target of the given format or 0 if no such sample count is supported. If the requested
     // sample count is 1 then 1 will be returned if non-MSAA rendering is supported, otherwise 0.
     // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
-    virtual int getRenderTargetSampleCount(int requestedCount,
-                                           GrColorType, const GrBackendFormat&) const = 0;
-    virtual int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const = 0;
+    virtual int getRenderTargetSampleCount(int requestedCount, const GrBackendFormat&) const = 0;
 
     /**
      * Backends may have restrictions on what types of surfaces support GrGpu::writePixels().
@@ -362,8 +360,9 @@ public:
         return {};
     }
 
-    bool validateSurfaceDesc(const GrSurfaceDesc&, GrRenderable renderable,
-                             int renderTargetSampleCnt, GrMipMapped) const;
+    bool validateSurfaceParams(const SkISize&, const GrBackendFormat&, GrPixelConfig,
+                               GrRenderable renderable, int renderTargetSampleCnt,
+                               GrMipMapped) const;
 
     bool areColorTypeAndFormatCompatible(GrColorType grCT,
                                          const GrBackendFormat& format) const {

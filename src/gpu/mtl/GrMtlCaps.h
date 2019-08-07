@@ -40,9 +40,7 @@ public:
     bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const override;
     bool isFormatRenderable(MTLPixelFormat, int sampleCount) const;
 
-    int getRenderTargetSampleCount(int requestedCount,
-                                   GrColorType, const GrBackendFormat&) const override;
-    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
+    int getRenderTargetSampleCount(int requestedCount, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, MTLPixelFormat) const;
 
     int maxRenderTargetSampleCount(const GrBackendFormat&) const override;

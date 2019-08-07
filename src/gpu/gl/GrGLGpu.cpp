@@ -733,19 +733,21 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
+    const GrGLCaps& caps = this->glCaps();
+
+    if (!caps.isFormatRenderable(desc.fFormat, sampleCnt)) {
+        return nullptr;
+    }
+
     if (kBorrow_GrWrapOwnership == ownership) {
         desc.fOwnership = GrBackendObjectOwnership::kBorrowed;
     } else {
         desc.fOwnership = GrBackendObjectOwnership::kOwned;
     }
 
-    const GrCaps* caps = this->caps();
 
-    sampleCnt =
-            caps->getRenderTargetSampleCount(sampleCnt, colorType, backendTex.getBackendFormat());
-    if (sampleCnt < 1) {
-        return nullptr;
-    }
+    sampleCnt = caps.getRenderTargetSampleCount(sampleCnt, desc.fFormat);
+    SkASSERT(sampleCnt);
 
     GrGLRenderTarget::IDs rtIDs;
     if (!this->createRenderTargetObjects(desc, sampleCnt, &rtIDs)) {
@@ -776,6 +778,11 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
+    GrGLFormat format = GrGLFormatFromGLEnum(info.fFormat);
+    if (!this->glCaps().isFormatRenderable(format, backendRT.sampleCnt())) {
+        return nullptr;
+    }
+
     GrGLRenderTarget::IDs rtIDs;
     rtIDs.fRTFBOID = info.fFBOID;
     rtIDs.fMSColorRenderbufferID = 0;
@@ -784,14 +791,9 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
 
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendRT.getBackendFormat(),
                                                                     grColorType);
-    const auto format = GrGLBackendFormatToGLFormat(backendRT.getBackendFormat());
-
-    SkASSERT(kUnknown_GrPixelConfig != config);
 
     const auto size = SkISize::Make(backendRT.width(), backendRT.height());
-    int sampleCount =
-        this->caps()->getRenderTargetSampleCount(backendRT.sampleCnt(), grColorType,
-                                                 backendRT.getBackendFormat());
+    int sampleCount = this->glCaps().getRenderTargetSampleCount(backendRT.sampleCnt(), format);
 
     return GrGLRenderTarget::MakeWrapped(this, size, format, config, sampleCount, rtIDs,
                                          backendRT.stencilBits());
@@ -806,8 +808,12 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!check_backend_texture(tex, colorType, this->glCaps(), &desc, true)) {
         return nullptr;
     }
-    const int sampleCount =
-            this->caps()->getRenderTargetSampleCount(sampleCnt, colorType, tex.getBackendFormat());
+
+    if (!this->glCaps().isFormatRenderable(desc.fFormat, sampleCnt)) {
+        return nullptr;
+    }
+
+    const int sampleCount = this->glCaps().getRenderTargetSampleCount(sampleCnt, desc.fFormat);
     GrGLRenderTarget::IDs rtIDs;
     if (!this->createRenderTargetObjects(desc, sampleCount, &rtIDs)) {
         return nullptr;

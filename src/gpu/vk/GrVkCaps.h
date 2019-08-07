@@ -47,9 +47,7 @@ public:
     bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const override;
     bool isFormatRenderable(VkFormat, int sampleCount) const;
 
-    int getRenderTargetSampleCount(int requestedCount,
-                                   GrColorType, const GrBackendFormat&) const override;
-    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
+    int getRenderTargetSampleCount(int requestedCount, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, VkFormat) const;
 
     int maxRenderTargetSampleCount(const GrBackendFormat&) const override;

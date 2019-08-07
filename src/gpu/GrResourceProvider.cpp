@@ -91,7 +91,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     }
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
-    if (!fCaps->validateSurfaceDesc(desc, renderable, renderTargetSampleCnt, mipMapped)) {
+    if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
+                                      renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
     bool mustInitializeAllLevels = this->caps()->createTextureMustSpecifyAllLevels();
@@ -152,7 +153,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    if (!fCaps->validateSurfaceDesc(desc, renderable, renderTargetSampleCnt, GrMipMapped::kNo)) {
+    if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
+                                      renderTargetSampleCnt, GrMipMapped::kNo)) {
         return nullptr;
     }
 
@@ -222,7 +224,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    if (!fCaps->validateSurfaceDesc(desc, renderable, renderTargetSampleCnt, GrMipMapped::kNo)) {
+    if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
+                                      renderTargetSampleCnt, GrMipMapped::kNo)) {
         return nullptr;
     }
 
@@ -294,7 +297,8 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    if (!fCaps->validateSurfaceDesc(desc, renderable, renderTargetSampleCnt, GrMipMapped::kNo)) {
+    if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
+                                      renderTargetSampleCnt, GrMipMapped::kNo)) {
         return nullptr;
     }
 
@@ -340,7 +344,8 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
-    SkASSERT(fCaps->validateSurfaceDesc(desc, renderable, renderTargetSampleCnt, GrMipMapped::kNo));
+    SkASSERT(fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig,
+                                          renderable, renderTargetSampleCnt, GrMipMapped::kNo));
 
     // We could make initial clears work with scratch textures but it is a rare case so we just opt
     // to fall back to making a new texture.

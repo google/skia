@@ -479,13 +479,13 @@ int main(int argc, char** argv) {
         exitf(ExitErr::kUnavailable, "render target size %ix%i not supported by platform (max: %i)",
               width, height, ctx->maxRenderTargetSize());
     }
-    GrPixelConfig grPixConfig = SkColorType2GrPixelConfig(config->getColorType());
-    if (kUnknown_GrPixelConfig == grPixConfig) {
-        exitf(ExitErr::kUnavailable, "failed to get GrPixelConfig from SkColorType: %d",
+    GrBackendFormat format = ctx->defaultBackendFormat(config->getColorType(), GrRenderable::kYes);
+    if (!format.isValid()) {
+        exitf(ExitErr::kUnavailable, "failed to get GrBackendFormat from SkColorType: %d",
                                      config->getColorType());
     }
     int supportedSampleCount = ctx->priv().caps()->getRenderTargetSampleCount(
-            config->getSamples(), grPixConfig);
+            config->getSamples(), format);
     if (supportedSampleCount != config->getSamples()) {
         exitf(ExitErr::kUnavailable, "sample count %i not supported by platform",
                                      config->getSamples());

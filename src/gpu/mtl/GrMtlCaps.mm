@@ -368,38 +368,14 @@ int GrMtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
     return 0;
 }
 
-int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, GrColorType grColorType,
+int GrMtlCaps::getRenderTargetSampleCount(int requestedCount,
                                           const GrBackendFormat& format) const {
     if (!format.getMtlFormat()) {
         return 0;
     }
 
-    // Currently we don't allow RGB_888X to be renderable because we don't have a way to
-    // handle blends that reference dst alpha when the values in the dst alpha channel are
-    // uninitialized. We also don't support rendering to Gray_8.
-    if (GrColorType::kRGB_888x == grColorType || GrColorType::kGray_8 == grColorType) {
-        return 0;
-    }
-
     MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
     return this->getRenderTargetSampleCount(requestedCount, mtlFormat);
-}
-
-int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
-    // Currently we don't allow RGB_888X to be renderable because we don't have a way to
-    // handle blends that reference dst alpha when the values in the dst alpha channel are
-    // uninitialized. We also don't support rendering to Gray_8.
-    if (config == kRGB_888X_GrPixelConfig ||
-        config == kGray_8_GrPixelConfig ||
-        config == kGray_8_as_Red_GrPixelConfig) {
-        return 0;
-    }
-
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(config, &format)) {
-        return 0;
-    }
-    return this->getRenderTargetSampleCount(requestedCount, format);
 }
 
 int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, MTLPixelFormat format) const {

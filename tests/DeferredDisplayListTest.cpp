@@ -372,8 +372,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
 
         if (SurfaceParameters::kSampleCount == i) {
             int supportedSampleCount = caps->getRenderTargetSampleCount(
-                    params.sampleCount(), SkColorTypeToGrColorType(params.colorType()),
-                    backend.getBackendFormat());
+                    params.sampleCount(), backend.getBackendFormat());
             if (1 == supportedSampleCount) {
                 // If changing the sample count won't result in a different
                 // surface characterization, skip this step
