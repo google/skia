@@ -16,6 +16,24 @@
       "revId": "0709d0adc67cda0160023e7dc4f06a2773509653",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b491ffd_35af8a0d",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-07T15:26:19Z",
+      "side": 1,
+      "message": "I\u0027ve removed the option for now and replaced it with a method to determine the value from\nthe maxBufferLength. We can add the option back later if we need it.",
+      "parentUuid": "d19e7903_ea8c95cb",
+      "revId": "0709d0adc67cda0160023e7dc4f06a2773509653",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
