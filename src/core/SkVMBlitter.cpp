@@ -6,7 +6,6 @@
  */
 
 #include "include/private/SkMacros.h"
-#include "include/private/SkSpinlock.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
@@ -44,20 +43,18 @@ namespace {
             && x.colorFilter == y.colorFilter;
     }
 
-    static SkSpinlock gProgramCacheLock;
-
-    SK_TRY_ACQUIRE(true, gProgramCacheLock)
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
-        if (gProgramCacheLock.tryAcquire()) {
-            static auto cache SK_GUARDED_BY(gProgramCacheLock)
-                = new SkLRUCache<Key, skvm::Program>{8};
-            return cache;
-        }
-        return nullptr;
+    #if defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS) && defined(__arm)
+        // Some troublemaker build configurations (so far G3/iOS/armv7) don't support
+        // thread_local.  We could use an SkSpinlock and tryAcquire()/release(), or...
+        return nullptr;  // ... we could just not cache programs on those platforms.
+    #else
+        thread_local static auto* cache = new SkLRUCache<Key, skvm::Program>{8};
+        return cache;
+    #endif
     }
 
-    SK_RELEASE_CAPABILITY(gProgramCacheLock)
-    static void release_program_cache() { gProgramCacheLock.release(); }
+    static void release_program_cache() { }
 
 
     struct Uniforms {
