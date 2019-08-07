@@ -67,6 +67,9 @@ review! Submit a patch and getting it reviewed is fairly easy with depot tools.
 Use `git-cl`, which comes with [depot
 tools](http://sites.google.com/a/chromium.org/dev/developers/how-tos/install-depot-tools).
 For help, run `git cl help`.
+Note that in order for `git cl` to work correctly, it needs to run on a clone of
+<https://skia.googlesource.com/skia>. Using clones of mirrors, including Google's mirror
+on GitHub, might lead to issues with `git cl` usage.
 
 ### Find a reviewer
 
@@ -154,7 +157,7 @@ code, commit it again locally, and then run git cl upload again e.g.
     git cl upload
 
 Once you're ready for another review, use **Reply** again to send another
-notification (it is helpful to tell the reviewer what you did with respect to 
+notification (it is helpful to tell the reviewer what you did with respect to
 each of their comments). When the reviewer is happy with your patch, they will
 approve your change by setting the Code-Review label to "+1".
 
@@ -191,7 +194,7 @@ Resources:
 
 [How to land Skia changes that change Blink layout test results](../chrome/layouttest)
 
-If you're changing the Skia API, you may need to make an associated change in Chromium.  
+If you're changing the Skia API, you may need to make an associated change in Chromium.
 If you do, please follow these instructions: [Landing Skia changes which require Chrome changes](../chrome/changes)
 
 
@@ -206,14 +209,14 @@ commit your change directly to Skia's repository.
 If you don't have committer rights in https://skia.googlesource.com/skia.git ...
 first of all, thanks for submitting your patch!  We really appreciate these
 submissions.  After receiving an approval from a committer, you will be able to
-click the "Submit to CQ" button and submit your patch via the commit queue.  
+click the "Submit to CQ" button and submit your patch via the commit queue.
 
 In special instances, a Skia committer may assist you in landing the change
 by uploading a new codereview containing your patch (perhaps with some small
 adjustments at his/her discretion).  If so, you can mark your change as
 "Abandoned", and update it with a link to the new codereview.
 
-### Skia committers 
+### Skia committers
   *  tips on how to apply an externally provided patch are [here](./patch)
   *  when landing externally contributed patches, please note the original
      contributor's identity (and provide a link to the original codereview) in the commit message
@@ -223,9 +226,9 @@ adjustments at his/her discretion).  If so, you can mark your change as
     ~~~~
     git cl land
     ~~~~
-    
+
     or
-    
+
     ~~~~
     git cl land -c 'Contributor Name <email@example.com>'
     ~~~~
