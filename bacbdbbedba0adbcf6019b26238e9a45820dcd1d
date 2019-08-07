@@ -22,6 +22,30 @@
       "revId": "bacbdbbedba0adbcf6019b26238e9a45820dcd1d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd1c1ac3_b39a9839",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-07T15:30:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ac70525_7f7cf410",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 87
+      },
+      "revId": "bacbdbbedba0adbcf6019b26238e9a45820dcd1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
