@@ -15,6 +15,7 @@
 class GrContext;
 class GrGpu;
 class GrResourceCache;
+class GrSurface;
 class SkTraceMemoryDump;
 
 /**
@@ -265,6 +266,8 @@ public:
     virtual const char* getResourceType() const = 0;
 
     static uint32_t CreateUniqueID();
+
+    virtual GrSurface* asSurface() { return nullptr; }
 
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is
