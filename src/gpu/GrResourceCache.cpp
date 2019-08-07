@@ -981,3 +981,74 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
 }
 
 #endif
+
+#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrHack.h"
+#include "src/gpu/GrTexturePriv.h"
+
+
+static void get_cache_info(GrGpuResource* resource, GrTextureCacheInfo* dst) {
+    GrSurface* s = resource->asSurface();
+    if (!s) {
+        return;
+    }
+
+    dst->fConfig = s->config();
+    dst->fWidth = s->width();
+    dst->fHeight = s->height();
+    dst->fRenderable = GrRenderable::kNo;
+    dst->fSampleCount = 1;
+    dst->fMipMapped = GrMipMapped::kNo;
+
+    if (const GrRenderTarget* rt = s->asRenderTarget()) {
+        dst->fRenderable = GrRenderable::kYes;
+        dst->fSampleCount = rt->numSamples();
+    }
+
+    if (const GrTexture* t = s->asTexture()) {
+        dst->fMipMapped = t->texturePriv().mipMapped();
+    }
+
+    GrScratchKey expected;
+    dst->computeScratchKey(&expected);
+
+    dst->fHasScratchKey = false;
+    GrScratchKey actual = s->resourcePriv().getScratchKey();
+    if (actual.isValid()) {
+        dst->fHasScratchKey = true;
+        SkASSERT(actual == expected);
+    }
+
+#if 0
+    if (resource->cacheAccess().isScratch()) {
+        SkDebugf("scratch\n");
+    }
+    if (resource->resourcePriv().refsWrappedObjects()) {
+        SkDebugf("wrapped\n");
+    }
+    if (GrBudgetedType::kBudgeted != resource->resourcePriv().budgetedType()) {
+        SkDebugf("unbudgeted\n");
+    }
+#endif
+}
+
+
+const GrCacheState* GrResourceCache::getCacheState(int id, const char* label) {
+    SkString name;
+    name.printf("%d-%s", id, label);
+
+    GrCacheState* state = new GrCacheState(name,
+                                           this->getResourceCount(),
+                                           fNonpurgeableResources.count(),
+                                           fPurgeableQueue.count());
+
+    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        get_cache_info(fNonpurgeableResources[i], state->nonPurgeableResource(i));
+    }
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        get_cache_info(fPurgeableQueue.at(i), state->purgeableResource(i));
+    }
+
+    //state->dump(id, label);
+    return state;
+}
