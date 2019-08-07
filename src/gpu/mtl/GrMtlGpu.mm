@@ -535,6 +535,11 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
 
     const GrCaps* caps = this->caps();
 
+    MTLPixelFormat format = GrGetMTLPixelFormatFromMtlTextureInfo(mtlTexture);
+    if (!caps->isFormatRenderable(format, sampleCnt)) {
+        return nullptr;
+    }
+
     GrPixelConfig config = caps->getConfigFromBackendFormat(backendTex.getBackendFormat(),
                                                             colorType);
     SkASSERT(kUnknown_GrPixelConfig != config);
@@ -542,11 +547,8 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
     GrSurfaceDesc surfDesc;
     init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, config);
 
-    sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, colorType,
-                                                 backendTex.getBackendFormat());
-    if (!sampleCnt) {
-        return nullptr;
-    }
+    sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, format);
+    SkASSERT(sampleCnt);
 
     return GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, sampleCnt,
                                                                     mtlTexture, cacheable);
@@ -581,14 +583,18 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
         return nullptr;
     }
 
+    MTLPixelFormat format = GrGetMTLPixelFormatFromMtlTextureInfo(mtlTexture);
+    if (!this->caps->isFormatRenderable(format, sampleCnt)) {
+        return nullptr;
+    }
+
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
                                                                     grColorType);
     SkASSERT(kUnknown_GrPixelConfig != config);
 
     GrSurfaceDesc surfDesc;
     init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, config);
-    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, grColorType,
-                                                         backendTex.getBackendFormat());
+    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, format);
     if (!sampleCnt) {
         return nullptr;
     }
