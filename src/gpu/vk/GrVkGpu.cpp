@@ -1053,10 +1053,10 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(int width, int height,
                                                     SkImage::CompressionType compressionType,
                                                     SkBudgeted budgeted, const void* data) {
     GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
-    if (!format.getVkFormat()) {
+    VkFormat pixelFormat;
+    if (!format.asVkFormat(&pixelFormat)) {
         return nullptr;
     }
-    VkFormat pixelFormat = *format.getVkFormat();
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
 
@@ -1859,19 +1859,19 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();
     }
 
-    const VkFormat* vkFormat = format.getVkFormat();
-    if (!vkFormat) {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
         SkDebugf("Could net get vkformat\n");
         return GrBackendTexture();
     }
 
-    if (!caps.isVkFormatTexturable(*vkFormat)) {
+    if (!caps.isVkFormatTexturable(vkFormat)) {
         SkDebugf("Config is not texturable\n");
         return GrBackendTexture();
     }
 
     GrVkImageInfo info;
-    if (!this->createVkImageForBackendSurface(*vkFormat, w, h, true,
+    if (!this->createVkImageForBackendSurface(vkFormat, w, h, true,
                                               GrRenderable::kYes == renderable, mipMapped, srcData,
                                               rowBytes, color, &info, isProtected)) {
         SkDebugf("Failed to create testing only image\n");
