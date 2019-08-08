@@ -70,7 +70,7 @@ public:
      * between reinterpret_cast<TBase*> and static_cast<TBase*> when operating on TItem*.
      * Multiple inheritance may make this not true. It is runtime asserted.
      */
-    template <typename TItem, typename... Args> TItem& emplace(Args... args) {
+    template <typename TItem, typename... Args> TItem& emplace(Args&&... args) {
         return this->emplaceWithData<TItem, Args...>(0, std::forward<Args>(args)...);
     }
 
