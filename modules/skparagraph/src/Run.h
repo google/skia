@@ -233,8 +233,6 @@ public:
 
     SkScalar trimmedWidth(size_t pos) const;
 
-    void shift(SkScalar offset) const;
-
     void setIsWhiteSpaces();
 
     bool contains(TextIndex ch) const { return ch >= fTextRange.start && ch < fTextRange.end; }
