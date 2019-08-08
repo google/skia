@@ -259,7 +259,7 @@ static GrBackendTexture make_gl_backend_texture(
     textureInfo.fID = texID;
     SkASSERT(backendFormat.isValid());
     textureInfo.fTarget = target;
-    textureInfo.fFormat = *backendFormat.getGLFormat();
+    textureInfo.fFormat = GrGLFormatToEnum(backendFormat.asGLFormat());
 
     *deleteProc = delete_gl_texture;
     *updateProc = update_gl_texture;
@@ -319,8 +319,8 @@ static GrBackendTexture make_vk_backend_texture(
         return GrBackendTexture();
     }
 
-    SkASSERT(backendFormat.getVkFormat());
-    VkFormat format = *backendFormat.getVkFormat();
+    VkFormat format;
+    SkAssertResult(backendFormat.asVkFormat(&format));
 
     VkResult err;
 
