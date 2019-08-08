@@ -49,6 +49,8 @@ void GrResourceAllocator::markEndOfOpList(int opListIndex) {
 }
 
 GrResourceAllocator::~GrResourceAllocator() {
+    const GrCacheState* tmp = fResourceProvider->getCacheState(fID, "after");
+    tmp->dump();
     SkASSERT(fIntvlList.empty());
     SkASSERT(fActiveIntvls.empty());
     SkASSERT(!fIntvlHash.count());
@@ -234,6 +236,10 @@ void GrResourceAllocator::recycleSurface(sk_sp<GrSurface> surface) {
 // If we can't find a useable one, create a new one.
 sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy,
                                                      bool needsStencil) {
+
+    if (proxy->width() == 1144 && proxy->height() == 720) {
+        int bar = 0;
+    }
 
     if (proxy->asTextureProxy() && proxy->asTextureProxy()->getUniqueKey().isValid()) {
         // First try to reattach to a cached version if the proxy is uniquely keyed

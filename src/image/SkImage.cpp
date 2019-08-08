@@ -300,7 +300,7 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
 
     // Note that here we're returning the special image's entire backing store, loose padding
     // and all!
-    return result->asImage();
+    return result->asImage(nullptr);
 }
 
 bool SkImage::isLazyGenerated() const {

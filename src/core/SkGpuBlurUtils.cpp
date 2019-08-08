@@ -408,10 +408,10 @@ static sk_sp<GrRenderTargetContext> reexpand(GrRecordingContext* context,
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext =
         context->priv().makeDeferredRenderTargetContext(format,
-                                                               fit, dstII.width(), dstII.height(),
-                                                               config, dstII.refColorSpace(),
-                                                               1, GrMipMapped::kNo,
-                                                               srcProxy->origin());
+                                                        fit, dstII.width(), dstII.height(),
+                                                        config, dstII.refColorSpace(),
+                                                        1, GrMipMapped::kNo,
+                                                        srcProxy->origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }

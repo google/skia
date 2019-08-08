@@ -19,6 +19,7 @@
 #include "SkTInternalLList.h"
 #include "SkTMultiMap.h"
 
+class GrCacheState;
 class GrCaps;
 class GrProxyProvider;
 class SkString;
@@ -57,6 +58,8 @@ class GrResourceCache {
 public:
     GrResourceCache(const GrCaps*, GrSingleOwner* owner, uint32_t contextUniqueID);
     ~GrResourceCache();
+
+    const GrCacheState* getCacheState(int id, const char* label);
 
     // Default maximum number of budgeted resources in the cache.
     static const int    kDefaultMaxCount            = 2 * (1 << 12);

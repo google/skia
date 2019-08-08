@@ -641,7 +641,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
     }
 
     // Clip image case.
-    sk_sp<SkImage> srcImage(src->asImage());
+    sk_sp<SkImage> srcImage(src->asImage(nullptr));
     if (!srcImage) {
         return;
     }

@@ -67,6 +67,11 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
         , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
+
+    if (desc.fWidth == 1144 && desc.fHeight == 720) {
+        int iFoo = 0;
+    }
+
     SkASSERT(fFormat.isValid());
     // NOTE: the default fUniqueID ctor pulls a value from the same pool as the GrGpuResources.
     if (fLazyInstantiateCallback) {
@@ -394,7 +399,12 @@ sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrRecordingContext* context,
     return dstContext;
 }
 
-void GrSurfaceProxyPriv::exactify() {
+void GrSurfaceProxyPriv::exactify(bool allocatedCaseOnly) {
+    if (fProxy->width() == 1144 && fProxy->height() == 720) {
+        int baz = 0;
+    }
+
+
     SkASSERT(GrSurfaceProxy::LazyState::kFully != fProxy->lazyInstantiationState());
     if (this->isExact()) {
         return;
@@ -410,6 +420,15 @@ void GrSurfaceProxyPriv::exactify() {
         // used for additional draws.
         fProxy->fWidth = fProxy->fTarget->width();
         fProxy->fHeight = fProxy->fTarget->height();
+        return;
+    }
+
+    // In the post-implicit-allocation world we can't convert this proxy to be exact fit
+    // at this point. With explicit allocation switching this to exact will result in a
+    // different allocation at flush time. With implicit allocation, allocation would occur
+    // at draw time (rather than flush time) so this pathway was encountered less often (if
+    // at all).
+    if (allocatedCaseOnly) {
         return;
     }
 

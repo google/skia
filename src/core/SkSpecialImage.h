@@ -119,7 +119,7 @@ public:
      * When the 'subset' parameter is specified the returned image will be tight even if that
      * entails a copy!
      */
-    sk_sp<SkImage> asImage(const SkIRect* subset = nullptr) const;
+    sk_sp<SkImage> asImage(const SkIRect* subset) const;
 
     /**
      *  If the SpecialImage is backed by a gpu texture, return true.
