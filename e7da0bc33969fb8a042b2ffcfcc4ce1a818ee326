@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3cbc16f8_01604eb6",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-08T12:05:45Z",
+      "side": 1,
+      "message": "I figured I\u0027d need to query after I build the blitter, but I didn\u0027t think about the blitFoo() thing possibly making new decisions.\n\nYes, in this case (and drawVertices) colors are *always* bytes, so a custom/simple stage would also work.",
+      "parentUuid": "c9086f3f_1ed6887b",
+      "revId": "e7da0bc33969fb8a042b2ffcfcc4ce1a818ee326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "341cdea4_57604184",
         "filename": "src/core/SkDraw_atlas.cpp",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2019-08-07T22:14:45Z",
       "side": 1,
       "message": "Might be easier to follow if we sink xf down closer to the two places it\u0027s used?  Having a hard time tracking that it\u0027s really just an inner-loop temporary, completely separate in each loop.",
+      "range": {
+        "startLine": 51,
+        "startChar": 4,
+        "endLine": 51,
+        "endChar": 16
+      },
+      "revId": "e7da0bc33969fb8a042b2ffcfcc4ce1a818ee326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff9da953_8c0ad263",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-08T12:05:45Z",
+      "side": 1,
+      "message": "Totally agree. Its up here to share it with the if (false) block :)",
+      "parentUuid": "341cdea4_57604184",
       "range": {
         "startLine": 51,
         "startChar": 4,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "7d88b514_8a17f1f3",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-08T12:05:45Z",
+      "side": 1,
+      "message": "Hmmm, probably should map into dst colorspace. Before I was using the ModeColorFilter...",
+      "parentUuid": "735f1b00_121b6785",
+      "range": {
+        "startLine": 88,
+        "startChar": 2,
+        "endLine": 94,
+        "endChar": 5
+      },
+      "revId": "e7da0bc33969fb8a042b2ffcfcc4ce1a818ee326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b4f3136_968ba56d",
         "filename": "src/core/SkDraw_atlas.cpp",
         "patchSetId": 3
@@ -76,6 +142,30 @@
       "writtenOn": "2019-08-07T22:14:45Z",
       "side": 1,
       "message": "We probably need to update isOpaque to false if p.getAlphaf() !\u003d 1?",
+      "range": {
+        "startLine": 97,
+        "startChar": 8,
+        "endLine": 97,
+        "endChar": 26
+      },
+      "revId": "e7da0bc33969fb8a042b2ffcfcc4ce1a818ee326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7308cc7d_47194779",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-08T12:05:45Z",
+      "side": 1,
+      "message": "I wondered about that. If so, I will update the dox on CreateRasterPipelineBlitter to document what it wants the caller to look at. It has access to the paint itself, so I wasn\u0027t sure if the caller need to do that check.",
+      "parentUuid": "9b4f3136_968ba56d",
       "range": {
         "startLine": 97,
         "startChar": 8,
