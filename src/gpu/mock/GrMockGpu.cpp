@@ -142,18 +142,20 @@ void GrMockGpu::querySampleLocations(GrRenderTarget* rt, SkTArray<SkPoint>* samp
     }
 }
 
-sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                            int renderTargetSampleCnt, SkBudgeted budgeted,
-                                            GrProtected isProtected, const GrMipLevel texels[],
+sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                            const GrBackendFormat& format,
+                                            GrRenderable renderable,
+                                            int renderTargetSampleCnt,
+                                            SkBudgeted budgeted,
+                                            GrProtected isProtected,
+                                            const GrMipLevel texels[],
                                             int mipLevelCount) {
     if (fMockOptions.fFailTextureAllocations) {
         return nullptr;
     }
 
-    GrColorType ct = GrPixelConfigToColorType(desc.fConfig);
-    if (GrColorType::kUnknown == ct) {
-        return nullptr;
-    }
+    GrColorType ct = format.asMockColorType();
+    SkASSERT(ct != GrColorType::kUnknown);
 
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;

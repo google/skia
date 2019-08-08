@@ -144,16 +144,19 @@ static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLeve
     return levelsWithPixelsCnt == mipLevelCount;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, const GrBackendFormat& format,
-                                      GrRenderable renderable, int renderTargetSampleCnt,
-                                      SkBudgeted budgeted, GrProtected isProtected,
-                                      const GrMipLevel texels[], int mipLevelCount) {
+sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
+                                      const GrBackendFormat& format,
+                                      GrRenderable renderable,
+                                      int renderTargetSampleCnt,
+                                      SkBudgeted budgeted,
+                                      GrProtected isProtected,
+                                      const GrMipLevel texels[],
+                                      int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    if (GrPixelConfigIsCompressed(origDesc.fConfig)) {
+    if (this->caps()->isFormatCompressed(format)) {
         // Call GrGpu::createCompressedTexture.
         return nullptr;
     }
-    GrSurfaceDesc desc = origDesc;
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
     if (!this->caps()->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig,
@@ -180,8 +183,14 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, const GrBac
     }
 
     this->handleDirtyContext();
-    sk_sp<GrTexture> tex = this->onCreateTexture(desc, renderable, renderTargetSampleCnt, budgeted,
-                                                 isProtected, texels, mipLevelCount);
+    sk_sp<GrTexture> tex = this->onCreateTexture(desc,
+                                                 format,
+                                                 renderable,
+                                                 renderTargetSampleCnt,
+                                                 budgeted,
+                                                 isProtected,
+                                                 texels,
+                                                 mipLevelCount);
     if (tex) {
         if (!this->caps()->reuseScratchTextures() && renderable == GrRenderable::kNo) {
             tex->resourcePriv().removeScratchKey();
@@ -192,8 +201,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, const GrBac
                 fStats.incTextureUploads();
             }
         }
-        //  TODO: Assert this once format is passed to onCreateTexture().
-        //  SkASSERT(tex->backendFormat() == format);
+        SkASSERT(tex->backendFormat() == format);
     }
     return tex;
 }

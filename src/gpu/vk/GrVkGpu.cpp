@@ -949,12 +949,17 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                          int renderTargetSampleCnt, SkBudgeted budgeted,
-                                          GrProtected isProtected, const GrMipLevel texels[],
+sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                          const GrBackendFormat& format,
+                                          GrRenderable renderable,
+                                          int renderTargetSampleCnt,
+                                          SkBudgeted budgeted,
+                                          GrProtected isProtected,
+                                          const GrMipLevel texels[],
                                           int mipLevelCount) {
     VkFormat pixelFormat;
-    SkAssertResult(GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat));
+    SkAssertResult(format.asVkFormat(&pixelFormat));
+    SkASSERT(!GrVkFormatIsCompressed(pixelFormat));
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     if (renderable == GrRenderable::kYes) {
