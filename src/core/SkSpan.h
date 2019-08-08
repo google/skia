@@ -51,11 +51,10 @@ inline constexpr SkSpan<T> SkMakeSpan(T* p, S s) { return SkSpan<T>{p, SkTo<size
 template <size_t N, typename T>
 inline constexpr SkSpan<T> SkMakeSpan(T(&a)[N]) { return SkSpan<T>{a, N}; }
 
-// This takes a const Container& to create an immutable span.
+// If container is const Container<T>& then create SkSpan<const T> else create SkSpan<T>
 template <typename Container>
-inline auto SkMakeSpan(const Container& c)
+inline auto SkMakeSpan(Container& c)
         -> SkSpan<typename std::remove_reference<decltype(*(c.data()))>::type> {
     return {c.data(), c.size()};
 }
-
 #endif  // SkSpan_DEFINED
