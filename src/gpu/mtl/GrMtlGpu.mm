@@ -391,9 +391,13 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
     return stencil;
 }
 
-sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                           int renderTargetSampleCnt, SkBudgeted budgeted,
-                                           GrProtected isProtected, const GrMipLevel texels[],
+sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                           const GrBackendFormat& format,
+                                           GrRenderable renderable,
+                                           int renderTargetSampleCnt,
+                                           SkBudgeted budgeted,
+                                           GrProtected isProtected,
+                                           const GrMipLevel texels[],
                                            int mipLevelCount) {
     // We don't support protected textures in Metal.
     if (isProtected == GrProtected::kYes) {
@@ -401,17 +405,9 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderab
     }
     int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
 
-    if (!fMtlCaps->isConfigTexturable(desc.fConfig)) {
-        return nullptr;
-    }
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
-        return nullptr;
-    }
-
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        return nullptr; // TODO: add compressed texture support
-    }
+    MTLPixelFormat mtlPixelFormat = GrBackendFormatAsMTLPixelFormat(format);
+    SkASSERT(mtlPixelFormat != MTLPixelFormatInvalid);
+    SkASSERT(!this->caps()->isFormatCompressed(format));
 
     sk_sp<GrMtlTexture> tex;
     // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
@@ -419,7 +415,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderab
     // set to 1.
     MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
     texDesc.textureType = MTLTextureType2D;
-    texDesc.pixelFormat = format;
+    texDesc.pixelFormat = mtlPixelFormat;
     texDesc.width = desc.fWidth;
     texDesc.height = desc.fHeight;
     texDesc.depth = 1;
