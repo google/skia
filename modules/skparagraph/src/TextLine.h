@@ -50,7 +50,6 @@ public:
     SkScalar alphabeticBaseline() const { return fSizes.alphabeticBaseline(); }
     SkScalar ideographicBaseline() const { return fSizes.ideographicBaseline(); }
     SkScalar baseline() const { return fSizes.baseline(); }
-    SkScalar roundingDelta() const { return fSizes.delta(); }
 
     using StyleVisitor = std::function<SkScalar(TextRange textRange, const TextStyle& style,
                                                 SkScalar offsetX)>;
@@ -78,6 +77,9 @@ public:
     void scanRuns(const RunVisitor& visitor);
 
     TextAlign assumedTextAlign() const;
+
+    void setMaxRunMetrics(const LineMetrics& metrics) { fMaxRunMetrics = metrics; }
+    LineMetrics getMaxRunMetrics() const { return fMaxRunMetrics; }
 
 private:
 
@@ -119,13 +121,11 @@ private:
     SkScalar fShift;                    // Left right
     SkScalar fWidthWithSpaces;
     std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
-    LineMetrics fSizes;                 // Line metrics as a max of all run metrics
+    LineMetrics fSizes;                 // Line metrics as a max of all run metrics and struts
+    LineMetrics fMaxRunMetrics;         // No struts - need it for GetRectForRange(max height)
     bool fHasBackground;
     bool fHasShadows;
     bool fHasDecorations;
-
-    // TODO: use for ellipsis the common cache
-    static SkTHashMap<SkFont, Run> fEllipsisCache;  // All found so far shapes of ellipsis
 };
 }  // namespace textlayout
 }  // namespace skia

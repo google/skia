@@ -28,8 +28,6 @@ TextRange intersected(const TextRange& a, const TextRange& b) {
     return end >= begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
-SkTHashMap<SkFont, Run> TextLine::fEllipsisCache;
-
 TextLine::TextLine(ParagraphImpl* master,
                    SkVector offset,
                    SkVector advance,
@@ -63,6 +61,9 @@ TextLine::TextLine(ParagraphImpl* master,
 
     for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
         auto b = fMaster->styles().begin() + index;
+        if (b->fStyle.isPlaceholder()) {
+            continue;
+        }
         if (b->fStyle.hasBackground()) {
             fHasBackground = true;
         }
@@ -195,6 +196,9 @@ SkScalar TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextSt
     return this->iterateThroughRuns(
         textRange, offsetX, false,
         [canvas, paint, shiftDown](Run* run, int32_t pos, size_t size, TextRange, SkRect clip, SkScalar shift, bool clippingNeeded) {
+            if (run->placeholderStyle() != nullptr) {
+                return true;
+            }
             SkTextBlobBuilder builder;
             run->copyTo(builder, SkToU32(pos), size, SkVector::Make(0, shiftDown));
             canvas->save();
@@ -462,13 +466,9 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
             }
 
             // Shape the ellipsis
-            Run* cached = fEllipsisCache.find(cluster->font());
-            if (cached == nullptr) {
-                cached = shapeEllipsis(ellipsis, cluster->run());
-            } else {
-                cached->setMaster(fMaster);
-            }
-            fEllipsis = std::make_shared<Run>(*cached);
+            Run* run = shapeEllipsis(ellipsis, cluster->run());
+            run->setMaster(fMaster);
+            fEllipsis = std::make_shared<Run>(*run);
 
             // See if it fits
             if (width + fEllipsis->advance().fX > maxWidth) {
@@ -499,14 +499,14 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
         void commitRunInfo() override {}
 
         Buffer runBuffer(const RunInfo& info) override {
-            fRun = fEllipsisCache.set(info.fFont,
-                                      Run(nullptr, info, fLineHeight, 0, 0));
+            fRun = new  Run(nullptr, info, 0, fLineHeight, 0, 0);
             return fRun->newRunBuffer();
         }
 
         void commitRunBuffer(const RunInfo& info) override {
             fRun->fAdvance.fX = info.fAdvance.fX;
             fRun->fAdvance.fY = fRun->advance().fY;
+            fRun->fPlaceholderStyle = nullptr;
         }
 
         void commitLine() override {}
@@ -530,6 +530,15 @@ SkRect TextLine::measureTextInsideOneRun(
         TextRange textRange, Run* run, size_t& pos, size_t& size, bool includeGhostSpaces, bool& clippingNeeded) const {
 
     SkASSERT(intersectedSize(run->textRange(), textRange) >= 0);
+
+    if (run->placeholderStyle() != nullptr) {
+        SkASSERT(textRange == run->textRange());
+        pos = 0;
+        size = 1;
+        clippingNeeded = false;
+        return SkRect::MakeXYWH(
+                0, sizes().runTop(run), run->calculateWidth(0, 1, false), run->calculateHeight());
+    }
 
     // Find [start:end] clusters for the text
     bool found;
@@ -568,8 +577,6 @@ SkRect TextLine::measureTextInsideOneRun(
     clip.fLeft += leftCorrection;
     clip.fRight -= rightCorrection;
     clippingNeeded = leftCorrection != 0 || rightCorrection != 0;
-
-    // SkDebugf("measureTextInsideOneRun: '%s'[%d:%d]\n", text.begin(), pos, pos + size);
 
     return clip;
 }
@@ -730,13 +737,13 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
             }
         }
 
-        auto* style = &block->fStyle;
-        if (start != EMPTY_INDEX && style->matchOneAttribute(styleType, *prevStyle)) {
+        auto& style = block->fStyle;
+        if (start != EMPTY_INDEX && style.matchOneAttribute(styleType, *prevStyle)) {
             size += intersect.width();
             continue;
         } else if (start == EMPTY_INDEX ) {
             // First time only
-            prevStyle = style;
+            prevStyle = &style;
             size = intersect.width();
             start = intersect.start;
             continue;
@@ -746,7 +753,7 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
         offsetX += width;
 
         // Start all over again
-        prevStyle = style;
+        prevStyle = &style;
         start = intersect.start;
         size = intersect.width();
     }
