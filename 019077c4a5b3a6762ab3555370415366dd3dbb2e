@@ -22,6 +22,30 @@
       "revId": "019077c4a5b3a6762ab3555370415366dd3dbb2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21c74121_c1c0d215",
+        "filename": "include/private/SkBitmaskEnum.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-08T02:06:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3751c7e4_d8a36bf3",
+      "range": {
+        "startLine": 16,
+        "startChar": 11,
+        "endLine": 16,
+        "endChar": 74
+      },
+      "revId": "019077c4a5b3a6762ab3555370415366dd3dbb2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
