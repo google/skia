@@ -676,8 +676,8 @@ static bool check_backend_texture(const GrBackendTexture& backendTex, const GrCo
         if (!caps.shaderCaps()->externalTextureSupport()) {
             return false;
         }
-    } else if (GR_GL_TEXTURE_RECTANGLE == desc->fTarget && !skipRectTexSupportCheck) {
-        if (!caps.rectangleTextureSupport()) {
+    } else if (GR_GL_TEXTURE_RECTANGLE == desc->fTarget) {
+        if (!caps.rectangleTextureSupport() && !skipRectTexSupportCheck) {
             return false;
         }
     } else if (GR_GL_TEXTURE_2D != desc->fTarget) {
