@@ -84,31 +84,11 @@ GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
     }
 }
 
-const GrGLenum* GrBackendFormat::getGLFormat() const {
+GrGLFormat GrBackendFormat::asGLFormat() const {
     if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
-        return &fGLFormat;
+        return GrGLFormatFromGLEnum(fGLFormat);
     }
-    return nullptr;
-}
-
-const GrGLenum* GrBackendFormat::getGLTarget() const {
-    if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
-        static constexpr GrGLenum kNone = GR_GL_TEXTURE_NONE;
-        static constexpr GrGLenum k2D = GR_GL_TEXTURE_2D;
-        static constexpr GrGLenum kRect = GR_GL_TEXTURE_RECTANGLE;
-        static constexpr GrGLenum kExternal = GR_GL_TEXTURE_EXTERNAL;
-        switch (fTextureType) {
-            case GrTextureType::kNone:
-                return &kNone;
-            case GrTextureType::k2D:
-                return &k2D;
-            case GrTextureType::kRectangle:
-                return &kRect;
-            case GrTextureType::kExternal:
-                return &kExternal;
-        }
-    }
-    return nullptr;
+    return GrGLFormat::kUnknown;
 }
 
 GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo) {
@@ -134,11 +114,13 @@ GrBackendFormat::GrBackendFormat(VkFormat vkFormat, const GrVkYcbcrConversionInf
     }
 }
 
-const VkFormat* GrBackendFormat::getVkFormat() const {
+bool GrBackendFormat::asVkFormat(VkFormat* format) const {
+    SkASSERT(format);
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
-        return &fVk.fFormat;
+        *format = fVk.fFormat;
+        return true;
     }
-    return nullptr;
+    return false;
 }
 
 const GrVkYcbcrConversionInfo* GrBackendFormat::getVkYcbcrConversionInfo() const {
@@ -156,11 +138,13 @@ GrBackendFormat::GrBackendFormat(dawn::TextureFormat format)
         , fTextureType(GrTextureType::k2D) {
 }
 
-const dawn::TextureFormat* GrBackendFormat::getDawnFormat() const {
+bool GrBackendFormat::asDawnFormat(dawn::TextureFormat* format) const {
+    SkASSERT(format);
     if (this->isValid() && GrBackendApi::kDawn == fBackend) {
-        return &fDawnFormat;
+        *format = fDawnFormat;
+        return true;
     }
-    return nullptr;
+    return false;
 }
 #endif
 
@@ -172,11 +156,12 @@ GrBackendFormat::GrBackendFormat(GrMTLPixelFormat mtlFormat)
         , fTextureType(GrTextureType::k2D) {
 }
 
-const GrMTLPixelFormat* GrBackendFormat::getMtlFormat() const {
+GrMTLPixelFormat GrBackendFormat::asMtlFormat() const {
     if (this->isValid() && GrBackendApi::kMetal == fBackend) {
-        return &fMtlFormat;
+        return fMtlFormat;
     }
-    return nullptr;
+    // MTLPixelFormatInvalid == 0
+    return GrMTLPixelFormat(0);
 }
 #endif
 
@@ -187,11 +172,11 @@ GrBackendFormat::GrBackendFormat(GrColorType colorType)
     fMockColorType = colorType;
 }
 
-const GrColorType* GrBackendFormat::getMockColorType() const {
+GrColorType GrBackendFormat::asMockColorType() const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
-        return &fMockColorType;
+        return fMockColorType;
     }
-    return nullptr;
+    return GrColorType::kUnknown;
 }
 
 GrBackendFormat GrBackendFormat::makeTexture2D() const {

@@ -1064,30 +1064,31 @@ void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
 }
 
 bool GrVkCaps::isFormatSRGB(const GrBackendFormat& format) const {
-    if (!format.getVkFormat()) {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
         return false;
     }
 
-    return format_is_srgb(*format.getVkFormat());
+    return format_is_srgb(vkFormat);
 }
 
 bool GrVkCaps::isFormatCompressed(const GrBackendFormat& format) const {
-    if (!format.getVkFormat()) {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
         return false;
     }
 
-    VkFormat vkFormat = *format.getVkFormat();
     SkASSERT(GrVkFormatIsSupported(vkFormat));
 
     return vkFormat == VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
 }
 
 bool GrVkCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format) const {
-    if (!format.getVkFormat()) {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
         return false;
     }
 
-    VkFormat vkFormat = *format.getVkFormat();
     uint32_t ctFlags = this->getFormatInfo(vkFormat).colorTypeFlags(ct);
     return this->isVkFormatTexturable(vkFormat) &&
            SkToBool(ctFlags & ColorTypeInfo::kUploadData_Flag);
@@ -1114,8 +1115,10 @@ bool GrVkCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendForm
     if (!this->isFormatRenderable(format, sampleCount)) {
         return false;
     }
-    SkASSERT(format.getVkFormat());
-    VkFormat vkFormat = *format.getVkFormat();
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
+        return false;
+    }
     const auto& info = this->getFormatInfo(vkFormat);
     if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
         return false;
@@ -1124,10 +1127,10 @@ bool GrVkCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendForm
 }
 
 bool GrVkCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount) const {
-    if (!format.getVkFormat()) {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
         return false;
     }
-    VkFormat vkFormat = *format.getVkFormat();
     return this->isFormatRenderable(vkFormat, sampleCount);
 }
 
@@ -1139,10 +1142,8 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount,
                                          GrColorType colorType,
                                          const GrBackendFormat& format) const {
     VkFormat vkFormat;
-    if (const auto* temp = format.getVkFormat()) {
-        vkFormat = *temp;
-    } else {
-        return 0;
+    if (!format.asVkFormat(&vkFormat)) {
+        return false;
     }
 
     // Currently we don't allow RGB_888X to be renderable with R8G8B8A8_UNORM because we don't have
@@ -1156,7 +1157,7 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount,
         return 0;
     }
 
-    return this->getRenderTargetSampleCount(requestedCount, *format.getVkFormat());
+    return this->getRenderTargetSampleCount(requestedCount, vkFormat);
 }
 
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
@@ -1202,11 +1203,11 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) co
 }
 
 int GrVkCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const {
-    if (!format.getVkFormat()) {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
         return 0;
     }
-
-    return this->maxRenderTargetSampleCount(*format.getVkFormat());
+    return this->maxRenderTargetSampleCount(vkFormat);
 }
 
 int GrVkCaps::maxRenderTargetSampleCount(VkFormat format) const {
@@ -1233,15 +1234,15 @@ static inline size_t align_to_4(size_t v) {
 GrCaps::SupportedWrite GrVkCaps::supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                                const GrBackendFormat& surfaceFormat,
                                                                GrColorType srcColorType) const {
-    const VkFormat* vkFormat = surfaceFormat.getVkFormat();
-    if (!vkFormat) {
+    VkFormat vkFormat;
+    if (!surfaceFormat.asVkFormat(&vkFormat)) {
         return {GrColorType::kUnknown, 0};
     }
 
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
-    size_t offsetAlignment = align_to_4(GrVkBytesPerFormat(*vkFormat));
+    size_t offsetAlignment = align_to_4(GrVkBytesPerFormat(vkFormat));
 
-    const auto& info = this->getFormatInfo(*vkFormat);
+    const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == surfaceColorType) {
@@ -1413,34 +1414,38 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
 
 bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                  const GrBackendFormat& format) const {
-    const VkFormat* vkFormat = format.getVkFormat();
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
+        return false;
+    }
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
     if (!vkFormat || !ycbcrInfo) {
         return false;
     }
 
-    return kUnknown_GrPixelConfig != validate_image_info(*vkFormat, ct, ycbcrInfo->isValid());
+    return kUnknown_GrPixelConfig != validate_image_info(vkFormat, ct, ycbcrInfo->isValid());
 }
 
 
 GrPixelConfig GrVkCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                      GrColorType ct) const {
-    const VkFormat* vkFormat = format.getVkFormat();
-    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
-    if (!vkFormat || !ycbcrInfo) {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
         return kUnknown_GrPixelConfig;
     }
-    return validate_image_info(*vkFormat, ct, ycbcrInfo->isValid());
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    SkASSERT(ycbcrInfo);
+    return validate_image_info(vkFormat, ct, ycbcrInfo->isValid());
 }
 
 GrColorType GrVkCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
                                                         bool isAlphaChannel) const {
-    const VkFormat* vkFormat = format.getVkFormat();
-    if (!vkFormat) {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
         return GrColorType::kUnknown;
     }
 
-    switch (*vkFormat) {
+    switch (vkFormat) {
         case VK_FORMAT_R8_UNORM:                 return isAlphaChannel ? GrColorType::kAlpha_8
                                                                        : GrColorType::kGray_8;
         case VK_FORMAT_R8G8B8A8_UNORM:           return GrColorType::kRGBA_8888;
@@ -1485,8 +1490,8 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
 bool GrVkCaps::canClearTextureOnCreation() const { return true; }
 
 GrSwizzle GrVkCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    SkASSERT(format.getVkFormat());
-    VkFormat vkFormat = *format.getVkFormat();
+    VkFormat vkFormat;
+    SkAssertResult(format.asVkFormat(&vkFormat));
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
@@ -1498,8 +1503,8 @@ GrSwizzle GrVkCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType
 }
 
 GrSwizzle GrVkCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    SkASSERT(format.getVkFormat());
-    VkFormat vkFormat = *format.getVkFormat();
+    VkFormat vkFormat;
+    SkAssertResult(format.asVkFormat(&vkFormat));
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
@@ -1513,15 +1518,15 @@ GrSwizzle GrVkCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType 
 GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {
-    const VkFormat* vkFormat = srcBackendFormat.getVkFormat();
-    if (!vkFormat) {
+    VkFormat vkFormat;
+    if (!srcBackendFormat.asVkFormat(&vkFormat)) {
         return {GrColorType::kUnknown, 0};
     }
 
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
-    size_t offsetAlignment = align_to_4(GrVkBytesPerFormat(*vkFormat));
+    size_t offsetAlignment = align_to_4(GrVkBytesPerFormat(vkFormat));
 
-    const auto& info = this->getFormatInfo(*vkFormat);
+    const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == srcColorType) {
