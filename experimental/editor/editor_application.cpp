@@ -78,6 +78,7 @@ struct Timer {
 struct EditorLayer : public sk_app::Window::Layer {
     SkString fPath;
     sk_app::Window* fParent = nullptr;
+    // TODO(halcanary): implement a cross-platform clipboard interface.
     std::vector<char> fClipboard;
     editor::Editor fEditor;
     editor::Editor::TextPosition fTextPos{0, 0};
@@ -88,6 +89,7 @@ struct EditorLayer : public sk_app::Window::Layer {
     int fMargin = 10;
     bool fShiftDown = false;
     bool fBlink = false;
+    bool fMouseDown = false;
 
     void loadFile(const char* path) {
         if (sk_sp<SkData> data = SkData::MakeFromFileName(path)) {
@@ -153,8 +155,6 @@ struct EditorLayer : public sk_app::Window::Layer {
         return true;
     }
 
-    bool fMouseDown = false;
-
     bool onMouse(int x, int y, InputState state, ModifierKey modifiers) override {
         bool mouseDown = InputState::kDown == state;
         if (mouseDown) {
@@ -211,8 +211,7 @@ struct EditorLayer : public sk_app::Window::Layer {
                     if (fMarkPos != editor::Editor::TextPosition()) {
                         fClipboard.resize(fEditor.copy(fMarkPos, fTextPos, nullptr));
                         fEditor.copy(fMarkPos, fTextPos, fClipboard.data());
-                        fTextPos = fEditor.remove(fMarkPos, fTextPos);
-                        fMarkPos = editor::Editor::TextPosition();
+                        (void)this->move(fEditor.remove(fMarkPos, fTextPos), false);
                         this->inval();
                         return true;
                     }
@@ -236,6 +235,9 @@ struct EditorLayer : public sk_app::Window::Layer {
 
     bool move(editor::Editor::TextPosition pos, bool shift) {
         if (pos == fTextPos || pos == editor::Editor::TextPosition()) {
+            if (!shift) {
+                fMarkPos = editor::Editor::TextPosition();
+            }
             return false;
         }
         if (shift != fShiftDown) {
@@ -283,23 +285,19 @@ struct EditorLayer : public sk_app::Window::Layer {
                     return this->moveCursor(convert(key), shift);
                 case sk_app::Window::Key::kDelete:
                     if (fMarkPos != editor::Editor::TextPosition()) {
-                        fTextPos = fEditor.remove(fMarkPos, fTextPos);
-                        fMarkPos = editor::Editor::TextPosition();
+                        (void)this->move(fEditor.remove(fMarkPos, fTextPos), false);
                     } else {
-                        fTextPos = fEditor.remove(fTextPos,
-                                                  fEditor.move(editor::Editor::Movement::kRight,
-                                                               fTextPos));
+                        auto pos = fEditor.move(editor::Editor::Movement::kRight, fTextPos);
+                        (void)this->move(fEditor.remove(fTextPos, pos), false);
                     }
                     this->inval();
                     return true;
                 case sk_app::Window::Key::kBack:
                     if (fMarkPos != editor::Editor::TextPosition()) {
-                        fTextPos = fEditor.remove(fMarkPos, fTextPos);
-                        fMarkPos = editor::Editor::TextPosition();
+                        (void)this->move(fEditor.remove(fMarkPos, fTextPos), false);
                     } else {
-                        fTextPos = fEditor.remove(fTextPos,
-                                                  fEditor.move(editor::Editor::Movement::kLeft,
-                                                               fTextPos));
+                        auto pos = fEditor.move(editor::Editor::Movement::kLeft, fTextPos);
+                        (void)this->move(fEditor.remove(fTextPos, pos), false);
                     }
                     this->inval();
                     return true;
