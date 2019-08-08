@@ -44,9 +44,9 @@ namespace {
     }
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
-    #if defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS) && defined(__arm)
-        // Some troublemaker build configurations (so far G3/iOS/armv7) don't support
-        // thread_local.  We could use an SkSpinlock and tryAcquire()/release(), or...
+    #if defined(SK_BUILD_FOR_IOS) && defined(__arm)
+        // Some troublemaker build configurations (so far {Flutter,G3}/iOS/armv7) don't
+        // support thread_local.  We could use an SkSpinlock and tryAcquire()/release(), or...
         return nullptr;  // ... we could just not cache programs on those platforms.
     #else
         thread_local static auto* cache = new SkLRUCache<Key, skvm::Program>{8};
