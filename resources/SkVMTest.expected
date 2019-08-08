@@ -229,29 +229,29 @@ G8 over G8
   v20 = to_i32 v19
   store8 arg(1) v20
 
-10 registers, 21 instructions:
+9 registers, 21 instructions:
 r0 = splat 3B808081 (0.0039215689)
 r1 = splat 3F800000 (1)
-r2 = sub_f32 r1 r1
-r3 = splat 3E59B3D0 (0.21259999)
-r4 = splat 3F371759 (0.71520001)
-r5 = splat 3D93DD98 (0.0722)
-r6 = splat 437F0000 (255)
-r7 = splat 3F000000 (0.5)
+r1 = sub_f32 r1 r1
+r2 = splat 3E59B3D0 (0.21259999)
+r3 = splat 3F371759 (0.71520001)
+r4 = splat 3D93DD98 (0.0722)
+r5 = splat 437F0000 (255)
+r6 = splat 3F000000 (0.5)
 loop:
-r8 = load8 arg(0)
+r7 = load8 arg(0)
+r7 = to_f32 r7
+r7 = mul_f32 r0 r7
+r8 = load8 arg(1)
 r8 = to_f32 r8
 r8 = mul_f32 r0 r8
-r9 = load8 arg(1)
-r9 = to_f32 r9
-r9 = mul_f32 r0 r9
-r8 = mad_f32 r9 r2 r8
-r9 = mul_f32 r8 r5
-r9 = mad_f32 r8 r4 r9
-r9 = mad_f32 r8 r3 r9
-r9 = mad_f32 r9 r6 r7
-r9 = to_i32 r9
-store8 arg(1) r9
+r7 = mad_f32 r8 r1 r7
+r8 = mul_f32 r7 r4
+r8 = mad_f32 r7 r3 r8
+r8 = mad_f32 r7 r2 r8
+r8 = mad_f32 r8 r5 r6
+r8 = to_i32 r8
+store8 arg(1) r8
 
 G8 over RGBA_8888
 38 values:
@@ -728,4 +728,21 @@ r3 = bit_clear r3 r1
 r3 = bit_or r5 r3
 r3 = add_i32 r2 r3
 store32 arg(1) r3
+
+6 values:
+↑ v0 = splat 1 (1.4012985e-45)
+↑ v1 = splat 2 (2.8025969e-45)
+↑ v2 = add_i32 v0 v1
+  v3 = load32 arg(0)
+  v4 = mul_i32 v3 v2
+  store32 arg(0) v4
+
+2 registers, 6 instructions:
+r0 = splat 1 (1.4012985e-45)
+r1 = splat 2 (2.8025969e-45)
+r1 = add_i32 r0 r1
+loop:
+r0 = load32 arg(0)
+r0 = mul_i32 r0 r1
+store32 arg(0) r0
 
