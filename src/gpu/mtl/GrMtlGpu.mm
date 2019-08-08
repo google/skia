@@ -727,8 +727,8 @@ GrBackendTexture GrMtlGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();
     }
 
-    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
-    if (!mtlFormat) {
+    const GrMTLPixelFormat mtlFormat = format.asMtlFormat();
+    if (mtlFormat == MTLPixelFormatInvalid) {
         return GrBackendTexture();
     }
 
