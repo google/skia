@@ -1429,6 +1429,7 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
 }
 
 sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                          const GrBackendFormat& format,
                                           GrRenderable renderable,
                                           int renderTargetSampleCnt,
                                           SkBudgeted budgeted,
@@ -1441,19 +1442,17 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     }
     SkASSERT(GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType() || renderTargetSampleCnt == 1);
 
-    GrGLenum glFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
 
     GrMipMapsStatus mipMapsStatus;
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc texDesc;
     texDesc.fSize = {desc.fWidth, desc.fHeight};
     texDesc.fTarget = GR_GL_TEXTURE_2D;
-    texDesc.fFormat = GrGLFormatFromGLEnum(glFormat);
+    texDesc.fFormat = format.asGLFormat();
     texDesc.fConfig = desc.fConfig;
     texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
-    if (texDesc.fFormat == GrGLFormat::kUnknown) {
-        return nullptr;
-    }
+    SkASSERT(texDesc.fFormat != GrGLFormat::kUnknown);
+    SkASSERT(!GrGLFormatIsCompressed(texDesc.fFormat));
 
     // TODO: Take these as parameters.
     auto textureColorType = GrPixelConfigToColorType(desc.fConfig);
@@ -1700,7 +1699,9 @@ GrGLuint GrGLGpu::createTexture2D(const SkISize& size,
                                   const GrMipLevel texels[],
                                   int mipLevelCount,
                                   GrMipMapsStatus* mipMapsStatus) {
+    SkASSERT(format != GrGLFormat::kUnknown);
     SkASSERT(!GrGLFormatIsCompressed(format));
+
     GrGLuint id = 0;
     GL_CALL(GenTextures(1, &id));
 

@@ -541,9 +541,13 @@ private:
     // overridden by backend-specific derived class to create objects.
     // Texture size and sample size will have already been validated in base class before
     // onCreateTexture is called.
-    virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, GrRenderable,
-                                             int renderTargetSampleCnt, SkBudgeted, GrProtected,
-                                             const GrMipLevel[], int mipLevelCount) = 0;
+    virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
+                                             const GrBackendFormat&,
+                                             GrRenderable,
+                                             int renderTargetSampleCnt,
+                                             SkBudgeted, GrProtected,
+                                             const GrMipLevel[],
+                                             int mipLevelCount) = 0;
     virtual sk_sp<GrTexture> onCreateCompressedTexture(int width, int height,
                                                        SkImage::CompressionType, SkBudgeted,
                                                        const void* data) = 0;

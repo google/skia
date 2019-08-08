@@ -107,9 +107,13 @@ bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                            int renderTargetSampleCnt, SkBudgeted budgeted,
-                                            GrProtected, const GrMipLevel texels[],
+sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                            const GrBackendFormat& format,
+                                            GrRenderable renderable,
+                                            int renderTargetSampleCnt,
+                                            SkBudgeted budgeted,
+                                            GrProtected,
+                                            const GrMipLevel texels[],
                                             int mipLevelCount) {
     SkASSERT(!"unimplemented");
     return nullptr;
