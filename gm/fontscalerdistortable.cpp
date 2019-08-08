@@ -34,7 +34,7 @@ public:
         this->setBGColor(0xFFFFFFFF);
     }
 
-protected:
+private:
 
     SkString onShortName() override {
         return SkString("fontscalerdistortable");
@@ -61,17 +61,22 @@ protected:
         const char* text = "abc";
         const size_t textLen = strlen(text);
 
-        for (int j = 0; j < 2; ++j) {
-            for (int i = 0; i < 5; ++i) {
+        SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
+        constexpr SkScalar tagMin = 0.5f;
+        constexpr SkScalar tagMax = 2.0f;
+        constexpr int rows = 2;
+        constexpr int cols = 5;
+        for (int row = 0; row < rows; ++row) {
+            for (int col = 0; col < cols; ++col) {
                 SkScalar x = SkIntToScalar(10);
                 SkScalar y = SkIntToScalar(20);
 
-                SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
-                SkScalar styleValue = SkDoubleToScalar(0.5 + (5 * j + i) * ((2.0 - 0.5) / (2 * 5)));
+                SkScalar styleValue = SkScalarInterp(tagMin, tagMax,
+                                                     SkScalar(row * cols + col) / (rows * cols));
                 SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
                 SkFontArguments::VariationPosition position =
                         { coordinates, SK_ARRAY_COUNT(coordinates) };
-                if (j == 0 && distortable) {
+                if (row == 0 && distortable) {
                     sk_sp<SkTypeface> clone = distortable->makeClone(
                             SkFontArguments().setVariationDesignPosition(position));
                     font.setTypeface(clone ? std::move(clone) : distortable);
@@ -82,8 +87,8 @@ protected:
                 }
 
                 SkAutoCanvasRestore acr(canvas, true);
-                canvas->translate(SkIntToScalar(30 + i * 100), SkIntToScalar(20));
-                canvas->rotate(SkIntToScalar(i * 5), x, y * 10);
+                canvas->translate(SkIntToScalar(30 + col * 100), SkIntToScalar(20));
+                canvas->rotate(SkIntToScalar(col * 5), x, y * 10);
 
                 {
                     SkPaint p;
@@ -106,9 +111,6 @@ protected:
         }
         return DrawResult::kOk;
     }
-
-private:
-    typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
