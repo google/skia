@@ -442,14 +442,11 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                          || glyph.maskFormat() == SkMask::kSDF_Format
                          || glyph.isColor());
 
-                if (glyph.isEmpty()) {
-                    // do nothing
-                } else if (glyph.maskFormat() == SkMask::kSDF_Format
+                if (glyph.maskFormat() == SkMask::kSDF_Format
                            && glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
                     // SDF mask will work.
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (!glyph.isColor()
-                           && glyph.path() != nullptr) {
+                } else if (!glyph.isColor() && glyph.path() != nullptr) {
                     // If not color but too big, use a path.
                     fPaths.push_back(glyphPos);
                 } else {
@@ -485,7 +482,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                                           runPaint, runFont, viewMatrix, process);
             }
         } else if (SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
-
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                             runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
@@ -512,10 +508,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             for (const SkGlyphPos& glyphPos : glyphPosSpan) {
                 const SkGlyph& glyph = *glyphPos.glyph;
                 SkPoint position = glyphPos.position;
-                if (glyph.isEmpty()) {
-                    // do nothing
-                } else if (!glyph.isColor()
-                           && glyph.path() != nullptr) {
+                if (!glyph.isColor() && glyph.path() != nullptr) {
                     // Place paths in fGlyphPos
                     fGlyphPos[glyphsWithPathCount++] = glyphPos;
                 } else {
@@ -537,7 +530,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                                           runPaint, runFont, viewMatrix, process);
             }
         } else {
-
             SkStrikeSpec strikeSpec =
                     SkStrikeSpec::MakeMask(runFont, runPaint,
                             fDeviceProps, fScalerContextFlags, viewMatrix);
@@ -554,7 +546,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fPositions,
                     fPackedGlyphIDs);
 
-            // Lookup all the glyphs from the cache.
+            // Lookup all the glyphs from the cache. Strip empty glyphs.
             SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
                     packedGlyphIDs.data(),
                     fPositions,
@@ -569,15 +561,12 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 const SkGlyph& glyph = *glyphPos.glyph;
                 const SkPoint position = glyphPos.position;
 
-                // Able to position glyph?
+                // Does the glyph have work to do or is the code able to position the glyph?
                 if (!SkScalarsAreFinite(position.x(), position.y())) {
-                    continue;
-                }
-
-                if (glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
+                    // Do nothing;
+                } else if (glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (!glyph.isColor()
-                           && glyph.path() != nullptr) {
+                } else if (!glyph.isColor() && glyph.path() != nullptr) {
                     fPaths.push_back(glyphPos);
                 } else {
                     addFallback(glyph, origin + glyphRun.positions()[glyphPos.index]);
