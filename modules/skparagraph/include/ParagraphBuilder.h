@@ -46,6 +46,11 @@ public:
     // Converts to u16string before adding.
     virtual void addText(const char* text) = 0;
 
+    // Pushes the information required to leave an open space, where Flutter may
+    // draw a custom placeholder into.
+    // Internally, this method adds a single object replacement character (0xFFFC)
+    virtual void addPlaceholder(const PlaceholderStyle& placeholderStyle) = 0;
+
     virtual void setParagraphStyle(const ParagraphStyle& style) = 0;
 
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.

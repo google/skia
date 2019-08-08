@@ -19,26 +19,22 @@ namespace textlayout {
 class FontIterator final : public SkShaper::FontRunIterator {
 public:
     FontIterator(SkSpan<const char> utf8, FontResolver* fontResolver)
-        : fText(utf8), fCurrentChar(utf8.begin()), fFontResolver(fontResolver) {
-    }
+        : fText(utf8), fCurrentChar(utf8.begin()), fFontResolver(fontResolver) { }
 
     void consume() override {
+
         SkASSERT(fCurrentChar < fText.end());
-        auto found = fFontResolver->findNext(fCurrentChar, &fFont, &fLineHeight);
-        SkASSERT(found);
-        if (!found) {
-            fCurrentChar = fText.end();
-            return;
-        }
+        fFontResolver->findNext(fCurrentChar, &fFont, &fLineHeight);
+
         // Move until we find the first character that cannot be resolved with the current font
         while (++fCurrentChar != fText.end()) {
             SkFont font;
             SkScalar height;
             if (fFontResolver->findNext(fCurrentChar, &font, &height)) {
-                  if (fFont == font && fLineHeight == height) {
-                      continue;
-                  }
-              break;
+                if (fFont == font && fLineHeight == height) {
+                    continue;
+                }
+                break;
             }
         }
     }
@@ -76,7 +72,7 @@ public:
 
         fCurrentChar = fText.begin() + fCurrentStyle->fRange.end;
         fCurrentLocale = fCurrentStyle->fStyle.getLocale();
-        while (++fCurrentStyle != fTextStyles.end()) {
+        while (++fCurrentStyle != fTextStyles.end() && !fCurrentStyle->fStyle.isPlaceholder()) {
             if (fCurrentStyle->fStyle.getLocale() != fCurrentLocale) {
                 break;
             }
@@ -85,7 +81,7 @@ public:
     }
 
     size_t endOfCurrentRun() const override { return fCurrentChar - fText.begin(); }
-    bool atEnd() const override { return fCurrentChar == fText.end(); }
+    bool atEnd() const override { return fCurrentChar >= fText.end(); }
     const char* currentLanguage() const override { return fCurrentLocale.c_str(); }
 
 private:
