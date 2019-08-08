@@ -49,6 +49,8 @@ void GrResourceAllocator::markEndOfOpList(int opListIndex) {
 }
 
 GrResourceAllocator::~GrResourceAllocator() {
+    const GrCacheState* tmp = fResourceProvider->getCacheState(fID, "after");
+    tmp->dump();
     SkASSERT(fIntvlList.empty());
     SkASSERT(fActiveIntvls.empty());
     SkASSERT(!fIntvlHash.count());
