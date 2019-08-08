@@ -11,36 +11,6 @@
 #ifndef GrGLTypesPriv_DEFINED
 #define GrGLTypesPriv_DEFINED
 
-// These are the GL formats we support represented as an enum. The naming convention is to use the
-// GL format enum name with "k" substituted for the initial "GL_".
-enum class GrGLFormat {
-    kUnknown,
-
-    kRGBA8,
-    kR8,
-    kALPHA8,
-    kLUMINANCE8,
-    kBGRA8,
-    kRGB565,
-    kRGBA16F,
-    kR16F,
-    kRGB8,
-    kRG8,
-    kRGB10_A2,
-    kRGBA4,
-    kRGBA32F,
-    kSRGB8_ALPHA8,
-    kCOMPRESSED_RGB8_ETC2,
-    kCOMPRESSED_ETC1_RGB8,
-    kR16,
-    kRG16,
-    kRGBA16,
-    kRG16F,
-    kLUMINANCE16F,
-
-    kLast = kLUMINANCE16F
-};
-
 static constexpr int kGrGLFormatCount = static_cast<int>(GrGLFormat::kLast) + 1;
 
 class GrGLTextureParameters : public SkNVRefCnt<GrGLTextureParameters> {
