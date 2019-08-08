@@ -22,7 +22,7 @@ sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
 
-ANDROID_COMPILE_BUCKET = 'android-compile-tasks'
+ANDROID_COMPILE_BUCKET = 'android-compile-tasks-staging'
 
 GS_RETRIES = 5
 GS_RETRY_WAIT_BASE = 15
