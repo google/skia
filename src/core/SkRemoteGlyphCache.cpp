@@ -547,14 +547,18 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
 }
 
 
-// Be sure to read and understand the comment for prepareForDrawing in SkStrikeInterface.h before
-// working on this code.
+// Be sure to read and understand the comment for prepareForDrawingRemoveEmpty in
+// SkStrikeInterface.h before working on this code.
 SkSpan<const SkGlyphPos>
-SkStrikeServer::SkGlyphCacheState::prepareForDrawing(const SkPackedGlyphID packedGlyphIDs[],
-                                                     const SkPoint positions[], size_t n,
-                                                     int maxDimension, PreparationDetail detail,
-                                                     SkGlyphPos results[]) {
+SkStrikeServer::SkGlyphCacheState::prepareForDrawingRemoveEmpty(
+        const SkPackedGlyphID packedGlyphIDs[],
+        const SkPoint positions[],
+        size_t n,
+        int maxDimension,
+        PreparationDetail detail,
+        SkGlyphPos results[]) {
 
+    size_t drawableGlyphCount = 0;
     for (size_t i = 0; i < n; i++) {
         SkPoint glyphPos = positions[i];
 
@@ -573,9 +577,8 @@ SkStrikeServer::SkGlyphCacheState::prepareForDrawing(const SkPackedGlyphID packe
             if (glyphPtr->maxDimension() <= maxDimension) {
                 // do nothing
             } else if (!glyphPtr->isColor()) {
-
-                // The glyph is too big for the atlas, but it is not color, so it is handled with a
-                // path.
+                // The glyph is too big for the atlas, but it is not color, so it is handled
+                // with a path.
                 if (glyphPtr->setPath(&fAlloc, fContext.get())) {
                     // Always send the path data, even if its not available, to make sure empty
                     // paths are not incorrectly assumed to be cache misses.
@@ -592,12 +595,14 @@ SkStrikeServer::SkGlyphCacheState::prepareForDrawing(const SkPackedGlyphID packe
             fPendingGlyphImages.push_back(packedGlyphIDs[i]);
         }
 
-        // Each glyph needs to be added as per the contract for prepareForDrawing.
-        // TODO(herb): check if the empty glyphs need to be added here. They certainly need to be
-        //             sent, but do the need to be processed by the painter?
-        results[i] = {i, glyphPtr, glyphPos};
+        // Each non-empty glyph needs to be added as per the contract for
+        // prepareForDrawingRemoveEmpty.
+        // TODO(herb): Change the code to only send the glyphs for fallback?
+        if (!glyphPtr->isEmpty()) {
+            results[drawableGlyphCount++] = {i, glyphPtr, glyphPos};
+        }
     }
-    return SkSpan<const SkGlyphPos>{results, n};
+    return SkMakeSpan(results, drawableGlyphCount);
 }
 
 // SkStrikeClient -----------------------------------------
