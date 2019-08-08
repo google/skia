@@ -51,6 +51,18 @@ namespace skvm {
                 if (inst.y != NA) { inst.hoist &= fProgram[inst.y].hoist; }
                 if (inst.z != NA) { inst.hoist &= fProgram[inst.z].hoist; }
             }
+
+            // Any hoisted values used inside the loop need to live forever.
+            if (!inst.hoist) {
+                auto extend = [&](Val arg) {
+                    if (fProgram[arg].death != 0) {
+                        fProgram[arg].death = (Val)fProgram.size();
+                    }
+                };
+                if (inst.x != NA && fProgram[inst.x].hoist) { extend(inst.x); }
+                if (inst.y != NA && fProgram[inst.y].hoist) { extend(inst.y); }
+                if (inst.z != NA && fProgram[inst.z].hoist) { extend(inst.z); }
+            }
         }
 
         return {fProgram, fStrides, debug_name};
@@ -1359,9 +1371,9 @@ namespace skvm {
 
             // Now make available any registers that are consumed by this instruction.
             // (The register pool we can pick dst from is >= the pool for tmp, adding any of these.)
-            if (x != NA && instructions[x].death == id && !hoisted(x)) { avail |= 1 << r[x]; }
-            if (y != NA && instructions[y].death == id && !hoisted(y)) { avail |= 1 << r[y]; }
-            if (z != NA && instructions[z].death == id && !hoisted(z)) { avail |= 1 << r[z]; }
+            if (x != NA && instructions[x].death == id) { avail |= 1 << r[x]; }
+            if (y != NA && instructions[y].death == id) { avail |= 1 << r[y]; }
+            if (z != NA && instructions[z].death == id) { avail |= 1 << r[z]; }
             // set_dst() and dst() will work read/write with this perhaps-just-updated avail.
 
             // Some ops may decide dst on their own to best fit the instruction (see Op::mad_f32).
