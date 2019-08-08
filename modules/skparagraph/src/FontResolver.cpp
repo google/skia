@@ -22,7 +22,7 @@ SkUnichar utf8_next(const char** ptr, const char* end) {
 namespace skia {
 namespace textlayout {
 
-bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* height) {
+bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* height, bool* isPlaceholder) {
 
     SkASSERT(fFontIterator != nullptr);
     TextIndex index = codepoint - fText.begin();
@@ -30,6 +30,9 @@ bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* heigh
         if (fFontIterator->fStart == index) {
             *font = fFontIterator->fFont;
             *height = fFontIterator->fHeight;
+            if ((*isPlaceholder = fFontIterator->fIsPlaceholder)) {
+                break;
+            }
             return true;
         }
         ++fFontIterator;
@@ -236,25 +239,30 @@ void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
     fText = master->text();
     fTextRange = TextRange(0, fText.size());
 
-    Block combined;
+    Block combinedBlock;
     for (auto& block : fStyles) {
-        SkASSERT(combined.fRange.empty() ||
-                 combined.fRange.end == block.fRange.start);
+        SkASSERT(combinedBlock.fRange.width() == 0 ||
+                 combinedBlock.fRange.end == block.fRange.start);
 
-        if (!combined.fRange.empty() &&
-                block.fStyle.matchOneAttribute(StyleType::kFont, combined.fStyle)) {
-            combined.add(block.fRange);
-            continue;
+        if (!combinedBlock.fRange.empty()) {
+            if (block.fStyle.matchOneAttribute(StyleType::kFont, combinedBlock.fStyle)) {
+                combinedBlock.add(block.fRange);
+                continue;
+            }
+            // Resolve all characters in the block for this style
+            this->findAllFontsForStyledBlock(combinedBlock.fStyle, combinedBlock.fRange);
         }
-
-        if (!combined.fRange.empty()) {
-            this->findAllFontsForStyledBlock(combined.fStyle, combined.fRange);
+        if (block.fStyle.isPlaceholder()) {
+            // Directly add the place holder to the mapping
+            fFontMapping.set(block.fRange.start, FontDescr());
+            combinedBlock.fRange = EMPTY_RANGE;
+        } else {
+            combinedBlock.fRange = block.fRange;
+            combinedBlock.fStyle = block.fStyle;
         }
-
-        combined = block;
     }
-    this->findAllFontsForStyledBlock(combined.fStyle, combined.fRange);
 
+    this->findAllFontsForStyledBlock(combinedBlock.fStyle, combinedBlock.fRange);
 
     fFontSwitches.reset();
     FontDescr* prev = nullptr;
@@ -274,8 +282,10 @@ void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
         }
 
         if (*prev == *found) {
-            // Same font
             continue;
+        }
+        if (prev->fIsPlaceholder) {
+            prev->fFont = fFirstResolvedFont.fFont;
         }
         fFontSwitches.emplace_back(*prev);
 
