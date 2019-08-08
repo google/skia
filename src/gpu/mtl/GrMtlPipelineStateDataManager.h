@@ -22,8 +22,7 @@ public:
     typedef GrMtlUniformHandler::UniformInfoArray UniformInfoArray;
 
     GrMtlPipelineStateDataManager(const UniformInfoArray&,
-                                  uint32_t geometryUniformSize,
-                                  uint32_t fragmentUniformSize);
+                                  uint32_t uniformSize);
 
     void set1i(UniformHandle, int32_t) const override;
     void set1iv(UniformHandle, int arrayCount, const int32_t v[]) const override;
@@ -62,7 +61,6 @@ public:
 
 private:
     struct Uniform {
-        uint32_t fBinding;
         uint32_t fOffset;
         SkDEBUGCODE(
             GrSLType    fType;
@@ -75,15 +73,12 @@ private:
 
     void* getBufferPtrAndMarkDirty(const Uniform& uni) const;
 
-    uint32_t fGeometryUniformSize;
-    uint32_t fFragmentUniformSize;
+    uint32_t fUniformSize;
 
     SkTArray<Uniform, true> fUniforms;
 
-    mutable SkAutoMalloc fGeometryUniformData;
-    mutable SkAutoMalloc fFragmentUniformData;
-    mutable bool         fGeometryUniformsDirty;
-    mutable bool         fFragmentUniformsDirty;
+    mutable SkAutoMalloc fUniformData;
+    mutable bool         fUniformsDirty;
 };
 
 #endif
