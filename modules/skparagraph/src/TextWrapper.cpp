@@ -152,6 +152,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());
     auto end = span.end() - 1;
     auto start = span.begin();
+    LineMetrics maxRunMetrics;
     while (fEndLine.endCluster() != end) {
         reset();
 
@@ -176,10 +177,26 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 maxWidth != std::numeric_limits<SkScalar>::max() &&
                 !ellipsisStr.isEmpty();
         // TODO: perform ellipsis work here
+
+        // Deal with placeholder clusters == runs[@size==1]
+        for (auto cluster = fEndLine.startCluster(); cluster <= fEndLine.endCluster(); ++cluster) {
+            if (cluster->run()->placeholder() != nullptr) {
+                SkASSERT(cluster->run()->size() == 1);
+                // Update the placeholder metrics so we can get the placeholder positions later
+                // and the line metrics (to make sure the placeholder fits)
+                cluster->run()->updateMetrics(&fEndLine.metrics());
+            }
+        }
+
+        // Before we update the line metrics with struts,
+        // let's save it for GetRectsForRange(RectHeightStyle::kMax)
+        maxRunMetrics = fEndLine.metrics();
+
         if (parent->strutEnabled()) {
             // Make sure font metrics are not less than the strut
             parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
         }
+
         fMaxIntrinsicWidth = SkMaxScalar(fMaxIntrinsicWidth, fEndLine.width());
         // TODO: keep start/end/break info for text and runs but in a better way that below
         TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end + 1);
@@ -199,10 +216,12 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 fEndLine.metrics(),
                 needEllipsis);
 
+        parent->lines().back().setMaxRunMetrics(maxRunMetrics);
+
         // Start a new line
         fHeight += fEndLine.metrics().height();
 
-        if (!fHardLineBreak) {
+        if (!fHardLineBreak || startLine != end) {
             fEndLine.clean();
         }
         fEndLine.startFrom(startLine, pos);
@@ -215,6 +234,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     }
 
     if (fHardLineBreak) {
+
         // Last character is a line break
         if (parent->strutEnabled()) {
             // Make sure font metrics are not less than the strut
@@ -231,6 +251,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 SkVector::Make(0, fEndLine.metrics().height()),
                 fEndLine.metrics(),
                 false);
+        parent->lines().back().setMaxRunMetrics(maxRunMetrics);
     }
 }
 

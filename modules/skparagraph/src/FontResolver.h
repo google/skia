@@ -16,9 +16,9 @@ namespace skia {
 namespace textlayout {
 
 struct FontDescr {
-    FontDescr() {}
+    FontDescr() { }
     FontDescr(SkFont font, SkScalar height)
-            : fFont(font), fHeight(height), fStart(EMPTY_INDEX) {}
+            : fFont(font), fHeight(height), fStart(EMPTY_INDEX) { }
     bool operator==(const FontDescr& a) const {
         return this->fFont == a.fFont && this->fHeight == a.fHeight;
     }
@@ -56,7 +56,6 @@ private:
 
     sk_sp<FontCollection> fFontCollection;
     SkSpan<const char> fText;
-    TextRange fTextRange;
     SkSpan<Block> fStyles;
 
     SkTArray<FontDescr> fFontSwitches;

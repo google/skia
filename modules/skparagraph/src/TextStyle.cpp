@@ -26,9 +26,25 @@ TextStyle::TextStyle() : fFontStyle() {
     fHasForeground = false;
     fTextBaseline = TextBaseline::kAlphabetic;
     fLocale = "";
+    fIsPlaceholder = false;
+}
+
+TextStyle:: TextStyle(const TextStyle& other, bool placeholder) {
+    fColor = other.fColor;
+    fDecoration = other.fDecoration;
+    fHasBackground = other.fHasBackground;
+    fHasForeground = other.fHasForeground;
+    fBackground = other.fBackground;
+    fForeground = other.fForeground;
+    fIsPlaceholder = placeholder;
 }
 
 bool TextStyle::equals(const TextStyle& other) const {
+
+    if (fIsPlaceholder || other.fIsPlaceholder) {
+        return false;
+    }
+
     if (fColor != other.fColor) {
         return false;
     }
@@ -124,6 +140,9 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
 
 void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
     SkFont font(fTypeface, fFontSize);
+    font.setEdging(SkFont::Edging::kAntiAlias);
+    font.setSubpixel(true);
+    font.setHinting(SkFontHinting::kSlight);
     font.getMetrics(metrics);
     if (fHeightOverride) {
         auto multiplier = fHeight * fFontSize;

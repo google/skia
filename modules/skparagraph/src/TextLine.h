@@ -44,13 +44,11 @@ public:
         return fAdvance.fX + (fEllipsis != nullptr ? fEllipsis->fAdvance.fX : 0);
     }
     SkScalar shift() const { return fShift; }
-    SkScalar widthWithSpaces() const { return fWidthWithSpaces; }
     SkVector offset() const;
 
     SkScalar alphabeticBaseline() const { return fSizes.alphabeticBaseline(); }
     SkScalar ideographicBaseline() const { return fSizes.ideographicBaseline(); }
     SkScalar baseline() const { return fSizes.baseline(); }
-    SkScalar roundingDelta() const { return fSizes.delta(); }
 
     using StyleVisitor = std::function<SkScalar(TextRange textRange, const TextStyle& style,
                                                 SkScalar offsetX)>;
@@ -79,6 +77,9 @@ public:
 
     TextAlign assumedTextAlign() const;
 
+    void setMaxRunMetrics(const LineMetrics& metrics) { fMaxRunMetrics = metrics; }
+    LineMetrics getMaxRunMetrics() const { return fMaxRunMetrics; }
+
 private:
 
     Run* shapeEllipsis(const SkString& ellipsis, Run* run);
@@ -102,6 +103,9 @@ private:
     void computeDecorationPaint(SkPaint& paint, SkRect clip, const TextStyle& style,
                                 SkPath& path) const;
 
+    SkScalar computeDecorationThickness(const TextStyle& style) const;
+    SkScalar computeDecorationPosition(const TextStyle& style) const;
+
     bool contains(const Cluster* cluster) const {
         return fTextRange.contains(cluster->textRange());
     }
@@ -119,13 +123,11 @@ private:
     SkScalar fShift;                    // Left right
     SkScalar fWidthWithSpaces;
     std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
-    LineMetrics fSizes;                 // Line metrics as a max of all run metrics
+    LineMetrics fSizes;                 // Line metrics as a max of all run metrics and struts
+    LineMetrics fMaxRunMetrics;         // No struts - need it for GetRectForRange(max height)
     bool fHasBackground;
     bool fHasShadows;
     bool fHasDecorations;
-
-    // TODO: use for ellipsis the common cache
-    static SkTHashMap<SkFont, Run> fEllipsisCache;  // All found so far shapes of ellipsis
 };
 }  // namespace textlayout
 }  // namespace skia
