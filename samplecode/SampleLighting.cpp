@@ -31,7 +31,12 @@ static sk_sp<SkLights> create_lights(SkScalar angle, SkScalar blue) {
 
 class LightingView : public Sample {
 public:
-    LightingView() : fLightAngle(0.0f) , fColorFactor(0.0f) {
+    LightingView() : fLightAngle(0.0f), fColorFactor(0.0f) {}
+
+protected:
+    SkString name() override { return SkString("Lighting"); }
+
+    void onOnceBeforeDraw() override {
         {
             SkBitmap diffuseBitmap;
             SkAssertResult(GetResourceAsBitmap("images/brickwork-texture.jpg", &diffuseBitmap));
@@ -49,9 +54,6 @@ public:
             fNormalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap), SkMatrix::I());
         }
     }
-
-protected:
-    SkString name() override { return SkString("Lighting"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         sk_sp<SkLights> lights(create_lights(fLightAngle, fColorFactor));
