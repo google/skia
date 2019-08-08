@@ -22,6 +22,30 @@
       "revId": "48d0c834757f0fa84661445ced85b564d620e4a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07aa00c0_d1e953f6",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-08-08T18:17:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf53f005_8597aaff",
+      "range": {
+        "startLine": 54,
+        "startChar": 3,
+        "endLine": 54,
+        "endChar": 88
+      },
+      "revId": "48d0c834757f0fa84661445ced85b564d620e4a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
