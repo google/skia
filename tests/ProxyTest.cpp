@@ -21,6 +21,7 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 // Check that the surface proxy's member vars are set as expected
 static void check_surface(skiatest::Reporter* reporter,
@@ -261,8 +262,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
                     GrGLFramebufferInfo fboInfo;
                     fboInfo.fFBOID = 0;
-                    SkASSERT(beFormat.getGLFormat());
-                    fboInfo.fFormat = *beFormat.getGLFormat();
+                    fboInfo.fFormat = GrGLFormatToEnum(beFormat.asGLFormat());
+                    SkASSERT(fboInfo.fFormat);
                     static constexpr int kStencilBits = 8;
                     GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples,
                                                     kStencilBits, fboInfo);

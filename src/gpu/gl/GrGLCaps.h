@@ -129,13 +129,12 @@ public:
 
     int getRenderTargetSampleCount(int requestedCount,
                                    const GrBackendFormat& format) const override {
-        return this->getRenderTargetSampleCount(requestedCount,
-                                                GrGLBackendFormatToGLFormat(format));
+        return this->getRenderTargetSampleCount(requestedCount, format.asGLFormat());
     }
     int getRenderTargetSampleCount(int requestedCount, GrGLFormat) const;
 
     int maxRenderTargetSampleCount(const GrBackendFormat& format) const override {
-        return this->maxRenderTargetSampleCount(GrGLBackendFormatToGLFormat(format));
+        return this->maxRenderTargetSampleCount(format.asGLFormat());
     }
     int maxRenderTargetSampleCount(GrGLFormat) const;
 

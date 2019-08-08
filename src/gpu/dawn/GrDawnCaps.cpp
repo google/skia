@@ -35,27 +35,27 @@ bool GrDawnCaps::isConfigTexturable(GrPixelConfig config) const {
 
 GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                        GrColorType colorType) const {
-    const dawn::TextureFormat* dawnFormat = format.getDawnFormat();
-    if (!dawnFormat) {
+    dawn::TextureFormat dawnFormat;
+    if (!format.asDawnFormat(&dawnFormat)) {
         return kUnknown_GrPixelConfig;
     }
     switch (colorType) {
         case GrColorType::kUnknown:
             return kUnknown_GrPixelConfig;
         case GrColorType::kAlpha_8:
-            if (dawn::TextureFormat::R8Unorm == *dawnFormat) {
+            if (dawn::TextureFormat::R8Unorm == dawnFormat) {
                 return kAlpha_8_as_Red_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_8888:
-            if (dawn::TextureFormat::RGBA8Unorm == *dawnFormat) {
+            if (dawn::TextureFormat::RGBA8Unorm == dawnFormat) {
                 return kRGBA_8888_GrPixelConfig;
             }
             break;
         case GrColorType::kRGB_888x:
             break;
         case GrColorType::kBGRA_8888:
-            if (dawn::TextureFormat::BGRA8Unorm == *dawnFormat) {
+            if (dawn::TextureFormat::BGRA8Unorm == dawnFormat) {
                 return kBGRA_8888_GrPixelConfig;
             }
             break;
@@ -67,7 +67,8 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
 
 static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
                              bool forOutput) {
-    SkASSERT(format.getDawnFormat());
+    SkDEBUGCODE(dawn::TextureFormat format;)
+    SkASSERT(format.asDawnFormat(&format));
 
     switch (colorType) {
         case GrColorType::kAlpha_8: // fall through
@@ -103,19 +104,21 @@ bool GrDawnCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& forma
 
 bool GrDawnCaps::isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
                                     int sampleCount) const {
-    if (!format.isValid() || sampleCount > 1) {
+    dawn::TextureFormat dawnFormat;
+    if (!format.isValid() || sampleCount > 1 || !format.asDawnFormat(&dawnFormat)) {
         return false;
     }
 
-    return GrDawnFormatIsRenderable(*format.getDawnFormat()) ? 1 : 0;
+    return GrDawnFormatIsRenderable(dawnFormat);
 }
 
 int GrDawnCaps::getRenderTargetSampleCount(int requestedCount, GrColorType ct,
                                            const GrBackendFormat& backendFormat) const {
-    if (!backendFormat.getDawnFormat()) {
+    dawn::TextureFormat dawnFormat;
+    if (!format.asDawnFormat(&dawnFormat)) {
         return 0;
     }
-    return GrDawnFormatIsRenderable(*backendFormat.getDawnFormat()) ? 1 : 0;
+    return GrDawnFormatIsRenderable(dawnFormat) ? 1 : 0;
 }
 
 int GrDawnCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {

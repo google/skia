@@ -3072,10 +3072,8 @@ GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTarge
         return {};
     }
 
-    {
-        const GrGLenum* srcTextureTarget = src->backendFormat().getGLTarget();
-        SkASSERT(srcTextureTarget);
-        if (*srcTextureTarget == GR_GL_TEXTURE_EXTERNAL) {
+    if (const auto* texProxy = src->asTextureProxy()) {
+        if (texProxy->textureType() == GrTextureType::kExternal) {
             // Not supported for FBO blit or CopyTexSubImage. Caller will have to fall back to a
             // draw (if the source is also a texture).
             return {};
@@ -3689,18 +3687,10 @@ size_t offset_alignment_for_transfer_buffer(GrGLenum externalType) {
 GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {
-    // For now, we mostly report the read back format that is required by the ES spec without
-    // checking for implementation allowed formats or consider laxer rules in non-ES GL. TODO: Relax
-    // this as makes sense to increase performance and correctness.
-    GrGLFormat srcFormat = GrGLBackendFormatToGLFormat(srcBackendFormat);
-    if (srcFormat == GrGLFormat::kUnknown) {
-        return {GrColorType::kUnknown, 0};
-    }
-
     // We first try to find a supported read pixels GrColorType that matches the requested
     // dstColorType. If that doesn't exists we will use any valid read pixels GrColorType.
     GrCaps::SupportedRead fallbackRead = {GrColorType::kUnknown, 0};
-    const auto& formatInfo = this->getFormatInfo(srcFormat);
+    const auto& formatInfo = this->getFormatInfo(srcBackendFormat.asGLFormat());
     bool foundSrcCT = false;
     for (int i = 0; !foundSrcCT && i < formatInfo.fColorTypeInfoCount; ++i) {
         if (formatInfo.fColorTypeInfos[i].fColorType == srcColorType) {
@@ -3732,12 +3722,7 @@ GrCaps::SupportedWrite GrGLCaps::supportedWritePixelsColorType(GrColorType surfa
     // We first try to find a supported write pixels GrColorType that matches the data's
     // srcColorType. If that doesn't exists we will use any supported GrColorType.
     GrColorType fallbackCT = GrColorType::kUnknown;
-    const GrGLenum* glEnum = surfaceFormat.getGLFormat();
-    if (!glEnum) {
-        return {GrColorType::kUnknown, 0};
-    }
-    auto glFormat = GrGLFormatFromGLEnum(*glEnum);
-    const auto& formatInfo = this->getFormatInfo(glFormat);
+    const auto& formatInfo = this->getFormatInfo(surfaceFormat.asGLFormat());
     bool foundSurfaceCT = false;
     for (int i = 0; !foundSurfaceCT && i < formatInfo.fColorTypeInfoCount; ++i) {
         if (formatInfo.fColorTypeInfos[i].fColorType == surfaceColorType) {
@@ -3769,14 +3754,12 @@ bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& b
 }
 
 bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
-    return GrGLBackendFormatToGLFormat(format) == GrGLFormat::kSRGB8_ALPHA8;
+    return format.asGLFormat() == GrGLFormat::kSRGB8_ALPHA8;
 }
 
 bool GrGLCaps::isFormatCompressed(const GrBackendFormat& format) const {
-    GrGLFormat grGLFormat = GrGLBackendFormatToGLFormat(format);
-
-    return grGLFormat == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
-           grGLFormat == GrGLFormat::kCOMPRESSED_ETC1_RGB8;
+    auto fmt = format.asGLFormat();
+    return fmt == GrGLFormat::kCOMPRESSED_RGB8_ETC2 || fmt == GrGLFormat::kCOMPRESSED_ETC1_RGB8;
 }
 
 bool GrGLCaps::isFormatTexturable(GrColorType ct, GrGLFormat format) const {
@@ -3788,23 +3771,22 @@ bool GrGLCaps::isFormatTexturable(GrColorType ct, GrGLFormat format) const {
 }
 
 bool GrGLCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format) const {
-    return this->isFormatTexturable(ct, GrGLBackendFormatToGLFormat(format));
+    return this->isFormatTexturable(ct, format.asGLFormat());
 }
 
 bool GrGLCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
                                              int sampleCount) const {
-    auto glFormat = GrGLBackendFormatToGLFormat(format);
-    const FormatInfo& info = this->getFormatInfo(glFormat);
+    auto f = format.asGLFormat();
+    const FormatInfo& info = this->getFormatInfo(f);
     if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
         return false;
     }
 
-    return this->isFormatRenderable(glFormat, sampleCount);
+    return this->isFormatRenderable(f, sampleCount);
 }
 
 bool GrGLCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount) const {
-    auto glFormat = GrGLBackendFormatToGLFormat(format);
-    return this->isFormatRenderable(glFormat, sampleCount);
+    return this->isFormatRenderable(format.asGLFormat(), sampleCount);
 }
 
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrGLFormat format) const {
@@ -3854,7 +3836,7 @@ bool GrGLCaps::isFormatCopyable(const GrBackendFormat& format) const {
     // requires the src to be an FBO attachment, blit requires both src and dst to be FBO
     // attachments, and draw requires the dst to be an FBO attachment. Thus to copy from and to
     // the same config, we need that config to be bindable to an FBO.
-    return this->canFormatBeFBOColorAttachment(GrGLBackendFormatToGLFormat(format));
+    return this->canFormatBeFBOColorAttachment(format.asGLFormat());
 }
 
 bool GrGLCaps::formatSupportsTexStorage(GrGLFormat format) const {
@@ -3908,114 +3890,116 @@ GrGLFormat GrGLCaps::pixelConfigToFormat(GrPixelConfig config) const {
     return GrGLFormat::kUnknown;
 }
 
-static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGLStandard standard) {
+static GrPixelConfig validate_sized_format(GrGLFormat format,
+                                           GrColorType ct,
+                                           GrGLStandard standard) {
     switch (ct) {
         case GrColorType::kUnknown:
             return kUnknown_GrPixelConfig;
         case GrColorType::kAlpha_8:
-            if (GR_GL_ALPHA8 == format) {
+            if (format == GrGLFormat::kALPHA8) {
                 return kAlpha_8_as_Alpha_GrPixelConfig;
-            } else if (GR_GL_R8 == format) {
+            } else if (format == GrGLFormat::kR8) {
                 return kAlpha_8_as_Red_GrPixelConfig;
             }
             break;
         case GrColorType::kBGR_565:
-            if (GR_GL_RGB565 == format) {
+            if (format == GrGLFormat::kRGB565) {
                 return kRGB_565_GrPixelConfig;
             }
             break;
         case GrColorType::kABGR_4444:
-            if (GR_GL_RGBA4 == format) {
+            if (format == GrGLFormat::kRGBA4) {
                 return kRGBA_4444_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_8888:
-            if (GR_GL_RGBA8 == format) {
+            if (format == GrGLFormat::kRGBA8) {
                 return kRGBA_8888_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_8888_SRGB:
-            if (GR_GL_SRGB8_ALPHA8 == format) {
+            if (format == GrGLFormat::kSRGB8_ALPHA8) {
                 return kSRGBA_8888_GrPixelConfig;
             }
             break;
         case GrColorType::kRGB_888x:
-            if (GR_GL_RGB8 == format) {
+            if (format == GrGLFormat::kRGB8) {
                 return kRGB_888_GrPixelConfig;
-            } else if (GR_GL_RGBA8 == format) {
+            } else if (format == GrGLFormat::kRGBA8) {
                 return kRGB_888X_GrPixelConfig;
-            } else if (GR_GL_COMPRESSED_RGB8_ETC2 == format ||
-                       GR_GL_COMPRESSED_ETC1_RGB8 == format) {
+            } else if (format == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
+                       format == GrGLFormat::kCOMPRESSED_ETC1_RGB8) {
                 return kRGB_ETC1_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_88:
-            if (GR_GL_RG8 == format) {
+            if (format == GrGLFormat::kRG8) {
                 return kRG_88_GrPixelConfig;
             }
             break;
         case GrColorType::kBGRA_8888:
-            if (GR_GL_RGBA8 == format) {
+            if (format == GrGLFormat::kRGBA8) {
                 if (GR_IS_GR_GL(standard)) {
                     return kBGRA_8888_GrPixelConfig;
                 }
-            } else if (GR_GL_BGRA8 == format) {
+            } else if (format == GrGLFormat::kBGRA8) {
                 if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
                     return kBGRA_8888_GrPixelConfig;
                 }
             }
             break;
         case GrColorType::kRGBA_1010102:
-            if (GR_GL_RGB10_A2 == format) {
+            if (format == GrGLFormat::kRGB10_A2) {
                 return kRGBA_1010102_GrPixelConfig;
             }
             break;
         case GrColorType::kGray_8:
-            if (GR_GL_LUMINANCE8 == format) {
+            if (format == GrGLFormat::kLUMINANCE8) {
                 return kGray_8_as_Lum_GrPixelConfig;
-            } else if (GR_GL_R8 == format) {
+            } else if (format == GrGLFormat::kR8) {
                 return kGray_8_as_Red_GrPixelConfig;
             }
             break;
         case GrColorType::kAlpha_F16:
-            if (GR_GL_LUMINANCE16F == format) {
+            if (format == GrGLFormat::kLUMINANCE16F) {
                 return kAlpha_half_as_Lum_GrPixelConfig;
-            } else if (GR_GL_R16F == format) {
+            } else if (format == GrGLFormat::kR16F) {
                 return kAlpha_half_as_Red_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_F16:
-            if (GR_GL_RGBA16F == format) {
+            if (format == GrGLFormat::kRGBA16F) {
                 return kRGBA_half_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_F16_Clamped:
-            if (GR_GL_RGBA16F == format) {
+            if (format == GrGLFormat::kRGBA16F) {
                 return kRGBA_half_Clamped_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_F32:
-            if (GR_GL_RGBA32F == format) {
+            if (format == GrGLFormat::kRGBA32F) {
                 return kRGBA_float_GrPixelConfig;
             }
             break;
         case GrColorType::kR_16:
-            if (GR_GL_R16 == format) {
+            if (format == GrGLFormat::kR16) {
                 return kR_16_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_1616:
-            if (GR_GL_RG16 == format) {
+            if (format == GrGLFormat::kRG16) {
                 return kRG_1616_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_16161616:
-            if (GR_GL_RGBA16 == format) {
+            if (format == GrGLFormat::kRGBA16) {
                 return kRGBA_16161616_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_F16:
-            if (GR_GL_RG16F == format) {
+            if (format == GrGLFormat::kRG16F) {
                 return kRG_half_GrPixelConfig;
             }
             break;
@@ -4033,28 +4017,17 @@ static GrPixelConfig validate_sized_format(GrGLenum format, GrColorType ct, GrGL
 
 bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                  const GrBackendFormat& format) const {
-    const GrGLenum* glFormat = format.getGLFormat();
-    if (!glFormat) {
-        return false;
-    }
-
-    return kUnknown_GrPixelConfig != validate_sized_format(*glFormat, ct, fStandard);
+    return kUnknown_GrPixelConfig != validate_sized_format(format.asGLFormat(), ct, fStandard);
 }
 
 GrPixelConfig GrGLCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                      GrColorType ct) const {
-    const GrGLenum* glFormat = format.getGLFormat();
-    if (!glFormat) {
-        return kUnknown_GrPixelConfig;
-    }
-    return validate_sized_format(*glFormat, ct, fStandard);
+    return validate_sized_format(format.asGLFormat(), ct, fStandard);
 }
 
 GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
                                                         bool isAlphaChannel) const {
-    GrGLFormat grGLFormat = GrGLBackendFormatToGLFormat(format);
-
-    switch (grGLFormat) {
+    switch (format.asGLFormat()) {
         case GrGLFormat::kLUMINANCE8: // <missing kAlpha_8_as_Lum>/kGray_8_as_Lum_GrPixelConfig
         case GrGLFormat::kR8:         // kAlpha_8_as_Red_GrPixelConfig/kGray_8_as_Red_GrPixelConfig
         case GrGLFormat::kALPHA8:     // kAlpha_8_as_Alpha_GrPixelConfig/<missing kGray_8_as_Alpha>
@@ -4101,9 +4074,7 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
 bool GrGLCaps::canClearTextureOnCreation() const { return fClearTextureSupport; }
 
 GrSwizzle GrGLCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    SkASSERT(format.getGLFormat());
-    GrGLFormat glFormat = GrGLBackendFormatToGLFormat(format);
-    const auto& info = this->getFormatInfo(glFormat);
+    const auto& info = this->getFormatInfo(format.asGLFormat());
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == colorType) {
@@ -4113,9 +4084,7 @@ GrSwizzle GrGLCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType
     return GrSwizzle::RGBA();
 }
 GrSwizzle GrGLCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    SkASSERT(format.getGLFormat());
-    GrGLFormat glFormat = GrGLBackendFormatToGLFormat(format);
-    const auto& info = this->getFormatInfo(glFormat);
+    const auto& info = this->getFormatInfo(format.asGLFormat());
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == colorType) {
