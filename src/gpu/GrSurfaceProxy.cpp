@@ -415,7 +415,7 @@ GrInternalSurfaceFlags GrSurfaceProxy::testingOnly_getFlags() const {
 }
 #endif
 
-void GrSurfaceProxyPriv::exactify() {
+void GrSurfaceProxyPriv::exactify(bool allocatedCaseOnly) {
     SkASSERT(GrSurfaceProxy::LazyState::kFully != fProxy->lazyInstantiationState());
     if (this->isExact()) {
         return;
@@ -431,6 +431,15 @@ void GrSurfaceProxyPriv::exactify() {
         // used for additional draws.
         fProxy->fWidth = fProxy->fTarget->width();
         fProxy->fHeight = fProxy->fTarget->height();
+        return;
+    }
+
+    // In the post-implicit-allocation world we can't convert this proxy to be exact fit
+    // at this point. With explicit allocation switching this to exact will result in a
+    // different allocation at flush time. With implicit allocation, allocation would occur
+    // at draw time (rather than flush time) so this pathway was encountered less often (if
+    // at all).
+    if (allocatedCaseOnly) {
         return;
     }
 
