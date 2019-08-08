@@ -589,3 +589,7 @@ sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemap
                                                                       wrapType,
                                                                       ownership);
 }
+
+const GrCacheState* GrResourceProvider::getCacheState(int id, const char* label) {
+    return fCache->getCacheState(id, label);
+}
