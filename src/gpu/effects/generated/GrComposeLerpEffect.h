@@ -17,7 +17,8 @@
 class GrComposeLerpEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child1,
-                                                     std::unique_ptr<GrFragmentProcessor> child2,
+                                                     std::unique_ptr<GrFragmentProcessor>
+                                                             child2,
                                                      float weight) {
         return std::unique_ptr<GrFragmentProcessor>(
                 new GrComposeLerpEffect(std::move(child1), std::move(child2), weight));
@@ -25,14 +26,19 @@ public:
     GrComposeLerpEffect(const GrComposeLerpEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ComposeLerpEffect"; }
+    GrCoordTransform fCoordTransform0;
     int child1_index = -1;
     int child2_index = -1;
     float weight;
 
 private:
     GrComposeLerpEffect(std::unique_ptr<GrFragmentProcessor> child1,
-                        std::unique_ptr<GrFragmentProcessor> child2, float weight)
-            : INHERITED(kGrComposeLerpEffect_ClassID, kNone_OptimizationFlags), weight(weight) {
+                        std::unique_ptr<GrFragmentProcessor>
+                                child2,
+                        float weight)
+            : INHERITED(kGrComposeLerpEffect_ClassID, kNone_OptimizationFlags)
+            , fCoordTransform0(SkMatrix())
+            , weight(weight) {
         if (child1) {
             child1_index = this->numChildProcessors();
             this->registerChildProcessor(std::move(child1));
@@ -41,6 +47,7 @@ private:
             child2_index = this->numChildProcessors();
             this->registerChildProcessor(std::move(child2));
         }
+        this->addCoordTransform(&fCoordTransform0);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

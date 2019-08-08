@@ -24,7 +24,11 @@ layout(builtin=10011) half sk_Width;
 layout(builtin=10012) half sk_Height;
 
 half4 sample(fragmentProcessor fp);
+half4 sample(fragmentProcessor fp, float2 coords);
 half4 sample(fragmentProcessor fp, half4 input);
+half4 sample(fragmentProcessor fp, half4 input, float2 coords);
 half4 sample(fragmentProcessor? fp);
+half4 sample(fragmentProcessor? fp, float2 coords);
 half4 sample(fragmentProcessor? fp, half4 input);
+half4 sample(fragmentProcessor? fp, half4 input, float2 coords);
 )
