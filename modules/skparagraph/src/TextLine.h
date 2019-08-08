@@ -29,40 +29,44 @@ public:
              SkScalar widthWithSpaces,
              LineMetrics sizes);
 
-    inline void setMaster(ParagraphImpl* master) { fMaster = master; }
+    void setMaster(ParagraphImpl* master) { fMaster = master; }
 
-    inline TextRange trimmedText() const { return fTextRange; }
-    inline TextRange textWithSpaces() const { return fTextWithWhitespacesRange; }
-    inline Run* ellipsis() const { return fEllipsis.get(); }
-    inline LineMetrics sizes() const { return fSizes; }
-    inline bool empty() const { return fTextRange.empty(); }
+    TextRange trimmedText() const { return fTextRange; }
+    TextRange textWithSpaces() const { return fTextWithWhitespacesRange; }
+    ClusterRange clusters() const { return fClusterRange; }
+    ClusterRange clustersWithSpaces() { return fGhostClusterRange; }
+    Run* ellipsis() const { return fEllipsis.get(); }
+    LineMetrics sizes() const { return fSizes; }
+    bool empty() const { return fTextRange.empty(); }
 
-    inline SkScalar height() const { return fAdvance.fY; }
+    SkScalar height() const { return fAdvance.fY; }
     SkScalar width() const {
         return fAdvance.fX + (fEllipsis != nullptr ? fEllipsis->fAdvance.fX : 0);
     }
-    inline SkScalar shift() const { return fShift; }
+    SkScalar shift() const { return fShift; }
     SkScalar widthWithSpaces() const { return fWidthWithSpaces; }
     SkVector offset() const;
 
-    inline SkScalar alphabeticBaseline() const { return fSizes.alphabeticBaseline(); }
-    inline SkScalar ideographicBaseline() const { return fSizes.ideographicBaseline(); }
-    inline SkScalar baseline() const { return fSizes.baseline(); }
-    inline SkScalar roundingDelta() const { return fSizes.delta(); }
+    SkScalar alphabeticBaseline() const { return fSizes.alphabeticBaseline(); }
+    SkScalar ideographicBaseline() const { return fSizes.ideographicBaseline(); }
+    SkScalar baseline() const { return fSizes.baseline(); }
+    SkScalar roundingDelta() const { return fSizes.delta(); }
 
     using StyleVisitor = std::function<SkScalar(TextRange textRange, const TextStyle& style,
                                                 SkScalar offsetX)>;
     void iterateThroughStylesInTextOrder(StyleType styleType, const StyleVisitor& visitor) const;
 
-    using RunVisitor = std::function<bool(Run* run, size_t pos, size_t size, SkRect clip,
-                                          SkScalar shift, bool clippingNeeded)>;
+    SkScalar calculateLeftVisualOffset(TextRange textRange) const;
+
+    using RunVisitor = std::function<bool(Run* run, size_t pos, size_t size, TextRange text,
+                                          SkRect clip, SkScalar shift, bool clippingNeeded)>;
     SkScalar iterateThroughRuns(TextRange textRange,
                                 SkScalar offsetX,
                                 bool includeGhostWhitespaces,
                                 const RunVisitor& visitor) const;
 
-    using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index)>;
-    void iterateThroughClustersInGlyphsOrder(bool reverse, const ClustersVisitor& visitor) const;
+    using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost)>;
+    void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
 
     void format(TextAlign effectiveAlign, SkScalar maxWidth);
     void paint(SkCanvas* canvas);

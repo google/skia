@@ -39,6 +39,7 @@ struct StyleBlock {
 };
 
 class ParagraphImpl final : public Paragraph {
+
 public:
 
     ParagraphImpl(const SkString& text,
@@ -158,6 +159,8 @@ private:
     BlockRange findAllBlocks(TextRange textRange);
     void extractStyles();
 
+    void markGraphemes();
+
     // Input
     SkTArray<StyleBlock<SkScalar>> fLetterSpaceStyles;
     SkTArray<StyleBlock<SkScalar>> fWordSpaceStyles;
@@ -173,6 +176,8 @@ private:
     InternalState fState;
     SkTArray<Run> fRuns;                // kShaped
     SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
+    SkTArray<Grapheme, true> fGraphemes;
+    SkTArray<Codepoint, true> fCodePoints;
 
     SkTArray<RunShifts, true> fRunShifts;
     SkTArray<TextLine, true> fLines;    // kFormatted   (cached: width, max lines, ellipsis, text align)

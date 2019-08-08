@@ -26,6 +26,12 @@ typedef SkRange<size_t> ClusterRange;
 const size_t EMPTY_CLUSTER = EMPTY_INDEX;
 const SkRange<size_t> EMPTY_CLUSTERS = EMPTY_RANGE;
 
+typedef size_t GraphemeIndex;
+typedef SkRange<GraphemeIndex> GraphemeRange;
+
+typedef size_t CodepointIndex;
+typedef SkRange<CodepointIndex> CodepointRange;
+
 typedef size_t BlockIndex;
 typedef SkRange<size_t> BlockRange;
 const size_t EMPTY_BLOCK = EMPTY_INDEX;
@@ -63,23 +69,23 @@ public:
     }
     SkVector offset() const { return fOffset; }
     SkScalar ascent() const { return fFontMetrics.fAscent; }
-    SkScalar descent() const { return fFontMetrics.fDescent; }
-    SkScalar leading() const { return fFontMetrics.fLeading; }
+    //SkScalar descent() const { return fFontMetrics.fDescent; }
+    //SkScalar leading() const { return fFontMetrics.fLeading; }
     SkScalar correctAscent() const {
 
         if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
-            return fFontMetrics.fAscent;
+            return fFontMetrics.fAscent - fFontMetrics.fLeading / 2;
         }
         return fFontMetrics.fAscent * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
+                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
     }
     SkScalar correctDescent() const {
 
         if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
-            return fFontMetrics.fDescent;
+            return fFontMetrics.fDescent + fFontMetrics.fLeading / 2;
         }
         return fFontMetrics.fDescent * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
+                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
     }
     SkScalar correctLeading() const {
 
@@ -163,6 +169,22 @@ private:
     bool fSpaced;
 };
 
+struct Codepoint {
+
+  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex)
+    : fGrapeme(graphemeIndex), fTextIndex(textIndex) { }
+
+  GraphemeIndex fGrapeme;
+  TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
+};
+
+struct Grapheme {
+    Grapheme(CodepointRange codepoints, TextRange textRange)
+        : fCodepointRange(codepoints), fTextRange(textRange) { }
+    CodepointRange fCodepointRange;
+    TextRange fTextRange;           // Used for getRectsForRange
+};
+
 class Cluster {
 public:
     enum BreakType {
@@ -179,6 +201,7 @@ public:
             : fMaster(nullptr)
             , fRunIndex(EMPTY_RUN)
             , fTextRange(EMPTY_TEXT)
+            , fGraphemeRange(EMPTY_RANGE)
             , fStart(0)
             , fEnd()
             , fWidth()
@@ -195,7 +218,7 @@ public:
             SkScalar width,
             SkScalar height);
 
-    Cluster(TextRange textRange) : fTextRange(textRange) { }
+    Cluster(TextRange textRange) : fTextRange(textRange), fGraphemeRange(EMPTY_RANGE) { }
 
     ~Cluster() = default;
 
@@ -233,8 +256,6 @@ public:
 
     SkScalar trimmedWidth(size_t pos) const;
 
-    void shift(SkScalar offset) const;
-
     void setIsWhiteSpaces();
 
     bool contains(TextIndex ch) const { return ch >= fTextRange.start && ch < fTextRange.end; }
@@ -249,9 +270,12 @@ public:
 
 private:
 
+    friend ParagraphImpl;
+
     ParagraphImpl* fMaster;
     RunIndex fRunIndex;
     TextRange fTextRange;
+    GraphemeRange fGraphemeRange;
 
     size_t fStart;
     size_t fEnd;
@@ -288,15 +312,9 @@ public:
             return;
         }
 
-        if (run->lineHeight() == 0 || run->lineHeight() == 1) {
-            fAscent = SkTMin(fAscent, run->ascent());
-            fDescent = SkTMax(fDescent, run->descent());
-            fLeading = SkTMax(fLeading, run->leading());
-        } else {
-            fAscent = SkTMin(fAscent, run->correctAscent());
-            fDescent = SkTMax(fDescent, run->correctDescent());
-            fLeading = SkTMax(fLeading, run->correctLeading());
-        }
+        fAscent = SkTMin(fAscent, run->correctAscent());
+        fDescent = SkTMax(fDescent, run->correctDescent());
+        fLeading = SkTMax(fLeading, run->correctLeading());
 
     }
 
@@ -319,7 +337,9 @@ public:
         metrics.fLeading = SkTMax(metrics.fLeading, fLeading);
     }
 
-    SkScalar runTop(Run* run) const { return fLeading / 2 - fAscent + run->ascent() + delta(); }
+    SkScalar runTop(Run* run) const {
+        return fLeading / 2 - fAscent + run->ascent() + delta();
+    }
     SkScalar height() const { return SkScalarRoundToInt(fDescent - fAscent + fLeading); }
     SkScalar alphabeticBaseline() const { return fLeading / 2 - fAscent; }
     SkScalar ideographicBaseline() const { return fDescent - fAscent + fLeading; }

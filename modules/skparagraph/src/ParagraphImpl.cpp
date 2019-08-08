@@ -13,13 +13,9 @@
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
+#include <algorithm>
 
 namespace {
-
-SkUnichar utf8_next(const char** ptr, const char* end) {
-    SkUnichar val = SkUTF::NextUTF8(ptr, end);
-    return val < 0 ? 0xFFFD : val;
-}
 
 class TextBreaker {
 public:
@@ -61,6 +57,16 @@ public:
     size_t next() {
         fPos = ubrk_next(fIterator.get());
         return eof() ? fSize : fPos;
+    }
+
+    size_t preceding(size_t offset) {
+        auto pos = ubrk_preceding(fIterator.get(), offset);
+        return eof() ? 0 : pos;
+    }
+
+    size_t following(size_t offset) {
+        auto pos = ubrk_following(fIterator.get(), offset);
+        return eof() ? fSize : pos;
     }
 
     int32_t status() { return ubrk_getRuleStatus(fIterator.get()); }
@@ -267,7 +273,7 @@ void ParagraphImpl::markLineBreaks() {
 
 
     // Walk through all the clusters in the direction of shaped text
-    Block* currentStyle = this->fTextStyles.begin();
+    // (we have to walk through the styles in the same order, too)
     SkScalar shift = 0;
     for (auto& run : fRuns) {
 
@@ -282,14 +288,14 @@ void ParagraphImpl::markLineBreaks() {
             run.shift(cluster, shift);
 
             // Synchronize styles (one cluster can be covered by few styles)
+            Block* currentStyle = this->fTextStyles.begin();
             while (!cluster->startsIn(currentStyle->fRange)) {
                 currentStyle++;
                 SkASSERT(currentStyle != this->fTextStyles.end());
             }
 
             // Process word spacing
-            if (currentStyle->fStyle.getWordSpacing() != 0/* &&
-                fParagraphStyle.getTextAlign() != TextAlign::kJustify*/) {
+            if (currentStyle->fStyle.getWordSpacing() != 0) {
                 if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
                     if (!soFarWhitespacesOnly) {
                         shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
@@ -345,7 +351,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
             }
             // Carve out the line text out of the entire run text
             fAdvance.fX += run.advance().fX;
-            fAdvance.fY = SkMaxScalar(fAdvance.fY, run.descent() - run.ascent());
+            fAdvance.fY = SkMaxScalar(fAdvance.fY, run.advance().fY);
         }
 
         void commitLine() override {}
@@ -516,32 +522,72 @@ TextLine& ParagraphImpl::addLine(SkVector offset,
     return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, sizes);
 }
 
+void ParagraphImpl::markGraphemes() {
+
+    if (!fGraphemes.empty()) {
+        return;
+    }
+
+    TextBreaker breaker;
+    if (!breaker.initialize(fTextSpan, UBRK_CHARACTER)) {
+        return;
+    }
+
+    auto ptr = fTextSpan.begin();
+    while (ptr < fTextSpan.end()) {
+
+        size_t index = ptr - fTextSpan.begin();
+        SkUnichar u = SkUTF::NextUTF8(&ptr, fTextSpan.end());
+        uint16_t buffer[2];
+        size_t count = SkUTF::ToUTF16(u, buffer);
+        fCodePoints.emplace_back(EMPTY_INDEX, index);
+        if (count > 1) {
+            fCodePoints.emplace_back(EMPTY_INDEX, index);
+        }
+    }
+
+    CodepointRange codepoints(0ul, 0ul);
+
+    size_t endPos = 0;
+    while (!breaker.eof()) {
+        auto startPos = endPos;
+        endPos = breaker.next();
+
+        // Collect all the codepoints that belong to the grapheme
+        while (codepoints.end < fCodePoints.size() && fCodePoints[codepoints.end].fTextIndex < endPos) {
+            ++codepoints.end;
+        }
+
+        // Update all the codepoints that belong to this grapheme
+        for (auto i = codepoints.start; i < codepoints.end; ++i) {
+            fCodePoints[i].fGrapeme = fGraphemes.size();
+        }
+
+        fGraphemes.emplace_back(codepoints, TextRange(startPos, endPos));
+        codepoints.start = codepoints.end;
+    }
+}
+
 // Returns a vector of bounding boxes that enclose all text between
 // start and end glyph indexes, including start and excluding end
 std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                                                      unsigned end,
                                                      RectHeightStyle rectHeightStyle,
                                                      RectWidthStyle rectWidthStyle) {
+    markGraphemes();
     std::vector<TextBox> results;
-    if (start >= end || start > fTextSpan.size() || end == 0) {
+    if (start >= end || start > fCodePoints.size() || end == 0) {
         return results;
     }
 
     // Make sure the edges are set on the glyph edges
     TextRange text;
-    const char* first = fTextSpan.begin();
-    size_t startPos = 0;
-    while (startPos < start) {
-        ++startPos;
-        utf8_next(&first, fTextSpan.end());
-    }
-    text.start = first - fTextSpan.begin();
-    size_t endPos = startPos;
-    while (endPos < end) {
-        ++endPos;
-        utf8_next(&first, fTextSpan.end());
-    }
-    text.end = first - fTextSpan.begin();
+    text.end = end >= fCodePoints.size()
+                        ? fTextSpan.size()
+                        : fGraphemes[fCodePoints[end].fGrapeme].fTextRange.start;
+    text.start = start >=  fCodePoints.size()
+                        ? fTextSpan.size()
+                        : fGraphemes[fCodePoints[start].fGrapeme].fTextRange.start;
 
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
@@ -550,43 +596,38 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             continue;
         }
 
-        SkScalar runOffset = 0;
-        if (lineText.start != intersect.start) {
-            TextRange before(lineText.start, intersect.start);
-            runOffset = line.iterateThroughRuns(
-                    before, 0, true,
-                    [](Run*, size_t, size_t, SkRect, SkScalar, bool) { return true; });
-        }
+        SkScalar runOffset = line.calculateLeftVisualOffset(intersect);
+
         auto firstBoxOnTheLine = results.size();
         auto paragraphTextDirection = paragraphStyle().getTextDirection();
+        auto lineTextAlign = line.assumedTextAlign();
+        Run* lastRun = nullptr;
         line.iterateThroughRuns(
             intersect,
             runOffset,
-            paragraphStyle().getTextAlign() != TextAlign::kJustify || &line == &fLines.back(),
-            [&results, &line, rectHeightStyle, this, paragraphTextDirection](Run* run, size_t pos, size_t size, SkRect clip,
-                              SkScalar shift, bool clippingNeeded) {
+            true,
+            [&results, &line, rectHeightStyle, this, paragraphTextDirection, lineTextAlign, &lastRun]
+            (Run* run, size_t pos, size_t size, TextRange text, SkRect clip, SkScalar shift, bool clippingNeeded) {
 
                 SkRect trailingSpaces = SkRect::MakeEmpty();
-                auto spaces = clip.left() >= line.width() ? 0 : clip.right() - line.width();
-                if (spaces > 0) {
-                    // There are trailing spaces; let's make a special box for them
-                    if (paragraphTextDirection == TextDirection::kRtl) {
-                        trailingSpaces.fLeft = clip.fLeft - spaces;
-                        trailingSpaces.fRight = clip.fLeft;
-                        clip.fRight = line.width();
-                    } else if (clip.fRight < line.widthWithSpaces()){
-                        trailingSpaces.fLeft = line.width();
-                        trailingSpaces.fRight = clip.fRight;
-                        clip.fRight = line.width();
+
+                SkScalar ghostSpacesRight = run->leftToRight() ? clip.right() - line.width() : 0;
+                SkScalar ghostSpacesLeft = !run->leftToRight() ? clip.right() - line.width() : 0;
+
+                if (ghostSpacesRight + ghostSpacesLeft > 0) {
+                    if (lineTextAlign == TextAlign::kLeft && ghostSpacesLeft > 0) {
+                        clip.offset(-ghostSpacesLeft, 0);
+                    } else if (lineTextAlign == TextAlign::kRight && ghostSpacesLeft > 0) {
+                        clip.offset(-ghostSpacesLeft, 0);
+                    } else if (lineTextAlign == TextAlign::kCenter) {
+                        // TODO: What do we do for centering?
                     }
-                    trailingSpaces.fTop = clip.fTop;
-                    trailingSpaces.fBottom = clip.fBottom;
-                    trailingSpaces.offset(line.offset());
                 }
 
                 clip.offset(line.offset());
 
                 if (rectHeightStyle == RectHeightStyle::kMax) {
+                    // TODO: Sort it out with Flutter people
                     // Mimicking TxtLib: clip.fTop = line.offset().fY + line.roundingDelta();
                     clip.fBottom = line.offset().fY + line.height();
 
@@ -608,10 +649,36 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                     if (&line == &fLines.back()) {
                         clip.fBottom -= line.sizes().runTop(run);
                     }
+                } else if (rectHeightStyle == RectHeightStyle::kStrut) {
+                    auto strutStyle = this->paragraphStyle().getStrutStyle();
+                    if (strutStyle.getStrutEnabled() && strutStyle.getFontSize() > 0) {
+                        auto top = line.baseline() ; //+ line.sizes().runTop(run);
+                        clip.fTop = top + fStrutMetrics.ascent();
+                        clip.fBottom = top + fStrutMetrics.descent();
+                        clip.offset(line.offset());
+                    }
                 }
 
-                results.emplace_back(
+                // Check if we can merge two boxes
+                bool mergedBoxes = false;
+                if (!results.empty() &&
+                    lastRun != nullptr &&
+                    lastRun->lineHeight() == run->lineHeight() &&
+                    lastRun->font() == run->font()) {
+                    auto& lastBox = results.back();
+                    if (lastBox.rect.fTop == clip.fTop && lastBox.rect.fBottom == clip.fBottom &&
+                            (lastBox.rect.fLeft == clip.fRight || lastBox.rect.fRight == clip.fLeft)) {
+                        lastBox.rect.fLeft = SkTMin(lastBox.rect.fLeft, clip.fLeft);
+                        lastBox.rect.fRight = SkTMax(lastBox.rect.fRight, clip.fRight);
+                        mergedBoxes = true;
+                    }
+                }
+                lastRun = run;
+
+                if (!mergedBoxes) {
+                    results.emplace_back(
                         clip, run->leftToRight() ? TextDirection::kLtr : TextDirection::kRtl);
+                }
 
                 if (trailingSpaces.width() > 0) {
                     results.emplace_back(trailingSpaces, paragraphTextDirection);
@@ -644,65 +711,90 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 }
 // TODO: Deal with RTL here
 PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, SkScalar dy) {
+
+    markGraphemes();
     PositionWithAffinity result(0, Affinity::kDownstream);
     for (auto& line : fLines) {
-        // This is so far the the line vertically closest to our coordinates
-        // (or the first one, or the only one - all the same)
-        line.iterateThroughRuns(
-                line.textWithSpaces(),
-                0,
-                true,
-                [dx, &result](Run* run, size_t pos, size_t size, SkRect clip, SkScalar shift,
-                              bool clippingNeeded) {
-                    if (dx < clip.fLeft) {
-                        // All the other runs are placed right of this one
-                        result = {SkToS32(run->fClusterIndexes[pos]), kDownstream};
-                        return false;
-                    }
-
-                    if (dx >= clip.fRight) {
-                        // We have to keep looking but just in case keep the last one as the closes
-                        // so far
-                        result = {SkToS32(run->fClusterIndexes[pos + size - 1]) + 1, kUpstream};
-                        return true;
-                    }
-
-                    // So we found the run that contains our coordinates
-                    size_t found = pos;
-                    for (size_t i = pos; i < pos + size; ++i) {
-                        if (run->positionX(i) + shift > dx) {
-                            break;
-                        }
-                        found = i;
-                    }
-
-                    if (found == pos + size - 1) {
-                        result = {SkToS32(run->fClusterIndexes[found]), kUpstream};
-                    } else {
-                        auto center = (run->positionX(found + 1) + run->positionX(found)) / 2;
-                        if ((dx <= center + shift) == run->leftToRight()) {
-                            result = {SkToS32(run->fClusterIndexes[found]), kDownstream};
-                        } else {
-                            result = {SkToS32(run->fClusterIndexes[found + 1]), kUpstream};
-                        }
-                    }
-                    // No need to continue
-                    return false;
-                });
-
         // Let's figure out if we can stop looking
         auto offsetY = line.offset().fY;
-        if (dy < offsetY) {
-            // The closest position on this line; next line is going to be even lower
-            break;
-        }
-        if (dy >= offsetY + line.height()) {
-            // We have the closest position on the lowest line so far, but we have to continue
+        if (dy > offsetY + line.height() && &line != &fLines.back()) {
+            // This line is not good enough
             continue;
         }
 
-        // We hit the line; nothing else to do
-        break;
+        // This is so far the the line vertically closest to our coordinates
+        // (or the first one, or the only one - all the same)
+        line.iterateThroughRuns(
+            line.textWithSpaces(),
+            0,
+            true,
+            [this, dx, &result]
+            (Run* run, size_t pos, size_t size, TextRange, SkRect clip, SkScalar shift, bool clippingNeeded) {
+
+                if (dx < clip.fLeft) {
+                    // All the other runs are placed right of this one
+                    result = { SkToS32(run->fClusterIndexes[pos]), kDownstream };
+                    return false;
+                }
+
+                if (dx >= clip.fRight) {
+                    // We have to keep looking but just in case keep the last one as the closes
+                    // so far
+                    result = { SkToS32(run->fClusterIndexes[pos + size - 1]) + 1, kUpstream };
+                    return true;
+                }
+
+                // So we found the run that contains our coordinates
+                // Find the glyph position in the run that is the closest left of our point
+                // TODO: binary search
+                size_t found = pos;
+                for (size_t i = pos; i < pos + size; ++i) {
+                    if (run->positionX(i) + shift > dx) {
+                        break;
+                    }
+                    found = i;
+                }
+                auto glyphStart = run->positionX(found);
+                auto glyphWidth = run->positionX(found + 1) - run->positionX(found);
+                auto clusterIndex8 = run->fClusterIndexes[found];
+
+                // Find the grapheme positions in codepoints that contains the point
+                auto codepoint = std::lower_bound(
+                    fCodePoints.begin(), fCodePoints.end(),
+                    clusterIndex8,
+                    [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
+
+                auto codepointIndex = codepoint - fCodePoints.begin();
+                auto codepoints = fGraphemes[codepoint->fGrapeme].fCodepointRange;
+                auto graphemeSize = codepoints.width();
+
+                // We only need to inspect one glyph (maybe not even the entire glyph)
+                SkScalar center;
+                if (graphemeSize > 1) {
+                    auto averageCodepoint = glyphWidth / graphemeSize;
+                    auto codepointStart = glyphStart + averageCodepoint * (codepointIndex - codepoints.start);
+                    auto codepointEnd = codepointStart + averageCodepoint;
+                    center = (codepointStart + codepointEnd) / 2 + shift;
+                } else {
+                    SkASSERT(graphemeSize == 1);
+                    auto codepointStart = glyphStart;
+                    auto codepointEnd = codepointStart + glyphWidth;
+                    center = (codepointStart + codepointEnd) / 2 + shift;
+                }
+
+                if ((dx <= center) == run->leftToRight()) {
+                    result = { SkToS32(codepointIndex), kDownstream };
+                } else {
+                    result = { SkToS32(codepointIndex + 1), kUpstream };
+                }
+                // No need to continue
+                return false;
+            });
+
+        if (dy < offsetY + line.height()) {
+            // The closest position on this line; next line is going to be even lower
+            break;
+        }
     }
 
     // SkDebugf("getGlyphPositionAtCoordinate(%f,%f) = %d\n", dx, dy, result.position);
@@ -712,24 +804,17 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 // Finds the first and last glyphs that define a word containing
 // the glyph at index offset.
 // By "glyph" they mean a character index - indicated by Minikin's code
+// TODO: make the breaker a member of ParagraphImpl
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
     TextBreaker breaker;
     if (!breaker.initialize(fTextSpan, UBRK_WORD)) {
         return {0, 0};
     }
 
-    size_t currentPos = breaker.first();
-    while (true) {
-        auto start = currentPos;
-        currentPos = breaker.next();
-        if (breaker.eof()) {
-            break;
-        }
-        if (start <= offset && currentPos > offset) {
-            return {start, currentPos};
-        }
-    }
-    return {0, 0};
+    auto start = breaker.preceding(offset + 1);
+    auto end = breaker.following(start);
+
+    return { start, end };
 }
 
 SkSpan<const char> ParagraphImpl::text(TextRange textRange) {

@@ -12,6 +12,7 @@ StrutStyle::StrutStyle() {
     fHeight = 1;
     fLeading = -1;
     fForceHeight = false;
+    fHeightOverride = false;
     fEnabled = false;
 }
 

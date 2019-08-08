@@ -278,6 +278,7 @@ Cluster::Cluster(ParagraphImpl* master,
         : fMaster(master)
         , fRunIndex(runIndex)
         , fTextRange(text.begin() - fMaster->text().begin(), text.end() - fMaster->text().begin())
+        , fGraphemeRange(EMPTY_RANGE)
         , fStart(start)
         , fEnd(end)
         , fWidth(width)
