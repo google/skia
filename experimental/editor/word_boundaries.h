@@ -3,9 +3,10 @@
 #ifndef word_boundaries_DEFINED
 #define word_boundaries_DEFINED
 
+#include <cstddef>
 #include <vector>
 
 // TODO: Decide if this functionality should be moved into SkShaper as an extra utility.
-std::vector<bool> GetUtf8WordBoundaries(const char* begin, const char* end, const char* locale);
+std::vector<bool> GetUtf8WordBoundaries(const char* begin, std::size_t byteLen, const char* locale);
 
 #endif  // word_boundaries_DEFINED

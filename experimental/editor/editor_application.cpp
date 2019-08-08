@@ -196,8 +196,13 @@ struct EditorLayer : public sk_app::Window::Layer {
                 case 's':
                     {
                         std::ofstream out(fPath.c_str());
-                        for (editor::StringView str : fEditor.text()) {
-                            out.write(str.data, str.size) << '\n';
+                        size_t count = fEditor.lineCount();
+                        for (size_t i = 0; i < count; ++i) {
+                            if (i != 0) {
+                                out << '\n';
+                            }
+                            editor::StringView str = fEditor.line(i);
+                            out.write(str.data, str.size);
                         }
                     }
                     return true;

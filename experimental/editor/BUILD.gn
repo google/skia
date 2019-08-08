@@ -14,9 +14,23 @@ if (skia_use_icu && skia_use_harfbuzz) {
     ]
     sources = [
       "editor.cpp",
-      "run_handler.cpp",
-      "run_handler.h",
       "stringslice.cpp",
+    ]
+    public_deps = [
+      "../..:skia",
+    ]
+    deps = [
+      ":shape",
+    ]
+  }
+
+  source_set("shape") {
+    include_dirs = [ "../.." ]
+    public = [
+      "shape.h",
+    ]
+    sources = [
+      "shape.cpp",
     ]
     public_deps = [
       "../..:skia",

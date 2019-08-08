@@ -8,7 +8,7 @@
 
 #include <memory>
 
-std::vector<bool> GetUtf8WordBoundaries(const char* begin, const char* end, const char* locale) {
+std::vector<bool> GetUtf8WordBoundaries(const char* begin, size_t byteCount, const char* locale) {
     static constexpr UBreakIteratorType kIteratorType = UBRK_WORD;
     struct UTextCloser {
         void operator()(UText* p) { (void)utext_close(p); }
@@ -18,10 +18,9 @@ std::vector<bool> GetUtf8WordBoundaries(const char* begin, const char* end, cons
     };
 
     std::vector<bool> result;
-    if (end <= begin) {
+    if (0 == byteCount) {
         return result;
     }
-    size_t byteCount = end - begin;
     result.resize(byteCount);
 
     UText utf8UText = UTEXT_INITIALIZER;
