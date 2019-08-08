@@ -129,7 +129,7 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
         return { fEndLine.breakCluster() + 1, 0, width };
     }
 
-    auto width = fEndLine.width();
+    auto width = fEndLine.withWithGhostSpaces(); //fEndLine.width();
     auto cluster = fEndLine.breakCluster() + 1;
     while (cluster < endOfClusters && cluster->isWhitespaces()) {
         width += cluster->width();
