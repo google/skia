@@ -37,10 +37,18 @@ public:
     }
 
     SkSpan<const SkGlyphPos>
-    prepareForDrawing(const SkPackedGlyphID packedGlyphIDs[], const SkPoint positions[], size_t n,
-                      int maxDimension, PreparationDetail detail, SkGlyphPos results[]) override {
-        return fStrike.prepareForDrawing(packedGlyphIDs, positions, n, maxDimension, detail,
-                                         results);
+    prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
+                                 const SkPoint positions[],
+                                 size_t n,
+                                 int maxDimension,
+                                 PreparationDetail detail,
+                                 SkGlyphPos results[]) override {
+        return fStrike.prepareForDrawingRemoveEmpty(packedGlyphIDs,
+                                                    positions,
+                                                    n,
+                                                    maxDimension,
+                                                    detail,
+                                                    results);
     }
 
     const SkDescriptor& getDescriptor() const override {
