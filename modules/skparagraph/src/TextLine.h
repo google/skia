@@ -54,6 +54,8 @@ public:
                                                 SkScalar offsetX)>;
     void iterateThroughStylesInTextOrder(StyleType styleType, const StyleVisitor& visitor) const;
 
+    SkTArray<TextRange> findVisualBefore(TextRange textRange) const;
+
     using RunVisitor = std::function<bool(Run* run, size_t pos, size_t size, SkRect clip,
                                           SkScalar shift, bool clippingNeeded)>;
     SkScalar iterateThroughRuns(TextRange textRange,
@@ -61,8 +63,8 @@ public:
                                 bool includeGhostWhitespaces,
                                 const RunVisitor& visitor) const;
 
-    using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index)>;
-    void iterateThroughClustersInGlyphsOrder(bool reverse, const ClustersVisitor& visitor) const;
+    using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost)>;
+    void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
 
     void format(TextAlign effectiveAlign, SkScalar maxWidth);
     void paint(SkCanvas* canvas);

@@ -267,7 +267,7 @@ void ParagraphImpl::markLineBreaks() {
 
 
     // Walk through all the clusters in the direction of shaped text
-    Block* currentStyle = this->fTextStyles.begin();
+    // (we have to walk through the styles in the same order, too)
     SkScalar shift = 0;
     for (auto& run : fRuns) {
 
@@ -282,6 +282,7 @@ void ParagraphImpl::markLineBreaks() {
             run.shift(cluster, shift);
 
             // Synchronize styles (one cluster can be covered by few styles)
+            Block* currentStyle = this->fTextStyles.begin();
             while (!cluster->startsIn(currentStyle->fRange)) {
                 currentStyle++;
                 SkASSERT(currentStyle != this->fTextStyles.end());
@@ -551,23 +552,75 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         }
 
         SkScalar runOffset = 0;
-        if (lineText.start != intersect.start) {
-            TextRange before(lineText.start, intersect.start);
-            runOffset = line.iterateThroughRuns(
-                    before, 0, true,
-                    [](Run*, size_t, size_t, SkRect, SkScalar, bool) { return true; });
+        if (lineText.start != intersect.start || true) {
+            auto before = line.findVisualBefore(intersect);
+            for (auto& range : before) {
+                runOffset += line.iterateThroughRuns(
+                    range * lineText, 0, true,
+                    [&](Run* run, size_t pos, size_t size, SkRect clip, SkScalar shift, bool clippingNeeded) {
+                        /*
+                        if (run->textRange().end < intersect.start) {
+                            runOffset += clip.width();
+                        } else if (run->textRange().start >= intersect.end) {
+                            return false;
+                        }
+                        // This run could partially be  before the intersect
+                        if (run->leftToRight()) {
+
+                        }
+                        */
+                        return true;
+                    });
+            }
         }
+
         auto firstBoxOnTheLine = results.size();
         auto paragraphTextDirection = paragraphStyle().getTextDirection();
+        auto lineTextAlign = line.assumedTextAlign();
         line.iterateThroughRuns(
             intersect,
             runOffset,
-            paragraphStyle().getTextAlign() != TextAlign::kJustify || &line == &fLines.back(),
-            [&results, &line, rectHeightStyle, this, paragraphTextDirection](Run* run, size_t pos, size_t size, SkRect clip,
-                              SkScalar shift, bool clippingNeeded) {
+            true,
+            [&results, &line, rectHeightStyle, this, paragraphTextDirection, lineTextAlign]
+            (Run* run, size_t pos, size_t size, SkRect clip, SkScalar shift, bool clippingNeeded) {
 
                 SkRect trailingSpaces = SkRect::MakeEmpty();
-                auto spaces = clip.left() >= line.width() ? 0 : clip.right() - line.width();
+
+                if (!run->leftToRight()) {
+                    if (lineTextAlign == TextAlign::kRight && false) {
+                        auto mirrorLeft = line.width() - clip.fLeft;
+                        auto mirrorRight = line.width() - clip.fRight;
+                        clip.fRight = mirrorLeft;
+                        clip.fLeft = mirrorRight;
+                    }
+                }
+
+                SkScalar ghostSpacesRight = run->leftToRight() ? clip.right() - line.width() : 0;
+                SkScalar ghostSpacesLeft = !run->leftToRight() ? clip.right() - line.width() : 0;
+
+                if (ghostSpacesRight + ghostSpacesLeft > 0) {
+                    if (lineTextAlign == TextAlign::kLeft) {
+                        if (ghostSpacesRight > 0) {
+                            // Nothing to do
+                        } else if (ghostSpacesLeft > 0) {
+                            clip.offset(-ghostSpacesLeft, 0);
+                        }
+                    } else if (lineTextAlign == TextAlign::kRight) {
+                        if (ghostSpacesLeft > 0) {
+                            clip.offset(-ghostSpacesLeft, 0);
+                        } else if ((ghostSpacesRight > 0)) {
+                            // Nothing to do
+                        }
+                    } else if (lineTextAlign == TextAlign::kCenter) {
+
+                    }
+                }
+
+
+                // TODO: sort out cases:
+                // 1. left/right/justify
+                // 2. RTL | LTR
+                /*
                 if (spaces > 0) {
                     // There are trailing spaces; let's make a special box for them
                     if (paragraphTextDirection == TextDirection::kRtl) {
@@ -583,7 +636,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                     trailingSpaces.fBottom = clip.fBottom;
                     trailingSpaces.offset(line.offset());
                 }
-
+                */
                 clip.offset(line.offset());
 
                 if (rectHeightStyle == RectHeightStyle::kMax) {
@@ -649,46 +702,46 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         // This is so far the the line vertically closest to our coordinates
         // (or the first one, or the only one - all the same)
         line.iterateThroughRuns(
-                line.textWithSpaces(),
-                0,
-                true,
-                [dx, &result](Run* run, size_t pos, size_t size, SkRect clip, SkScalar shift,
-                              bool clippingNeeded) {
-                    if (dx < clip.fLeft) {
-                        // All the other runs are placed right of this one
-                        result = {SkToS32(run->fClusterIndexes[pos]), kDownstream};
-                        return false;
-                    }
-
-                    if (dx >= clip.fRight) {
-                        // We have to keep looking but just in case keep the last one as the closes
-                        // so far
-                        result = {SkToS32(run->fClusterIndexes[pos + size - 1]) + 1, kUpstream};
-                        return true;
-                    }
-
-                    // So we found the run that contains our coordinates
-                    size_t found = pos;
-                    for (size_t i = pos; i < pos + size; ++i) {
-                        if (run->positionX(i) + shift > dx) {
-                            break;
-                        }
-                        found = i;
-                    }
-
-                    if (found == pos + size - 1) {
-                        result = {SkToS32(run->fClusterIndexes[found]), kUpstream};
-                    } else {
-                        auto center = (run->positionX(found + 1) + run->positionX(found)) / 2;
-                        if ((dx <= center + shift) == run->leftToRight()) {
-                            result = {SkToS32(run->fClusterIndexes[found]), kDownstream};
-                        } else {
-                            result = {SkToS32(run->fClusterIndexes[found + 1]), kUpstream};
-                        }
-                    }
-                    // No need to continue
+            line.textWithSpaces(),
+            0,
+            true,
+            [dx, &result](Run* run, size_t pos, size_t size, SkRect clip, SkScalar shift,
+                          bool clippingNeeded) {
+                if (dx < clip.fLeft) {
+                    // All the other runs are placed right of this one
+                    result = {SkToS32(run->fClusterIndexes[pos]), kDownstream};
                     return false;
-                });
+                }
+
+                if (dx >= clip.fRight) {
+                    // We have to keep looking but just in case keep the last one as the closes
+                    // so far
+                    result = {SkToS32(run->fClusterIndexes[pos + size - 1]) + 1, kUpstream};
+                    return true;
+                }
+
+                // So we found the run that contains our coordinates
+                size_t found = pos;
+                for (size_t i = pos; i < pos + size; ++i) {
+                    if (run->positionX(i) + shift > dx) {
+                        break;
+                    }
+                    found = i;
+                }
+
+                if (found == pos + size - 1) {
+                    result = {SkToS32(run->fClusterIndexes[found]), kUpstream};
+                } else {
+                    auto center = (run->positionX(found + 1) + run->positionX(found)) / 2;
+                    if ((dx <= center + shift) == run->leftToRight()) {
+                        result = {SkToS32(run->fClusterIndexes[found]), kDownstream};
+                    } else {
+                        result = {SkToS32(run->fClusterIndexes[found + 1]), kUpstream};
+                    }
+                }
+                // No need to continue
+                return false;
+            });
 
         // Let's figure out if we can stop looking
         auto offsetY = line.offset().fY;

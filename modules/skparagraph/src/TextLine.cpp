@@ -148,8 +148,9 @@ void TextLine::format(TextAlign effectiveAlign, SkScalar maxWidth) {
 
 TextAlign TextLine::assumedTextAlign() const {
     if (this->fMaster->paragraphStyle().getTextAlign() != TextAlign::kJustify) {
-        return this->fMaster->paragraphStyle().getTextAlign();
+        return this->fMaster->paragraphStyle().effective_align();
     }
+
     if (fClusterRange.empty()) {
         return TextAlign::kLeft;
     } else {
@@ -221,13 +222,7 @@ SkScalar TextLine::paintBackground(SkCanvas* canvas, TextRange textRange,
 
 SkScalar TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style,
                                SkScalar offsetX) const {
-    if (style.getShadowNumber() == 0) {
-        // Still need to calculate text advance
-        return iterateThroughRuns(
-                textRange, offsetX, false,
-                [](Run*, int32_t, size_t, SkRect, SkScalar, bool) { return true; });
-    }
-
+/*
     SkScalar result = 0;
     for (TextShadow shadow : style.getShadows()) {
         if (!shadow.hasShadow()) continue;
@@ -242,23 +237,54 @@ SkScalar TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const Text
 
         auto shiftDown = this->baseline();
         result = this->iterateThroughRuns(
-                textRange, offsetX, false,
-                [canvas, shadow, paint, shiftDown](Run* run, size_t pos, size_t size, SkRect clip,
-                                                   SkScalar shift, bool clippingNeeded) {
-                    SkTextBlobBuilder builder;
-                    run->copyTo(builder, pos, size, SkVector::Make(0, shiftDown));
-                    canvas->save();
-                    clip.offset(shadow.fOffset);
-                    if (clippingNeeded) {
-                        canvas->clipRect(clip);
-                    }
-                    canvas->translate(shift, 0);
-                    canvas->drawTextBlob(builder.make(), shadow.fOffset.x(), shadow.fOffset.y(),
-                                         paint);
-                    canvas->restore();
-                    return true;
-                });
+            textRange, offsetX, false,
+            [canvas, shadow, paint, shiftDown](Run* run, size_t pos, size_t size, SkRect clip,
+                                               SkScalar shift, bool clippingNeeded) {
+                SkTextBlobBuilder builder;
+                run->copyTo(builder, pos, size, SkVector::Make(0, shiftDown));
+                canvas->save();
+                clip.offset(shadow.fOffset);
+                if (clippingNeeded) {
+                    canvas->clipRect(clip);
+                }
+                canvas->translate(shift, 0);
+                canvas->drawTextBlob(builder.make(), shadow.fOffset.x(), shadow.fOffset.y(),
+                                     paint);
+                canvas->restore();
+                return true;
+            });
     }
+*/
+    auto shiftDown = this->baseline();
+    auto result = this->iterateThroughRuns(
+        textRange, offsetX, false,
+        [canvas, shiftDown, &style](Run* run, size_t pos, size_t size, SkRect clip,
+                                    SkScalar shift, bool clippingNeeded) {
+            for (TextShadow shadow : style.getShadows()) {
+                if (!shadow.hasShadow()) continue;
+
+                SkPaint paint;
+                paint.setColor(shadow.fColor);
+                if (shadow.fBlurRadius != 0.0) {
+                    auto filter = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
+                                                         SkDoubleToScalar(shadow.fBlurRadius), false);
+                    paint.setMaskFilter(filter);
+                }
+
+                SkTextBlobBuilder builder;
+                run->copyTo(builder, pos, size, SkVector::Make(0, shiftDown));
+                canvas->save();
+                clip.offset(shadow.fOffset);
+                if (clippingNeeded) {
+                    canvas->clipRect(clip);
+                }
+                canvas->translate(shift, 0);
+                canvas->drawTextBlob(builder.make(), shadow.fOffset.x(), shadow.fOffset.y(),
+                                     paint);
+                canvas->restore();
+            }
+            return true;
+        });
 
     return result;
 }
@@ -266,71 +292,71 @@ SkScalar TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const Text
 SkScalar TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange,
                                     const TextStyle& style, SkScalar offsetX) const {
     return this->iterateThroughRuns(
-            textRange, offsetX, false,
-            [this, canvas, &style](Run* run, int32_t pos, size_t size, SkRect clip, SkScalar shift,
-                                  bool clippingNeeded) {
-                if (style.getDecorationType() == TextDecoration::kNoDecoration) {
-                    return true;
-                }
-
-                for (auto decoration : AllTextDecorations) {
-                    if ((style.getDecorationType() & decoration) == 0) {
-                        continue;
-                    }
-
-                    SkScalar thickness = style.getDecorationThicknessMultiplier();
-                    //
-                    SkScalar position = 0;
-                    switch (decoration) {
-                        case TextDecoration::kUnderline:
-                            position = -run->ascent() + thickness;
-                            break;
-                        case TextDecoration::kOverline:
-                            position = 0;
-                            break;
-                        case TextDecoration::kLineThrough: {
-                            position = (run->descent() - run->ascent() - thickness) / 2;
-                            break;
-                        }
-                        default:
-                            // TODO: can we actually get here?
-                            SkASSERT(false);
-                            break;
-                    }
-
-                    auto width = clip.width();
-                    SkScalar x = clip.left();
-                    SkScalar y = clip.top() + position;
-
-                    // Decoration paint (for now) and/or path
-                    SkPaint paint;
-                    SkPath path;
-                    this->computeDecorationPaint(paint, clip, style, path);
-                    paint.setStrokeWidth(thickness);
-
-                    switch (style.getDecorationStyle()) {
-                        case TextDecorationStyle::kWavy:
-                            path.offset(x, y);
-                            canvas->drawPath(path, paint);
-                            break;
-                        case TextDecorationStyle::kDouble: {
-                            canvas->drawLine(x, y, x + width, y, paint);
-                            SkScalar bottom = y + thickness * 2;
-                            canvas->drawLine(x, bottom, x + width, bottom, paint);
-                            break;
-                        }
-                        case TextDecorationStyle::kDashed:
-                        case TextDecorationStyle::kDotted:
-                        case TextDecorationStyle::kSolid:
-                            canvas->drawLine(x, y, x + width, y, paint);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
+        textRange, offsetX, false,
+        [this, canvas, &style](Run* run, int32_t pos, size_t size, SkRect clip, SkScalar shift,
+                              bool clippingNeeded) {
+            if (style.getDecorationType() == TextDecoration::kNoDecoration) {
                 return true;
-            });
+            }
+
+            for (auto decoration : AllTextDecorations) {
+                if ((style.getDecorationType() & decoration) == 0) {
+                    continue;
+                }
+
+                SkScalar thickness = style.getDecorationThicknessMultiplier();
+                //
+                SkScalar position = 0;
+                switch (decoration) {
+                    case TextDecoration::kUnderline:
+                        position = -run->ascent() + thickness;
+                        break;
+                    case TextDecoration::kOverline:
+                        position = 0;
+                        break;
+                    case TextDecoration::kLineThrough: {
+                        position = (run->descent() - run->ascent() - thickness) / 2;
+                        break;
+                    }
+                    default:
+                        // TODO: can we actually get here?
+                        SkASSERT(false);
+                        break;
+                }
+
+                auto width = clip.width();
+                SkScalar x = clip.left();
+                SkScalar y = clip.top() + position;
+
+                // Decoration paint (for now) and/or path
+                SkPaint paint;
+                SkPath path;
+                this->computeDecorationPaint(paint, clip, style, path);
+                paint.setStrokeWidth(thickness);
+
+                switch (style.getDecorationStyle()) {
+                    case TextDecorationStyle::kWavy:
+                        path.offset(x, y);
+                        canvas->drawPath(path, paint);
+                        break;
+                    case TextDecorationStyle::kDouble: {
+                        canvas->drawLine(x, y, x + width, y, paint);
+                        SkScalar bottom = y + thickness * 2;
+                        canvas->drawLine(x, bottom, x + width, bottom, paint);
+                        break;
+                    }
+                    case TextDecorationStyle::kDashed:
+                    case TextDecorationStyle::kDotted:
+                    case TextDecorationStyle::kSolid:
+                        canvas->drawLine(x, y, x + width, y, paint);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return true;
+        });
 }
 
 void TextLine::computeDecorationPaint(SkPaint& paint,
@@ -402,19 +428,19 @@ void TextLine::justify(SkScalar maxWidth) {
     size_t whitespacePatches = 0;
     SkScalar textLen = 0;
     bool whitespacePatch = false;
-    this->iterateThroughClustersInGlyphsOrder(
-            false, [&whitespacePatches, &textLen, &whitespacePatch](const Cluster* cluster, ClusterIndex index) {
-                if (cluster->isWhitespaces()) {
-                    if (!whitespacePatch) {
-                        whitespacePatch = true;
-                        ++whitespacePatches;
-                    }
-                } else {
-                    whitespacePatch = false;
+    this->iterateThroughClustersInGlyphsOrder(false, false,
+        [&whitespacePatches, &textLen, &whitespacePatch](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
+            if (cluster->isWhitespaces()) {
+                if (!whitespacePatch) {
+                    whitespacePatch = true;
+                    ++whitespacePatches;
                 }
-                textLen += cluster->width();
-                return true;
-            });
+            } else {
+                whitespacePatch = false;
+            }
+            textLen += cluster->width();
+            return true;
+        });
 
     if (whitespacePatches == 0) {
         return;
@@ -423,9 +449,19 @@ void TextLine::justify(SkScalar maxWidth) {
     SkScalar step = (maxWidth - textLen) / whitespacePatches;
     SkScalar shift = 0;
 
+    // Deal with the ghost spaces
+    auto ghostShift = maxWidth - this->fAdvance.fX;
     // Spread the extra whitespaces
     whitespacePatch = false;
-    this->iterateThroughClustersInGlyphsOrder(false, [&](const Cluster* cluster, ClusterIndex index) {
+    this->iterateThroughClustersInGlyphsOrder(false, true, [&](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
+
+        if (ghost) {
+            if (leftToRight) {
+                fMaster->shiftCluster(index, ghostShift);
+            }
+            return true;
+        }
+
         if (cluster->isWhitespaces()) {
             if (!whitespacePatch) {
                 shift += step;
@@ -441,6 +477,8 @@ void TextLine::justify(SkScalar maxWidth) {
 
     SkAssertResult(SkScalarNearlyEqual(shift, maxWidth - textLen));
     SkASSERT(whitespacePatches == 0);
+
+    this->fWidthWithSpaces += ghostShift;
     this->fAdvance.fX = maxWidth;
 }
 
@@ -450,32 +488,32 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     // taking off cluster by cluster until the ellipsis fits
     SkScalar width = fAdvance.fX;
     iterateThroughClustersInGlyphsOrder(
-            true, [this, &width, ellipsis, maxWidth](const Cluster* cluster, ClusterIndex index) {
-                if (cluster->isWhitespaces()) {
-                    width -= cluster->width();
-                    return true;
-                }
+        true, false, [this, &width, ellipsis, maxWidth](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
+            if (cluster->isWhitespaces()) {
+                width -= cluster->width();
+                return true;
+            }
 
-                // Shape the ellipsis
-                Run* cached = fEllipsisCache.find(cluster->font());
-                if (cached == nullptr) {
-                    cached = shapeEllipsis(ellipsis, cluster->run());
-                } else {
-                    cached->setMaster(fMaster);
-                }
-                fEllipsis = std::make_shared<Run>(*cached);
+            // Shape the ellipsis
+            Run* cached = fEllipsisCache.find(cluster->font());
+            if (cached == nullptr) {
+                cached = shapeEllipsis(ellipsis, cluster->run());
+            } else {
+                cached->setMaster(fMaster);
+            }
+            fEllipsis = std::make_shared<Run>(*cached);
 
-                // See if it fits
-                if (width + fEllipsis->advance().fX > maxWidth) {
-                    width -= cluster->width();
-                    // Continue if it's not
-                    return true;
-                }
+            // See if it fits
+            if (width + fEllipsis->advance().fX > maxWidth) {
+                width -= cluster->width();
+                // Continue if it's not
+                return true;
+            }
 
-                fEllipsis->shift(width, 0);
-                fAdvance.fX = width;
-                return false;
-            });
+            fEllipsis->shift(width, 0);
+            fAdvance.fX = width;
+            return false;
+        });
 }
 
 Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
@@ -547,7 +585,7 @@ SkRect TextLine::measureTextInsideOneRun(
     // Anything else (when we want the cluster width contain all the spaces -
     // coming from letter spacing or word spacing or justification)
     auto range = includeGhostSpaces ? fGhostClusterRange : fClusterRange;
-    bool needsClipping = (run->leftToRight() ? endIndex == range.end  - 1 : startIndex == range.end);
+    bool needsClipping = (run->leftToRight() ? endIndex == range.end  - 1 : startIndex == range.end - 1);
     SkRect clip =
             SkRect::MakeXYWH(run->positionX(start->startPos()) - run->positionX(0),
                              sizes().runTop(run),
@@ -570,24 +608,58 @@ SkRect TextLine::measureTextInsideOneRun(
 }
 
 void TextLine::iterateThroughClustersInGlyphsOrder(bool reverse,
+                                                   bool includeGhosts,
                                                    const ClustersVisitor& visitor) const {
+    // Walk through the clusters in the logical order (or reverse)
     for (size_t r = 0; r != fLogical.size(); ++r) {
         auto& runIndex = fLogical[reverse ? fLogical.size() - r - 1 : r];
-        // Walk through the clusters in the logical order (or reverse)
         auto run = this->fMaster->runs().begin() + runIndex;
-        auto normalOrder = run->leftToRight() != reverse;
-        auto start = normalOrder ? run->clusterRange().start : run->clusterRange().end - 1;
-        auto end = normalOrder ? run->clusterRange().end : run->clusterRange().start - 1;
-        for (auto index = start; index != end; normalOrder ? ++index : --index) {
-            const auto& cluster = fMaster->clusters().begin() + index;
-            if (!this->contains(cluster)) {
-                continue;
+        auto start = SkTMax(run->clusterRange().start, fClusterRange.start);
+        auto end = SkTMin(run->clusterRange().end, fClusterRange.end);
+        auto ghosts = SkTMin(run->clusterRange().end, fGhostClusterRange.end);
+
+        if (run->leftToRight() != reverse) {
+            for (auto index = start; index < ghosts; ++index) {
+                if (index >= end && !includeGhosts) {
+                    break;
+                }
+                const auto& cluster = &fMaster->cluster(index);
+                if (!visitor(cluster, index, run->leftToRight(), index >= end)) {
+                    return;
+                }
             }
-            if (!visitor(cluster, index)) {
-                return;
+        } else {
+            for (auto index = ghosts; index > start; --index) {
+                if (index > end && !includeGhosts) {
+                    continue;
+                }
+                const auto& cluster = &fMaster->cluster(index - 1);
+                if (!visitor(cluster, index - 1, run->leftToRight(), index > end)) {
+                    return;
+                }
             }
         }
     }
+}
+
+SkTArray<TextRange> TextLine::findVisualBefore(TextRange textRange) const {
+    SkTArray<TextRange> before;
+    for (auto& runIndex : fLogical) {
+        const auto run = &this->fMaster->run(runIndex);
+        if (run->textRange().start > textRange.start || run->textRange().end <= textRange.start) {
+            // This run does not even touch the text start
+            before.emplace_back(run->textRange());
+        } else {
+            // This is the run
+            if (run->leftToRight()) {
+                before.emplace_back(run->textRange().start, textRange.start);
+            } else if (textRange.end < run->textRange().end) {
+                before.emplace_back(textRange.end, run->textRange().end);
+            }
+            break;
+        }
+    }
+    return before;
 }
 
 // Walk through the runs in the logical order
@@ -636,8 +708,14 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
             return width;
         }
 
-        width += clip.width();
-        runOffset += clip.width();
+        if (run->leftToRight() || &runIndex == &fLogical.back()) {
+            width += clip.width();
+            runOffset += clip.width();
+        } else {
+            width += run->advance().fX;
+            runOffset += run->advance().fX;
+        }
+
     }
 
     if (this->ellipsis() != nullptr) {
