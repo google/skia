@@ -86,10 +86,14 @@ private:
 
     virtual void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override {}
 
-    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, GrRenderable,
-                                     int renderTargetSampleCnt, SkBudgeted, GrProtected,
-                                     const GrMipLevel texels[], int mipLevelCount)
-                                     override;
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc,
+                                     const GrBackendFormat&,
+                                     GrRenderable,
+                                     int renderTargetSampleCnt,
+                                     SkBudgeted,
+                                     GrProtected,
+                                     const GrMipLevel texels[],
+                                     int mipLevelCount) override;
 
     sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, SkImage::CompressionType,
                                                SkBudgeted, const void* data) override;

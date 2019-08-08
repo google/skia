@@ -1429,6 +1429,7 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
 }
 
 sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                          const GrBackendFormat& format,
                                           GrRenderable renderable,
                                           int renderTargetSampleCnt,
                                           SkBudgeted budgeted,
@@ -1441,14 +1442,13 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     }
     SkASSERT(GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType() || renderTargetSampleCnt == 1);
 
-    GrGLenum glFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
 
     GrMipMapsStatus mipMapsStatus;
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc texDesc;
     texDesc.fSize = {desc.fWidth, desc.fHeight};
     texDesc.fTarget = GR_GL_TEXTURE_2D;
-    texDesc.fFormat = GrGLFormatFromGLEnum(glFormat);
+    texDesc.fFormat = format.asGLFormat();
     texDesc.fConfig = desc.fConfig;
     texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     if (texDesc.fFormat == GrGLFormat::kUnknown) {
