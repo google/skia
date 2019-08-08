@@ -63,23 +63,23 @@ public:
     }
     SkVector offset() const { return fOffset; }
     SkScalar ascent() const { return fFontMetrics.fAscent; }
-    SkScalar descent() const { return fFontMetrics.fDescent; }
-    SkScalar leading() const { return fFontMetrics.fLeading; }
+    //SkScalar descent() const { return fFontMetrics.fDescent; }
+    //SkScalar leading() const { return fFontMetrics.fLeading; }
     SkScalar correctAscent() const {
 
         if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
-            return fFontMetrics.fAscent;
+            return fFontMetrics.fAscent - fFontMetrics.fLeading / 2;
         }
         return fFontMetrics.fAscent * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
+                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
     }
     SkScalar correctDescent() const {
 
         if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
-            return fFontMetrics.fDescent;
+            return fFontMetrics.fDescent + fFontMetrics.fLeading / 2;
         }
         return fFontMetrics.fDescent * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
+                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
     }
     SkScalar correctLeading() const {
 
@@ -233,8 +233,6 @@ public:
 
     SkScalar trimmedWidth(size_t pos) const;
 
-    void shift(SkScalar offset) const;
-
     void setIsWhiteSpaces();
 
     bool contains(TextIndex ch) const { return ch >= fTextRange.start && ch < fTextRange.end; }
@@ -288,15 +286,9 @@ public:
             return;
         }
 
-        if (run->lineHeight() == 0 || run->lineHeight() == 1) {
-            fAscent = SkTMin(fAscent, run->ascent());
-            fDescent = SkTMax(fDescent, run->descent());
-            fLeading = SkTMax(fLeading, run->leading());
-        } else {
-            fAscent = SkTMin(fAscent, run->correctAscent());
-            fDescent = SkTMax(fDescent, run->correctDescent());
-            fLeading = SkTMax(fLeading, run->correctLeading());
-        }
+        fAscent = SkTMin(fAscent, run->correctAscent());
+        fDescent = SkTMax(fDescent, run->correctDescent());
+        fLeading = SkTMax(fLeading, run->correctLeading());
 
     }
 
@@ -319,7 +311,9 @@ public:
         metrics.fLeading = SkTMax(metrics.fLeading, fLeading);
     }
 
-    SkScalar runTop(Run* run) const { return fLeading / 2 - fAscent + run->ascent() + delta(); }
+    SkScalar runTop(Run* run) const {
+        return fLeading / 2 - fAscent + run->ascent() + delta();
+    }
     SkScalar height() const { return SkScalarRoundToInt(fDescent - fAscent + fLeading); }
     SkScalar alphabeticBaseline() const { return fLeading / 2 - fAscent; }
     SkScalar ideographicBaseline() const { return fDescent - fAscent + fLeading; }
