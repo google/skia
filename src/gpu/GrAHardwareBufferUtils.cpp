@@ -14,21 +14,21 @@
 #include "src/gpu/GrAHardwareBufferUtils.h"
 
 #include <android/hardware_buffer.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES/gl.h>
+#include <GLES/glext.h>
 
 #include "include/gpu/GrContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #ifdef SK_VULKAN
 #include "src/gpu/vk/GrVkCaps.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #endif
-
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-#include <GLES/gl.h>
-#include <GLES/glext.h>
 
 #define PROT_CONTENT_EXT_STR "EGL_EXT_protected_content"
 #define EGL_PROTECTED_CONTENT_EXT 0x32C0
@@ -259,7 +259,7 @@ static GrBackendTexture make_gl_backend_texture(
     textureInfo.fID = texID;
     SkASSERT(backendFormat.isValid());
     textureInfo.fTarget = target;
-    textureInfo.fFormat = *backendFormat.getGLFormat();
+    textureInfo.fFormat = GrGLFormatToEnum(backendFormat.asGLFormat());
 
     *deleteProc = delete_gl_texture;
     *updateProc = update_gl_texture;
@@ -319,8 +319,8 @@ static GrBackendTexture make_vk_backend_texture(
         return GrBackendTexture();
     }
 
-    SkASSERT(backendFormat.getVkFormat());
-    VkFormat format = *backendFormat.getVkFormat();
+    VkFormat format;
+    SkAssertResult(backendFormat.asVkFormat(&format));
 
     VkResult err;
 
