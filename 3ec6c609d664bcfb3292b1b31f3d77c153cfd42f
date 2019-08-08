@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36a1e5d5_b50777de",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-08T16:38:58Z",
+      "side": 1,
+      "message": "return 0;",
+      "range": {
+        "startLine": 1139,
+        "startChar": 15,
+        "endLine": 1139,
+        "endChar": 20
+      },
+      "revId": "3ec6c609d664bcfb3292b1b31f3d77c153cfd42f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c7baf63_1b110ca6",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-08T16:38:58Z",
+      "side": 1,
+      "message": "extra \\n",
+      "revId": "3ec6c609d664bcfb3292b1b31f3d77c153cfd42f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
