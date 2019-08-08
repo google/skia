@@ -51,6 +51,18 @@ namespace skvm {
                 if (inst.y != NA) { inst.hoist &= fProgram[inst.y].hoist; }
                 if (inst.z != NA) { inst.hoist &= fProgram[inst.z].hoist; }
             }
+
+            // Any hoisted values used inside the loop need to live forever.
+            if (!inst.hoist) {
+                auto make_immortal = [&](Val arg) {
+                    if (fProgram[arg].death != 0) {
+                        fProgram[arg].death = (Val)fProgram.size();
+                    }
+                };
+                if (inst.x != NA && fProgram[inst.x].hoist) { make_immortal(inst.x); }
+                if (inst.y != NA && fProgram[inst.y].hoist) { make_immortal(inst.y); }
+                if (inst.z != NA && fProgram[inst.z].hoist) { make_immortal(inst.z); }
+            }
         }
 
         return {fProgram, fStrides, debug_name};
@@ -1107,51 +1119,54 @@ namespace skvm {
         // This next bit is a bit more complicated than strictly necessary;
         // we could just assign every live instruction to its own register.
         //
-        // But recycling registers in the loop is fairly cheap, and good practice
-        // for the JITs where minimizing register pressure really is important.
-        // (Also helps minimize unit test diffs.)
+        // But recycling registers is fairly cheap, and good practice for the
+        // JITs where minimizing register pressure really is important.
 
-        // Assign a register to each live hoisted instruction.  We'll never recycle these.
         fRegs = 0;
         int live_instructions = 0;
+        std::vector<Reg> avail;
+
+        // Assign this value to a register, recycling them where we can.
+        auto assign_register = [&](Val id) {
+            live_instructions++;
+            const Builder::Instruction& inst = instructions[id];
+
+            // If this is a real input and it's lifetime ends at this instruction,
+            // we can recycle the register it's occupying.
+            auto maybe_recycle_register = [&](Val input) {
+                if (input != NA && instructions[input].death == id) {
+                    avail.push_back(reg[input]);
+                }
+            };
+
+            // Take care to not recycle the same register twice.
+            if (true                                ) { maybe_recycle_register(inst.x); }
+            if (inst.y != inst.x                    ) { maybe_recycle_register(inst.y); }
+            if (inst.z != inst.x && inst.z != inst.y) { maybe_recycle_register(inst.z); }
+
+            // Allocate a register if we have to, preferring to reuse anything available.
+            if (avail.empty()) {
+                reg[id] = fRegs++;
+            } else {
+                reg[id] = avail.back();
+                avail.pop_back();
+            }
+        };
+
+        // Assign a register to each live hoisted instruction.
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
             if (inst.death != 0 && inst.hoist) {
-                live_instructions++;
-                reg[id] = fRegs++;
+                assign_register(id);
             }
         }
 
-        // Assign registers to each live loop instruction, recycling them when we can.
-        std::vector<Reg> avail;
+        // Assign registers to each live loop instruction.
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
             if (inst.death != 0 && !inst.hoist) {
-                live_instructions++;
+                assign_register(id);
 
-                /// If an instruction's input is no longer live, we can recycle its register.
-                auto maybe_recycle_register = [&](Val input) {
-                    // If this is a real input and it's lifetime ends at this instruction,
-                    // we can recycle the register it's occupying.
-                    if (input != NA
-                            && !instructions[input].hoist
-                            && instructions[input].death == id) {
-                        avail.push_back(reg[input]);
-                    }
-                };
-
-                // Take care to not recycle the same register twice.
-                if (true                                ) { maybe_recycle_register(inst.x); }
-                if (inst.y != inst.x                    ) { maybe_recycle_register(inst.y); }
-                if (inst.z != inst.x && inst.z != inst.y) { maybe_recycle_register(inst.z); }
-
-                // Allocate a register if we have to, preferring to reuse anything available.
-                if (avail.empty()) {
-                    reg[id] = fRegs++;
-                } else {
-                    reg[id] = avail.back();
-                    avail.pop_back();
-                }
             }
         }
 
@@ -1359,9 +1374,9 @@ namespace skvm {
 
             // Now make available any registers that are consumed by this instruction.
             // (The register pool we can pick dst from is >= the pool for tmp, adding any of these.)
-            if (x != NA && instructions[x].death == id && !hoisted(x)) { avail |= 1 << r[x]; }
-            if (y != NA && instructions[y].death == id && !hoisted(y)) { avail |= 1 << r[y]; }
-            if (z != NA && instructions[z].death == id && !hoisted(z)) { avail |= 1 << r[z]; }
+            if (x != NA && instructions[x].death == id) { avail |= 1 << r[x]; }
+            if (y != NA && instructions[y].death == id) { avail |= 1 << r[y]; }
+            if (z != NA && instructions[z].death == id) { avail |= 1 << r[z]; }
             // set_dst() and dst() will work read/write with this perhaps-just-updated avail.
 
             // Some ops may decide dst on their own to best fit the instruction (see Op::mad_f32).
