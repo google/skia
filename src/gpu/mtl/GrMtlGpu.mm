@@ -104,6 +104,14 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
+#if GR_METAL_SDK_VERSION >= 200
+    if (fMtlCaps->fenceSyncSupport()) {
+        fSharedEvent = [fDevice newSharedEvent];
+        dispatch_queue_t dispatchQueue = dispatch_queue_create("MTLFenceSync", NULL);
+        fSharedEventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:dispatchQueue];
+        fLatestEvent = 0;
+    }
+#endif
 }
 
 GrMtlGpu::~GrMtlGpu() {
@@ -968,6 +976,62 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
 
     return true;
+}
+
+GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
+#if GR_METAL_SDK_VERSION >= 200
+    if (this->caps()->fenceSyncSupport()) {
+        GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
+        ++fLatestEvent;
+        cmdBuffer->encodeSignalEvent(fSharedEvent, fLatestEvent);
+
+        return fLatestEvent;
+    }
+#endif
+    return 0;
+}
+
+bool GrMtlGpu::waitFence(GrFence value, uint64_t timeout) {
+#if GR_METAL_SDK_VERSION >= 200
+    if (this->caps()->fenceSyncSupport()) {
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+        // Add listener for this particular value or greater
+        __block dispatch_semaphore_t block_sema = semaphore;
+        [fSharedEvent notifyListener: fSharedEventListener
+                             atValue: value
+                               block: ^(id<MTLSharedEvent> sharedEvent, uint64_t value) {
+                                   dispatch_semaphore_signal(block_sema);
+                               }];
+
+        long result = dispatch_semaphore_wait(semaphore, timeout);
+
+        return !result;
+    }
+#endif
+    return true;
+}
+
+void GrMtlGpu::deleteFence(GrFence) const {
+    // nothing to delete
+}
+
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool isOwned) {
+    return nullptr;
+}
+
+sk_sp<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                  GrResourceProvider::SemaphoreWrapType wrapType,
+                                                  GrWrapOwnership ownership) {
+    return nullptr;
+}
+
+void GrMtlGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
+
+}
+
+void GrMtlGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
+
 }
 
 void GrMtlGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit) {

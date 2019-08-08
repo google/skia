@@ -116,3 +116,9 @@ void GrMtlCommandBuffer::endAllEncoding() {
         fActiveBlitCommandEncoder = nil;
     }
 }
+
+void GrMtlCommandBuffer::encodeSignalEvent(id<MTLEvent> event, uint64_t eventValue) {
+    SkASSERT(fCmdBuffer);
+    endAllEncoding(); // ensure we don't have any active command encoders
+    [fCmdBuffer encodeSignalEvent:event value:eventValue];
+}
