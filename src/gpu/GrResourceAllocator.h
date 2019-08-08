@@ -9,6 +9,8 @@
 #define GrResourceAllocator_DEFINED
 
 #include "GrGpuResourcePriv.h"
+#include "GrHack.h"
+#include "GrResourceProvider.h"
 #include "GrSurface.h"
 #include "GrSurfaceProxy.h"
 
@@ -42,7 +44,13 @@ class GrResourceProvider;
 class GrResourceAllocator {
 public:
     GrResourceAllocator(GrResourceProvider* resourceProvider)
-            : fResourceProvider(resourceProvider) {}
+            : fResourceProvider(resourceProvider) {
+        static int iFoo = 0;
+        fID = iFoo++;
+        SkDebugf("------------------------------------------------------------------------------\n");
+        const GrCacheState* tmp = resourceProvider->getCacheState(fID, "before");
+        tmp->dump();
+    }
 
     ~GrResourceAllocator();
 
@@ -227,6 +235,8 @@ private:
     char                         fStorage[kInitialArenaSize];
     SkArenaAlloc                 fIntervalAllocator{fStorage, kInitialArenaSize, kInitialArenaSize};
     Interval*                    fFreeIntervalList = nullptr;
+
+    int                          fID;
 };
 
 #endif // GrResourceAllocator_DEFINED

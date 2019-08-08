@@ -1,0 +1,43 @@
+------------------------------------------------------------------------------
+GrCacheState state{ "0-before", 0, nullptr, 0, 0, nullptr, 0 };
+GrCacheState state{ "0-after", 0, nullptr, 0, 0, nullptr, 0 };
+------------------------------------------------------------------------------
+const GrTextureCacheInfo gNonPurgeable-1-before[1] = {
+{ RGBA8888, 1280, 1280, GrRenderable::kNo, 1, GrMipMapped::kNo, true, 6553600 },
+};
+GrCacheState state{ "1-before", 1, gNonPurgeable-1-before, 6553600, 0, nullptr, 0 };
+const GrTextureCacheInfo gNonPurgeable-1-after[3] = {
+{ RGBA8888, 1280, 1280, GrRenderable::kNo, 1, GrMipMapped::kNo, true, 6553600 },
+{ RGBA8888, 1024, 600, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 2457600 },
+{ RGBA8888, 1024, 600, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 2457600 },
+};
+GrCacheState state{ "1-after", 3, gNonPurgeable-1-after, 11468800, 0, nullptr, 0 };
+Post Flush --------------------------------------------------------------------
+------------------------------------------------------------------------------
+const GrTextureCacheInfo gNonPurgeable-2-before[3] = {
+{ RGBA8888, 1280, 1280, GrRenderable::kNo, 1, GrMipMapped::kNo, true, 6553600 },
+{ RGBA8888, 1024, 600, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 2457600 },
+{ RGBA8888, 1024, 600, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 2457600 },
+};
+GrCacheState state{ "2-before", 3, gNonPurgeable-2-before, 11468800, 0, nullptr, 0 };
+const GrTextureCacheInfo gNonPurgeable-2-after[8] = {
+{ RGBA8888, 1280, 1280, GrRenderable::kNo, 1, GrMipMapped::kNo, true, 6553600 },
+{ RGBA8888, 1024, 600, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 2457600 },
+{ RGBA8888, 1024, 600, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 2457600 },
+{ RGBA8888, 1024, 512, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 2097152 },
+{ RGBA8888, 512, 256, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 524288 },
+{ RGBA8888, 256, 128, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 131072 },
+{ RGBA8888, 256, 128, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 131072 },
+{ RGBA8888, 1144, 720, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 3294720 },
+};
+GrCacheState state{ "2-after", 8, gNonPurgeable-2-after, 17647104, 0, nullptr, 0 };
+Exiting -----------------------------------------------------------------------
+------------------------------------------------------------------------------
+const GrTextureCacheInfo gPurgeable-gPurgeable-3-before[1] = {
+{ RGBA8888, 1024, 600, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 2457600 },
+};
+GrCacheState state{ "3-before", 0, nullptr, 0, 1, gPurgeable-3-before, 2457600 };
+const GrTextureCacheInfo gPurgeable-gPurgeable-3-after[1] = {
+{ RGBA8888, 1024, 600, GrRenderable::kYes, 1, GrMipMapped::kNo, true, 2457600 },
+};
+GrCacheState state{ "3-after", 0, nullptr, 0, 1, gPurgeable-3-after, 2457600 };

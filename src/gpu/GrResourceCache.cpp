@@ -906,3 +906,98 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
 }
 
 #endif
+
+#include "GrRenderTarget.h"
+#include "GrHack.h"
+#include "GrTexturePriv.h"
+
+
+static void get_cache_info(GrSurface* s, GrTextureCacheInfo* dst) {
+    dst->fRefCnt = s->getRefCnt();
+    dst->fPendingReads = s->getPendingReads();
+    dst->fPendingWrites = s->getPendingWrites();
+    dst->fConfig = s->config();
+    dst->fWidth = s->width();
+    dst->fHeight = s->height();
+    dst->fRenderable = false;
+    dst->fSampleCount = 1;
+    dst->fMipMapped = GrMipMapped::kNo;
+
+    if (const GrRenderTarget* rt = s->asRenderTarget()) {
+        dst->fRenderable = true;
+        dst->fSampleCount = rt->numColorSamples();
+    }
+
+    if (const GrTexture* t = s->asTexture()) {
+        dst->fMipMapped = t->texturePriv().mipMapped();
+    }
+
+    GrScratchKey expected;
+    dst->computeScratchKey(&expected);
+
+    dst->fHasScratchKey = false;
+    GrScratchKey actual = s->resourcePriv().getScratchKey();
+    if (actual.isValid()) {
+        dst->fHasScratchKey = true;
+        SkASSERT(actual == expected);
+    }
+
+    dst->fBytes = s->gpuMemorySize();
+
+#if 0
+    if (resource->cacheAccess().isScratch()) {
+        SkDebugf("scratch\n");
+    }
+    if (resource->resourcePriv().refsWrappedObjects()) {
+        SkDebugf("wrapped\n");
+    }
+    if (GrBudgetedType::kBudgeted != resource->resourcePriv().budgetedType()) {
+        SkDebugf("unbudgeted\n");
+    }
+#endif
+}
+
+
+const GrCacheState* GrResourceCache::getCacheState(int id, const char* label) {
+    SkString name;
+    name.printf("%d-%s", id, label);
+
+    int numNonPurgeableTextures = 0;
+    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        if (fNonpurgeableResources[i]->asSurface()) {
+            numNonPurgeableTextures++;
+        }
+    }
+
+    int numPurgeableTextures = 0;
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        if (fPurgeableQueue.at(i)->asSurface()) {
+            numPurgeableTextures++;
+        }
+    }
+
+    GrCacheState* state = new GrCacheState(name, numNonPurgeableTextures, numPurgeableTextures);
+
+    size_t bytes = 0;
+    int current = 0;
+    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        if (GrSurface* s = fNonpurgeableResources[i]->asSurface()) {
+            get_cache_info(s, state->nonPurgeableResource(current++));
+            bytes += s->gpuMemorySize();
+        }
+    }
+
+    state->setNonPurgeableBytes(bytes);
+
+    bytes = 0;
+    current = 0;
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        if (GrSurface* s = fPurgeableQueue.at(i)->asSurface()) {
+            get_cache_info(s, state->purgeableResource(current++));
+            bytes += s->gpuMemorySize();
+        }
+    }
+
+    state->setPurgeableBytes(bytes);
+    return state;
+}
