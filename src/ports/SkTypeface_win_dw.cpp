@@ -142,7 +142,7 @@ int DWriteFontTypeface::onGetVariationDesignPosition(
     int variableAxisCount = 0;
     for (UINT32 i = 0; i < fontAxisCount; ++i) {
         if (fontResource->GetFontAxisAttributes(i) & DWRITE_FONT_AXIS_ATTRIBUTES_VARIABLE) {
-            variableAxisCount++;
+            ++variableAxisCount;
         }
     }
 
@@ -153,14 +153,15 @@ int DWriteFontTypeface::onGetVariationDesignPosition(
     SkAutoSTMalloc<8, DWRITE_FONT_AXIS_VALUE> fontAxisValue(fontAxisCount);
     HR_GENERAL(fontFace5->GetFontAxisValues(fontAxisValue.get(), fontAxisCount), nullptr, -1);
     UINT32 coordIndex = 0;
-
     for (UINT32 axisIndex = 0; axisIndex < fontAxisCount; ++axisIndex) {
         if (fontResource->GetFontAxisAttributes(axisIndex) & DWRITE_FONT_AXIS_ATTRIBUTES_VARIABLE) {
             coordinates[coordIndex].axis = SkEndian_SwapBE32(fontAxisValue[axisIndex].axisTag);
             coordinates[coordIndex].value = fontAxisValue[axisIndex].value;
+            ++coordIndex;
         }
     }
 
+    SkASSERT(coordIndex == variableAxisCount);
     return variableAxisCount;
 
 #endif
