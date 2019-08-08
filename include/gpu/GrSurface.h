@@ -59,6 +59,8 @@ public:
         this->setRelease(std::move(helper));
     }
 
+    GrSurface* asSurface() { return this; }
+
     /**
      * @return the texture associated with the surface, may be null.
      */
