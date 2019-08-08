@@ -574,10 +574,11 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     continue;
                 }
 
-                if (glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
+                if (glyph.isEmpty()) {
+                    // Do nothing. This does not need to be processed by fallback.
+                } else if (glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (!glyph.isColor()
-                           && glyph.path() != nullptr) {
+                } else if (!glyph.isColor() && glyph.path() != nullptr) {
                     fPaths.push_back(glyphPos);
                 } else {
                     addFallback(glyph, origin + glyphRun.positions()[glyphPos.index]);
