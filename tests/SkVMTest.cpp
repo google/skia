@@ -320,6 +320,41 @@ DEF_TEST(SkVM, r) {
         dump(builder, &buf);
     }
 
+    {
+        skvm::Builder b;
+        skvm::Arg arg = b.varying<int>();
+
+        // x and y can both be hoisted,
+        // and x can die at y, while y lives forever.
+        skvm::I32 x = b.splat(1),
+                  y = b.add(x, b.splat(2));
+        b.store32(arg, b.mul(b.load32(arg), y));
+
+        skvm::Program program = b.done();
+        REPORTER_ASSERT(r, program.nregs() == 2);
+
+        std::vector<skvm::Builder::Instruction> insts = b.program();
+        REPORTER_ASSERT(r, insts.size() == 6);
+        REPORTER_ASSERT(r,  insts[0].hoist && insts[0].death == 2);
+        REPORTER_ASSERT(r,  insts[1].hoist && insts[1].death == 2);
+        REPORTER_ASSERT(r,  insts[2].hoist && insts[2].death == 6);
+        REPORTER_ASSERT(r, !insts[3].hoist);
+        REPORTER_ASSERT(r, !insts[4].hoist);
+        REPORTER_ASSERT(r, !insts[5].hoist);
+
+        dump(b, &buf);
+
+        test_jit_and_interpreter(std::move(program), [&](const skvm::Program& program) {
+            int arg[] = {0,1,2,3,4,5,6,7,8,9};
+
+            program.eval(SK_ARRAY_COUNT(arg), arg);
+
+            for (int i = 0; i < (int)SK_ARRAY_COUNT(arg); i++) {
+                REPORTER_ASSERT(r, arg[i] == i*3);
+            }
+        });
+    }
+
     sk_sp<SkData> blob = buf.detachAsData();
     {
 
