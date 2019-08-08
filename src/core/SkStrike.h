@@ -119,12 +119,12 @@ public:
     SkSpan<const SkGlyph*> prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs,
                                          const SkGlyph* results[]);
 
-    SkSpan<const SkGlyphPos> prepareForDrawing(const SkPackedGlyphID packedGlyphIDs[],
-                                               const SkPoint positions[],
-                                               size_t n,
-                                               int maxDimension,
-                                               PreparationDetail detail,
-                                               SkGlyphPos results[]) override;
+    SkSpan<const SkGlyphPos> prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
+                                                          const SkPoint positions[],
+                                                          size_t n,
+                                                          int maxDimension,
+                                                          PreparationDetail detail,
+                                                          SkGlyphPos results[]) override;
 
     void onAboutToExitScope() override;
 

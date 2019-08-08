@@ -189,10 +189,12 @@ SkStrike::prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* r
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
 // position or that there are no mask pixels.
 SkSpan<const SkGlyphPos>
-SkStrike::prepareForDrawing(const SkPackedGlyphID packedGlyphIDs[], const SkPoint positions[],
-                            size_t n,
-                            int maxDimension, PreparationDetail detail, SkGlyphPos results[]) {
-
+SkStrike::prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
+                                       const SkPoint positions[],
+                                       size_t n,
+                                       int maxDimension,
+                                       PreparationDetail detail,
+                                       SkGlyphPos results[]) {
     size_t drawableGlyphCount = 0;
     for (size_t i = 0; i < n; i++) {
         SkPoint pos = positions[i];
