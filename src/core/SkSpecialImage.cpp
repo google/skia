@@ -486,7 +486,7 @@ public:
                 0 == subset->fLeft && 0 == subset->fTop &&
                 fTextureProxy->width() == subset->width() &&
                 fTextureProxy->height() == subset->height()) {
-                fTextureProxy->priv().exactify();
+                fTextureProxy->priv().exactify(false);
                 // The existing GrTexture is already tight so reuse it in the SkImage
                 return wrap_proxy_in_image(fContext, fTextureProxy, fAlphaType, fColorSpace);
             }
@@ -504,7 +504,7 @@ public:
             return wrap_proxy_in_image(fContext, std::move(subsetProxy), fAlphaType, fColorSpace);
         }
 
-        fTextureProxy->priv().exactify();
+        fTextureProxy->priv().exactify(true);
 
         return wrap_proxy_in_image(fContext, fTextureProxy, fAlphaType, fColorSpace);
     }
