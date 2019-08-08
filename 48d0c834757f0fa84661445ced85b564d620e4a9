@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf53f005_8597aaff",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-08T17:55:17Z",
+      "side": 1,
+      "message": "This is a comment which leads the mind onto the wrong path. The cv-ness of the \u0027Container\u0027 type is immaterial, only the the type of Container::data() matters. In std, it is convention that \u0027const\u0027 on the container means not allowing the data() which doesn\u0027t add \u0027const\u0027 to the return type of data(), but that\u0027s just a convention that const should apply transitively that way. I think I would prefer no comment to this comment. This factory function just creates a span over the container with contiguous storage.",
+      "range": {
+        "startLine": 54,
+        "startChar": 3,
+        "endLine": 54,
+        "endChar": 88
+      },
+      "revId": "48d0c834757f0fa84661445ced85b564d620e4a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
