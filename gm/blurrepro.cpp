@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2019 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -7,35 +7,26 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkSize.h"
-#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkImageFilters.h"
+#include "include/effects/SkBlurImageFilter.h"
 #include "include/gpu/GrContext.h"
-#include "include/utils/SkRandom.h"
 
-// art is 1280x1280
-// screen size 1024 x 600
 namespace skiagm {
 
-// This GM draws a lot of arcs in a 'Z' shape. It particularly exercises
-// the 'drawArc' code near a singularly of its processing (i.e., near the
-// edge of one of its underlying quads).
-class ArcOfZorroGM : public GM {
+// This is an attempt to repro a CastOS memory regression when repeated blurring
+// an image
+class BlurReproGM : public GM {
 public:
-    ArcOfZorroGM() {
+    BlurReproGM() {
         this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
 
     SkString onShortName() override {
-        return SkString("arcofzorro");
+        return SkString("blurrepro");
     }
 
     SkISize onISize() override {
@@ -80,13 +71,18 @@ protected:
         SkDebugf("Post Flush --------------------------------------------------------------------\n");
 
         const SkIRect subset = SkIRect::MakeWH(1024, 600);
+        SkIRect clip = SkIRect::MakeWH(1024, 600);
 
-        for (int i = 0; i < 2; ++i) {
-            sk_sp<SkImageFilter> filter = SkImageFilters::Blur(20, 20, nullptr);
+        for (int i = 0; i < 30; ++i) {
+#if 0
+            sk_sp<SkImageFilter> blur = SkImageFilters::Blur(20, 20, nullptr);
+#else
+            sk_sp<SkImageFilter> blur = SkBlurImageFilter::Make(20, 20, nullptr);
+#endif
 
             SkIRect outSubset;
             SkIPoint offset;
-            sk_sp<SkImage> filteredImg = smImg->makeWithFilter(context, filter.get(), subset, subset,
+            sk_sp<SkImage> filteredImg = smImg->makeWithFilter(context, blur.get(), subset, clip,
                                                                &outSubset, &offset);
 
             SkRect dstRect = SkRect::MakeXYWH(offset.fX, offset.fY,
@@ -94,6 +90,8 @@ protected:
             canvas->drawImageRect(filteredImg, outSubset, dstRect, nullptr);
 
             context->flush();
+
+            clip.fRight -= 16;
         }
 
         bigImg = nullptr;
@@ -107,6 +105,5 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new ArcOfZorroGM;)
+DEF_GM(return new BlurReproGM;)
 }
