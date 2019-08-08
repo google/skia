@@ -29,7 +29,9 @@ enum class RectHeightStyle {
     // The line spacing will be added to the top of the rect.
     kIncludeLineSpacingTop,
     // The line spacing will be added to the bottom of the rect.
-    kIncludeLineSpacingBottom
+    kIncludeLineSpacingBottom,
+    //
+    kStrut
 };
 
 enum class RectWidthStyle {
