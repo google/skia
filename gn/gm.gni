@@ -56,6 +56,7 @@ gm_sources = [
   "$_gm/blurquickreject.cpp",
   "$_gm/blurrect.cpp",
   "$_gm/blurredclippedcircle.cpp",
+  "$_gm/blurrepro.cpp",
   "$_gm/blurroundrect.cpp",
   "$_gm/blurs.cpp",
   "$_gm/blurtextsmallradii.cpp",
