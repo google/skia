@@ -21,6 +21,7 @@ namespace {
 SkScalar EPSILON100 = 0.01f;
 SkScalar EPSILON50 = 0.02f;
 SkScalar EPSILON20 = 0.05f;
+SkScalar EPSILON10 = 0.1f;
 SkScalar EPSILON5 = 0.20f;
 SkScalar EPSILON2 = 0.50f;
 
@@ -175,33 +176,749 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
     }
 }
 
-DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) { SkDebugf("Not implemented yet.\n"); }
+// Checked: DIFF+ (half of the letter spacing before the text???)
+DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "012 34";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    PlaceholderStyle placeholder1(50, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 0);
+    builder.addPlaceholder(placeholder1);
+    builder.addText(text);
+    builder.addPlaceholder(placeholder1);
+
+    PlaceholderStyle placeholder2(5, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 50);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2);
+    builder.addText(text);
+    builder.addPlaceholder(placeholder2);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder1);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder1);
+    builder.addText(text);
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kTight;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    auto boxes = paragraph->getRectsForRange(0, 3, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorRED, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+
+    boxes = paragraph->getRectsForRange(0, 3, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorGREEN, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+
+    boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+
+    boxes = paragraph->getRectsForRange(4, 17, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+
+    REPORTER_ASSERT(reporter, boxes.size() == 7);
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 90.921f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.top(), 50, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.right(), 90.921f + 50 - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.bottom(), 100, EPSILON100));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.left(), 231.343f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.top(), 50, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.right(), 231.343f + 50 - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.bottom(), 100, EPSILON100));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[4].rect.left(), 281.343f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[4].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[4].rect.right(), 281.343f + 5 - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[4].rect.bottom(), 50, EPSILON100));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[6].rect.left(), 336.343f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[6].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[6].rect.right(), 336.343f + 5 - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[6].rect.bottom(), 50, EPSILON100));
+}
+
+// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
-    SkDebugf("Not implemented yet.\n");
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderBaselineParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "012 34";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 38.347f);
+    builder.addPlaceholder(placeholder);
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f + 55 - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 50, EPSILON100));
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kTight;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    boxes = paragraph->getRectsForRange(5, 6, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 75.324f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 14.226f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44.694f, EPSILON100));
 }
-DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraphh, reporter) {
-    SkDebugf("Not implemented yet.\n");
+
+// Checked: DIFF+ (half of the letter spacing before the text???)
+DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraph, reporter) {
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderAboveBaselineParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "012 34";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kAboveBaseline, TextBaseline::kAlphabetic, 903129.129308f);
+    builder.addPlaceholder(placeholder);
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.347f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f + 55 - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 49.652f, EPSILON100));
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kTight;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    boxes = paragraph->getRectsForRange(5, 6, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 75.324f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 25.531f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 56, EPSILON100));
 }
+
+// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
-    SkDebugf("Not implemented yet.\n");
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderBelowBaselineParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "012 34";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kBelowBaseline, TextBaseline::kAlphabetic, 903129.129308f);
+    builder.addPlaceholder(placeholder);
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 24, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f + 55 - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 74, EPSILON100));
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kTight;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    boxes = paragraph->getRectsForRange(5, 6, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 75.324f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.121f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f - 0.5f, EPSILON2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 30.347f, EPSILON100));
 }
+
+// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
-    SkDebugf("Not implemented yet.\n");
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderBottomParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "012 34";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kBottom, TextBaseline::kAlphabetic, 0);
+    builder.addPlaceholder(placeholder);
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kTight;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    auto boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f + 55 - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 50, EPSILON100));
+
+    boxes = paragraph->getRectsForRange(0, 1, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0.5f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 19.531f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 16.097f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 50, EPSILON100));
 }
+
+// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
-    SkDebugf("Not implemented yet.\n");
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderTopParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "012 34";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kTop, TextBaseline::kAlphabetic, 0);
+    builder.addPlaceholder(placeholder);
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kTight;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    auto boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f + 55 - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 50, EPSILON100));
+
+    boxes = paragraph->getRectsForRange(0, 1, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0.5f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 16.097f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 30.468f, EPSILON100));
 }
+
+// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
-    SkDebugf("Not implemented yet.\n");
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderMiddleParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "012 34";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kMiddle, TextBaseline::kAlphabetic, 0);
+    builder.addPlaceholder(placeholder);
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kTight;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    auto boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f + 55 - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 50, EPSILON100));
+
+    boxes = paragraph->getRectsForRange(5, 6, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 75.324f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 9.765f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 40.234f, EPSILON100));
 }
-DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraphh, reporter) {
-    SkDebugf("Not implemented yet.\n");
+
+// Checked: DIFF+ (half of the letter spacing before the text???)
+DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraph, reporter) {
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderIdeographicBaselineParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "給能上目秘使";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Source Han Serif CN")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+    PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kBaseline, TextBaseline::kIdeographic, 38.347f);
+    builder.addPlaceholder(placeholder);
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kTight;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    auto boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 162.5f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 162.5f + 55 - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 50, EPSILON100));
+
+    boxes = paragraph->getRectsForRange(5, 6, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 135.5f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 4.703f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 162.5f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 42.065f, EPSILON100));
 }
+
+// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
-    SkDebugf("Not implemented yet.\n");
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderBreakParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "012 34";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    PlaceholderStyle placeholder1(50, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 50);
+    PlaceholderStyle placeholder2(25, 25, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 12.5f);
+
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder1);
+    builder.addText(text);
+
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2); // 4 + 1
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2); // 6 + 1
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2); // 7 + 1
+
+    builder.addPlaceholder(placeholder1);
+    builder.addText(text);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2);
+
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder1);
+
+    builder.addText(text);
+
+    builder.addPlaceholder(placeholder2);
+
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth - 100);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kTight;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    auto boxes = paragraph->getRectsForRange(0, 3, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorRED, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+
+    boxes = paragraph->getRectsForRange(175, 176, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorGREEN, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 31.695f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 218.531f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 47.292f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 249, EPSILON100));
+
+    boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+
+    boxes = paragraph->getRectsForRange(4, 45, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 30);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 59.726f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 26.378f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 90.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 56.847f, EPSILON100));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[11].rect.left(), 606.343f - 0.5f, EPSILON20));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[11].rect.top(), 38, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[11].rect.right(), 631.343f - 0.5f, EPSILON20));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[11].rect.bottom(), 63, EPSILON100));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[17].rect.left(), 0.5f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[17].rect.top(), 63.5f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[17].rect.right(), 50.5f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[17].rect.bottom(), 113.5f, EPSILON100));
 }
+
+// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
-    SkDebugf("Not implemented yet.\n");
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    TestCanvas canvas("SkParagraph_InlinePlaceholderGetRectsParagraph.png");
+    if (!fontCollection->fontsFound()) return;
+
+    const char* text = "012 34";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setMaxLines(14);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(26);
+    text_style.setWordSpacing(5);
+    text_style.setLetterSpacing(1);
+    text_style.setDecoration(TextDecoration::kUnderline);
+    text_style.setDecorationColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    PlaceholderStyle placeholder1(50, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 50);
+    PlaceholderStyle placeholder2(5, 20, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 10);
+
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2); // 8 + 1
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2); // 5 + 1
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder1); // 8 + 0
+
+    builder.addText(text);
+
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder2); // 1 + 2
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder2); // 1 + 2
+
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);
+    builder.addText(text);  // 11
+
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder1);
+    builder.addPlaceholder(placeholder2);
+
+    builder.addText(text);
+
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    RectHeightStyle rect_height_style = RectHeightStyle::kMax;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    auto boxes = paragraph->GetRectsForPlaceholders();
+    canvas.drawRects(SK_ColorRED, boxes);
+
+    REPORTER_ASSERT(reporter, boxes.size() == 34);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 140.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 50, EPSILON100));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[16].rect.left(), 800.921f - 0.5f, EPSILON20));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[16].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[16].rect.right(), 850.921f - 0.5f, EPSILON20));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[16].rect.bottom(), 50, EPSILON100));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[33].rect.left(), 503.382f - 0.5f, EPSILON10));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[33].rect.top(), 160, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[33].rect.right(), 508.382f - 0.5f, EPSILON10));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[33].rect.bottom(), 180, EPSILON100));
+
+    boxes = paragraph->getRectsForRange(30, 50, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorBLUE, boxes);
+
+    REPORTER_ASSERT(reporter, boxes.size() == 8);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 216.097f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 60, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 290.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 120, EPSILON100));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 290.921f - 0.5f, EPSILON20));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.top(), 60, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.right(), 340.921f - 0.5f, EPSILON20));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.bottom(), 120, EPSILON100));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[2].rect.left(), 340.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[2].rect.top(), 60, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[2].rect.right(), 345.921f - 0.5f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[2].rect.bottom(), 120, EPSILON100));
 }
 
 // Checked: NO DIFF
@@ -1016,9 +1733,8 @@ DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
     }
 }
 
-// TODO: Fix decorations
 DEF_TEST(SkParagraph_WavyDecorationParagraph, reporter) {
-    SkDebugf("Not implemented yet.\n");
+    SkDebugf("TODO: Fix decorations\n");
 }
 
 // Checked: NO DIFF
@@ -2694,8 +3410,9 @@ DEF_TEST(SkParagraph_EmojiMultiLineRectsParagraph, reporter) {
     canvas.drawRects(SK_ColorGREEN, result);
 }
 
-// TODO: Not soon
-DEF_TEST(SkParagraph_HyphenBreakParagraph, reporter) { SkDebugf("Not implemented yet.\n"); }
+DEF_TEST(SkParagraph_HyphenBreakParagraph, reporter) {
+    SkDebugf("Hyphens are not implemented, and will not be implemented soon.\n");
+}
 
 // Checked: DIFF (line breaking)
 DEF_TEST(SkParagraph_RepeatLayoutParagraph, reporter) {
@@ -3569,7 +4286,9 @@ DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) {
 }
 
 // TODO: Implement font features
-DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) { SkDebugf("Not implemented yet.\n"); }
+DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) {
+    SkDebugf("TODO: Font features\n");
+}
 
 // Not in Minikin
 DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {

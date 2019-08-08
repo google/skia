@@ -52,7 +52,6 @@ class TextWrapper {
         inline LineMetrics& metrics() { return fMetrics; }
         inline size_t startPos() const { return fStart.position(); }
         inline size_t endPos() const { return fEnd.position(); }
-        inline size_t breakPos() const { return fBreak.position(); }
         bool endOfCluster() { return fEnd.position() == fEnd.cluster()->endPos(); }
         bool endOfWord() {
             return endOfCluster() &&
@@ -91,27 +90,15 @@ class TextWrapper {
             fWidth = 0;
         }
 
-        void nextBreakPos(Cluster* endOfClusters) {
-            if (fBreak.position() == fBreak.cluster()->endPos()) {
-                if (fBreak.cluster() < endOfClusters) {
-                    fBreak.move(true);
-                } else {
-                    fBreak.setPosition(0);
-                }
-            } else {
-                fBreak.setPosition(fBreak.cluster()->endPos());
-            }
-        }
-
         void saveBreak() {
             fWidthWithGhostSpaces = fWidth;
             fBreak = fEnd;
         }
 
-        void restoreBreak() { fEnd = fBreak; }
-
         void trim() {
-            fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
+            if (fEnd.cluster()->run()->placeholder() == nullptr) {
+                fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
+            }
         }
 
         void trim(Cluster* cluster) {

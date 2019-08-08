@@ -19,12 +19,14 @@ namespace textlayout {
 
 Run::Run(ParagraphImpl* master,
          const SkShaper::RunHandler::RunInfo& info,
+         size_t firstChar,
          SkScalar lineHeight,
          size_t index,
          SkScalar offsetX)
         : fMaster(master)
-        , fTextRange(info.utf8Range.begin(), info.utf8Range.end())
-        , fClusterRange(EMPTY_CLUSTERS) {
+        , fTextRange(firstChar + info.utf8Range.begin(), firstChar + info.utf8Range.end())
+        , fClusterRange(EMPTY_CLUSTERS)
+        , fFirstChar(firstChar) {
     fFont = info.fFont;
     fHeightMultiplier = lineHeight;
     fBidiLevel = info.fBidiLevel;
@@ -125,8 +127,8 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
 
             visitor(start,
                     glyph,
-                    cluster,
-                    nextCluster,
+                    fFirstChar + cluster,
+                    fFirstChar + nextCluster,
                     this->calculateWidth(start, glyph, glyph == size()),
                     this->calculateHeight());
 
@@ -145,8 +147,8 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
 
             visitor(start,
                     glyph,
-                    cluster,
-                    nextCluster,
+                    fFirstChar + cluster,
+                    fFirstChar + nextCluster,
                     this->calculateWidth(start, glyph, glyph == 0),
                     this->calculateHeight());
 
@@ -204,6 +206,60 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
         // To make calculations easier
         fOffsets[cluster->endPos()] += offset;
     }
+}
+
+void Run::updateMetrics(LineMetrics* endlineMetrics) {
+
+    // Difference between the placeholder baseline and the line bottom
+    SkScalar baselineAdjustment = 0;
+    switch (fPlaceholder->fBaseline) {
+        case TextBaseline::kAlphabetic:
+            break;
+
+        case TextBaseline::kIdeographic:
+            baselineAdjustment = endlineMetrics->deltaBaselines() / 2;
+            break;
+    }
+
+    auto height = fPlaceholder->fHeight;
+    auto offset = fPlaceholder->fBaselineOffset;
+
+    fFontMetrics.fLeading = 0;
+    switch (fPlaceholder->fAlignment) {
+        case PlaceholderAlignment::kBaseline:
+            fFontMetrics.fAscent = baselineAdjustment - offset;
+            fFontMetrics.fDescent = baselineAdjustment + height - offset;
+            break;
+
+        case PlaceholderAlignment::kAboveBaseline:
+            fFontMetrics.fAscent = baselineAdjustment - height;
+            fFontMetrics.fDescent = baselineAdjustment;
+            break;
+
+        case PlaceholderAlignment::kBelowBaseline:
+            fFontMetrics.fAscent = baselineAdjustment;
+            fFontMetrics.fDescent = baselineAdjustment +height;
+            break;
+
+        case PlaceholderAlignment::kTop:
+            fFontMetrics.fAscent = - endlineMetrics->alphabeticBaseline();
+            fFontMetrics.fDescent = height - endlineMetrics->alphabeticBaseline();
+            break;
+
+        case PlaceholderAlignment::kBottom:
+            fFontMetrics.fDescent = endlineMetrics->deltaBaselines();
+            fFontMetrics.fAscent = - height + endlineMetrics->deltaBaselines();
+            break;
+
+        case PlaceholderAlignment::kMiddle:
+            double mid = (endlineMetrics->ascent() + endlineMetrics->descent())/ 2;
+            fFontMetrics.fDescent = mid + height/2;
+            fFontMetrics.fAscent =  mid - height/2;
+            break;
+    }
+
+    // Make sure the placeholder can fit the line
+    endlineMetrics->add(this);
 }
 
 void Cluster::setIsWhiteSpaces() {

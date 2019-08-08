@@ -47,6 +47,8 @@ public:
     // Converts to u16string before adding.
     void addText(const char* text) override;
 
+    void addPlaceholder(const PlaceholderStyle& placeholderStyle) override;
+
     void setParagraphStyle(const ParagraphStyle& style) override;
 
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.
@@ -54,10 +56,12 @@ public:
 
 private:
     void endRunIfNeeded();
+    void addPlaceholder(const PlaceholderStyle& placeholderStyle, bool lastOne);
 
     SkString fUtf8;
     std::stack<TextStyle> fTextStyles;
     SkTArray<Block, true> fStyledBlocks;
+    SkTArray<Placeholder, true> fPlaceholders;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
 };

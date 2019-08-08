@@ -8,6 +8,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextShadow.h"
 
@@ -59,9 +60,67 @@ struct Decoration {
     }
 };
 
+/// Where to vertically align the placeholder relative to the surrounding text.
+enum class PlaceholderAlignment {
+  /// Match the baseline of the placeholder with the baseline.
+  kBaseline,
+
+  /// Align the bottom edge of the placeholder with the baseline such that the
+  /// placeholder sits on top of the baseline.
+  kAboveBaseline,
+
+  /// Align the top edge of the placeholder with the baseline specified in
+  /// such that the placeholder hangs below the baseline.
+  kBelowBaseline,
+
+  /// Align the top edge of the placeholder with the top edge of the font.
+  /// When the placeholder is very tall, the extra space will hang from
+  /// the top and extend through the bottom of the line.
+  kTop,
+
+  /// Align the bottom edge of the placeholder with the top edge of the font.
+  /// When the placeholder is very tall, the extra space will rise from
+  /// the bottom and extend through the top of the line.
+  kBottom,
+
+  /// Align the middle of the placeholder with the middle of the text. When the
+  /// placeholder is very tall, the extra space will grow equally from
+  /// the top and bottom of the line.
+  kMiddle,
+};
+
+struct PlaceholderStyle {
+    PlaceholderStyle() { }
+    PlaceholderStyle(SkScalar width, SkScalar height, PlaceholderAlignment alignment,
+                     TextBaseline baseline, SkScalar offset)
+            : fWidth(width)
+            , fHeight(height)
+            , fAlignment(alignment)
+            , fBaseline(baseline)
+            , fBaselineOffset(offset) {}
+
+    SkScalar fWidth = 0;
+    SkScalar fHeight = 0;
+
+    PlaceholderAlignment fAlignment;
+
+    TextBaseline fBaseline;
+
+    // Distance from the top edge of the rect to the baseline position. This
+    // baseline will be aligned against the alphabetic baseline of the surrounding
+    // text.
+    //
+    // Positive values drop the baseline lower (positions the rect higher) and
+    // small or negative values will cause the rect to be positioned underneath
+    // the line. When baseline == height, the bottom edge of the rect will rest on
+    // the alphabetic baseline.
+    SkScalar fBaselineOffset = 0;
+};
+
 class TextStyle {
 public:
     TextStyle();
+    TextStyle(const TextStyle& other, bool placeholder);
     ~TextStyle() = default;
 
     bool equals(const TextStyle& other) const;
@@ -143,7 +202,11 @@ public:
 
     void getFontMetrics(SkFontMetrics* metrics) const;
 
+    bool isPlaceholder() const { return fIsPlaceholder; }
+    void setPlaceholder() { fIsPlaceholder = true; }
+
 private:
+
     Decoration fDecoration;
 
     SkFontStyle fFontStyle;
@@ -167,6 +230,7 @@ private:
     std::vector<TextShadow> fTextShadows;
 
     sk_sp<SkTypeface> fTypeface;
+    bool fIsPlaceholder;
 };
 
 typedef size_t TextIndex;
@@ -176,10 +240,13 @@ const SkRange<size_t> EMPTY_TEXT = EMPTY_RANGE;
 
 struct Block {
     Block() : fRange(EMPTY_RANGE), fStyle() { }
-    Block(size_t start, size_t end, const TextStyle& style)
-        : fRange(start, end), fStyle(style) {}
-    Block(TextRange textRange, const TextStyle& style)
-        : fRange(textRange), fStyle(style) {}
+    Block(size_t start, size_t end, const TextStyle& style) : fRange(start, end), fStyle(style) {}
+    Block(TextRange textRange, const TextStyle& style) : fRange(textRange), fStyle(style) {}
+
+    Block(const Block& other) {
+        fRange = other.fRange;
+        fStyle = other.fStyle;
+    }
 
     void add(TextRange tail) {
         SkASSERT(fRange.end == tail.start);
@@ -187,6 +254,35 @@ struct Block {
     }
     TextRange fRange;
     TextStyle fStyle;
+};
+
+
+typedef size_t BlockIndex;
+typedef SkRange<size_t> BlockRange;
+const size_t EMPTY_BLOCK = EMPTY_INDEX;
+const SkRange<size_t> EMPTY_BLOCKS = EMPTY_RANGE;
+
+struct Placeholder {
+    Placeholder() : fRange(EMPTY_RANGE), fStyle() {}
+
+    Placeholder(size_t start, size_t end, const PlaceholderStyle& style, BlockRange blocksBefore,
+                TextRange textBefore)
+            : fRange(start, end)
+            , fStyle(style)
+            , fBlocksBefore(blocksBefore)
+            , fTextBefore(textBefore) {}
+
+    Placeholder(const Placeholder& other) {
+        fRange = other.fRange;
+        fStyle = other.fStyle;
+        fBlocksBefore = other.fBlocksBefore;
+        fTextBefore = other.fTextBefore;
+    }
+
+    TextRange fRange;
+    PlaceholderStyle fStyle;
+    BlockRange fBlocksBefore;
+    TextRange fTextBefore;
 };
 
 }  // namespace textlayout

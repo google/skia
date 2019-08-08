@@ -32,22 +32,19 @@ typedef SkRange<GraphemeIndex> GraphemeRange;
 typedef size_t CodepointIndex;
 typedef SkRange<CodepointIndex> CodepointRange;
 
-typedef size_t BlockIndex;
-typedef SkRange<size_t> BlockRange;
-const size_t EMPTY_BLOCK = EMPTY_INDEX;
-const SkRange<size_t> EMPTY_BLOCKS = EMPTY_RANGE;
-
 struct RunShifts {
     RunShifts() { }
     RunShifts(size_t count) { fShifts.push_back_n(count, 0.0); }
     SkSTArray<128, SkScalar, true> fShifts;
 };
 
+class LineMetrics;
 class Run {
 public:
     Run() = default;
     Run(ParagraphImpl* master,
         const SkShaper::RunHandler::RunInfo& info,
+        size_t firstChar,
         SkScalar lineHeight,
         size_t index,
         SkScalar shiftX);
@@ -69,8 +66,6 @@ public:
     }
     SkVector offset() const { return fOffset; }
     SkScalar ascent() const { return fFontMetrics.fAscent; }
-    //SkScalar descent() const { return fFontMetrics.fDescent; }
-    //SkScalar leading() const { return fFontMetrics.fLeading; }
     SkScalar correctAscent() const {
 
         if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
@@ -99,11 +94,15 @@ public:
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
     size_t index() const { return fIndex; }
     SkScalar lineHeight() const { return fHeightMultiplier; }
+    PlaceholderStyle* placeholder() const { return fPlaceholder; }
+    bool isPlaceholder() const { return fPlaceholder != nullptr; }
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
     SkScalar positionX(size_t pos) const;
 
     TextRange textRange() { return fTextRange; }
     ClusterRange clusterRange() { return fClusterRange; }
+
+    void updateMetrics(LineMetrics* endlineMetrics);
 
     void setClusterRange(size_t from, size_t to) { fClusterRange = ClusterRange(from, to); }
     SkRect clip() const {
@@ -157,10 +156,12 @@ private:
     SkFont fFont;
     SkFontMetrics fFontMetrics;
     SkScalar fHeightMultiplier;
+    PlaceholderStyle* fPlaceholder;
     size_t fIndex;
     uint8_t fBidiLevel;
     SkVector fAdvance;
     SkVector fOffset;
+    size_t fFirstChar;
     SkShaper::RunHandler::Range fUtf8Range;
     SkSTArray<128, SkGlyphID, false> fGlyphs;
     SkSTArray<128, SkPoint, true> fPositions;
@@ -243,8 +244,6 @@ public:
     size_t startPos() const { return fStart; }
     size_t endPos() const { return fEnd; }
     SkScalar width() const { return fWidth; }
-    SkScalar trimmedWidth() const { return fWidth - fSpacing; }
-    SkScalar lastSpacing() const { return fSpacing; }
     SkScalar height() const { return fHeight; }
     size_t size() const { return fEnd - fStart; }
 
@@ -290,20 +289,25 @@ class LineMetrics {
 public:
 
     LineMetrics() { clean(); }
-    LineMetrics(bool forceStrut) : fForceStrut(forceStrut) { clean(); }
+    LineMetrics(bool forceStrut) {
+        clean();
+        fForceStrut = forceStrut;
+    }
 
-    LineMetrics(SkScalar a, SkScalar d, SkScalar l) : fForceStrut(false) {
+    LineMetrics(SkScalar a, SkScalar d, SkScalar l) {
         fAscent = a;
         fDescent = d;
         fLeading = l;
+        fForceStrut = false;
     }
 
-    LineMetrics(const SkFont& font, bool forceStrut) : fForceStrut(forceStrut) {
+    LineMetrics(const SkFont& font, bool forceStrut) {
         SkFontMetrics metrics;
         font.getMetrics(&metrics);
         fAscent = metrics.fAscent;
         fDescent = metrics.fDescent;
         fLeading = metrics.fLeading;
+        fForceStrut = forceStrut;
     }
 
     void add(Run* run) {
@@ -327,6 +331,7 @@ public:
         fAscent = 0;
         fDescent = 0;
         fLeading = 0;
+        fForceStrut = false;
     }
 
     SkScalar delta() const { return height() - ideographicBaseline(); }
@@ -343,12 +348,16 @@ public:
     SkScalar height() const { return SkScalarRoundToInt(fDescent - fAscent + fLeading); }
     SkScalar alphabeticBaseline() const { return fLeading / 2 - fAscent; }
     SkScalar ideographicBaseline() const { return fDescent - fAscent + fLeading; }
+    SkScalar deltaBaselines() const { return fLeading / 2 + fDescent; }
     SkScalar baseline() const { return fLeading / 2 - fAscent; }
     SkScalar ascent() const { return fAscent; }
     SkScalar descent() const { return fDescent; }
     SkScalar leading() const { return fLeading; }
 
 private:
+
+    friend class TextWrapper;
+
     SkScalar fAscent;
     SkScalar fDescent;
     SkScalar fLeading;

@@ -1,85 +1,15 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/src/ParagraphImpl.h"
-#include <unicode/brkiter.h>
-#include <unicode/ubidi.h>
-#include <unicode/unistr.h>
-#include <unicode/urename.h>
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPictureRecorder.h"
 #include "modules/skparagraph/src/Iterators.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
 #include <algorithm>
-
-namespace {
-
-class TextBreaker {
-public:
-    TextBreaker() : fPos(-1) {}
-
-    bool initialize(SkSpan<const char> text, UBreakIteratorType type) {
-        UErrorCode status = U_ZERO_ERROR;
-        fIterator = nullptr;
-        fSize = text.size();
-        UText utf8UText = UTEXT_INITIALIZER;
-        utext_openUTF8(&utf8UText, text.begin(), text.size(), &status);
-        fAutoClose =
-                std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>>(&utf8UText);
-        if (U_FAILURE(status)) {
-            SkDebugf("Could not create utf8UText: %s", u_errorName(status));
-            return false;
-        }
-        fIterator.reset(ubrk_open(type, "en", nullptr, 0, &status));
-        if (U_FAILURE(status)) {
-            SkDebugf("Could not create line break iterator: %s", u_errorName(status));
-            SK_ABORT("");
-        }
-
-        ubrk_setUText(fIterator.get(), &utf8UText, &status);
-        if (U_FAILURE(status)) {
-            SkDebugf("Could not setText on break iterator: %s", u_errorName(status));
-            return false;
-        }
-
-        fPos = 0;
-        return true;
-    }
-
-    size_t first() {
-        fPos = ubrk_first(fIterator.get());
-        return eof() ? fSize : fPos;
-    }
-
-    size_t next() {
-        fPos = ubrk_next(fIterator.get());
-        return eof() ? fSize : fPos;
-    }
-
-    size_t preceding(size_t offset) {
-        auto pos = ubrk_preceding(fIterator.get(), offset);
-        return eof() ? 0 : pos;
-    }
-
-    size_t following(size_t offset) {
-        auto pos = ubrk_following(fIterator.get(), offset);
-        return eof() ? fSize : pos;
-    }
-
-    int32_t status() { return ubrk_getRuleStatus(fIterator.get()); }
-
-    bool eof() { return fPos == icu::BreakIterator::DONE; }
-
-private:
-    std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>> fAutoClose;
-    std::unique_ptr<UBreakIterator, SkFunctionWrapper<void, UBreakIterator, ubrk_close>> fIterator;
-    int32_t fPos;
-    size_t fSize;
-};
-}  // namespace
 
 namespace skia {
 namespace textlayout {
@@ -91,12 +21,43 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
+bool TextBreaker::initialize(SkSpan<const char> text, UBreakIteratorType type) {
+    UErrorCode status = U_ZERO_ERROR;
+    fIterator = nullptr;
+    fSize = text.size();
+    UText utf8UText = UTEXT_INITIALIZER;
+    utext_openUTF8(&utf8UText, text.begin(), text.size(), &status);
+    fAutoClose =
+            std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>>(&utf8UText);
+    if (U_FAILURE(status)) {
+        SkDebugf("Could not create utf8UText: %s", u_errorName(status));
+        return false;
+    }
+    fIterator.reset(ubrk_open(type, "en", nullptr, 0, &status));
+    if (U_FAILURE(status)) {
+        SkDebugf("Could not create line break iterator: %s", u_errorName(status));
+        SK_ABORT("");
+    }
+
+    ubrk_setUText(fIterator.get(), &utf8UText, &status);
+    if (U_FAILURE(status)) {
+        SkDebugf("Could not setText on break iterator: %s", u_errorName(status));
+        return false;
+    }
+
+    fInitialized = true;
+    fPos = 0;
+    return true;
+}
+
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
+                             SkTArray<Placeholder, true> placeholders,
                              sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style), std::move(fonts))
         , fTextStyles(std::move(blocks))
+        , fPlaceholders(std::move(placeholders))
         , fText(text)
         , fTextSpan(fText.c_str(), fText.size())
         , fState(kUnknown)
@@ -110,9 +71,11 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
+                             SkTArray<Placeholder, true> placeholders,
                              sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style), std::move(fonts))
         , fTextStyles(std::move(blocks))
+        , fPlaceholders(std::move(placeholders))
         , fState(kUnknown)
         , fPicture(nullptr)
         , fStrutMetrics(false)
@@ -224,31 +187,42 @@ void ParagraphImpl::buildClusterTable() {
     for (RunIndex runIndex = 0; runIndex < fRuns.size(); ++runIndex) {
         auto& run = fRuns[runIndex];
         auto runStart = fClusters.size();
-        fClusters.reserve(fClusters.size() + fRuns.size());
-        // Walk through the glyph in the direction of input text
-        run.iterateThroughClustersInTextOrder([runIndex, this](
-                                                      size_t glyphStart,
-                                                      size_t glyphEnd,
-                                                      size_t charStart,
-                                                      size_t charEnd,
-                                                      SkScalar width,
-                                                      SkScalar height) {
-            SkASSERT(charEnd >= charStart);
-            SkSpan<const char> text(fTextSpan.begin() + charStart, charEnd - charStart);
+        if (run.isPlaceholder()) {
+            // There are no glyphs but we want to have one cluster
+            SkSpan<const char> text(fTextSpan.begin() + run.textRange().start, run.textRange().width());
+            if (!fClusters.empty()) {
+                fClusters.back().setBreakType(Cluster::SoftLineBreak);
+            }
+            auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 0ul, text,
+                                                   run.advance().fX, run.advance().fY);
+            cluster.setBreakType(Cluster::SoftLineBreak);
+        } else {
+            fClusters.reserve(fClusters.size() + fRuns.size());
+            // Walk through the glyph in the direction of input text
+            run.iterateThroughClustersInTextOrder([runIndex, this](size_t glyphStart,
+                                                                   size_t glyphEnd,
+                                                                   size_t charStart,
+                                                                   size_t charEnd,
+                                                                   SkScalar width,
+                                                                   SkScalar height) {
+                SkASSERT(charEnd >= charStart);
+                SkSpan<const char> text(fTextSpan.begin() + charStart, charEnd - charStart);
 
-            auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text, width, height);
-            cluster.setIsWhiteSpaces();
-        });
+                auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
+                                                       width, height);
+                cluster.setIsWhiteSpaces();
+            });
+        }
 
         run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
     }
 }
 
-// TODO: we need soft line breaks before for word spacing
 void ParagraphImpl::markLineBreaks() {
 
     // Find all possible (soft) line breaks
+    // This iterator is used only once for a paragraph so we don't have to keep it
     TextBreaker breaker;
     if (!breaker.initialize(fTextSpan, UBRK_LINE)) {
         return;
@@ -277,6 +251,11 @@ void ParagraphImpl::markLineBreaks() {
     SkScalar shift = 0;
     for (auto& run : fRuns) {
 
+        // Skip placeholder runs
+        if (run.isPlaceholder()) {
+            continue;
+        }
+
         bool soFarWhitespacesOnly = true;
         for (size_t index = 0; index != run.clusterRange().width(); ++index) {
             auto correctIndex = run.leftToRight()
@@ -293,6 +272,8 @@ void ParagraphImpl::markLineBreaks() {
                 currentStyle++;
                 SkASSERT(currentStyle != this->fTextStyles.end());
             }
+
+            SkASSERT(!currentStyle->fStyle.isPlaceholder());
 
             // Process word spacing
             if (currentStyle->fStyle.getWordSpacing() != 0) {
@@ -320,10 +301,11 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     class ShapeHandler final : public SkShaper::RunHandler {
     public:
-        explicit ShapeHandler(ParagraphImpl& paragraph, FontIterator* fontIterator)
+        explicit ShapeHandler(ParagraphImpl& paragraph, size_t firstChar, FontIterator* fontIterator, SkScalar advanceX)
                 : fParagraph(&paragraph)
+                , fFirstChar(firstChar)
                 , fFontIterator(fontIterator)
-                , fAdvance(SkVector::Make(0, 0)) {}
+                , fAdvance(SkVector::Make(advanceX, 0)) {}
 
         SkVector advance() const { return fAdvance; }
 
@@ -337,6 +319,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         Buffer runBuffer(const RunInfo& info) override {
             auto& run = fParagraph->fRuns.emplace_back(fParagraph,
                                                        info,
+                                                       fFirstChar,
                                                        fFontIterator->currentLineHeight(),
                                                        fParagraph->fRuns.count(),
                                                        fAdvance.fX);
@@ -344,19 +327,23 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         }
 
         void commitRunBuffer(const RunInfo&) override {
+
             auto& run = fParagraph->fRuns.back();
             if (run.size() == 0) {
                 fParagraph->fRuns.pop_back();
                 return;
             }
+
             // Carve out the line text out of the entire run text
             fAdvance.fX += run.advance().fX;
             fAdvance.fY = SkMaxScalar(fAdvance.fY, run.advance().fY);
+            run.fPlaceholder = nullptr;
         }
 
         void commitLine() override {}
 
         ParagraphImpl* fParagraph;
+        size_t fFirstChar;
         FontIterator* fFontIterator;
         SkVector fAdvance;
     };
@@ -370,24 +357,37 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     // Check the font-resolved text against the cache
     if (!fFontCollection->getParagraphCache()->findParagraph(this)) {
-        LangIterator lang(fTextSpan, styles(), paragraphStyle().getTextStyle());
-        FontIterator font(fTextSpan, &fFontResolver);
-        ShapeHandler handler(*this, &font);
-        std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
-        SkASSERT_RELEASE(shaper != nullptr);
-        auto bidi = SkShaper::MakeIcuBiDiRunIterator(
-                fTextSpan.begin(), fTextSpan.size(),
-                fParagraphStyle.getTextDirection() == TextDirection::kLtr ? (uint8_t)2
-                                                                          : (uint8_t)1);
-        if (bidi == nullptr) {
+        // The text can be broken into many shaping sequences
+        // (by place holders, possibly, by hard line breaks or tabs, too)
+        uint8_t textDirection = fParagraphStyle.getTextDirection() == TextDirection::kLtr  ? 2 : 1;
+        auto limitlessWidth = std::numeric_limits<SkScalar>::max();
+
+        auto result = iterateThroughShapingRegions(
+                [this, textDirection, limitlessWidth]
+                (SkSpan<const char> textSpan, SkSpan<Block> styleSpan, SkScalar& advanceX, size_t start) {
+
+            LangIterator lang(textSpan, styleSpan, paragraphStyle().getTextStyle());
+            FontIterator font(textSpan, &fFontResolver);
+            auto script = SkShaper::MakeHbIcuScriptRunIterator(textSpan.begin(), textSpan.size());
+            auto bidi = SkShaper::MakeIcuBiDiRunIterator(textSpan.begin(), textSpan.size(), textDirection);
+            if (bidi == nullptr) {
+                return false;
+            }
+
+            // Set up the shaper and shape the next
+            ShapeHandler handler(*this, start, &font, advanceX);
+            auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
+            SkASSERT_RELEASE(shaper != nullptr);
+            shaper->shape(textSpan.begin(), textSpan.size(), font, *bidi, *script, lang, limitlessWidth, &handler);
+            advanceX =  handler.advance().fX;
+            return true;
+        });
+        if (!result) {
             return false;
         }
-        auto script = SkShaper::MakeHbIcuScriptRunIterator(fTextSpan.begin(), fTextSpan.size());
-
-        shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
-                      std::numeric_limits<SkScalar>::max(), &handler);
     }
 
+    // Clean the array for justification
     if (fParagraphStyle.getTextAlign() == TextAlign::kJustify) {
         fRunShifts.reset();
         fRunShifts.push_back_n(fRuns.size(), RunShifts());
@@ -396,6 +396,48 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         }
     }
 
+    return true;
+}
+
+bool ParagraphImpl::iterateThroughShapingRegions(ShapeVisitor shape) {
+
+    SkScalar advanceX = 0;
+    for (auto& placeholder : fPlaceholders) {
+        // Shape the text
+        if (placeholder.fTextBefore.width() > 0) {
+            // Set up the iterators
+            SkSpan<const char> textSpan(fTextSpan.begin() + placeholder.fTextBefore.start,
+                                        placeholder.fTextBefore.width());
+            SkSpan<Block> styleSpan(fTextStyles.begin() + placeholder.fBlocksBefore.start,
+                                    placeholder.fBlocksBefore.width());
+
+            if (!shape(textSpan, styleSpan, advanceX, placeholder.fTextBefore.start)) {
+                return false;
+            }
+        }
+
+        if (placeholder.fRange.width() == 0) {
+            continue;
+        }
+        // "Shape" the placeholder
+        const SkShaper::RunHandler::RunInfo runInfo = {
+            SkFont(),
+            (uint8_t)2,
+            SkPoint::Make(placeholder.fStyle.fWidth, placeholder.fStyle.fHeight),
+            1,
+            SkShaper::RunHandler::Range(placeholder.fRange.start, placeholder.fRange.width())
+        };
+        auto& run = fRuns.emplace_back(this,
+                                       runInfo,
+                                       0, //placeholder.fRange.start,
+                                       1,
+                                       fRuns.count(),
+                                       advanceX);
+        run.fPositions[0] = { advanceX, 0 };
+        run.fClusterIndexes[0] = 0;
+        run.fPlaceholder = &placeholder.fStyle;
+        advanceX += placeholder.fStyle.fWidth;
+    }
     return true;
 }
 
@@ -528,6 +570,7 @@ void ParagraphImpl::markGraphemes() {
         return;
     }
 
+    // This breaker gets called only once for a paragraph so we don't have to keep it
     TextBreaker breaker;
     if (!breaker.initialize(fTextSpan, UBRK_CHARACTER)) {
         return;
@@ -628,8 +671,12 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
                 if (rectHeightStyle == RectHeightStyle::kMax) {
                     // TODO: Sort it out with Flutter people
-                    // Mimicking TxtLib: clip.fTop = line.offset().fY + line.roundingDelta();
+                    // Mimicking TxtLib:
+                    //clip.fTop = line.offset().fY + line.roundingDelta();
                     clip.fBottom = line.offset().fY + line.height();
+                    clip.fTop = line.offset().fY +
+                            line.sizes().baseline() - line.getMaxRunMetrics().baseline() +
+                            line.getMaxRunMetrics().delta();
 
                 } else if (rectHeightStyle == RectHeightStyle::kIncludeLineSpacingTop) {
                     if (&line != &fLines.front()) {
@@ -662,7 +709,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 // Check if we can merge two boxes
                 bool mergedBoxes = false;
                 if (!results.empty() &&
-                    lastRun != nullptr &&
+                    lastRun != nullptr && lastRun->placeholder() == nullptr && run->placeholder() == nullptr &&
                     lastRun->lineHeight() == run->lineHeight() &&
                     lastRun->font() == run->font()) {
                     auto& lastBox = results.back();
@@ -708,6 +755,30 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     }
 
     return results;
+}
+
+std::vector<TextBox> ParagraphImpl::GetRectsForPlaceholders() {
+  std::vector<TextBox> boxes;
+
+  for (auto& line : fLines) {
+      SkScalar runOffset = 0;
+      auto text = line.trimmedText();
+      line.iterateThroughRuns(
+          text,
+          runOffset,
+          false,
+          [&boxes, &line](Run* run, size_t pos, size_t size, TextRange text, SkRect clip,
+                                SkScalar shift, bool clippingNeeded) {
+              if (run->placeholder() == nullptr) {
+                  return true;
+              }
+              clip.offset(line.offset());
+              boxes.emplace_back(clip, run->leftToRight() ? TextDirection::kLtr : TextDirection::kRtl);
+              return true;
+          });
+  }
+
+  return boxes;
 }
 // TODO: Deal with RTL here
 PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, SkScalar dy) {
@@ -804,15 +875,16 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 // Finds the first and last glyphs that define a word containing
 // the glyph at index offset.
 // By "glyph" they mean a character index - indicated by Minikin's code
-// TODO: make the breaker a member of ParagraphImpl
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
-    TextBreaker breaker;
-    if (!breaker.initialize(fTextSpan, UBRK_WORD)) {
-        return {0, 0};
+
+    if (!fWordBreaker.initialized()) {
+        if (!fWordBreaker.initialize(fTextSpan, UBRK_WORD)) {
+            return {0, 0};
+        }
     }
 
-    auto start = breaker.preceding(offset + 1);
-    auto end = breaker.following(start);
+    auto start = fWordBreaker.preceding(offset + 1);
+    auto end = fWordBreaker.following(start);
 
     return { start, end };
 }
