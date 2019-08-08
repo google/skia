@@ -275,33 +275,20 @@ static bool format_is_srgb(MTLPixelFormat format) {
 }
 
 bool GrMtlCaps::isFormatSRGB(const GrBackendFormat& format) const {
-    if (!format.getMtlFormat()) {
-        return false;
-    }
-
-    return format_is_srgb(static_cast<MTLPixelFormat>(*format.getMtlFormat()));
+    return format_is_srgb(GrBackendFormatAsMTLPixelFormat(format));
 }
 
 bool GrMtlCaps::isFormatCompressed(const GrBackendFormat& format) const {
 #ifdef SK_BUILD_FOR_MAC
     return false;
 #else
-    if (!format.getMtlFormat()) {
-        return false;
-    }
-
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
-
-    return mtlFormat == MTLPixelFormatETC2_RGB8;
+    return GrBackendFormatAsMTLPixelFormat(format) == MTLPixelFormatETC2_RGB8;
 #endif
 }
 
 bool GrMtlCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format) const {
-    if (!format.getMtlFormat()) {
-        return false;
-    }
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
 
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
     uint32_t ctFlags = this->getFormatInfo(mtlFormat).colorTypeFlags(ct);
     return this->isFormatTexturable(mtlFormat) &&
            SkToBool(ctFlags & ColorTypeInfo::kUploadData_Flag);
@@ -328,8 +315,8 @@ bool GrMtlCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFor
     if (!this->isFormatRenderable(format, sampleCount)) {
         return false;
     }
-    SkASSERT(format.getMtlFormat());
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+    SkASSERT(mtlFormat != MTLPixelFormatInvalid);
     const auto& info = this->getFormatInfo(mtlFormat);
     if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
         return false;
@@ -338,11 +325,7 @@ bool GrMtlCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFor
 }
 
 bool GrMtlCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount) const {
-    if (!format.getMtlFormat()) {
-        return false;
-    }
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
-    return this->isFormatRenderable(mtlFormat, sampleCount);
+    return this->isFormatRenderable(GrBackendFormatAsMTLPixelFormat(format), sampleCount);
 }
 
 bool GrMtlCaps::isFormatRenderable(MTLPixelFormat format, int sampleCount) const {
@@ -350,12 +333,7 @@ bool GrMtlCaps::isFormatRenderable(MTLPixelFormat format, int sampleCount) const
 }
 
 int GrMtlCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const {
-    if (!format.getMtlFormat()) {
-        return 0;
-    }
-
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
-    return this->maxRenderTargetSampleCount(mtlFormat);
+    return this->maxRenderTargetSampleCount(GrBackendFormatAsMTLPixelFormat(format));
 }
 
 int GrMtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
@@ -370,17 +348,17 @@ int GrMtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
 
 int GrMtlCaps::getRenderTargetSampleCount(int requestedCount,
                                           const GrBackendFormat& format) const {
-    if (!format.getMtlFormat()) {
-        return 0;
-    }
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
 
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
     return this->getRenderTargetSampleCount(requestedCount, mtlFormat);
 }
 
 int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, MTLPixelFormat format) const {
     requestedCount = SkTMax(requestedCount, 1);
     const FormatInfo& formatInfo = this->getFormatInfo(format);
+    if (!(formatInfo.fFlags & FormatInfo::kRenderable_Flag)) {
+        return 0;
+    }
     if (formatInfo.fFlags & FormatInfo::kMSAA_Flag) {
         int count = fSampleCounts.count();
         for (int i = 0; i < count; ++i) {
@@ -388,10 +366,8 @@ int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, MTLPixelFormat for
                 return fSampleCounts[i];
             }
         }
-    } else if (formatInfo.fFlags & FormatInfo::kRenderable_Flag) {
-        return 1 == requestedCount ? 1 : 0;
     }
-    return 0;
+    return 1 == requestedCount ? 1 : 0;
 }
 
 void GrMtlCaps::initShaderCaps() {
@@ -438,8 +414,6 @@ void GrMtlCaps::initShaderCaps() {
 // These are all the valid MTLPixelFormats that we support in Skia.  They are roughly ordered from
 // most frequently used to least to improve look up times in arrays.
 static constexpr MTLPixelFormat kMtlFormats[] = {
-    MTLPixelFormatInvalid,
-
     MTLPixelFormatRGBA8Unorm,
     MTLPixelFormatR8Unorm,
     MTLPixelFormatA8Unorm,
@@ -464,13 +438,14 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
     // Experimental (for Y416 and mutant P016/P010)
     MTLPixelFormatRGBA16Unorm,
     MTLPixelFormatRG16Float,
+
+    MTLPixelFormatInvalid,
 };
 
 size_t GrMtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
     static_assert(SK_ARRAY_COUNT(kMtlFormats) == GrMtlCaps::kNumMtlFormats,
                   "Size of kMtlFormats array must match static value in header");
-    // Start at 1, 0 is sentinel value (MTLPixelFormatInvalid)
-    for (size_t i = 1; i < GrMtlCaps::kNumMtlFormats; ++i) {
+    for (size_t i = 0; i < GrMtlCaps::kNumMtlFormats; ++i) {
         if (kMtlFormats[i] == pixelFormat) {
             return i;
         }
@@ -909,35 +884,19 @@ static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, 
 
 bool GrMtlCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                   const GrBackendFormat& format) const {
-    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
-    if (!mtlFormat) {
-        return false;
-    }
-
-    return kUnknown_GrPixelConfig != validate_sized_format(*mtlFormat, ct);
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+    return kUnknown_GrPixelConfig != validate_sized_format(mtlFormat, ct);
 }
 
 
 GrPixelConfig GrMtlCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                       GrColorType ct) const {
-    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
-    if (!mtlFormat) {
-        return kUnknown_GrPixelConfig;
-    }
-    return validate_sized_format(*mtlFormat, ct);
+    return validate_sized_format(GrBackendFormatAsMTLPixelFormat(format), ct);
 }
 
 GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
                                                          bool isAlphaChannel) const {
-    const GrMTLPixelFormat* grMtlFormat = format.getMtlFormat();
-    if (!grMtlFormat) {
-        return GrColorType::kUnknown;
-    }
-
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*grMtlFormat);
-
-
-    switch (mtlFormat) {
+    switch (GrBackendFormatAsMTLPixelFormat(format)) {
         case MTLPixelFormatA8Unorm:           // fall through
         case MTLPixelFormatR8Unorm:           return isAlphaChannel ? GrColorType::kAlpha_8
                                                                     : GrColorType::kGray_8;
@@ -952,8 +911,6 @@ GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& 
         case MTLPixelFormatRG16Float:         return GrColorType::kRG_F16;
         default:                              return GrColorType::kUnknown;
     }
-
-    SkUNREACHABLE;
 }
 
 GrBackendFormat GrMtlCaps::onGetDefaultBackendFormat(GrColorType ct,
@@ -984,8 +941,8 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
 }
 
 GrSwizzle GrMtlCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    SkASSERT(format.getMtlFormat());
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+    SkASSERT(mtlFormat != MTLPixelFormatInvalid);
     const auto& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
@@ -996,8 +953,8 @@ GrSwizzle GrMtlCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorTyp
     return GrSwizzle::RGBA();
 }
 GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    SkASSERT(format.getMtlFormat());
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+    SkASSERT(mtlFormat != MTLPixelFormatInvalid);
     const auto& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
@@ -1011,17 +968,11 @@ GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType
 GrCaps::SupportedWrite GrMtlCaps::supportedWritePixelsColorType(
         GrColorType surfaceColorType, const GrBackendFormat& surfaceFormat,
         GrColorType srcColorType) const {
-    const GrMTLPixelFormat* grMtlFormat = surfaceFormat.getMtlFormat();
-    if (!grMtlFormat) {
-        return {GrColorType::kUnknown, 0};
-    }
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*grMtlFormat);
-
     // Metal requires the destination offset for copyFromTexture to be a multiple of the textures
     // pixels size.
     size_t offsetAlignment = GrColorTypeBytesPerPixel(surfaceColorType);
 
-    const auto& info = this->getFormatInfo(mtlFormat);
+    const auto& info = this->getFormatInfo(GrBackendFormatAsMTLPixelFormat(surfaceFormat));
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == surfaceColorType) {
@@ -1034,11 +985,7 @@ GrCaps::SupportedWrite GrMtlCaps::supportedWritePixelsColorType(
 GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {
-    const GrMTLPixelFormat* grMtlFormat = srcBackendFormat.getMtlFormat();
-    if (!grMtlFormat) {
-        return {GrColorType::kUnknown, 0};
-    }
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*grMtlFormat);
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(srcBackendFormat);
 
     // Metal requires the destination offset for copyFromTexture to be a multiple of the textures
     // pixels size.
