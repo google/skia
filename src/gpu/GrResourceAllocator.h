@@ -10,6 +10,8 @@
 
 #include "include/gpu/GrSurface.h"
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrHack.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceProxy.h"
 
 #include "src/core/SkArenaAlloc.h"
@@ -74,6 +76,11 @@ public:
             : fResourceProvider(resourceProvider)
             , fDeinstantiateTracker(tracker)
             SkDEBUGCODE(, fNumOpLists(numOpLists)) {
+        static int iFoo = 0;
+        fID = iFoo++;
+        SkDebugf("------------------------------------------------------------------------------\n");
+        const GrCacheState* tmp = resourceProvider->getCacheState(fID, "before");
+        tmp->dump();
     }
 
     ~GrResourceAllocator();
@@ -279,6 +286,8 @@ private:
     SkArenaAlloc                 fIntervalAllocator{fStorage, kInitialArenaSize, kInitialArenaSize};
     Interval*                    fFreeIntervalList = nullptr;
     bool                         fLazyInstantiationError = false;
+
+    int                          fID;
 };
 
 #endif // GrResourceAllocator_DEFINED
