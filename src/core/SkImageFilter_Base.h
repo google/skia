@@ -22,6 +22,7 @@ class GrRecordingContext;
 // actual API surface that Skia will use to compute the filtered images.
 class SkImageFilter_Base : public SkImageFilter {
 public:
+    SK_USE_FLUENT_IMAGE_FILTER_TYPES_IN_CLASS
     // Help with backwards compatibility.
     // DEPRECATED: Use skif::Context directly.
     using Context = skif::Context;
@@ -31,16 +32,13 @@ public:
      *  inputs to the filtering, the coordinate space that filtering occurs in, and the output
      *  parameters of the filtering.
      *
-     *  Offset is the amount to translate the resulting image relative to the src when it is drawn.
-     *  This is an out-param.
-     *
      *  If the result image cannot be created, or the result would be transparent black, return
      *  null, in which case the offset parameter should be ignored by the caller.
      *
      *  TODO: Right now the imagefilters sometimes return empty result bitmaps/
      *        specialimages. That doesn't seem quite right.
      */
-    sk_sp<SkSpecialImage> filterImage(const skif::Context& context, SkIPoint* offset) const;
+    skif::Image<For::kOutput> filterImage(const skif::Context& context) const;
 
     /**
      *  Returns whether any edges of the crop rect have been set. The crop
@@ -126,20 +124,7 @@ protected:
     // Subclasses that override flatten must call INHERITED::flatten()
     void flatten(SkWriteBuffer&) const override;
 
-    /**
-     *  This is the virtual which should be overridden by the derived class to perform image
-     *  filtering. Subclasses are responsible for recursing to their input filters, although
-     *  the filterInput() function is provided to handle all necessary details of this.
-     *
-     *  Offset is the amount to translate the resulting image relative to the src when it is drawn.
-     *  This is an out-param.
-     *
-     *  If the result image cannot be created (either because of error or if, say, the result is
-     *  entirely clipped out), this should return nullptr. Callers that affect transparent black
-     *  should explicitly handle nullptr results and press on. In the error case this behavior will
-     *  produce a better result than nothing and is necessary for the clipped out case. If the
-     *  return value is nullptr then offset should be ignored.
-     */
+    // DEPRECATED - Use the private context-only variant
     virtual sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const = 0;
 
     /**
@@ -178,12 +163,29 @@ protected:
     virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                        MapDirection, const SkIRect* inputRect) const;
 
+    // DEPRECRATED - Call the Context-only getInputFilteredImage()
+    sk_sp<SkSpecialImage> filterInput(int index, const Context& ctx, SkIPoint* offset) const {
+        return this->getInputFilteredImage(index, ctx).imageAndOffset(offset);
+    }
+
     // Helper function to help with recursing through the filter DAG. It invokes filter processing
-    // for the input image filter at the specified 'index'. If the image filter at that index was
-    // set to null, it returns the dynamic source image on the Context instead. 'offset' is an out
-    // param that specifies the origin in layer space of the filtered image results of the invoked
-    // input filter.
-    sk_sp<SkSpecialImage> filterInput(int index, const Context&, SkIPoint* offset) const;
+    // set to null, it returns the dynamic source image on the Context instead.
+    //
+    // Implementations must handle cases when the input filter was unable to compute an image and
+    // the returned skif::Image has a null SkSpecialImage. If the filter affect transparent black
+    // should explicitly handle nullptr results and press on. In the error case this behavior will
+    // produce a better result than nothing and is necessary for the clipped out case.
+    skif::Image<For::kInput> getInputFilteredImage(int index, const skif::Context& context) const {
+        return this->filterInput<For::kInput>(index, context);
+    }
+    // Convenience that calls filterInput with index = 0 and the most specific usage.
+    skif::Image<For::kInput0> getInputFilteredImage0(const skif::Context& context) const {
+        return this->filterInput<For::kInput0>(0, context);
+    }
+    // Convenience that calls filterInput with index = 1 and the most specific usage.
+    skif::Image<For::kInput1> getInputFilteredImage1(const skif::Context& context) const {
+        return this->filterInput<For::kInput1>(1, context);
+    }
 
     const CropRect* getCropRectIfSet() const {
         return this->cropRectIsSet() ? &fCropRect : nullptr;
@@ -256,7 +258,7 @@ private:
     void init(sk_sp<SkImageFilter> const* inputs, int inputCount, const CropRect* cropRect);
 
     // Configuration points for the filter implementation, marked private since they should not
-    // need to be invoked by the subclasses. These refer to the node's specific behavior and do are
+    // need to be invoked by the subclasses. These refer to the node's specific behavior and are
     // not responsible for aggregating the behavior of the entire filter DAG.
 
     /**
@@ -278,6 +280,32 @@ private:
      * transparent black and thus process fewer pixels.
      */
     virtual bool affectsTransparentBlack() const { return false; }
+
+    /**
+     *  This is the virtual which should be overridden by the derived class to perform image
+     *  filtering. Subclasses are responsible for recursing to their input filters, although the
+     *  getFilteredInputX() functions are provided to handle all necessary details of this. If the
+     *  filter has a fixed number of inputs, the getFilterInput0() and getFilteredInput1() functions
+     *  ensure the returned filtered Images have the most specific input usage.
+     *
+     *  If the image cannot be created (either because of an error or if the result would be empty
+     *  because it was clipped out), this should return a filtered Image with a null SkSpecialImage.
+     *  In these situations, callers that do not affect transparent black can end early, since the
+     *  "transparent" implicit image would be unchanged. Callers that affect transparent black need
+     *  to safely handle these null and empty images and return an image filling the context's clip
+     *  bounds as if its input filtered image were transparent black.
+     */
+    virtual skif::Image<For::kOutput> onFilterImage(const skif::Context& context) const {
+        // Default to using the old onFilterImage, as filters are updated one by one.
+        SkIPoint origin;
+        auto image = this->onFilterImage(context, &origin);
+        return skif::Image<For::kOutput>(std::move(image), origin);
+    }
+
+    // The actual implementation of the protected getFilterInputX() functions, but don't expose the
+    // flexible templating to subclasses so it can't be abused.
+    template<skif::Usage kU>
+    skif::Image<kU> filterInput(int index, const skif::Context& ctx) const;
 
     SkAutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
 
