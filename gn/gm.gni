@@ -152,6 +152,7 @@ gm_sources = [
   "$_gm/extractbitmap.cpp",
   "$_gm/fadefilter.cpp",
   "$_gm/fatpathfill.cpp",
+  "$_gm/fiddle.cpp",
   "$_gm/filltypes.cpp",
   "$_gm/filltypespersp.cpp",
   "$_gm/filterbitmap.cpp",
