@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b1c3107_9fe1888f",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-09T23:20:14Z",
+      "side": 1,
+      "message": "if the device doesn\u0027t support ycbcr and isn\u0027t 1.1 I think the calls made in here may be invalid since the new VK_FORMATS are not valid formats.",
+      "range": {
+        "startLine": 681,
+        "startChar": 12,
+        "endLine": 681,
+        "endChar": 73
+      },
+      "revId": "cc4573dfed717a87398e1a08f80d69d5a19a0ab8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f26e6ae_e775eb58",
+        "filename": "tests/VkYcbcrSamplerTest.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-09T23:20:14Z",
+      "side": 1,
+      "message": "this is not the crash, but looking more closely that things, if the version is 1.1 you don\u0027t need to have this extension.",
+      "range": {
+        "startLine": 171,
+        "startChar": 36,
+        "endLine": 171,
+        "endChar": 80
+      },
+      "revId": "cc4573dfed717a87398e1a08f80d69d5a19a0ab8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
