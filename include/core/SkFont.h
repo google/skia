@@ -511,7 +511,7 @@ private:
     friend class GrTextBlob;
     friend class SkFontPriv;
     friend class SkGlyphRunListPainter;
-    friend class SkTextBlobCacheDiffCanvas;
+    friend class SkStrikeServer;
     friend class SkStrikeSpec;
 };
 
