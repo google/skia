@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af46e446_2796fb01",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-09T17:54:12Z",
+      "side": 1,
+      "message": "this doens\u0027t look like is respects the subrect of the stencil we are clearing.",
+      "range": {
+        "startLine": 134,
+        "startChar": 51,
+        "endLine": 134,
+        "endChar": 74
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "017b548c_04c58dee",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-09T17:54:12Z",
+      "side": 1,
+      "message": "same about sub rect",
+      "range": {
+        "startLine": 138,
+        "startChar": 27,
+        "endLine": 139,
+        "endChar": 74
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14fe2368_88afc291",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-09T17:54:12Z",
+      "side": 1,
+      "message": "is this always supported? Do we ever have to fall back on S8 or some other format? If an S8 format is available would be not pick that for memory size?",
+      "range": {
+        "startLine": 210,
+        "startChar": 61,
+        "endLine": 210,
+        "endChar": 80
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d03cc3e_d16dce14",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-09T17:54:12Z",
+      "side": 1,
+      "message": "what actually disables the stenciling here? The read/write mask?\n\nOr is it that we don\u0027t attach a stencil state later on that disables everything?",
+      "range": {
+        "startLine": 197,
+        "startChar": 3,
+        "endLine": 203,
+        "endChar": 60
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
