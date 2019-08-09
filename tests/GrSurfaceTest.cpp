@@ -99,7 +99,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                     break;
                 default:
                     SK_ABORT("Unexpected config");
-                    return nullptr;
             }
             // Only supported compression type right now.
             SkASSERT(config == kRGB_ETC1_GrPixelConfig);

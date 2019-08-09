@@ -61,7 +61,6 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
                 return GR_GL_STREAM_DRAW;
         }
         SK_ABORT("Unexpected access pattern");
-        return GR_GL_STATIC_DRAW;
     };
 
     auto readUsage = [](GrAccessPattern pattern) {
@@ -74,7 +73,6 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
                 return GR_GL_STREAM_READ;
         }
         SK_ABORT("Unexpected access pattern");
-        return GR_GL_STATIC_READ;
     };
 
     auto usageType = [&drawUsage, &readUsage](GrGpuBufferType type, GrAccessPattern pattern) {
@@ -87,7 +85,6 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
                 return readUsage(pattern);
         }
         SK_ABORT("Unexpected gpu buffer type.");
-        return GR_GL_STATIC_DRAW;
     };
 
     return usageType(bufferType, accessPattern);

@@ -310,7 +310,7 @@ static const char* slant_to_string(SkFontStyle::Slant slant) {
         case SkFontStyle::kUpright_Slant: return "SkFontStyle::kUpright_Slant";
         case SkFontStyle::kItalic_Slant : return "SkFontStyle::kItalic_Slant" ;
         case SkFontStyle::kOblique_Slant: return "SkFontStyle::kOblique_Slant";
-        default: SK_ABORT("Unknown slant"); return "";
+        default: SK_ABORT("Unknown slant");
     }
 }
 

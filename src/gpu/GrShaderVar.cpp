@@ -18,7 +18,6 @@ static const char* type_modifier_string(GrShaderVar::TypeModifier t) {
         case GrShaderVar::kUniform_TypeModifier: return "uniform";
     }
     SK_ABORT("Unknown shader variable type modifier.");
-    return "";
 }
 
 void GrShaderVar::setIOType(GrIOType ioType) {

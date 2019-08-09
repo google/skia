@@ -164,7 +164,6 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
     }
 
     SK_ABORT("Invalid stroke style.");
-    return CanDrawPath::kNo;
 }
 
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {

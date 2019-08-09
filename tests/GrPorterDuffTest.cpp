@@ -35,7 +35,6 @@ DEF_GPUTEST(GrPorterDuff, reporter, /*ctxInfo*/) {
 
     if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
         SK_ABORT("Null context does not support dual source blending.");
-        return;
     }
 
     test_color_unknown_with_coverage(reporter, caps);
@@ -986,14 +985,12 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kMock_ContextType);
     if (!ctx) {
         SK_ABORT("Failed to create mock context without ARB_blend_func_extended.");
-        return;
     }
 
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     const GrCaps& caps = *ctx->priv().caps();
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         SK_ABORT("Mock context failed to honor request for no ARB_blend_func_extended.");
-        return;
     }
 
     GrBackendTexture backendTex =

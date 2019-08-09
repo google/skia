@@ -550,5 +550,4 @@ GrGLSLPrimitiveProcessor* GrVSCoverageProcessor::onCreateGLSLInstance(
             return new Impl(std::move(shader), 4);
     }
     SK_ABORT("Invalid PrimitiveType");
-    return nullptr;
 }

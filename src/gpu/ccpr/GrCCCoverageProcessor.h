@@ -240,7 +240,6 @@ inline const char* GrCCCoverageProcessor::PrimitiveTypeName(PrimitiveType type) 
         case PrimitiveType::kConics: return "kConics";
     }
     SK_ABORT("Invalid PrimitiveType");
-    return "";
 }
 
 inline void GrCCCoverageProcessor::TriPointInstance::set(

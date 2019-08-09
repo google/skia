@@ -155,7 +155,6 @@ static int rrect_type_to_vert_count(RRectType type) {
             return kVertsPerOverstrokeRRect;
     }
     SK_ABORT("Invalid type");
-    return 0;
 }
 
 static int rrect_type_to_index_count(RRectType type) {
@@ -168,7 +167,6 @@ static int rrect_type_to_index_count(RRectType type) {
             return kIndicesPerOverstrokeRRect;
     }
     SK_ABORT("Invalid type");
-    return 0;
 }
 
 static const uint16_t* rrect_type_to_indices(RRectType type) {
@@ -180,7 +178,6 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
             return gRRectIndices;
     }
     SK_ABORT("Invalid type");
-    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

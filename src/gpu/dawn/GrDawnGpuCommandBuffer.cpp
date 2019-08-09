@@ -49,7 +49,6 @@ dawn::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
         case GrLoadOp::kDiscard:
         default:
             SK_ABORT("Invalid LoadOp");
-            return dawn::LoadOp::Load;
     }
 }
 

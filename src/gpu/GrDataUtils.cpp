@@ -122,7 +122,6 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, int width, int height
             return numBlocks * sizeof(ETC1Block);
     }
     SK_ABORT("Unexpected compression type");
-    return 0;
 }
 
 // Fill in 'dest' with ETC1 blocks derived from 'colorf'

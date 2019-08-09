@@ -28,7 +28,6 @@ static BufferUsage get_buffer_usage(GrVkBuffer::Type type, bool dynamic) {
             return BufferUsage::kCpuOnly;
     }
     SK_ABORT("Invalid GrVkBuffer::Type");
-    return BufferUsage::kCpuOnly; // Just returning an arbitrary value.
 }
 
 bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,

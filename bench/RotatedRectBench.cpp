@@ -40,7 +40,6 @@ static inline SkColor start_color(ColorType ct) {
             return SK_ColorWHITE;
     }
     SK_ABORT("Shouldn't reach here.");
-    return 0;
 }
 
 static inline SkColor advance_color(SkColor old, ColorType ct, int step) {
@@ -60,7 +59,6 @@ static inline SkColor advance_color(SkColor old, ColorType ct, int step) {
             SK_ABORT("Can't get here");
     }
     SK_ABORT("Shouldn't reach here.");
-    return 0;
 }
 
 static SkString to_lower(const char* str) {

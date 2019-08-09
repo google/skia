@@ -43,7 +43,7 @@ protected:
             case kMD5_ChecksumType: return "compute_md5";
             case kHash_ChecksumType: return "compute_hash";
 
-            default: SK_ABORT("Invalid Type"); return "";
+            default: SK_ABORT("Invalid Type");
         }
     }
 

@@ -133,6 +133,7 @@
        SK_DUMP_LINE_FORMAT(message); \
        SK_DUMP_GOOGLE3_STACK(); \
        sk_abort_no_print(); \
+       SkUNREACHABLE; \
     } while (false)
 #endif
 

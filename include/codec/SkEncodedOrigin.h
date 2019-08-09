@@ -41,7 +41,6 @@ static inline SkMatrix SkEncodedOriginToMatrix(SkEncodedOrigin origin, int w, in
         case  kLeftBottom_SkEncodedOrigin: return SkMatrix::MakeAll( 0,  1, 0, -1,  0, w, 0, 0, 1);
     }
     SK_ABORT("Unexpected origin");
-    return SkMatrix::I();
 }
 
 

@@ -95,7 +95,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
 
     }
     SK_ABORT("Unexpected config");
-    return false;
 }
 
 #ifdef SK_DEBUG
@@ -297,11 +296,9 @@ size_t GrVkBytesPerFormat(VkFormat vkFormat) {
 
         default:
             SK_ABORT("Invalid Vk format");
-            return 0;
     }
 
     SK_ABORT("Invalid Vk format");
-    return 0;
 }
 
 bool GrVkFormatIsCompressed(VkFormat vkFormat) {

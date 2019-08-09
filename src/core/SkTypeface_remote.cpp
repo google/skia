@@ -29,7 +29,6 @@ void SkScalerContextProxy::initCache(SkStrike* cache, SkStrikeCache* strikeCache
 
 unsigned SkScalerContextProxy::generateGlyphCount()  {
     SK_ABORT("Should never be called.");
-    return 0;
 }
 
 bool SkScalerContextProxy::generateAdvance(SkGlyph* glyph) {

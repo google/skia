@@ -182,7 +182,6 @@ static inline bool SkCubicIsDegenerate(SkCubicType type) {
             return true;
     }
     SK_ABORT("Invalid SkCubicType");
-    return true;
 }
 
 static inline const char* SkCubicTypeName(SkCubicType type) {
@@ -195,7 +194,6 @@ static inline const char* SkCubicTypeName(SkCubicType type) {
         case SkCubicType::kLineOrPoint: return "kLineOrPoint";
     }
     SK_ABORT("Invalid SkCubicType");
-    return "";
 }
 
 /** Returns the cubic classification.

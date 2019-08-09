@@ -817,5 +817,4 @@ static bool can_use_hw_derivatives_with_coverage(
         }
     }
     SK_ABORT("Invalid round rect type.");
-    return false;  // Add this return to keep GCC happy.
 }

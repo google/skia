@@ -117,7 +117,6 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
             return true;
     }
     SK_ABORT("Unexpected config");
-    return false;
 }
 
 MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
@@ -326,11 +325,9 @@ size_t GrMtlBytesPerFormat(MTLPixelFormat format) {
 #endif
         default:
             SK_ABORT("Invalid Mtl format");
-            return 0;
     }
 
     SK_ABORT("Invalid Mtl format");
-    return 0;
 }
 
 #if GR_TEST_UTILS

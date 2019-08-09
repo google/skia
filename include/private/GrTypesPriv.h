@@ -552,7 +552,6 @@ static inline GrSLType GrSLCombinedSamplerTypeForTextureType(GrTextureType type)
             return kTextureExternalSampler_GrSLType;
         default:
             SK_ABORT("Unexpected texture type");
-            return kTexture2DSampler_GrSLType;
     }
 }
 
@@ -569,7 +568,6 @@ static inline bool GrTextureTypeHasRestrictedSampling(GrTextureType type) {
             return true;
         default:
             SK_ABORT("Unexpected texture type");
-            return false;
     }
 }
 
@@ -1077,11 +1075,9 @@ static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
 
         default:
             SK_ABORT("Unknown compressed pixel config");
-            return 4 * width * height;
     }
 
     SK_ABORT("Invalid pixel config");
-    return 4 * width * height;
 }
 
 /**

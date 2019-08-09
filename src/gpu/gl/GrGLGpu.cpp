@@ -195,7 +195,6 @@ static int gl_target_to_binding_index(GrGLenum target) {
             return 2;
     }
     SK_ABORT("Unexpected GL texture target.");
-    return 0;
 }
 
 GrGpuResource::UniqueID GrGLGpu::TextureUnitBindings::boundID(GrGLenum target) const {
@@ -234,7 +233,6 @@ static GrGLenum filter_to_gl_mag_filter(GrSamplerState::Filter filter) {
         case GrSamplerState::Filter::kMipMap:  return GR_GL_LINEAR;
     }
     SK_ABORT("Unknown filter");
-    return 0;
 }
 
 static GrGLenum filter_to_gl_min_filter(GrSamplerState::Filter filter) {
@@ -244,7 +242,6 @@ static GrGLenum filter_to_gl_min_filter(GrSamplerState::Filter filter) {
         case GrSamplerState::Filter::kMipMap:  return GR_GL_LINEAR_MIPMAP_LINEAR;
     }
     SK_ABORT("Unknown filter");
-    return 0;
 }
 
 static inline GrGLenum wrap_mode_to_gl_wrap(GrSamplerState::WrapMode wrapMode,
@@ -259,7 +256,6 @@ static inline GrGLenum wrap_mode_to_gl_wrap(GrSamplerState::WrapMode wrapMode,
             return GR_GL_CLAMP_TO_BORDER;
     }
     SK_ABORT("Unknown wrap mode");
-    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2455,7 +2451,6 @@ static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
             return GR_GL_LINES_ADJACENCY;
     }
     SK_ABORT("invalid GrPrimitiveType");
-    return GR_GL_TRIANGLES;
 }
 
 void GrGLGpu::sendMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer* vertexBuffer,
@@ -4208,7 +4203,6 @@ int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
             return 2;
         default:
             SK_ABORT("Unexpected samper type");
-            return 0;
     }
 }
 

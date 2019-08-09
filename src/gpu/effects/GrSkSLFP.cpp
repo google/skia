@@ -146,7 +146,6 @@ public:
         }
         printf("%s\n", SkSL::String(type.fName).c_str());
         SK_ABORT("unsupported uniform type");
-        return kFloat_GrSLType;
     }
 
     void emitCode(EmitArgs& args) override {
@@ -526,7 +525,6 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
         }
     }
     SK_ABORT("unreachable");
-    return nullptr;
 }
 
 #endif
