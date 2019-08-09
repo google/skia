@@ -17,13 +17,17 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTHash.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/core/SkPtrRecorder.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrikeInterface.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkWriteBuffer.h"
 
 class Deserializer;
 class Serializer;
@@ -73,6 +77,21 @@ public:
 
     ~SkTextBlobCacheDiffCanvas() override;
 
+    void captureBlobs(std::unique_ptr<SkWStream> wStream = nullptr);
+
+    void finishCapture();
+
+    struct BlobTraceRecord {
+        uint32_t origUniqueID;
+        SkPaint paint;
+        SkPoint offset;
+        sk_sp<SkTextBlob> blob;
+    };
+
+    static std::vector<BlobTraceRecord> CreateBlobTrace(SkStream* stream);
+
+    static void DumpTrace(const std::vector<BlobTraceRecord>&);
+
 protected:
     SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
     bool onDoSaveBehind(const SkRect*) override;
@@ -82,7 +101,11 @@ protected:
 private:
     class TrackLayerDevice;
 
-    static SkScalar SetupForPath(SkPaint* paint, SkFont* font);
+    int fBlobCount = 0;
+    bool fCaptureBlobs{false};
+    std::unique_ptr<SkWStream> fWStream;
+    sk_sp<SkRefCntSet> fTypefaceSet;
+    std::unique_ptr<SkBinaryWriteBuffer> fWriteBuffer;
 };
 
 using SkDiscardableHandleId = uint32_t;
@@ -143,6 +166,8 @@ public:
         fMaxEntriesInDescriptorMap = count;
     }
     size_t remoteGlyphStateMapSizeForTesting() const { return fRemoteGlyphStateMap.size(); }
+
+    size_t countGlyphs() const;
 
 private:
     static constexpr size_t kMaxEntriesInDescriptorMap = 2000u;
