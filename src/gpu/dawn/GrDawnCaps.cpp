@@ -77,9 +77,6 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
 
 static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
                              bool forOutput) {
-    SkDEBUGCODE(dawn::TextureFormat format;)
-    SkASSERT(format.asDawnFormat(&format));
-
     switch (colorType) {
         case GrColorType::kAlpha_8: // fall through
         case GrColorType::kAlpha_F16:
