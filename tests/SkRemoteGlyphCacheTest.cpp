@@ -94,7 +94,10 @@ public:
         SkAutoMutexExclusive l(fMutex);
 
         for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
-            if (fCacheMissCount[i] > 0) return true;
+            if (fCacheMissCount[i] > 0) {
+                SkDebugf("cache miss type: %d\n", i);
+                return true;
+            }
         }
         return false;
     }
@@ -218,12 +221,29 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
     int glyphCount = 10;
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
     auto props = FindSurfaceProps(ctxInfo.grContext());
-    SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, props, &server,
-                                                MakeSettings(ctxInfo.grContext()));
-    cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
-
     std::vector<uint8_t> serverStrikeData;
-    server.writeStrikeData(&serverStrikeData);
+    std::unique_ptr<SkDynamicMemoryWStream> wStream = skstd::make_unique<SkDynamicMemoryWStream>();
+    std::unique_ptr<SkStreamAsset> stream;
+    {
+        SkTextBlobCacheDiffCanvas cacheDiffCanvas(10, 10, props, &server,
+                                                  MakeSettings(ctxInfo.grContext()));
+        SkDynamicMemoryWStream* streamPtr = wStream.get();
+        server.startBlobCapture(std::move(wStream));
+        cacheDiffCanvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+        auto keepAlive = server.finishBlobCapture();
+        stream = streamPtr->detachAsStream();
+        server.writeStrikeData(&serverStrikeData);
+    }
+
+    auto trace = server.CreateBlobTrace(stream.get());
+    REPORTER_ASSERT(reporter, trace.size() == 1);
+
+    {
+        SkTextBlobCacheDiffCanvas cacheDiffCanvas(10, 10, props, &server,
+                                                  MakeSettings(ctxInfo.grContext()));
+        server.startBlobCapture();
+        cacheDiffCanvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+    }
 
     // Client.
     auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());

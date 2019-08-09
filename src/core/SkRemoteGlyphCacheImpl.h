@@ -32,6 +32,10 @@ public:
         return *fDescriptor.getDesc();
     }
 
+    size_t glyphCount() const {
+        return fCachedGlyphImages.count();
+    }
+
     void setTypefaceAndEffects(const SkTypeface* typeface, SkScalerContextEffects effects);
 
     SkVector rounding() const override;
@@ -103,6 +107,8 @@ public:
     TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props, SkStrikeServer* server,
                      sk_sp<SkColorSpace> colorSpace,
                      const SkTextBlobCacheDiffCanvas::Settings& settings);
+
+    ~TrackLayerDevice() override;
 
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override;
 
