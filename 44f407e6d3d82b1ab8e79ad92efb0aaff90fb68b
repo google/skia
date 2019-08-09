@@ -196,6 +196,30 @@
     },
     {
       "key": {
+        "uuid": "42d3a245_2fbdb20f",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T18:20:46Z",
+      "side": 1,
+      "message": "Okay I take that back. It probably is okay since no one else should ever take a ref on the resolve render task.\n\nThings are a bit more complicated for the opLists.",
+      "parentUuid": "1a1d460d_326922e9",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 18
+      },
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b73b9207_5a7e8d0a",
         "filename": "src/gpu/GrRenderTask.cpp",
         "patchSetId": 24
