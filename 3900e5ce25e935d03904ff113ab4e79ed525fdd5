@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a0ee776_38d837d5",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-09T14:52:51Z",
+      "side": 1,
+      "message": "Replace with:\n   id\u003cMTLBuffer\u003e transferBuffer \u003d [fDevice newBufferWithLength: combinedBufferSize\n                                              options: options];",
+      "range": {
+        "startLine": 690,
+        "startChar": 0,
+        "endLine": 692,
+        "endChar": 83
+      },
+      "revId": "3900e5ce25e935d03904ff113ab4e79ed525fdd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "772f3cee_1c920602",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-09T14:52:51Z",
+      "side": 1,
+      "message": "Replace with:\n   char* buffer \u003d transferBuffer.contents;\n   // Delete bufferOffset, you don\u0027t need it.",
+      "range": {
+        "startLine": 697,
+        "startChar": 4,
+        "endLine": 698,
+        "endChar": 51
+      },
+      "revId": "3900e5ce25e935d03904ff113ab4e79ed525fdd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10d19f2c_60305a92",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-09T14:52:51Z",
+      "side": 1,
+      "message": "Delete.",
+      "range": {
+        "startLine": 726,
+        "startChar": 54,
+        "endLine": 726,
+        "endChar": 67
+      },
+      "revId": "3900e5ce25e935d03904ff113ab4e79ed525fdd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a96a4599_4342cc41",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-09T14:52:51Z",
+      "side": 1,
+      "message": "Delete",
+      "range": {
+        "startLine": 727,
+        "startChar": 40,
+        "endLine": 727,
+        "endChar": 55
+      },
+      "revId": "3900e5ce25e935d03904ff113ab4e79ed525fdd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31309776_be779f46",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 739,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-09T14:52:51Z",
+      "side": 1,
+      "message": "Replace with:\n#ifdef SK_BUILD_FOR_MAC\n    [transferBuffer didModifyRange: NSMakeRange(0, combinedBufferSize)];\n#endif",
+      "range": {
+        "startLine": 739,
+        "startChar": 0,
+        "endLine": 739,
+        "endChar": 28
+      },
+      "revId": "3900e5ce25e935d03904ff113ab4e79ed525fdd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc29d347_6815d221",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-09T14:52:51Z",
+      "side": 1,
+      "message": "nil;",
+      "range": {
+        "startLine": 744,
+        "startChar": 21,
+        "endLine": 744,
+        "endChar": 28
+      },
+      "revId": "3900e5ce25e935d03904ff113ab4e79ed525fdd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
