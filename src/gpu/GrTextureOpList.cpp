@@ -29,6 +29,10 @@ GrTextureOpList::GrTextureOpList(sk_sp<GrOpMemoryPool> opMemoryPool,
         : INHERITED(std::move(opMemoryPool), proxy, auditTrail) {
     SkASSERT(fOpMemoryPool);
     SkASSERT(!proxy->readOnly());
+    if (GrMipMapped::kYes == proxy->mipMapped()) {
+        proxy->markMipMapsDirty();
+    }
+    fTarget->setLastRenderTask(this);
 }
 
 void GrTextureOpList::deleteOp(int index) {
