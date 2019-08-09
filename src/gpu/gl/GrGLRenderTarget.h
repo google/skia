@@ -69,6 +69,8 @@ public:
     // components seperately.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
+    GrGLFormat format() const { return fRTFormat; }
+
 protected:
     // Constructor for subclasses.
     GrGLRenderTarget(GrGLGpu*,
