@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b90b100f_2cfbbeee",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T17:19:03Z",
+      "side": 1,
+      "message": "Can we assert !glyph.isEmpty() now ?",
+      "revId": "149ca5a692ee8b61c8164c74db2e0f917f445357",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc0a8d6f_48396fbf",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T17:19:03Z",
+      "side": 1,
+      "message": "Same assert here ?",
+      "revId": "149ca5a692ee8b61c8164c74db2e0f917f445357",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
