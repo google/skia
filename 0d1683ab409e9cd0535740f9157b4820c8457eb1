@@ -16,6 +16,24 @@
       "revId": "0d1683ab409e9cd0535740f9157b4820c8457eb1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2688e130_1cdb4e74",
+        "filename": "modules/skparagraph/include/FontCollection.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-08-09T15:17:46Z",
+      "side": 1,
+      "message": "No reason. I will fix.",
+      "parentUuid": "0518629d_72488000",
+      "revId": "0d1683ab409e9cd0535740f9157b4820c8457eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
