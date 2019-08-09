@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "326c69fe_b7ae14ef",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-09T18:40:58Z",
+      "side": 1,
+      "message": "Okay well to pseduo keep the code we add \"correct\". Lets just put an a branch in here to see if the clip is the full RT or not. If it is then do the render pass clear as you have other wise just return. Then put in comment in the second part saying TODO: we\u0027ll handle this with a draw later.",
+      "parentUuid": "f12a9a5e_48d0b527",
+      "range": {
+        "startLine": 134,
+        "startChar": 51,
+        "endLine": 134,
+        "endChar": 74
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "017b548c_04c58dee",
         "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
         "patchSetId": 3
@@ -187,6 +211,30 @@
       "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aeb1ad4_b73d83e7",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-09T18:40:58Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b5ca685e_f7ae8516",
+      "range": {
+        "startLine": 197,
+        "startChar": 3,
+        "endLine": 203,
+        "endChar": 60
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
