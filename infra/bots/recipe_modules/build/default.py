@@ -12,10 +12,10 @@ from . import util
 # Use lowercase letters.
 # When updating XCODE_BUILD_VERSION, you will also need to update
 # XCODE_CLANG_VERSION.
-XCODE_BUILD_VERSION = '10g8'
+XCODE_BUILD_VERSION = '10b61'
 # Wikipedia lists the Clang version here:
 # https://en.wikipedia.org/wiki/Xcode#Toolchain_versions
-XCODE_CLANG_VERSION = '10.0.1'
+XCODE_CLANG_VERSION = '10.0.0'
 
 
 def build_command_buffer(api, chrome_dir, skia_dir, out):
@@ -82,6 +82,7 @@ def compile_fn(api, checkout_root, out_dir):
   os            = api.vars.builder_cfg.get('os',            '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
+  goma_ctl         = None
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
@@ -90,11 +91,14 @@ def compile_fn(api, checkout_root, out_dir):
   extra_cflags = []
   extra_ldflags = []
   args = {'werror': 'true'}
+  ninja_args = ['-C', out_dir]
   env = {}
 
   if os == 'Mac':
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
+    # XCode <10.3 seems to handle try_acquire_capability wrong.
+    extra_cflags.append('-Wno-thread-safety-analysis')
     mac_toolchain_cmd = api.vars.slave_dir.join(
         'mac_toolchain', 'mac_toolchain')
     xcode_app_path = api.vars.cache_dir.join('Xcode.app')
@@ -115,14 +119,17 @@ def compile_fn(api, checkout_root, out_dir):
       api.step('install xcode', install_xcode_cmd)
       api.step('select xcode', [
           'sudo', 'xcode-select', '-switch', xcode_app_path])
-      if 'iOS' in extra_tokens:
-        if target_arch == 'arm':
-          # Can only compile for 32-bit up to iOS 10.
-          env['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
-        else:
-          # Our iOS devices are on an older version.
-          # Can't compile for Metal before 11.0.
-          env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+    if 'iOS' in extra_tokens:
+      if target_arch == 'arm':
+        # Can only compile for 32-bit up to iOS 10.
+        extra_cflags.append('-miphoneos-version-min=10.0')
+      else:
+        # Our iOS devices are on an older version.
+        # Can't compile for Metal before 11.0.
+        extra_cflags.append('-miphoneos-version-min=11.0')
+#    else:
+#      # This is needed for Goma
+#      extra_cflags.append('-mmacosx-version-min=10.12')
 
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
@@ -279,6 +286,24 @@ def compile_fn(api, checkout_root, out_dir):
     args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
+  if 'Goma' in extra_tokens or 'GomaNoFallback' in extra_tokens:
+    # Paths mirror those used in
+    # https://cs.chromium.org/chromium/build/scripts/slave/recipe_modules/goma/api.py
+    goma_base_dir = api.vars.cache_dir.join('goma')
+    goma_client_dir = goma_base_dir.join('client')
+    goma_package = ('infra_internal/goma/client/%s' %
+                    api.cipd.platform_suffix())
+    api.cipd.ensure(goma_client_dir, {goma_package: 'release'})
+    goma_ctl = goma_client_dir.join('goma_ctl.py')
+    goma_cache_dir = goma_base_dir.join('data', api.vars.builder_name)
+    api.file.ensure_directory('mkdir goma cache dir', goma_cache_dir)
+    args['cc_wrapper'] = '"%s"' % goma_client_dir.join('gomacc')
+    #ninja_args.extend(['-j', '200'])
+    env['GOMA_CACHE_DIR'] = goma_cache_dir
+    if 'GomaNoFallback' in extra_tokens:
+      env['GOMA_HERMETIC'] = 'error'
+      env['GOMA_USE_LOCAL'] = '0'
+      env['GOMA_FALLBACK'] = '0'
 
   sanitize = ''
   for t in extra_tokens:
@@ -329,9 +354,42 @@ def compile_fn(api, checkout_root, out_dir):
               infra_step=True)
 
     with api.env(env):
-      api.run(api.step, 'gn gen',
-              cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+      build_successful = False
+      try:
+        if goma_ctl:
+          api.run(api.python, 'start goma', script=goma_ctl,
+                  args=['ensure_start'], infra_step=True)
+        api.run(api.step, 'gn gen',
+                cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
+        api.run(api.step, 'ninja', cmd=['ninja'] + ninja_args)
+        build_successful = True
+      finally:
+        if goma_ctl:
+          if not build_successful and api.properties.get('gs_bucket', ''):
+            api.run(api.python, 'goma report',
+                    script=goma_ctl, args=['report'], infra_step=True,
+                    abort_on_failure=False, fail_build_on_failure=False)
+            gsutil = api.vars.slave_dir.join('cipd_bin_packages', 'gsutil.py')
+            # 'goma_ctl report' saves goma-report.tgz in TMPDIR; there does not
+            # seem to be any way to specify an alternative location.
+            # I'm not sure how to get TMPDIR in a recipe, but it seems to always
+            # be under [start_dir]/tmp/t.
+            src = api.vars.tmp_dir.join('t', 'goma-report.tgz')
+            gs_path = '/'.join((api.properties['gs_bucket'], 'goma',
+                                api.vars.swarming_task_id, 'goma-report.tgz'))
+            dst = 'gs://' + gs_path
+            step = api.run(api.python, 'upload goma report',
+                           script=gsutil, args=['cp', src, dst],
+                           infra_step=True,
+                           abort_on_failure=False, fail_build_on_failure=False)
+            step.presentation.links['download'] = (
+                'https://storage.cloud.google.com/' + gs_path)
+          api.run(api.python, 'print goma stats',
+                  script=goma_ctl, args=['stat'], infra_step=True,
+                  abort_on_failure=False, fail_build_on_failure=False)
+          api.run(api.python, 'stop goma',
+                  script=goma_ctl, args=['ensure_stop'], infra_step=True,
+                  abort_on_failure=False, fail_build_on_failure=False)
 
 
 def copy_extra_build_products(api, src, dst):
