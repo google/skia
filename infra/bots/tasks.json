@@ -424,9 +424,19 @@
         "Build-Mac-Clang-arm-Debug-iOS"
       ]
     },
+    "Build-Mac-Clang-arm-Debug-iOS_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-arm-Debug-iOS_Goma"
+      ]
+    },
     "Build-Mac-Clang-arm-Release-iOS": {
       "tasks": [
         "Build-Mac-Clang-arm-Release-iOS"
+      ]
+    },
+    "Build-Mac-Clang-arm-Release-iOS_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-arm-Release-iOS_Goma"
       ]
     },
     "Build-Mac-Clang-arm64-Debug-Android": {
@@ -434,9 +444,24 @@
         "Build-Mac-Clang-arm64-Debug-Android"
       ]
     },
+    "Build-Mac-Clang-arm64-Debug-Android_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-arm64-Debug-Android_Goma"
+      ]
+    },
     "Build-Mac-Clang-arm64-Debug-iOS": {
       "tasks": [
         "Build-Mac-Clang-arm64-Debug-iOS"
+      ]
+    },
+    "Build-Mac-Clang-arm64-Debug-iOS_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-arm64-Debug-iOS_Goma"
+      ]
+    },
+    "Build-Mac-Clang-arm64-Debug-iOS_GomaNoFallback": {
+      "tasks": [
+        "Build-Mac-Clang-arm64-Debug-iOS_GomaNoFallback"
       ]
     },
     "Build-Mac-Clang-arm64-Debug-iOS_Metal": {
@@ -444,9 +469,19 @@
         "Build-Mac-Clang-arm64-Debug-iOS_Metal"
       ]
     },
+    "Build-Mac-Clang-arm64-Debug-iOS_Metal_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-arm64-Debug-iOS_Metal_Goma"
+      ]
+    },
     "Build-Mac-Clang-arm64-Release-iOS": {
       "tasks": [
         "Build-Mac-Clang-arm64-Release-iOS"
+      ]
+    },
+    "Build-Mac-Clang-arm64-Release-iOS_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-arm64-Release-iOS_Goma"
       ]
     },
     "Build-Mac-Clang-arm64-Release-iOS_Metal": {
@@ -454,9 +489,19 @@
         "Build-Mac-Clang-arm64-Release-iOS_Metal"
       ]
     },
+    "Build-Mac-Clang-arm64-Release-iOS_Metal_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-arm64-Release-iOS_Metal_Goma"
+      ]
+    },
     "Build-Mac-Clang-x64-Release-iOS": {
       "tasks": [
         "Build-Mac-Clang-x64-Release-iOS"
+      ]
+    },
+    "Build-Mac-Clang-x64-Release-iOS_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x64-Release-iOS_Goma"
       ]
     },
     "Build-Mac-Clang-x86_64-Debug": {
@@ -469,9 +514,19 @@
         "Build-Mac-Clang-x86_64-Debug-ASAN"
       ]
     },
+    "Build-Mac-Clang-x86_64-Debug-ASAN_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-ASAN_Goma"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Debug-ASAN_Metal": {
       "tasks": [
         "Build-Mac-Clang-x86_64-Debug-ASAN_Metal"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Debug-ASAN_Metal_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-ASAN_Metal_Goma"
       ]
     },
     "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
@@ -480,9 +535,30 @@
       ],
       "trigger": "master"
     },
+    "Build-Mac-Clang-x86_64-Debug-CommandBuffer_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-CommandBuffer_Goma"
+      ],
+      "trigger": "master"
+    },
+    "Build-Mac-Clang-x86_64-Debug-Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-Goma"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Debug-GomaNoFallback": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-GomaNoFallback"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Debug-Metal": {
       "tasks": [
         "Build-Mac-Clang-x86_64-Debug-Metal"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Debug-Metal_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-Metal_Goma"
       ]
     },
     "Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan": {
@@ -490,9 +566,19 @@
         "Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan"
       ]
     },
+    "Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan_Goma"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Debug-OpenCL": {
       "tasks": [
         "Build-Mac-Clang-x86_64-Debug-OpenCL"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Debug-OpenCL_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-OpenCL_Goma"
       ]
     },
     "Build-Mac-Clang-x86_64-Release": {
@@ -505,15 +591,36 @@
         "Build-Mac-Clang-x86_64-Release-ASAN_Metal"
       ]
     },
+    "Build-Mac-Clang-x86_64-Release-ASAN_Metal_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-ASAN_Metal_Goma"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Release-CommandBuffer": {
       "tasks": [
         "Build-Mac-Clang-x86_64-Release-CommandBuffer"
       ],
       "trigger": "master"
     },
+    "Build-Mac-Clang-x86_64-Release-CommandBuffer_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-CommandBuffer_Goma"
+      ],
+      "trigger": "master"
+    },
+    "Build-Mac-Clang-x86_64-Release-Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-Goma"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Release-Metal": {
       "tasks": [
         "Build-Mac-Clang-x86_64-Release-Metal"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Release-Metal_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-Metal_Goma"
       ]
     },
     "Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan": {
@@ -521,14 +628,29 @@
         "Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan"
       ]
     },
+    "Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan_Goma"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Release-TSAN": {
       "tasks": [
         "Build-Mac-Clang-x86_64-Release-TSAN"
       ]
     },
+    "Build-Mac-Clang-x86_64-Release-TSAN_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-TSAN_Goma"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Release-TSAN_Metal": {
       "tasks": [
         "Build-Mac-Clang-x86_64-Release-TSAN_Metal"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Release-TSAN_Metal_Goma": {
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-TSAN_Metal_Goma"
       ]
     },
     "Build-Win-Clang-arm64-Debug": {
@@ -3120,7 +3242,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Debug-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Debug-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3189,7 +3311,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Debug-Android_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Debug-Android_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3268,7 +3390,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Debug-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Debug-Chromebook_GLES\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3342,7 +3464,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Debug-Chromecast\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Debug-Chromecast\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3411,7 +3533,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3480,7 +3602,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android_API26\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android_API26\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3549,7 +3671,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android_ASAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android_ASAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3618,7 +3740,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android_ASAN_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android_ASAN_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3687,7 +3809,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Android_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3766,7 +3888,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Chromebook_GLES\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3840,7 +3962,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Chromecast\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Chromecast\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -3936,7 +4058,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "sync_and_compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-arm-Release-Flutter_Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-arm-Release-Flutter_Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -4004,7 +4126,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Debug-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Debug-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4073,7 +4195,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Debug-Android_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Debug-Android_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4142,7 +4264,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Release-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Release-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4211,7 +4333,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Release-Android_ASAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Release-Android_ASAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4280,7 +4402,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Release-Android_ASAN_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Release-Android_ASAN_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4349,7 +4471,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Release-Android_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm64-Release-Android_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4538,7 +4660,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x64-Debug-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x64-Debug-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4607,7 +4729,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x64-Release-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x64-Release-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4676,7 +4798,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4745,7 +4867,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Debug-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Debug-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4814,7 +4936,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Debug-Android_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Debug-Android_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4883,7 +5005,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Release-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Release-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -4952,7 +5074,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Release-Android_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86-Release-Android_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5047,7 +5169,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "sync_and_compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86-devrel-Android_SKQP\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86-devrel-Android_SKQP\",\"gs_bucket\":\"skia-external-compile-tasks\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -5115,7 +5237,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5184,7 +5306,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-ASAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-ASAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5253,7 +5375,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-ASAN_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-ASAN_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5327,7 +5449,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5396,7 +5518,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-MSAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-MSAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5475,7 +5597,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-OpenCL\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-OpenCL\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5544,7 +5666,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5613,7 +5735,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SK_USE_SKVM_BLITTER\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SK_USE_SKVM_BLITTER\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5682,7 +5804,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SafeStack\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SafeStack\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5751,7 +5873,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Static\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Static\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5825,7 +5947,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SwiftShader\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SwiftShader\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5899,7 +6021,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -5968,7 +6090,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Tidy\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Tidy\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6037,7 +6159,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6106,7 +6228,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Wuffs\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Wuffs\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6175,7 +6297,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6244,7 +6366,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-ANGLE\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-ANGLE\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6313,7 +6435,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-ASAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-ASAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6382,7 +6504,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-ASAN_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-ASAN_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6482,7 +6604,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "sync_and_compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86_64-Release-CMake\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86_64-Release-CMake\",\"gs_bucket\":\"skia-external-compile-tasks\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -6556,7 +6678,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Chromebook_GLES\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6625,7 +6747,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Fast\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Fast\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6717,7 +6839,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "sync_and_compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86_64-Release-NoDEPS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86_64-Release-NoDEPS\",\"gs_bucket\":\"skia-external-compile-tasks\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -6812,7 +6934,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "sync_and_compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86_64-Release-ParentRevision\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86_64-Release-ParentRevision\",\"gs_bucket\":\"skia-external-compile-tasks\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -6880,7 +7002,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SKNX_NO_SIMD\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SKNX_NO_SIMD\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -6949,7 +7071,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE2\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE2\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7018,7 +7140,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7087,7 +7209,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7156,7 +7278,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Static\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Static\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7230,7 +7352,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SwiftShader\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SwiftShader\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7299,7 +7421,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-TSAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-TSAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7368,7 +7490,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-TSAN_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-TSAN_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7437,7 +7559,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7506,7 +7628,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Wuffs\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Wuffs\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7574,7 +7696,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-asmjs-Debug-PathKit\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-asmjs-Debug-PathKit\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7643,7 +7765,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-asmjs-Release-PathKit\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-asmjs-Release-PathKit\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7712,7 +7834,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Debug-CanvasKit\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Debug-CanvasKit\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7781,7 +7903,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Debug-CanvasKit_CPU\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Debug-CanvasKit_CPU\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7850,7 +7972,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Debug-PathKit\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Debug-PathKit\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7919,7 +8041,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Release-CanvasKit\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Release-CanvasKit\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7988,7 +8110,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Release-CanvasKit_CPU\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Release-CanvasKit_CPU\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8057,7 +8179,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Release-PathKit\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-EMCC-wasm-Release-PathKit\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8127,7 +8249,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-loongson3a-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-loongson3a-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8196,7 +8318,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-loongson3a-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-loongson3a-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8265,7 +8387,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-mips64el-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-mips64el-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8334,7 +8456,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-mips64el-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-mips64el-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8398,7 +8520,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8462,7 +8584,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8526,7 +8648,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8590,7 +8712,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Debug-NoGPU\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Debug-NoGPU\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8654,7 +8776,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8718,7 +8840,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Release-NoGPU\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Release-NoGPU\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8782,7 +8904,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8846,7 +8968,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Release-Shared\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-GCC-x86_64-Release-Shared\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8919,7 +9041,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm-Debug-iOS\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm-Debug-iOS\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8946,6 +9068,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm-Debug-iOS_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm-Debug-iOS_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -8991,7 +9194,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm-Release-iOS\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm-Release-iOS\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9018,6 +9221,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm-Release-iOS_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm-Release-iOS_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9059,7 +9343,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9086,6 +9370,83 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm64-Debug-Android_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "skia/bots/android_ndk_darwin",
+          "path": "android_ndk_darwin",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-Android_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9131,7 +9492,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9158,6 +9519,168 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm64-Debug-iOS_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm64-Debug-iOS_GomaNoFallback": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS_GomaNoFallback\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9203,7 +9726,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS_Metal\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS_Metal\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9230,6 +9753,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm64-Debug-iOS_Metal_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS_Metal_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9275,7 +9879,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Release-iOS\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Release-iOS\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9302,6 +9906,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm64-Release-iOS_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Release-iOS_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9347,7 +10032,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Release-iOS_Metal\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Release-iOS_Metal\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9374,6 +10059,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm64-Release-iOS_Metal_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Release-iOS_Metal_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9419,7 +10185,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x64-Release-iOS\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x64-Release-iOS\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9446,6 +10212,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x64-Release-iOS_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x64-Release-iOS_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9491,7 +10338,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9563,7 +10410,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-ASAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-ASAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9590,6 +10437,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Debug-ASAN_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-ASAN_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9635,7 +10563,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-ASAN_Metal\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-ASAN_Metal\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9662,6 +10590,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Debug-ASAN_Metal_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-ASAN_Metal_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9734,7 +10743,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "sync_and_compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-CommandBuffer\",\"gs_bucket\":\"skia-external-compile-tasks\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -9761,6 +10770,275 @@
       },
       "io_timeout_ns": 7200000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Debug-CommandBuffer_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.17.1.chromium15"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "sync_and_compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-CommandBuffer_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 7200000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 7200000000000,
+      "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Debug-Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Debug-GomaNoFallback": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-GomaNoFallback\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
+      "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
         "build"
@@ -9805,7 +11083,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-Metal\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-Metal\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9832,6 +11110,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Debug-Metal_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-Metal_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9882,7 +11241,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9909,6 +11268,92 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/moltenvk",
+          "path": "moltenvk",
+          "version": "version:2"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -9954,7 +11399,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-OpenCL\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-OpenCL\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9981,6 +11426,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Debug-OpenCL_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Debug-OpenCL_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -10026,7 +11552,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10098,7 +11624,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-ASAN_Metal\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-ASAN_Metal\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10125,6 +11651,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Release-ASAN_Metal_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-ASAN_Metal_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -10197,7 +11804,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "sync_and_compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-CommandBuffer\",\"gs_bucket\":\"skia-external-compile-tasks\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -10224,6 +11831,194 @@
       },
       "io_timeout_ns": 7200000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Release-CommandBuffer_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.17.1.chromium15"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "sync_and_compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-CommandBuffer_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 7200000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 7200000000000,
+      "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Release-Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
+      "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
         "build"
@@ -10268,7 +12063,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-Metal\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-Metal\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10295,6 +12090,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Release-Metal_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-Metal_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -10345,7 +12221,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10372,6 +12248,92 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/moltenvk",
+          "path": "moltenvk",
+          "version": "version:2"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -10417,7 +12379,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-TSAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-TSAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10444,6 +12406,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Release-TSAN_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-TSAN_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -10489,7 +12532,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-TSAN_Metal\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-TSAN_Metal\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10516,6 +12559,87 @@
       },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-x86_64-Release-TSAN_Metal_Goma": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "goma",
+          "path": "cache/goma"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-x86_64-Release-TSAN_Metal_Goma\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.14.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 10800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 10800000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
       "outputs": [
@@ -10562,7 +12686,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10638,7 +12762,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Debug-ANGLE\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Debug-ANGLE\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10714,7 +12838,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10790,7 +12914,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Release-ANGLE\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Release-ANGLE\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10866,7 +12990,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Release-Android\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-arm64-Release-Android\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -10941,7 +13065,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11017,7 +13141,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86-Debug-Exceptions\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86-Debug-Exceptions\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11093,7 +13217,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11169,7 +13293,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11245,7 +13369,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-ANGLE\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-ANGLE\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11326,7 +13450,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-OpenCL\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-OpenCL\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11402,7 +13526,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-UBSAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-UBSAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11478,7 +13602,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11554,7 +13678,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-Wuffs\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Debug-Wuffs\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11630,7 +13754,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11706,7 +13830,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-ANGLE\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-ANGLE\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11782,7 +13906,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-Shared\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-Shared\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11858,7 +13982,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-UBSAN\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-UBSAN\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -11934,7 +14058,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12005,7 +14129,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-arm64-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-arm64-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12076,7 +14200,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-arm64-Debug-ANGLE\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-arm64-Debug-ANGLE\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12147,7 +14271,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-arm64-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-arm64-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12218,7 +14342,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-arm64-Release-ANGLE\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-arm64-Release-ANGLE\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12289,7 +14413,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12360,7 +14484,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12431,7 +14555,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12502,7 +14626,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug-MSRTC\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug-MSRTC\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12573,7 +14697,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug-MSRTC_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug-MSRTC_Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12644,7 +14768,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug-Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug-Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12715,7 +14839,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug-Wuffs\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Debug-Wuffs\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12786,7 +14910,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Release\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Release\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12857,7 +14981,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Release-Shared\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Release-Shared\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12928,7 +15052,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Release-Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Release-Vulkan\",\"gs_bucket\":\"skia-external-compile-tasks\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
