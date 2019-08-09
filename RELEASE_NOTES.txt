@@ -19,3 +19,5 @@ Milestone 78
  * SkColorFilters::HSLAMatrix - new matrix color filter operating in HSLA space.
 
  * Modify GrBackendFormat getters to not return internal pointers. Use an enum class for GL formats.
+
+ * Expose GrContext::dump() when SK_ENABLE_DUMP_GPU is defined.

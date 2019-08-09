@@ -433,6 +433,11 @@ public:
 
     void deleteBackendTexture(GrBackendTexture);
 
+#ifdef SK_ENABLE_DUMP_GPU
+    /** Returns a string with detailed information about the context & GPU, in JSON format. */
+    SkString dump() const;
+#endif
+
 protected:
     GrContext(GrBackendApi, const GrContextOptions&, int32_t contextID = SK_InvalidGenID);
 

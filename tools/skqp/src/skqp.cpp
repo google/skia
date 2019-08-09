@@ -19,7 +19,6 @@
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkStreamPriv.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tools/fonts/TestFontMgr.h"
@@ -192,7 +191,7 @@ static void print_backend_info(const char* dstPath,
         if (std::unique_ptr<sk_gpu_test::TestContext> testCtx = make_test_context(backend)) {
             testCtx->makeCurrent();
             if (sk_sp<GrContext> ctx = testCtx->makeGrContext(context_options())) {
-                SkString info = ctx->priv().dump();
+                SkString info = ctx->dump();
                 // remove null
                 out.write(info.c_str(), info.size());
                 out.writeText(",\n");

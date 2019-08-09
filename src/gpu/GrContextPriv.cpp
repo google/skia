@@ -223,35 +223,6 @@ void GrContextPriv::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
 }
 
 //////////////////////////////////////////////////////////////////////////////
-#ifdef SK_ENABLE_DUMP_GPU
-#include "src/gpu/GrTestUtils.h"
-#include "src/utils/SkJSONWriter.h"
-SkString GrContextPriv::dump() const {
-    SkDynamicMemoryWStream stream;
-    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
-    writer.beginObject();
-
-    writer.appendString("backend", GrBackendApiToStr(fContext->backend()));
-
-    writer.appendName("caps");
-    fContext->caps()->dumpJSON(&writer);
-
-    writer.appendName("gpu");
-    fContext->fGpu->dumpJSON(&writer);
-
-    // Flush JSON to the memory stream
-    writer.endObject();
-    writer.flush();
-
-    // Null terminate the JSON data in the memory stream
-    stream.write8(0);
-
-    // Allocate a string big enough to hold all the data, then copy out of the stream
-    SkString result(stream.bytesWritten());
-    stream.copyToAndReset(result.writable_str());
-    return result;
-}
-#endif
 
 #if GR_TEST_UTILS
 void GrContextPriv::resetGpuStats() const {

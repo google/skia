@@ -105,7 +105,7 @@ DEF_GPUTEST(GrContextFactory_executorAndTaskGroup, reporter, options) {
 #ifdef SK_ENABLE_DUMP_GPU
 DEF_GPUTEST_FOR_ALL_CONTEXTS(GrContextDump, reporter, ctxInfo) {
     // Ensure that GrContext::dump doesn't assert (which is possible, if the JSON code is wrong)
-    SkString result = ctxInfo.grContext()->priv().dump();
+    SkString result = ctxInfo.grContext()->dump();
     REPORTER_ASSERT(reporter, !result.isEmpty());
 }
 #endif
