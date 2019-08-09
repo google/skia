@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "5676f10b_762b976b",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-09T21:29:29Z",
+      "side": 1,
+      "message": "Probably need a check like this for the build issues. On older systems we might have to use MTLFence to implement the semaphore.",
+      "range": {
+        "startLine": 261,
+        "startChar": 0,
+        "endLine": 261,
+        "endChar": 31
+      },
+      "revId": "8dbb8cb00c1671a239eb63ab1bae449fa31d5997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a7257e0e_d8e19d56",
         "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
         "patchSetId": 7
