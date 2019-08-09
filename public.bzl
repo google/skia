@@ -515,6 +515,7 @@ DM_SRCS_ALL = struct(
     ],
     exclude = [
         "gm/cgms.cpp",
+        "gm/fiddle.cpp",
         "gm/video_decoder.cpp",
         "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
         "tests/FontMgrFontConfigTest.cpp",  # FontConfig-only.
