@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f12a9a5e_48d0b527",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-09T18:32:25Z",
+      "side": 1,
+      "message": "Nope.\n\nI don\u0027t think Dawn has subrect clears. We\u0027ll have to implement them as draws (in fact, I think I did that later on).",
+      "parentUuid": "af46e446_2796fb01",
+      "range": {
+        "startLine": 134,
+        "startChar": 51,
+        "endLine": 134,
+        "endChar": 74
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "017b548c_04c58dee",
         "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "891fef99_422b5e52",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-09T18:32:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "017b548c_04c58dee",
+      "range": {
+        "startLine": 138,
+        "startChar": 27,
+        "endLine": 139,
+        "endChar": 74
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "85b00f75_826b2342",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-09T18:32:25Z",
+      "side": 1,
+      "message": "This is the only Dawn format with stencil ATM.",
+      "parentUuid": "14fe2368_88afc291",
+      "range": {
+        "startLine": 210,
+        "startChar": 61,
+        "endLine": 210,
+        "endChar": 80
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d03cc3e_d16dce14",
         "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2019-08-09T17:54:12Z",
       "side": 1,
       "message": "what actually disables the stenciling here? The read/write mask?\n\nOr is it that we don\u0027t attach a stencil state later on that disables everything?",
+      "range": {
+        "startLine": 197,
+        "startChar": 3,
+        "endLine": 203,
+        "endChar": 60
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5ca685e_f7ae8516",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-09T18:32:25Z",
+      "side": 1,
+      "message": "I think it\u0027s that compare is \"always\" and mask is 0 (always pass, never write).",
+      "parentUuid": "5d03cc3e_d16dce14",
       "range": {
         "startLine": 197,
         "startChar": 3,
