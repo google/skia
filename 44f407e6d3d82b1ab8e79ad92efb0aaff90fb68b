@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "011243c1_347450ad",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "I think the complicated part is dancing around the fact that the array might grow in the middle of adding an element. \"reserve(1)\" and \"emplace(release())\" are both out of the ordinary idioms and both require a comment.. IMO they\u0027re pretty similar.\n\nAnother choice would be:\n\n  tasks.push_back(renderTask);\n  std::swap(tasks[tasks.count() - 2], tasks.back());\n\nBut the one in this CL is my favorite unless you are adamantly opposed to it.",
+      "parentUuid": "4ef7ead6_fd6df521",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2f20bb60_8700471b",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 24
@@ -33,6 +51,24 @@
       "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe71e4e3_2675ca56",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f20bb60_8700471b",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +112,48 @@
     },
     {
       "key": {
+        "uuid": "9a79b97c_3e6e16fe",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Because this class continues to own the object, and the caller most likely just needs a pointer to set up dependencies, but doesn\u0027t actually need to hang on to it. Returning an sk_sp seemed like needless extra ref counting, but I can change it if you think it\u0027s preferable.",
+      "parentUuid": "34a3c7c1_9d3f7d46",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 18
+      },
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c335748_ab4d66dd",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0dafaabf_81aa105b",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b73b9207_5a7e8d0a",
         "filename": "src/gpu/GrRenderTask.cpp",
         "patchSetId": 24
@@ -87,6 +165,24 @@
       "writtenOn": "2019-08-09T15:02:08Z",
       "side": 1,
       "message": "We should also really have a unit test for this. I.e., have a deferred proxy that is mipmapped and make sure it gets put in the right place.",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2751f151_5e196649",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Eek. Yes this case never actually gets exercised in all our testing.",
+      "parentUuid": "b73b9207_5a7e8d0a",
       "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "80a8bc15_32ab850c",
+        "filename": "src/gpu/GrTextureResolveRenderTask.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Done. Leftovers from when ResolveFlags used to be nested inside GrTextureResolveManager.",
+      "parentUuid": "a71328c4_1b9addba",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35548bb4_f4824369",
         "filename": "src/gpu/GrTextureResolveRenderTask.h",
         "patchSetId": 24
@@ -121,6 +235,24 @@
       "writtenOn": "2019-08-09T15:02:08Z",
       "side": 1,
       "message": "typedef GrRenderTask INHERITED;\n\n?",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "315136b8_b427e188",
+        "filename": "src/gpu/GrTextureResolveRenderTask.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "As discussed offline, it looks like we might not need the \u0027INHERITED\u0027 typedef in Gr code (if that\u0027s ok with you)",
+      "parentUuid": "35548bb4_f4824369",
       "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -141,6 +273,24 @@
       "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2be445c2_9e8df3f8",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bdf85b9a_b2c346b2",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -167,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "59f9775f_fcc2bc3d",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42615f96_b3be2527",
+      "range": {
+        "startLine": 351,
+        "startChar": 12,
+        "endLine": 351,
+        "endChar": 24
+      },
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f58327b4_6faf3f53",
         "filename": "tests/GrMipMappedTest.cpp",
         "patchSetId": 24
@@ -184,6 +358,24 @@
     },
     {
       "key": {
+        "uuid": "fa491fb9_9e6759a9",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Done (see the end of the function now)",
+      "parentUuid": "f58327b4_6faf3f53",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e996924_fa7ae924",
         "filename": "tests/GrMipMappedTest.cpp",
         "patchSetId": 24
@@ -198,6 +390,24 @@
       "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00bc7d8e_2b78b984",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e996924_fa7ae924",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -221,6 +431,30 @@
       "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "249df109_8812642d",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-09T18:04:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ed13658_b65a2fe6",
+      "range": {
+        "startLine": 406,
+        "startChar": 16,
+        "endLine": 406,
+        "endChar": 21
+      },
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
