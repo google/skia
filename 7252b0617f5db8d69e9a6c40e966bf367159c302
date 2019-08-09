@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7d8c559c_b4f87135",
+        "filename": "modules/skparagraph/include/FontCollection.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-08-09T15:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "699a3956_ff722d1a",
+      "revId": "7252b0617f5db8d69e9a6c40e966bf367159c302",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2910b11c_196ea678",
         "filename": "modules/skparagraph/include/FontCollection.h",
         "patchSetId": 9
@@ -39,6 +57,30 @@
       "revId": "7252b0617f5db8d69e9a6c40e966bf367159c302",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30df23e1_aadb2e9e",
+        "filename": "modules/skparagraph/include/FontCollection.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-08-09T15:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2910b11c_196ea678",
+      "range": {
+        "startLine": 42,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 18
+      },
+      "revId": "7252b0617f5db8d69e9a6c40e966bf367159c302",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
