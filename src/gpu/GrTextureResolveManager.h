@@ -9,7 +9,7 @@
 #define GrTextureResolveManager_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrTypes.h"
+#include "src/gpu/GrDrawingManager.h"
 
 class GrCaps;
 class GrDrawingManager;
@@ -26,19 +26,14 @@ public:
     explicit GrTextureResolveManager(GrDrawingManager* drawingManager)
             : fDrawingManager(drawingManager) {}
 
-   enum class ResolveFlags : bool {
-        kNone = 0,
-        kMipMaps = 1 << 0,
-        // TODO: kMSAA = 1 << 1
-    };
-
     GrRenderTask* newTextureResolveRenderTask(
-            sk_sp<GrTextureProxy>, ResolveFlags, const GrCaps&) const;
+            sk_sp<GrTextureProxy> proxy, GrTextureResolveFlags flags, const GrCaps& caps) const {
+        SkASSERT(fDrawingManager);
+        return fDrawingManager->newTextureResolveRenderTask(std::move(proxy), flags, caps);
+    }
 
 private:
     GrDrawingManager* fDrawingManager;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrTextureResolveManager::ResolveFlags);
 
 #endif
