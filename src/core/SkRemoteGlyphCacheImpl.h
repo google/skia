@@ -32,6 +32,10 @@ public:
         return *fDescriptor.getDesc();
     }
 
+    size_t glyphCount() const {
+        return fCachedGlyphImages.count();
+    }
+
     void setTypefaceAndEffects(const SkTypeface* typeface, SkScalerContextEffects effects);
 
     SkVector rounding() const override;
