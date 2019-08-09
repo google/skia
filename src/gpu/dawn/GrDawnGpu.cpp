@@ -160,7 +160,7 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
     desc.fConfig = this->caps()->getConfigFromBackendFormat(tex.getBackendFormat(), colorType);
-    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, desc.fConfig);
+    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.getBackendFormat());
     if (sampleCnt < 1) {
         return nullptr;
     }

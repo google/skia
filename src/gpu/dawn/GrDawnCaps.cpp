@@ -51,7 +51,7 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
         case GrColorType::kRGBA_8888:
             if (dawn::TextureFormat::RGBA8Unorm == dawnFormat) {
                 return kRGBA_8888_GrPixelConfig;
-            } else if (dawn::TextureFormat::BGRA8Unorm == *dawnFormat) {
+            } else if (dawn::TextureFormat::BGRA8Unorm == dawnFormat) {
                 // FIXME: This shouldn't be necessary, but on some platforms (Mac)
                 // Skia byte order is RGBA, while preferred swap format is BGRA.
                 return kBGRA_8888_GrPixelConfig;
@@ -62,7 +62,7 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
         case GrColorType::kBGRA_8888:
             if (dawn::TextureFormat::BGRA8Unorm == dawnFormat) {
                 return kBGRA_8888_GrPixelConfig;
-            } else if (dawn::TextureFormat::RGBA8Unorm == *dawnFormat) {
+            } else if (dawn::TextureFormat::RGBA8Unorm == dawnFormat) {
                 return kRGBA_8888_GrPixelConfig;
             }
             break;
@@ -109,7 +109,7 @@ bool GrDawnCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& forma
     return this->isConfigTexturable(config);
 }
 
-bool GrDawnCaps::isFormatRenderable(GrColorType ct, const GrBackendFormat& format,
+bool GrDawnCaps::isFormatRenderable(const GrBackendFormat& format,
                                     int sampleCount) const {
     dawn::TextureFormat dawnFormat;
     if (!format.isValid() || sampleCount > 1 || !format.asDawnFormat(&dawnFormat)) {
@@ -119,21 +119,18 @@ bool GrDawnCaps::isFormatRenderable(GrColorType ct, const GrBackendFormat& forma
     return GrDawnFormatIsRenderable(dawnFormat);
 }
 
-int GrDawnCaps::getRenderTargetSampleCount(int requestedCount, GrColorType ct,
+bool GrDawnCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                               int sampleCount) const {
+    return isFormatRenderable(format, sampleCount);
+}
+
+int GrDawnCaps::getRenderTargetSampleCount(int requestedCount,
                                            const GrBackendFormat& backendFormat) const {
     dawn::TextureFormat dawnFormat;
-    if (!format.asDawnFormat(&dawnFormat)) {
+    if (!backendFormat.asDawnFormat(&dawnFormat)) {
         return 0;
     }
     return GrDawnFormatIsRenderable(dawnFormat) ? 1 : 0;
-}
-
-int GrDawnCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
-    dawn::TextureFormat format;
-    if (!GrPixelConfigToDawnFormat(config, &format)) {
-        return 0;
-    }
-    return GrDawnFormatIsRenderable(format) ? 1 : 0;
 }
 
 int GrDawnCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const {

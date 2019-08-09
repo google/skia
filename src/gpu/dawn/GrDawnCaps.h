@@ -21,8 +21,12 @@ public:
     bool isFormatCompressed(const GrBackendFormat&) const override;
 
     bool isFormatTexturable(GrColorType, const GrBackendFormat& format) const override;
-    bool isFormatRenderable(GrColorType, const GrBackendFormat& format,
+    bool isFormatRenderable(const GrBackendFormat& format,
                             int sampleCount = 1) const override;
+    bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+                                       int sampleCount = 1) const override;
+
+
     bool isFormatCopyable(const GrBackendFormat& format) const override { return true; }
 
     bool isConfigTexturable(GrPixelConfig config) const override;
@@ -37,9 +41,8 @@ public:
         return SurfaceReadPixelsSupport::kSupported;
     }
 
-    int getRenderTargetSampleCount(int requestedCount, GrColorType,
+    int getRenderTargetSampleCount(int requestedCount,
                                    const GrBackendFormat&) const override;
-    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
 
     int maxRenderTargetSampleCount(const GrBackendFormat& format) const override;
 
