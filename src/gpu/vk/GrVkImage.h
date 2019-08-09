@@ -57,7 +57,7 @@ public:
     VkFormat imageFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
         if (fResource && this->ycbcrConversionInfo().isValid()) {
-            SkASSERT(this->imageFormat() == VK_FORMAT_UNDEFINED);
+            SkASSERT(this->imageFormat() == this->ycbcrConversionInfo().fFormat);
             return GrBackendFormat::MakeVk(this->ycbcrConversionInfo());
         }
         SkASSERT(this->imageFormat() != VK_FORMAT_UNDEFINED);
