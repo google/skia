@@ -67,37 +67,14 @@ private:
 // object for an VkExternalFormatANDROID.
 struct GrVkYcbcrConversionInfo {
     GrVkYcbcrConversionInfo()
-            : fFormat(VK_FORMAT_UNDEFINED)
-            , fExternalFormat(0)
-            , fYcbcrModel(VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY)
+            : fYcbcrModel(VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY)
             , fYcbcrRange(VK_SAMPLER_YCBCR_RANGE_ITU_FULL)
             , fXChromaOffset(VK_CHROMA_LOCATION_COSITED_EVEN)
             , fYChromaOffset(VK_CHROMA_LOCATION_COSITED_EVEN)
             , fChromaFilter(VK_FILTER_NEAREST)
-            , fForceExplicitReconstruction(false) {}
-
-    GrVkYcbcrConversionInfo(VkFormat format,
-                            int64_t externalFormat,
-                            VkSamplerYcbcrModelConversion ycbcrModel,
-                            VkSamplerYcbcrRange ycbcrRange,
-                            VkChromaLocation xChromaOffset,
-                            VkChromaLocation yChromaOffset,
-                            VkFilter chromaFilter,
-                            VkBool32 forceExplicitReconstruction,
-                            VkFormatFeatureFlags formatFeatures)
-            : fFormat(format)
-            , fExternalFormat(externalFormat)
-            , fYcbcrModel(ycbcrModel)
-            , fYcbcrRange(ycbcrRange)
-            , fXChromaOffset(xChromaOffset)
-            , fYChromaOffset(yChromaOffset)
-            , fChromaFilter(chromaFilter)
-            , fForceExplicitReconstruction(forceExplicitReconstruction)
-            , fFormatFeatures(formatFeatures) {
-        SkASSERT(fYcbcrModel != VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY);
-        // Either format or externalFormat must be specified.
-        SkASSERT((fFormat != VK_FORMAT_UNDEFINED) ^ (externalFormat != 0));
-    }
+            , fForceExplicitReconstruction(false)
+            , fExternalFormat(0)
+            , fExternalFormatFeatures(0) {}
 
     GrVkYcbcrConversionInfo(VkSamplerYcbcrModelConversion ycbcrModel,
                             VkSamplerYcbcrRange ycbcrRange,
@@ -107,35 +84,35 @@ struct GrVkYcbcrConversionInfo {
                             VkBool32 forceExplicitReconstruction,
                             uint64_t externalFormat,
                             VkFormatFeatureFlags externalFormatFeatures)
-            : GrVkYcbcrConversionInfo(VK_FORMAT_UNDEFINED, externalFormat, ycbcrModel, ycbcrRange,
-                                      xChromaOffset, yChromaOffset, chromaFilter,
-                                      forceExplicitReconstruction, externalFormatFeatures) {}
+            : fYcbcrModel(ycbcrModel)
+            , fYcbcrRange(ycbcrRange)
+            , fXChromaOffset(xChromaOffset)
+            , fYChromaOffset(yChromaOffset)
+            , fChromaFilter(chromaFilter)
+            , fForceExplicitReconstruction(forceExplicitReconstruction)
+            , fExternalFormat(externalFormat)
+            , fExternalFormatFeatures(externalFormatFeatures) {
+        SkASSERT(fExternalFormat);
+    }
 
     bool operator==(const GrVkYcbcrConversionInfo& that) const {
-        // Invalid objects are not required to have all other fields initialized or matching.
+        // Invalid objects are not required to have all other fields intialized or matching.
         if (!this->isValid() && !that.isValid()) {
             return true;
         }
-        return this->fFormat == that.fFormat &&
-               this->fExternalFormat == that.fExternalFormat &&
-               this->fYcbcrModel == that.fYcbcrModel &&
+        return this->fYcbcrModel == that.fYcbcrModel &&
                this->fYcbcrRange == that.fYcbcrRange &&
                this->fXChromaOffset == that.fXChromaOffset &&
                this->fYChromaOffset == that.fYChromaOffset &&
                this->fChromaFilter == that.fChromaFilter &&
-               this->fForceExplicitReconstruction == that.fForceExplicitReconstruction;
+               this->fForceExplicitReconstruction == that.fForceExplicitReconstruction &&
+               this->fExternalFormat == that.fExternalFormat;
+        // We don't check fExternalFormatFeatures here since all matching external formats must have
+        // the same format features at least in terms of how they effect ycbcr sampler conversion.
     }
     bool operator!=(const GrVkYcbcrConversionInfo& that) const { return !(*this == that); }
 
-    bool isValid() const { return fYcbcrModel != VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY; }
-
-    // Format of the source image. Must be set to VK_FORMAT_UNDEFINED for external images or
-    // a valid image format otherwise.
-    VkFormat                         fFormat;
-
-    // The external format. Must be non-zero for external images, zero otherwise.
-    // Should be compatible to be used in a VkExternalFormatANDROID struct.
-    uint64_t                         fExternalFormat;
+    bool isValid() const { return fExternalFormat != 0; }
 
     VkSamplerYcbcrModelConversion    fYcbcrModel;
     VkSamplerYcbcrRange              fYcbcrRange;
@@ -143,10 +120,11 @@ struct GrVkYcbcrConversionInfo {
     VkChromaLocation                 fYChromaOffset;
     VkFilter                         fChromaFilter;
     VkBool32                         fForceExplicitReconstruction;
-
-    // For external images format features here should be those returned by a call to
+    // The external format should be compatible to be used in a VkExternalFormatANDROID struct
+    uint64_t                         fExternalFormat;
+    // The format features here should be those returned by a call to
     // vkAndroidHardwareBufferFormatPropertiesANDROID
-    VkFormatFeatureFlags             fFormatFeatures;
+    VkFormatFeatureFlags             fExternalFormatFeatures;
 };
 
 struct GrVkImageInfo {

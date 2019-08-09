@@ -19,7 +19,7 @@ const GrVkImageView* GrVkImageView::Create(GrVkGpu* gpu, VkImage image, VkFormat
     GrVkSamplerYcbcrConversion* ycbcrConversion = nullptr;
 
     if (ycbcrInfo.isValid()) {
-        SkASSERT(gpu->vkCaps().supportsYcbcrConversion() && format == ycbcrInfo.fFormat);
+        SkASSERT(gpu->vkCaps().supportsYcbcrConversion() && format == VK_FORMAT_UNDEFINED);
 
         ycbcrConversion =
                 gpu->resourceProvider().findOrCreateCompatibleSamplerYcbcrConversion(ycbcrInfo);

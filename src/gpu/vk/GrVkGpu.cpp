@@ -1137,7 +1137,7 @@ static bool check_image_info(const GrVkCaps& caps,
     }
 
     if (info.fYcbcrConversionInfo.isValid()) {
-        if (!caps.supportsYcbcrConversion()) {
+        if (!caps.supportsYcbcrConversion() || info.fFormat != VK_NULL_HANDLE) {
             return false;
         }
     }
@@ -1872,11 +1872,6 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
 
     if (!caps.isVkFormatTexturable(vkFormat)) {
         SkDebugf("Config is not texturable\n");
-        return GrBackendTexture();
-    }
-
-    if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
-        SkDebugf("Can't create BackendTexture that requires Ycbcb sampler.\n");
         return GrBackendTexture();
     }
 
@@ -2635,11 +2630,7 @@ uint32_t GrVkGpu::getExtraSamplerKeyForProgram(const GrSamplerState& samplerStat
     const GrVkSampler* sampler = this->resourceProvider().findOrCreateCompatibleSampler(
             samplerState, *ycbcrInfo);
 
-    uint32_t result = sampler->uniqueID();
-
-    sampler->unref(this);
-
-    return result;
+    return sampler->uniqueID();
 }
 
 void GrVkGpu::storeVkPipelineCacheData() {

@@ -83,7 +83,8 @@ GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu, const GrSamplerState& samplerStat
 
         createInfo.pNext = &conversionInfo;
 
-        VkFormatFeatureFlags flags = ycbcrInfo.fFormatFeatures;
+        const VkFormatFeatureFlags& flags = ycbcrInfo.fExternalFormatFeatures;
+
         if (!SkToBool(flags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT)) {
             createInfo.magFilter = VK_FILTER_NEAREST;
             createInfo.minFilter = VK_FILTER_NEAREST;

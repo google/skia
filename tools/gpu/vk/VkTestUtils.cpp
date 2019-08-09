@@ -381,7 +381,6 @@ static bool setup_features(GrVkGetProc getProc, VkInstance inst, VkPhysicalDevic
                 sizeof(VkPhysicalDeviceSamplerYcbcrConversionFeatures));
         ycbcrFeature->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES;
         ycbcrFeature->pNext = nullptr;
-        ycbcrFeature->samplerYcbcrConversion = VK_TRUE;
         *tailPNext = ycbcrFeature;
         tailPNext = &ycbcrFeature->pNext;
     }

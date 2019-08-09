@@ -204,16 +204,6 @@ static void get_ubo_aligned_offset(uint32_t* uniformOffset,
     }
 }
 
-GrVkUniformHandler::~GrVkUniformHandler() {
-    GrVkGpu* gpu = static_cast<GrVkPipelineStateBuilder*>(fProgramBuilder)->gpu();
-    for (decltype(fSamplers)::Iter iter(&fSamplers); iter.next();) {
-        if (iter->fImmutableSampler) {
-            iter->fImmutableSampler->unref(gpu);
-            iter->fImmutableSampler = nullptr;
-        }
-    }
-}
-
 GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
                                                                             uint32_t visibility,
                                                                             GrSLType type,
@@ -292,9 +282,10 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(const GrTextu
     info.fVisibility = kFragment_GrShaderFlag;
     info.fUBOffset = 0;
 
-    // Check if we are dealing with an external texture and store the needed information if so.
+    // Check if we are dealing with an external texture and store the needed information if so
     const GrVkTexture* vkTexture = static_cast<const GrVkTexture*>(texture);
     if (vkTexture->ycbcrConversionInfo().isValid()) {
+        SkASSERT(type == GrTextureType::kExternal);
         GrVkGpu* gpu = static_cast<GrVkPipelineStateBuilder*>(fProgramBuilder)->gpu();
         info.fImmutableSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(
                 state, vkTexture->ycbcrConversionInfo());

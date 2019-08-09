@@ -36,8 +36,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format);
 
 bool GrVkFormatIsSupported(VkFormat);
 
-bool GrVkFormatNeedsYcbcrSampler(VkFormat format);
-
 #ifdef SK_DEBUG
 /**
  * Returns true if the passed in VkFormat and GrColorType are compatible with each other.
