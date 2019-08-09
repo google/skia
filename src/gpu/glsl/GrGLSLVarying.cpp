@@ -35,7 +35,6 @@ static bool use_flat_interpolation(GrGLSLVaryingHandler::Interpolation interpola
             return true;
     }
     SK_ABORT("Invalid interpolation");
-    return false;
 }
 
 void GrGLSLVaryingHandler::addVarying(const char* name, GrGLSLVarying* varying,

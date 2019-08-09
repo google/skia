@@ -637,7 +637,6 @@ static int min_rgb_channel_bits(SkColorType ct) {
         case kRGBA_F32_SkColorType:     return 23;  // just counting the mantissa
     }
     SK_ABORT("Unexpected color type.");
-    return 0;
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {

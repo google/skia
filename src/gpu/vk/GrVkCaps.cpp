@@ -95,7 +95,6 @@ static int get_compatible_format_class(GrPixelConfig config) {
         case kGray_8_as_Lum_GrPixelConfig:
         case kAlpha_half_as_Lum_GrPixelConfig:
             SK_ABORT("Unsupported Vulkan pixel config");
-            return 0;
 
         // Experimental (for Y416 and mutant P016/P010)
         case kRGBA_16161616_GrPixelConfig:
@@ -104,7 +103,6 @@ static int get_compatible_format_class(GrPixelConfig config) {
             return 4;
     }
     SK_ABORT("Invalid pixel config");
-    return 0;
 }
 
 bool GrVkCaps::canCopyImage(GrPixelConfig dstConfig, int dstSampleCnt, bool dstHasYcbcr,
@@ -1446,7 +1444,6 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
             return GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
     }
     SK_ABORT("Invalid compression type");
-    return {};
 }
 
 bool GrVkCaps::canClearTextureOnCreation() const { return true; }

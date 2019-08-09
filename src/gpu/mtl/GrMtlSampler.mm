@@ -34,7 +34,6 @@ static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
 #endif
     }
     SK_ABORT("Unknown wrap mode.");
-    return MTLSamplerAddressModeClampToEdge;
 }
 
 GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& samplerState,

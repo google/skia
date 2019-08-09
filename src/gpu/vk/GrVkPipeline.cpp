@@ -81,7 +81,6 @@ static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
             return VK_FORMAT_R16G16B16A16_UNORM;
     }
     SK_ABORT("Unknown vertex attrib type");
-    return VK_FORMAT_UNDEFINED;
 }
 
 static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
@@ -166,7 +165,6 @@ static VkPrimitiveTopology gr_primitive_type_to_vk_topology(GrPrimitiveType prim
             return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
     }
     SK_ABORT("invalid GrPrimitiveType");
-    return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 }
 
 static void setup_input_assembly_state(GrPrimitiveType primitiveType,

@@ -58,7 +58,6 @@ void main() {
                 return color * input;
         }
         SK_ABORT("Unexpected mode");
-        return SK_PMColor4fTRANSPARENT;
     }
 }
 

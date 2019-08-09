@@ -125,7 +125,6 @@ public:
 
     void* operator new(size_t) {
         SK_ABORT("All blobs are created by placement new.");
-        return sk_malloc_throw(0);
     }
 
     void* operator new(size_t, void* p) { return p; }

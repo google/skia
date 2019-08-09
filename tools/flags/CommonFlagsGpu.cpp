@@ -55,7 +55,6 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kAll;
     }
     SK_ABORT(SkStringPrintf("error: unknown named path renderer \"%s\"\n", name).c_str());
-    return GpuPathRenderers::kNone;
 }
 
 static GpuPathRenderers collect_gpu_path_renderers_from_flags() {

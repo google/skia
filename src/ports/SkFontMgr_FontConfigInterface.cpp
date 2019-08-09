@@ -173,7 +173,6 @@ public:
 protected:
     int onCountFamilies() const override {
         SK_ABORT("Not implemented.");
-        return 0;
     }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
@@ -182,12 +181,10 @@ protected:
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
         SK_ABORT("Not implemented.");
-        return nullptr;
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
         SK_ABORT("Not implemented.");
-        return new SkFontStyleSet_FCI();
     }
 
     SkTypeface* onMatchFamilyStyle(const char requestedFamilyName[],
@@ -218,12 +215,10 @@ protected:
                                             const char* bcp47[], int bcp47Count,
                                             SkUnichar character) const override {
         SK_ABORT("Not implemented.");
-        return nullptr;
     }
 
     SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override {
         SK_ABORT("Not implemented.");
-        return nullptr;
     }
 
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {

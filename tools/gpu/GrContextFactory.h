@@ -109,7 +109,6 @@ public:
                 return "Mock";
         }
         SK_ABORT("Unreachable");
-        return "Unknown";
     }
 
     explicit GrContextFactory(const GrContextOptions& opts);

@@ -69,7 +69,6 @@ void SkFontMgr_Indirect::onGetFamilyName(int index, SkString* familyName) const 
 
 SkFontStyleSet* SkFontMgr_Indirect::onCreateStyleSet(int index) const {
     SK_ABORT("Not implemented");
-    return nullptr;
 }
 
 SkFontStyleSet* SkFontMgr_Indirect::onMatchFamily(const char familyName[]) const {

@@ -525,7 +525,6 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
-    return ClipResult::kNotClipped;
 }
 
 GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* element) {
@@ -592,7 +591,6 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
-    return ClipResult::kNotClipped;
 }
 
 inline void GrReducedClip::addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA) {

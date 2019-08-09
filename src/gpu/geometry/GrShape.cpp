@@ -164,7 +164,6 @@ SkRect GrShape::bounds() const {
             return this->path().getBounds();
     }
     SK_ABORT("Unknown shape type");
-    return kInverted;
 }
 
 SkRect GrShape::styledBounds() const {
@@ -255,7 +254,6 @@ int GrShape::unstyledKeySize() const {
         }
     }
     SK_ABORT("Should never get here.");
-    return 0;
 }
 
 void GrShape::writeUnstyledKey(uint32_t* key) const {

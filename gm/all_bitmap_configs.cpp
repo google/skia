@@ -213,7 +213,6 @@ static uint32_t make_pixel(int x, int y, SkAlphaType alphaType) {
             break;
         default:
             SK_ABORT("Should not get here - invalid alpha type");
-            return 0xFF000000;
     }
     return alpha << 24 | component;
 }

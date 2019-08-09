@@ -98,5 +98,4 @@ const char* GrGLSLTypeString(GrSLType t) {
             return "sampler";
     }
     SK_ABORT("Unknown shader var type.");
-    return ""; // suppress warning
 }
