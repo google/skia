@@ -37,6 +37,7 @@ public:
 
         // emit transforms
         this->emitTransforms(vertBuilder,
+                             fragBuilder,
                              varyingHandler,
                              uniformHandler,
                              rsgp.inPosition().asShaderVar(),

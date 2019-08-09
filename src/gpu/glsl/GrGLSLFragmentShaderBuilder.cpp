@@ -74,13 +74,13 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
 SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) {
     if (kFloat3_GrSLType != coords.getType() && kHalf3_GrSLType != coords.getType()) {
         SkASSERT(kFloat2_GrSLType == coords.getType() || kHalf2_GrSLType == coords.getType());
-        return coords.getName();
+        return SkStringPrintf("%s_current", coords.getName().c_str());
     }
 
     SkString coords2D;
     coords2D.printf("%s_ensure2D", coords.c_str());
-    this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
-                      coords.c_str());
+    this->codeAppendf("\tfloat2 %s = %s_current.xy / %s_current.z;", coords2D.c_str(),
+                      coords.c_str(), coords.c_str());
     return coords2D;
 }
 

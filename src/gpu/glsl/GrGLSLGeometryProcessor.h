@@ -11,6 +11,7 @@
 #include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 
 class GrGLSLGPBuilder;
+class GrGLSLFragmentBuilder;
 
 /**
  * If a GL effect needs a GrGLFullShaderBuilder* object to emit vertex code, then it must inherit
@@ -32,6 +33,7 @@ protected:
     // coord-transform. localCoordsVar must be a 2- or 3-component vector. If it is 3 then it is
     // assumed to be a 2D homogeneous coordinate.
     void emitTransforms(GrGLSLVertexBuilder*,
+                        GrGLSLFragmentBuilder*,
                         GrGLSLVaryingHandler*,
                         GrGLSLUniformHandler*,
                         const GrShaderVar& localCoordsVar,
@@ -40,11 +42,12 @@ protected:
 
     // Version of above that assumes identity for the local matrix.
     void emitTransforms(GrGLSLVertexBuilder* vb,
+                        GrGLSLFragmentBuilder* fb,
                         GrGLSLVaryingHandler* varyingHandler,
                         GrGLSLUniformHandler* uniformHandler,
                         const GrShaderVar& localCoordsVar,
                         FPCoordTransformHandler* handler) {
-        this->emitTransforms(vb, varyingHandler, uniformHandler, localCoordsVar, SkMatrix::I(),
+        this->emitTransforms(vb, fb, varyingHandler, uniformHandler, localCoordsVar, SkMatrix::I(),
                              handler);
     }
 

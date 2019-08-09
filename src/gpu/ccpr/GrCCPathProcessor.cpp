@@ -169,6 +169,7 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // The vertex shader bloats and intersects the devBounds and devBounds45 rectangles, in order to
     // find an octagon that circumscribes the (bloated) path.
     GrGLSLVertexBuilder* v = args.fVertBuilder;
+    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 
     // Are we clockwise? (Positive wind => nonzero fill rule.)
     // Or counter-clockwise? (negative wind => even/odd fill rule.)
@@ -215,12 +216,10 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "octocoord");
-    this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar, proc.fLocalMatrix,
+    this->emitTransforms(v, f, varyingHandler, uniHandler, gpArgs->fPositionVar, proc.fLocalMatrix,
                          args.fFPCoordTransformHandler);
 
     // Fragment shader.
-    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-
     // Look up coverage in the atlas.
     f->codeAppendf("half coverage = ");
     f->appendTextureLookup(args.fTexSamplers[0], SkStringPrintf("%s.xy", texcoord.fsIn()).c_str(),

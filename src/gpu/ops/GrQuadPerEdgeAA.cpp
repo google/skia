@@ -939,6 +939,7 @@ public:
                     // before FPs, then there are no registered FPCoordTransforms and this ends up
                     // emitting nothing, so there isn't a duplication of local coordinates
                     this->emitTransforms(args.fVertBuilder,
+                                         args.fFragBuilder,
                                          args.fVaryingHandler,
                                          args.fUniformHandler,
                                          gp.fLocalCoord.asShaderVar(),

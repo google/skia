@@ -169,8 +169,8 @@ private:
 #endif
 
     // These are used to check that we don't excede the allowable number of resources in a shader.
-    int                         fNumFragmentSamplers;
-    SkSTArray<4, GrShaderVar>   fTransformedCoordVars;
+    int fNumFragmentSamplers;
+    SkSTArray<4, GrGLSLPrimitiveProcessor::TransformVar> fTransformedCoordVars;
 };
 
 #endif

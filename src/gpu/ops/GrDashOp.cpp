@@ -860,6 +860,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // emit transforms
     this->emitTransforms(vertBuilder,
+                         fragBuilder,
                          varyingHandler,
                          uniformHandler,
                          dce.fInPosition.asShaderVar(),
@@ -1060,6 +1061,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // emit transforms
     this->emitTransforms(vertBuilder,
+                         fragBuilder,
                          varyingHandler,
                          uniformHandler,
                          de.fInPosition.asShaderVar(),

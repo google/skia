@@ -383,6 +383,7 @@ class GrFillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
 
         // Emit the vertex shader.
         GrGLSLVertexBuilder* v = args.fVertBuilder;
+        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 
         // Unpack vertex attribs.
         v->codeAppend("float2 corner = corner_and_radius_outsets.xy;");
@@ -445,7 +446,7 @@ class GrFillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
                                                "local_rect.zw * (1 + vertexpos)) * .5;");
             localCoord.set(kFloat2_GrSLType, "localcoord");
         }
-        this->emitTransforms(v, varyings, args.fUniformHandler, localCoord,
+        this->emitTransforms(v, f, varyings, args.fUniformHandler, localCoord,
                              args.fFPCoordTransformHandler);
 
         // Transform to device space.
@@ -477,8 +478,6 @@ class GrFillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
         v->codeAppend("}");
 
         // Emit the fragment shader.
-        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-
         f->codeAppendf("float x_plus_1=%s.x, y=%s.y;", arcCoord.fsIn(), arcCoord.fsIn());
         f->codeAppendf("half coverage;");
         f->codeAppendf("if (0 == x_plus_1) {");
@@ -595,6 +594,7 @@ class GrFillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
 
         // Emit the vertex shader.
         GrGLSLVertexBuilder* v = args.fVertBuilder;
+        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 
         GrGLSLVaryingHandler* varyings = args.fVaryingHandler;
         varyings->emitAttributes(proc);
@@ -623,7 +623,7 @@ class GrFillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
                                                "local_rect.zw * (1 + vertexpos)) * .5;");
             localCoord.set(kFloat2_GrSLType, "localcoord");
         }
-        this->emitTransforms(v, varyings, args.fUniformHandler, localCoord,
+        this->emitTransforms(v, f, varyings, args.fUniformHandler, localCoord,
                              args.fFPCoordTransformHandler);
 
         // Transform to device space.
@@ -659,8 +659,6 @@ class GrFillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
         v->codeAppendf("}");
 
         // Emit the fragment shader.
-        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-
         f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
 
         // If x,y == 0, then we are drawing a triangle that does not track an arc.

@@ -63,6 +63,7 @@ public:
                 args.fVaryingHandler->emitAttributes(latticeGP);
                 this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.fInPosition.name());
                 this->emitTransforms(args.fVertBuilder,
+                                     args.fFragBuilder,
                                      args.fVaryingHandler,
                                      args.fUniformHandler,
                                      latticeGP.fInTextureCoords.asShaderVar(),

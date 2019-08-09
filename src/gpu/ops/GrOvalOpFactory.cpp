@@ -151,6 +151,7 @@ private:
 
             // emit transforms
             this->emitTransforms(vertBuilder,
+                                 fragBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  cgp.fInPosition.asShaderVar(),
@@ -377,6 +378,7 @@ private:
 
             // emit transforms
             this->emitTransforms(vertBuilder,
+                                 fragBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  bcscgp.fInPosition.asShaderVar(),
@@ -569,6 +571,7 @@ private:
 
             // emit transforms
             this->emitTransforms(vertBuilder,
+                                 fragBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  egp.fInPosition.asShaderVar(),
@@ -765,6 +768,7 @@ private:
 
             // emit transforms
             this->emitTransforms(vertBuilder,
+                                 fragBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  diegp.fInPosition.asShaderVar(),

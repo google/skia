@@ -93,6 +93,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // emit transforms with position
     this->emitTransforms(vertBuilder,
+                         fragBuilder,
                          varyingHandler,
                          uniformHandler,
                          gp.inPosition().asShaderVar(),
@@ -344,6 +345,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // emit transforms with position
     this->emitTransforms(vertBuilder,
+                         fragBuilder,
                          varyingHandler,
                          uniformHandler,
                          gp.inPosition().asShaderVar(),

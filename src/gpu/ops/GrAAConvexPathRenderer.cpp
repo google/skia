@@ -561,6 +561,7 @@ public:
 
             // emit transforms
             this->emitTransforms(vertBuilder,
+                                 fragBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  qe.fInPosition.asShaderVar(),

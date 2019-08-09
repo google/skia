@@ -133,6 +133,7 @@ public:
             if (gp.fInLocalCoords.isInitialized()) {
                 // emit transforms with explicit local coords
                 this->emitTransforms(vertBuilder,
+                                     fragBuilder,
                                      varyingHandler,
                                      uniformHandler,
                                      gp.fInLocalCoords.asShaderVar(),
@@ -141,6 +142,7 @@ public:
             } else {
                 // emit transforms with position
                 this->emitTransforms(vertBuilder,
+                                     fragBuilder,
                                      varyingHandler,
                                      uniformHandler,
                                      gp.fInPosition.asShaderVar(),

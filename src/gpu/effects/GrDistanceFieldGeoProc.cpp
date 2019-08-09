@@ -59,6 +59,7 @@ public:
 
         // emit transforms
         this->emitTransforms(vertBuilder,
+                             fragBuilder,
                              varyingHandler,
                              uniformHandler,
                              dfTexEffect.inPosition().asShaderVar(),
@@ -366,6 +367,7 @@ public:
 
             // emit transforms
             this->emitTransforms(vertBuilder,
+                                 fragBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  dfPathEffect.inPosition().asShaderVar(),
@@ -376,6 +378,7 @@ public:
 
             // emit transforms
             this->emitTransforms(vertBuilder,
+                                 fragBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  dfPathEffect.inPosition().asShaderVar(),
@@ -645,6 +648,7 @@ public:
 
         // emit transforms
         this->emitTransforms(vertBuilder,
+                             fragBuilder,
                              varyingHandler,
                              uniformHandler,
                              dfTexEffect.inPosition().asShaderVar(),

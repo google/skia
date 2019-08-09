@@ -51,6 +51,7 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
 }
 
 void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
+                                             GrGLSLFragmentBuilder* fb,
                                              GrGLSLVaryingHandler* varyingHandler,
                                              GrGLSLUniformHandler* uniformHandler,
                                              const GrShaderVar& localCoordsVar,
@@ -83,10 +84,13 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         }
         SkString strVaryingName;
         strVaryingName.printf("TransformedCoords_%d", i);
+        fb->declareGlobal(GrShaderVar(SkStringPrintf("%s_current", strVaryingName.c_str()),
+                                                     kFloat2_GrSLType));
         GrGLSLVarying v(varyingType);
         varyingHandler->addVarying(strVaryingName.c_str(), &v);
-
-        handler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
+        handler->specifyCoordsForCurrCoordTransform(SkString(uniName),
+                                                    fInstalledTransforms.back().fHandle,
+                                                    GrShaderVar(SkString(v.fsIn()), varyingType));
 
         if (kFloat2_GrSLType == varyingType) {
             vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), uniName, localCoords.c_str());

@@ -58,6 +58,7 @@ public:
 
         // emit transforms
         this->emitTransforms(vertBuilder,
+                             fragBuilder,
                              varyingHandler,
                              uniformHandler,
                              btgp.inPosition().asShaderVar(),

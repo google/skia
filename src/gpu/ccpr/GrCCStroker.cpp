@@ -104,6 +104,8 @@ void LinearStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->emitAttributes(args.fGP.cast<LinearStrokeProcessor>());
 
     GrGLSLVertexBuilder* v = args.fVertBuilder;
+    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
+
     v->codeAppend ("float2 tan = normalize(endpts.zw - endpts.xy);");
     v->codeAppend ("float2 n = float2(tan.y, -tan.x);");
     v->codeAppend ("float nwidth = abs(n.x) + abs(n.y);");
@@ -133,11 +135,11 @@ void LinearStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                    edgeDistances.vsOut(), edgeDistances.vsOut(), edgeDistances.vsOut());
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
-    this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("position", kFloat2_GrSLType),
-                         SkMatrix::I(), args.fFPCoordTransformHandler);
+    this->emitTransforms(v, f, varyingHandler, uniHandler,
+                         GrShaderVar("position", kFloat2_GrSLType), SkMatrix::I(),
+                         args.fFPCoordTransformHandler);
 
     // Use the 4 edge distances to calculate coverage in the fragment shader.
-    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
     f->codeAppendf("half2 coverages = half2(min(%s.xy, .5) + min(%s.zw, .5));",
                    edgeDistances.fsIn(), edgeDistances.fsIn());
     f->codeAppendf("%s = half4(coverages.x * coverages.y);", args.fOutputColor);
@@ -195,6 +197,8 @@ void CubicStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->emitAttributes(args.fGP.cast<CubicStrokeProcessor>());
 
     GrGLSLVertexBuilder* v = args.fVertBuilder;
+    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
+
     v->codeAppend ("float4x2 P = transpose(float2x4(X, Y));");
     v->codeAppend ("float stroke_radius = stroke_info[0];");
     v->codeAppend ("float num_segments = stroke_info[1];");
@@ -255,11 +259,11 @@ void CubicStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                    coverages.vsOut());
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
-    this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("position", kFloat2_GrSLType),
-                         SkMatrix::I(), args.fFPCoordTransformHandler);
+    this->emitTransforms(v, f, varyingHandler, uniHandler,
+                         GrShaderVar("position", kFloat2_GrSLType), SkMatrix::I(),
+                         args.fFPCoordTransformHandler);
 
     // Use the 2 edge distances and interpolated butt cap AA to calculate fragment coverage.
-    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
     f->codeAppendf("half2 edge_coverages = min(half2(%s.xy), .5);", coverages.fsIn());
     f->codeAppend ("half coverage = edge_coverages.x + edge_coverages.y;");
     f->codeAppendf("coverage *= half(%s.z);", coverages.fsIn());  // Butt cap AA.
