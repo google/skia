@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "999885cf_dcc76a1f",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-09T21:46:31Z",
+      "side": 1,
+      "message": "Okay can you add an assert in here then that you never see a partial clear? Also does that cap handle parties stencil clears as well as color clears?",
+      "parentUuid": "2d20084e_6db3e0f1",
+      "range": {
+        "startLine": 134,
+        "startChar": 51,
+        "endLine": 134,
+        "endChar": 74
+      },
+      "revId": "c679e81b4e7d19a29792242a707c2e653c4d1c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "017b548c_04c58dee",
         "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
         "patchSetId": 3
