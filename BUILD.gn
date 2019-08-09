@@ -1713,7 +1713,6 @@ if (skia_enable_tools) {
       ":etc1",
       ":flags",
       ":skia",
-      ":skia.h",
       ":tool_utils",
       "modules/skottie",
       "modules/skottie:gm",
