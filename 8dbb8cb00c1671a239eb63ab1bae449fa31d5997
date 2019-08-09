@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7257e0e_d8e19d56",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-09T21:26:23Z",
+      "side": 1,
+      "message": "Not sure why this is failing to build -- my only guess is that the SDK that the bots use doesn\u0027t know about it.",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 35,
+        "endChar": 46
+      },
+      "revId": "8dbb8cb00c1671a239eb63ab1bae449fa31d5997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
