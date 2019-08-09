@@ -126,7 +126,7 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
             width += cluster->width();
             ++cluster;
         }
-        return { fEndLine.breakCluster() + 1, 0, width };
+        return std::make_tuple(fEndLine.breakCluster() + 1, 0, width);
     }
 
     auto width = fEndLine.width();
@@ -135,7 +135,7 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
         width += cluster->width();
         ++cluster;
     }
-    return { cluster, 0, width };
+    return std::make_tuple(cluster, 0, width);
 }
 
 void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
