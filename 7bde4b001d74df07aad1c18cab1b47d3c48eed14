@@ -22,6 +22,30 @@
       "revId": "7bde4b001d74df07aad1c18cab1b47d3c48eed14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5422657a_ba418177",
+        "filename": "experimental/editor/shape.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-09T13:56:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "136853b7_055dcb07",
+      "range": {
+        "startLine": 184,
+        "startChar": 12,
+        "endLine": 184,
+        "endChar": 23
+      },
+      "revId": "7bde4b001d74df07aad1c18cab1b47d3c48eed14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
