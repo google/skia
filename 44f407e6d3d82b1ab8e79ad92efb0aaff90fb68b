@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "44476d76_bce41afb",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T18:18:03Z",
+      "side": 1,
+      "message": "It is fine w/ me.",
+      "parentUuid": "011243c1_347450ad",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2f20bb60_8700471b",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 24
@@ -151,6 +169,30 @@
       "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1d460d_326922e9",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T18:18:03Z",
+      "side": 1,
+      "message": "Well - I think newRTOpList, newTextureOpList and newTextureResolveRenderTask should all be consistent. How about a follow up CL that changes the other two bc, yeah, the GrDrawingManager still owns the object.\n\nAlthough is anyone else reffing them somewhere?",
+      "parentUuid": "9a79b97c_3e6e16fe",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 18
+      },
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {
