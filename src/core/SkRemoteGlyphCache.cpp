@@ -227,7 +227,6 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::drawGlyphRunList(
                                  options,
                                  nullptr);
     #endif  // SK_SUPPORT_GPU
-
 }
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
@@ -247,7 +246,9 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
     : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props,
                                                   strikeServer, std::move(colorSpace), settings)} {}
 
-SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
+SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() {
+    finishCapture();
+}
 
 SkCanvas::SaveLayerStrategy SkTextBlobCacheDiffCanvas::getSaveLayerStrategy(
         const SaveLayerRec& rec) {
@@ -260,7 +261,12 @@ bool SkTextBlobCacheDiffCanvas::onDoSaveBehind(const SkRect*) {
 
 void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                                const SkPaint& paint) {
-    ///
+    if (fWStream != nullptr) {
+        fWriteBuffer->writePaint(paint);
+        fWriteBuffer->writePoint(SkPoint{x, y});
+        auto data = blob->serialize(fSerialProcs);
+        fWriteBuffer->writeDataAsByteArray(data.get());
+    }
     SkCanvas::onDrawTextBlob(blob, x, y, paint);
 }
 

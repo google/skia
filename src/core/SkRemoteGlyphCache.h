@@ -17,13 +17,17 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTHash.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/core/SkPtrRecorder.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrikeInterface.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkWriteBuffer.h"
 
 class Deserializer;
 class Serializer;
@@ -73,6 +77,69 @@ public:
 
     ~SkTextBlobCacheDiffCanvas() override;
 
+    void captureBlobs(std::unique_ptr<SkWStream> wStream) {
+        if (wStream != nullptr) {
+            fWStream = std::move(wStream);
+            fWriteBuffer = skstd::make_unique<SkBinaryWriteBuffer>();
+            fTypefaceSet = sk_make_sp<SkRefCntSet>();
+            fWriteBuffer->setTypefaceRecorder(fTypefaceSet);
+        }
+    }
+
+    void finishCapture() {
+        // Write out blob trace.
+        if (fWStream != nullptr) {
+            int count = fTypefaceSet->count();
+            fWStream->write32(count);
+
+            SkAutoSTMalloc<16, SkTypeface*> storage(count);
+            SkTypeface** array = (SkTypeface**) storage.get();
+            fTypefaceSet->copyToArray((SkRefCnt**) array);
+
+            for (int i = 0; i < count; i++) {
+                array[i]->serialize(fWStream.get(), SkTypeface::SerializeBehavior::kDoIncludeData);
+            }
+            fWStream->write32(fWriteBuffer->bytesWritten());
+            fWriteBuffer->writeToStream(fWStream.get());
+        }
+    }
+
+    struct BlobTraceRecord {
+        SkPaint paint;
+        SkPoint offset;
+        sk_sp<SkTextBlob> blob;
+    };
+
+    std::vector<BlobTraceRecord> createBlobTrace(SkStream* stream) {
+        uint32_t typefaceCount;
+        (void)stream->readU32(&typefaceCount);
+
+        std::vector<sk_sp<SkTypeface>> typefaceArray;
+        for (uint32_t i = 0; i < typefaceCount; i++) {
+            typefaceArray.push_back(SkTypeface::MakeDeserialize(stream));
+        }
+
+        uint32_t restOfFile;
+        (void)stream->readU32(&restOfFile);
+        sk_sp<SkData> data = SkData::MakeFromStream(stream, restOfFile);
+        SkReadBuffer readBuffer{data->data(), data->size()};
+        readBuffer.setTypefaceArray(typefaceArray.data(), typefaceArray.size());
+        std::vector<BlobTraceRecord> trace;
+        SkDeserialProcs procs;
+
+        while (!readBuffer.eof()) {
+            BlobTraceRecord record;
+            readBuffer.readPaint(&record.paint, nullptr);
+            readBuffer.readPoint(&record.offset);
+            sk_sp<SkData> blobData = readBuffer.readByteArrayAsData();
+            record.blob =
+                    SkTextBlob::Deserialize(blobData->data(), blobData->size(), procs);
+            trace.push_back(record);
+        }
+
+        return trace;
+    }
+
 protected:
     SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
     bool onDoSaveBehind(const SkRect*) override;
@@ -82,7 +149,10 @@ protected:
 private:
     class TrackLayerDevice;
 
-    static SkScalar SetupForPath(SkPaint* paint, SkFont* font);
+    std::unique_ptr<SkWStream> fWStream;
+    sk_sp<SkRefCntSet> fTypefaceSet;
+    std::unique_ptr<SkBinaryWriteBuffer> fWriteBuffer;
+    SkSerialProcs fSerialProcs;
 };
 
 using SkDiscardableHandleId = uint32_t;
