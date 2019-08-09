@@ -32,6 +32,9 @@ public:
         [fCmdBuffer addCompletedHandler:block];
     }
 
+    void encodeSignalEvent(id<MTLEvent> event, uint64_t value);
+    void encodeWaitForEvent(id<MTLEvent> event, uint64_t value);
+
 private:
     GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)
         : fCmdBuffer(cmdBuffer)

@@ -35,8 +35,6 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
 
     // The following are disabled due to the unfinished Metal backend, not because Metal itself
     // doesn't support it.
-    fFenceSyncSupport = false;           // Fences are not implemented yet
-    fSemaphoreSupport = false;           // Semaphores are not implemented yet
     fCrossContextTextureSupport = false; // GrMtlGpu::prepareTextureForCrossContextUsage() not impl
 }
 
@@ -259,7 +257,19 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fMixedSamplesSupport = false;
     fGpuTracingSupport = false;
 
-    fFenceSyncSupport = true;   // always available in Metal
+    bool supportsMTLEvent = false;
+#if GR_METAL_SDK_VERSION >= 200
+    NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
+#ifdef SK_BUILD_FOR_MAC
+    supportsMTLEvent = (osVersion.majorVersion > 10 ||
+                        (osVersion.majorVersion == 10 && osVersion.minorVersion >= 14));
+#else
+    supportsMTLEvent = (osVersion.majorVersion >= 12);
+#endif
+#endif
+    fFenceSyncSupport = supportsMTLEvent;
+    fSemaphoreSupport = supportsMTLEvent;
+
     fCrossContextTextureSupport = false;
     fHalfFloatVertexAttributeSupport = true;
 }
