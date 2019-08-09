@@ -218,12 +218,23 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
     int glyphCount = 10;
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
     auto props = FindSurfaceProps(ctxInfo.grContext());
-    SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, props, &server,
-                                                MakeSettings(ctxInfo.grContext()));
-    cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
-
     std::vector<uint8_t> serverStrikeData;
-    server.writeStrikeData(&serverStrikeData);
+    SkDynamicMemoryWStream wStream;
+    {
+        SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, props, &server,
+                                                    MakeSettings(ctxInfo.grContext()));
+        cache_diff_canvas.captureBlobs(&wStream);
+        cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+        server.writeStrikeData(&serverStrikeData);
+    }
+
+    auto stream = wStream.detachAsStream();
+    {
+        SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, props, &server,
+                                                    MakeSettings(ctxInfo.grContext()));
+        auto trace = cache_diff_canvas.createBlobTrace(stream.get());
+        REPORTER_ASSERT(reporter, trace.size() == 1);
+    }
 
     // Client.
     auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
