@@ -40,6 +40,7 @@ bool GrPixelConfigToDawnFormat(GrPixelConfig config, dawn::TextureFormat* format
             *format = dawn::TextureFormat::BGRA8Unorm;
             return true;
         case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_as_Red_GrPixelConfig:
             *format = dawn::TextureFormat::R8Unorm;
             return true;
         default:

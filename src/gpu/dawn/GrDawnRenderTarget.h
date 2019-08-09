@@ -40,8 +40,7 @@ protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
                        const GrSurfaceDesc& desc,
                        int sampleCnt,
-                       const GrDawnImageInfo& info,
-                       GrBackendObjectOwnership);
+                       const GrDawnImageInfo& info);
 
     GrDawnGpu* getDawnGpu() const;
 
@@ -58,7 +57,7 @@ protected:
     }
 
     static GrDawnRenderTarget* Create(GrDawnGpu*, const GrSurfaceDesc&, int sampleCnt,
-                                      const GrDawnImageInfo&, GrBackendObjectOwnership);
+                                      const GrDawnImageInfo&);
 
     bool completeStencilAttachment() override;
     GrDawnImageInfo fInfo;
