@@ -71,7 +71,6 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor
         uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
                 sampler.samplerState(), sampler.proxy()->backendFormat());
         if (extraSamplerKey) {
-            SkASSERT(sampler.proxy()->textureType() == GrTextureType::kExternal);
             // We first mark the normal sampler key with last bit to flag that it has an extra
             // sampler key. We then add both keys.
             SkASSERT((samplerKey & (1 << 31)) == 0);
@@ -95,7 +94,6 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcesso
                 sampler.textureType(), sampler.swizzle(), sampler.config(), caps);
         uint32_t extraSamplerKey = sampler.extraSamplerKey();
         if (extraSamplerKey) {
-            SkASSERT(sampler.textureType() == GrTextureType::kExternal);
             // We first mark the normal sampler key with last bit to flag that it has an extra
             // sampler key. We then add both keys.
             SkASSERT((samplerKey & (1 << 31)) == 0);

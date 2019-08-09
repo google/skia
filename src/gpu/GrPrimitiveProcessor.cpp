@@ -81,7 +81,6 @@ void GrPrimitiveProcessor::TextureSampler::reset(GrTextureType textureType,
     fTextureType = textureType;
     fConfig = config;
     fExtraSamplerKey = extraSamplerKey;
-    SkASSERT(!fExtraSamplerKey || textureType == GrTextureType::kExternal);
 }
 
 void GrPrimitiveProcessor::TextureSampler::reset(GrTextureType textureType,

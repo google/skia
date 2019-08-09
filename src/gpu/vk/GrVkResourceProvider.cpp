@@ -388,11 +388,15 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     fExternalRenderPasses.reset();
 
     // Iterate through all store GrVkSamplers and unref them before resetting the hash.
-    SkTDynamicHash<GrVkSampler, GrVkSampler::Key>::Iter iter(&fSamplers);
-    for (; !iter.done(); ++iter) {
+    for (decltype(fSamplers)::Iter iter(&fSamplers); !iter.done(); ++iter) {
         (*iter).unref(fGpu);
     }
     fSamplers.reset();
+
+    for (decltype(fYcbcrConversions)::Iter iter(&fYcbcrConversions); !iter.done(); ++iter) {
+        (*iter).unref(fGpu);
+    }
+    fYcbcrConversions.reset();
 
     fPipelineStateCache->release();
 
@@ -461,6 +465,11 @@ void GrVkResourceProvider::abandonResources() {
         (*iter).unrefAndAbandon();
     }
     fSamplers.reset();
+
+    for (decltype(fYcbcrConversions)::Iter iter(&fYcbcrConversions); !iter.done(); ++iter) {
+        (*iter).unrefAndAbandon();
+    }
+    fYcbcrConversions.reset();
 
     fPipelineStateCache->abandon();
 
