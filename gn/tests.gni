@@ -303,7 +303,6 @@ tests_sources = [
   "$_tests/VkPriorityExtensionTest.cpp",
   "$_tests/VkProtectedContextTest.cpp",
   "$_tests/VkWrapTests.cpp",
-  "$_tests/VkYcbcrSamplerTest.cpp",
   "$_tests/VptrTest.cpp",
   "$_tests/WindowRectanglesTest.cpp",
   "$_tests/WritePixelsTest.cpp",
