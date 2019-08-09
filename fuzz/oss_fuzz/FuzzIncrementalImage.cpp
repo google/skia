@@ -8,6 +8,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
+#include "include/private/SkTemplates.h"
 
 bool FuzzIncrementalImageDecode(sk_sp<SkData> bytes) {
     auto codec = SkCodec::MakeFromData(bytes);

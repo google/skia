@@ -10,6 +10,8 @@
 
 #include "include/encode/SkEncoder.h"
 
+#include <memory>
+
 class SkJpegEncoderMgr;
 class SkWStream;
 
@@ -90,6 +92,8 @@ protected:
 private:
     SkJpegEncoder(std::unique_ptr<SkJpegEncoderMgr>, const SkPixmap& src);
 
+    struct D { void operator()(void*); };
+    std::unique_ptr<unsigned char[], D> fStorage;
     std::unique_ptr<SkJpegEncoderMgr> fEncoderMgr;
     typedef SkEncoder INHERITED;
 };

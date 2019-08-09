@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkChecksum.h"
-#include "include/private/SkTemplates.h"
 #include <new>
 
 // Before trying to use SkTHashTable, look below to see if SkTHashMap or SkTHashSet works for you.

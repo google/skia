@@ -12,7 +12,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTemplates.h"
 
 #include <atomic>
 
