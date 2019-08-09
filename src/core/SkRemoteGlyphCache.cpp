@@ -227,7 +227,6 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::drawGlyphRunList(
                                  options,
                                  nullptr);
     #endif  // SK_SUPPORT_GPU
-
 }
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
@@ -237,7 +236,9 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(
         int width, int height, const SkSurfaceProps& props,
         SkStrikeServer* strikeServer, Settings settings)
     : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(
-            SkIRect::MakeWH(width, height), props, strikeServer, nullptr, settings)} {}
+            SkIRect::MakeWH(width, height), props, strikeServer, nullptr, settings)} {
+    SkDebugf("Existing glyphs: %d\n", strikeServer->countGlyphs());
+}
 
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkSurfaceProps& props,
@@ -245,9 +246,16 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      sk_sp<SkColorSpace> colorSpace,
                                                      Settings settings)
     : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props,
-                                                  strikeServer, std::move(colorSpace), settings)} {}
+                                                  strikeServer, std::move(colorSpace), settings)} {
+    SkDebugf("Existing glyphs: %d\n", strikeServer->countGlyphs());
+}
 
-SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
+SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() {
+    if (fBlobCount > 0) {
+        SkDebugf("blob count: %d face count: %d\n", fBlobCount, fTypefaceSet->count());
+    }
+    finishCapture();
+}
 
 SkCanvas::SaveLayerStrategy SkTextBlobCacheDiffCanvas::getSaveLayerStrategy(
         const SaveLayerRec& rec) {
@@ -260,8 +268,114 @@ bool SkTextBlobCacheDiffCanvas::onDoSaveBehind(const SkRect*) {
 
 void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                                const SkPaint& paint) {
-    ///
+    if (fCaptureBlobs) {
+        fWriteBuffer->writePaint(paint);
+        fWriteBuffer->writePoint(SkPoint{x, y});
+        SkTextBlobPriv::Flatten(*blob, *fWriteBuffer);
+        fBlobCount++;
+    }
     SkCanvas::onDrawTextBlob(blob, x, y, paint);
+}
+
+void SkTextBlobCacheDiffCanvas::captureBlobs(std::unique_ptr<SkWStream> wStream) {
+    fCaptureBlobs = true;
+    if (wStream != nullptr) {
+        fWStream = std::move(wStream);
+    }
+    fWriteBuffer = skstd::make_unique<SkBinaryWriteBuffer>();
+    fTypefaceSet = sk_make_sp<SkRefCntSet>();
+    fWriteBuffer->setTypefaceRecorder(fTypefaceSet);
+
+}
+
+void SkTextBlobCacheDiffCanvas::finishCapture() {
+    static int traceCount = 0;
+    // Write out blob trace if needed, and there are bytes.
+    if (fCaptureBlobs && fWriteBuffer->bytesWritten() > 0) {
+        if (fWStream == nullptr) {
+            std::string fileName = std::string("diff-canvas-")
+                    + std::to_string(traceCount++)
+                    + "-"
+                    + std::to_string(fBlobCount)
+                    + ".trace";
+            fWStream = skstd::make_unique<SkFILEWStream>(fileName.c_str());
+        }
+        int count = fTypefaceSet->count();
+        fWStream->write32(count);
+
+        SkAutoSTMalloc<16, SkTypeface*> storage(count);
+        SkTypeface** array = (SkTypeface**) storage.get();
+        fTypefaceSet->copyToArray((SkRefCnt**) array);
+
+        for (int i = 0; i < count; i++) {
+            array[i]->serialize(fWStream.get(), SkTypeface::SerializeBehavior::kDoIncludeData);
+        }
+        fWStream->write32(fWriteBuffer->bytesWritten());
+        fWriteBuffer->writeToStream(fWStream.get());
+    }
+    fCaptureBlobs = false;
+}
+
+ auto SkTextBlobCacheDiffCanvas::CreateBlobTrace(SkStream* stream) -> std::vector<BlobTraceRecord> {
+    uint32_t typefaceCount;
+    (void)stream->readU32(&typefaceCount);
+
+    std::vector<sk_sp<SkTypeface>> typefaceArray;
+    for (uint32_t i = 0; i < typefaceCount; i++) {
+        typefaceArray.push_back(SkTypeface::MakeDeserialize(stream));
+    }
+
+    uint32_t restOfFile;
+    (void)stream->readU32(&restOfFile);
+    sk_sp<SkData> data = SkData::MakeFromStream(stream, restOfFile);
+    SkReadBuffer readBuffer{data->data(), data->size()};
+    readBuffer.setTypefaceArray(typefaceArray.data(), typefaceArray.size());
+    std::vector<BlobTraceRecord> trace;
+
+    while (!readBuffer.eof()) {
+        BlobTraceRecord record;
+        readBuffer.readPaint(&record.paint, nullptr);
+        readBuffer.readPoint(&record.offset);
+        record.blob = SkTextBlobPriv::MakeFromBuffer(readBuffer);
+        trace.push_back(record);
+    }
+
+    return trace;
+}
+
+void SkTextBlobCacheDiffCanvas::DumpTrace(const std::vector<BlobTraceRecord>& trace) {
+    for (const BlobTraceRecord& record : trace) {
+        const SkTextBlob* blob = record.blob.get();
+        const SkPaint& p = record.paint;
+        bool weirdPaint = p.getStyle() != SkPaint::kFill_Style
+        || p.getMaskFilter() != nullptr
+        || p.getPathEffect() != nullptr;
+
+        SkDebugf("Blob %d ( %g %g ) %d\n  ",
+                blob->uniqueID(), record.offset.x(), record.offset.y(), weirdPaint);
+        SkTextBlobRunIterator iter(blob);
+        int runNumber = 0;
+        while (!iter.done()) {
+            SkDebugf("Run %d\n    ", runNumber);
+            SkFont font = iter.font();
+            SkDebugf("Font %d %g %g %g %d %d %d\n    ",
+                    font.getTypefaceOrDefault()->uniqueID(),
+                    font.getSize(),
+                    font.getScaleX(),
+                    font.getSkewX(),
+                    font.fFlags & SkFont::kAllFlags,
+                    font.getEdging(),
+                    font.getHinting());
+            uint32_t glyphCount = iter.glyphCount();
+            const uint16_t* glyphs = iter.glyphs();
+            for (int i = 0; i < glyphCount; i++) {
+                SkDebugf("%02X ", glyphs[i]);
+            }
+            SkDebugf("\n");
+            runNumber += 1;
+            iter.next();
+        }
+    }
 }
 
 struct WireTypeface {
@@ -414,6 +528,14 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     return cacheStatePtr;
 }
 
+size_t SkStrikeServer::countGlyphs() const {
+    size_t sum = 0;
+    for (const auto& c : fRemoteGlyphStateMap) {
+        sum += c.second->glyphCount();
+    }
+    return sum;
+}
+
 // -- SkGlyphCacheState ----------------------------------------------------------------------------
 SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(
         const SkDescriptor& descriptor,
@@ -554,7 +676,6 @@ SkStrikeServer::SkGlyphCacheState::prepareForDrawing(const SkPackedGlyphID packe
                                                      const SkPoint positions[], size_t n,
                                                      int maxDimension, PreparationDetail detail,
                                                      SkGlyphPos results[]) {
-
     for (size_t i = 0; i < n; i++) {
         SkPoint glyphPos = positions[i];
 
