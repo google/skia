@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0518629d_72488000",
+        "filename": "modules/skparagraph/include/FontCollection.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-08-09T14:52:39Z",
+      "side": 1,
+      "message": "why not just have FontCollection::getParagraphCache() instead of duplicating all the methods here?",
+      "revId": "0d1683ab409e9cd0535740f9157b4820c8457eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
