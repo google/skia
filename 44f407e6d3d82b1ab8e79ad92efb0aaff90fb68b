@@ -124,6 +124,103 @@
       "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdf85b9a_b2c346b2",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T15:19:13Z",
+      "side": 1,
+      "message": "// Draw \u0027mipmapProxy\u0027 in a manner that will force the usage of mipmaps.\n\n?",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42615f96_b3be2527",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T15:19:13Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 351,
+        "startChar": 12,
+        "endLine": 351,
+        "endChar": 24
+      },
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f58327b4_6faf3f53",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T15:19:13Z",
+      "side": 1,
+      "message": "Another use case to test is if we have one draw in opList A w/o mipmaps and then a later draw w/ mipmaps into opList B.\n\nIn this case opList B will depend on the resolveRT but opList A will not. The drawing should still come out looking correct though.",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e996924_fa7ae924",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T15:19:13Z",
+      "side": 1,
+      "message": "// mipmapProxy\u0027s last render task should just be the opList containing the clear at this point \n\n?",
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ed13658_b65a2fe6",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-09T15:19:13Z",
+      "side": 1,
+      "message": "now-clean ?",
+      "range": {
+        "startLine": 406,
+        "startChar": 16,
+        "endLine": 406,
+        "endChar": 21
+      },
+      "revId": "44f407e6d3d82b1ab8e79ad92efb0aaff90fb68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
