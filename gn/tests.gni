@@ -215,6 +215,7 @@ tests_sources = [
   "$_tests/RenderTargetContextTest.cpp",
   "$_tests/RepeatedClippedBlurTest.cpp",
   "$_tests/ResourceAllocatorTest.cpp",
+  "$_tests/ResourceAllocatorReproTest.cpp",
   "$_tests/ResourceCacheTest.cpp",
   "$_tests/RoundRectTest.cpp",
   "$_tests/SRGBReadWritePixelsTest.cpp",
