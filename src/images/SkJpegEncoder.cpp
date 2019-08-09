@@ -25,9 +25,8 @@ extern "C" {
     #include "jerror.h"
 }
 
-class SkJpegEncoderMgr final : SkNoncopyable {
+class SkJpegEncoderMgr {
 public:
-
     /*
      * Create the decode manager
      * Does not take ownership of stream
@@ -64,6 +63,9 @@ private:
     skjpeg_error_mgr        fErrMgr;
     skjpeg_destination_mgr  fDstMgr;
     transform_scanline_proc fProc;
+
+    SkJpegEncoderMgr(const SkJpegEncoderMgr&) = delete;
+    SkJpegEncoderMgr& operator=(const SkJpegEncoderMgr&) = delete;
 };
 
 bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder::Options& options)
@@ -202,8 +204,14 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& s
     return std::unique_ptr<SkJpegEncoder>(new SkJpegEncoder(std::move(encoderMgr), src));
 }
 
+void SkJpegEncoder::D::operator()(void* t) { sk_free(t); }
+
 SkJpegEncoder::SkJpegEncoder(std::unique_ptr<SkJpegEncoderMgr> encoderMgr, const SkPixmap& src)
-    : INHERITED(src, encoderMgr->proc() ? encoderMgr->cinfo()->input_components*src.width() : 0)
+    : INHERITED(src)
+    , fStorage(encoderMgr->proc()
+               ? (unsigned char*)sk_malloc_throw(
+                           encoderMgr->cinfo()->input_components * src.width())
+               : nullptr)
     , fEncoderMgr(std::move(encoderMgr))
 {}
 

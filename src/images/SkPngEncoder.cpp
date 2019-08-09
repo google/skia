@@ -44,9 +44,8 @@ static void sk_write_fn(png_structp png_ptr, png_bytep data, png_size_t len) {
     }
 }
 
-class SkPngEncoderMgr final : SkNoncopyable {
+class SkPngEncoderMgr {
 public:
-
     /*
      * Create the decode manager
      * Does not take ownership of stream
@@ -78,6 +77,9 @@ private:
     png_infop               fInfoPtr;
     int                     fPngBytesPerPixel;
     transform_scanline_proc fProc;
+
+    SkPngEncoderMgr(const SkPngEncoderMgr&) = delete;
+    SkPngEncoderMgr& operator=(const SkPngEncoderMgr&) = delete;
 };
 
 std::unique_ptr<SkPngEncoderMgr> SkPngEncoderMgr::Make(SkWStream* stream) {
@@ -400,8 +402,11 @@ std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& sr
     return std::unique_ptr<SkPngEncoder>(new SkPngEncoder(std::move(encoderMgr), src));
 }
 
+void SkPngEncoder::D::operator()(void* t) { sk_free(t); }
+
 SkPngEncoder::SkPngEncoder(std::unique_ptr<SkPngEncoderMgr> encoderMgr, const SkPixmap& src)
-    : INHERITED(src, encoderMgr->pngBytesPerPixel() * src.width())
+    : INHERITED(src)
+    , fStorage((unsigned char*)sk_malloc_throw(encoderMgr->pngBytesPerPixel() * src.width()))
     , fEncoderMgr(std::move(encoderMgr))
 {}
 
