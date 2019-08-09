@@ -25,8 +25,7 @@ public:
     SkRect computeFastBounds(const SkRect& src) const override;
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
                            MapDirection, const SkIRect* inputRect) const override;
     bool onCanHandleComplexCTM() const override { return true; }
@@ -72,8 +71,7 @@ SkRect SkComposeImageFilterImpl::computeFastBounds(const SkRect& src) const {
     return outer->computeFastBounds(inner->computeFastBounds(src));
 }
 
-sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                              const Context& ctx,
+sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(const Context& ctx,
                                                               SkIPoint* offset) const {
     // The bounds passed to the inner filter must be filtered by the outer
     // filter, so that the inner filter produces the pixels that the outer
@@ -81,9 +79,9 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(SkSpecialImage* so
     SkIRect innerClipBounds;
     innerClipBounds = this->getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm(),
                                                       kReverse_MapDirection, &ctx.clipBounds());
-    Context innerContext(ctx.ctm(), innerClipBounds, ctx.cache(), ctx.outputProperties());
+    Context innerContext = ctx.withClipBounds(innerClipBounds);
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> inner(this->filterInput(1, source, innerContext, &innerOffset));
+    sk_sp<SkSpecialImage> inner(this->filterInput(1, innerContext, &innerOffset));
     if (!inner) {
         return nullptr;
     }
@@ -92,10 +90,11 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(SkSpecialImage* so
     outerMatrix.postTranslate(SkIntToScalar(-innerOffset.x()), SkIntToScalar(-innerOffset.y()));
     SkIRect clipBounds = ctx.clipBounds();
     clipBounds.offset(-innerOffset.x(), -innerOffset.y());
-    Context outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.outputProperties());
+    Context outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.colorType(),
+                                 ctx.colorSpace(), inner.get());
 
     SkIPoint outerOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> outer(this->filterInput(0, inner.get(), outerContext, &outerOffset));
+    sk_sp<SkSpecialImage> outer(this->filterInput(0, outerContext, &outerOffset));
     if (!outer) {
         return nullptr;
     }
