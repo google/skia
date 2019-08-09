@@ -227,11 +227,6 @@ public:
         return fContext->fShaderErrorHandler;
     }
 
-#ifdef SK_ENABLE_DUMP_GPU
-    /** Returns a string with detailed information about the context & GPU, in JSON format. */
-    SkString dump() const;
-#endif
-
 #if GR_TEST_UTILS
     /** Reset GPU stats */
     void resetGpuStats() const ;
