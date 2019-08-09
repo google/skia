@@ -1719,6 +1719,10 @@ if (skia_enable_tools) {
       "modules/sksg",
       "modules/skshaper",
     ]
+    if (is_skia_dev_build) {
+      sources += [ "gm/fiddle.cpp" ]
+      deps += [ ":skia.h" ]
+    }
     public_deps = [
       ":gpu_tool_utils",
     ]
