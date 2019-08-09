@@ -7,9 +7,12 @@
 
 #include "src/core/SkRemoteGlyphCache.h"
 
+#include <iomanip>
+#include <ios>
 #include <iterator>
 #include <memory>
 #include <new>
+#include <sstream>
 #include <string>
 #include <tuple>
 
@@ -77,7 +80,7 @@ size_t serialization_alignment() {
 
 class Serializer {
 public:
-    Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} { }
+    explicit Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} { }
 
     template <typename T, typename... Args>
     T* emplace(Args&&... args) {
@@ -221,6 +224,10 @@ public:
 
     void onAboutToExitScope() override {}
 
+    size_t glyphCount() const {
+        return fCachedGlyphImages.count();
+    }
+
     bool hasPendingGlyphs() const {
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
     }
@@ -344,13 +351,16 @@ protected:
         GrTextContext::Options options;
         GrTextContext::SanitizeOptions(&options);
 
+        fStrikeServer->maybeCaptureDrawTextBlob(glyphRunList);
+
         fPainter.processGlyphRunList(glyphRunList,
                                      this->ctm(),
                                      this->surfaceProps(),
                                      fDFTSupport,
                                      options,
                                      nullptr);
-#endif  // SK_SUPPORT_GPU
+        #endif  // SK_SUPPORT_GPU
+
     }
 
 private:
@@ -358,6 +368,7 @@ private:
     const bool fDFTSupport{false};
     SkGlyphRunListPainter fPainter;
 };
+
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
@@ -388,9 +399,139 @@ bool SkTextBlobCacheDiffCanvas::onDoSaveBehind(const SkRect*) {
     return false;
 }
 
-void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob,
+                                               SkScalar x, SkScalar y,
                                                const SkPaint& paint) {
     SkCanvas::onDrawTextBlob(blob, x, y, paint);
+}
+
+void SkStrikeServer::captureDrawTextBlob(const SkGlyphRunList& glyphRunList) {
+    const SkTextBlob* blob = glyphRunList.blob();
+    if (fCaptureBlobs && blob != nullptr) {
+        fWriteBuffer->writeUInt(blob->uniqueID());
+        fWriteBuffer->writePaint(glyphRunList.paint());
+        fWriteBuffer->writePoint(glyphRunList.origin());
+        SkTextBlobPriv::Flatten(*blob, *fWriteBuffer);
+        fBlobCount++;
+    }
+}
+
+void SkStrikeServer::startBlobCapture(std::unique_ptr<SkWStream> wStream) {
+    SkDebugf("Start Capture: %p\n", this);
+    fCaptureBlobs = true;
+    if (wStream != nullptr) {
+        fWStream = std::move(wStream);
+    }
+    fWriteBuffer = skstd::make_unique<SkBinaryWriteBuffer>();
+    fTypefaceSet = sk_make_sp<SkRefCntSet>();
+    fWriteBuffer->setTypefaceRecorder(fTypefaceSet);
+}
+
+std::unique_ptr<SkWStream>
+SkStrikeServer::checkpointTrace(std::unique_ptr<SkWStream> wStream) {
+    // Write out blob trace if needed, and there are bytes.
+    if (fCaptureBlobs && fWriteBuffer->bytesWritten() > 0) {
+        SkDebugf("Checkpoint\n");
+        if (wStream == nullptr) {
+            uint32_t id = SkChecksum::Mix(reinterpret_cast<uintptr_t>(this));
+            using namespace std;
+            stringstream filename;
+            filename << "diff-canvas-"
+                     << setfill('0') << setw(8)
+                     << hex << id << "-"
+                     << setfill('0') << setw(4)
+                     << dec << fBlobCount << ".trace";
+            wStream = skstd::make_unique<SkFILEWStream>(filename.str().c_str());
+        }
+        this->writeTrace(wStream.get());
+    }
+    return wStream;
+}
+
+void SkStrikeServer::writeTrace(SkWStream* stream) {
+    int count = fTypefaceSet->count();
+    stream->write32(count);
+
+    std::unique_ptr<SkTypeface*[]> array{new SkTypeface*[count]};
+    fTypefaceSet->copyToArray((SkRefCnt**)array.get());
+
+    for (int i = 0; i < count; i++) {
+        array[i]->serialize(stream, SkTypeface::SerializeBehavior::kDoIncludeData);
+    }
+    stream->write32(fWriteBuffer->bytesWritten());
+    fWriteBuffer->writeToStream(stream);
+}
+
+std::unique_ptr<SkWStream> SkStrikeServer::finishBlobCapture() {
+    std::unique_ptr<SkWStream> answer = this->checkpointTrace(std::move(fWStream));
+    fCaptureBlobs = false;
+    fWStream = nullptr;
+    fWriteBuffer.reset();
+    fTypefaceSet.reset();
+    return answer;
+}
+
+ auto SkStrikeServer::CreateBlobTrace(SkStream* stream) -> std::vector<BlobTraceRecord> {
+    uint32_t typefaceCount;
+    (void)stream->readU32(&typefaceCount);
+
+    std::vector<sk_sp<SkTypeface>> typefaceArray;
+    for (uint32_t i = 0; i < typefaceCount; i++) {
+        typefaceArray.push_back(SkTypeface::MakeDeserialize(stream));
+    }
+
+    uint32_t restOfFile;
+    (void)stream->readU32(&restOfFile);
+    sk_sp<SkData> data = SkData::MakeFromStream(stream, restOfFile);
+    SkReadBuffer readBuffer{data->data(), data->size()};
+    readBuffer.setTypefaceArray(typefaceArray.data(), typefaceArray.size());
+    std::vector<BlobTraceRecord> trace;
+
+    while (!readBuffer.eof()) {
+        BlobTraceRecord record;
+        record.origUniqueID = readBuffer.readUInt();
+        readBuffer.readPaint(&record.paint, nullptr);
+        readBuffer.readPoint(&record.offset);
+        record.blob = SkTextBlobPriv::MakeFromBuffer(readBuffer);
+        trace.push_back(record);
+    }
+
+    return trace;
+}
+
+void SkStrikeServer::DumpTrace(const std::vector<BlobTraceRecord>& trace) {
+    for (const BlobTraceRecord& record : trace) {
+        const SkTextBlob* blob = record.blob.get();
+        const SkPaint& p = record.paint;
+        bool weirdPaint = p.getStyle() != SkPaint::kFill_Style
+        || p.getMaskFilter() != nullptr
+        || p.getPathEffect() != nullptr;
+
+        SkDebugf("Blob %d ( %g %g ) %d\n  ",
+                blob->uniqueID(), record.offset.x(), record.offset.y(), weirdPaint);
+        SkTextBlobRunIterator iter(blob);
+        int runNumber = 0;
+        while (!iter.done()) {
+            SkDebugf("Run %d\n    ", runNumber);
+            SkFont font = iter.font();
+            SkDebugf("Font %d %g %g %g %d %d %d\n    ",
+                    font.getTypefaceOrDefault()->uniqueID(),
+                    font.getSize(),
+                    font.getScaleX(),
+                    font.getSkewX(),
+                    font.fFlags & SkFont::kAllFlags,
+                    font.getEdging(),
+                    font.getHinting());
+            uint32_t glyphCount = iter.glyphCount();
+            const uint16_t* glyphs = iter.glyphs();
+            for (uint32_t i = 0; i < glyphCount; i++) {
+                SkDebugf("%02X ", glyphs[i]);
+            }
+            SkDebugf("\n");
+            runNumber += 1;
+            iter.next();
+        }
+    }
 }
 
 // -- WireTypeface ---------------------------------------------------------------------------------
@@ -411,7 +552,9 @@ SkStrikeServer::SkStrikeServer(DiscardableHandleManager* discardableHandleManage
     SkASSERT(fDiscardableHandleManager);
 }
 
-SkStrikeServer::~SkStrikeServer() = default;
+SkStrikeServer::~SkStrikeServer() {
+    this->finishBlobCapture();
+}
 
 sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
     auto* data = fSerializedTypefaces.find(SkTypeface::UniqueID(tf));
@@ -443,7 +586,7 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
 
     Serializer serializer(memory);
     serializer.emplace<uint64_t>(fTypefacesToSend.size());
-    for (const auto& tf : fTypefacesToSend) {
+    for (const WireTypeface& tf : fTypefacesToSend) {
         serializer.write<WireTypeface>(tf);
     }
     fTypefacesToSend.clear();
@@ -571,6 +714,14 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
     // Be sure we can build glyphs with this RemoteStrike.
     remoteStrikePtr->setTypefaceAndEffects(&typeface, effects);
     return remoteStrikePtr;
+}
+
+size_t SkStrikeServer::countGlyphs() const {
+    size_t sum = 0;
+    for (const auto& c : fRemoteGlyphStateMap) {
+        sum += c.second->glyphCount();
+    }
+    return sum;
 }
 
 // No need to write fForceBW because it is a flag private to SkScalerContext_DW, which will never
