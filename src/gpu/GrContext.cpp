@@ -497,3 +497,31 @@ void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
     fGpu->deleteBackendTexture(backendTex);
 }
 
+#ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+SkString GrContext::dump() const {
+    SkDynamicMemoryWStream stream;
+    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
+    writer.beginObject();
+
+    writer.appendString("backend", GrBackendApiToStr(this->backend()));
+
+    writer.appendName("caps");
+    this->caps()->dumpJSON(&writer);
+
+    writer.appendName("gpu");
+    this->fGpu->dumpJSON(&writer);
+
+    // Flush JSON to the memory stream
+    writer.endObject();
+    writer.flush();
+
+    // Null terminate the JSON data in the memory stream
+    stream.write8(0);
+
+    // Allocate a string big enough to hold all the data, then copy out of the stream
+    SkString result(stream.bytesWritten());
+    stream.copyToAndReset(result.writable_str());
+    return result;
+}
+#endif
