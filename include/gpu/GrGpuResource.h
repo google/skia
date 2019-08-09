@@ -15,6 +15,7 @@
 class GrContext;
 class GrGpu;
 class GrResourceCache;
+class GrSurface;
 class SkTraceMemoryDump;
 
 /**
@@ -85,6 +86,10 @@ public:
         SkASSERT(fRefCnt + fPendingReads + fPendingWrites >= 0);
 #endif
     }
+
+    int32_t getRefCnt() const { return fRefCnt; }
+    int32_t getPendingReads() const { return fPendingReads; }
+    int32_t getPendingWrites() const { return fPendingWrites; }
 
 #if GR_TEST_UTILS
     int32_t testingOnly_getRefCnt() const { return fRefCnt; }
@@ -265,6 +270,8 @@ public:
     virtual const char* getResourceType() const = 0;
 
     static uint32_t CreateUniqueID();
+
+    virtual GrSurface* asSurface() { return nullptr; }
 
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is
