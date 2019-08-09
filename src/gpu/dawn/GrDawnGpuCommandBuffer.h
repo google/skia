@@ -62,7 +62,7 @@ public:
     void begin() override { }
     void end() override;
 
-    dawn::RenderPassEncoder beginRenderPass();
+    dawn::RenderPassEncoder beginRenderPass(dawn::LoadOp colorOp, dawn::LoadOp stencilOp);
     void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
                       GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
                       size_t offset) override;
@@ -77,12 +77,14 @@ public:
 private:
     GrGpu* gpu() override;
 
-    void beginDraw(const GrPipeline& pipeline,
-                   const GrPrimitiveProcessor& primProc,
-                   const GrTextureProxy* const primProcProxies[],
-                   bool hasPoints);
+    void applyState(const GrPipeline& pipeline,
+                    const GrPrimitiveProcessor& primProc,
+                    const GrTextureProxy* const primProcProxies[],
+                    const GrPipeline::FixedDynamicState* fixedDynamicState,
+                    const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                    const GrPrimitiveType primitiveType,
+                    bool hasPoints);
 
-    void endDraw();
     void onDraw(const GrPrimitiveProcessor& primProc,
                 const GrPipeline& pipeline,
                 const GrPipeline::FixedDynamicState* fixedDynamicState,

@@ -65,6 +65,7 @@ struct GrDawnProgram : public SkRefCnt {
     dawn::PipelineLayout fPipelineLayout;
     dawn::BindGroup fUniformBindGroup;
     dawn::ColorStateDescriptor fColorState;
+    dawn::DepthStencilStateDescriptor fDepthStencilState;
     GrDawnProgramDataManager fDataManager;
     RenderTargetState fRenderTargetState;
     BuiltinUniformHandles fBuiltinUniformHandles;
@@ -83,6 +84,8 @@ public:
                                       const GrPrimitiveProcessor&,
                                       const GrTextureProxy* const primProcProxies[],
                                       dawn::TextureFormat colorFormat,
+                                      bool hasDepthStencil,
+                                      dawn::TextureFormat depthStencilFormat,
                                       GrProgramDesc* desc);
     const GrCaps* caps() const override;
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }

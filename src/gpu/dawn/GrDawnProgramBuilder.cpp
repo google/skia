@@ -8,10 +8,10 @@
 #include "src/gpu/dawn/GrDawnProgramBuilder.h"
 
 #include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrShaderUtils.h"
+#include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/sksl/SkSLCompiler.h"
-
-#include "src/gpu/GrShaderUtils.h"
 
 static SkSL::String sksl_to_spirv(const GrDawnGpu* gpu, const char* shaderString,
                                   SkSL::Program::Kind kind, SkSL::Program::Inputs* inputs) {
@@ -71,15 +71,81 @@ static dawn::BlendFactor to_dawn_blend_factor(GrBlendCoeff coeff) {
     }
 }
 
+static dawn::BlendFactor to_dawn_blend_factor_for_alpha(GrBlendCoeff coeff) {
+    switch (coeff) {
+    // Force all srcColor used in alpha slot to alpha version.
+    case kSC_GrBlendCoeff:
+        return dawn::BlendFactor::SrcAlpha;
+    case kISC_GrBlendCoeff:
+        return dawn::BlendFactor::OneMinusSrcAlpha;
+    case kDC_GrBlendCoeff:
+        return dawn::BlendFactor::DstAlpha;
+    case kIDC_GrBlendCoeff:
+        return dawn::BlendFactor::OneMinusDstAlpha;
+    default:
+        return to_dawn_blend_factor(coeff);
+    }
+}
+
 static dawn::BlendOperation to_dawn_blend_operation(GrBlendEquation equation) {
     switch (equation) {
     case kAdd_GrBlendEquation:
         return dawn::BlendOperation::Add;
     case kSubtract_GrBlendEquation:
         return dawn::BlendOperation::Subtract;
+    case kReverseSubtract_GrBlendEquation:
+        return dawn::BlendOperation::ReverseSubtract;
     default:
         SkASSERT(!"unsupported blend equation");
         return dawn::BlendOperation::Add;
+    }
+}
+
+static dawn::CompareFunction to_dawn_compare_function(GrStencilTest test) {
+    switch (test) {
+        case GrStencilTest::kAlways:
+            return dawn::CompareFunction::Always;
+        case GrStencilTest::kNever:
+            return dawn::CompareFunction::Never;
+        case GrStencilTest::kGreater:
+            return dawn::CompareFunction::Greater;
+        case GrStencilTest::kGEqual:
+            return dawn::CompareFunction::GreaterEqual;
+        case GrStencilTest::kLess:
+            return dawn::CompareFunction::Less;
+        case GrStencilTest::kLEqual:
+            return dawn::CompareFunction::LessEqual;
+        case GrStencilTest::kEqual:
+            return dawn::CompareFunction::Equal;
+        case GrStencilTest::kNotEqual:
+            return dawn::CompareFunction::NotEqual;
+        default:
+            SkASSERT(!"unsupported stencil test");
+            return dawn::CompareFunction::Always;
+    }
+}
+
+static dawn::StencilOperation to_dawn_stencil_operation(GrStencilOp op) {
+    switch (op) {
+        case GrStencilOp::kKeep:
+            return dawn::StencilOperation::Keep;
+        case GrStencilOp::kZero:
+            return dawn::StencilOperation::Zero;
+        case GrStencilOp::kReplace:
+            return dawn::StencilOperation::Replace;
+        case GrStencilOp::kInvert:
+            return dawn::StencilOperation::Invert;
+        case GrStencilOp::kIncClamp:
+            return dawn::StencilOperation::IncrementClamp;
+        case GrStencilOp::kDecClamp:
+            return dawn::StencilOperation::DecrementClamp;
+        case GrStencilOp::kIncWrap:
+            return dawn::StencilOperation::IncrementWrap;
+        case GrStencilOp::kDecWrap:
+            return dawn::StencilOperation::DecrementWrap;
+        default:
+            SkASSERT(!"unsupported stencil function");
+            return dawn::StencilOperation::Keep;
     }
 }
 
@@ -93,11 +159,13 @@ static dawn::ColorStateDescriptor create_color_state(const GrDawnGpu* gpu,
 
     dawn::BlendFactor srcFactor = to_dawn_blend_factor(srcCoeff);
     dawn::BlendFactor dstFactor = to_dawn_blend_factor(dstCoeff);
+    dawn::BlendFactor srcFactorAlpha = to_dawn_blend_factor_for_alpha(srcCoeff);
+    dawn::BlendFactor dstFactorAlpha = to_dawn_blend_factor_for_alpha(dstCoeff);
     dawn::BlendOperation operation = to_dawn_blend_operation(equation);
     auto mask = blendInfo.fWriteColor ? dawn::ColorWriteMask::All : dawn::ColorWriteMask::None;
 
     dawn::BlendDescriptor colorDesc = {operation, srcFactor, dstFactor};
-    dawn::BlendDescriptor alphaDesc = {operation, srcFactor, dstFactor};
+    dawn::BlendDescriptor alphaDesc = {operation, srcFactorAlpha, dstFactorAlpha};
 
     dawn::ColorStateDescriptor descriptor;
     descriptor.format = colorFormat;
@@ -107,6 +175,44 @@ static dawn::ColorStateDescriptor create_color_state(const GrDawnGpu* gpu,
     descriptor.writeMask = mask;
 
     return descriptor;
+}
+
+static dawn::StencilStateFaceDescriptor to_stencil_state_face(const GrStencilSettings::Face& face) {
+     dawn::StencilStateFaceDescriptor desc;
+     desc.compare = to_dawn_compare_function(face.fTest);
+     desc.failOp = desc.depthFailOp = to_dawn_stencil_operation(face.fFailOp);
+     desc.passOp = to_dawn_stencil_operation(face.fPassOp);
+     return desc;
+}
+
+static dawn::DepthStencilStateDescriptor create_depth_stencil_state(
+        const GrStencilSettings& stencilSettings,
+        dawn::TextureFormat depthStencilFormat,
+        GrSurfaceOrigin origin) {
+    dawn::DepthStencilStateDescriptor state;
+    state.format = depthStencilFormat;
+    state.depthWriteEnabled = false;
+    state.depthCompare = dawn::CompareFunction::Always;
+    if (stencilSettings.isDisabled()) {
+        dawn::StencilStateFaceDescriptor stencilFace;
+        stencilFace.compare = dawn::CompareFunction::Always;
+        stencilFace.failOp = dawn::StencilOperation::Keep;
+        stencilFace.depthFailOp = dawn::StencilOperation::Keep;
+        stencilFace.passOp = dawn::StencilOperation::Keep;
+        state.stencilReadMask = state.stencilWriteMask = 0x0;
+        state.stencilBack = state.stencilFront = stencilFace;
+    } else {
+        const GrStencilSettings::Face& front = stencilSettings.front(origin);
+        state.stencilReadMask = front.fTestMask;
+        state.stencilWriteMask = front.fWriteMask;
+        state.stencilFront = to_stencil_state_face(stencilSettings.front(origin));
+        if (stencilSettings.isTwoSided()) {
+            state.stencilBack = to_stencil_state_face(stencilSettings.back(origin));
+        } else {
+            state.stencilBack = state.stencilFront;
+        }
+    }
+    return state;
 }
 
 static dawn::BindGroupBinding make_bind_group_binding(uint32_t binding, const dawn::Buffer& buffer,
@@ -135,6 +241,8 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                                                  const GrPrimitiveProcessor& primProc,
                                                  const GrTextureProxy* const primProcProxies[],
                                                  dawn::TextureFormat colorFormat,
+                                                 bool hasDepthStencil,
+                                                 dawn::TextureFormat depthStencilFormat,
                                                  GrProgramDesc* desc) {
     GrDawnProgramBuilder builder(gpu, renderTarget, origin, primProc, primProcProxies, pipeline,
                                  desc);
@@ -201,6 +309,12 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     result->fPipelineLayout = gpu->device().CreatePipelineLayout(&pipelineLayoutDesc);
     result->fBuiltinUniformHandles = builder.fUniformHandles;
     result->fColorState = create_color_state(gpu, pipeline, colorFormat);
+    GrStencilSettings stencil;
+    if (pipeline.isStencilEnabled()) {
+        int numStencilBits = renderTarget->renderTargetPriv().numStencilBits();
+        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(), numStencilBits);
+    }
+    result->fDepthStencilState = create_depth_stencil_state(stencil, depthStencilFormat, origin);
     return result;
 }
 

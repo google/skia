@@ -13,6 +13,9 @@ GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(conte
     fMaxTextureSize = 2048; // FIXME
     fMaxVertexAttributes = 16; // FIXME
     fPerformPartialClearsAsDraws = true;
+
+    this->applyOptionsOverrides(contextOptions);
+    fShaderCaps->applyOptionsOverrides(contextOptions);
 }
 
 bool GrDawnCaps::isFormatSRGB(const GrBackendFormat& format) const {

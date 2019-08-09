@@ -17,6 +17,7 @@
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/gpu/dawn/GrDawnProgramBuilder.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
+#include "src/gpu/dawn/GrDawnStencilAttachment.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
 #include "src/sksl/SkSLCompiler.h"
 
@@ -60,14 +61,18 @@ GrDawnGpuRTCommandBuffer::GrDawnGpuRTCommandBuffer(GrDawnGpu* gpu,
         , fGpu(gpu)
         , fColorInfo(colorInfo) {
     fEncoder = fGpu->device().CreateCommandEncoder();
-    fPassEncoder = beginRenderPass();
+    dawn::LoadOp colorOp = to_dawn_load_op(colorInfo.fLoadOp);
+    dawn::LoadOp stencilOp = to_dawn_load_op(stencilInfo.fLoadOp);
+    fPassEncoder = beginRenderPass(colorOp, stencilOp);
 }
 
-dawn::RenderPassEncoder GrDawnGpuRTCommandBuffer::beginRenderPass() {
+dawn::RenderPassEncoder GrDawnGpuRTCommandBuffer::beginRenderPass(dawn::LoadOp colorOp,
+                                                                  dawn::LoadOp stencilOp) {
     dawn::Texture texture = static_cast<GrDawnRenderTarget*>(fRenderTarget)->texture();
+    auto stencilAttachment = static_cast<GrDawnStencilAttachment*>(
+        fRenderTarget->renderTargetPriv().getStencilAttachment());
     dawn::TextureView colorView = texture.CreateDefaultView();
     const float *c = fColorInfo.fClearColor.vec();
-    dawn::LoadOp colorOp = to_dawn_load_op(fColorInfo.fLoadOp);
 
     dawn::RenderPassColorAttachmentDescriptor colorAttachment;
     colorAttachment.attachment = colorView;
@@ -79,7 +84,19 @@ dawn::RenderPassEncoder GrDawnGpuRTCommandBuffer::beginRenderPass() {
     dawn::RenderPassDescriptor renderPassDescriptor;
     renderPassDescriptor.colorAttachmentCount = 1;
     renderPassDescriptor.colorAttachments = &colorAttachments;
-    renderPassDescriptor.depthStencilAttachment = nullptr;
+    if (stencilAttachment) {
+        dawn::RenderPassDepthStencilAttachmentDescriptor depthStencilAttachment;
+        depthStencilAttachment.attachment = stencilAttachment->view();
+        depthStencilAttachment.depthLoadOp = stencilOp;
+        depthStencilAttachment.stencilLoadOp = stencilOp;
+        depthStencilAttachment.clearDepth = 1.0f;
+        depthStencilAttachment.clearStencil = 0;
+        depthStencilAttachment.depthStoreOp = dawn::StoreOp::Store;
+        depthStencilAttachment.stencilStoreOp = dawn::StoreOp::Store;
+        renderPassDescriptor.depthStencilAttachment = &depthStencilAttachment;
+    } else {
+        renderPassDescriptor.depthStencilAttachment = nullptr;
+    }
     return fEncoder.BeginRenderPass(&renderPassDescriptor);
 }
 
@@ -112,11 +129,13 @@ void GrDawnGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType 
 }
 
 void GrDawnGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
-    SkASSERT(!"unimplemented");
+    fPassEncoder.EndPass();
+    fPassEncoder = beginRenderPass(dawn::LoadOp::Load, dawn::LoadOp::Clear);
 }
 
 void GrDawnGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
-    SkASSERT(!"unimplemented");
+    fPassEncoder.EndPass();
+    fPassEncoder = beginRenderPass(dawn::LoadOp::Clear, dawn::LoadOp::Load);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,17 +176,42 @@ static dawn::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {
     }
 }
 
-void GrDawnGpuRTCommandBuffer::beginDraw(const GrPipeline& pipeline,
-                                         const GrPrimitiveProcessor& primProc,
-                                         const GrTextureProxy* const primProcProxies[],
-                                         bool hasPoints) {
+static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primitiveType) {
+    switch (primitiveType) {
+        case GrPrimitiveType::kTriangles:
+            return dawn::PrimitiveTopology::TriangleList;
+        case GrPrimitiveType::kTriangleStrip:
+            return dawn::PrimitiveTopology::TriangleStrip;
+        case GrPrimitiveType::kPoints:
+            return dawn::PrimitiveTopology::PointList;
+        case GrPrimitiveType::kLines:
+            return dawn::PrimitiveTopology::LineList;
+        case GrPrimitiveType::kLineStrip:
+            return dawn::PrimitiveTopology::LineStrip;
+        case GrPrimitiveType::kLinesAdjacency:
+        default:
+            SkASSERT(!"unsupported primitive topology");
+            return dawn::PrimitiveTopology::TriangleList;
+    }
+}
+
+void GrDawnGpuRTCommandBuffer::applyState(const GrPipeline& pipeline,
+                                          const GrPrimitiveProcessor& primProc,
+                                          const GrTextureProxy* const primProcProxies[],
+                                          const GrPipeline::FixedDynamicState* fixedDynamicState,
+                                          const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                                          const GrPrimitiveType primitiveType,
+                                          bool hasPoints) {
     GrProgramDesc desc;
     GrProgramDesc::Build(&desc, fRenderTarget, primProc, hasPoints, pipeline, fGpu);
     dawn::TextureFormat colorFormat;
     SkAssertResult(GrPixelConfigToDawnFormat(fRenderTarget->config(), &colorFormat));
+    dawn::TextureFormat stencilFormat = dawn::TextureFormat::Depth24PlusStencil8;
+    bool hasDepthStencil = fRenderTarget->renderTargetPriv().getStencilAttachment() != nullptr;
     sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(fGpu, fRenderTarget, fOrigin,
                                                                pipeline, primProc, primProcProxies,
-                                                               colorFormat, &desc);
+                                                               colorFormat, hasDepthStencil,
+                                                               stencilFormat, &desc);
     SkASSERT(program);
     program->setData(primProc, fRenderTarget, fOrigin, pipeline);
 
@@ -225,12 +269,6 @@ void GrDawnGpuRTCommandBuffer::beginDraw(const GrPipeline& pipeline,
     fsDesc.module = program->fFSModule;
     fsDesc.entryPoint = "main";
 
-    dawn::StencilStateFaceDescriptor stencilFace;
-    stencilFace.compare = dawn::CompareFunction::Always;
-    stencilFace.failOp = dawn::StencilOperation::Keep;
-    stencilFace.depthFailOp = dawn::StencilOperation::Keep;
-    stencilFace.passOp = dawn::StencilOperation::Replace;
-
     dawn::RasterizationStateDescriptor rastDesc;
 
     rastDesc.frontFace = dawn::FrontFace::CW;
@@ -245,18 +283,18 @@ void GrDawnGpuRTCommandBuffer::beginDraw(const GrPipeline& pipeline,
     rpDesc.fragmentStage = &fsDesc;
     rpDesc.vertexInput = &vertexInput;
     rpDesc.rasterizationState = &rastDesc;
-    rpDesc.primitiveTopology = dawn::PrimitiveTopology::TriangleList;
+    rpDesc.primitiveTopology = to_dawn_primitive_topology(primitiveType);
     rpDesc.sampleCount = 1;
-    rpDesc.depthStencilState = nullptr;
+    rpDesc.depthStencilState = hasDepthStencil ? &program->fDepthStencilState : nullptr;
     rpDesc.colorStateCount = 1;
     dawn::ColorStateDescriptor* colorStates[] = { &program->fColorState };
     rpDesc.colorStates = colorStates;
     dawn::RenderPipeline renderPipeline = fGpu->device().CreateRenderPipeline(&rpDesc);
     fPassEncoder.SetPipeline(renderPipeline);
     fPassEncoder.SetBindGroup(0, program->fUniformBindGroup, 0, nullptr);
-}
-
-void GrDawnGpuRTCommandBuffer::endDraw() {
+    if (pipeline.isStencilEnabled()) {
+        fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fFront.fRef);
+    }
 }
 
 void GrDawnGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
@@ -281,12 +319,11 @@ void GrDawnGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     } else if (fixedDynamicState) {
         primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
     }
-
-    beginDraw(pipeline, primProc, primProcProxies, hasPoints);
     for (int i = 0; i < meshCount; ++i) {
+        applyState(pipeline, primProc, primProcProxies, fixedDynamicState, dynamicStateArrays,
+                   meshes[0].primitiveType(), hasPoints);
         meshes[i].sendToGpu(this);
     }
-    endDraw();
 }
 
 void GrDawnGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType,

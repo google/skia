@@ -21,6 +21,7 @@
 #include "src/gpu/dawn/GrDawnCaps.h"
 #include "src/gpu/dawn/GrDawnGpuCommandBuffer.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
+#include "src/gpu/dawn/GrDawnStencilAttachment.h"
 
 #include "src/sksl/SkSLCompiler.h"
 
@@ -177,8 +178,12 @@ GrStencilAttachment* GrDawnGpu::createStencilAttachmentForRenderTarget(const GrR
                                                                        int width,
                                                                        int height,
                                                                        int numStencilSamples) {
-    SkASSERT(!"unimplemented");
-    return nullptr;
+    GrDawnStencilAttachment* stencil(GrDawnStencilAttachment::Create(this,
+                                                                     width,
+                                                                     height,
+                                                                     numStencilSamples));
+    fStats.incStencilAttachmentCreates();
+    return stencil;
 }
 
 GrBackendTexture GrDawnGpu::createBackendTexture(int width, int height,
