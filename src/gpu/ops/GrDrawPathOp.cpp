@@ -86,6 +86,7 @@ std::unique_ptr<GrDrawOp> GrDrawPathOp::Make(GrRecordingContext* context,
 }
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
+    abort();
     GrAppliedClip appliedClip = state->detachAppliedClip();
     GrPipeline::FixedDynamicState fixedDynamicState(appliedClip.scissorState().rect());
     GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),

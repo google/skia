@@ -59,4 +59,9 @@ void GrShaderVar::appendDecl(const GrShaderCaps* shaderCaps, SkString* out) cons
     } else {
         out->appendf("%s %s", GrGLSLTypeString(effectiveType), this->getName().c_str());
     }
+    if ((this->getTypeModifier() & kIn_TypeModifier) &&
+        strstr(this->getName().c_str(), "TransformedCoord")) {
+        out->appendf(";\n%s %s_current;\n", GrGLSLTypeString(this->getType()),
+                     this->getName().c_str());
+    }
 }

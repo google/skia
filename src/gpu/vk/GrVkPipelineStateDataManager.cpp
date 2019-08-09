@@ -11,14 +11,10 @@
 #include "src/gpu/vk/GrVkUniformBuffer.h"
 
 GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
-                                                           uint32_t geometryUniformSize,
-                                                           uint32_t fragmentUniformSize)
-    : fGeometryUniformSize(geometryUniformSize)
-    , fFragmentUniformSize(fragmentUniformSize)
-    , fGeometryUniformsDirty(false)
-    , fFragmentUniformsDirty(false) {
-    fGeometryUniformData.reset(geometryUniformSize);
-    fFragmentUniformData.reset(fragmentUniformSize);
+                                                           uint32_t uniformSize)
+    : fUniformSize(uniformSize)
+    , fUniformsDirty(false) {
+    fUniformData.reset(uniformSize);
     int count = uniforms.count();
     fUniforms.push_back_n(count);
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
@@ -33,28 +29,13 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
             uniform.fType = uniformInfo.fVariable.getType();
         )
 
-        if (!(kFragment_GrShaderFlag & uniformInfo.fVisibility)) {
-            uniform.fBinding = GrVkUniformHandler::kGeometryBinding;
-        } else {
-            SkASSERT(kFragment_GrShaderFlag == uniformInfo.fVisibility);
-            uniform.fBinding = GrVkUniformHandler::kFragBinding;
-        }
         uniform.fOffset = uniformInfo.fUBOffset;
     }
 }
 
 void* GrVkPipelineStateDataManager::getBufferPtrAndMarkDirty(const Uniform& uni) const {
-    void* buffer;
-    if (GrVkUniformHandler::kGeometryBinding == uni.fBinding) {
-        buffer = fGeometryUniformData.get();
-        fGeometryUniformsDirty = true;
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-        fFragmentUniformsDirty = true;
-    }
-    buffer = static_cast<char*>(buffer)+uni.fOffset;
-    return buffer;
+    fUniformsDirty = true;
+    return static_cast<char*>(fUniformData.get())+uni.fOffset;
 }
 
 void GrVkPipelineStateDataManager::set1i(UniformHandle u, int32_t i) const {
@@ -324,15 +305,8 @@ template<int N> inline void GrVkPipelineStateDataManager::setMatrices(UniformHan
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
-    void* buffer;
-    if (GrVkUniformHandler::kGeometryBinding == uni.fBinding) {
-        buffer = fGeometryUniformData.get();
-        fGeometryUniformsDirty = true;
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-        fFragmentUniformsDirty = true;
-    }
+    void* buffer = fUniformData.get();
+    fUniformsDirty = true;
 
     set_uniform_matrix<N>::set(buffer, uni.fOffset, arrayCount, matrices);
 }
@@ -360,18 +334,12 @@ template<> struct set_uniform_matrix<4> {
 };
 
 bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
-                                                        GrVkUniformBuffer* geometryBuffer,
-                                                        GrVkUniformBuffer* fragmentBuffer) const {
+                                                        GrVkUniformBuffer* buffer) const {
     bool updatedBuffer = false;
-    if (geometryBuffer && fGeometryUniformsDirty) {
-        SkAssertResult(geometryBuffer->updateData(gpu, fGeometryUniformData.get(),
-                                                  fGeometryUniformSize, &updatedBuffer));
-        fGeometryUniformsDirty = false;
-    }
-    if (fragmentBuffer && fFragmentUniformsDirty) {
-        SkAssertResult(fragmentBuffer->updateData(gpu, fFragmentUniformData.get(),
-                                                  fFragmentUniformSize, &updatedBuffer));
-        fFragmentUniformsDirty = false;
+    if (buffer && fUniformsDirty) {
+        SkAssertResult(buffer->updateData(gpu, fUniformData.get(),
+                                          fUniformSize, &updatedBuffer));
+        fUniformsDirty = false;
     }
 
     return updatedBuffer;
