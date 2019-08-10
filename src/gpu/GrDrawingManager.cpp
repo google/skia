@@ -30,7 +30,6 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
-#include "src/gpu/GrTextureResolveRenderTask.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrTextContext.h"
@@ -82,16 +81,8 @@ bool GrDrawingManager::RenderTaskDAG::isUsed(GrSurfaceProxy* proxy) const {
     return false;
 }
 
-GrRenderTask* GrDrawingManager::RenderTaskDAG::add(sk_sp<GrRenderTask> renderTask) {
-    return fRenderTasks.emplace_back(std::move(renderTask)).get();
-}
-
-GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask> renderTask) {
-    SkASSERT(!fRenderTasks.empty());
-    // Release 'fRenderTasks.back()' and grab the raw pointer. If we pass in a reference to an array
-    // element, and the array grows during emplace_back, then the reference will become invalidated.
-    fRenderTasks.emplace_back(fRenderTasks.back().release());
-    return (fRenderTasks[fRenderTasks.count() - 2] = std::move(renderTask)).get();
+void GrDrawingManager::RenderTaskDAG::add(sk_sp<GrRenderTask> renderTask) {
+    fRenderTasks.emplace_back(std::move(renderTask));
 }
 
 void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& opLists) {
@@ -508,18 +499,17 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
         if (!proxies[i]->isInstantiated()) {
             return result;
         }
+    }
+
+    for (int i = 0; i < numProxies; ++i) {
         GrSurface* surface = proxies[i]->peekSurface();
         if (auto* rt = surface->asRenderTarget()) {
             gpu->resolveRenderTarget(rt);
         }
-        // If, after a flush, any of the proxies of interest have dirty mipmaps, regenerate them in
-        // case their backend textures are being stolen.
-        // (This special case is exercised by the ReimportImageTextureWithMipLevels test.)
-        // FIXME: It may be more ideal to plumb down a "we're going to steal the backends" flag.
-        if (auto* textureProxy = proxies[i]->asTextureProxy()) {
-            if (textureProxy->mipMapsAreDirty()) {
-                gpu->regenerateMipMapLevels(textureProxy->peekTexture());
-                textureProxy->markMipMapsClean();
+        if (auto* tex = surface->asTexture()) {
+            if (tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
+                tex->texturePriv().mipMapsAreDirty()) {
+                gpu->regenerateMipMapLevels(tex);
             }
         }
     }
@@ -677,24 +667,6 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> 
 
     SkDEBUGCODE(this->validate());
     return opList;
-}
-
-GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
-        sk_sp<GrTextureProxy> textureProxy, GrTextureResolveFlags flags, const GrCaps& caps) {
-    // Unlike in the "new opList" cases, we do not want to close the active opList, nor (if we are
-    // in sorting and opList reduction mode) the render tasks that depend on the proxy's current
-    // state. This is because those opLists can still receive new ops and because if they refer to
-    // the mipmapped version of 'textureProxy', they will then come to depend on the render task
-    // being created here.
-    // NOTE: In either case, 'textureProxy' should already be closed at this point (i.e., its state
-    // is finished))
-    SkASSERT(!textureProxy->getLastRenderTask() || textureProxy->getLastRenderTask()->isClosed());
-    auto textureResolveTask = GrTextureResolveRenderTask::Make(textureProxy, flags, caps);
-    SkASSERT(textureProxy->getLastRenderTask() == textureResolveTask.get());
-    // Add the new textureResolveTask before the fActiveOpList (if not in
-    // sorting/opList-splitting-reduction mode) because it will depend upon this resolve task.
-    // NOTE: Putting it here will also reduce the amount of work required by the topological sort.
-    return fDAG.addBeforeLast(std::move(textureResolveTask));
 }
 
 GrTextContext* GrDrawingManager::getTextContext() {

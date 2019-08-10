@@ -1570,17 +1570,6 @@ private:
     Context fReleaseCtx;
 };
 
-/**
- * Indicates "resolutions" that need to be done on a texture before it can be sampled from.
- */
-enum class GrTextureResolveFlags {
-    kNone = 0,
-    kMipMaps = 1 << 0,  // Regenerate all mipmap levels.
-    // TODO: kMSAA = 1 << 1  // Blit the MSAA render buffer into a standard texture.
-};
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrTextureResolveFlags)
-
 #if GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
 static constexpr const char* GrBackendApiToStr(GrBackendApi api) {
     switch (api) {
