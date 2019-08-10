@@ -41,14 +41,6 @@ public:
                  (GrMipMapsStatus::kNotAllocated == fMipMapsStatus));
         return GrMipMapped::kYes == fMipMapped && GrMipMapsStatus::kValid != fMipMapsStatus;
     }
-    void markMipMapsDirty() {
-        SkASSERT(GrMipMapped::kYes == fMipMapped);
-        fMipMapsStatus = GrMipMapsStatus::kDirty;
-    }
-    void markMipMapsClean() {
-        SkASSERT(GrMipMapped::kYes == fMipMapped);
-        fMipMapsStatus = GrMipMapsStatus::kValid;
-    }
 
     // Returns the GrMipMapped value of the proxy from creation time regardless of whether it has
     // been instantiated or not.

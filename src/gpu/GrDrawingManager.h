@@ -52,13 +52,6 @@ public:
     sk_sp<GrRenderTargetOpList> newRTOpList(sk_sp<GrRenderTargetProxy>, bool managedOpList);
     sk_sp<GrTextureOpList> newTextureOpList(sk_sp<GrTextureProxy>);
 
-    // Create a new, specialized, render task that will regenerate mipmap levels and/or resolve
-    // MSAA (depending on GrTextureResolveFlags). This method will add the new render task to the
-    // list of render tasks and make it depend on the target texture proxy. It is up to the caller
-    // to add any dependencies on the new render task.
-    GrRenderTask* newTextureResolveRenderTask(
-            sk_sp<GrTextureProxy>, GrTextureResolveFlags, const GrCaps&);
-
     GrRecordingContext* getContext() { return fContext; }
 
     GrTextContext* getTextContext();
@@ -137,8 +130,7 @@ private:
         GrRenderTask* back() { return fRenderTasks.back().get(); }
         const GrRenderTask* back() const { return fRenderTasks.back().get(); }
 
-        GrRenderTask* add(sk_sp<GrRenderTask>);
-        GrRenderTask* addBeforeLast(sk_sp<GrRenderTask>);
+        void add(sk_sp<GrRenderTask>);
         void add(const SkTArray<sk_sp<GrRenderTask>>&);
 
         void swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks);

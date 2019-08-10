@@ -502,7 +502,6 @@ public:
 #if GR_TEST_UTILS
     bool testingOnly_IsInstantiated() const { return fRenderTargetProxy->isInstantiated(); }
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
-    GrRenderTargetOpList* testingOnly_PeekLastOpList() { return fOpList.get(); }
 #endif
 
 protected:
