@@ -7,6 +7,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkBmpRLECodec.h"
 #include "src/codec/SkCodecPriv.h"
 

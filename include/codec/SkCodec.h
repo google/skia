@@ -20,7 +20,6 @@
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkNoncopyable.h"
-#include "include/private/SkTemplates.h"
 
 #include <vector>
 

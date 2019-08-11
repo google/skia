@@ -10,6 +10,7 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/core/SkColorSpace.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkSwizzler.h"
 
 class SkWbmpCodec final : public SkCodec {

@@ -15,7 +15,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTDArray.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include <atomic>
 #include <limits>
@@ -486,10 +485,10 @@ private:
         // encapsulate this.
         fPoints = reinterpret_cast<SkPoint*>(sk_realloc_throw(fPoints, newSize));
         size_t oldVerbSize = fVerbCnt * sizeof(uint8_t);
-        void* newVerbsDst = SkTAddOffset<void>(fPoints, newSize - oldVerbSize);
-        void* oldVerbsSrc = SkTAddOffset<void>(fPoints, oldSize - oldVerbSize);
+        void* newVerbsDst = reinterpret_cast<char*>(fPoints) + (newSize - oldVerbSize);
+        void* oldVerbsSrc = reinterpret_cast<char*>(fPoints) + (oldSize - oldVerbSize);
         memmove(newVerbsDst, oldVerbsSrc, oldVerbSize);
-        fVerbs = SkTAddOffset<uint8_t>(fPoints, newSize);
+        fVerbs = reinterpret_cast<uint8_t*>(fPoints) + newSize;
         fFreeSpace += growSize;
         SkDEBUGCODE(this->validate();)
     }
