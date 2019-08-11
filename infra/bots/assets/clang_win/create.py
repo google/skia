@@ -16,13 +16,15 @@ import subprocess
 import utils
 
 
-# Copied from CLANG_REVISION here:
+# Copied from here:
 # https://cs.chromium.org/chromium/src/tools/clang/scripts/update.py
-CLANG_REVISION = '357692'
-CLANG_SUB_REVISION = '1'
-CLANG_PKG_VERSION = '%s-%s' % (CLANG_REVISION, CLANG_SUB_REVISION)
+CLANG_REVISION = 'f7e52fbdb5a7af8ea0808e98458b497125a5eca1'
+CLANG_SVN_REVISION = '365097'
+CLANG_SUB_REVISION = 8
+PACKAGE_VERSION = '%s-%s-%s' % (CLANG_SVN_REVISION, CLANG_REVISION[:8],
+                                CLANG_SUB_REVISION)
 GS_URL = ('https://commondatastorage.googleapis.com/chromium-browser-clang'
-          '/Win/clang-%s.tgz' % CLANG_PKG_VERSION)
+          '/Win/clang-%s.tgz' % PACKAGE_VERSION)
 
 
 def create_asset(target_dir):
