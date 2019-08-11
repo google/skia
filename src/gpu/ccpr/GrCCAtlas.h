@@ -53,6 +53,17 @@ public:
         kA8_LiteralCoverage
     };
 
+    static constexpr GrColorType CoverageTypeToColorType(CoverageType coverageType) {
+        switch (coverageType) {
+            case CoverageType::kFP16_CoverageCount:
+                return GrColorType::kAlpha_F16;
+            case CoverageType::kA8_Multisample:
+            case CoverageType::kA8_LiteralCoverage:
+                return GrColorType::kAlpha_8;
+        }
+        SkUNREACHABLE;
+    }
+
     using LazyInstantiateAtlasCallback = std::function<sk_sp<GrTexture>(
             GrResourceProvider*, GrPixelConfig, const GrBackendFormat&, int sampleCount)>;
 

@@ -79,9 +79,11 @@ static bool prepare_level(const GrMipLevel& inLevel, size_t bpp, int w, int h, b
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    const GrBackendFormat& format,
                                                    GrRenderable renderable,
-                                                   int renderTargetSampleCnt, SkBudgeted budgeted,
+                                                   int renderTargetSampleCnt,
+                                                   SkBudgeted budgeted,
                                                    GrProtected isProtected,
-                                                   const GrMipLevel texels[], int mipLevelCount) {
+                                                   const GrMipLevel texels[],
+                                                   int mipLevelCount) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(mipLevelCount > 0);
@@ -141,6 +143,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
                                                    SkBackingFit fit,
                                                    GrProtected isProtected,
+                                                   GrColorType srcColorType,
                                                    const GrMipLevel& mipLevel,
                                                    Flags flags) {
     ASSERT_SINGLE_OWNER
@@ -172,7 +175,6 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
     sk_sp<GrTexture> tex =
             (SkBackingFit::kApprox == fit)
                     ? this->createApproxTexture(desc, format, renderable, renderTargetSampleCnt,
@@ -183,20 +185,21 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createWrapped(tex, kTopLeft_GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> proxy =
+            proxyProvider->createWrapped(tex, srcColorType, kTopLeft_GrSurfaceOrigin);
     if (!proxy) {
         return nullptr;
     }
     // Here we don't really know the alpha type of the data we want to upload. All we really
     // care about is that it is not converted. So we use the same alpha type for the data
     // and the surface context.
-    static constexpr auto kAlphaType = kPremul_SkAlphaType;
+    static constexpr auto kAlphaType = kUnpremul_SkAlphaType;
     sk_sp<GrSurfaceContext> sContext =
-            context->priv().makeWrappedSurfaceContext(std::move(proxy), colorType, kAlphaType);
+            context->priv().makeWrappedSurfaceContext(std::move(proxy), srcColorType, kAlphaType);
     if (!sContext) {
         return nullptr;
     }
-    GrPixelInfo srcInfo(colorType, kAlphaType, nullptr, desc.fWidth, desc.fHeight);
+    GrPixelInfo srcInfo(srcColorType, kAlphaType, nullptr, desc.fWidth, desc.fHeight);
     SkAssertResult(sContext->writePixels(srcInfo, tmpLevel.fPixels, tmpLevel.fRowBytes, {0, 0}));
     return tex;
 }

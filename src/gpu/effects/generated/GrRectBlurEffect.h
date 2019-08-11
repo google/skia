@@ -31,8 +31,8 @@ public:
         builder[0] = profileSize;
         builder.finish();
 
-        sk_sp<GrTextureProxy> blurProfile(
-                proxyProvider->findOrCreateProxyByUniqueKey(key, kTopLeft_GrSurfaceOrigin));
+        sk_sp<GrTextureProxy> blurProfile(proxyProvider->findOrCreateProxyByUniqueKey(
+                key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin));
         if (!blurProfile) {
             SkImageInfo ii = SkImageInfo::MakeA8(profileSize, 1);
 

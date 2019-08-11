@@ -189,7 +189,9 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
     create_unique_key_for_image(srcImage.get(), &originalKey);
 
     if (originalKey.isValid()) {
-        proxy = proxyProvider->findOrCreateProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
+        proxy = proxyProvider->findOrCreateProxyByUniqueKey(
+                originalKey, SkColorTypeToGrColorType(srcImage->colorType()),
+                kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
         proxy = proxyProvider->createTextureProxy(srcImage, GrRenderable::kNo, 1, SkBudgeted::kYes,

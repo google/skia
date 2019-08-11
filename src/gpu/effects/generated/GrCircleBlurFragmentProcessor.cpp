@@ -203,8 +203,8 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
     builder[0] = sigmaToCircleRRatioFixed;
     builder.finish();
 
-    sk_sp<GrTextureProxy> blurProfile =
-            proxyProvider->findOrCreateProxyByUniqueKey(key, kTopLeft_GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> blurProfile = proxyProvider->findOrCreateProxyByUniqueKey(
+            key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin);
     if (!blurProfile) {
         static constexpr int kProfileTextureWidth = 512;
 

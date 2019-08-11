@@ -155,7 +155,7 @@ static void basic_test(GrContext* context,
 
     // We just added it, surely we can find it
     REPORTER_ASSERT(reporter, proxyProvider->findOrCreateProxyByUniqueKey(
-                                                                key, kBottomLeft_GrSurfaceOrigin));
+                                      key, kColorType, kBottomLeft_GrSurfaceOrigin));
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
 
     int expectedCacheCount = startCacheCount + (proxy->isInstantiated() ? 0 : 1);
@@ -186,7 +186,8 @@ static void basic_test(GrContext* context,
     REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
 
     // If the proxy was cached refinding it should bring it back to life
-    proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kBottomLeft_GrSurfaceOrigin);
+    proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kColorType,
+                                                        kBottomLeft_GrSurfaceOrigin);
     REPORTER_ASSERT(reporter, proxy);
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
@@ -201,7 +202,8 @@ static void basic_test(GrContext* context,
 
     // If the texture was deleted then the proxy should no longer be findable. Otherwise, it should
     // be.
-    proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kBottomLeft_GrSurfaceOrigin);
+    proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kColorType,
+                                                        kBottomLeft_GrSurfaceOrigin);
     REPORTER_ASSERT(reporter, expectResourceToOutliveProxy ? (bool)proxy : !proxy);
     REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
 
@@ -211,7 +213,8 @@ static void basic_test(GrContext* context,
         SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
         cache->purgeAsNeeded();
         expectedCacheCount--;
-        proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kBottomLeft_GrSurfaceOrigin);
+        proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kColorType,
+                                                            kBottomLeft_GrSurfaceOrigin);
         REPORTER_ASSERT(reporter, !proxy);
         REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
     }

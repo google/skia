@@ -324,7 +324,8 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     sk_sp<GrTextureProxy> proxy;
     if (useCache) {
-        proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey, kTopLeft_GrSurfaceOrigin);
+        proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey, GrColorType::kAlpha_8,
+                                                             kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;

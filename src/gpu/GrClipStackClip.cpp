@@ -350,7 +350,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrRecordingContext* c
                          reducedClip.numAnalyticFPs(), &key);
 
     sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
-                                                                key, kTopLeft_GrSurfaceOrigin));
+            key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin));
     if (proxy) {
         return proxy;
     }
@@ -473,7 +473,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
     const GrCaps* caps = context->priv().caps();
 
     sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
-                                                                  key, kTopLeft_GrSurfaceOrigin));
+            key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin));
     if (proxy) {
         return proxy;
     }
