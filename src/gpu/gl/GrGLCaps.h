@@ -425,17 +425,17 @@ public:
                 ? fMaxInstancesPerDrawWithoutCrashing : pendingInstanceCount;
     }
 
-    bool canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARenderBuffer,
+    bool canCopyTexSubImage(GrGLFormat dstFormat, bool dstHasMSAARenderBuffer,
                             const GrTextureType* dstTypeIfTexture,
-                            GrPixelConfig srcConfig, bool srcHasMSAARenderBuffer,
+                            GrGLFormat srcFormat, bool srcHasMSAARenderBuffer,
                             const GrTextureType* srcTypeIfTexture) const;
-    bool canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
+    bool canCopyAsBlit(GrGLFormat dstFormat, int dstSampleCnt,
                        const GrTextureType* dstTypeIfTexture,
-                       GrPixelConfig srcConfig, int srcSampleCnt,
-                        const GrTextureType* srcTypeIfTexture,
+                       GrGLFormat srcFormat, int srcSampleCnt,
+                       const GrTextureType* srcTypeIfTexture,
                        const SkRect& srcBounds, bool srcBoundsExact,
                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
-    bool canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const;
+    bool canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTextureable) const;
 
     DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src,
                                                GrColorType) const override;
