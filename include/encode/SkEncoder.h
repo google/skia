@@ -9,12 +9,9 @@
 #define SkEncoder_DEFINED
 
 #include "include/core/SkPixmap.h"
-#include "include/private/SkNoncopyable.h"
-#include "include/private/SkTemplates.h"
 
-class SK_API SkEncoder : SkNoncopyable {
+class SK_API SkEncoder {
 public:
-
     /**
      *  Encode |numRows| rows of input.  If the caller requests more rows than are remaining
      *  in the src, this will encode all of the remaining rows.  |numRows| must be greater
@@ -25,18 +22,16 @@ public:
     virtual ~SkEncoder() {}
 
 protected:
-
     virtual bool onEncodeRows(int numRows) = 0;
 
-    SkEncoder(const SkPixmap& src, size_t storageBytes)
-        : fSrc(src)
-        , fCurrRow(0)
-        , fStorage(storageBytes)
-    {}
+    SkEncoder(const SkPixmap& src) : fSrc(src) {}
 
     const SkPixmap&        fSrc;
-    int                    fCurrRow;
-    SkAutoTMalloc<uint8_t> fStorage;
+    int                    fCurrRow = 0;
+
+private:
+    SkEncoder(const SkEncoder&) = delete;
+    SkEncoder& operator=(const SkEncoder&) = delete;
 };
 
 #endif

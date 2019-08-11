@@ -12,6 +12,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPngChunkReader.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkColorTable.h"
 #include "src/codec/SkSwizzler.h"
 

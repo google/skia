@@ -8,8 +8,10 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
+#include "include/private/SkMalloc.h"
 #include "include/utils/SkAnimCodecPlayer.h"
 #include "src/codec/SkCodecImageGenerator.h"
+
 #include <algorithm>
 
 SkAnimCodecPlayer::SkAnimCodecPlayer(std::unique_ptr<SkCodec> codec) : fCodec(std::move(codec)) {

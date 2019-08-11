@@ -12,6 +12,7 @@
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkSwizzler.h"
 
 #if __has_include("HeifDecoderAPI.h")

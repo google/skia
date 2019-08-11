@@ -11,6 +11,8 @@
 #include "include/core/SkDataTable.h"
 #include "include/encode/SkEncoder.h"
 
+#include <memory>
+
 class SkPngEncoderMgr;
 class SkWStream;
 
@@ -87,6 +89,8 @@ protected:
 
     SkPngEncoder(std::unique_ptr<SkPngEncoderMgr>, const SkPixmap& src);
 
+    struct D { void operator()(void*); };
+    std::unique_ptr<unsigned char[], D> fStorage;
     std::unique_ptr<SkPngEncoderMgr> fEncoderMgr;
     typedef SkEncoder INHERITED;
 };
