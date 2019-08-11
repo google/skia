@@ -121,6 +121,9 @@ struct SkVector4 {
                fData[2] == z && fData[3] == w;
     }
 
+    SkScalar&       operator[](size_t i)       { SkASSERT(i < 4); return fData[i]; }
+    const SkScalar& operator[](size_t i) const { SkASSERT(i < 4); return fData[i]; }
+
     void set(SkScalar x, SkScalar y, SkScalar z, SkScalar w = SK_Scalar1) {
         fData[0] = x;
         fData[1] = y;
