@@ -75,7 +75,9 @@ public:
     bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
     void removeUniqueKeyFromProxy(GrTextureProxy*);
     void processInvalidUniqueKey(const GrUniqueKey&);
-    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
+    // GrColorType is necessary to set the proxy's texture swizzle.
+    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrColorType,
+                                                       GrSurfaceOrigin);
 
     bool instatiateProxy(GrSurfaceProxy*);
 

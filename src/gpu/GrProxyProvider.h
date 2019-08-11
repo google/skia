@@ -52,9 +52,12 @@ public:
 
     /*
      * Finds a proxy by unique key or creates a new one that wraps a resource matching the unique
-     * key.
+     * key. GrColorType is required to set the proxy's texture swizzle on creation. For any key,
+     * each call that might result in a cache hit must provide the same colorType as the call that
+     * caused a cache miss and created the proxy.
      */
-    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrColorType colorType,
+                                                       GrSurfaceOrigin);
 
     /*
      * Create an un-mipmapped texture proxy with data. The SkImage must be a raster backend image.
@@ -268,7 +271,7 @@ public:
                                                               SkBudgeted budgeted,
                                                               GrProtected isProtected);
 
-    sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>, GrColorType, GrSurfaceOrigin);
 #endif
 
 private:
@@ -277,7 +280,8 @@ private:
 
     bool isAbandoned() const;
 
-    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin);
+    // GrColorType is used to determine the proxy's texture swizzle.
+    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrColorType, GrSurfaceOrigin origin);
 
     struct UniquelyKeyedProxyHashTraits {
         static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }

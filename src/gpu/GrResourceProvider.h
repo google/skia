@@ -108,6 +108,7 @@ public:
                                    SkBudgeted budgeted,
                                    SkBackingFit fit,
                                    GrProtected isProtected,
+                                   GrColorType srcColorType,
                                    const GrMipLevel& mipLevel,
                                    Flags flags);
 
