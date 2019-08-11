@@ -29,6 +29,13 @@ struct SkImageInfo;
 class SkPaint;
 class SkRasterPipeline;
 
+class SkStageUpdator {
+public:
+    virtual ~SkStageUpdator() {}
+
+    virtual bool update(const SkMatrix& ctm, const SkMatrix* localM) = 0;
+};
+
 class SkShaderBase : public SkShader {
 public:
     ~SkShaderBase() override;
@@ -185,6 +192,10 @@ public:
      */
     virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
 
+    SkStageUpdator* appendStages2(const SkStageRec& rec) const {
+        return this->onAppendStages2(rec);
+    }
+
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);
 
@@ -206,6 +217,8 @@ protected:
 
     // Default impl creates shadercontext and calls that (not very efficient)
     virtual bool onAppendStages(const SkStageRec&) const;
+
+    virtual SkStageUpdator* onAppendStages2(const SkStageRec&) const { return nullptr; }
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.
