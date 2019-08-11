@@ -671,7 +671,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                             auto rtc = rt->getCanvas()
                                             ->internal_private_accessTopLayerRenderTargetContext();
                             auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
-                                                         texture, kTopLeft_GrSurfaceOrigin);
+                                    texture, GrColorType::kRGBA_8888, kTopLeft_GrSurfaceOrigin);
                             rtc->drawTexture(
                                     GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
                                     SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
@@ -829,7 +829,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleStateTest, reporter, contextInfo) {
         auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
         auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
         auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
-                std::move(idleTexture), rtc->asSurfaceProxy()->origin());
+                std::move(idleTexture), GrColorType::kRGBA_8888, rtc->asSurfaceProxy()->origin());
         context->flush();
         SkAssertResult(rtc->testCopy(proxy.get()));
         proxy.reset();
