@@ -1,6 +1,17 @@
 [
   {
     "cmd": [
+      "[START_DIR]\\clang_win\\bin\\clang-cl.exe",
+      "--version"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "clang version"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
@@ -40,6 +51,62 @@
       "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\n\ndef raise_error(e):\n  raise e\n\nfor curdir, _, files in os.walk(sys.argv[1], onerror=raise_error):\n  print curdir\n  subprocess.check_call(['icacls', curdir])\n  for f in files:\n    p = os.path.join(curdir, f)\n    print p\n    subprocess.check_call(['icacls', p])\n",
+      "[START_DIR]"
+    ],
+    "cwd": "[START_DIR]\\skia",
+    "name": "icacls start_dir",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@def raise_error(e):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise e@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for curdir, _, files in os.walk(sys.argv[1], onerror=raise_error):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print curdir@@@",
+      "@@@STEP_LOG_LINE@python.inline@  subprocess.check_call(['icacls', curdir])@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in files:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    p = os.path.join(curdir, f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print p@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['icacls', p])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\n\ndef raise_error(e):\n  raise e\n\nfor curdir, _, files in os.walk(sys.argv[1], onerror=raise_error):\n  print curdir\n  subprocess.check_call(['icacls', curdir])\n  for f in files:\n    p = os.path.join(curdir, f)\n    print p\n    subprocess.check_call(['icacls', p])\n",
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug"
+    ],
+    "cwd": "[START_DIR]\\skia",
+    "name": "icacls out_dir",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@def raise_error(e):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise e@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for curdir, _, files in os.walk(sys.argv[1], onerror=raise_error):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print curdir@@@",
+      "@@@STEP_LOG_LINE@python.inline@  subprocess.check_call(['icacls', curdir])@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in files:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    p = os.path.join(curdir, f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print p@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['icacls', p])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
