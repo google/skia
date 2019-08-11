@@ -843,7 +843,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
 
     this->bindTextureToScratchUnit(glTex->target(), glTex->textureID());
 
-    SkASSERT(!GrPixelConfigIsCompressed(glTex->config()));
+    SkASSERT(!GrGLFormatIsCompressed(glTex->format()));
     return this->uploadTexData(glTex->format(), surfaceColorType, glTex->width(), glTex->height(),
                                glTex->target(), kWrite_UploadType, left, top,width,
                                height, srcColorType, texels, mipLevelCount);
@@ -855,7 +855,7 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
 
     // Can't transfer compressed data
-    SkASSERT(!GrPixelConfigIsCompressed(glTex->config()));
+    SkASSERT(!GrGLFormatIsCompressed(glTex->format()));
 
     if (!check_write_and_transfer_input(glTex)) {
         return false;
@@ -2168,11 +2168,11 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
                                        void* offsetOrPtr, int rowWidthInPixels) {
     SkASSERT(surface);
 
+    auto format = surface->backendFormat().asGLFormat();
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
-    if (!renderTarget && !this->glCaps().canConfigBeFBOColorAttachment(surface->config())) {
+    if (!renderTarget && !this->glCaps().isFormatRenderable(format, 1)) {
         return false;
     }
-
     GrGLenum externalFormat = 0;
     GrGLenum externalType = 0;
     this->glCaps().getReadPixelsFormat(surface->backendFormat().asGLFormat(),
@@ -2324,7 +2324,7 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
     }
 
     if (this->glCaps().srgbWriteControl()) {
-        this->flushFramebufferSRGB(GrPixelConfigIsSRGB(target->config()));
+        this->flushFramebufferSRGB(this->caps()->isFormatSRGB(target->backendFormat()));
     }
 }
 
@@ -3001,6 +3001,9 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTarget()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTarget()));
 
+    GrGLFormat dstFormat = dst->backendFormat().asGLFormat();
+    GrGLFormat srcFormat = src->backendFormat().asGLFormat();
+
     const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
     const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(src->asTexture());
 
@@ -3017,8 +3020,8 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
         srcTexTypePtr = &srcTexType;
     }
 
-    return caps.canCopyAsBlit(dst->config(), dstSampleCnt, dstTexTypePtr,
-                              src->config(), srcSampleCnt, srcTexTypePtr,
+    return caps.canCopyAsBlit(dstFormat, dstSampleCnt, dstTexTypePtr,
+                              srcFormat, srcSampleCnt, srcTexTypePtr,
                               src->getBoundsRect(), true, srcRect, dstPoint);
 }
 
@@ -3041,6 +3044,9 @@ static inline bool can_copy_texsubimage(const GrSurface* dst, const GrSurface* s
     bool dstHasMSAARenderBuffer = dstRT ? rt_has_msaa_render_buffer(dstRT, caps) : false;
     bool srcHasMSAARenderBuffer = srcRT ? rt_has_msaa_render_buffer(srcRT, caps) : false;
 
+    GrGLFormat dstFormat = dst->backendFormat().asGLFormat();
+    GrGLFormat srcFormat = src->backendFormat().asGLFormat();
+
     GrTextureType dstTexType;
     GrTextureType* dstTexTypePtr = nullptr;
     GrTextureType srcTexType;
@@ -3054,8 +3060,8 @@ static inline bool can_copy_texsubimage(const GrSurface* dst, const GrSurface* s
         srcTexTypePtr = &srcTexType;
     }
 
-    return caps.canCopyTexSubImage(dst->config(), dstHasMSAARenderBuffer, dstTexTypePtr,
-                                   src->config(), srcHasMSAARenderBuffer, srcTexTypePtr);
+    return caps.canCopyTexSubImage(dstFormat, dstHasMSAARenderBuffer, dstTexTypePtr,
+                                   srcFormat, srcHasMSAARenderBuffer, srcTexTypePtr);
 }
 
 // If a temporary FBO was created, its non-zero ID is returned.
@@ -3151,7 +3157,8 @@ bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
     // This implicitly handles this->glCaps().useDrawInsteadOfAllRenderTargetWrites().
     bool preferCopy = SkToBool(dst->asRenderTarget());
-    if (preferCopy && this->glCaps().canCopyAsDraw(dst->config(), SkToBool(src->asTexture()))) {
+    auto dstFormat = dst->backendFormat().asGLFormat();
+    if (preferCopy && this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()))) {
         if (this->copySurfaceAsDraw(dst, src, srcRect, dstPoint)) {
             return true;
         }
@@ -3166,7 +3173,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstPoint);
     }
 
-    if (!preferCopy && this->glCaps().canCopyAsDraw(dst->config(), SkToBool(src->asTexture()))) {
+    if (!preferCopy && this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()))) {
         if (this->copySurfaceAsDraw(dst, src, srcRect, dstPoint)) {
             return true;
         }
@@ -3445,10 +3452,18 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
 
 bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) {
-    GrGLTexture* srcTex = static_cast<GrGLTexture*>(src->asTexture());
-    int progIdx = TextureToCopyProgramIdx(srcTex);
-    if (!this->glCaps().canConfigBeFBOColorAttachment(dst->config())) {
+    auto* srcTex = static_cast<GrGLTexture*>(src->asTexture());
+    auto* dstTex = static_cast<GrGLTexture*>(src->asTexture());
+    auto* dstRT  = static_cast<GrGLRenderTarget*>(src->asRenderTarget());
+    if (!srcTex) {
         return false;
+    }
+    int progIdx = TextureToCopyProgramIdx(srcTex);
+    if (!dstRT) {
+        SkASSERT(dstTex);
+        if (!this->glCaps().isFormatRenderable(dstTex->format(), 1)) {
+            return false;
+        }
     }
     if (!fCopyPrograms[progIdx].fProgram) {
         if (!this->createCopyProgram(srcTex)) {
@@ -3573,14 +3588,13 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     if (GR_GL_TEXTURE_2D != glTex->target()) {
         return false;
     }
-
+    GrGLFormat format = glTex->format();
     // Manual implementation of mipmap generation, to work around driver bugs w/sRGB.
     // Uses draw calls to do a series of downsample operations to successive mips.
 
     // The manual approach requires the ability to limit which level we're sampling and that the
     // destination can be bound to a FBO:
-    if (!this->glCaps().doManualMipmapping() ||
-        !this->glCaps().canConfigBeFBOColorAttachment(texture->config())) {
+    if (!this->glCaps().doManualMipmapping() || !this->glCaps().isFormatRenderable(format, 1)) {
         GrGLenum target = glTex->target();
         this->bindTextureToScratchUnit(target, glTex->textureID());
         GL_CALL(GenerateMipmap(glTex->target()));
