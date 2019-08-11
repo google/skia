@@ -291,15 +291,36 @@ sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap&
 
 void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShader); }
 
-bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
+class SkImageStageUpdator : public SkStageUpdator {
+public:
+    SkImageShader* fShader;
+
+    float* fMatrixStorage;
+
+    SkRasterPipeline_GatherCtx* fGather;
+    SkRasterPipeline_TileCtx* fLimitX;
+    SkRasterPipeline_TileCtx* fLimitY;
+    SkRasterPipeline_DecalTileCtx* fDecal;
+
+    bool update(const SkMatrix& ctm, const SkMatrix* localM) {
+        SkMatrix matrix;
+        if (!fShader->computeTotalInverse(ctm, localM, &matrix)) {
+            return false;
+        }
+        (void)matrix.asAffine(fMatrixStorage);
+        return true;
+    }
+};
+
+bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdator* updator) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
+    auto quality = rec.fPaint.getFilterQuality();
 
     SkMatrix matrix;
     if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &matrix)) {
         return false;
     }
-    auto quality = rec.fPaint.getFilterQuality();
 
     const auto* state = SkBitmapController::RequestBitmap(as_IB(fImage.get()),
                                                           matrix, quality, alloc);
@@ -312,28 +333,34 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
     quality = state->quality();
     auto info = pm.info();
 
-    // When the matrix is just an integer translate, bilerp == nearest neighbor.
-    if (quality == kLow_SkFilterQuality &&
-        matrix.getType() <= SkMatrix::kTranslate_Mask &&
-        matrix.getTranslateX() == (int)matrix.getTranslateX() &&
-        matrix.getTranslateY() == (int)matrix.getTranslateY()) {
-        quality = kNone_SkFilterQuality;
-    }
-
-    // See skia:4649 and the GM image_scale_aligned.
-    if (quality == kNone_SkFilterQuality) {
-        if (matrix.getScaleX() >= 0) {
-            matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
-                                            floorf(matrix.getTranslateX())));
-        }
-        if (matrix.getScaleY() >= 0) {
-            matrix.setTranslateY(nextafterf(matrix.getTranslateY(),
-                                            floorf(matrix.getTranslateY())));
-        }
-    }
-
     p->append(SkRasterPipeline::seed_shader);
-    p->append_matrix(alloc, matrix);
+
+    if (updator) {
+        // TODO: handle 2x3 or perspective, depending on CTM (I guess)
+        updator->fMatrixStorage = alloc->makeArray<float>(6);
+        p->append(SkRasterPipeline::matrix_2x3, updator->fMatrixStorage);
+    } else {
+        // When the matrix is just an integer translate, bilerp == nearest neighbor.
+        if (quality == kLow_SkFilterQuality &&
+            matrix.getType() <= SkMatrix::kTranslate_Mask &&
+            matrix.getTranslateX() == (int)matrix.getTranslateX() &&
+            matrix.getTranslateY() == (int)matrix.getTranslateY()) {
+            quality = kNone_SkFilterQuality;
+        }
+
+        // See skia:4649 and the GM image_scale_aligned.
+        if (quality == kNone_SkFilterQuality) {
+            if (matrix.getScaleX() >= 0) {
+                matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
+                                                floorf(matrix.getTranslateX())));
+            }
+            if (matrix.getScaleY() >= 0) {
+                matrix.setTranslateY(nextafterf(matrix.getTranslateY(),
+                                                floorf(matrix.getTranslateY())));
+            }
+        }
+        p->append_matrix(alloc, matrix);
+    }
 
     auto gather = alloc->make<SkRasterPipeline_GatherCtx>();
     gather->pixels = pm.addr();
@@ -354,6 +381,14 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
         decal_ctx = alloc->make<SkRasterPipeline_DecalTileCtx>();
         decal_ctx->limit_x = limit_x->scale;
         decal_ctx->limit_y = limit_y->scale;
+    }
+
+    if (updator && (quality == kMedium_SkFilterQuality)) {
+        // if we change levels in mipmap, we need to update the scales (and invScales)
+        updator->fGather = gather;
+        updator->fLimitX = limit_x;
+        updator->fLimitY = limit_y;
+        updator->fDecal = decal_ctx;
     }
 
     auto append_tiling_and_gather = [&] {
@@ -518,3 +553,13 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
 
     return append_misc();
 }
+
+bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
+    return this->doStages(rec, nullptr);
+}
+
+SkStageUpdator* SkImageShader::onAppendStages2(const SkStageRec& rec) const {
+    auto updator = rec.fAlloc->make<SkImageStageUpdator>();
+    return this->doStages(rec, updator) ? updator : nullptr;
+}
+
