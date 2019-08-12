@@ -9,14 +9,15 @@
 #define SkTScopedComPtr_DEFINED
 
 #include "src/core/SkLeanWindows.h"
+#include "src/utils/win/SkObjBase.h"
 
 #ifdef SK_BUILD_FOR_WIN
 
 template<typename T>
 class SkBlockComRef : public T {
 private:
-    virtual ULONG STDMETHODCALLTYPE AddRef(void) = 0;
-    virtual ULONG STDMETHODCALLTYPE Release(void) = 0;
+    SK_STDMETHODIMP_(ULONG) AddRef() PURE;
+    SK_STDMETHODIMP_(ULONG) Release() PURE;
     virtual ~SkBlockComRef() {}
 };
 
