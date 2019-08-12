@@ -27,15 +27,11 @@ static SkBitmap make_bitmap() {
 class TextureDomainView : public Sample {
     SkBitmap    fBM;
 
-public:
-    TextureDomainView(){
-        fBM = make_bitmap();
-    }
+    void onOnceBeforeDraw() override { fBM = make_bitmap(); }
 
-protected:
-    virtual SkString name() { return SkString("Texture Domain"); }
+    SkString name() override { return SkString("Texture Domain"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkRect srcRect;
         SkRect dstRect;
         SkPaint paint;
@@ -86,8 +82,6 @@ protected:
         canvas->rotate(45);
         canvas->drawBitmapRect(fBM, dstRect, &paint);
     }
-private:
-    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

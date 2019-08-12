@@ -22,36 +22,22 @@
 #include "src/utils/SkUTF.h"
 
 class EmbossView : public Sample {
-    SkEmbossMaskFilter::Light   fLight;
-public:
-    EmbossView() {
-        fLight.fDirection[0] = SK_Scalar1;
-        fLight.fDirection[1] = SK_Scalar1;
-        fLight.fDirection[2] = SK_Scalar1;
-        fLight.fAmbient = 128;
-        fLight.fSpecular = 16*2;
-    }
+    SkString name() override { return SkString("Emboss"); }
 
-protected:
-    virtual SkString name() { return SkString("Emboss"); }
-
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
+        SkEmbossMaskFilter::Light light = {{1, 1, 1}, 0, 128, 16 * 2};
         SkPaint paint;
 
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(10));
-        paint.setMaskFilter(SkEmbossMaskFilter::Make(SkBlurMask::ConvertRadiusToSigma(4), fLight));
+        paint.setMaskFilter(SkEmbossMaskFilter::Make(SkBlurMask::ConvertRadiusToSigma(4), light));
         paint.setShader(SkShaders::Color(SK_ColorBLUE));
         paint.setDither(true);
 
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
                            SkIntToScalar(30), paint);
     }
-
-private:
-
-    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
