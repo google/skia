@@ -132,6 +132,6 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return new ContourStartGM(); )
+DEF_GM( return new ContourStartGM; )
 
 } // namespace skiagm

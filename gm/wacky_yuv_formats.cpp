@@ -1482,7 +1482,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new YUVMakeColorSpaceGM();)
+DEF_GM(return new YUVMakeColorSpaceGM;)
 
 }
 

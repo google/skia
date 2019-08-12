@@ -98,4 +98,4 @@ class SimpleBlurRoundRectGM : public skiagm::GM {
 // ran wrong number of tests')
 //DEF_GM(return new BlurRoundRectGM(600, 5514, 6);)
 
-DEF_GM(return new SimpleBlurRoundRectGM();)
+DEF_GM(return new SimpleBlurRoundRectGM;)
