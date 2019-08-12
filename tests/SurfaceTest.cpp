@@ -1090,6 +1090,66 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture, reporter, ctxIn
     }
 }
 
+DEF_TEST(ReplaceBackendPixels, reporter) {
+    SkBitmap bitmap;
+    SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
+    REPORTER_ASSERT(reporter, bitmap.tryAllocPixels(info));
+
+    auto surf = SkSurface::MakeRasterDirect(info, bitmap.getPixels(), info.minRowBytes());
+    surf->getCanvas()->clear(SK_ColorBLUE);
+    // Change matrix, layer, and clip state before swapping out the backing memory.
+    surf->getCanvas()->translate(5, 5);
+    surf->getCanvas()->saveLayer(nullptr, nullptr);
+    surf->getCanvas()->clipRect(SkRect::MakeXYWH(0, 0, 1, 1));
+
+    SkBitmap newBitmap;
+    REPORTER_ASSERT(reporter, newBitmap.tryAllocPixels(info));
+    REPORTER_ASSERT(reporter, surf->replaceBackendPixels(newBitmap.getPixels()));
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    surf->getCanvas()->drawRect(SkRect::MakeWH(5, 5), paint);
+    surf->getCanvas()->restore();
+
+    bool bad = false;
+    for (int y = 0; y < newBitmap.height() && !bad; ++y) {
+        for (int x = 0; x < newBitmap.width() && !bad; ++x) {
+            auto expected = (x == 5 && y == 5) ? SK_ColorRED : SK_ColorBLUE;
+            auto found = newBitmap.getColor(x, y);
+            if (found != expected) {
+                bad = true;
+                ERRORF(reporter, "Expected color 0x%08x, found color 0x%08x at %d, %d.", expected,
+                       found, x, y);
+            }
+        }
+    }
+
+    // The original bitmap should still all be blue.
+    bad = false;
+    for (int y = 0; y < bitmap.height() && !bad; ++y) {
+        for (int x = 0; x < bitmap.width() && !bad; ++x) {
+            auto expected = SK_ColorBLUE;
+            auto found = bitmap.getColor(x, y);
+            if (found != expected) {
+                ERRORF(reporter, "Expected color 0x%08x, found color 0x%08x at %d, %d.", expected,
+                       found, x, y);
+                bad = true;
+            }
+        }
+    }
+
+    // Can't replace with the same pixels.
+    REPORTER_ASSERT(reporter, !surf->replaceBackendPixels(newBitmap.getPixels()));
+    // Can't replace with null pixels.
+    REPORTER_ASSERT(reporter, !surf->replaceBackendPixels(nullptr));
+    // Create an image snapshot and replace while the snapshot is alive.
+    auto image = surf->makeImageSnapshot();
+    REPORTER_ASSERT(reporter, surf->replaceBackendPixels(bitmap.getPixels()));
+
+    // Create a non direct surface and try replacing the pixels.
+    auto newSurf = SkSurface::MakeRaster(info);
+    REPORTER_ASSERT(reporter, !newSurf->replaceBackendPixels(bitmap.getPixels()));
+}
+
 static void test_overdraw_surface(skiatest::Reporter* r, SkSurface* surface) {
     SkOverdrawCanvas canvas(surface->getCanvas());
     canvas.drawPaint(SkPaint());

@@ -24,3 +24,6 @@ Milestone 78
 
  * Vulkan backend now supports YCbCr sampler for I420 Vulkan images that are not
    backed by external images.
+
+ * SkSurface::replaceBackendPixels - allows clients to replace target memory for
+   direct software SkSurfaces.

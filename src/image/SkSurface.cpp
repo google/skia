@@ -88,6 +88,8 @@ bool SkSurface_Base::onReplaceBackendTexture(const GrBackendTexture&,
     return false;
 }
 
+bool SkSurface_Base::onReplaceBackendPixels(void* pixels) { return false; }
+
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
     auto image = this->makeImageSnapshot();
     if (image) {
@@ -411,6 +413,10 @@ bool SkSurface::replaceBackendTexture(const GrBackendTexture& backendTexture,
                                       ReleaseContext releaseContext) {
     return asSB(this)->onReplaceBackendTexture(backendTexture, origin, textureReleaseProc,
                                                releaseContext);
+}
+
+bool SkSurface::replaceBackendPixels(void* pixels) {
+    return asSB(this)->onReplaceBackendPixels(pixels);
 }
 
 void SkSurface::flush() {
