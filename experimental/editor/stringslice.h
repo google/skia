@@ -5,42 +5,74 @@
 
 #include "experimental/editor/stringview.h"
 
-#include <memory>
 #include <cstddef>
+#include <memory>
+#include <type_traits>
 
 namespace editor {
-// A lightweight modifiable string class.
-class StringSlice {
+class SliceImpl {
 public:
-    StringSlice() = default;
-    StringSlice(const char* s, std::size_t l) { this->insert(0, s, l); }
-    StringSlice(StringSlice&&);
-    StringSlice(const StringSlice& that) : StringSlice(that.begin(), that.size()) {}
-    ~StringSlice() = default;
-    StringSlice& operator=(StringSlice&&);
-    StringSlice& operator=(const StringSlice&);
+    SliceImpl() = default;
+    SliceImpl(SliceImpl&&);
+    SliceImpl(const SliceImpl& that) { this->insert(0, that.data(), that.size()); }
+    ~SliceImpl() = default;
+    SliceImpl& operator=(SliceImpl&&);
+    SliceImpl& operator=(const SliceImpl&);
 
-    // access:
-    // Does not have a c_str method; is *not* NUL-terminated.
-    const char* begin() const { return fPtr.get(); }
-    const char* end() const { return fPtr ? fPtr.get() + fLength : nullptr; }
+    void* data() { return fPtr.get(); }
+    const void* data() const { return fPtr.get(); }
     std::size_t size() const { return fLength; }
-    editor::StringView view() const { return {fPtr.get(), fLength}; }
 
-    // mutation:
-    void insert(std::size_t offset, const char* text, std::size_t length);
+    void insert(std::size_t offset, const void* src, std::size_t length);
     void remove(std::size_t offset, std::size_t length);
-
-    // modify capacity only:
-    void reserve(std::size_t size) { if (size > fCapacity) { this->realloc(size); } }
-    void shrink() { this->realloc(fLength); }
+    void realloc(std::size_t newCapacity);
 
 private:
-    struct FreeWrapper { void operator()(void*); };
-    std::unique_ptr<char[], FreeWrapper> fPtr;
+    struct D { void operator()(void*); };
+    std::unique_ptr<void, D> fPtr;
     std::size_t fLength = 0;
     std::size_t fCapacity = 0;
-    void realloc(std::size_t);
 };
+
+template <typename T>
+class Slice {
+public:
+    Slice() = default;
+    Slice(const T* s, std::size_t l) { this->insert(0, s, l); }
+    Slice(Slice&&) = default;
+    Slice(const Slice& that) = default;
+    ~Slice() = default;
+    Slice& operator=(Slice&&) = default;
+    Slice& operator=(const Slice&) = default;
+
+    // access:
+    const T* begin() const { return static_cast<const T*>(fImpl.data()); }
+    const T* end() const {
+        return static_cast<const T*>(static_cast<const char*>(fImpl.data()) + fImpl.size());
+    }
+    std::size_t size() const { return fImpl.size() / sizeof(T); }
+    editor::Span<const T> view() const { return {this->begin(), this->size()}; }
+
+    // mutation:
+    T* data() { return static_cast<T*>(fImpl.data()); }
+    void insert(std::size_t offset, const T* src, std::size_t length) {
+        fImpl.insert(offset * sizeof(T), src, length * sizeof(T));
+    }
+    void remove(std::size_t offset, std::size_t length) {
+        fImpl.remove(offset * sizeof(T), length * sizeof(T));
+    }
+
+    // modify capacity only:
+    void reserve(std::size_t size) { fImpl.realloc(size * sizeof(T)); }
+    void shrink() { fImpl.realloc(fImpl.size()); }
+
+private:
+    SliceImpl fImpl;
+    static_assert(std::is_pod<T>::value, "");
+};
+
+// A lightweight modifiable string class.
+using StringSlice = Slice<char>;
+
 }  // namespace editor;
 #endif  // stringslice_DEFINED
