@@ -749,12 +749,12 @@ public:
         }
 
         while (fGMs) {
-            std::unique_ptr<skiagm::GM> gm(fGMs->get()());
+            std::unique_ptr<skiagm::GM> gm = fGMs->get()();
             fGMs = fGMs->next();
             if (gm->runAsBench()) {
                 fSourceType = "gm";
                 fBenchType  = "micro";
-                return new GMBench(gm.release());
+                return new GMBench(std::move(gm));
             }
         }
 
