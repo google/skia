@@ -11,7 +11,6 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
-#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkNextID.h"
 
 class GrRecordingContext;
@@ -19,7 +18,6 @@ class GrTextureProxy;
 class SkBitmap;
 class SkCanvas;
 class SkImage;
-struct SkImageInfo;
 class SkPaint;
 class SkPixmap;
 class SkSpecialSurface;
@@ -91,7 +89,8 @@ public:
     /**
      *  Create a new special surface with a backend that is compatible with this special image.
      */
-    sk_sp<SkSpecialSurface> makeSurface(const SkImageFilter_Base::OutputProperties& outProps,
+    sk_sp<SkSpecialSurface> makeSurface(SkColorType colorType,
+                                        const SkColorSpace* colorSpace,
                                         const SkISize& size,
                                         SkAlphaType at = kPremul_SkAlphaType,
                                         const SkSurfaceProps* props = nullptr) const;
@@ -99,8 +98,11 @@ public:
     /**
      * Create a new surface with a backend that is compatible with this special image.
      * TODO: switch this to makeSurface once we resolved the naming issue
+     * TODO (michaelludwig) - This is only used by SkTileImageFilter, which appears should be
+     * updated to work correctly with subsets and then makeTightSurface() can go away entirely.
      */
-    sk_sp<SkSurface> makeTightSurface(const SkImageFilter_Base::OutputProperties& outProps,
+    sk_sp<SkSurface> makeTightSurface(SkColorType colorType,
+                                      const SkColorSpace* colorSpace,
                                       const SkISize& size,
                                       SkAlphaType at = kPremul_SkAlphaType) const;
 

@@ -43,12 +43,10 @@ void SkLocalMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(fLocalM);
 }
 
-sk_sp<SkSpecialImage> SkLocalMatrixImageFilter::onFilterImage(SkSpecialImage* source,
-                                                              const Context& ctx,
+sk_sp<SkSpecialImage> SkLocalMatrixImageFilter::onFilterImage(const Context& ctx,
                                                               SkIPoint* offset) const {
-    Context localCtx(SkMatrix::Concat(ctx.ctm(), fLocalM), ctx.clipBounds(), ctx.cache(),
-                     ctx.outputProperties());
-    return this->filterInput(0, source, localCtx, offset);
+    Context localCtx = ctx.withLayerMatrix(SkMatrix::Concat(ctx.layerMatrix(), fLocalM));
+    return this->filterInput(0, localCtx, offset);
 }
 
 SkIRect SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
