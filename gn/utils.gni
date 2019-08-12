@@ -97,6 +97,7 @@ skia_utils_sources = [
   "$_src/utils/win/SkHRESULT.cpp",
   "$_src/utils/win/SkIStream.h",
   "$_src/utils/win/SkIStream.cpp",
+  "$_src/utils/win/SkObjBase.h",
   "$_src/utils/win/SkTScopedComPtr.h",
   "$_src/utils/win/SkWGL.h",
   "$_src/utils/win/SkWGL_win.cpp",
