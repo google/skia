@@ -38,8 +38,7 @@ GrMtlPipelineState::GrMtlPipelineState(
         MTLPixelFormat pixelFormat,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
-        uint32_t geometryUniformBufferSize,
-        uint32_t fragmentUniformBufferSize,
+        uint32_t uniformBufferSize,
         uint32_t numSamplers,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
@@ -54,7 +53,7 @@ GrMtlPipelineState::GrMtlPipelineState(
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
-        , fDataManager(uniforms, geometryUniformBufferSize, fragmentUniformBufferSize) {
+        , fDataManager(uniforms, uniformBufferSize) {
     (void) fPixelFormat; // Suppress unused-var warning.
 }
 
