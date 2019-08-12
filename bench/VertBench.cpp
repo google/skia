@@ -101,7 +101,7 @@ DEF_BENCH(return new VertBench();)
 
 enum AtlasFlags {
     kColors_Flag = 1 << 0,
-    kVerts_Flag  = 1 << 1,
+    kRotate_Flag = 1 << 1,
 };
 
 class AtlasBench : public Benchmark {
@@ -120,7 +120,13 @@ class AtlasBench : public Benchmark {
 
 public:
     AtlasBench(unsigned flags) : fFlags(flags) {
-        fName.printf("drawAtlas_%d", flags);
+        fName.printf("drawAtlas");
+        if (flags & kColors_Flag) {
+            fName.append("_colors");
+        }
+        if (flags & kRotate_Flag) {
+            fName.append("_rotated");
+        }
     }
     ~AtlasBench() override {}
 
@@ -134,28 +140,30 @@ protected:
 
         const SkScalar imageW = fAtlas->width();
         const SkScalar imageH = fAtlas->height();
+        SkScalar scos = 1;
+        SkScalar ssin = 0;
+        if (fFlags & kRotate_Flag) {
+            scos = 0.866025403784439f;  // sqrt(3)/2
+            ssin = 0.5f;
+        }
 
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
             fRects[i] = SkRect::MakeXYWH(rand.nextF() * (imageW - 8),
                                          rand.nextF() * (imageH - 8), 8, 8);
             fColors[i] = rand.nextU() | 0xFF000000;
-            fXforms[i] = SkRSXform::Make(1, 0, rand.nextF() * W, rand.nextF() * H);
+            fXforms[i] = SkRSXform::Make(scos, ssin, rand.nextF() * W, rand.nextF() * H);
         }
     }
     void onDraw(int loops, SkCanvas* canvas) override {
         const SkRect* cullRect = nullptr;
         const SkPaint* paintPtr = nullptr;
         const SkColor* colors = nullptr;
-        const SkImage* atlas = nullptr;
         if (fFlags & kColors_Flag) {
             colors = fColors;
         }
-        if (fFlags & kVerts_Flag) {
-            atlas = fAtlas.get();
-        }
         for (int i = 0; i < loops; i++) {
-            canvas->drawAtlas(atlas, fXforms, fRects, colors, N, SkBlendMode::kModulate,
+            canvas->drawAtlas(fAtlas, fXforms, fRects, colors, N, SkBlendMode::kModulate,
                               cullRect, paintPtr);
         }
     }
@@ -164,6 +172,8 @@ private:
 };
 //DEF_BENCH(return new AtlasBench(0);)
 //DEF_BENCH(return new AtlasBench(kColors_Flag);)
-DEF_BENCH(return new AtlasBench(kVerts_Flag);)
-DEF_BENCH(return new AtlasBench(kVerts_Flag | kColors_Flag);)
+DEF_BENCH(return new AtlasBench(0);)
+DEF_BENCH(return new AtlasBench(kRotate_Flag);)
+DEF_BENCH(return new AtlasBench(kColors_Flag);)
+DEF_BENCH(return new AtlasBench(kColors_Flag | kRotate_Flag);)
 
