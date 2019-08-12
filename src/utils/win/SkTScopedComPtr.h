@@ -9,16 +9,9 @@
 #define SkTScopedComPtr_DEFINED
 
 #include "src/core/SkLeanWindows.h"
+#include "src/utils/win/SkObjBase.h"
 
 #ifdef SK_BUILD_FOR_WIN
-
-template<typename T>
-class SkBlockComRef : public T {
-private:
-    virtual ULONG STDMETHODCALLTYPE AddRef(void) = 0;
-    virtual ULONG STDMETHODCALLTYPE Release(void) = 0;
-    virtual ~SkBlockComRef() {}
-};
 
 template<typename T> T* SkRefComPtr(T* ptr) {
     ptr->AddRef();
@@ -57,7 +50,7 @@ public:
 
     explicit operator bool() const { return fPtr != nullptr; }
 
-    SkBlockComRef<T> *operator->() const { return static_cast<SkBlockComRef<T>*>(fPtr); }
+    T *operator->() const { return fPtr; }
 
     /**
      * Returns the address of the underlying pointer.
