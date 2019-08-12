@@ -128,10 +128,12 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
             fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
             break;
         case SK_MAIN_X_BUILTIN:
-            this->write("sk_FragCoord.x");
+            this->write("%s");
+            fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoordX));
             break;
         case SK_MAIN_Y_BUILTIN:
-            this->write("sk_FragCoord.y");
+            this->write("%s");
+            fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoordY));
             break;
         default:
             if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
