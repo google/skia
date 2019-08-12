@@ -2911,15 +2911,15 @@ void GrGLCaps::setupSampleCounts(const GrGLContextInfo& ctxInfo, const GrGLInter
     }
 }
 
-bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARenderBuffer,
+bool GrGLCaps::canCopyTexSubImage(GrGLFormat dstFormat, bool dstHasMSAARenderBuffer,
                                   const GrTextureType* dstTypeIfTexture,
-                                  GrPixelConfig srcConfig, bool srcHasMSAARenderBuffer,
+                                  GrGLFormat srcFormat, bool srcHasMSAARenderBuffer,
                                   const GrTextureType* srcTypeIfTexture) const {
     // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
     // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
     // many drivers would allow it to work, but ANGLE does not.
     if (GR_IS_GR_GL_ES(fStandard) && this->bgraIsInternalFormat() &&
-        (kBGRA_8888_GrPixelConfig == dstConfig || kBGRA_8888_GrPixelConfig == srcConfig)) {
+        (dstFormat == GrGLFormat::kBGRA8 || srcFormat == GrGLFormat::kBGRA8)) {
         return false;
     }
 
@@ -2936,24 +2936,20 @@ bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARender
 
     // Check that we could wrap the source in an FBO, that the dst is not TEXTURE_EXTERNAL, that no
     // mirroring is required
-    if (this->canConfigBeFBOColorAttachment(srcConfig) &&
-        (!srcTypeIfTexture || *srcTypeIfTexture != GrTextureType::kExternal) &&
-        *dstTypeIfTexture != GrTextureType::kExternal) {
-        return true;
-    } else {
-        return false;
-    }
+    return this->canFormatBeFBOColorAttachment(srcFormat) &&
+           (!srcTypeIfTexture || *srcTypeIfTexture != GrTextureType::kExternal) &&
+           *dstTypeIfTexture != GrTextureType::kExternal;
 }
 
-bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
+bool GrGLCaps::canCopyAsBlit(GrGLFormat dstFormat, int dstSampleCnt,
                              const GrTextureType* dstTypeIfTexture,
-                             GrPixelConfig srcConfig, int srcSampleCnt,
+                             GrGLFormat srcFormat, int srcSampleCnt,
                              const GrTextureType* srcTypeIfTexture,
                              const SkRect& srcBounds, bool srcBoundsExact,
                              const SkIRect& srcRect, const SkIPoint& dstPoint) const {
     auto blitFramebufferFlags = this->blitFramebufferSupportFlags();
-    if (!this->canConfigBeFBOColorAttachment(dstConfig) ||
-        !this->canConfigBeFBOColorAttachment(srcConfig)) {
+    if (!this->canFormatBeFBOColorAttachment(dstFormat) ||
+        !this->canFormatBeFBOColorAttachment(srcFormat)) {
         return false;
     }
 
@@ -2986,11 +2982,11 @@ bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
     }
 
     if (GrGLCaps::kNoFormatConversion_BlitFramebufferFlag & blitFramebufferFlags) {
-        if (dstConfig != srcConfig) {
+        if (srcFormat != dstFormat) {
             return false;
         }
     } else if (GrGLCaps::kNoFormatConversionForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
-        if (srcSampleCnt > 1 && dstConfig != srcConfig) {
+        if (srcSampleCnt > 1 && srcFormat != dstFormat) {
             return false;
         }
     }
@@ -3005,8 +3001,8 @@ bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
     return true;
 }
 
-bool GrGLCaps::canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const {
-    return this->canConfigBeFBOColorAttachment(dstConfig) && srcIsTextureable;
+bool GrGLCaps::canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTextureable) const {
+    return this->isFormatRenderable(dstFormat, 1) && srcIsTextureable;
 }
 
 static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& glCaps) {
@@ -3025,9 +3021,6 @@ static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& g
 
 bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const {
-    GrPixelConfig dstConfig = dst->config();
-    GrPixelConfig srcConfig = src->config();
-
     int dstSampleCnt = 0;
     int srcSampleCnt = 0;
     if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
@@ -3055,12 +3048,14 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
         srcTexTypePtr = &srcTexType;
     }
 
-    return this->canCopyTexSubImage(dstConfig, has_msaa_render_buffer(dst, *this), dstTexTypePtr,
-                                    srcConfig, has_msaa_render_buffer(src, *this), srcTexTypePtr) ||
-           this->canCopyAsBlit(dstConfig, dstSampleCnt, dstTexTypePtr, srcConfig, srcSampleCnt,
-                               srcTexTypePtr, src->getBoundsRect(), src->priv().isExact(),
-                               srcRect, dstPoint) ||
-           this->canCopyAsDraw(dstConfig, SkToBool(srcTex));
+    auto dstFormat = dst->backendFormat().asGLFormat();
+    auto srcFormat = src->backendFormat().asGLFormat();
+    return this->canCopyTexSubImage(dstFormat, has_msaa_render_buffer(dst, *this), dstTexTypePtr,
+                                    srcFormat, has_msaa_render_buffer(src, *this), srcTexTypePtr) ||
+           this->canCopyAsBlit(dstFormat, dstSampleCnt, dstTexTypePtr, srcFormat, srcSampleCnt,
+                               srcTexTypePtr, src->getBoundsRect(), src->priv().isExact(), srcRect,
+                               dstPoint) ||
+           this->canCopyAsDraw(dstFormat, SkToBool(srcTex));
 }
 
 GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTargetProxy* src,
