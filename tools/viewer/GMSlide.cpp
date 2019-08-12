@@ -14,8 +14,8 @@
 #include "include/core/SkCanvas.h"
 #include "tools/viewer/GMSlide.h"
 
-GMSlide::GMSlide(skiagm::GM* gm) : fGM(gm) {
-    fName.printf("GM_%s", gm->getName());
+GMSlide::GMSlide(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
+    fName.printf("GM_%s", fGM->getName());
 }
 
 GMSlide::~GMSlide() = default;
