@@ -11,6 +11,8 @@
 GrDawnUniformHandler::GrDawnUniformHandler(GrGLSLProgramBuilder* program)
     : INHERITED(program)
     , fUniforms(kUniformsPerBlock)
+    , fSamplers(kUniformsPerBlock)
+    , fTextures(kUniformsPerBlock)
 {
 }
 
@@ -236,24 +238,62 @@ GrGLSLUniformHandler::SamplerHandle GrDawnUniformHandler::addSampler(const GrTex
                                                                      const GrSwizzle& swizzle,
                                                                      const char* name,
                                                                      const GrShaderCaps* caps) {
-    SkASSERT(!"unimplemented");
-    SkASSERT(name && strlen(name));
+    SkString mangleName;
+    char prefix = 's';
+    fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
 
-    return GrGLSLUniformHandler::SamplerHandle(0);
+    GrSLType samplerType = kSampler_GrSLType, textureType = kTexture2D_GrSLType;
+    int binding = kSamplerBindingBase + fSamplers.count() * 2;
+    UniformInfo& info = fSamplers.push_back();
+    info.fVar.setType(samplerType);
+    info.fVar.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
+    info.fVar.setName(mangleName);
+    SkString layoutQualifier;
+    layoutQualifier.appendf("set = 0, binding = %d", binding);
+    info.fVar.addLayoutQualifier(layoutQualifier.c_str());
+    info.fVisibility = kFragment_GrShaderFlag;
+    info.fUBOOffset = 0;
+    fSamplerSwizzles.push_back(swizzle);
+    SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
+
+    SkString mangleTexName;
+    char texPrefix = 't';
+    fProgramBuilder->nameVariable(&mangleTexName, texPrefix, name, true);
+    UniformInfo& texInfo = fTextures.push_back();
+    texInfo.fVar.setType(textureType);
+    texInfo.fVar.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
+    texInfo.fVar.setName(mangleTexName);
+    SkString texLayoutQualifier;
+    texLayoutQualifier.appendf("set = 0, binding = %d", binding + 1);
+    texInfo.fVar.addLayoutQualifier(texLayoutQualifier.c_str());
+    texInfo.fVisibility = kFragment_GrShaderFlag;
+    texInfo.fUBOOffset = 0;
+
+    SkString reference;
+    reference.printf("makeSampler2D(%s, %s)", texInfo.fVar.getName().c_str(),
+                                              info.fVar.getName().c_str());
+    fSamplerReferences.push_back() = reference;
+    return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
 const char* GrDawnUniformHandler::samplerVariable(
         GrGLSLUniformHandler::SamplerHandle handle) const {
-    SkASSERT(!"unimplemented");
-    return "";
+    return fSamplerReferences[handle.toIndex()].c_str();
 }
 
 GrSwizzle GrDawnUniformHandler::samplerSwizzle(GrGLSLUniformHandler::SamplerHandle handle) const {
-    SkASSERT(!"unimplemented");
-    return GrSwizzle();
+    return fSamplerSwizzles[handle.toIndex()];
 }
 
 void GrDawnUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
+    for (int i = 0; i < fSamplers.count(); ++i) {
+        if (fSamplers[i].fVisibility & visibility) {
+            fSamplers[i].fVar.appendDecl(fProgramBuilder->shaderCaps(), out);
+            out->append(";\n");
+            fTextures[i].fVar.appendDecl(fProgramBuilder->shaderCaps(), out);
+            out->append(";\n");
+        }
+    }
     SkString uniformsString;
     for (int i = 0; i < fUniforms.count(); ++i) {
         if (fUniforms[i].fVisibility & visibility) {
@@ -275,8 +315,8 @@ void GrDawnUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString
             uniformBinding = kFragBinding;
             stage = "fragment";
         }
-        out->appendf("layout (set = %d, binding = %d) uniform %sUniformBuffer\n{\n",
-                     kUniformBufferBindGroup, uniformBinding, stage);
+        out->appendf("layout (set = 0, binding = %d) uniform %sUniformBuffer\n{\n",
+                     uniformBinding, stage);
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }
