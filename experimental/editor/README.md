@@ -1,4 +1,4 @@
-#Editor#
+# Editor #
 
 This is an experimental Editor layer that abstracts out SkShaper text layeout
 for easy embedding into an application.  The Editor layer is agnostic about the
