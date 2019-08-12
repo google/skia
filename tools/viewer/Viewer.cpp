@@ -676,9 +676,9 @@ void Viewer::initSlides() {
     // GMs
     int firstGM = fSlides.count();
     for (skiagm::GMFactory gmFactory : skiagm::GMRegistry::Range()) {
-        std::unique_ptr<skiagm::GM> gm(gmFactory());
+        std::unique_ptr<skiagm::GM> gm = gmFactory();
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
-            sk_sp<Slide> slide(new GMSlide(gm.release()));
+            sk_sp<Slide> slide(new GMSlide(std::move(gm)));
             fSlides.push_back(std::move(slide));
         }
     }

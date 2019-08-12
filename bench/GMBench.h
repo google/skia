@@ -16,8 +16,7 @@
  */
 class GMBench : public Benchmark {
 public:
-    // Constructor takes ownership of the GM param.
-    GMBench(skiagm::GM* gm);
+    GMBench(std::unique_ptr<skiagm::GM> gm);
     ~GMBench() override;
 
     void modifyGrContextOptions(GrContextOptions* options) override {
@@ -31,7 +30,7 @@ protected:
     SkIPoint onGetSize() override;
 
 private:
-    skiagm::GM* fGM;
+    std::unique_ptr<skiagm::GM> fGM;
     SkString    fName;
     typedef Benchmark INHERITED;
 };

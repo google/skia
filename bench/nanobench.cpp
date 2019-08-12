@@ -626,7 +626,6 @@ static void collect_files(const CommandLineFlags::StringArray& paths,
 class BenchmarkStream {
 public:
     BenchmarkStream() : fBenches(BenchRegistry::Head())
-                      , fGMs(skiagm::GMRegistry::Head())
                       , fCurrentRecording(0)
                       , fCurrentDeserialPicture(0)
                       , fCurrentScale(0)
@@ -748,13 +747,12 @@ public:
             return bench;
         }
 
-        while (fGMs) {
-            std::unique_ptr<skiagm::GM> gm(fGMs->get()());
-            fGMs = fGMs->next();
+        for (skiagm::GMFactory factory : skiagm::GMRegistry::Range()) {
+            std::unique_ptr<skiagm::GM> gm = factory();
             if (gm->runAsBench()) {
                 fSourceType = "gm";
                 fBenchType  = "micro";
-                return new GMBench(gm.release());
+                return new GMBench(std::move(gm));
             }
         }
 
@@ -1086,7 +1084,6 @@ private:
     };
 
     const BenchRegistry* fBenches;
-    const skiagm::GMRegistry* fGMs;
     SkIRect            fClip;
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
