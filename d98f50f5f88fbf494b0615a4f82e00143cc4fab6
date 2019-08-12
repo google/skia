@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebdb7f09_938a9e99",
+        "filename": "bench/GMBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-12T20:54:50Z",
+      "side": 1,
+      "message": "Maybe drop altogether if you like?  Probably would have left this implicit and inline if we wrote GMBench from scratcH?",
+      "revId": "d98f50f5f88fbf494b0615a4f82e00143cc4fab6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b05c38d2_72ba61a4",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-12T20:54:50Z",
+      "side": 1,
+      "message": "doesn\u0027t this start over every time?  I think it was stateful was written before?",
+      "revId": "d98f50f5f88fbf494b0615a4f82e00143cc4fab6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
