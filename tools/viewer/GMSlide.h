@@ -13,7 +13,7 @@
 
 class GMSlide : public Slide {
 public:
-    GMSlide(skiagm::GM* gm);
+    GMSlide(std::unique_ptr<skiagm::GM> gm);
     ~GMSlide() override;
 
     SkISize getDimensions() const override { return fGM->getISize(); }

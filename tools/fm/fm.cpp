@@ -381,7 +381,7 @@ int main(int argc, char** argv) {
         if (skiagm::GMFactory* factory = gm_factories.find(name)) {
             std::shared_ptr<skiagm::GM> gm{(*factory)()};
             source->name = name;
-            init(source, gm);
+            init(source, std::move(gm));
             continue;
         }
 
