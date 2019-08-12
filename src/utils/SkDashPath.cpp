@@ -153,61 +153,71 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
 
 // Handles only lines and rects.
 // If cull_path() returns true, dstPath is the new smaller path,
-// otherwise dstPath is ignored.
+// otherwise dstPath may have been changed but you should ignore it.
 static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
-                      const SkRect* cullRect, SkScalar intervalLength,
-                      SkPath* dstPath) {
-    SkPoint pts[4];
-    if (nullptr == cullRect) {
+                      const SkRect* cullRect, SkScalar intervalLength, SkPath* dstPath) {
+    if (!cullRect) {
+        SkPoint pts[2];
         if (srcPath.isLine(pts) && pts[0] == pts[1]) {
             adjust_zero_length_line(pts);
-        } else {
-            return false;
+            dstPath->moveTo(pts[0]);
+            dstPath->lineTo(pts[1]);
+            return true;
         }
-    } else {
-        SkRect bounds;
-        bool isLine = srcPath.isLine(pts);
-        bool isRect = !isLine && srcPath.isRect(nullptr);
-        if (!isLine && !isRect) {
-            return false;
-        }
-        bounds = *cullRect;
-        outset_for_stroke(&bounds, rec);
-        if (isRect) {
-            // break rect into four lines, and call each one separately
-            SkPath::Iter iter(srcPath, false);
-            SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
-            SkScalar priorLength = 0;
-            while (SkPath::kLine_Verb == iter.next(pts)) {
-                SkVector v = pts[1] - pts[0];
+        return false;
+    }
 
-                // if line is entirely outside clip rect, skip it
-                bool inY = bounds.fTop  <= pts[0].fY && pts[0].fY <= bounds.fBottom,
-                     inX = bounds.fLeft <= pts[0].fX && pts[0].fX <= bounds.fRight ;
-                if (v.fX ? inY : inX) {
-                    bool skipMoveTo = inX && inY;
+    SkRect bounds;
+    bounds = *cullRect;
+    outset_for_stroke(&bounds, rec);
 
-                    if (clip_line(pts, bounds, intervalLength,
-                                  SkScalarMod(priorLength, intervalLength))) {
-                        if (0 == priorLength || !skipMoveTo) {
-                            dstPath->moveTo(pts[0]);
-                        }
-                        dstPath->lineTo(pts[1]);
-                    }
-                }
-                // keep track of all prior lengths to set phase of next line
-                priorLength += SkScalarAbs(v.fX ? v.fX : v.fY);
+    {
+        SkPoint pts[2];
+        if (srcPath.isLine(pts)) {
+            if (clip_line(pts, bounds, intervalLength, 0)) {
+                dstPath->moveTo(pts[0]);
+                dstPath->lineTo(pts[1]);
+                return true;
             }
-            return !dstPath->isEmpty();
-        }
-        SkASSERT(isLine);
-        if (!clip_line(pts, bounds, intervalLength, 0)) {
             return false;
         }
     }
-    dstPath->moveTo(pts[0]);
-    dstPath->lineTo(pts[1]);
-    return true;
+
+    if (srcPath.isRect(nullptr)) {
+        // We'll break the rect into four lines, culling each separately.
+        SkPath::Iter iter(srcPath, false);
+
+        SkPoint pts[4];  // Rects are all moveTo and lineTo, so we'll only use pts[0] and pts[1].
+        SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
+
+        SkScalar accum = 0;  // Sum of unculled edge lengths to keep the phase correct.
+        while (iter.next(pts) == SkPath::kLine_Verb) {
+            // Notice this vector v and accum work with the original unclipped length.
+            SkVector v = pts[1] - pts[0];
+
+            // TODO: this whole bit of skip-moveTo() logic seems wrong to me.
+            // If the line is entirely outside clip rect, skip it.
+            bool inY = bounds.fTop  <= pts[0].fY && pts[0].fY <= bounds.fBottom,
+                 inX = bounds.fLeft <= pts[0].fX && pts[0].fX <= bounds.fRight ;
+            if (v.fX ? inY : inX) {
+                bool skipMoveTo = inX && inY;
+
+                if (clip_line(pts, bounds, intervalLength, SkScalarMod(accum, intervalLength))) {
+                    if (accum == 0 || !skipMoveTo) {
+                        dstPath->moveTo(pts[0]);
+                    }
+                    dstPath->lineTo(pts[1]);
+                }
+            }
+
+            // We either just traveled v.fX horizontally or v.fY vertically.
+            SkASSERT(v.fX == 0 || v.fY == 0);
+            accum += SkScalarAbs(v.fX + v.fY);
+        }
+        return !dstPath->isEmpty();
+    }
+
+    return false;
 }
 
 class SpecialLineRec {
