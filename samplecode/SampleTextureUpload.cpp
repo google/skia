@@ -58,9 +58,7 @@ class TextureUploadSample : public Sample {
     GrContext* fCachedContext = nullptr;
     SkScalar fActiveTileIndex = 0;
 
-    SkString name() override {
-        return SkString("TextureUpload");
-    }
+    SkString name() override { return SkString("TextureUpload"); }
 
     bool onChar(SkUnichar uni) override {
         if ('m' == uni) {

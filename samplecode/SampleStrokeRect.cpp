@@ -9,13 +9,9 @@
 #include "samplecode/Sample.h"
 
 class StrokeRectSample : public Sample {
-public:
-    StrokeRectSample() {}
+    SkString name() override { return SkString("Stroke Rects"); }
 
-protected:
-    virtual SkString name() { return SkString("Stroke Rects"); }
-
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -54,9 +50,6 @@ protected:
             canvas->translate(SkIntToScalar(150), 0);
         }
     }
-
-private:
-    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

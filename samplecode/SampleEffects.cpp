@@ -56,11 +56,10 @@ const PaintProc gPaintProcs[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 class EffectsView : public Sample {
-public:
     SkPath fPath;
     SkPaint fPaint[SK_ARRAY_COUNT(gPaintProcs)];
 
-    EffectsView() {
+    void onOnceBeforeDraw() override {
         size_t i;
         const float pts[] = {
             0, 0,
@@ -89,10 +88,9 @@ public:
         this->setBGColor(0xFFDDDDDD);
     }
 
-protected:
-    virtual SkString name() { return SkString("Effects"); }
+    SkString name() override { return SkString("Effects"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         canvas->scale(3, 3);
         canvas->translate(10, 30);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPaint); i++) {
@@ -100,9 +98,6 @@ protected:
             canvas->translate(32, 0);
         }
     }
-
-private:
-    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
