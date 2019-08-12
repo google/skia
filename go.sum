@@ -650,6 +650,8 @@ go.skia.org/infra v0.0.0-20190809192933-173f193b0ee3 h1:CwBy/d/vtWL9BnBhvKSyB6DM
 go.skia.org/infra v0.0.0-20190809192933-173f193b0ee3/go.mod h1:5e6RDYDhJsHzBXk7qEvc0TzA6otCh54NJwBVlJSDFZ8=
 go.skia.org/infra v0.0.0-20190810052033-f4a8ecfa48f1 h1:UeGIXwiVv35CsafdA8jxyHpkuO/Gi0IEAEsvpdrMqJs=
 go.skia.org/infra v0.0.0-20190810052033-f4a8ecfa48f1/go.mod h1:PgvChKXNawYFI57OouC/mdjhcoR2cQv+NEml9tJR6MA=
+go.skia.org/infra v0.0.0-20190811172506-db30b03dfea1 h1:wRGkw7B2HAoWQdIR3WrAw8UESi5fGcWs7AbBjfz9ql0=
+go.skia.org/infra v0.0.0-20190811172506-db30b03dfea1/go.mod h1:PgvChKXNawYFI57OouC/mdjhcoR2cQv+NEml9tJR6MA=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a h1:+9xKwnzXTkTu+2ZVhffRu0A60Jx/gOETiNlKkzqbnRY=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a/go.mod h1:oVrxmr1FXbVQ7PeGtZ28Kg5wPvB+bNsnw1n2j5rtfTY=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
