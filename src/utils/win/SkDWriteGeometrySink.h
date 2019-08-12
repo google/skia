@@ -20,25 +20,22 @@ private:
     LONG fRefCount;
     SkPath* fPath;
 
-    SkDWriteGeometrySink(const SkDWriteGeometrySink&);
-    SkDWriteGeometrySink& operator=(const SkDWriteGeometrySink&);
-
 protected:
     explicit SkDWriteGeometrySink(SkPath* path);
     virtual ~SkDWriteGeometrySink();
 
 public:
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **object) override;
-    ULONG STDMETHODCALLTYPE AddRef(void) override;
-    ULONG STDMETHODCALLTYPE Release(void) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP QueryInterface(REFIID iid, void **object) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) AddRef(void) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) Release(void) override;
 
-    void STDMETHODCALLTYPE SetFillMode(D2D1_FILL_MODE fillMode) override;
-    void STDMETHODCALLTYPE SetSegmentFlags(D2D1_PATH_SEGMENT vertexFlags) override;
-    void STDMETHODCALLTYPE BeginFigure(D2D1_POINT_2F startPoint, D2D1_FIGURE_BEGIN figureBegin) override;
-    void STDMETHODCALLTYPE AddLines(const D2D1_POINT_2F *points, UINT pointsCount) override;
-    void STDMETHODCALLTYPE AddBeziers(const D2D1_BEZIER_SEGMENT *beziers, UINT beziersCount) override;
-    void STDMETHODCALLTYPE EndFigure(D2D1_FIGURE_END figureEnd) override;
-    HRESULT STDMETHODCALLTYPE Close() override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(void) SetFillMode(D2D1_FILL_MODE fillMode) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSegmentFlags(D2D1_PATH_SEGMENT vertexFlags) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(void) BeginFigure(D2D1_POINT_2F startPoint, D2D1_FIGURE_BEGIN figureBegin) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(void) AddLines(const D2D1_POINT_2F *points, UINT pointsCount) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(void) AddBeziers(const D2D1_BEZIER_SEGMENT *beziers, UINT beziersCount) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(void) EndFigure(D2D1_FIGURE_END figureEnd) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP Close() override;
 
     static HRESULT Create(SkPath* path, IDWriteGeometrySink** geometryToPath);
 };

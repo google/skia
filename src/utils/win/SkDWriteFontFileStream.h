@@ -58,20 +58,20 @@ private:
 class SkDWriteFontFileStreamWrapper : public IDWriteFontFileStream {
 public:
     // IUnknown methods
-    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** ppvObject);
-    virtual ULONG STDMETHODCALLTYPE AddRef();
-    virtual ULONG STDMETHODCALLTYPE Release();
+    COM_DECLSPEC_NOTHROW STDMETHODIMP QueryInterface(REFIID iid, void** ppvObject) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) AddRef() override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) Release() override;
 
     // IDWriteFontFileStream methods
-    virtual HRESULT STDMETHODCALLTYPE ReadFileFragment(
+    COM_DECLSPEC_NOTHROW STDMETHODIMP ReadFileFragment(
         void const** fragmentStart,
         UINT64 fileOffset,
         UINT64 fragmentSize,
-        void** fragmentContext);
+        void** fragmentContext) override;
 
-    virtual void STDMETHODCALLTYPE ReleaseFileFragment(void* fragmentContext);
-    virtual HRESULT STDMETHODCALLTYPE GetFileSize(UINT64* fileSize);
-    virtual HRESULT STDMETHODCALLTYPE GetLastWriteTime(UINT64* lastWriteTime);
+    COM_DECLSPEC_NOTHROW STDMETHODIMP_(void) ReleaseFileFragment(void* fragmentContext) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP GetFileSize(UINT64* fileSize) override;
+    COM_DECLSPEC_NOTHROW STDMETHODIMP GetLastWriteTime(UINT64* lastWriteTime) override;
 
     static HRESULT Create(SkStreamAsset* stream,
                           SkDWriteFontFileStreamWrapper** streamFontFileStream);
