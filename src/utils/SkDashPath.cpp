@@ -151,25 +151,9 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
     return true;
 }
 
-static bool contains_inclusive(const SkRect& rect, const SkPoint& pt) {
-    return rect.fLeft <= pt.fX && pt.fX <= rect.fRight &&
-            rect.fTop <= pt.fY && pt.fY <= rect.fBottom;
-}
-
-// Returns true is b is between a and c, that is: a <= b <= c, or a >= b >= c.
-// Can perform this test with one branch by observing that, relative to b,
-// the condition is true only if one side is positive and one side is negative.
-// If the numbers are very small, the optimization may return the wrong result
-// because the multiply may generate a zero where the simple compare does not.
-// For this reason the assert does not fire when all three numbers are near zero.
-static bool between(SkScalar a, SkScalar b, SkScalar c) {
-    SkASSERT(((a <= b && b <= c) || (a >= b && b >= c)) == ((a - b) * (c - b) <= 0)
-            || (SkScalarNearlyZero(a) && SkScalarNearlyZero(b) && SkScalarNearlyZero(c)));
-    return (a - b) * (c - b) <= 0;
-}
-
-// Only handles lines for now. If returns true, dstPath is the new (smaller)
-// path. If returns false, then dstPath parameter is ignored.
+// Handles only lines and rects.
+// If cull_path() returns true, dstPath is the new smaller path,
+// otherwise dstPath is ignored.
 static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
                       const SkRect* cullRect, SkScalar intervalLength,
                       SkPath* dstPath) {
@@ -196,10 +180,13 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
             SkScalar priorLength = 0;
             while (SkPath::kLine_Verb == iter.next(pts)) {
                 SkVector v = pts[1] - pts[0];
+
                 // if line is entirely outside clip rect, skip it
-                if (v.fX ? between(bounds.fTop, pts[0].fY, bounds.fBottom) :
-                        between(bounds.fLeft, pts[0].fX, bounds.fRight)) {
-                    bool skipMoveTo = contains_inclusive(bounds, pts[0]);
+                bool inY = bounds.fTop  <= pts[0].fY && pts[0].fY <= bounds.fBottom,
+                     inX = bounds.fLeft <= pts[0].fX && pts[0].fX <= bounds.fRight ;
+                if (v.fX ? inY : inX) {
+                    bool skipMoveTo = inX && inY;
+
                     if (clip_line(pts, bounds, intervalLength,
                                   SkScalarMod(priorLength, intervalLength))) {
                         if (0 == priorLength || !skipMoveTo) {
