@@ -738,8 +738,8 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
         return;
     }
 
-    Processor proc(fAAType, fFlags);
-    SkASSERT(proc.instanceStride() == (size_t)fInstanceStride);
+    Processor* proc = flushState->allocator()->make<Processor>(fAAType, fFlags);
+    SkASSERT(proc->instanceStride() == (size_t)fInstanceStride);
 
     GrPipeline::InitArgs initArgs;
     if (GrAAType::kMSAA == fAAType) {
@@ -749,16 +749,19 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
     initArgs.fOutputSwizzle = flushState->drawOpArgs().fOutputSwizzle;
     auto clip = flushState->detachAppliedClip();
-    GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
-    GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
+    GrPipeline::FixedDynamicState* fixedDynamicState =
+        flushState->allocator()->make<GrPipeline::FixedDynamicState>(clip.scissorState().rect());
+    GrPipeline* pipeline = flushState->allocator()->make<GrPipeline>(initArgs,
+                                                                     std::move(fProcessors),
+                                                                     std::move(clip));
 
-    GrMesh mesh(GrPrimitiveType::kTriangles);
-    mesh.setIndexedInstanced(
+    GrMesh* mesh = flushState->allocator()->make<GrMesh>(GrPrimitiveType::kTriangles);
+    mesh->setIndexedInstanced(
             std::move(indexBuffer), indexCount, fInstanceBuffer, fInstanceCount, fBaseInstance,
             GrPrimitiveRestart::kNo);
-    mesh.setVertexData(std::move(vertexBuffer));
+    mesh->setVertexData(std::move(vertexBuffer));
     flushState->rtCommandBuffer()->draw(
-            proc, pipeline, &fixedDynamicState, nullptr, &mesh, 1, this->bounds());
+            *proc, *pipeline, fixedDynamicState, nullptr, mesh, 1, this->bounds());
 }
 
 // Will the given corner look good if we use HW derivatives?

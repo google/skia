@@ -45,7 +45,9 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     pipelineArgs.fCaps = &this->caps();
     pipelineArgs.fUserStencil = stencilSettings;
     pipelineArgs.fOutputSwizzle = this->drawOpArgs().fOutputSwizzle;
-    GrPipeline pipeline(pipelineArgs, std::move(processorSet), this->detachAppliedClip());
+    GrPipeline* pipeline = this->allocator()->make<GrPipeline>(pipelineArgs,
+                                                               std::move(processorSet),
+                                                               this->detachAppliedClip());
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
         GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();
@@ -55,7 +57,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             ++fCurrUpload;
         }
         this->rtCommandBuffer()->draw(
-                *fCurrDraw->fGeometryProcessor, pipeline, fCurrDraw->fFixedDynamicState,
+                *fCurrDraw->fGeometryProcessor, *pipeline, fCurrDraw->fFixedDynamicState,
                 fCurrDraw->fDynamicStateArrays, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt,
                 chainBounds);
         fTokenTracker->flushToken();
