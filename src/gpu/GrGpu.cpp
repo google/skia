@@ -378,7 +378,7 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
         }
     }
 
-    if (GrPixelConfigIsCompressed(surface->config())) {
+    if (this->caps()->isFormatCompressed(surface->backendFormat())) {
         return false;
     }
 
@@ -483,10 +483,8 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width,
     SkASSERT(this->caps()->isFormatTexturable(surfaceColorType, surface->backendFormat()));
 
 #ifdef SK_DEBUG
-    GrColorType surfCT = GrPixelConfigToColorType(surface->config());
-    auto supportedRead = this->caps()->supportedReadPixelsColorType(surfCT,
-                                                                    surface->backendFormat(),
-                                                                     bufferColorType);
+    auto supportedRead = this->caps()->supportedReadPixelsColorType(
+            surfaceColorType, surface->backendFormat(), bufferColorType);
     SkASSERT(supportedRead.fOffsetAlignmentForTransferBuffer);
     SkASSERT(offset % supportedRead.fOffsetAlignmentForTransferBuffer == 0);
 #endif

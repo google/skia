@@ -267,9 +267,7 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
                                            GrVkRenderPass::AttachmentsDescriptor* desc,
                                            GrVkRenderPass::AttachmentFlags* attachmentFlags) const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    VkFormat colorFormat;
-    GrPixelConfigToVkFormat(this->config(), &colorFormat);
-    desc->fColor.fFormat = colorFormat;
+    desc->fColor.fFormat = this->imageFormat();
     desc->fColor.fSamples = this->numSamples();
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;

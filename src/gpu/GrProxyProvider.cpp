@@ -762,9 +762,14 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
     // This proxy should be unbudgeted because we're just wrapping an external resource
     SkASSERT(GrBudgetedType::kBudgeted != rt->resourcePriv().budgetedType());
 
-    GrColorType colorType = GrPixelConfigToColorType(rt->config());
+    GrColorType colorType = SkColorTypeToGrColorType(imageInfo.colorType());
     GrSwizzle texSwizzle = this->caps()->getTextureSwizzle(rt->backendFormat(), colorType);
     GrSwizzle outSwizzle = this->caps()->getOutputSwizzle(rt->backendFormat(), colorType);
+
+    if (!this->caps()->isFormatAsColorTypeRenderable(colorType, rt->backendFormat(),
+                                                     rt->numSamples())) {
+        return nullptr;
+    }
 
     // All Vulkan surfaces uses top left origins.
     return sk_sp<GrRenderTargetProxy>(

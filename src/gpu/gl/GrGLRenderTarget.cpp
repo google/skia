@@ -86,7 +86,7 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
     GrGLFramebufferInfo fbi;
     fbi.fFBOID = fRTFBOID;
-    fbi.fFormat = this->getGLGpu()->glCaps().configSizedInternalFormat(this->config());
+    fbi.fFormat = GrGLFormatToEnum(this->format());
     int numStencilBits = 0;
     if (GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
         numStencilBits = stencil->bits();

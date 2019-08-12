@@ -287,7 +287,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
 }
 
 bool GrMtlGpu::clearTexture(GrMtlTexture* tex, GrColorType dataColorType, uint32_t levelMask) {
-    SkASSERT(this->caps()->isConfigTexturable(tex->config()));
+    SkASSERT(this->caps()->isFormatTexturable(dataColorType, tex->backendFormat()));
 
     if (!levelMask) {
         return true;
