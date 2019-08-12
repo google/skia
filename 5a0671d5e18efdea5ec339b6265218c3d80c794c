@@ -22,6 +22,46 @@
       "revId": "5a0671d5e18efdea5ec339b6265218c3d80c794c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a2e2299_b6ce0f5c",
+        "filename": "src/image/SkSurface_Raster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-12T13:48:25Z",
+      "side": 1,
+      "message": "It seems like we should just fail if !fWeOwnThePixels rather than assert.",
+      "revId": "5a0671d5e18efdea5ec339b6265218c3d80c794c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea50b453_ae81b5ed",
+        "filename": "src/image/SkSurface_Raster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-12T13:48:25Z",
+      "side": 1,
+      "message": "I\u0027m not sure we can actually guarantee this here. Perhaps it should be part of the contract that there aren\u0027t external owners and fail if !unique.",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 175,
+        "endChar": 40
+      },
+      "revId": "5a0671d5e18efdea5ec339b6265218c3d80c794c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
