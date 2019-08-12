@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00909c4b_23a1fb8a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2939,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-12T14:56:13Z",
+      "side": 1,
+      "message": "it doesn\u0027t really matter since both should return the same thing, but this could be canFormatBeFBOColorAttachment instead (and for the other uses in this change). If we like the isFormatRenderable better maybe we delete the public getter for canFormatBeFBOColorAttachment?",
+      "range": {
+        "startLine": 2939,
+        "startChar": 17,
+        "endLine": 2939,
+        "endChar": 48
+      },
+      "revId": "4dcaabb6e56e117e7a4de5bfe5707e4e73bb5442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "124bb2b7_9bf29b0e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2952,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-12T14:56:13Z",
+      "side": 1,
+      "message": "Do you know if the sampleCnt part of this check is actually required by the spec or should do we really only need canFormatBeFBOColorAttachment here?",
+      "range": {
+        "startLine": 2951,
+        "startChar": 8,
+        "endLine": 2952,
+        "endChar": 57
+      },
+      "revId": "4dcaabb6e56e117e7a4de5bfe5707e4e73bb5442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9ce3a8e_20b7007f",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3160,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-12T14:56:13Z",
+      "side": 1,
+      "message": "it would be nice to not have to go through a virtual to get this here. But as of today you\u0027d have to still call asTexture or asRenderTarget so you know what you could cast to. When everything is a GrSurface down casting will be easier.",
+      "range": {
+        "startLine": 3160,
+        "startChar": 21,
+        "endLine": 3160,
+        "endChar": 55
+      },
+      "revId": "4dcaabb6e56e117e7a4de5bfe5707e4e73bb5442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
