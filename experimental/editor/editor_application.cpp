@@ -343,12 +343,10 @@ struct EditorApplication : public sk_app::Application {
     EditorLayer fLayer;
     double fNextTime = -DBL_MAX;
 
-    EditorApplication(void* platformData)
-        : fWindow(sk_app::Window::CreateNativeWindow(platformData)) {}
+    EditorApplication(std::unique_ptr<sk_app::Window> win) : fWindow(std::move(win)) {}
 
     bool init(const char* path) {
         fWindow->attach(kBackendType);
-        fLayer.inval();
 
         fLayer.fEditor.setFont(SkFont(SkTypeface::MakeFromName(kTypefaceName,
                                SkFontStyle(kFontWeight, kFontWidth, kFontSlant)), kFontSize));
@@ -356,8 +354,10 @@ struct EditorApplication : public sk_app::Application {
 
         fWindow->pushLayer(&fLayer);
         fWindow->setTitle(SkStringPrintf("Editor: \"%s\"", fLayer.fPath.c_str()).c_str());
-        fWindow->show();
         fLayer.onResize(fWindow->width(), fWindow->height());
+        fLayer.fEditor.paint(nullptr, editor::Editor::PaintOpts());
+
+        fWindow->show();
         return true;
     }
     ~EditorApplication() override { fWindow->detach(); }
@@ -378,7 +378,11 @@ sk_app::Application* sk_app::Application::Create(int argc, char** argv, void* da
     if (!SkLoadICU()) {
         SK_ABORT("SkLoadICU failed.");
     }
-    EditorApplication* app = new EditorApplication(dat);
-    SkASSERT(app->init(argc > 1 ? argv[1] : nullptr));
-    return app;
+    std::unique_ptr<sk_app::Window> win(sk_app::Window::CreateNativeWindow(dat));
+    if (!win) {
+        SK_ABORT("CreateNativeWindow failed.");
+    }
+    std::unique_ptr<EditorApplication> app(new EditorApplication(std::move(win)));
+    (void)app->init(argc > 1 ? argv[1] : nullptr);
+    return app.release();
 }
