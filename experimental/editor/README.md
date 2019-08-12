@@ -35,4 +35,9 @@ Try it out:
     tools/git-sync-deps
     bin/gn gen out/default
     ninja -C out/default editor
-    out/default/editor whitespace.txt
+
+    out/default/editor resources/text/english.txt
+
+    for f in resources/text/*.txt; do echo "$f"; cat "$f"; echo; done > example.txt
+    out/default/editor example.txt
+
