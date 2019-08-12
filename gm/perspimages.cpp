@@ -128,6 +128,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new PerspImages();)
+DEF_GM(return new PerspImages;)
 
 }  // namespace skiagm

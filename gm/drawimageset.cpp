@@ -282,7 +282,7 @@ private:
     SkCanvas::ImageSetEntry fSet[kM * kN];
 };
 
-DEF_GM(return new DrawImageSetGM();)
-DEF_GM(return new DrawImageSetRectToRectGM();)
+DEF_GM(return new DrawImageSetGM;)
+DEF_GM(return new DrawImageSetRectToRectGM;)
 
 }  // namespace skiagm

@@ -278,7 +278,7 @@ DEF_GM( return new BitmapRectRounding; )
 
 DEF_GM( return new DrawBitmapRect2(false); )
 DEF_GM( return new DrawBitmapRect2(true); )
-DEF_GM( return new DrawBitmapRect3(); )
+DEF_GM( return new DrawBitmapRect3; )
 
 #ifndef SK_BUILD_FOR_ANDROID
 DEF_GM( return new DrawBitmapRect4(false); )
