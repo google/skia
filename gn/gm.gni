@@ -65,6 +65,7 @@ gm_sources = [
   "$_gm/bug615686.cpp",
   "$_gm/bug6643.cpp",
   "$_gm/bug6783.cpp",
+  "$_gm/bug9331.cpp",
   "$_gm/cgm.c",
   "$_gm/cgms.cpp",
   "$_gm/circle_sizes.cpp",
