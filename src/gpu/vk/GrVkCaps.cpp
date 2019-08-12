@@ -335,18 +335,15 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     auto ycbcrFeatures =
             get_extension_feature_struct<VkPhysicalDeviceSamplerYcbcrConversionFeatures>(
-                    features,
-                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES);
+                    features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES);
     if (ycbcrFeatures && ycbcrFeatures->samplerYcbcrConversion &&
-        fSupportsAndroidHWBExternalMemory &&
         (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
          (extensions.hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1) &&
-          this->supportsMaintenance1() &&
-          this->supportsBindMemory2() &&
-          this->supportsMemoryRequirements2() &&
-          this->supportsPhysicalDeviceProperties2()))) {
+          this->supportsMaintenance1() && this->supportsBindMemory2() &&
+          this->supportsMemoryRequirements2() && this->supportsPhysicalDeviceProperties2()))) {
         fSupportsYcbcrConversion = true;
     }
+
     // We always push back the default GrVkYcbcrConversionInfo so that the case of no conversion
     // will return a key of 0.
     fYcbcrInfos.push_back(GrVkYcbcrConversionInfo());
@@ -650,6 +647,8 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
     VK_FORMAT_R16_UNORM,
     VK_FORMAT_R16G16_UNORM,
+    VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM,
+    VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
     // Experimental (for Y416 and mutant P016/P010)
     VK_FORMAT_R16G16B16A16_UNORM,
     VK_FORMAT_R16G16_SFLOAT,
@@ -676,18 +675,13 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                                const VkPhysicalDeviceProperties& properties) {
     static_assert(SK_ARRAY_COUNT(kVkFormats) == GrVkCaps::kNumVkFormats,
                   "Size of VkFormats array must match static value in header");
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kVkFormats); ++i) {
-        VkFormat format = kVkFormats[i];
-        if (!format_is_srgb(format) || fSRGBSupport) {
-            fFormatTable[i].init(interface, physDev, properties, format);
-        }
-    }
 
     // Go through all the formats and init their support surface and data GrColorTypes.
 
     // Format: VK_FORMAT_R8G8B8A8_UNORM
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R8G8B8A8_UNORM);
+        info.init(interface, physDev, properties, VK_FORMAT_R8G8B8A8_UNORM);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -711,6 +705,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R8_UNORM
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R8_UNORM);
+        info.init(interface, physDev, properties, VK_FORMAT_R8_UNORM);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -735,6 +730,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_B8G8R8A8_UNORM
     {
         auto& info = this->getFormatInfo(VK_FORMAT_B8G8R8A8_UNORM);
+        info.init(interface, physDev, properties, VK_FORMAT_B8G8R8A8_UNORM);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -750,6 +746,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R5G6B5_UNORM_PACK16
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R5G6B5_UNORM_PACK16);
+        info.init(interface, physDev, properties, VK_FORMAT_R5G6B5_UNORM_PACK16);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -765,6 +762,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R16G16B16A16_SFLOAT
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R16G16B16A16_SFLOAT);
+        info.init(interface, physDev, properties, VK_FORMAT_R16G16B16A16_SFLOAT);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -786,6 +784,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R16_SFLOAT
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R16_SFLOAT);
+        info.init(interface, physDev, properties, VK_FORMAT_R16_SFLOAT);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -803,6 +802,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R8G8B8_UNORM
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R8G8B8_UNORM);
+        info.init(interface, physDev, properties, VK_FORMAT_R8G8B8_UNORM);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -818,6 +818,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R8G8_UNORM
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R8G8_UNORM);
+        info.init(interface, physDev, properties, VK_FORMAT_R8G8_UNORM);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -833,6 +834,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_A2B10G10R10_UNORM_PACK32
     {
         auto& info = this->getFormatInfo(VK_FORMAT_A2B10G10R10_UNORM_PACK32);
+        info.init(interface, physDev, properties, VK_FORMAT_A2B10G10R10_UNORM_PACK32);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -848,6 +850,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_B4G4R4A4_UNORM_PACK16
     {
         auto& info = this->getFormatInfo(VK_FORMAT_B4G4R4A4_UNORM_PACK16);
+        info.init(interface, physDev, properties, VK_FORMAT_B4G4R4A4_UNORM_PACK16);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -865,6 +868,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R4G4B4A4_UNORM_PACK16
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R4G4B4A4_UNORM_PACK16);
+        info.init(interface, physDev, properties, VK_FORMAT_R4G4B4A4_UNORM_PACK16);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -880,6 +884,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R32G32B32A32_SFLOAT
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R32G32B32A32_SFLOAT);
+        info.init(interface, physDev, properties, VK_FORMAT_R32G32B32A32_SFLOAT);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -895,6 +900,9 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R8G8B8A8_SRGB
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R8G8B8A8_SRGB);
+        if (fSRGBSupport) {
+            info.init(interface, physDev, properties, VK_FORMAT_R8G8B8A8_SRGB);
+        }
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -910,6 +918,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R16_UNORM
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R16_UNORM);
+        info.init(interface, physDev, properties, VK_FORMAT_R16_UNORM);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -925,6 +934,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R16G16_UNORM
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R16G16_UNORM);
+        info.init(interface, physDev, properties, VK_FORMAT_R16G16_UNORM);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -940,6 +950,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R16G16B16A16_UNORM
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R16G16B16A16_UNORM);
+        info.init(interface, physDev, properties, VK_FORMAT_R16G16B16A16_UNORM);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -955,6 +966,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     // Format: VK_FORMAT_R16G16_SFLOAT
     {
         auto& info = this->getFormatInfo(VK_FORMAT_R16G16_SFLOAT);
+        info.init(interface, physDev, properties, VK_FORMAT_R16G16_SFLOAT);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
@@ -967,8 +979,46 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
             }
         }
     }
+    // Format: VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM
+    {
+        auto& info = this->getFormatInfo(VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM);
+        if (fSupportsYcbcrConversion) {
+            info.init(interface, physDev, properties, VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM);
+        }
+        if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
+            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+            int ctIdx = 0;
+            // Format: VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM, Surface: kRGB_888x
+            {
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = GrColorType::kRGB_888x;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            }
+        }
+    }
+    // Format: VK_FORMAT_G8_B8R8_2PLANE_420_UNORM
+    {
+        auto& info = this->getFormatInfo(VK_FORMAT_G8_B8R8_2PLANE_420_UNORM);
+        if (fSupportsYcbcrConversion) {
+            info.init(interface, physDev, properties, VK_FORMAT_G8_B8R8_2PLANE_420_UNORM);
+        }
+        if (SkToBool(info.fOptimalFlags & FormatInfo::kTextureable_Flag)) {
+            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
+            int ctIdx = 0;
+            // Format: VK_FORMAT_G8_B8R8_2PLANE_420_UNORM, Surface: kRGB_888x
+            {
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = GrColorType::kRGB_888x;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            }
+        }
+    }
     // Format: VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK
     {
+        auto& info = this->getFormatInfo(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
+        info.init(interface, physDev, properties, VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
         // No supported GrColorTypes.
     }
 }
@@ -1203,6 +1253,11 @@ GrCaps::SupportedWrite GrVkCaps::supportedWritePixelsColorType(GrColorType surfa
         return {GrColorType::kUnknown, 0};
     }
 
+
+    if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+        return {GrColorType::kUnknown, 0};
+    }
+
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
     size_t offsetAlignment = align_to_4(GrVkBytesPerFormat(vkFormat));
 
@@ -1250,21 +1305,23 @@ bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
 }
 
 static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool hasYcbcrConversion) {
-    if (format == VK_FORMAT_UNDEFINED) {
-        // If the format is undefined then it is only valid as an external image which requires that
-        // we have a valid VkYcbcrConversion.
-        if (hasYcbcrConversion) {
+    if (hasYcbcrConversion) {
+        if (GrVkFormatNeedsYcbcrSampler(format)) {
+            return kRGB_888X_GrPixelConfig;
+        }
+
+        // Format may be undefined for external images, which are required to have YCbCr conversion.
+        if (VK_FORMAT_UNDEFINED == format) {
             // We don't actually care what the color type or config are since we won't use those
             // values for external textures. However, for read pixels we will draw to a non ycbcr
             // texture of this config so we set RGBA here for that.
             return kRGBA_8888_GrPixelConfig;
-        } else {
-            return kUnknown_GrPixelConfig;
         }
+
+        return kUnknown_GrPixelConfig;
     }
 
-    if (hasYcbcrConversion) {
-        // We only support having a ycbcr conversion for external images.
+    if (VK_FORMAT_UNDEFINED == format) {
         return kUnknown_GrPixelConfig;
     }
 
@@ -1482,6 +1539,10 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
         GrColorType dstColorType) const {
     VkFormat vkFormat;
     if (!srcBackendFormat.asVkFormat(&vkFormat)) {
+        return {GrColorType::kUnknown, 0};
+    }
+
+    if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
         return {GrColorType::kUnknown, 0};
     }
 
