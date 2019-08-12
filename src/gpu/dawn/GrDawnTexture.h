@@ -20,6 +20,7 @@ public:
                                      int sampleCnt, SkBudgeted, int mipLevels, GrMipMapsStatus);
 
     static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, const GrSurfaceDesc&,
+                                            GrRenderable, int sampleCnt,
                                             GrMipMapsStatus, GrWrapCacheable,
                                             const GrDawnImageInfo&);
 
@@ -30,8 +31,9 @@ public:
 
     void textureParamsModified() override {}
 
-    void upload(const GrMipLevel texels[], int mipLevels);
-    void upload(const GrMipLevel texels[], int mipLevels, const SkIRect& dstRect);
+    void upload(const GrMipLevel texels[], int mipLevels, dawn::CommandEncoder copyEncoder);
+    void upload(const GrMipLevel texels[], int mipLevels, const SkIRect& dstRect,
+                dawn::CommandEncoder copyEncoder);
 
     dawn::Texture texture() const { return fTexture; }
     dawn::TextureView textureView() const { return fTextureView; }
