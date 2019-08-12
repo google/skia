@@ -161,6 +161,18 @@ void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
     }
 }
 
+void GrGLSLProgramBuilder::initTransformedCoords(
+                                            GrGLSLFragmentProcessor::TransformedCoordVars coordVars,
+                                            const GrFragmentProcessor& fp) {
+    for (int i = 0; i < coordVars.count(); ++i) {
+        const SkString& name = coordVars[i].fVaryingPoint.getName();
+        fFS.codeAppendf("%s_current = %s;\n", name.c_str(), name.c_str());
+    }
+    for (int i = 0; i < fp.numChildProcessors(); ++i) {
+        this->initTransformedCoords(coordVars.childInputs(i), fp.childProcessor(i));
+    }
+}
+
 // TODO Processors cannot output zeros because an empty string is all 1s
 // the fix is to allow effects to take the SkString directly
 SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
@@ -197,8 +209,10 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
         }
     }
 
-    const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
+    const GrGLSLPrimitiveProcessor::TransformVar* coordVars = fTransformedCoordVars.begin() +
+                                                              transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
+    this->initTransformedCoords(coords, fp);
     GrGLSLFragmentProcessor::TextureSamplers textureSamplers(&fp, texSamplers.begin());
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),

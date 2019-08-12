@@ -149,6 +149,8 @@ private:
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
     void nameExpression(SkString*, const char* baseName);
 
+    void initTransformedCoords(GrGLSLFragmentProcessor::TransformedCoordVars coordVars,
+                               const GrFragmentProcessor& fp);
     void emitAndInstallPrimProc(SkString* outputColor, SkString* outputCoverage);
     void emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
     SkString emitAndInstallFragProc(const GrFragmentProcessor&,
@@ -169,8 +171,8 @@ private:
 #endif
 
     // These are used to check that we don't excede the allowable number of resources in a shader.
-    int                         fNumFragmentSamplers;
-    SkSTArray<4, GrShaderVar>   fTransformedCoordVars;
+    int fNumFragmentSamplers;
+    SkSTArray<4, GrGLSLPrimitiveProcessor::TransformVar> fTransformedCoordVars;
 };
 
 #endif
