@@ -68,6 +68,8 @@ public:
         enum class Kind {
             kInput,
             kOutput,
+            kCoordX,
+            kCoordY,
             kUniform,
             kChildProcessor
         };

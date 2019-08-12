@@ -166,6 +166,9 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         int substringStartIndex = 0;
         int formatArgIndex = 0;
+        SkString coords = args.fTransformedCoords.count()
+            ? fragBuilder->ensureCoords2D(args.fTransformedCoords[0])
+            : SkString("sk_FragCoord");
         for (size_t i = 0; i < fGLSL.length(); ++i) {
             char c = fGLSL[i];
             if (c == '%') {
@@ -182,6 +185,12 @@ public:
                                 break;
                             case SkSL::Compiler::FormatArg::Kind::kOutput:
                                 fragBuilder->codeAppend(args.fOutputColor);
+                                break;
+                            case SkSL::Compiler::FormatArg::Kind::kCoordX:
+                                fragBuilder->codeAppendf("%s.x", coords.c_str());
+                                break;
+                            case SkSL::Compiler::FormatArg::Kind::kCoordY:
+                                fragBuilder->codeAppendf("%s.y", coords.c_str());
                                 break;
                             case SkSL::Compiler::FormatArg::Kind::kUniform:
                                 fragBuilder->codeAppend(args.fUniformHandler->getUniformCStr(
@@ -273,25 +282,27 @@ public:
 
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, const char* name,
                                          const char* sksl, const void* inputs,
-                                         size_t inputSize, SkSL::Program::Kind kind) {
+                                         size_t inputSize, SkSL::Program::Kind kind,
+                                         const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
                                                   context->priv().caps()->shaderCaps(),
                                                   kind, index, name, sksl, SkString(),
-                                                  inputs, inputSize));
+                                                  inputs, inputSize, matrix));
 }
 
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, const char* name,
                                          SkString sksl, const void* inputs, size_t inputSize,
-                                         SkSL::Program::Kind kind) {
+                                         SkSL::Program::Kind kind, const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
                                                   context->priv().caps()->shaderCaps(),
                                                   kind, index, name, nullptr, std::move(sksl),
-                                                  inputs, inputSize));
+                                                  inputs, inputSize, matrix));
 }
 
 GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps,
                    SkSL::Program::Kind kind, int index, const char* name, const char* sksl,
-                   SkString skslString, const void* inputs, size_t inputSize)
+                   SkString skslString, const void* inputs, size_t inputSize,
+                   const SkMatrix* matrix)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(factoryCache)
         , fShaderCaps(sk_ref_sp(shaderCaps))
@@ -304,6 +315,10 @@ GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps*
         , fInputSize(inputSize) {
     if (fInputSize) {
         memcpy(fInputs.get(), inputs, inputSize);
+    }
+    if (matrix) {
+        fCoordTransform = GrCoordTransform(*matrix);
+        this->addCoordTransform(&fCoordTransform);
     }
 }
 
@@ -321,6 +336,10 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fInputSize(other.fInputSize) {
     if (fInputSize) {
         memcpy(fInputs.get(), other.fInputs.get(), fInputSize);
+    }
+    if (other.numCoordTransforms()) {
+        fCoordTransform = other.fCoordTransform;
+        this->addCoordTransform(&fCoordTransform);
     }
 }
 

@@ -74,7 +74,8 @@ public:
                    const char* sksl,
                    const void* inputs,
                    size_t inputSize,
-                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind);
+                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind,
+                   const SkMatrix* matrix = nullptr);
 
     static std::unique_ptr<GrSkSLFP> Make(
                    GrContext_Base* context,
@@ -83,7 +84,8 @@ public:
                    SkString sksl,
                    const void* inputs,
                    size_t inputSize,
-                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind);
+                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind,
+                   const SkMatrix* matrix = nullptr);
 
     const char* name() const override;
 
@@ -94,7 +96,7 @@ public:
 private:
     GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps,
              SkSL::Program::Kind kind, int fIndex, const char* name, const char* sksl,
-             SkString skslString, const void* inputs, size_t inputSize);
+             SkString skslString, const void* inputs, size_t inputSize, const SkMatrix* matrix);
 
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -131,6 +133,8 @@ private:
     const std::unique_ptr<int8_t[]> fInputs;
 
     size_t fInputSize;
+
+    GrCoordTransform fCoordTransform;
 
     mutable SkSL::String fKey;
 
