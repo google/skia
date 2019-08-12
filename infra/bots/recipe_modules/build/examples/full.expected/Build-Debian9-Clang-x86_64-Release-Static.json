@@ -43,6 +43,21 @@
   },
   {
     "cmd": [
+      "icacls",
+      "[START_DIR]",
+      "/t",
+      "/grant",
+      "NT AUTHORITY\\Authenticated Users:M"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "icacls grant"
+  },
+  {
+    "cmd": [
       "ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-Static/Release"
