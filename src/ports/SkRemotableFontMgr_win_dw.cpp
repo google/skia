@@ -20,6 +20,7 @@
 #include "src/utils/win/SkDWrite.h"
 #include "src/utils/win/SkDWriteFontFileStream.h"
 #include "src/utils/win/SkHRESULT.h"
+#include "src/utils/win/SkObjBase.h"
 #include "src/utils/win/SkTScopedComPtr.h"
 
 #include <dwrite.h>
@@ -236,7 +237,7 @@ public:
         virtual ~FontFallbackRenderer() { }
 
         // IDWriteTextRenderer methods
-        virtual HRESULT STDMETHODCALLTYPE DrawGlyphRun(
+        SK_STDMETHODIMP DrawGlyphRun(
             void* clientDrawingContext,
             FLOAT baselineOriginX,
             FLOAT baselineOriginY,
@@ -262,7 +263,7 @@ public:
             return S_OK;
         }
 
-        virtual HRESULT STDMETHODCALLTYPE DrawUnderline(
+        SK_STDMETHODIMP DrawUnderline(
             void* clientDrawingContext,
             FLOAT baselineOriginX,
             FLOAT baselineOriginY,
@@ -270,7 +271,7 @@ public:
             IUnknown* clientDrawingEffect) override
         { return E_NOTIMPL; }
 
-        virtual HRESULT STDMETHODCALLTYPE DrawStrikethrough(
+        SK_STDMETHODIMP DrawStrikethrough(
             void* clientDrawingContext,
             FLOAT baselineOriginX,
             FLOAT baselineOriginY,
@@ -278,7 +279,7 @@ public:
             IUnknown* clientDrawingEffect) override
         { return E_NOTIMPL; }
 
-        virtual HRESULT STDMETHODCALLTYPE DrawInlineObject(
+        SK_STDMETHODIMP DrawInlineObject(
             void* clientDrawingContext,
             FLOAT originX,
             FLOAT originY,
@@ -289,7 +290,7 @@ public:
         { return E_NOTIMPL; }
 
         // IDWritePixelSnapping methods
-        virtual HRESULT STDMETHODCALLTYPE IsPixelSnappingDisabled(
+        SK_STDMETHODIMP IsPixelSnappingDisabled(
             void* clientDrawingContext,
             BOOL* isDisabled) override
         {
@@ -297,7 +298,7 @@ public:
             return S_OK;
         }
 
-        virtual HRESULT STDMETHODCALLTYPE GetCurrentTransform(
+        SK_STDMETHODIMP GetCurrentTransform(
             void* clientDrawingContext,
             DWRITE_MATRIX* transform) override
         {
@@ -306,7 +307,7 @@ public:
             return S_OK;
         }
 
-        virtual HRESULT STDMETHODCALLTYPE GetPixelsPerDip(
+        SK_STDMETHODIMP GetPixelsPerDip(
             void* clientDrawingContext,
             FLOAT* pixelsPerDip) override
         {
@@ -315,11 +316,11 @@ public:
         }
 
         // IUnknown methods
-        ULONG STDMETHODCALLTYPE AddRef() override {
+        SK_STDMETHODIMP_(ULONG) AddRef() override {
             return InterlockedIncrement(&fRefCount);
         }
 
-        ULONG STDMETHODCALLTYPE Release() override {
+        SK_STDMETHODIMP_(ULONG) Release() override {
             ULONG newCount = InterlockedDecrement(&fRefCount);
             if (0 == newCount) {
                 delete this;
@@ -327,7 +328,7 @@ public:
             return newCount;
         }
 
-        virtual HRESULT STDMETHODCALLTYPE QueryInterface(
+        SK_STDMETHODIMP QueryInterface(
             IID const& riid, void** ppvObject) override
         {
             if (__uuidof(IUnknown) == riid ||
