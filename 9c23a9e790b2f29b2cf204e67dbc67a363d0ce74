@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc4b6004_a8d3257e",
+        "filename": "include/encode/SkEncoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-12T15:04:53Z",
+      "side": 0,
+      "message": "I do really like moving things used only by subclasses to the subclasses, but why are you not using SkAutoTMalloc\u003cuint8_t\u003e anymore?  SkAutoTMalloc exists solely so that you don\u0027t have to read\n\n    struct D { void operator()(void*); };\n    std::unique_ptr\u003cunsigned char[], D\u003e fStorage;\n\nand wonder what it\u0027s all about, cross referencing the header and any .cpp file its operator() may be defined in to learn it\u0027s a roundabout SkAutoTMalloc.\n\nIt\u0027s not a bad thing for public headers to include headers from include/private; include/private exists exclusively so that public headers can use them without resorting to less readable or less maintainable gymnastics.\n\nRemoving includes---even unused ones---is way down there in the small change of desiderata for our code base... please try not to mess with things we really care about like readability and maintainability when you write this sort of CL.",
+      "revId": "9c23a9e790b2f29b2cf204e67dbc67a363d0ce74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "333e5942_faffdf46",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-12T15:04:53Z",
+      "side": 0,
+      "message": "seems a shame to lose this?  someone might miss it?",
+      "range": {
+        "startLine": 28,
+        "startChar": 23,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "9c23a9e790b2f29b2cf204e67dbc67a363d0ce74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "513cb7b6_2367a9ab",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-12T15:04:53Z",
+      "side": 0,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 47,
+        "startChar": 22,
+        "endLine": 47,
+        "endChar": 26
+      },
+      "revId": "9c23a9e790b2f29b2cf204e67dbc67a363d0ce74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

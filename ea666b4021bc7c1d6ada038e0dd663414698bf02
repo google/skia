@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fd80acfe_671b05f4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-12T15:04:53Z",
+      "side": 1,
+      "message": "I think you might get more support and respect from the team when you write this sort of CL if you explained another level or two of \"why\" here in the description.\n\nAt the moment all we\u0027ve got to go on here is the change\u0027s self-evident merits and your implicit opinion that the change is good... when I see stuff like this that really doesn\u0027t seem like an important change and distinctly negative in places, it\u0027s hard not to backpropagate that opinion of the code onto my opinion of your judgement about what code\u0027s worth writing.",
+      "revId": "ea666b4021bc7c1d6ada038e0dd663414698bf02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "62407a58_a93a06e2",
         "filename": "include/core/SkTextBlob.h",
         "patchSetId": 4
