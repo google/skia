@@ -81,6 +81,8 @@ public:
 
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
+    void setReadPixelsPtr(const void* ptr) { fReadPixelsPtr = ptr; }
+
 private:
     void onResetContext(uint32_t resetBits) override {}
 
@@ -141,13 +143,10 @@ private:
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override;
 
     dawn::Device                                 fDevice;
-    dawn::Queue                                  fQueue;    // Must be Graphics queue
-
-    // Compiler used for compiling sksl into spirv. We only want to create the compiler once since
-    // there is significant overhead to the first compile of any compiler.
-    std::unique_ptr<SkSL::Compiler> fCompiler;
-
-    std::unique_ptr<GrDawnGpuRTCommandBuffer> fCachedRTCommandBuffer;
+    dawn::Queue                                  fQueue;
+    std::unique_ptr<SkSL::Compiler>              fCompiler;
+    std::unique_ptr<GrDawnGpuRTCommandBuffer>    fCachedRTCommandBuffer;
+    const void*                                  fReadPixelsPtr = nullptr;
 
     typedef GrGpu INHERITED;
 };
