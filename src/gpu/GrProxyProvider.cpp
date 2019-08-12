@@ -941,8 +941,7 @@ bool GrProxyProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
     //   it is already instantiated and the proxy covers the entire backing surface
     return proxy->priv().isExact() ||
            (!isInstantiated && SkIsPow2(proxy->width()) && SkIsPow2(proxy->height())) ||
-           (isInstantiated && proxy->worstCaseWidth() == proxy->width() &&
-                              proxy->worstCaseHeight() == proxy->height());
+           (isInstantiated && proxy->worstCaseSize() == proxy->size());
 }
 
 void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureProxy* proxy,

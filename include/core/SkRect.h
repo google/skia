@@ -711,10 +711,8 @@ struct SK_API SkRect {
         @param h  integer height of constructed SkRect
         @return   bounds (0, 0, w, h)
     */
-    static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h) {
-        SkRect r;
-        r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
-        return r;
+    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h) {
+        return SkRect{0, 0, SkIntToScalar(w), SkIntToScalar(h)};
     }
 
     /** Returns constructed SkRect set to (0, 0, size.width(), size.height()). Does not
@@ -725,6 +723,19 @@ struct SK_API SkRect {
     */
     static constexpr SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size) {
         return SkRect{0, 0, size.fWidth, size.fHeight};
+    }
+
+    /** Returns constructed SkRect set to (0, 0, size.width(), size.height()). Does not
+        validate input; size.width() or size.height() may be negative.
+
+        Use to avoid a compiler warning that input may lose precision when stored.
+        Use SkIRect for an exact integer rectangle.
+
+        @param size  integer values for SkRect width and height
+        @return      bounds (0, 0, size.width(), size.height())
+    */
+    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeISize(const SkISize& size) {
+        return MakeIWH(size.width(), size.height());
     }
 
     /** Returns constructed SkRect set to (l, t, r, b). Does not sort input; SkRect may

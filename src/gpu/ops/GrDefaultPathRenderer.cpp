@@ -586,11 +586,9 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
     SkScalar tol = GrPathUtils::kDefaultTolerance;
     SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, path.getBounds());
 
-    SkRect devBounds;
-    GetPathDevBounds(path,
-                     renderTargetContext->asRenderTargetProxy()->worstCaseWidth(),
-                     renderTargetContext->asRenderTargetProxy()->worstCaseHeight(),
-                     viewMatrix, &devBounds);
+    SkRect devBounds = GetPathDevBounds(path,
+                                        renderTargetContext->asRenderTargetProxy()->worstCaseSize(),
+                                        viewMatrix);
 
     for (int p = 0; p < passCount; ++p) {
         if (lastPassIsBounds && (p == passCount-1)) {

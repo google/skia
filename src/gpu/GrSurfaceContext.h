@@ -43,6 +43,7 @@ public:
     // TODO: these two calls would be way cooler if this object had a GrSurfaceProxy pointer
     int width() const { return this->asSurfaceProxy()->width(); }
     int height() const { return this->asSurfaceProxy()->height(); }
+    SkISize size() const { return this->asSurfaceProxy()->size(); }
 
     const GrCaps* caps() const;
 

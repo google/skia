@@ -52,9 +52,11 @@ public:
                                              : GrSamplerState::Filter::kMipMap;
     }
 
-    static void ComputeScratchKey(const GrSurfaceDesc&, GrRenderable, int sampleCnt, GrScratchKey*);
-    static void ComputeScratchKey(GrPixelConfig config, int width, int height, GrRenderable,
-                                  int sampleCnt, GrMipMapped, GrScratchKey* key);
+    static void ComputeScratchKey(const SkISize&,
+                                  const GrBackendFormat&,
+                                  GrRenderable,
+                                  int sampleCnt,
+                                  GrMipMapped, GrScratchKey*);
 
 private:
     GrTexturePriv(GrTexture* texture) : fTexture(texture) { }

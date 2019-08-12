@@ -21,19 +21,24 @@ class GrTexture;
 class SK_API GrSurface : public GrGpuResource {
 public:
     /**
+     * Retrieves the width and height of the surface.
+     */
+    SkISize size() const { return fSize; }
+
+    /**
      * Retrieves the width of the surface.
      */
-    int width() const { return fWidth; }
+    int width() const { return fSize.width(); }
 
     /**
      * Retrieves the height of the surface.
      */
-    int height() const { return fHeight; }
+    int height() const { return fSize.width(); }
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
-    SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
+    SkRect getBoundsRect() const { return SkRect::MakeISize(fSize); }
 
     /**
      * Retrieves the pixel config specified when the surface was created.
@@ -114,8 +119,7 @@ protected:
     GrSurface(GrGpu* gpu, const SkISize& size, GrPixelConfig config, GrProtected isProtected)
             : INHERITED(gpu)
             , fConfig(config)
-            , fWidth(size.width())
-            , fHeight(size.height())
+            , fSize(size)
             , fSurfaceFlags(GrInternalSurfaceFlags::kNone)
             , fIsProtected(isProtected) {}
 
@@ -141,8 +145,7 @@ private:
     }
 
     GrPixelConfig              fConfig;
-    int                        fWidth;
-    int                        fHeight;
+    SkISize                    fSize;
     GrInternalSurfaceFlags     fSurfaceFlags;
     GrProtected                fIsProtected;
     sk_sp<GrRefCntedCallback>  fReleaseHelper;

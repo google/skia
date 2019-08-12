@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 
 #include "src/gpu/gl/GrGLUtil.h"
@@ -226,6 +226,40 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
             SK_ABORT("Unknown GrBackend");
     }
     return false;
+}
+
+uint32_t GrBackendFormat::asKey() const {
+    SkASSERT(this->isValid());
+    switch (fBackend) {
+        case GrBackendApi::kMetal:
+#ifdef SK_METAL
+            return fMtlFormat;
+#endif
+            SK_ABORT("Unexpected backend");
+        case GrBackendApi::kDawn:
+#ifdef SK_DAWN
+            return fDawnFormat;
+#endif
+            SK_ABORT("Unexpected backend");
+        case GrBackendApi::kOpenGL:
+#ifdef SK_GL
+            return static_cast<uint32_t>(fGLFormat);
+#endif
+            SK_ABORT("Unexpected backend");
+        case GrBackendApi::kVulkan:
+#ifdef SK_VULKAN
+            // We don't currently expect to make keys from surfaces with Ycbcr info.
+            SkASSERT(!fVk.fYcbcrConversionInfo.isValid());
+            GR_STATIC_ASSERT(VK_FORMAT_MAX_ENUM <= std::numeric_limits<uint32_t>::max());
+            return SkToU32(fVk.fFormat);
+#endif
+            SK_ABORT("Unexpected backend");
+        case GrBackendApi::kMock:
+            GR_STATIC_ASSERT(static_cast<uint32_t>(GrColorType::kLast) <=
+                             std::numeric_limits<uint32_t>::max());
+            return SkToU32(fMockColorType);
+    }
+    SkUNREACHABLE;
 }
 
 #if GR_TEST_UTILS

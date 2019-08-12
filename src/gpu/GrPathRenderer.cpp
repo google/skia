@@ -82,16 +82,15 @@ bool GrPathRenderer::IsStrokeHairlineOrEquivalent(const GrStyle& style, const Sk
 }
 
 
-void GrPathRenderer::GetPathDevBounds(const SkPath& path,
-                                      int devW, int devH,
-                                      const SkMatrix& matrix,
-                                      SkRect* bounds) {
+SkRect GrPathRenderer::GetPathDevBounds(const SkPath& path,
+                                        SkISize devSize,
+                                        const SkMatrix& matrix) {
     if (path.isInverseFillType()) {
-        *bounds = SkRect::MakeWH(SkIntToScalar(devW), SkIntToScalar(devH));
-        return;
+        return SkRect::MakeISize(devSize);
     }
-    *bounds = path.getBounds();
+    SkRect bounds = path.getBounds();
     matrix.mapRect(bounds);
+    return bounds;
 }
 
 void GrPathRenderer::onStencilPath(const StencilPathArgs& args) {

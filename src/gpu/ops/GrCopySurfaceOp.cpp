@@ -23,7 +23,7 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
     // If the rect is outside the srcProxy or dstProxy then we've already succeeded.
-    if (!GrClipSrcRectAndDstPoint(dstProxy->isize(), srcProxy->isize(), srcRect, dstPoint,
+    if (!GrClipSrcRectAndDstPoint(dstProxy->size(), srcProxy->size(), srcRect, dstPoint,
                                   &clippedSrcRect, &clippedDstPoint)) {
         return nullptr;
     }

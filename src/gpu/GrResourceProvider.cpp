@@ -27,7 +27,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/SkGr.h"
 
-const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
+constexpr int GrResourceProvider::kMinScratchTextureSize;
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
@@ -258,7 +258,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
 
 // Map 'value' to a larger multiple of 2. Values <= 'kMagicTol' will pop up to
 // the next power of 2. Those above 'kMagicTol' will only go up half the floor power of 2.
-uint32_t GrResourceProvider::MakeApprox(uint32_t value) {
+int GrResourceProvider::MakeApprox(int value) {
     static const int kMagicTol = 1024;
 
     value = SkTMax(kMinScratchTextureSize, value);
@@ -267,13 +267,13 @@ uint32_t GrResourceProvider::MakeApprox(uint32_t value) {
         return value;
     }
 
-    uint32_t ceilPow2 = GrNextPow2(value);
+    int ceilPow2 = SkNextPow2(value);
     if (value <= kMagicTol) {
         return ceilPow2;
     }
 
-    uint32_t floorPow2 = ceilPow2 >> 1;
-    uint32_t mid = floorPow2 + (floorPow2 >> 1);
+    int floorPow2 = ceilPow2 >> 1;
+    int mid = floorPow2 + (floorPow2 >> 1);
 
     if (value <= mid) {
         return mid;
@@ -354,7 +354,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
     // to fall back to making a new texture.
     if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(desc, renderable, renderTargetSampleCnt, &key);
+        GrTexturePriv::ComputeScratchKey({desc.fWidth, desc.fHeight}, format, renderable, renderTargetSampleCnt, GrMipMapped::kNo, &key);
         auto scratchFlags = GrResourceCache::ScratchFlags::kNone;
         if (Flags::kNoPendingIO & flags) {
             scratchFlags |= GrResourceCache::ScratchFlags::kRequireNoPendingIO;

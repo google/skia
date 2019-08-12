@@ -162,7 +162,7 @@ public:
     sk_sp<GrRenderTarget> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                               const GrVkDrawableInfo&);
 
-    static const uint32_t kMinScratchTextureSize;
+    static constexpr int kMinScratchTextureSize = 16;
 
     /**
      * Either finds and refs, or creates a static buffer with the given parameters and contents.
@@ -282,7 +282,7 @@ public:
     const GrCaps* caps() const { return fCaps.get(); }
     bool overBudget() const { return fCache->overBudget(); }
 
-    static uint32_t MakeApprox(uint32_t value);
+    static int MakeApprox(int value);
 
     inline GrResourceProviderPriv priv();
     inline const GrResourceProviderPriv priv() const;

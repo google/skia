@@ -357,8 +357,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
 
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
-    SkIRect rtRect = SkIRect::MakeWH(fRenderTargetContext->fRenderTargetProxy->worstCaseWidth(),
-                                     fRenderTargetContext->fRenderTargetProxy->worstCaseHeight());
+    SkIRect rtRect = SkIRect::MakeSize(fRenderTargetContext->fRenderTargetProxy->worstCaseSize());
 
     if (clearRect) {
         if (clearRect->contains(rtRect)) {
@@ -486,12 +485,11 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     if (stencilSettings) {
         // Must use worst case bounds so that stencil buffer updates on approximately sized render
         // targets don't get corrupted.
-        rtRect = SkRect::MakeWH(fRenderTargetProxy->worstCaseWidth(),
-                                fRenderTargetProxy->worstCaseHeight());
+        rtRect = SkRect::MakeISize(fRenderTargetProxy->worstCaseSize());
     } else {
         // Use the logical size of the render target, which allows for "fullscreen" clears even if
         // the render target has an approximate backing fit
-        rtRect = SkRect::MakeWH(this->width(), this->height());
+        rtRect = SkRect::MakeISize(this->size());
     }
 
     SkRect drawBounds = deviceQuad->bounds();
@@ -2426,7 +2424,7 @@ bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, const SkIRect& srcR
                                         const SkIPoint& dstPoint) {
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
-    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->isize(), src->isize(), srcRect, dstPoint,
+    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->size(), src->size(), srcRect, dstPoint,
                                   &clippedSrcRect, &clippedDstPoint)) {
         return false;
     }

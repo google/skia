@@ -138,23 +138,28 @@ public:
         return fHeight;
     }
 
-    SkISize isize() const { return {fWidth, fHeight}; }
+    SkISize size() const { return {fWidth, fHeight}; }
 
-    int worstCaseWidth() const;
-    int worstCaseHeight() const;
+    /**
+     * Helper that gets the largest possible size of the GrSurface that will be used to instantiate
+     * the proxy. The width and height may be larger than this->size() when the proxy is
+     * "approximate".
+     */
+    SkISize worstCaseSize() const;
+
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
     SkRect getBoundsRect() const {
         SkASSERT(LazyState::kFully != this->lazyInstantiationState());
-        return SkRect::MakeIWH(this->width(), this->height());
+        return SkRect::MakeISize(this->size());
     }
     /**
      * Helper that gets the worst case width and height of the surface as a bounding rectangle.
      */
     SkRect getWorstCaseBoundsRect() const {
         SkASSERT(LazyState::kFully != this->lazyInstantiationState());
-        return SkRect::MakeIWH(this->worstCaseWidth(), this->worstCaseHeight());
+        return SkRect::MakeISize(this->worstCaseSize());
     }
 
     GrSurfaceOrigin origin() const {

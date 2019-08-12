@@ -1299,7 +1299,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapBackImage(const SkIRect& subset) {
 
     // Note, can't move srcProxy since we also refer to this in the 2nd parameter
     return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
-                                               SkIRect::MakeSize(srcProxy->isize()),
+                                               SkIRect::MakeSize(srcProxy->size()),
                                                kNeedNewImageUniqueID_SpecialImage,
                                                srcProxy,
                                                this->imageInfo().refColorSpace(),

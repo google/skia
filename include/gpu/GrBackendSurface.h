@@ -141,6 +141,9 @@ public:
     SkString toStr() const;
 #endif
 
+    /** For internal use in Skia. */
+    uint32_t asKey() const;
+
 private:
     GrBackendFormat(GrGLenum format, GrGLenum target);
 

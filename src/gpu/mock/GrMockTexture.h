@@ -193,7 +193,7 @@ private:
     }
 
     void computeScratchKey(GrScratchKey* key) const override {
-        GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
+        GrTexturePriv::ComputeScratchKey(this->size(), this->backendFormat(),
                                          GrRenderable::kYes, this->numSamples(),
                                          this->texturePriv().mipMapped(), key);
     }

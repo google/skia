@@ -172,11 +172,7 @@ public:
 protected:
     // Helper for getting the device bounds of a path. Inverse filled paths will have bounds set
     // by devSize. Non-inverse path bounds will not necessarily be clipped to devSize.
-    static void GetPathDevBounds(const SkPath& path,
-                                 int devW,
-                                 int devH,
-                                 const SkMatrix& matrix,
-                                 SkRect* bounds);
+    static SkRect GetPathDevBounds(const SkPath& path, SkISize devSize, const SkMatrix& matrix);
 
 private:
     /**

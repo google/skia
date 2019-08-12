@@ -65,6 +65,10 @@ public:
                                                    GrRenderTargetContext*);
 
 private:
+    // Helper that allows GrSurfaceProxy::worstCaseSize() to be called just once in public cons.
+    inline SkImage_Gpu(sk_sp<GrContext>, uint32_t uniqueID, SkAlphaType, SkISize,
+                       sk_sp<GrTextureProxy>, sk_sp<SkColorSpace>);
+
     sk_sp<GrTextureProxy> fProxy;
 
     typedef SkImage_GpuBase INHERITED;

@@ -284,11 +284,8 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
         mipMapped = tp->mipMapped();
     }
 
-    int width = this->worstCaseWidth();
-    int height = this->worstCaseHeight();
-
-    GrTexturePriv::ComputeScratchKey(this->config(), width, height, renderable, sampleCount,
-                                     mipMapped, key);
+    GrTexturePriv::ComputeScratchKey(this->worstCaseSize(), this->backendFormat(), renderable,
+                                     sampleCount, mipMapped, key);
 }
 
 void GrSurfaceProxy::setLastRenderTask(GrRenderTask* renderTask) {
@@ -310,28 +307,17 @@ GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
     return fLastRenderTask ? fLastRenderTask->asTextureOpList() : nullptr;
 }
 
-int GrSurfaceProxy::worstCaseWidth() const {
+SkISize GrSurfaceProxy::worstCaseSize() const {
     SkASSERT(LazyState::kFully != this->lazyInstantiationState());
     if (fTarget) {
-        return fTarget->width();
+        return fTarget->size();
     }
 
     if (SkBackingFit::kExact == fFit) {
-        return fWidth;
+        return this->size();
     }
-    return GrResourceProvider::MakeApprox(fWidth);
-}
+    return {GrResourceProvider::MakeApprox(fWidth), GrResourceProvider::MakeApprox(fHeight)};
 
-int GrSurfaceProxy::worstCaseHeight() const {
-    SkASSERT(LazyState::kFully != this->lazyInstantiationState());
-    if (fTarget) {
-        return fTarget->height();
-    }
-
-    if (SkBackingFit::kExact == fFit) {
-        return fHeight;
-    }
-    return GrResourceProvider::MakeApprox(fHeight);
 }
 
 #ifdef SK_DEBUG

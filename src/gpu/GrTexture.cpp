@@ -86,38 +86,31 @@ void GrTexture::computeScratchKey(GrScratchKey* key) const {
             sampleCount = rt->numSamples();
             renderable = GrRenderable::kYes;
         }
-        GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(), renderable,
+        GrTexturePriv::ComputeScratchKey(this->size(), this->backendFormat(), renderable,
                                          sampleCount, this->texturePriv().mipMapped(), key);
     }
 }
 
-void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int height,
-                                      GrRenderable renderable, int sampleCnt, GrMipMapped mipMapped,
+void GrTexturePriv::ComputeScratchKey(const SkISize& size,
+                                      const GrBackendFormat& format,
+                                      GrRenderable renderable,
+                                      int sampleCnt,
+                                      GrMipMapped mipMapped,
                                       GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
-    SkASSERT(width > 0);
-    SkASSERT(height > 0);
+    SkASSERT(size.width() > 0);
+    SkASSERT(size.height() > 0);
     SkASSERT(sampleCnt > 0);
     SkASSERT(1 == sampleCnt || renderable == GrRenderable::kYes);
 
-    // make sure desc.fConfig fits in 5 bits
-    SkASSERT(sk_float_log2(kLast_GrPixelConfig) <= 5);
-    SkASSERT(static_cast<int>(config) < (1 << 5));
     SkASSERT(sampleCnt < (1 << 8));
     SkASSERT(static_cast<int>(mipMapped) <= 1);
 
-    GrScratchKey::Builder builder(key, kType, 3);
-    builder[0] = width;
-    builder[1] = height;
-    builder[2] = config
-               | (static_cast<uint32_t>(mipMapped) << 5)
-               | (sampleCnt << 6)
-               | (static_cast<uint32_t>(renderable) << 14);
-}
-
-void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                      int sampleCnt, GrScratchKey* key) {
-    // Note: the fOrigin field is not used in the scratch key
-    return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight, renderable, sampleCnt,
-                             GrMipMapped::kNo, key);
+    GrScratchKey::Builder builder(key, kType, 4);
+    builder[0] = size.width();
+    builder[1] = size.height();
+    builder[2] = format.asKey();
+    builder[3] = static_cast<uint32_t>(mipMapped)
+               | (sampleCnt << 1)
+               | (static_cast<uint32_t>(renderable) << 9);
 }
