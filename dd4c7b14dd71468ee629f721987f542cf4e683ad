@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d4a6e04_f04c5da0",
+        "filename": "gm/gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-12T15:00:31Z",
+      "side": 1,
+      "message": "I\u0027m not a fan of this kind of syntax. It would probably be more acceptable to make DEF_GM and actual templated method with a signature like std::make_unique which would do more or less the same thing as std::make_unique but also add to the registry. But I\u0027m not sure how to do that with the c++ we can use here. Also, the current setup is easy to understand... put code in here at it will run when the gm is being registered. Maybe that\u0027s a bit too flexible, but it is simple to understand. Also, this doesn\u0027t really save any typing of note, since this will get typed right after writing a new gm.",
+      "range": {
+        "startLine": 235,
+        "startChar": 7,
+        "endLine": 235,
+        "endChar": 24
+      },
+      "revId": "dd4c7b14dd71468ee629f721987f542cf4e683ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1aa7c02f_ab23594d",
+        "filename": "gm/multipicturedraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-12T15:00:31Z",
+      "side": 1,
+      "message": "nit: sp",
+      "range": {
+        "startLine": 550,
+        "startChar": 25,
+        "endLine": 550,
+        "endChar": 39
+      },
+      "revId": "dd4c7b14dd71468ee629f721987f542cf4e683ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
