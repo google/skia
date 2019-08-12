@@ -40,6 +40,32 @@ public:
      */
     skif::Image<For::kOutput> filterImage(const skif::Context& context) const;
 
+    skif::Test test() const {
+        return kFor_Input;
+    }
+
+    // Calculate the required layer bounds that provides sufficient
+    // information to correctly compute the image filter for every
+    // pixel in the target output bounds, where ‘target’ is likely
+    // defined by the current clip.
+    //
+    // If the filter does not affect transparent black, and the
+    // extents of the drawn content are known, the returned bounds
+    // should be intersected with the content bounds to further
+    // optimize the size of the initial layer.
+    Bounds<In::kLayer, As::kInput> filterLayerBounds(
+            const Bounds<In::kLayer, As::kOutput> target,
+            const SkMatrix& layer,
+            const Bounds<In::kLayer, As::kInput>* originalInput) const;
+
+    // Typesafe version of SkImagefilter::filterOutputBounds that
+    // is called after decomposing the total CTM into just the
+    // layer matrix that will be used to evaluate the filter.
+    Bounds<In::kLayer, As::kOutput> filterOutputBounds(
+            const Bounds<In::kLayer, As::kInput> content,
+            const SkMatrix& layer) const;
+
+
     /**
      *  Returns whether any edges of the crop rect have been set. The crop
      *  rect is set at construction time, and determines which pixels from the
@@ -127,6 +153,7 @@ protected:
     // DEPRECATED - Use the private context-only variant
     virtual sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const = 0;
 
+// FIXME make the private virtual type-safe versions of these
     /**
      * This function recurses into its inputs with the given rect (first
      * argument), calls filterBounds() with the given map direction on each,

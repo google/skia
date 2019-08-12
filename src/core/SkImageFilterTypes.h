@@ -8,6 +8,9 @@
 #ifndef SkImageFilterTypes_DEFINED
 #define SkImageFilterTypes_DEFINED
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 
@@ -22,6 +25,49 @@ class SkSurfaceProps;
 // SkSpecialImage. It is possible to avoid the use of the readability templates, although they are
 // strongly encouraged.
 namespace skif {
+
+    enum Test {
+        kFor_Input,
+        kFor_Output
+    };
+
+// Image filter implementations need to track geometry across a number of coordinate systems. While
+// the base Sk[I]Rect and Sk[I]Point types are perfectly suited to represent this data,
+// implementations would quickly become difficult to read when there are multiple variables of the
+// same type that are defined relative to distinct systems. In particular, when operating on those
+// coordinates, are the actions part of transforming from one space to another, or part of the
+// effects of the image filter. This template tag enum, in conjunction with the geometric wrappers
+// provided below help mitigate these issues and ensure correctness when converting from one space
+// to another.
+enum class CoordinateSystem {
+    // The coordinate system specific to an image filter and its spatial parameters, such as offset
+    // vector or blur radius. Unless specified otherwise (e.g., the ‘x’ parameter to the
+    // ‘yImageFilter’)parameters are mapped from this space into kLayerSpace using the portion of
+    // the CTM in filter context (i.e., the layer matrix). If a blur had a sigma of 2 for both x and
+    // y axes, with a scaling matrix (Sx=2,Sy=3), the layer-space blur would have sigmas = (4,6).
+    kParameter,
+    // The space where filtering occurs aligned to the x & y axes. The layer matrix of the filtering
+    // context transforms from a filter’s parameter space to the layer space. As a final step, when
+    // drawing the filtered result to its destination, layer space can be mapped to device space via
+    // the remainder matrix held by the SkCanvas.
+    kLayer,
+    // The final destination space for the filtered image, represented by the total matrix of the
+    // SkCanvas. This should only be relevant in the final draw of the filtered result.
+    kDevice,
+    // The pixel space for an image as input or output in part of the filtering process. An offset
+    // vector maps its top left corner into layer space and is returned with the output of each
+    // filter node in the DAG. If we blurred a 10x10 image we would have a 16x16 image space and a
+    // -3,-3..13,13 layer space (with the stupid offset being -3,-3).
+    kImage,
+    // The real pixel space that holds a logical image. An offset maps the top left logical pixel to
+    // a real pixel in the backing proxy. The proxy’s size will be at least large enough to contain
+    // the offset logical image. This space captures both the loose-fitted-ness of special images
+    // and subsetted special images. If a filter needed to output a 12x12 image and there was a
+    // 16x16 scratch texture available, it could be used as an approx. fit proxy. If this image then
+    // needed to be cropped, its subset coordinates could be modified without copying to a new
+    // buffer.
+    kProxy
+};
 
 // Usage is a template tag to improve the readability of filter implementations. It is can be
 // attached to images and geometry to group a collection of related variables and ensure that moving
@@ -43,7 +89,151 @@ enum class Usage {
     // Designates the purpose of the bounds, coordinate, or image as being the output of the
     // current image filter calculation. There is only ever one output for an image filter.
     kOutput,
+    // Designates that the semantic use of the bounds is inherited from the coordinate system of the
+    // geometry. This is intended for use with coordinate systems that have a single inherent
+    // purpose (e.g. kDevice or kParameter).
+    kInherit
 };
+
+// A template programming type to collect the base SkX types and math operations into a common
+// structure. This allows the later templates to cleanly handle SkIPoint, SkPoint, SkIVector,
+// SkVector, SkIRect, and SkRect and operate on them correctly. This structure is particularly
+// important because Sk[I]Point and Sk[I]Vector are just typedefs and the base Sk types don't
+// distinguish between their semantics at a level we can use in templates.
+template<typename T,
+         T (*BasisProc)(const T&, const SkMatrix&),
+         T (*OriginProc)(const T&, const SkIPoint&)>
+struct GeometryOps {
+    // Expose template arguments so that later types can be templated just on GeometryOps and then
+    // access its configured arguments
+    using Base      = T;
+    static T MapBasis(const T& a, const SkMatrix& m) { return BasisProc(a, m); }
+    static T MapOrigin(const T& a, const SkIPoint& o) { return OriginProc(a, o); }
+};
+
+// Mapping procs for the six core skia math types, should not be invoked directly but used to
+// define a complete GeometryOps type.
+SkRect RectBasisProc(const SkRect& rect, const SkMatrix& matrix) {
+    return matrix.mapRect(rect);
+}
+SkRect RectOriginProc(const SkRect& rect, const SkIPoint& point) {
+    return rect.makeOffset(SkIntToScalar(point.fX), SkIntToScalar(point.fY));
+}
+
+SkIRect IRectBasisProc(const SkIRect& rect, const SkMatrix& matrix) {
+    return matrix.mapRect(SkRect::Make(rect)).roundOut();
+}
+SkIRect IRectOriginProc(const SkIRect& rect, const SkIPoint& point) {
+    return rect.makeOffset(point.fX, point.fY);
+}
+
+SkPoint PointBasisProc(const SkPoint& point, const SkMatrix& matrix) {
+    SkPoint p;
+    matrix.mapPoints(&p, &point, 1);
+    return p;
+}
+SkPoint PointOriginProc(const SkPoint& a, const SkIPoint& b) {
+    return a + SkPoint::Make(SkIntToScalar(b.fX), SkIntToScalar(b.fY));
+}
+
+SkIPoint IPointBasisProc(const SkIPoint& point, const SkMatrix& matrix) {
+    SkPoint p = SkPoint::Make(SkIntToScalar(point.fX), SkIntToScalar(point.fY));
+    matrix.mapPoints(&p, 1);
+    return SkIPoint::Make(SkScalarCeilToInt(p.fX), SkScalarCeilToInt(p.fY));
+}
+SkIPoint IPointOriginProc(const SkIPoint& a, const SkIPoint& b) {
+    return a + b;
+}
+
+// While these technically operate on the same base type as the point procs,
+// these use mapVectors instead of mapPoints, and origin translations are
+// ignored (consistent with mapVectors if the origin were turned into a
+// translation matrix).
+SkVector VectorBasisProc(const SkVector& vector, const SkMatrix& matrix) {
+    SkVector v;
+    matrix.mapVectors(&v, &vector, 1);
+    return v;
+}
+SkVector VectorOriginProc(const SkVector& a, const SkIPoint& b) { return a; }
+
+SkIVector IVectorBasisProc(const SkIVector& vector, const SkMatrix& matrix) {
+    SkVector v = SkVector::Make(SkIntToScalar(vector.fX), SkIntToScalar(vector.fY));
+    matrix.mapVectors(&v, 1);
+    return SkIVector::Make(SkScalarCeilToInt(v.fX), SkScalarCeilToInt(v.fY));
+}
+SkIVector IVectorOriginProc(const SkIPoint& a, const SkIPoint& b) { return a; }
+
+// Fully specified GeometryOps for the six key geometry types in Skia.
+using RectOps = GeometryOps<SkRect, RectBasisProc, RectOriginProc>;
+using IRectOps = GeometryOps<SkIRect, IRectBasisProc, IRectOriginProc>;
+using PointOps = GeometryOps<SkPoint, PointBasisProc, PointOriginProc>;
+using IPointOps = GeometryOps<SkIPoint, IPointBasisProc, IPointOriginProc>;
+using VectorOps = GeometryOps<SkVector, VectorBasisProc, VectorOriginProc>;
+using IVectorOps = GeometryOps<SkIVector, IVectorBasisProc, IVectorOriginProc>;
+
+template<typename Ops,
+         CoordinateSystem kCS,
+         Usage kU>
+class SkFilterGeometry {
+public:
+    using T = typename Ops::Base;
+
+    SkFilterGeometry() = default;
+
+    // Support copy/move construction from the base skia type
+    explicit SkFilterGeometry(const T& geometry)
+            : fData(geometry) {}
+    explicit SkFilterGeometry(T&& geometry)
+            : fData(std::move(geometry)) {}
+
+    // Support explicit conversion back to the base skia type
+    explicit operator const T&() const { return fData; }
+    explicit operator T() const { return fData; }
+
+    // Assignment operators for the base skia type
+    SkFilterGeometry<T, kCS, kU>& operator=(T&& geometry) {
+        fData = std::move(geometry);
+        return *this;
+    }
+
+    SkFilterGeometry<T, kCS, kU>& operator=(const T& geometry) {
+        fData = geometry;
+        return *this;
+    }
+
+private:
+    T fData;
+};
+
+// Provide better names that line up with the specific ops type, but can still be templated
+// on the coordinate system and the usage
+template<CoordinateSystem kCS, Usage kU>
+using Rect = SkFilterGeometry<RectOps, kCS, kU>;
+template<CoordinateSystem kCS, Usage kU>
+using IRect = SkFilterGeometry<IRectOps, kCS, kU>;
+template<CoordinateSystem kCS, Usage kU>
+using Point = SkFilterGeometry<PointOps, kCS, kU>;
+template<CoordinateSystem kCS, Usage kU>
+using IPoint = SkFilterGeometry<IPointOps, kCS, kU>;
+template<CoordinateSystem kCS, Usage kU>
+using Vector = SkFilterGeometry<VectorOps, kCS, kU>;
+template<CoordinateSystem kCS, Usage kU>
+using IVector = SkFilterGeometry<IVectorOps, kCS, kU>;
+
+
+template<typename Ops,
+         Usage kU>
+SkFilterGeometry<Ops, CoordinateSystem::kLayer, kU> ParameterToLayer(const SkFilterGeometry<Ops, CoordinateSystem::kParameter, kU>& geom, const SkMatrix& layerMatrix) {
+    return SkFilterGeometry(Ops::MapBasis(Ops::Base(geom), matrix));
+}
+
+template<typename Ops,
+         Usage kU>
+SkFilterGeometry<Ops, CoordinateSystem::kImage, kU> LayerToImage(
+        const SkFilterGeometry<Ops, CoordinateSystem::kLayer, kU>& geom,
+        const IPoint<CoordinateSystem::kLayer, kU>& origin) {
+    return SkFilterGeometry(Ops::MapOrigin(Ops::Base(geom), -SkIPoint(origin)));
+}
 
 // Convenience macros to add 'using' declarations that rename the above enums to provide a more
 // fluent and readable API. This should only be used in a private or local scope to prevent leakage
@@ -51,11 +241,484 @@ enum class Usage {
 // These macros enable the following simpler type names:
 //   skif::Image<skif::Usage::kInput> -> Image<For::kInput>
 #define SK_USE_FLUENT_IMAGE_FILTER_TYPES \
-    using For = skif::Usage;
+    using For = skif::Usage; \
+    using In = skif::CoordinateSystem;
+    // template<skif::CoordinateSystem kCS, \
+    //          skif::Usage            kU = SkFilterUsage::kInherit> \
+    // using Bounds = SkFilterBounds<kCS, kU>;
+    // template<skif::CoordinateSystem kCS, \
+    //          skif::Usage            kU = SkFilterUsage::kInherit> \
+    // using Coord = SkFilterCoord<kCS, kU>;
+    // template<skif::CoordinateSystem kCS, \
+    //          skif::Usage            kU = SkFilterUsage::kInherit> \
+    // using Vector = SkFilterVector<kCS, kU>;
 
 #define SK_USE_FLUENT_IMAGE_FILTER_TYPES_IN_CLASS \
     protected: SK_USE_FLUENT_IMAGE_FILTER_TYPES public:
+/*
 
+Another thing to try is
+
+TODO but I think we should remove the float|int parameter, and not need any more conditional switching.
+
+Then we just IVecModule(not a template) = GeomModule<SkIVector, apply, ...>, VecModule<SkVector, apply...>, x6
+
+and then FilterGeom is meant  to be taking T = completed GeomModule spec, which gives us everything we need
+and then we have using Point<kCS, kU> = FilterGeom<IPointModule, kCS, kU>, etc. boooooom
+
+struct Geometry<float|int, int type, float type, applyMatrix, applyOffset, ... do we need the Int versions of applyX too?>
+{
+    conditional that selects the int or float type
+    conditional that selects the apply matrix func
+    and the apply offset func
+}
+using Point<float|int> = Geometry<float|int, SkIpoint, SkPoint, applyMatrixFunc, applyOffsetFunc>
+using Vec<float|int> = <..., but diff apply funcs>
+using Rect<float|int> = <SkIRect, SkRect, diff apply funcs>
+
+
+Then FilterGeom<T, kCS, kU> {
+    Ctor(T::Base&&)
+    Ctor(const T::Base&)
+
+    operator T::Base() const {}
+
+private:
+    T::Base data;
+}
+
+
+Math: {
+    ParamToLayer<kU, T>(FilterGeom<T, kParam, kU>, Matrix)
+
+    ImageToLayer<kU, T>(FilterGeom<T, kImage, kU>, RealIPoint<kLayer, kU> origin) -> FilterGeom<T, kLayer, kU>
+
+    I think this will work out okay, it leaves us with 6 templates that take kCS, kU, just the
+    functions we want to define generically, and the geometric types are kept away from kCS, and kU
+}
+
+Then the ?? Are these useful, yes in the long run, but
+using RealPoint<kCS, kU> = FilterGeom<Point<float>, kCS, kU>
+      RealIPoint<kCS, kU> = filtergeom<point<int>, kCS, kU>
+
+
+
+
+struct [Point|Vec|Rect]<float|int> {
+    // that then has whatever is needed to conditionally choose SkIPoint over SkPoint, or
+    // SkIRect over SkRect.
+    //
+    // and also attach the applyMatrix and applyOffset functions for each of the 3.
+    // I don't think there's
+}
+
+
+
+
+*/
+/*
+
+So we have rect, point, vector as the three geometric concepts
+Then we have int and float as the two domains for the geometric coordinates
+Then we have the 5 coordinate systems that the geometries can exist in, and the 6 of 25 relevant
+   transformations between the coordinate systems for each of the 6 concrete geometric representations
+Then we have the 5 usages, which are essentially just pass through to keep the same for inputs
+   and outputs. The exception being the usage casting/mapping options that keep all other parameters
+   fixed and just change the usages.
+Then there are also the inset/outset/offset/map operations that the filter may want to perform on
+an layer geometry to get a new layer geometry, e.g. when calculating their output size. This sort
+of math really ought to just be done in the layer space.
+
+In terms of what you can/cannot do on these types, the public operations are the same regardless
+of float or int, although rect/point/vector is a deciding factor. However, internally, the float
+vs int will be substantial as well, since the ints will have some rounding rules.
+
+For all of these operations, we want the return values to be the most specific type, and the arguments
+to be the most specific type. This means that layer ops or rect ops still somehow need to have the
+usage/cs tags available. But in order to get around the stupid partial specialization business, the
+type that holds the actual data/mapping rules has to eventually get to an API that doesn't care about
+those things.
+
+
+It is not possible too just use typename T to refer to SkRect, etc. because there's no real
+different between SkPoint and SkVector, and SkIPoint and SkIVector. This means some other parameter
+would have to be added in that case that differentiates the point vs vector mapping behavior.
+
+
+template<typename T, SkFilterCoordinateSystem kCS, SkFilterUsage kU>
+class RectOps {
+SkFilterGeometry<T, kCS, kU> outset()
+};
+
+template<typename T,
+         SkFilterCoordinateSystem kCS,
+         SkFilterUsage            kU = SkFilterUsage::kInherit>
+class SkFilterGeometry {
+public:
+    SkFilterGeometry() = default;
+
+    explicit SkFilterGeometry(const T& geometry)
+            : fData(geometry) {}
+    explicit SkFilterGeometry(T&& geometry)
+            : fData(std::move(geometry)) {}
+
+    explicit operator const T&() const { return fData; }
+    explicit operator T() const { return fData; }
+
+    SkFilterGeometry<T, kCS, kU>& operator=(T&& geometry) {
+        fData = std::move(geometry);
+        return *this;
+    }
+
+    SkFilterGeometry<T, kCS, kU>& operator=(const T& geometry) {
+        fData = geometry;
+        return *this;
+    }
+
+private:
+    T fData;
+};
+
+template<typename T>
+class SkFilterMath {
+public:
+    template<SkFilterUsage kU>
+    static SkFilterGeometry<T, SkFilterCoordinateSystem::kLayer, kU> ParameterToLayer(
+            const SkFilterGeometry<T, SkFilterCoordinateSystem::kParameter>& in, const SkMatrix& matrix) {
+        return SkFilterGeometry<T, SkFilterCoordinateSystem::kLayer, kU>(ApplyMatrix(T(in), matrix));
+    }
+
+    // LayerToDevice();
+    // LayerToImage();
+    // ImageToLayer();
+    // ImageToProxy();
+private:
+    static T ApplyMatrix(const T& geom, const SkMatrix& matrix);
+    static T ApplyOffset(const T& geom, const SkIPoint& offset);
+};
+
+template<>
+SkRect SkFilterMath<SkRect>::ApplyMatrix(const SkRect& rect, const SkMatrix& matrix) {
+    return matrix.mapRect(rect);
+}
+
+template<>
+SkIRect SkFilterMath<SkIRect>::ApplyMatrix(const SkIRect& rect, const SkMatrix& matrix) {
+    return matrix.mapRect(SkRect::Make(rect)).roundOut();
+}
+
+template<SkFilterCoordinateSystem kCS, SkFilterUsage kU>
+using Bounds = SkFilterGeometry<SkRect, kCS, kU>;
+template<SkFilterCoordinateSystem kCS, SkFilterUsage kU>
+using IBounds = SkFilterGeometry<SkIRect, kCS, kU>;
+
+template<typename T, SkFilterUsage kU>
+using SkParameterToLayer = SkFilterMath<T>::ParameterToLayer<kU>;
+
+/*
+template<SkFilterCoordinateSystem kCS, SkFilterUsage kU>
+SkPoint SkFilterGeometry<SkPoint, kCS, kU>::applyMatrix(const SkMatrix& matrix) {
+    SkPoint p;
+    matrix.mapPoints(&p, &fData, 1);
+    return p;
+}
+
+template<SkFilterCoordinateSystem kCS, SkFilterUsage kU>
+SkIPoint SkFilterGeometry<SkIPoint, kCS, kU>::applyMatrix(const SkMatrix& matrix) {
+    SkPoint p;
+    p.iset(fData);
+    matrix.mapPoints(&p, 1);
+    return {SkScalarCeilToInt(p.fX), SkScalarCeilToInt(p.fY)};
+}
+*/
+
+/*
+template<SkFilterCoordinateSystem kCS,
+         SkFilterUsage            kU = SkFilterUsage::kInherit>
+struct SkFilterVector;
+
+// A coordinate system-tagged wrapper of SkIPoint. Static asserts enforce when the optional usage
+// parameter must be specified, so that the valid set of Coord templates are:
+//   Coord<kParameter>           - a 2D point/vector stored by an SkImageFilter, e.g. an offset
+//   Coord<kLayer>               - for layer-space calculations that aren’t associated with an
+//                                 input or output
+//   Coord<kLayer, kOutput>      - the layer-space origin of the output image
+//   Coord<kImage, kOutput>      - a pixel coordinate of the output image
+//   Coord<kProxy, kOutput>      - a pixel coordinate of the output image, relative to its actual
+//                                 backing proxy (primarily used for gpu implementations)
+//   Coord<kLayer, kInput[|0|1]> - the layer-space origin of the possibly slot-specific input image
+//   Coord<kImage, kInput[|0|1]> - a pixel coordinate of the input image
+//   Coord<kProxy, kInput[|0|1]> - a pixel coordinate of the input image, relative to its actual
+//                                 backing proxy (primarily used for gpu implementations)
+//
+// Unlike SkIPoint which can freely be interpreted as a vector or a point, Coord only refers to
+// a point. SkFilterVector provides an equivalent wrapper for a 2D vector.,
+template<SkFilterCoordinateSystem kCS,
+         SkFilterUsage            kU = SkFilterUsage::kInherit>
+struct SkFilterCoord {
+public:
+    // ... include same static asserts as Bounds
+    SkFilterCoord() = default;
+    explicit SkFilterCoord(const SkIPoint& point)
+            : fPoint(point) {}
+
+    explicit operator SkIPoint() const { return fPoint; };
+
+    // Mirrors SkIPoint API but maintains coordinate system safety.
+    void operator+=(const SkFilterVector<kCS, kU>& c) {
+        fPoint += c.fVector;
+    }
+
+    void operator-=(const SkFilterVector<kCS, kU>& c) {
+        fPoint -= c.fVector;
+    }
+
+    friend bool operator==(SkFilterCoord<kCS, kU>& a, SkFilterCoord<kCS, kU>& b) {
+        return a.fPoint == b.fPoint;
+    }
+
+    friend SkFilterCoord<kCS, kU> operator+(SkFilterCoord<kCS, kU>& a, SkFilterVector<kCS, kU>& b) {
+        return SkFilterCoord(a.fPoint + b.fVector);
+    }
+
+    friend SkFilterVector<kCS, kU> operator-(SkFilterCoord<kCS, kU>& a, SkFilterCoord<kCS, kU>& b) {
+        return SkFilterCoord(a.fPoint - b.fPoint);
+    }
+
+private:
+    SkIPoint fPoint;
+};
+
+template<SkFilterCoordinateSystem kCS,
+         SkFilterUsage            kU = SkFilterUsage::kInherit>
+struct SkFilterVector {
+public:
+    // ... include same static asserts as Bounds
+    SkFilterVector() = default;
+    explicit SkFilterVector(const SkIVector& vector)
+            : fVector(vector) {}
+
+    explicit operator SkIVector() const { return fVector; };
+
+    // Mirrors SkIPoint API but maintains coordinate system safety.
+    SkFilterVector<kCS, kU> operator-() const { return SkFilterVector(-fVector); }
+
+    void operator+=(const SkFilterVector<kCS, kU>& c) {
+        fVector += c.fVector;
+    }
+
+    void operator-=(const SkFilterVector<kCS, kU>& c) {
+        fVector -= c.fVector;
+    }
+
+    friend bool operator==(SkFilterVector<kCS, kU>& a, SkFilterVector<kCS, kU>& b) {
+        return a.fVector == b.fVector;
+    }
+
+    friend SkFilterVector<kCS, kU> operator+(SkFilterVector<kCS, kU>& a,
+                                             SkFilterVector<kCS, kU>& b) {
+        return SkFilterVector(a.fVector + b.fVector);
+    }
+
+    friend SkFilterVector<kCS, kU> operator-(SkFilterVector<kCS, kU>& a,
+                                             SkFilterVector<kCS, kU>& b) {
+        return SkFilterVector(a.fVector - b.fVector);
+    }
+
+private:
+    SkIVector applyMatrix(const SkMatrix& matrix) {
+        // Use mapVector to skip applying the translation component of the matrix
+
+        return matrix.mapRect(SkRect::Make(fRect)).roundOut();
+    }
+
+    SkIVector applyOffset(const SkIPoint& offset) {
+        // Offsets are not applied to directions, so this is a no-op
+        return fVector;
+    }
+
+    SkIVector fVector;
+};
+
+// A coordinate system-tagged wrapper of SkIRect. Static asserts enforce when the optional usage
+// parameter must be specified, so that the valid set of Bounds templates are:
+//   Bounds<kParameter>           - geometry stored by an SkImageFilter, e.g. a crop rect
+//   Bounds<kLayer>               - for layer-space calculations that aren’t associated with an
+//                                  input or output
+//   Bounds<kLayer, kOutput>      - the layer-space bounds of the output image
+//   Bounds<kImage, kOutput>      - a subset of pixels of the output image
+//   Bounds<kProxy, kOutput>      - a subset of pixels of the output image, relative to its actual
+//                                  backing proxy (primarily used for gpu implementations)
+//   Bounds<kLayer, kInput[|0|1]> - the layer-space bounds of the possibly slot-specific input image
+//   Bounds<kImage, kInput[|0|1]> - a subset of pixels of the input image
+//   Bounds<kProxy, kInput[|0|1]> - a subset of pixels of the input image, relative to its actual
+//                                  backing proxy (primarily used for gpu implementations)
+template<SkFilterCoordinateSystem kCS,
+         SkFilterUsage            kU = SkFilterUsage::kInherit>
+class SkFilterBounds {
+public:
+    static_assert(!(kCS == kParameter || kCS == kDevice) || kU == kInherit,
+                  "kParameter and kDevice space must use kInherit as their usage");
+    static_assert(!(kCS == kImage || kCS == kProxy) || kU != kInherit,
+                  "kImage and kProxy space cannot use kInherit for their usage");
+
+    SkFilterBounds() = default;
+    explicit SkFilterBounds(const SkIRect& rect)
+            : fRect(rect) {}
+
+    // The coordinates of the four corners of the bounding box, specified in kCS.
+    explicit operator SkIRect() const { return fRect; };
+
+    // ... add accessors and mutators as necessary
+    SkFilterCoord<kCS, kU> topleft() const { return SkFilterCoord<>({fRect.fLeft, fRect.fTop}); }
+
+    // Mirrors SkIRect API but maintains coordinate system safety.
+    void join(const SkFilterBounds<kCS, kU>& bounds) {
+        fRect.join(bounds.fRect);
+    }
+
+    bool intersect(const SkFilterBounds<kCS, kU>& bounds) {
+        return fRect.intersect(bounds.fRect);
+    }
+
+    void outset(int dx, int dy) {
+        fRect.outset(dx, dy);
+    }
+
+    void offset(const SkFilterVector<kCS, kU>& offset) {
+        fRect.offset(SkIPoint(offset));
+    }
+
+private:
+    SkIRect applyMatrix(const SkMatrix& matrix) {
+        return matrix.mapRect(SkRect::Make(fRect)).roundOut();
+    }
+
+    SkIRect applyOffset(const SkIPoint& offset) {
+        SkIRect rect;
+        rect.offset(offset);
+        return rect;
+    }
+
+    SkIRect fRect;
+};
+
+
+
+// Utility math functions to convert from one coordinate system to another
+    // FIXME I don't love this name or having it as a prefix, but I want to define the functions
+    // using the fluent API, which requires putting it into a class.
+    //
+    // Is it possible that we could make them defined on the actual types? so everything would have
+    // a toLayer(), toDevice(), toImage(), and toProxy() function?
+
+    // Then the only special functions we need are the usage changing ones for MapImage() and
+    // layer casting. I do like that.  And since there are only so many coordinate systems, we
+    // could have all of the template specializations defined in the C++ file anyways.
+template<typename T, /* SkFilterBounds, SkFilterCoord, or SkFilterVector */
+    /*     SkFilterUsage kU>
+T<In::kLayer, kU> SkParameterToLayer(const T<In::kParameter>& geom, const SkMatrix& layerCTM) {
+    return T<In::kLayer, kU>(geom.applyMatrix(layerCTM));
+}
+
+template<typename T,
+         SkFilterUsage kU>
+T<In::kDevice> SkLayerToDevice(const T<In::kLayer, kU>& geom, const SkMatrix& remainder) {
+    return T<In::kDevice>(geom.applyMatrix(remainder));
+}
+
+template<typename T,
+         SkFilterUsage kU>
+T<In::kImage, kU> SkLayerToImage(const T<In::kLayer, kU>& geom, const Coord<In::kLayer, kU>& origin) {
+    return T<In::kImage, kU>(geom.applyOffset(-SkIPoint(origin)));
+}
+
+template<typename T,
+         SkFilterUsage kU>
+T<In::kLayer, kU> SkImageToLayer(const T<In::kImage, kU>& geom, const Coord<In::kLayer, kU>& origin) {
+    return T<In::kLayer, kU>(geom.applyOffset(SkIPoint(origin)));
+}
+
+template<typename T,
+         SkFilterUsage kU>
+T<In::kProxy, kU> SkImageToProxy(const T<In::kImage, kU>& geom, const Coord<In::kProxy, kU>& origin) {
+    return T<In::kProxy, kU>(geom.applyOffset(SkIPoint(origin)));
+}
+
+template<typename T,
+         SkFilterUsage kUIn, SkFilterUsage kUOut>
+T<In::kLayer, kUOut> SkLayerCast(const T<In::kLayer, kUIn>& geom) {
+    //. TODO
+}
+
+template<typename T,
+         SkFilterUsage kUIn, SkFilterUsage kUOut>
+T<In::kImage, kUOut> SkMapImageSpace(const T<In::kImage, kUIn>& geom, const Coord<In::kLayer, kUIn>& inOrigin,
+                    const Coord<In::kLayer, kUOut>& outOrigin) {
+    return SkLayerToImage(SkLayerCast<kUOut>(SkImageToLayer(geom, inOrigin)), outOrigin);
+}
+
+class SkCoords {
+public:
+    SK_USE_FLUENT_IMAGE_FILTER_TYPES_IN_CLASS
+
+    template<SkFilterUsage kU>
+    Bounds<In::kImage, kU> LayerToImage(const Bounds<In::kLayer, kU>&, const Coord<In::kLayer, kU>& origin) {
+        return in.offset(-origin);
+    }
+
+    template<SkFilterUsage kU>
+    Coord<In::kImage, kU> LayerToImage(const Coord<In::kLayer, kU>&, const Coord<In::kLayer, kU>& origin) {
+        return in - origin;
+    }
+
+    template<SkFilterUsage kU>
+    Bounds<In::kLayer, kU> ImageToLayer(const Bounds<In::kImage, kU>&, const Coord<In::kLayer, kU>& origin) {
+        return in.offset(origin);
+    }
+
+    template<SkFilterUsage kU>
+    Coord<In::kLayer, kU> ImageToLayer(const Coord<In::kImage, kU>&, const Coord<In::kLayer, kU>& origin) {
+        return in + origin;
+    }
+    template<SkFilterUsage kU>
+    Bounds<In::kProxy, kU> ImageToProxy(const Bounds<In::kImage, kU>&, const Coord<In::kProxy, kU>& origin) {
+        return in.offset(origin);
+    }
+
+    template<SkFilterUsage kU>
+    Coord<In::kProxy, kU> ImageToProxy(const Coord<In::kImage, kU>&, const Coord<In::kProxy, kU>& origin) {
+        return in + origin;
+    }
+
+    // Converting between different usages in the layer coordinate system is free, but should be an
+    // explicit choice in the code.
+    template<SkFilterUsage kU1, SkFilterUsage kU2>
+    Bounds<kLayer, kU2> LayerCast(const Bounds<kLayer, kU1>&);
+    template<SkFilterUsage kU1, SkFilterUsage kU2>
+    Coord<kLayer, kU2> LayerCast(const Coord<kLayer, kU1>&);
+    template<SkFilterUsage kU1, SkFilterUsage kU2>
+    Vector<kLayer, kU2> LayerCast(const Vector<kLayer, kU1>&);
+    // FIXME make && versions too for the layer space
+
+    // Converting between different image spaces is not and depends on the layer-space origins for
+    // both images.
+    template<SkFilterUsage kU1, SkFilterUsage kU2>
+    Bounds<In::kImage, kU2> MapImage(const Bounds<In::kImage, kU1>&, const Coord<In::kLayer, kU1>& inOrigin,
+        const Coord<In::kLayer, kU2>& outOrigin) {
+        return LayerToImage<kU2>(LayerCast<kU2>(ImageToLayer<kU1>(in, inOrigin)), outOrigin);
+    }
+
+    template<SkFilterUsage kU1, SkFilterUsage ku2>
+    Coord<In::kImage, kU2> MapImage(const Coord<In::kImage, kU1>&, const Coord<In::kLayer, kU1>& inOrigin,
+        const Coord<In::kLayer, kU2>& outOrigin) {
+        return LayerToImage<kU2>(LayerCast<kU2>(ImageToLayer<kU1>(in, inOrigin)), outOrigin);
+    }
+
+private:
+    SkFilterMath() = delete;
+}
+*/
 // Wraps an SkSpecialImage and tags it with a corresponding usage, either as generic input (e.g. the
 // source image), or a specific input image from a filter's connected inputs. It also includes the
 // origin of the image in the layer space. This origin is used to draw the image in the correct
@@ -71,10 +734,13 @@ enum class Usage {
 template<Usage kU>
 class Image {
 public:
-    Image() : fImage(nullptr)
-            , fOrigin({0, 0}) {}
+    static_assert(kU != Usage::kInherit, "Images cannot use the kInherit use case");
+    SK_USE_FLUENT_IMAGE_FILTER_TYPES_IN_CLASS
 
-    Image(sk_sp<SkSpecialImage> image, const SkIPoint& origin)
+    Image() : fImage(nullptr)
+            , fOrigin({{0, 0}}) {}
+
+    Image(sk_sp<SkSpecialImage> image, const IPoint<In::kLayer, kU>& origin)
             : fImage(std::move(image))
             , fOrigin(origin) {}
 
@@ -110,16 +776,16 @@ public:
 
     // Get the subset bounds of this image within its backing proxy. This will have the same
     // dimensions as the image.
-    const SkIRect& subset() const { return fImage->subset(); }
+    const IRect<In::kProxy, kU>& subset() const { return fImage->subset(); }
 
     // Get the layer-space bounds of this image. This will have the same dimensions as the
     // image and its top left corner will be 'origin()'.
-    const SkIRect& layerBounds() const {
+    const IRect<In::kLayer, kU>& layerBounds() const {
         return SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fImage->width(), fImage->height());
     }
 
     // Get the layer-space coordinate of this image's top left pixel.
-    const SkIPoint& origin() const { return fOrigin; }
+    const IPoint<In::kLayer, kU>& origin() const { return fOrigin; }
 
     // Extract image and origin, safely when the image is null.
     // TODO (michaelludwig) - This is intended for convenience until all call sites of
@@ -128,7 +794,7 @@ public:
     // tagging needs to be added).
     sk_sp<SkSpecialImage> imageAndOffset(SkIPoint* offset) const {
         if (fImage) {
-            *offset = fOrigin;
+            *offset = SkIPoint(fOrigin);
             return fImage;
         } else {
             *offset = {0, 0};
@@ -142,7 +808,7 @@ private:
     friend class Image;
 
     sk_sp<SkSpecialImage> fImage;
-    SkIPoint fOrigin;
+    IPoint<In::kLayer, kU> fOrigin;
 };
 
 // The context contains all necessary information to describe how the image filter should be
@@ -214,7 +880,7 @@ public:
     // The bounds, in the layer space, that the filtered image will be clipped to. The output
     // from filterImage() must cover these clip bounds, except in areas where it just be
     // transparent black, in which case a smaller output image can be returned.
-    const SkIRect& clipBounds() const { return fClipBounds; }
+    const IRect<In::kLayer, For::kOutput>& clipBounds() const { return fClipBounds; }
     // The cache to use when recursing through the filter DAG, in order to avoid repeated
     // calculations of the same image.
     SkImageFilterCache* cache() const { return fCache; }
@@ -235,10 +901,10 @@ public:
     GrRecordingContext* getGrContext() const { return fSource.image()->getContext(); }
 
 private:
-    SkMatrix            fLayerMatrix;
-    SkIRect             fClipBounds;
-    SkImageFilterCache* fCache;
-    SkColorType         fColorType;
+    SkMatrix                     fLayerMatrix;
+    IRect<In::kLayer, For::kOutput> fClipBounds;
+    SkImageFilterCache*          fCache;
+    SkColorType                  fColorType;
     // This will be a pointer that is owned by the device controlling the filter process, and our
     // lifetime is bounded by the device, so it can be a bare pointer.
     SkColorSpace*       fColorSpace;
