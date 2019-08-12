@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5421807_0911e969",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-12T15:09:31Z",
+      "side": 0,
+      "message": "Why don\u0027t we spin some of this off into smaller CLs?  Not having to pass a useless nullptr through things certainly seems like a fine change on its own, as does passing a unique_ptr back through user code.  Seems like the GM middleware could catch either unique_ptrs or raw pointers coming from the DEF_GM macro and make sure it\u0027s unique\u0027d by the time we\u0027re working with and using it in programs?",
+      "revId": "9c23a9e790b2f29b2cf204e67dbc67a363d0ce74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
