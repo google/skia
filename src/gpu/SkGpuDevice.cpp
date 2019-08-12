@@ -177,11 +177,11 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
     if (colorType == kUnknown_SkColorType) {
         colorType = kRGBA_8888_SkColorType;
     }
-    SkImageFilter_Base::OutputProperties outputProperties(
-            colorType, fRenderTargetContext->colorSpaceInfo().colorSpace());
-    SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
 
-    return as_IFB(filter)->filterImage(srcImg, ctx, offset);
+    skif::Context ctx(matrix, clipBounds, cache.get(), colorType,
+                      fRenderTargetContext->colorSpaceInfo().colorSpace(), srcImg);
+
+    return as_IFB(filter)->filterImage(ctx, offset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
