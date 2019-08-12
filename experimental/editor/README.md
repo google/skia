@@ -35,4 +35,8 @@ Try it out:
     tools/git-sync-deps
     bin/gn gen out/default
     ninja -C out/default editor
-    out/default/editor whitespace.txt
+
+    out/default/editor resources/text/english.txt
+
+    cat resources/text/*.txt > example.txt
+    out/default/editor example.txt
