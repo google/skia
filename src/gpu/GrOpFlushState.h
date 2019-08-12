@@ -113,9 +113,9 @@ public:
 
     GrDeinstantiateProxyTracker* deinstantiateProxyTracker() { return &fDeinstantiateProxyTracker; }
 
-private:
     /** GrMeshDrawOp::Target override. */
     SkArenaAlloc* allocator() override { return &fArena; }
+private:
 
     struct InlineUpload {
         InlineUpload(GrDeferredTextureUploadFn&& upload, GrDeferredUploadToken token)
