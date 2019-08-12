@@ -195,19 +195,14 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
             // Notice this vector v and accum work with the original unclipped length.
             SkVector v = pts[1] - pts[0];
 
-            // TODO: this whole bit of skip-moveTo() logic seems wrong to me.
-            // If the line is entirely outside clip rect, skip it.
-            bool inY = bounds.fTop  <= pts[0].fY && pts[0].fY <= bounds.fBottom,
-                 inX = bounds.fLeft <= pts[0].fX && pts[0].fX <= bounds.fRight ;
-            if (v.fX ? inY : inX) {
-                bool skipMoveTo = inX && inY;
-
-                if (clip_line(pts, bounds, intervalLength, SkScalarMod(accum, intervalLength))) {
-                    if (accum == 0 || !skipMoveTo) {
-                        dstPath->moveTo(pts[0]);
-                    }
-                    dstPath->lineTo(pts[1]);
+            if (clip_line(pts, bounds, intervalLength, SkScalarMod(accum, intervalLength))) {
+                // pts[0] may have just been changed by clip_line().
+                // If that's not where we ended the previous lineTo(), we need to moveTo() there.
+                SkPoint last;
+                if (!dstPath->getLastPt(&last) || last != pts[0]) {
+                    dstPath->moveTo(pts[0]);
                 }
+                dstPath->lineTo(pts[1]);
             }
 
             // We either just traveled v.fX horizontally or v.fY vertically.
