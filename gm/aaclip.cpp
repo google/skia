@@ -227,12 +227,12 @@ DEF_SIMPLE_GM(cgimage, canvas, 800, 250) {
 
 // https://bug.skia.org/3716
 class ClipCubicGM : public skiagm::GM {
-    const SkScalar W = 100;
-    const SkScalar H = 240;
+    static constexpr SkScalar W = 100;
+    static constexpr SkScalar H = 240;
 
     SkPath fVPath, fHPath;
-public:
-    ClipCubicGM() {
+
+    void onOnceBeforeDraw() override {
         fVPath.moveTo(W, 0);
         fVPath.cubicTo(W, H-10, 0, 10, 0, H);
 
@@ -241,14 +241,9 @@ public:
         fVPath.transform(pivot, &fHPath);
     }
 
-protected:
-    SkString onShortName() override {
-        return SkString("clipcubic");
-    }
+    SkString onShortName() override { return SkString("clipcubic"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(400, 410);
-    }
+    SkISize onISize() override { return {400, 410}; }
 
     void doDraw(SkCanvas* canvas, const SkPath& path) {
         SkPaint paint;
@@ -285,8 +280,5 @@ protected:
         canvas->translate(0, 200);
         this->drawAndClip(canvas, fHPath, 200, 0);
     }
-
-private:
-    typedef skiagm::GM INHERITED;
 };
 DEF_GM(return new ClipCubicGM;)

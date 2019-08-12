@@ -31,11 +31,10 @@
 static DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
 
 class AnimatedGifGM : public skiagm::GM {
-private:
     std::unique_ptr<SkCodec>        fCodec;
-    int                             fFrame;
-    double                          fNextUpdate;
-    int                             fTotalFrames;
+    int                             fFrame = 0;
+    double                          fNextUpdate = -1;
+    int                             fTotalFrames = -1;
     std::vector<SkCodec::FrameInfo> fFrameInfos;
     std::vector<SkBitmap>           fFrames;
 
@@ -73,13 +72,6 @@ private:
         canvas->drawBitmap(bm, 0, 0);
     }
 
-public:
-    AnimatedGifGM()
-    : fFrame(0)
-    , fNextUpdate (-1)
-    , fTotalFrames (-1) {}
-
-private:
     SkString onShortName() override {
         return SkString("animatedGif");
     }

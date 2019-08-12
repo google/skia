@@ -18,21 +18,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 
-class AlphaGradientsGM : public skiagm::GM {
-public:
-    AlphaGradientsGM() {}
-
-protected:
-    SkString onShortName() override {
-        return SkString("alphagradients");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
-
-    static void draw_grad(SkCanvas* canvas, const SkRect& r,
-                          SkColor c0, SkColor c1, bool doPreMul) {
+static void draw_grad(SkCanvas* canvas, const SkRect& r, SkColor c0, SkColor c1, bool doPreMul) {
         SkColor colors[] = { c0, c1 };
         SkPoint pts[] = { { r.fLeft, r.fTop }, { r.fRight, r.fBottom } };
         SkPaint paint;
@@ -44,9 +30,9 @@ protected:
         paint.setShader(nullptr);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawRect(r, paint);
-    }
+}
 
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(alphagradients, canvas, 640, 480) {
         constexpr struct {
             SkColor fColor0;
             SkColor fColor1;
@@ -78,10 +64,4 @@ protected:
             canvas->restore();
             canvas->translate(r.width() + 10, 0);
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-DEF_GM(return new AlphaGradientsGM;)
+}

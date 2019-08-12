@@ -22,25 +22,27 @@
 
 #include <initializer_list>
 
-namespace skiagm {
-
+namespace {
 // This GM recreates the blend mode images from the Android documentation
-class AndroidBlendModesGM : public GM {
-public:
-    AndroidBlendModesGM() {
-        this->setBGColor(SK_ColorBLACK);
-    }
+class AndroidBlendModesGM : public skiagm::GM {
+    static constexpr int kBitmapSize = 256;
+    static constexpr int kNumRows = 5;
+    static constexpr int kNumCols = 4;
 
-protected:
-    SkString onShortName() override {
-        return SkString("androidblendmodes");
-    }
+    static constexpr SkColor kBlue  = SkColorSetARGB(255, 22, 150, 243);
+    static constexpr SkColor kRed   = SkColorSetARGB(255, 233, 30, 99);
+    static constexpr SkColor kWhite = SkColorSetARGB(255, 243, 243, 243);
+    static constexpr SkColor kGrey  = SkColorSetARGB(255, 222, 222, 222);
 
-    SkISize onISize() override {
-        return SkISize::Make(kNumCols * kBitmapSize, kNumRows * kBitmapSize);
-    }
+    SkBitmap fCompositeSrc;
+    SkBitmap fCompositeDst;
+
+    SkString onShortName() override { return SkString("androidblendmodes"); }
+
+    SkISize onISize() override { return {kNumCols * kBitmapSize, kNumRows * kBitmapSize}; }
 
     void onOnceBeforeDraw() override {
+        this->setBGColor(SK_ColorBLACK);
         SkImageInfo ii = SkImageInfo::MakeN32Premul(kBitmapSize, kBitmapSize);
         {
             fCompositeSrc.allocPixels(ii);
@@ -113,24 +115,6 @@ protected:
             }
         }
     }
-
-private:
-    static const int kBitmapSize = 256;
-    static const int kNumRows = 5;
-    static const int kNumCols = 4;
-
-    static const SkColor  kBlue  = SkColorSetARGB(255, 22, 150, 243);
-    static const SkColor  kRed   = SkColorSetARGB(255, 233, 30, 99);
-    static const SkColor  kWhite = SkColorSetARGB(255, 243, 243, 243);
-    static const SkColor  kGrey  = SkColorSetARGB(255, 222, 222, 222);
-
-    SkBitmap fCompositeSrc;
-    SkBitmap fCompositeDst;
-
-    typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new AndroidBlendModesGM;)
 }
+DEF_GM( return new AndroidBlendModesGM; )

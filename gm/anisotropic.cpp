@@ -17,16 +17,16 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 
-namespace skiagm {
+namespace {
 
 // This GM exercises HighQuality anisotropic filtering.
-class AnisotropicGM : public GM {
-public:
-    AnisotropicGM() : fFilterQuality(kHigh_SkFilterQuality) {
-        this->setBGColor(0xFFCCCCCC);
-    }
+class AnisotropicGM : public skiagm::GM {
+    static constexpr int kImageSize     = 256;
+    static constexpr int kSpacer        = 10;
+    static constexpr int kNumVertImages = 5;
 
-protected:
+    SkBitmap         fBM;
+    SkFilterQuality  fFilterQuality = kHigh_SkFilterQuality;
 
     SkString onShortName() override { return SkString("anisotropic_hq"); }
 
@@ -40,6 +40,7 @@ protected:
         constexpr int kNumLines = 100;
         constexpr SkScalar kAngleStep = 360.0f / kNumLines;
         constexpr int kInnerOffset = 10;
+        this->setBGColor(0xFFCCCCCC);
 
         fBM.allocN32Pixels(kImageSize, kImageSize, true);
 
@@ -106,19 +107,7 @@ protected:
             this->draw(canvas, xOff, yOff, width, fBM.height());
         }
     }
-
-private:
-    static constexpr int kImageSize     = 256;
-    static constexpr int kSpacer        = 10;
-    static constexpr int kNumVertImages = 5;
-
-    SkBitmap         fBM;
-    SkFilterQuality  fFilterQuality;
-
-    typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new AnisotropicGM;)
 }
+
+DEF_GM( return new AnisotropicGM; )

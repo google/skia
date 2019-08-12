@@ -23,10 +23,8 @@
 #include "tools/timer/TimeUtils.h"
 
 class AddArcGM : public skiagm::GM {
-public:
-    AddArcGM() : fRotate(0) {}
+    SkScalar fRotate = 0;
 
-protected:
     SkString onShortName() override { return SkString("addarc"); }
 
     SkISize onISize() override { return SkISize::Make(1040, 1040); }
@@ -66,10 +64,6 @@ protected:
         fRotate = TimeUtils::Scaled(1e-9 * nanos, 1, 360);
         return true;
     }
-
-private:
-    SkScalar fRotate;
-    typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new AddArcGM; )
 
@@ -115,10 +109,8 @@ DEF_SIMPLE_GM(addarc_meas, canvas, 2*R + 40, 2*R + 40) {
 // to ensure that we compute the stroke taking the CTM into account
 //
 class StrokeCircleGM : public skiagm::GM {
-public:
-    StrokeCircleGM() : fRotate(0) {}
+    SkScalar fRotate = 0;
 
-protected:
     SkString onShortName() override { return SkString("strokecircle"); }
 
     SkISize onISize() override { return SkISize::Make(520, 520); }
@@ -152,11 +144,6 @@ protected:
         fRotate = TimeUtils::Scaled(1e-9 * nanos, 60, 360);
         return true;
     }
-
-private:
-    SkScalar fRotate;
-
-    typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new StrokeCircleGM; )
 
@@ -165,10 +152,8 @@ DEF_GM( return new StrokeCircleGM; )
 // Fill circles and rotate them to test our Analytic Anti-Aliasing.
 // This test is based on StrokeCircleGM.
 class FillCircleGM : public skiagm::GM {
-public:
-    FillCircleGM() : fRotate(0) {}
+    SkScalar fRotate = 0;
 
-protected:
     SkString onShortName() override { return SkString("fillcircle"); }
 
     SkISize onISize() override { return SkISize::Make(520, 520); }
@@ -205,11 +190,6 @@ protected:
         fRotate = TimeUtils::Scaled(1e-9 * nanos, 60, 360);
         return true;
     }
-
-private:
-    SkScalar fRotate;
-
-    typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new FillCircleGM; )
 

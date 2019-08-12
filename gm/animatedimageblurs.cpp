@@ -20,20 +20,14 @@
 #include "include/utils/SkRandom.h"
 #include "tools/timer/TimeUtils.h"
 
-static const SkScalar kBlurMax = 7.0f;
-static const int kNumNodes = 30;
-static const int kWidth = 512;
-static const int kHeight = 512;
-static const SkScalar kBlurAnimationDuration = 4.0f; // in secs
+static constexpr SkScalar kBlurMax = 7.0f;
+static constexpr int kNumNodes = 30;
+static constexpr int kWidth = 512;
+static constexpr int kHeight = 512;
+static constexpr SkScalar kBlurAnimationDuration = 4.0f; // in secs
 
 // This GM draws a lot of layers with animating BlurImageFilters
 class AnimatedImageBlurs : public skiagm::GM {
-public:
-    AnimatedImageBlurs() : fLastTime(0.0f) {
-        this->setBGColor(0xFFCCCCCC);
-    }
-
-protected:
     bool runAsBench() const override { return true; }
 
     SkString onShortName() override { return SkString("animated-image-blurs"); }
@@ -41,6 +35,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onOnceBeforeDraw() override {
+        this->setBGColor(0xFFCCCCCC);
         for (int i = 0; i < kNumNodes; ++i) {
             fNodes[i].init(&fRand);
         }
@@ -78,18 +73,8 @@ protected:
         return true;
     }
 
-private:
     class Node {
     public:
-        Node()
-            : fSize(0.0f)
-            , fPos { 0.0f, 0.0f }
-            , fDir { 1.0f, 0.0f }
-            , fBlurOffset(0.0f)
-            , fBlur(fBlurOffset)
-            , fSpeed(0.0f) {
-        }
-
         void init(SkRandom* rand) {
             fSize = rand->nextRangeF(10.0f, 60.f);
             fPos.fX = rand->nextRangeF(fSize, kWidth - fSize);
@@ -126,21 +111,17 @@ private:
         SkScalar size() const { return fSize; }
 
     private:
-        SkScalar fSize;
-        SkPoint  fPos;
-        SkVector fDir;
-        SkScalar fBlurOffset;
-        SkScalar fBlur;
-        SkScalar fSpeed;
+        SkScalar fSize = 0;
+        SkPoint  fPos = {0, 0};
+        SkVector fDir = {1, 0};
+        SkScalar fBlurOffset = 0;
+        SkScalar fBlur = 0;
+        SkScalar fSpeed = 0;
     };
 
     Node     fNodes[kNumNodes];
     SkRandom fRand;
-    SkScalar fLastTime;
-
-    typedef GM INHERITED;
+    SkScalar fLastTime = 0;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new AnimatedImageBlurs;)
+DEF_GM( return new AnimatedImageBlurs; )

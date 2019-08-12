@@ -56,15 +56,15 @@ enum Shape {
  * src colors.
  */
 class AAXfermodesGM : public skiagm::GM {
-public:
-    AAXfermodesGM() {}
-
-protected:
     enum DrawingPass {
         kCheckerboard_Pass,
         kBackground_Pass,
         kShape_Pass
     };
+
+    SkFont    fLabelFont;
+    SkPath    fOval;
+    SkPath    fConcave;
 
     SkString onShortName() override {
         return SkString("aaxfermodes");
@@ -272,12 +272,5 @@ protected:
                 SK_ABORT("Invalid shape.");
         }
     }
-
-private:
-    SkFont    fLabelFont;
-    SkPath    fOval;
-    SkPath    fConcave;
-
-    typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new AAXfermodesGM; )
