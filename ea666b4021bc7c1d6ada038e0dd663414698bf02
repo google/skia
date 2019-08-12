@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62407a58_a93a06e2",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-12T14:41:28Z",
+      "side": 1,
+      "message": "This comes from SkTemplates. I think you\u0027ll want to check with iwyu before removing includes like this, which may make things brittle.",
+      "range": {
+        "startLine": 383,
+        "startChar": 4,
+        "endLine": 383,
+        "endChar": 17
+      },
+      "revId": "ea666b4021bc7c1d6ada038e0dd663414698bf02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e17a060_b75a2597",
+        "filename": "include/private/SkPathRef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-12T14:41:28Z",
+      "side": 1,
+      "message": "This is a net negative for something already in include/private which probably shouldn\u0027t have this much code in the header anyway.",
+      "range": {
+        "startLine": 488,
+        "startChar": 28,
+        "endLine": 488,
+        "endChar": 51
+      },
+      "revId": "ea666b4021bc7c1d6ada038e0dd663414698bf02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
