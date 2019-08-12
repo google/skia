@@ -45,6 +45,11 @@ SkRTShader::SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkMatrix* loca
 {}
 
 bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
+    SkMatrix inverse;
+    if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &inverse)) {
+        return false;
+    }
+
     auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
     ctx->paintColor = rec.fPaint.getColor4f();
     ctx->inputs = fInputs->data();
@@ -75,6 +80,7 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     ctx->fn = ctx->byteCode->getFunction("main");
 
     rec.fPipeline->append(SkRasterPipeline::seed_shader);
+    rec.fPipeline->append_matrix(rec.fAlloc, inverse);
     rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
     return true;
 }
@@ -130,8 +136,12 @@ sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPArgs& args) const {
+    SkMatrix matrix;
+    if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+        return nullptr;
+    }
     return GrSkSLFP::Make(args.fContext, fUniqueID, "runtime-shader", fSkSL,
-                          fInputs->data(), fInputs->size());
+                          fInputs->data(), fInputs->size(), SkSL::Program::kPipelineStage_Kind,
+                          &matrix);
 }
 #endif
-
