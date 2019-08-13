@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9999b6cd_1efb518a",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "Done.\n\nI\u0027ve also removed the usage of GrSurfaceDesc from GrDawnTexture and GrDawnRenderTarget, since the base classes (GrSurface, GrTexture) no longer use it. Replaced with explicit size and config.",
+      "parentUuid": "ef41c923_369d4a43",
+      "range": {
+        "startLine": 118,
+        "startChar": 43,
+        "endLine": 118,
+        "endChar": 73
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1c74b455_a0b7cf93",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbea1a8a_f41c201b",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c74b455_a0b7cf93",
+      "range": {
+        "startLine": 287,
+        "startChar": 0,
+        "endLine": 308,
+        "endChar": 37
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ff064824_0643b7fc",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "Good idea; done.",
+      "parentUuid": "3f0d1a51_f3a7a5a2",
+      "range": {
+        "startLine": 309,
+        "startChar": 12,
+        "endLine": 309,
+        "endChar": 27
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "184349df_3e55304e",
         "filename": "src/gpu/dawn/GrDawnRenderTarget.cpp",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c663e94_60992f6b",
+        "filename": "src/gpu/dawn/GrDawnRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "IIRC, it made the code cleaner, but details are fuzzy. I believe it possible to have a single constructor for GrDawnTextureRenderTarget, for example (in upcoming patch).\n\nI think it\u0027s worth trying in the other backends, yes.",
+      "parentUuid": "184349df_3e55304e",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 53
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "bd82c358_76eef0a9",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71a17d7d_2148029c",
+      "range": {
+        "startLine": 20,
+        "startChar": 82,
+        "endLine": 20,
+        "endChar": 115
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac3fc9a3_a28363c1",
         "filename": "src/gpu/dawn/GrDawnTexture.cpp",
         "patchSetId": 2
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "d0e55ecb_bd507b20",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac3fc9a3_a28363c1",
+      "range": {
+        "startLine": 32,
+        "startChar": 9,
+        "endLine": 32,
+        "endChar": 47
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cdfd48c_58b9834c",
         "filename": "src/gpu/dawn/GrDawnTexture.cpp",
         "patchSetId": 2
@@ -151,6 +295,30 @@
       "writtenOn": "2019-08-13T17:33:12Z",
       "side": 1,
       "message": "I assume you would be creating a GrDawnTextureRenderTarget here? The model of all our other backends is that this logic would live out in the Gr*Gpu class, and would call a TextureRenderTarget::Make factory. My worry is that once you start handling multisampling and all the other stuff needed for TextureRenderTarget, this factory could get complicated and hard to read with lots of if (renderable) statements.\n\nBut if in the end you think it does workout better and looks cleaner/easier to read doing it this way I\u0027m not against it.",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 35
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04e39255_48ba7471",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "Yes, you\u0027ve guessed correctly (see next patch). Since, like Vulkan, Dawn has a single Texture (aka VkImage) object for textures and render targets, a lot of this code was duplicated in the Make function for TRT. I found it cleaner to do it this way.",
+      "parentUuid": "6cdfd48c_58b9834c",
       "range": {
         "startLine": 71,
         "startChar": 4,
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "b72bfd62_9cc8c5ec",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "84a54ccb_4d8100dd",
+      "range": {
+        "startLine": 120,
+        "startChar": 17,
+        "endLine": 120,
+        "endChar": 30
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8618deac_9aee70a8",
         "filename": "src/gpu/dawn/GrDawnTexture.cpp",
         "patchSetId": 2
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "7884ee86_2617d345",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8618deac_9aee70a8",
+      "range": {
+        "startLine": 121,
+        "startChar": 26,
+        "endLine": 121,
+        "endChar": 30
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e2db853_680a19c6",
         "filename": "src/gpu/dawn/GrDawnTexture.cpp",
         "patchSetId": 2
@@ -229,6 +445,30 @@
       "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2ae3d93_f5de1a4b",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:29:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e2db853_680a19c6",
+      "range": {
+        "startLine": 122,
+        "startChar": 24,
+        "endLine": 122,
+        "endChar": 32
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
