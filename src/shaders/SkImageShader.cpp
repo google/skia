@@ -218,7 +218,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // are provided by the caller.
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-            args.fFilterQuality, *args.fViewMatrix, *lm,
+            fImage->width(), fImage->height(), args.fFilterQuality, *args.fViewMatrix, *lm,
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
     GrSamplerState samplerState(wrapModes, textureFilterMode);
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
