@@ -18,6 +18,10 @@ class SK_API GrImageContext : public GrContext_Base {
 public:
     ~GrImageContext() override;
 
+    GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
+        return INHERITED::defaultBackendFormat(ct, renderable);
+    }
+
     // Provides access to functions that aren't part of the public API.
     GrImageContextPriv priv();
     const GrImageContextPriv priv() const;

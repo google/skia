@@ -396,27 +396,3 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
 GrContext* GrRecordingContextPriv::backdoor() {
     return (GrContext*) fContext;
 }
-
-GrBackendFormat GrRecordingContext::defaultBackendFormat(SkColorType skColorType,
-                                                         GrRenderable renderable) const {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-
-    if (this->abandoned()) {
-        return GrBackendFormat();
-    }
-
-    const GrCaps* caps = this->caps();
-
-    GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
-
-    GrBackendFormat format = caps->getDefaultBackendFormat(grColorType, renderable);
-    if (!format.isValid()) {
-        return GrBackendFormat();
-    }
-
-    SkASSERT(caps->isFormatTexturable(grColorType, format));
-    SkASSERT(renderable == GrRenderable::kNo ||
-             caps->isFormatAsColorTypeRenderable(grColorType, format));
-
-    return format;
-}
