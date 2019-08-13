@@ -10554,7 +10554,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -10630,7 +10630,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -10706,7 +10706,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -10782,7 +10782,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -10933,7 +10933,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11009,7 +11009,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11085,7 +11085,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11161,7 +11161,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11237,7 +11237,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11313,7 +11313,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         },
         {
           "name": "skia/bots/opencl_headers",
@@ -11394,7 +11394,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11470,7 +11470,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11546,7 +11546,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11622,7 +11622,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11698,7 +11698,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11774,7 +11774,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11850,7 +11850,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
@@ -11926,7 +11926,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:10"
+          "version": "version:12"
         }
       ],
       "command": [
