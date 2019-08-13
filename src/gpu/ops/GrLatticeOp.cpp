@@ -101,7 +101,7 @@ private:
         uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(samplerState,
                                                                      proxy->backendFormat());
 
-        fSampler.reset(proxy->textureType(), proxy->config(), samplerState, proxy->textureSwizzle(),
+        fSampler.reset(proxy->textureType(), samplerState, proxy->textureSwizzle(),
                        extraSamplerKey);
         this->setTextureSamplerCnt(1);
         fInPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};

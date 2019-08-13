@@ -106,7 +106,6 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor,
         const auto& sampler = proc.textureSampler(i);
         const GrTexture* texture = primProcProxies[i]->peekTexture();
         SkASSERT(sampler.textureType() == texture->texturePriv().textureType());
-        SkASSERT(sampler.config() == texture->config());
         texSamplers[i] = this->emitSampler(texture,
                                            sampler.samplerState(),
                                            sampler.swizzle(),
