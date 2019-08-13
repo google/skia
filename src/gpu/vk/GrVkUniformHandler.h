@@ -30,8 +30,7 @@ public:
         kSamplerDescSet = 1,
     };
     enum {
-        kGeometryBinding = 0,
-        kFragBinding = 1,
+        kUniformBinding = 0
     };
 
     struct UniformInfo {
@@ -59,8 +58,7 @@ private:
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
-        , fCurrentGeometryUBOOffset(0)
-        , fCurrentFragmentUBOOffset(0) {
+        , fCurrentUBOOffset(0) {
     }
 
     UniformHandle internalAddUniformArray(uint32_t visibility,
@@ -93,10 +91,6 @@ private:
 
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
-    bool hasGeometryUniforms() const { return fCurrentGeometryUBOOffset > 0; }
-    bool hasFragmentUniforms() const { return fCurrentFragmentUBOOffset > 0; }
-
-
     const UniformInfo& getUniformInfo(UniformHandle u) const {
         return fUniforms[u.toIndex()];
     }
@@ -106,8 +100,7 @@ private:
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
 
-    uint32_t            fCurrentGeometryUBOOffset;
-    uint32_t            fCurrentFragmentUBOOffset;
+    uint32_t            fCurrentUBOOffset;
 
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;
