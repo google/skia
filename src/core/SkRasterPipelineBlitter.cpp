@@ -293,6 +293,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
             this->append_store(&p);
         }
         fBlitRect = p.compile();
+        p.dump();
     }
 
     fBlitRect(x,y,w,h);
@@ -315,6 +316,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
 
         this->append_store(&p);
         fBlitAntiH = p.compile();
+        p.dump();
     }
 
     for (int16_t run = *runs; run > 0; run = *runs) {
@@ -419,6 +421,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         }
         this->append_store(&p);
         fBlitMaskA8 = p.compile();
+        p.dump();
     }
     if (mask.fFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
         SkRasterPipeline p(fAlloc);
@@ -436,6 +439,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         }
         this->append_store(&p);
         fBlitMaskLCD16 = p.compile();
+        p.dump();
     }
     if (mask.fFormat == SkMask::k3D_Format && !fBlitMask3D) {
         SkRasterPipeline p(fAlloc);
@@ -455,6 +459,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         }
         this->append_store(&p);
         fBlitMask3D = p.compile();
+        p.dump();
     }
 
     std::function<void(size_t,size_t,size_t,size_t)>* blitter = nullptr;
