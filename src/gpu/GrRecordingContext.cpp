@@ -414,7 +414,7 @@ GrBackendFormat GrRecordingContext::defaultBackendFormat(SkColorType skColorType
         return GrBackendFormat();
     }
 
-    SkASSERT(caps->isFormatTexturable(grColorType, format));
+    SkASSERT(caps->isFormatTexturableAndUploadable(grColorType, format));
     SkASSERT(renderable == GrRenderable::kNo ||
              caps->isFormatAsColorTypeRenderable(grColorType, format));
 

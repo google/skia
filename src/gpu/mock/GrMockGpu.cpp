@@ -278,7 +278,7 @@ GrBackendTexture GrMockGpu::createBackendTexture(int w, int h,
                                                  const SkColor4f* /* color */,
                                                  GrProtected /* isProtected */) {
     auto colorType = format.asMockColorType();
-    if (!this->caps()->isFormatTexturable(colorType, format)) {
+    if (!this->caps()->isFormatTexturable(format)) {
         return GrBackendTexture();  // invalid
     }
 

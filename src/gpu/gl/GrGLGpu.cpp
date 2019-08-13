@@ -1107,7 +1107,7 @@ bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorTy
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrGLFormatIsCompressed(textureFormat));
 
-    SkASSERT(this->glCaps().isFormatTexturable(textureColorType, textureFormat));
+    SkASSERT(this->glCaps().isFormatTexturable(textureFormat));
     SkDEBUGCODE(
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
         SkIRect bounds = SkIRect::MakeWH(texWidth, texHeight);
@@ -3790,7 +3790,9 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    if (!this->caps()->isConfigTexturable(config)) {
+    auto textureColorType = GrPixelConfigToColorType(config);
+
+    if (!this->caps()->isFormatTexturableAndUploadable(textureColorType, format)) {
         return GrBackendTexture();  // invalid
     }
 
@@ -3876,7 +3878,6 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         info.fTarget = GR_GL_TEXTURE_2D;
         info.fFormat = GrGLFormatToEnum(glFormat);
         // TODO: Take these as parameters.
-        auto textureColorType = GrPixelConfigToColorType(desc.fConfig);
         auto srcColorType = GrPixelConfigToColorType(desc.fConfig);
         info.fID = this->createTexture2D({desc.fWidth, desc.fHeight},
                                          glFormat,
