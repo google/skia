@@ -65,6 +65,15 @@ public:
                                   bool isTextureable = true,
                                   GrProtected isProtected = GrProtected::kNo);
 
+    /*
+     * Retrieve the default GrBackendFormat for a given SkColorType and renderability.
+     * It is guaranteed that this backend format will be the one used by the following
+     * SkColorType and SkSurfaceCharacterization-based createBackendTexture methods.
+     *
+     * The caller should check that the returned format is valid.
+     */
+    using GrContext_Base::defaultBackendFormat;
+
     bool operator==(const GrContextThreadSafeProxy& that) const {
         // Each GrContext should only ever have a single thread-safe proxy.
         SkASSERT((this == &that) == (this->contextID() == that.contextID()));
