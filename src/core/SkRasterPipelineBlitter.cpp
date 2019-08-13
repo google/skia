@@ -293,6 +293,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
             this->append_store(&p);
         }
         fBlitRect = p.compile();
+        p.dump();
     }
 
     fBlitRect(x,y,w,h);
