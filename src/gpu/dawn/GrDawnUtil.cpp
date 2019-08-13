@@ -47,6 +47,11 @@ bool GrPixelConfigToDawnFormat(GrPixelConfig config, dawn::TextureFormat* format
     }
 }
 
+size_t GrDawnRoundRowBytes(size_t rowBytes) {
+    // Dawn requires that rowBytes be a multiple of 256. (This is actually imposed by D3D12.)
+    return (rowBytes + 0xFF) & ~0xFF;
+}
+
 #if GR_TEST_UTILS
 const char* GrDawnFormatToStr(dawn::TextureFormat format) {
     switch (format) {
