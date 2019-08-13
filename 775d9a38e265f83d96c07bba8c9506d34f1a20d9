@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "112b573b_a2c22be7",
+        "filename": "experimental/editor/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-13T11:20:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4640b781_aea390f4",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 0
+      },
+      "revId": "775d9a38e265f83d96c07bba8c9506d34f1a20d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
