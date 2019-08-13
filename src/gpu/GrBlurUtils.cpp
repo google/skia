@@ -149,8 +149,8 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
             return false;
         }
 
-        filteredMask = proxyProvider->createTextureProxy(std::move(image), GrRenderable::kNo, 1,
-                                                         SkBudgeted::kYes, SkBackingFit::kApprox);
+        filteredMask = proxyProvider->createTextureProxy(std::move(image), 1, SkBudgeted::kYes,
+                                                         SkBackingFit::kApprox);
         if (!filteredMask) {
             return false;
         }

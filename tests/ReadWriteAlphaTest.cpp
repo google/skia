@@ -70,7 +70,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         SkPixmap pixmap(ii, alphaData, ii.minRowBytes());
         sk_sp<SkImage> alphaImg = SkImage::MakeRasterCopy(pixmap);
         sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                alphaImg, GrRenderable::kNo, 1, SkBudgeted::kNo, SkBackingFit::kExact);
+                alphaImg, 1, SkBudgeted::kNo, SkBackingFit::kExact);
         if (!proxy) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;

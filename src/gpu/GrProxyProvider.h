@@ -65,7 +65,7 @@ public:
      * actually upload the data to the gpu.
      */
     sk_sp<GrTextureProxy> createTextureProxy(
-            sk_sp<SkImage> srcImage, GrRenderable, int sampleCnt, SkBudgeted, SkBackingFit,
+            sk_sp<SkImage> srcImage, int sampleCnt, SkBudgeted, SkBackingFit,
             GrInternalSurfaceFlags = GrInternalSurfaceFlags::kNone);
 
     /*

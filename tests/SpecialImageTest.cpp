@@ -221,7 +221,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
         // gpu
         sk_sp<SkImage> rasterImage = SkImage::MakeFromBitmap(bm);
         sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                rasterImage, GrRenderable::kNo, 1, SkBudgeted::kNo, SkBackingFit::kExact);
+                rasterImage, 1, SkBudgeted::kNo, SkBackingFit::kExact);
         if (!proxy) {
             return;
         }
@@ -252,8 +252,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     SkBitmap bm = create_bm();
     sk_sp<SkImage> rasterImage = SkImage::MakeFromBitmap(bm);
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-            rasterImage, GrRenderable::kNo, 1, SkBudgeted::kNo, SkBackingFit::kExact);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(rasterImage, 1, SkBudgeted::kNo,
+                                                                    SkBackingFit::kExact);
     if (!proxy) {
         return;
     }
