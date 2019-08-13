@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cb1c62b7_e4b0268d",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-08-13T20:30:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b63e632_ea510bf2",
+      "range": {
+        "startLine": 241,
+        "startChar": 8,
+        "endLine": 255,
+        "endChar": 9
+      },
+      "revId": "2c0aed52e328d51fa9558be1fbb2d606a1c8979e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8555f3f_09016a68",
         "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-08-13T17:47:59Z",
       "side": 1,
       "message": "Remove this?",
+      "range": {
+        "startLine": 2583,
+        "startChar": 4,
+        "endLine": 2583,
+        "endChar": 55
+      },
+      "revId": "2c0aed52e328d51fa9558be1fbb2d606a1c8979e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a0234e6_90a3a40e",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2583,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-08-13T20:30:04Z",
+      "side": 1,
+      "message": "oops",
+      "parentUuid": "d8555f3f_09016a68",
       "range": {
         "startLine": 2583,
         "startChar": 4,
