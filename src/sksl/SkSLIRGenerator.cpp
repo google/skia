@@ -1181,6 +1181,29 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                     }
 #endif
             }
+            if (fKind == Program::kFragmentProcessor_Kind &&
+                (var->fModifiers.fFlags & Modifiers::kIn_Flag) &&
+                !(var->fModifiers.fFlags & Modifiers::kUniform_Flag) &&
+                !var->fModifiers.fLayout.fKey &&
+                var->fModifiers.fLayout.fBuiltin == -1 &&
+                var->fType.nonnullable() != *fContext.fFragmentProcessor_Type &&
+                var->fType.kind() != Type::kSampler_Kind) {
+                bool valid = false;
+                for (const auto& decl : fFile->root()) {
+                    if (decl.fKind == ASTNode::Kind::kSection) {
+                        ASTNode::SectionData section = decl.getSectionData();
+                        if (section.fName == "setData") {
+                            valid = true;
+                            break;
+                        }
+                    }
+                }
+                if (!valid) {
+                    fErrors.error(identifier.fOffset, "'in' variable must be either 'uniform' or "
+                                                      "'layout(key)', or there must be a custom "
+                                                      "@setData function");
+                }
+            }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
             return std::unique_ptr<VariableReference>(new VariableReference(
                                                                  identifier.fOffset,

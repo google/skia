@@ -1,0 +1,513 @@
+From d8a1f438ea1323dd2822ce7c9982ec7d97363af5 Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Wed, 31 Jul 2019 14:33:04 -0400
+Subject: [PATCH 1/2] checkpoint
+
+---
+ .../GrAlphaThresholdFragmentProcessor.cpp     |  3 +-
+ .../effects/generated/GrMagnifierEffect.cpp   |  3 +-
+ src/gpu/effects/generated/GrMixerEffect.cpp   |  8 ++---
+ .../GrOverrideInputFragmentProcessor.cpp      |  4 +--
+ .../generated/GrSimpleTextureEffect.cpp       |  3 +-
+ src/gpu/glsl/GrGLSLFragmentProcessor.cpp      | 34 +++++++++++++------
+ src/gpu/glsl/GrGLSLFragmentProcessor.h        | 23 +++++++++----
+ src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp  |  9 +++--
+ src/gpu/glsl/GrGLSLProgramBuilder.cpp         |  3 ++
+ .../generated/GrClampedGradientEffect.cpp     |  4 +--
+ .../generated/GrLinearGradientLayout.cpp      |  3 +-
+ .../generated/GrRadialGradientLayout.cpp      |  3 +-
+ .../generated/GrSweepGradientLayout.cpp       |  7 ++--
+ .../generated/GrTiledGradientEffect.cpp       |  4 +--
+ .../GrTwoPointConicalGradientLayout.cpp       |  3 +-
+ src/sksl/SkSLCPPCodeGenerator.cpp             | 26 ++++++++------
+ src/sksl/SkSLCompiler.cpp                     |  1 +
+ src/sksl/sksl_fp.inc                          |  4 +++
+ 18 files changed, 95 insertions(+), 50 deletions(-)
+
+diff --git a/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp b/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp
+index 8661e24e60..ddeeb5d5c3 100644
+--- a/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp
++++ b/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp
+@@ -42,6 +42,7 @@ public:
+         outerThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                              "outerThreshold");
+         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
++        fUsesTransformedCoordsZero = true;
+         fragBuilder->codeAppendf(
+                 "half4 color = %s;\nhalf4 mask_color = sample(%s, %s).%s;\nif (mask_color.w < 0.5) "
+                 "{\n    if (color.w > %s) {\n        half scale = %s / color.w;\n        color.xyz "
+@@ -50,7 +51,7 @@ public:
+                 "color.w = %s;\n}\n%s = color;\n",
+                 args.fInputColor,
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+-                sk_TransformedCoords2D_0.c_str(),
++                "vTransformedCoords_0_Stage0",
+                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
+                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
+                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
+diff --git a/src/gpu/effects/generated/GrMagnifierEffect.cpp b/src/gpu/effects/generated/GrMagnifierEffect.cpp
+index 05f160233d..2217470fdf 100644
+--- a/src/gpu/effects/generated/GrMagnifierEffect.cpp
++++ b/src/gpu/effects/generated/GrMagnifierEffect.cpp
+@@ -48,6 +48,7 @@ public:
+         offsetVar =
+                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "offset");
+         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
++        fUsesTransformedCoordsZero = true;
+         fragBuilder->codeAppendf(
+                 "float2 coord = %s;\nfloat2 zoom_coord = float2(%s) + coord * float2(%s, "
+                 "%s);\nfloat2 delta = (coord - %s.xy) * %s.zw;\ndelta = min(delta, "
+@@ -56,7 +57,7 @@ public:
+                 "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
+                 "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
+                 "delta;\n    weight = min(min(delta_squared.x, delta_square",
+-                sk_TransformedCoords2D_0.c_str(),
++                "vTransformedCoords_0_Stage0",
+                 args.fUniformHandler->getUniformCStr(offsetVar),
+                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
+                 args.fUniformHandler->getUniformCStr(yInvZoomVar),
+diff --git a/src/gpu/effects/generated/GrMixerEffect.cpp b/src/gpu/effects/generated/GrMixerEffect.cpp
+index 9914d3a476..88ca234d2f 100644
+--- a/src/gpu/effects/generated/GrMixerEffect.cpp
++++ b/src/gpu/effects/generated/GrMixerEffect.cpp
+@@ -27,14 +27,14 @@ public:
+         (void)weight;
+         weightVar =
+                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "weight");
+-        SkString _input0 = SkStringPrintf("%s", args.fInputColor);
++        SkString _input1278 = SkStringPrintf("%s", args.fInputColor);
+         SkString _sample1278("_sample1278");
+-        this->invokeChild(_outer.fp0_index, _input0.c_str(), &_sample1278, args);
++        this->invokeChild(_outer.fp0_index, _input1278.c_str(), &_sample1278, args);
+         fragBuilder->codeAppendf("half4 in0 = %s;", _sample1278.c_str());
+-        SkString _input1 = SkStringPrintf("%s", args.fInputColor);
++        SkString _input1335 = SkStringPrintf("%s", args.fInputColor);
+         SkString _sample1335("_sample1335");
+         if (_outer.fp1_index >= 0) {
+-            this->invokeChild(_outer.fp1_index, _input1.c_str(), &_sample1335, args);
++            this->invokeChild(_outer.fp1_index, _input1335.c_str(), &_sample1335, args);
+         } else {
+             fragBuilder->codeAppendf("half4 %s;", _sample1335.c_str());
+         }
+diff --git a/src/gpu/effects/generated/GrOverrideInputFragmentProcessor.cpp b/src/gpu/effects/generated/GrOverrideInputFragmentProcessor.cpp
+index 852111da4b..56a55dc871 100644
+--- a/src/gpu/effects/generated/GrOverrideInputFragmentProcessor.cpp
++++ b/src/gpu/effects/generated/GrOverrideInputFragmentProcessor.cpp
+@@ -42,9 +42,9 @@ public:
+                                           : "half4(0)",
+                 _outer.literalColor.fR, _outer.literalColor.fG, _outer.literalColor.fB,
+                 _outer.literalColor.fA);
+-        SkString _input0("constColor");
++        SkString _input1992("constColor");
+         SkString _sample1992("_sample1992");
+-        this->invokeChild(_outer.fp_index, _input0.c_str(), &_sample1992, args);
++        this->invokeChild(_outer.fp_index, _input1992.c_str(), &_sample1992, args);
+         fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample1992.c_str());
+     }
+ 
+diff --git a/src/gpu/effects/generated/GrSimpleTextureEffect.cpp b/src/gpu/effects/generated/GrSimpleTextureEffect.cpp
+index 693c5f6d1a..5b40a11b2b 100644
+--- a/src/gpu/effects/generated/GrSimpleTextureEffect.cpp
++++ b/src/gpu/effects/generated/GrSimpleTextureEffect.cpp
+@@ -26,10 +26,11 @@ public:
+         auto matrix = _outer.matrix;
+         (void)matrix;
+         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
++        fUsesTransformedCoordsZero = true;
+         fragBuilder->codeAppendf(
+                 "%s = %s * sample(%s, %s).%s;\n", args.fOutputColor, args.fInputColor,
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+-                sk_TransformedCoords2D_0.c_str(),
++                "vTransformedCoords_0_Stage0",
+                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
+     }
+ 
+diff --git a/src/gpu/glsl/GrGLSLFragmentProcessor.cpp b/src/gpu/glsl/GrGLSLFragmentProcessor.cpp
+index dec2c96cfe..d2b2b0bd90 100644
+--- a/src/gpu/glsl/GrGLSLFragmentProcessor.cpp
++++ b/src/gpu/glsl/GrGLSLFragmentProcessor.cpp
+@@ -16,15 +16,17 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
+     this->onSetData(pdman, processor);
+ }
+ 
+-void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor, EmitArgs& args) {
++void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor, EmitArgs& args,
++                                          SkSL::String skslCoords) {
+     while (childIndex >= (int) fFunctionNames.size()) {
+         fFunctionNames.emplace_back();
+     }
+-    this->internalInvokeChild(childIndex, inputColor, args.fOutputColor, args);
++    this->internalInvokeChild(childIndex, inputColor, args.fOutputColor, args, skslCoords);
+ }
+ 
+ void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
+-                                          SkString* outputColor, EmitArgs& args) {
++                                          SkString* outputColor, EmitArgs& args,
++                                          SkSL::String skslCoords) {
+     SkASSERT(outputColor);
+     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+     outputColor->append(fragBuilder->getMangleString());
+@@ -33,16 +35,21 @@ void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor
+         fFunctionNames.emplace_back();
+     }
+     if (fFunctionNames[childIndex].size() == 0) {
+-        this->internalInvokeChild(childIndex, inputColor, outputColor->c_str(), args);
++        this->internalInvokeChild(childIndex, inputColor, outputColor->c_str(), args, skslCoords);
+     } else {
+-        fragBuilder->codeAppendf("%s = %s(%s);", outputColor->c_str(),
++        fragBuilder->codeAppendf("%s = %s(%s", outputColor->c_str(),
+                                  fFunctionNames[childIndex].c_str(),
+                                  inputColor ? inputColor : "half4(1)");
++        if (skslCoords.length()) {
++            fragBuilder->codeAppendf(", %s", skslCoords.c_str());
++        }
++        fragBuilder->codeAppendf(");\n");
+     }
+ }
+ 
+ void GrGLSLFragmentProcessor::internalInvokeChild(int childIndex, const char* inputColor,
+-                                                  const char* outputColor, EmitArgs& args) {
++                                                  const char* outputColor, EmitArgs& args,
++                                                  SkSL::String skslCoordsArg) {
+     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+ 
+     fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
+@@ -74,10 +81,17 @@ void GrGLSLFragmentProcessor::internalInvokeChild(int childIndex, const char* in
+     fFunctionNames[childIndex] = fragBuilder->writeProcessorFunction(
+                                                                this->childProcessor(childIndex),
+                                                                childArgs);
+-    fragBuilder->codeAppendf("%s = %s(%s);\n", outputColor,
+-                                               fFunctionNames[childIndex].c_str(),
+-                                               inputName.size() > 0 ? inputName.c_str()
+-                                                                    : "half4(1)");
++    fragBuilder->codeAppendf("%s = %s(%s", outputColor,
++                                           fFunctionNames[childIndex].c_str(),
++                                           inputName.size() > 0 ? inputName.c_str()
++                                                                : "half4(1)");
++    if (skslCoordsArg.length()) {
++        fragBuilder->codeAppendf(", %s", skslCoordsArg.c_str());
++    } else if (this->childProcessor(childIndex)->usesTransformedCoordsZero()) {
++        fragBuilder->codeAppendf(", vTransformedCoords_0_Stage0.xy");
++    }
++    fragBuilder->codeAppend(");\n");
++
+ 
+     fragBuilder->onAfterChildProcEmitCode();
+ }
+diff --git a/src/gpu/glsl/GrGLSLFragmentProcessor.h b/src/gpu/glsl/GrGLSLFragmentProcessor.h
+index c9971a2115..467b012a7d 100644
+--- a/src/gpu/glsl/GrGLSLFragmentProcessor.h
++++ b/src/gpu/glsl/GrGLSLFragmentProcessor.h
+@@ -12,6 +12,7 @@
+ #include "src/gpu/GrShaderVar.h"
+ #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+ #include "src/gpu/glsl/GrGLSLUniformHandler.h"
++#include "src/sksl/SkSLString.h"
+ 
+ class GrProcessor;
+ class GrProcessorKeyBuilder;
+@@ -137,8 +138,9 @@ public:
+     }
+ 
+     // Invoke the child with the default input color (solid white)
+-    inline void invokeChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs) {
+-        this->invokeChild(childIndex, nullptr, outputColor, parentArgs);
++    inline void invokeChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs,
++                            SkSL::String skslCoords = "") {
++        this->invokeChild(childIndex, nullptr, outputColor, parentArgs, skslCoords);
+     }
+ 
+     /** Invokes a child proc in its own scope. Pass in the parent's EmitArgs and invokeChild will
+@@ -150,17 +152,22 @@ public:
+      *  color.
+      */
+     void invokeChild(int childIndex, const char* inputColor, SkString* outputColor,
+-                     EmitArgs& parentArgs);
++                     EmitArgs& parentArgs, SkSL::String skslCoords = "");
+ 
+     // Use the parent's output color to hold child's output, and use the
+     // default input color of solid white
+-    inline void invokeChild(int childIndex, EmitArgs& args) {
++    inline void invokeChild(int childIndex, EmitArgs& args, SkSL::String skslCoords = "") {
+         // null pointer cast required to disambiguate the function call
+-        this->invokeChild(childIndex, (const char*) nullptr, args);
++        this->invokeChild(childIndex, (const char*) nullptr, args, skslCoords);
+     }
+ 
+     /** Variation that uses the parent's output color variable to hold the child's output.*/
+-    void invokeChild(int childIndex, const char* inputColor, EmitArgs& parentArgs);
++    void invokeChild(int childIndex, const char* inputColor, EmitArgs& parentArgs,
++                     SkSL::String skslCoords = "");
++
++    bool usesTransformedCoordsZero() {
++        return fUsesTransformedCoordsZero;
++    }
+ 
+     /**
+      * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of
+@@ -188,8 +195,10 @@ protected:
+     to have an identical processor key as the one that created this GrGLSLFragmentProcessor.  */
+     virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) {}
+ 
++    bool fUsesTransformedCoordsZero = false;
++
+ private:
+-    void internalInvokeChild(int, const char*, const char*, EmitArgs&);
++    void internalInvokeChild(int, const char*, const char*, EmitArgs&, SkSL::String);
+ 
+     // one per child; either not present or empty string if not yet emitted
+     SkTArray<SkString> fFunctionNames;
+diff --git a/src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp b/src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp
+index 986ad371fb..302efb6e67 100644
+--- a/src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp
++++ b/src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp
+@@ -163,12 +163,15 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
+     this->codeAppendf("half4 %s;\n", args.fOutputColor);
+     fp->emitCode(args);
+     this->codeAppendf("return %s;", args.fOutputColor);
+-    GrShaderVar inColor(args.fInputColor, kHalf4_GrSLType);
++    GrShaderVar fnArgs[2] = {
++        GrShaderVar(args.fInputColor, kHalf4_GrSLType),
++        GrShaderVar("_transformedCoords2D_0", kFloat2_GrSLType)
++    };
+     SkString result;
+     this->emitFunction(kHalf4_GrSLType,
+                        "stage",
+-                       1,
+-                       &inColor,
++                       fp->usesTransformedCoordsZero() ? 2 : 1,
++                       fnArgs,
+                        this->code().c_str(),
+                        &result);
+     this->deleteStage();
+diff --git a/src/gpu/glsl/GrGLSLProgramBuilder.cpp b/src/gpu/glsl/GrGLSLProgramBuilder.cpp
+index 3376268d1d..62a0f7c032 100644
+--- a/src/gpu/glsl/GrGLSLProgramBuilder.cpp
++++ b/src/gpu/glsl/GrGLSLProgramBuilder.cpp
+@@ -179,6 +179,9 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
+     SkString openBrace;
+     openBrace.printf("{ // Stage %d, %s\n", fStageIndex, fp.name());
+     fFS.codeAppend(openBrace.c_str());
++    if (fTransformedCoordVars.size()) {
++//        fFS.codeAppendf("float2 _transformedCoords2D_0 = vTransformedCoords_0_Stage0.xy; // %d\n", transformedCoordVarsIdx);
++    }
+ 
+     GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
+ 
+diff --git a/src/gpu/gradients/generated/GrClampedGradientEffect.cpp b/src/gpu/gradients/generated/GrClampedGradientEffect.cpp
+index 658f6b8eaf..268fc6f9f8 100644
+--- a/src/gpu/gradients/generated/GrClampedGradientEffect.cpp
++++ b/src/gpu/gradients/generated/GrClampedGradientEffect.cpp
+@@ -46,9 +46,9 @@ public:
+                 args.fOutputColor, args.fOutputColor,
+                 args.fUniformHandler->getUniformCStr(leftBorderColorVar), args.fOutputColor,
+                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
+-        SkString _input0("t");
++        SkString _input1767("t");
+         SkString _sample1767("_sample1767");
+-        this->invokeChild(_outer.colorizer_index, _input0.c_str(), &_sample1767, args);
++        this->invokeChild(_outer.colorizer_index, _input1767.c_str(), &_sample1767, args);
+         fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
+                                  args.fOutputColor, _sample1767.c_str(),
+                                  (_outer.makePremul ? "true" : "false"), args.fOutputColor,
+diff --git a/src/gpu/gradients/generated/GrLinearGradientLayout.cpp b/src/gpu/gradients/generated/GrLinearGradientLayout.cpp
+index 28e7da81ca..ed1e68c014 100644
+--- a/src/gpu/gradients/generated/GrLinearGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrLinearGradientLayout.cpp
+@@ -26,9 +26,10 @@ public:
+         auto gradientMatrix = _outer.gradientMatrix;
+         (void)gradientMatrix;
+         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
++        fUsesTransformedCoordsZero = true;
+         fragBuilder->codeAppendf(
+                 "half t = half(%s.x) + 9.9999997473787516e-06;\n%s = half4(t, 1.0, 0.0, 0.0);\n",
+-                sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
++                "vTransformedCoords_0_Stage0", args.fOutputColor);
+     }
+ 
+ private:
+diff --git a/src/gpu/gradients/generated/GrRadialGradientLayout.cpp b/src/gpu/gradients/generated/GrRadialGradientLayout.cpp
+index 213be21bd0..0ab253cc44 100644
+--- a/src/gpu/gradients/generated/GrRadialGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrRadialGradientLayout.cpp
+@@ -26,8 +26,9 @@ public:
+         auto gradientMatrix = _outer.gradientMatrix;
+         (void)gradientMatrix;
+         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
++        fUsesTransformedCoordsZero = true;
+         fragBuilder->codeAppendf("half t = half(length(%s));\n%s = half4(t, 1.0, 0.0, 0.0);\n",
+-                                 sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
++                                 "vTransformedCoords_0_Stage0", args.fOutputColor);
+     }
+ 
+ private:
+diff --git a/src/gpu/gradients/generated/GrSweepGradientLayout.cpp b/src/gpu/gradients/generated/GrSweepGradientLayout.cpp
+index 18b4739550..96c48ed4f8 100644
+--- a/src/gpu/gradients/generated/GrSweepGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrSweepGradientLayout.cpp
+@@ -33,14 +33,15 @@ public:
+         scaleVar =
+                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "scale");
+         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
++        fUsesTransformedCoordsZero = true;
+         fragBuilder->codeAppendf(
+                 "half angle;\nif (sk_Caps.atan2ImplementedAsAtanYOverX) {\n    angle = half(2.0 * "
+                 "atan(-%s.y, length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, "
+                 "-%s.x));\n}\nhalf t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;\n%s = "
+                 "half4(t, 1.0, 0.0, 0.0);\n",
+-                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
+-                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
+-                sk_TransformedCoords2D_0.c_str(), args.fUniformHandler->getUniformCStr(biasVar),
++                "vTransformedCoords_0_Stage0", "vTransformedCoords_0_Stage0",
++                "vTransformedCoords_0_Stage0", "vTransformedCoords_0_Stage0",
++                "vTransformedCoords_0_Stage0", args.fUniformHandler->getUniformCStr(biasVar),
+                 args.fUniformHandler->getUniformCStr(scaleVar), args.fOutputColor);
+     }
+ 
+diff --git a/src/gpu/gradients/generated/GrTiledGradientEffect.cpp b/src/gpu/gradients/generated/GrTiledGradientEffect.cpp
+index 4c85ed6aec..9d0637feb6 100644
+--- a/src/gpu/gradients/generated/GrTiledGradientEffect.cpp
++++ b/src/gpu/gradients/generated/GrTiledGradientEffect.cpp
+@@ -41,9 +41,9 @@ public:
+                 (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
+                                                                                        : "false"),
+                 args.fOutputColor, (_outer.mirror ? "true" : "false"));
+-        SkString _input0("t");
++        SkString _input1464("t");
+         SkString _sample1464("_sample1464");
+-        this->invokeChild(_outer.colorizer_index, _input0.c_str(), &_sample1464, args);
++        this->invokeChild(_outer.colorizer_index, _input1464.c_str(), &_sample1464, args);
+         fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
+                                  args.fOutputColor, _sample1464.c_str(),
+                                  (_outer.makePremul ? "true" : "false"), args.fOutputColor,
+diff --git a/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp b/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp
+index 5421d2c6f9..33fd2cd6de 100644
+--- a/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp
+@@ -43,6 +43,7 @@ public:
+         focalParamsVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+                                                           "focalParams");
+         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
++        fUsesTransformedCoordsZero = true;
+         fragBuilder->codeAppendf(
+                 "float2 p = %s;\nfloat t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n     "
+                 "   {\n            half r0_2 = %s.y;\n            t = float(r0_2) - p.y * p.y;\n   "
+@@ -51,7 +52,7 @@ public:
+                 "0:\n        {\n            half r0 = %s.x;\n            @if (%s) {\n              "
+                 "  t = length(p) - float(r0);\n            } else {\n                t = "
+                 "-length(p) - float(r0);\n       ",
+-                sk_TransformedCoords2D_0.c_str(), (int)_outer.type,
++                "vTransformedCoords_0_Stage0", (int)_outer.type,
+                 args.fUniformHandler->getUniformCStr(focalParamsVar),
+                 args.fUniformHandler->getUniformCStr(focalParamsVar),
+                 (_outer.isRadiusIncreasing ? "true" : "false"));
+diff --git a/src/sksl/SkSLCPPCodeGenerator.cpp b/src/sksl/SkSLCPPCodeGenerator.cpp
+index df08f0727f..469c590fbe 100644
+--- a/src/sksl/SkSLCPPCodeGenerator.cpp
++++ b/src/sksl/SkSLCPPCodeGenerator.cpp
+@@ -122,12 +122,15 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
+             }
+             int64_t index = ((IntLiteral&) *i.fIndex).fValue;
+             String name = "sk_TransformedCoords2D_" + to_string(index);
+-            fFormatArgs.push_back(name + ".c_str()");
++            fFormatArgs.push_back("\"_transformedCoords2D_0\"");
+             if (fWrittenTransformedCoords.find(index) == fWrittenTransformedCoords.end()) {
+                 addExtraEmitCodeLine("SkString " + name +
+                                      " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
+                                      to_string(index) + "]);");
+                 fWrittenTransformedCoords.insert(index);
++                if (index == 0) {
++                    addExtraEmitCodeLine("fUsesTransformedCoordsZero = true;");
++                }
+             }
+             return;
+         } else if (SK_TEXTURESAMPLERS_BUILTIN == builtin) {
+@@ -408,7 +411,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+     if (c.fFunction.fBuiltin && c.fFunction.fName == "sample" &&
+         c.fArguments[0]->fType.kind() != Type::Kind::kSampler_Kind) {
+         // Sanity checks that are detected by function definition in sksl_fp.inc
+-        SkASSERT(c.fArguments.size() == 1 || c.fArguments.size() == 2);
++        SkASSERT(c.fArguments.size() >= 1 && c.fArguments.size() <= 3);
+         SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
+                  "fragmentProcessor?" == c.fArguments[0]->fType.name());
+ 
+@@ -420,12 +423,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+                     "sample()'s fragmentProcessor argument must be a variable reference\n");
+             return;
+         }
+-        if (c.fArguments.size() > 1) {
+-            // Second argument must also be a half4 expression
+-            SkASSERT("half4" == c.fArguments[1]->fType.name());
+-        }
+         const Variable& child = ((const VariableReference&) *c.fArguments[0]).fVariable;
+-        int index = getChildFPIndex(child);
+ 
+         // Start a new extra emit code section so that the emitted child processor can depend on
+         // sksl variables defined in earlier sksl code.
+@@ -435,17 +433,18 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+         // must be properly formatted with a prefixed comma when the parameter should be inserted
+         // into the invokeChild() parameter list.
+         String inputArg;
+-        if (c.fArguments.size() > 1) {
+-            SkASSERT(c.fArguments.size() == 2);
++        if (c.fArguments.size() > 1 && c.fArguments[1]->fType.name() == "half4") {
+             // Use the invokeChild() variant that accepts an input color, so convert the 2nd
+             // argument's expression into C++ code that produces sksl stored in an SkString.
+-            String inputName = "_input" + to_string(index);
++            String inputName = "_input" + to_string(c.fOffset);
+             addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments[1], inputName));
+ 
+             // invokeChild() needs a char*
+             inputArg = ", " + inputName + ".c_str()";
+         }
+ 
++        bool hasCoords = c.fArguments.back()->fType.name() == "float2";
++
+         // Write the output handling after the possible input handling
+         String childName = "_sample" + to_string(c.fOffset);
+         addExtraEmitCodeLine("SkString " + childName + "(\"" + childName + "\");");
+@@ -453,7 +452,12 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+             addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index >= 0) {\n    ");
+         }
+         addExtraEmitCodeLine("this->invokeChild(_outer." + String(child.fName) + "_index" +
+-                             inputArg + ", &" + childName + ", args);");
++                             inputArg + ", &" + childName + ", args");
++        if (hasCoords) {
++            addExtraEmitCodeLine(", \"" + c.fArguments.back()->description() + "\"");
++        }
++        addExtraEmitCodeLine(");");
++
+         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
+             // Null FPs are not emitted, but their output can still be referenced in dependent
+             // expressions - thus we always declare the variable.
+diff --git a/src/sksl/SkSLCompiler.cpp b/src/sksl/SkSLCompiler.cpp
+index 36df201190..733a1618c5 100644
+--- a/src/sksl/SkSLCompiler.cpp
++++ b/src/sksl/SkSLCompiler.cpp
+@@ -1262,6 +1262,7 @@ Symbol* Compiler::takeOwnership(std::unique_ptr<Symbol> symbol) {
+ 
+ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
+                                                   const Program::Settings& settings) {
++    printf("%s\n", text.c_str());
+     fErrorText = "";
+     fErrorCount = 0;
+     std::vector<std::unique_ptr<ProgramElement>>* inherited;
+diff --git a/src/sksl/sksl_fp.inc b/src/sksl/sksl_fp.inc
+index 048a00430a..0608230302 100644
+--- a/src/sksl/sksl_fp.inc
++++ b/src/sksl/sksl_fp.inc
+@@ -24,7 +24,11 @@ layout(builtin=10011) half sk_Width;
+ layout(builtin=10012) half sk_Height;
+ 
+ half4 sample(fragmentProcessor fp);
++half4 sample(fragmentProcessor fp, float2 coords);
+ half4 sample(fragmentProcessor fp, half4 input);
++half4 sample(fragmentProcessor fp, half4 input, float2 coords);
+ half4 sample(fragmentProcessor? fp);
++half4 sample(fragmentProcessor? fp, float2 coords);
+ half4 sample(fragmentProcessor? fp, half4 input);
++half4 sample(fragmentProcessor? fp, half4 input, float2 coords);
+ )
+-- 
+2.19.0.605.g01d371f741-goog
+

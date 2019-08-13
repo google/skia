@@ -1,0 +1,127 @@
+From fa864cdcdbd3f381438f3b606d5ae883e59c061f Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Thu, 1 Aug 2019 00:01:06 -0400
+Subject: [PATCH 2/2] checkpoint 2
+
+---
+ .../effects/generated/GrAlphaThresholdFragmentProcessor.cpp | 2 +-
+ src/gpu/effects/generated/GrMagnifierEffect.cpp             | 2 +-
+ src/gpu/effects/generated/GrSimpleTextureEffect.cpp         | 2 +-
+ src/gpu/gradients/generated/GrLinearGradientLayout.cpp      | 2 +-
+ src/gpu/gradients/generated/GrRadialGradientLayout.cpp      | 2 +-
+ src/gpu/gradients/generated/GrSweepGradientLayout.cpp       | 6 +++---
+ .../gradients/generated/GrTwoPointConicalGradientLayout.cpp | 2 +-
+ src/sksl/SkSLCPPCodeGenerator.cpp                           | 2 +-
+ 8 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp b/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp
+index ddeeb5d5c3..6d981475c6 100644
+--- a/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp
++++ b/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp
+@@ -51,7 +51,7 @@ public:
+                 "color.w = %s;\n}\n%s = color;\n",
+                 args.fInputColor,
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+-                "vTransformedCoords_0_Stage0",
++                sk_TransformedCoords2D_0.c_str(),
+                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
+                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
+                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
+diff --git a/src/gpu/effects/generated/GrMagnifierEffect.cpp b/src/gpu/effects/generated/GrMagnifierEffect.cpp
+index 2217470fdf..84455b8d5c 100644
+--- a/src/gpu/effects/generated/GrMagnifierEffect.cpp
++++ b/src/gpu/effects/generated/GrMagnifierEffect.cpp
+@@ -57,7 +57,7 @@ public:
+                 "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
+                 "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
+                 "delta;\n    weight = min(min(delta_squared.x, delta_square",
+-                "vTransformedCoords_0_Stage0",
++                sk_TransformedCoords2D_0.c_str(),
+                 args.fUniformHandler->getUniformCStr(offsetVar),
+                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
+                 args.fUniformHandler->getUniformCStr(yInvZoomVar),
+diff --git a/src/gpu/effects/generated/GrSimpleTextureEffect.cpp b/src/gpu/effects/generated/GrSimpleTextureEffect.cpp
+index 5b40a11b2b..b596153217 100644
+--- a/src/gpu/effects/generated/GrSimpleTextureEffect.cpp
++++ b/src/gpu/effects/generated/GrSimpleTextureEffect.cpp
+@@ -30,7 +30,7 @@ public:
+         fragBuilder->codeAppendf(
+                 "%s = %s * sample(%s, %s).%s;\n", args.fOutputColor, args.fInputColor,
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+-                "vTransformedCoords_0_Stage0",
++                sk_TransformedCoords2D_0.c_str(),
+                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
+     }
+ 
+diff --git a/src/gpu/gradients/generated/GrLinearGradientLayout.cpp b/src/gpu/gradients/generated/GrLinearGradientLayout.cpp
+index ed1e68c014..e736fa4b5c 100644
+--- a/src/gpu/gradients/generated/GrLinearGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrLinearGradientLayout.cpp
+@@ -29,7 +29,7 @@ public:
+         fUsesTransformedCoordsZero = true;
+         fragBuilder->codeAppendf(
+                 "half t = half(%s.x) + 9.9999997473787516e-06;\n%s = half4(t, 1.0, 0.0, 0.0);\n",
+-                "vTransformedCoords_0_Stage0", args.fOutputColor);
++                sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
+     }
+ 
+ private:
+diff --git a/src/gpu/gradients/generated/GrRadialGradientLayout.cpp b/src/gpu/gradients/generated/GrRadialGradientLayout.cpp
+index 0ab253cc44..7ec9c2eccc 100644
+--- a/src/gpu/gradients/generated/GrRadialGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrRadialGradientLayout.cpp
+@@ -28,7 +28,7 @@ public:
+         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+         fUsesTransformedCoordsZero = true;
+         fragBuilder->codeAppendf("half t = half(length(%s));\n%s = half4(t, 1.0, 0.0, 0.0);\n",
+-                                 "vTransformedCoords_0_Stage0", args.fOutputColor);
++                                 sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
+     }
+ 
+ private:
+diff --git a/src/gpu/gradients/generated/GrSweepGradientLayout.cpp b/src/gpu/gradients/generated/GrSweepGradientLayout.cpp
+index 96c48ed4f8..09a9e1e9ad 100644
+--- a/src/gpu/gradients/generated/GrSweepGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrSweepGradientLayout.cpp
+@@ -39,9 +39,9 @@ public:
+                 "atan(-%s.y, length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, "
+                 "-%s.x));\n}\nhalf t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;\n%s = "
+                 "half4(t, 1.0, 0.0, 0.0);\n",
+-                "vTransformedCoords_0_Stage0", "vTransformedCoords_0_Stage0",
+-                "vTransformedCoords_0_Stage0", "vTransformedCoords_0_Stage0",
+-                "vTransformedCoords_0_Stage0", args.fUniformHandler->getUniformCStr(biasVar),
++                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
++                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
++                sk_TransformedCoords2D_0.c_str(), args.fUniformHandler->getUniformCStr(biasVar),
+                 args.fUniformHandler->getUniformCStr(scaleVar), args.fOutputColor);
+     }
+ 
+diff --git a/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp b/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp
+index 33fd2cd6de..fc1b75baa4 100644
+--- a/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp
+@@ -52,7 +52,7 @@ public:
+                 "0:\n        {\n            half r0 = %s.x;\n            @if (%s) {\n              "
+                 "  t = length(p) - float(r0);\n            } else {\n                t = "
+                 "-length(p) - float(r0);\n       ",
+-                "vTransformedCoords_0_Stage0", (int)_outer.type,
++                sk_TransformedCoords2D_0.c_str(), (int)_outer.type,
+                 args.fUniformHandler->getUniformCStr(focalParamsVar),
+                 args.fUniformHandler->getUniformCStr(focalParamsVar),
+                 (_outer.isRadiusIncreasing ? "true" : "false"));
+diff --git a/src/sksl/SkSLCPPCodeGenerator.cpp b/src/sksl/SkSLCPPCodeGenerator.cpp
+index 469c590fbe..d57ebc45f1 100644
+--- a/src/sksl/SkSLCPPCodeGenerator.cpp
++++ b/src/sksl/SkSLCPPCodeGenerator.cpp
+@@ -122,7 +122,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
+             }
+             int64_t index = ((IntLiteral&) *i.fIndex).fValue;
+             String name = "sk_TransformedCoords2D_" + to_string(index);
+-            fFormatArgs.push_back("\"_transformedCoords2D_0\"");
++            fFormatArgs.push_back(name + ".c_str()");
+             if (fWrittenTransformedCoords.find(index) == fWrittenTransformedCoords.end()) {
+                 addExtraEmitCodeLine("SkString " + name +
+                                      " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
+-- 
+2.19.0.605.g01d371f741-goog
+
