@@ -43,7 +43,7 @@ sk_sp<SkImage> make_color_space(sk_sp<SkImage> orig, sk_sp<SkColorSpace> colorSp
     if (colorSpace->gammaIsLinear()) {
         srgb = SkColorSpace::MakeSRGBLinear();
     }
-    return SkImageMakeRasterCopyAndAssignColorSpace(xform.get(), srgb.get());
+    return xform->makeWithAssignedColorSpace(std::move(srgb));
 }
 
 class MakeCSGM : public skiagm::GM {
