@@ -241,7 +241,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
         writer->beginObject(nullptr, false);
         writer->appendString("name", GrPixelConfigToStr(config));
         //writer->appendS32("max sample count", this->maxRenderTargetSampleCount(config));
-        writer->appendBool("texturable", this->isConfigTexturable(config));
+//        writer->appendBool("texturable", this->isConfigTexturable(config));
         writer->endObject();
     }
 
@@ -283,7 +283,7 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
 bool GrCaps::validateSurfaceParams(const SkISize& size, const GrBackendFormat& format,
                                    GrPixelConfig config, GrRenderable renderable,
                                    int renderTargetSampleCnt, GrMipMapped mipped) const {
-    if (!this->isConfigTexturable(config)) {
+    if (!this->isFormatTexturable(format)) {
         return false;
     }
 
@@ -395,7 +395,7 @@ bool GrCaps::AreConfigsCompatible(GrPixelConfig genericConfig, GrPixelConfig spe
 GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType grColorType,
                                                 GrRenderable renderable) const {
     GrBackendFormat format = this->onGetDefaultBackendFormat(grColorType, renderable);
-    if (!this->isFormatTexturable(grColorType, format)) {
+    if (!this->isFormatTexturableAndUploadable(grColorType, format)) {
         return {};
     }
 

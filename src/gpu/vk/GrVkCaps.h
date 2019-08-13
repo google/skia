@@ -36,9 +36,9 @@ public:
     bool isFormatCompressed(const GrBackendFormat&) const override;
 
 
-    bool isFormatTexturable(GrColorType, const GrBackendFormat&) const override;
+    bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const override;
+    bool isFormatTexturable(const GrBackendFormat&) const override;
     bool isVkFormatTexturable(VkFormat) const;
-    bool isConfigTexturable(GrPixelConfig config) const override;
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
@@ -60,7 +60,7 @@ public:
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
 
     bool isVkFormatTexturableLinearly(VkFormat format) const {
-        return SkToBool(FormatInfo::kTextureable_Flag & this->getFormatInfo(format).fLinearFlags);
+        return SkToBool(FormatInfo::kTexturable_Flag & this->getFormatInfo(format).fLinearFlags);
     }
 
     bool formatCanBeDstofBlit(VkFormat format, bool linearTiled) const {
@@ -239,10 +239,10 @@ private:
                               const VkPhysicalDeviceProperties&, VkFormat);
 
         enum {
-            kTextureable_Flag = 0x1,
-            kRenderable_Flag  = 0x2,
-            kBlitSrc_Flag     = 0x4,
-            kBlitDst_Flag     = 0x8,
+            kTexturable_Flag = 0x1,
+            kRenderable_Flag = 0x2,
+            kBlitSrc_Flag    = 0x4,
+            kBlitDst_Flag    = 0x8,
         };
 
         uint16_t fOptimalFlags = 0;

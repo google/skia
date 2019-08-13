@@ -418,7 +418,7 @@ static bool validate_backend_texture(const GrCaps* caps, const GrBackendTexture&
         return false;
     }
 
-    if (texturable && !caps->isFormatTexturable(grCT, backendFormat)) {
+    if (texturable && !caps->isFormatTexturable(backendFormat)) {
         return false;
     }
 

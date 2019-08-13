@@ -537,7 +537,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
     GrColorType grColorType = GrCompressionTypeClosestColorType(compressionType);
     GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
 
-    if (!this->caps()->isFormatTexturable(grColorType, format)) {
+    if (!this->caps()->isFormatTexturableAndUploadable(grColorType, format)) {
         return nullptr;
     }
 
