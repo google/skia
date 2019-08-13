@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a719969_a9218003",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-13T19:20:09Z",
+      "side": 1,
+      "message": "This is almost identical to SkImageFilter_Base::Context, except for renaming, folding SkImageFilter_Base::OutputProperties into it, and a few new functions that are marked below",
+      "range": {
+        "startLine": 24,
+        "startChar": 6,
+        "endLine": 24,
+        "endChar": 21
+      },
+      "revId": "d0fc6454f4296cbb10d836800206f8efd55a183d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a894d9a3_4e4f7aac",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-13T19:20:09Z",
+      "side": 1,
+      "message": "Renamed layerMatrix() from ctm() and add documentation that reinforces that this may not match the canvas total CTM.",
+      "range": {
+        "startLine": 71,
+        "startChar": 20,
+        "endLine": 71,
+        "endChar": 28
+      },
+      "revId": "d0fc6454f4296cbb10d836800206f8efd55a183d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e77c181_07068afa",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-13T19:20:09Z",
+      "side": 1,
+      "message": "Came from SkImageFilter_Base::OutputProperties",
+      "range": {
+        "startLine": 79,
+        "startChar": 1,
+        "endLine": 84,
+        "endChar": 60
+      },
+      "revId": "d0fc6454f4296cbb10d836800206f8efd55a183d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ae19ef3_824a83c3",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-13T19:20:09Z",
+      "side": 1,
+      "message": "This simplifies the different filtering signatures, and helps differentiate the \u0027src\u0027 and \u0027input\u0027 images that a filter might access. In most cases, the filter only cares about the \u0027input\u0027 image and the fact that \u0027src\u0027 was assigned as the \u0027input\u0027 is irrelevant to them.",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 65
+      },
+      "revId": "d0fc6454f4296cbb10d836800206f8efd55a183d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a90d71b_78ebcbd3",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-13T19:20:09Z",
+      "side": 1,
+      "message": "New helpers that hide the use of the source image. Frequently implementations would pass the source special image and the actual filtered \u0027input\u0027 image into their processing function. The result would be based on the contents of \u0027input\u0027, but \u0027src\u0027 would be used to create scratch surfaces, or to decide on cpu-gpu mode.\n\nWhile the underlying logic is still based on how the source image was created, this helps make it clear that \u0027input\u0027 is the image being processed.",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 78
+      },
+      "revId": "d0fc6454f4296cbb10d836800206f8efd55a183d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc3f5ecd_8d545a81",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-13T19:20:09Z",
+      "side": 1,
+      "message": "self-nit: wrap",
+      "range": {
+        "startLine": 74,
+        "startChar": 100,
+        "endLine": 74,
+        "endChar": 102
+      },
+      "revId": "d0fc6454f4296cbb10d836800206f8efd55a183d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
