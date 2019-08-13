@@ -17,8 +17,7 @@ struct SkImageInfo;
 /** We explicitly use the same allocator for our pixels that SkMask does,
     so that we can freely assign memory allocated by one class to the other.
 */
-class SK_API SkMallocPixelRef : public SkPixelRef {
-public:
+namespace SkMallocPixelRef {
     /**
      *  Return a new SkMallocPixelRef with the provided pixel storage and
      *  rowBytes.  The caller is responsible for managing the lifetime of the
@@ -26,7 +25,7 @@ public:
      *
      *  Returns NULL on failure.
      */
-    static sk_sp<SkPixelRef> MakeDirect(const SkImageInfo&, void* addr, size_t rowBytes);
+    SK_API sk_sp<SkPixelRef> MakeDirect(const SkImageInfo&, void* addr, size_t rowBytes);
 
     /**
      *  Return a new SkMallocPixelRef, automatically allocating storage for the
@@ -38,7 +37,7 @@ public:
      *
      *  Returns NULL on failure.
      */
-    static sk_sp<SkPixelRef> MakeAllocate(const SkImageInfo&, size_t rowBytes);
+    SK_API sk_sp<SkPixelRef> MakeAllocate(const SkImageInfo&, size_t rowBytes);
 
     /**
      *  Return a new SkMallocPixelRef with the provided pixel storage and
@@ -51,8 +50,8 @@ public:
      *
      *  Returns NULL on failure.
      */
-    typedef void (*ReleaseProc)(void* addr, void* context);
-    static sk_sp<SkPixelRef> MakeWithProc(const SkImageInfo& info, size_t rowBytes, void* addr,
+    using ReleaseProc = void (*)(void* addr, void* context);
+    SK_API sk_sp<SkPixelRef> MakeWithProc(const SkImageInfo& info, size_t rowBytes, void* addr,
                                           ReleaseProc proc, void* context);
 
     /**
@@ -62,19 +61,6 @@ public:
      *
      *  Returns NULL on failure.
      */
-    static sk_sp<SkPixelRef> MakeWithData(const SkImageInfo&, size_t rowBytes, sk_sp<SkData> data);
-
-protected:
-    ~SkMallocPixelRef() override;
-
-private:
-    ReleaseProc fReleaseProc;
-    void*       fReleaseProcContext;
-
-    SkMallocPixelRef(const SkImageInfo&, void* addr, size_t rb, ReleaseProc proc, void* context);
-
-    typedef SkPixelRef INHERITED;
-};
-
-
+    SK_API sk_sp<SkPixelRef> MakeWithData(const SkImageInfo&, size_t rowBytes, sk_sp<SkData> data);
+}
 #endif
