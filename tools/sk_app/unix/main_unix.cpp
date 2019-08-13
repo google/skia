@@ -12,6 +12,14 @@
 #include "tools/sk_app/unix/Window_unix.h"
 #include "tools/timer/Timer.h"
 
+template <typename K, typename V>
+static V* get(SkTHashMap<K, V>* map, K key) {
+    if (V* ptr = map->find(key)) {
+        return ptr;
+    }
+    return map->set(key, V{});
+}
+
 int main(int argc, char**argv) {
     XInitThreads();
     Display* display = XOpenDisplay(nullptr);
@@ -44,7 +52,12 @@ int main(int argc, char**argv) {
         // Only handle a finite number of events before finishing resize and paint..
         if (int count = XPending(display)) {
             // collapse any Expose and Resize events.
-            SkTHashSet<sk_app::Window_unix*> pendingWindows;
+            struct Pending {
+                SkISize  fSize = {-1, -1};
+                bool     fPaint = false;;
+            };
+            SkTHashMap<sk_app::Window_unix*, Pending> pendingWindows;
+
             while (count-- && !done) {
                 XEvent event;
                 XNextEvent(display, &event);
@@ -57,13 +70,16 @@ int main(int argc, char**argv) {
                 // paint and resize events get collapsed
                 switch (event.type) {
                 case Expose:
-                    win->markPendingPaint();
-                    pendingWindows.add(win);
+                    get(&pendingWindows, win)->fPaint = true;
                     break;
                 case ConfigureNotify:
-                    win->markPendingResize(event.xconfigurerequest.width,
-                                           event.xconfigurerequest.height);
-                    pendingWindows.add(win);
+                    {
+                        SkISize newSize = {event.xconfigurerequest.width,
+                                           event.xconfigurerequest.height};
+                        if (newSize != SkISize{win->width(), win->height()}) {
+                            get(&pendingWindows, win)->fSize = newSize;
+                        }
+                    }
                     break;
                 default:
                     if (win->handleEvent(event)) {
@@ -72,9 +88,14 @@ int main(int argc, char**argv) {
                     break;
                 }
             }
-            pendingWindows.foreach([](sk_app::Window_unix* win) {
-                win->finishResize();
-                win->finishPaint();
+            pendingWindows.foreach([](sk_app::Window_unix* win, Pending* pending) {
+                if (pending->fSize != SkISize{-1, -1}) {
+                    win->onResize(pending->fSize.width(), pending->fSize.height());
+                    pending->fPaint = true;
+                }
+                if (pending->fPaint) {
+                    win->onPaint();
+                }
             });
         } else {
             // We are only really "idle" when the timer went off with zero events.

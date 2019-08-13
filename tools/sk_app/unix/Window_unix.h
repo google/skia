@@ -21,14 +21,7 @@ namespace sk_app {
 
 class Window_unix : public Window {
 public:
-    Window_unix()
-            : Window()
-            , fDisplay(nullptr)
-            , fWindow(0)
-            , fGC(nullptr)
-            , fFBConfig(nullptr)
-            , fVisualInfo(nullptr)
-            , fMSAASampleCount(1) {}
+    Window_unix() {}
     ~Window_unix() override { this->closeWindow(); }
 
     bool initWindow(Display* display);
@@ -52,46 +45,19 @@ public:
 
     static SkTDynamicHash<Window_unix, XWindow> gWindowMap;
 
-    void markPendingPaint() { fPendingPaint = true; }
-    void finishPaint() {
-        if (fPendingPaint) {
-            this->onPaint();
-            fPendingPaint = false;
-        }
-    }
-
-    void markPendingResize(int width, int height) {
-        if (width != this->width() || height != this->height()){
-            fPendingResize = true;
-            fPendingWidth = width;
-            fPendingHeight = height;
-        }
-    }
-    void finishResize() {
-        if (fPendingResize) {
-            this->onResize(fPendingWidth, fPendingHeight);
-            fPendingResize = false;
-        }
-    }
-
     void setRequestedDisplayParams(const DisplayParams&, bool allowReattach) override;
 
 private:
     void closeWindow();
 
-    Display*     fDisplay;
-    XWindow      fWindow;
-    GC           fGC;
-    GLXFBConfig* fFBConfig;
-    XVisualInfo* fVisualInfo;
-    int          fMSAASampleCount;
+    Display*     fDisplay = nullptr;
+    XWindow      fWindow = 0;
+    GC           fGC = nullptr;
+    GLXFBConfig* fFBConfig = nullptr;
+    XVisualInfo* fVisualInfo = nullptr;
+    int          fMSAASampleCount = 1;
 
     Atom     fWmDeleteMessage;
-
-    bool     fPendingPaint;
-    int      fPendingWidth;
-    int      fPendingHeight;
-    bool     fPendingResize;
 
     BackendType fBackend;
 

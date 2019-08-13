@@ -161,10 +161,6 @@ bool Window_unix::initWindow(Display* display) {
     // add to hashtable of windows
     gWindowMap.add(this);
 
-    // init event variables
-    fPendingPaint = false;
-    fPendingResize = false;
-
     return true;
 }
 
