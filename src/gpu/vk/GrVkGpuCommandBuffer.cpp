@@ -744,17 +744,23 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         GrVkTexture* vkTexture = static_cast<GrVkTexture*>(texture);
         // We may need to resolve the texture first if it is also a render target
         GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
-        if (texRT) {
+        if (texRT && texRT->needsResolve()) {
             fGpu->resolveRenderTargetNoFlush(texRT);
+            // TEMPORARY: MSAA resolve will have dirtied mipmaps. This goes away once we switch
+            // to resolving MSAA from the opList as well.
+            if (GrSamplerState::Filter::kMipMap == filter &&
+                (vkTexture->width() != 1 || vkTexture->height() != 1)) {
+                SkASSERT(vkTexture->texturePriv().mipMapped() == GrMipMapped::kYes);
+                SkASSERT(vkTexture->texturePriv().mipMapsAreDirty());
+                fGpu->regenerateMipMapLevels(vkTexture);
+            }
         }
 
-        // Check if we need to regenerate any mip maps
+        // Ensure mip maps were all resolved ahead of time by the opList.
         if (GrSamplerState::Filter::kMipMap == filter &&
             (vkTexture->width() != 1 || vkTexture->height() != 1)) {
             SkASSERT(vkTexture->texturePriv().mipMapped() == GrMipMapped::kYes);
-            if (vkTexture->texturePriv().mipMapsAreDirty()) {
-                fGpu->regenerateMipMapLevels(vkTexture);
-            }
+            SkASSERT(!vkTexture->texturePriv().mipMapsAreDirty());
         }
         cbInfo.fSampledTextures.push_back(vkTexture);
 
