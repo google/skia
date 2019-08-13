@@ -320,6 +320,7 @@ gm_sources = [
   "$_gm/skbug_5321.cpp",
   "$_gm/skbug_8664.cpp",
   "$_gm/skbug_8955.cpp",
+  "$_gm/skbug_9319.cpp",
   "$_gm/skinning.cpp",
   "$_gm/smallarc.cpp",
   "$_gm/smallpaths.cpp",
