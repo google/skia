@@ -3700,6 +3700,9 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
     GrPixelConfig config = kUnknown_GrPixelConfig;
 
     switch (format) {
+        case GR_GL_LUMINANCE8:
+            config = kGray_8_as_Lum_GrPixelConfig;
+            break;
         case GR_GL_ALPHA8:
             config = kAlpha_8_as_Alpha_GrPixelConfig;
             break;
