@@ -95,6 +95,7 @@ SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
     const SkShaderBase& shader, SkTileMode tmx, SkTileMode tmy,
     const SkImage_Base* image, const ContextRec& rec, SkArenaAlloc* alloc)
 {
+    SkDebugf("in %s\n", __func__);
     SkMatrix totalInverse;
     // Do this first, so we know the matrix can be inverted.
     if (!shader.computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &totalInverse)) {
