@@ -17,16 +17,12 @@
 #endif
 
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateUniformManager(GrVkGpu* gpu) {
-    SkSTArray<2, uint32_t> visibilities;
-    // We set the visibility of the first binding to all supported geometry processing shader
-    // stages (vertex, tesselation, geometry, etc.) and the second binding to the fragment
-    // shader.
-    uint32_t geomStages = kVertex_GrShaderFlag;
+    SkSTArray<1, uint32_t> visibilities;
+    uint32_t stages = kVertex_GrShaderFlag | kFragment_GrShaderFlag;
     if (gpu->vkCaps().shaderCaps()->geometryShaderSupport()) {
-        geomStages |= kGeometry_GrShaderFlag;
+        stages |= kGeometry_GrShaderFlag;
     }
-    visibilities.push_back(geomStages);
-    visibilities.push_back(kFragment_GrShaderFlag);
+    visibilities.push_back(stages);
 
     SkTArray<const GrVkSampler*> samplers;
     return new GrVkDescriptorSetManager(gpu, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, visibilities,
@@ -243,28 +239,24 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         fDescCountPerSet = visibilities.count();
     } else {
         SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
-        GR_STATIC_ASSERT(2 == kUniformDescPerSet);
+        GR_STATIC_ASSERT(1 == kUniformDescPerSet);
         SkASSERT(kUniformDescPerSet == visibilities.count());
         // Create Uniform Buffer Descriptor
-        static const uint32_t bindings[kUniformDescPerSet] =
-                { GrVkUniformHandler::kGeometryBinding, GrVkUniformHandler::kFragBinding };
-        VkDescriptorSetLayoutBinding dsUniBindings[kUniformDescPerSet];
-        memset(&dsUniBindings, 0, kUniformDescPerSet * sizeof(VkDescriptorSetLayoutBinding));
-        for (int i = 0; i < kUniformDescPerSet; ++i) {
-            dsUniBindings[i].binding = bindings[i];
-            dsUniBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            dsUniBindings[i].descriptorCount = 1;
-            dsUniBindings[i].stageFlags = visibility_to_vk_stage_flags(visibilities[i]);
-            dsUniBindings[i].pImmutableSamplers = nullptr;
-        }
+        VkDescriptorSetLayoutBinding dsUniBinding;
+        memset(&dsUniBinding, 0, sizeof(dsUniBinding));
+        dsUniBinding.binding = GrVkUniformHandler::kUniformBinding;
+        dsUniBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        dsUniBinding.descriptorCount = 1;
+        dsUniBinding.stageFlags = visibility_to_vk_stage_flags(visibilities[0]);
+        dsUniBinding.pImmutableSamplers = nullptr;
 
         VkDescriptorSetLayoutCreateInfo uniformLayoutCreateInfo;
         memset(&uniformLayoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
         uniformLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         uniformLayoutCreateInfo.pNext = nullptr;
         uniformLayoutCreateInfo.flags = 0;
-        uniformLayoutCreateInfo.bindingCount = 2;
-        uniformLayoutCreateInfo.pBindings = dsUniBindings;
+        uniformLayoutCreateInfo.bindingCount = 1;
+        uniformLayoutCreateInfo.pBindings = &dsUniBinding;
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
         // skia:8713
