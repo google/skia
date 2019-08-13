@@ -205,13 +205,9 @@ def dm_flags(api, bot):
         if sample_count:
           configs.append('angle_gl_es2_msaa' + sample_count)
           configs.append('angle_gl_es3_msaa' + sample_count)
-      if 'NUC5i7RYH' in bot:
-        # skbug.com/7376
-        blacklist('_ test _ ProcessorCloneTest')
 
     if 'AndroidOne' in bot or ('Nexus' in bot and 'Nexus5x' not in bot) or 'GalaxyS6' in bot:
       # skbug.com/9019
-      blacklist('_ test _ ProcessorCloneTest')
       blacklist('_ test _ GLPrograms')
       blacklist('_ test _ ProcessorOptimizationValidationTest')
 
@@ -777,7 +773,6 @@ def dm_flags(api, bot):
 
   if 'Mac' in bot and 'IntelHD6000' in bot:
     # skia:7574
-    match.append('~^ProcessorCloneTest$')
     match.append('~^GrMeshTest$')
 
   if 'Mac' in bot and 'IntelHD615' in bot:
