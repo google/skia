@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "a2f46f05_7c32f96e",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-13T19:46:50Z",
+      "side": 1,
+      "message": "(Resolved.)",
+      "parentUuid": "9999b6cd_1efb518a",
+      "range": {
+        "startLine": 118,
+        "startChar": 43,
+        "endLine": 118,
+        "endChar": 73
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c74b455_a0b7cf93",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 2
