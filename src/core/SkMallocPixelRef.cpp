@@ -50,7 +50,7 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeDirect(const SkImageInfo& info,
     if (!is_valid(info)) {
         return nullptr;
     }
-    return sk_sp<SkPixelRef>(new SkMallocPixelRef(info, addr, rowBytes, nullptr, nullptr));
+    return sk_make_sp<SkPixelRef>(info.width(), info.height(), addr, rowBytes);
 }
 
 
