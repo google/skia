@@ -22,6 +22,30 @@
       "revId": "c98e4c85d11998f59557379f2b66cccf0a317a5b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5fff558_54550c75",
+        "filename": "gm/picture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2019-08-13T20:11:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e5ef27d_b328c2c5",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 33
+      },
+      "revId": "c98e4c85d11998f59557379f2b66cccf0a317a5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
