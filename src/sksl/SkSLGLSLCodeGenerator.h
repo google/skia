@@ -215,6 +215,7 @@ protected:
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
     bool fFoundExternalSamplerDecl = false;
+    bool fFoundRectSamplerDecl = false;
     bool fFoundGSInvocations = false;
     bool fSetupFragPositionGlobal = false;
     bool fSetupFragPositionLocal = false;
