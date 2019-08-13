@@ -14,7 +14,6 @@
   {
     "cmd": [
       "git",
-      "retry",
       "fetch",
       "origin",
       "abc123",
