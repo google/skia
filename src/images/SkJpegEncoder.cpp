@@ -13,6 +13,7 @@
 #include "include/encode/SkJpegEncoder.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMSAN.h"
 #include "src/images/SkImageEncoderFns.h"
@@ -203,7 +204,8 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& s
 }
 
 SkJpegEncoder::SkJpegEncoder(std::unique_ptr<SkJpegEncoderMgr> encoderMgr, const SkPixmap& src)
-    : INHERITED(src, encoderMgr->proc() ? encoderMgr->cinfo()->input_components*src.width() : 0)
+    : INHERITED(src),
+    , fStorage(encoderMgr->proc() ? encoderMgr->cinfo()->input_components*src.width() : 0)
     , fEncoderMgr(std::move(encoderMgr))
 {}
 
