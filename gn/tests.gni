@@ -293,6 +293,7 @@ tests_sources = [
   "$_tests/TraceMemoryDumpTest.cpp",
   "$_tests/TracingTest.cpp",
   "$_tests/TransferPixelsTest.cpp",
+  "$_tests/TriPlaneYUVTest.cpp",
   "$_tests/TypefaceTest.cpp",
   "$_tests/UnicodeTest.cpp",
   "$_tests/UtilsTest.cpp",
