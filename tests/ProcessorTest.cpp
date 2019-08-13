@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
 #include "tests/Test.h"
 
 #include "include/gpu/GrContext.h"
@@ -22,7 +21,6 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "tests/TestUtils.h"
-
 #include <atomic>
 #include <random>
 
@@ -316,22 +314,25 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
     return proxies[0] && proxies[1];
 }
 
+SkBitmap make_input_pixels(int width, int height, SkScalar delta) {
+    SkImageInfo ii =
+            SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+    SkBitmap bmp;
+    bmp.allocPixels(ii);
+    for (int y = 0; y < width; ++y) {
+        for (int x = 0; x < height; ++x) {
+            *bmp.getAddr32(x, y) = input_texel_color(x, y, delta);
+        }
+    }
+    return bmp;
+}
+
 // Creates a texture of premul colors used as the output of the fragment processor that precedes
 // the fragment processor under test. Color values are those provided by input_texel_color().
 sk_sp<GrTextureProxy> make_input_texture(GrProxyProvider* proxyProvider, int width, int height,
                                          SkScalar delta) {
-    std::unique_ptr<GrColor[]> data(new GrColor[width * height]);
-    for (int y = 0; y < width; ++y) {
-        for (int x = 0; x < height; ++x) {
-            data.get()[width * y + x] = input_texel_color(x, y, delta);
-        }
-    }
-
-    SkImageInfo ii = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    SkPixmap pixmap(ii, data.get(), ii.minRowBytes());
-    sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
-    return proxyProvider->createTextureProxy(img, GrRenderable::kNo, 1, SkBudgeted::kYes,
-                                             SkBackingFit::kExact);
+    SkBitmap bmp = make_input_pixels(width, height, delta);
+    return proxyProvider->createProxyFromBitmap(bmp, GrMipMapped::kNo);
 }
 
 bool log_surface_context(sk_sp<GrSurfaceContext> src, SkString* dst) {
@@ -681,8 +682,19 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
     auto inputTexture = make_input_texture(proxyProvider, kRenderSize, kRenderSize, 0.0f);
     std::unique_ptr<GrColor[]> readData1(new GrColor[kRenderSize * kRenderSize]);
     std::unique_ptr<GrColor[]> readData2(new GrColor[kRenderSize * kRenderSize]);
-    auto readInfo = SkImageInfo::Make(kRenderSize, kRenderSize, kRGBA_8888_SkColorType,
-                                      kPremul_SkAlphaType);
+    // On failure we write out images, but just write the first failing set as the print is very
+    // large.
+    bool wroteImages = false;
+
+    // This test has a history of being flaky on a number of devices. If an FP clone is logically
+    // wrong, it's reasonable to expect it produce a large number of pixel differences in the image
+    // Sporadic pixel violations are more indicative device errors and represents a separate
+    // problem.
+#if defined(SK_BUILD_FOR_SKQP)
+    static constexpr int kMaxAcceptableFailedPixels = 0;  // Strict when running as SKQP
+#else
+    static constexpr int kMaxAcceptableFailedPixels = 2 * kRenderSize;         // ~0.7% of the image
+#endif
 
     // Because processor factories configure themselves in random ways, this is not exhaustive.
     for (int i = 0; i < GrFragmentProcessorTestFactory::Count(); ++i) {
@@ -712,16 +724,59 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
 
             // Check that the results are the same.
             bool passing = true;
+            int numWrongPixels = 0;
+            int firstWrongX = 0;
+            int firstWrongY = 0;
             for (int y = 0; y < kRenderSize && passing; ++y) {
                 for (int x = 0; x < kRenderSize && passing; ++x) {
                     int idx = y * kRenderSize + x;
                     if (readData1[idx] != readData2[idx]) {
-                        ERRORF(reporter,
-                               "Processor %s made clone produced different output. "
-                               "Input color: 0x%08x, Original Output Color: 0x%08x, "
-                               "Clone Output Color: 0x%08x..",
-                               name, input_texel_color(x, y, 0.0f), readData1[idx], readData2[idx]);
+                        if (!numWrongPixels) {
+                            firstWrongX = x;
+                            firstWrongY = y;
+                        }
+                        ++numWrongPixels;
+                    }
+                    if (numWrongPixels > kMaxAcceptableFailedPixels) {
                         passing = false;
+                        idx = firstWrongY * kRenderSize + firstWrongX;
+                        ERRORF(reporter,
+                               "Processor %s made clone produced different output at (%d, %d). "
+                               "Input color: 0x%08x, Original Output Color: 0x%08x, "
+                               "Clone Output Color: 0x%08x.",
+                               name, firstWrongX, firstWrongY, input_texel_color(x, y, 0.0f),
+                               readData1[idx], readData2[idx]);
+                        if (!wroteImages) {
+                            // Write the images out as data urls for inspection.
+                            // We mark the data as unpremul to avoid conversion when encoding as
+                            // PNG. Also, even though we made the data by rendering into
+                            // a "unpremul" GrRenderTargetContext, our input texture is unpremul and
+                            // outside of the random effect configuration, we didn't do anything to
+                            // ensure the output is actually premul.
+                            auto info = SkImageInfo::Make(kRenderSize, kRenderSize,
+                                                          kRGBA_8888_SkColorType,
+                                                          kUnpremul_SkAlphaType);
+                            SkBitmap inputBmp = make_input_pixels(kRenderSize, kRenderSize, 0.0f);
+                            SkBitmap origBmp;
+                            origBmp.installPixels(info, readData1.get(),
+                                                  kRenderSize * sizeof(GrColor));
+                            SkBitmap cloneBmp;
+                            cloneBmp.installPixels(info, readData2.get(),
+                                                   kRenderSize * sizeof(GrColor));
+                            SkString inputStr;
+                            bitmap_to_base64_data_uri(inputBmp, &inputStr);
+                            SkString origStr;
+                            bitmap_to_base64_data_uri(origBmp, &origStr);
+                            SkString cloneStr;
+                            bitmap_to_base64_data_uri(cloneBmp, &cloneStr);
+
+                            SkDebugf(
+                                    "Input image:\n%s\n"
+                                    "Orig output image:\n%s\n"
+                                    "Clone output image:\n%s\n",
+                                    inputStr.c_str(), origStr.c_str(), cloneStr.c_str());
+                            wroteImages = true;
+                        }
                     }
                 }
             }
