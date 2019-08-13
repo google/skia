@@ -182,6 +182,22 @@ sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
         return nullptr;
     }
 
+    enum : int32_t {
+             kRange_SelectorType = 0,
+        kExpression_SelectorType = 1,
+
+        // kWiggly_SelectorType = ? (not exported)
+    };
+
+    {
+        const auto type = ParseDefault<int>((*jrange)["t"], kRange_SelectorType);
+        if (type != kRange_SelectorType) {
+            abuilder->log(Logger::Level::kWarning, nullptr,
+                          "Ignoring unsupported selector type '%d'", type);
+            return nullptr;
+        }
+    }
+
     static constexpr Units gUnitMap[] = {
         Units::kPercentage,  // 'r': 1
         Units::kIndex,       // 'r': 2

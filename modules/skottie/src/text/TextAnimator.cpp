@@ -40,7 +40,7 @@ namespace internal {
  * "t": {              // text node
  *   "a": [            // animators list
  *     {               // animator node
- *       "s": {...},   // selector node (TODO)
+ *       "s": {...},   // selector node
  *       "a": {        // animator properties node
  *         "a":  {}    // optional anchor point value
  *         "p":  {},   // optional position value
@@ -63,26 +63,39 @@ sk_sp<TextAnimator> TextAnimator::Make(const skjson::ObjectValue* janimator,
         return nullptr;
     }
 
+    const skjson::ObjectValue* jprops = (*janimator)["a"];
+    if (!jprops) {
+        return nullptr;
+    }
+
     std::vector<sk_sp<RangeSelector>> selectors;
-    if (const skjson::ObjectValue* jselector = (*janimator)["s"]) {
-        // Single range selector for now.
-        if (auto sel = RangeSelector::Make(jselector, abuilder)) {
+
+    // Depending on compat mode and whether more than one selector is present,
+    // BM exports either an array or a single object.
+    if (const skjson::ArrayValue* jselectors = (*janimator)["s"]) {
+        selectors.reserve(jselectors->size());
+        for (const skjson::ObjectValue* jselector : *jselectors) {
+            if (auto sel = RangeSelector::Make(*jselector, abuilder)) {
+                selectors.push_back(std::move(sel));
+            }
+        }
+    } else {
+        if (auto sel = RangeSelector::Make((*janimator)["s"], abuilder)) {
             selectors.reserve(1);
             selectors.push_back(std::move(sel));
         }
     }
 
-    const skjson::ObjectValue* jprops = (*janimator)["a"];
-
-    return jprops
-        ? sk_sp<TextAnimator>(new TextAnimator(std::move(selectors), *jprops, abuilder))
-        : nullptr;
+    return sk_sp<TextAnimator>(new TextAnimator(std::move(selectors), *jprops, abuilder));
 }
 
 void TextAnimator::modulateProps(const DomainMaps& maps, ModulatorBuffer& buf) const {
+    // No selectors -> full coverage.
+    const auto initial_coverage = fSelectors.empty() ? 1.f : 0.f;
+
     // Coverage is scoped per animator.
     for (auto& mod : buf) {
-        mod.coverage = 0;
+        mod.coverage = initial_coverage;
     }
 
     // Accumulate selector coverage.
