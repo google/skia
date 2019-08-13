@@ -453,6 +453,22 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
         return append_misc();
     }
     if (true
+        && (ct == kRGBA_8888_SkColorType || ct == kBGRA_8888_SkColorType) // TODO: all formats
+        && quality == kLow_SkFilterQuality
+        && fTileModeX != SkTileMode::kDecal // TODO decal too?
+        && fTileModeY != SkTileMode::kDecal) {
+
+        auto ctx = alloc->make<SkRasterPipeline_SamplerCtx2>();
+        *(SkRasterPipeline_GatherCtx*)(ctx) = *gather;
+        ctx->ct = ct;
+        ctx->tileX = fTileModeX;
+        ctx->tileY = fTileModeY;
+        ctx->invWidth  = 1.0f / ctx->width;
+        ctx->invHeight = 1.0f / ctx->height;
+        p->append(SkRasterPipeline::bilinear, ctx);
+        return append_misc();
+    }
+    if (true
         && (ct == kRGBA_8888_SkColorType || ct == kBGRA_8888_SkColorType)
         && quality == kHigh_SkFilterQuality
         && fTileModeX == SkTileMode::kClamp && fTileModeY == SkTileMode::kClamp) {
@@ -461,6 +477,22 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
         if (ct == kBGRA_8888_SkColorType) {
             p->append(SkRasterPipeline::swap_rb);
         }
+        return append_misc();
+    }
+    if (true
+        && (ct == kRGBA_8888_SkColorType || ct == kBGRA_8888_SkColorType) // TODO: all formats
+        && quality == kHigh_SkFilterQuality
+        && fTileModeX != SkTileMode::kDecal // TODO decal too?
+        && fTileModeY != SkTileMode::kDecal) {
+
+        auto ctx = alloc->make<SkRasterPipeline_SamplerCtx2>();
+        *(SkRasterPipeline_GatherCtx*)(ctx) = *gather;
+        ctx->ct = ct;
+        ctx->tileX = fTileModeX;
+        ctx->tileY = fTileModeY;
+        ctx->invWidth  = 1.0f / ctx->width;
+        ctx->invHeight = 1.0f / ctx->height;
+        p->append(SkRasterPipeline::bicubic, ctx);
         return append_misc();
     }
 
