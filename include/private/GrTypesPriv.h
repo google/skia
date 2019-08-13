@@ -408,28 +408,6 @@ enum GrShaderFlags {
 };
 GR_MAKE_BITFIELD_OPS(GrShaderFlags)
 
-/**
- * Precisions of shader language variables. Not all shading languages support precisions or actually
- * vary the internal precision based on the qualifiers. These currently only apply to float types (
- * including float vectors and matrices).
- */
-enum GrSLPrecision : int {
-    kLow_GrSLPrecision,
-    kMedium_GrSLPrecision,
-    kHigh_GrSLPrecision,
-
-    // Default precision is a special tag that means "whatever the default for the program/type
-    // combination is". In other words, it maps to the empty string in shader code. There are some
-    // scenarios where kDefault is not allowed (as the default precision for a program, or for
-    // varyings, for example).
-    kDefault_GrSLPrecision,
-
-    // We only consider the "real" precisions here
-    kLast_GrSLPrecision = kHigh_GrSLPrecision,
-};
-
-static const int kGrSLPrecisionCount = kLast_GrSLPrecision + 1;
-
 /** Is the shading language type float (including vectors/matrices)? */
 static constexpr bool GrSLTypeIsFloatType(GrSLType type) {
     switch (type) {
@@ -1078,46 +1056,6 @@ static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
     }
 
     SK_ABORT("Invalid pixel config");
-}
-
-/**
- * Precision qualifier that should be used with a sampler.
- */
-static constexpr GrSLPrecision GrSLSamplerPrecision(GrPixelConfig config) {
-    switch (config) {
-        case kUnknown_GrPixelConfig:
-        case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
-        case kGray_8_GrPixelConfig:
-        case kGray_8_as_Lum_GrPixelConfig:
-        case kGray_8_as_Red_GrPixelConfig:
-        case kRGB_565_GrPixelConfig:
-        case kRGBA_4444_GrPixelConfig:
-        case kRGBA_8888_GrPixelConfig:
-        case kRGB_888_GrPixelConfig:
-        case kRGB_888X_GrPixelConfig:
-        case kRG_88_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kSRGBA_8888_GrPixelConfig:
-        case kRGB_ETC1_GrPixelConfig:
-            return kLow_GrSLPrecision;
-        case kRGBA_float_GrPixelConfig:
-            return kHigh_GrSLPrecision;
-        case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Lum_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
-        case kRGBA_half_GrPixelConfig:
-        case kRGBA_half_Clamped_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
-        case kR_16_GrPixelConfig:
-        case kRG_1616_GrPixelConfig:
-        // Experimental (for Y416 and mutant P016/P010)
-        case kRGBA_16161616_GrPixelConfig:
-        case kRG_half_GrPixelConfig:
-            return kMedium_GrSLPrecision;
-    }
-    SkUNREACHABLE;
 }
 
 /**

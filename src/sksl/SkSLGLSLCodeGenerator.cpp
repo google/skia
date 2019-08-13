@@ -1277,6 +1277,9 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             }
             fFoundExternalSamplerDecl = true;
         }
+        if (!fFoundRectSamplerDecl && var.fVar->fType == *fContext.fSampler2DRect_Type) {
+            fFoundRectSamplerDecl = true;
+        }
     }
     if (wroteType) {
         this->write(";");
@@ -1601,6 +1604,13 @@ bool GLSLCodeGenerator::generateCode() {
 
     if (this->usesPrecisionModifiers()) {
         this->writeLine("precision mediump float;");
+        this->writeLine("precision mediump sampler2D;");
+        if (fFoundExternalSamplerDecl) {
+            this->writeLine("precision mediump samplerExternalOES;");
+        }
+        if (fFoundRectSamplerDecl) {
+            this->writeLine("precision mediump sampler2DRect;");
+        }
     }
     write_stringstream(fExtraFunctions, *rawOut);
     write_stringstream(body, *rawOut);

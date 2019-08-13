@@ -44,7 +44,7 @@ static inline uint16_t texture_type_key(GrTextureType type) {
 }
 
 static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
-                            GrPixelConfig config, const GrShaderCaps& caps) {
+                            const GrShaderCaps& caps) {
     int samplerTypeKey = texture_type_key(textureType);
 
     GR_STATIC_ASSERT(2 == sizeof(swizzle.asKey()));
@@ -52,9 +52,7 @@ static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
     if (caps.textureSwizzleAppliedInShader()) {
         swizzleKey = swizzle.asKey();
     }
-    return SkToU32(samplerTypeKey |
-                   swizzleKey << kSamplerOrImageTypeKeyBits |
-                   (GrSLSamplerPrecision(config) << (16 + kSamplerOrImageTypeKeyBits)));
+    return SkToU32(samplerTypeKey | swizzleKey << kSamplerOrImageTypeKeyBits);
 }
 
 static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor& fp,
@@ -67,7 +65,7 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor
         const GrFragmentProcessor::TextureSampler& sampler = fp.textureSampler(i);
         const GrTexture* tex = sampler.peekTexture();
         uint32_t samplerKey = sampler_key(
-                tex->texturePriv().textureType(), sampler.swizzle(), tex->config(), caps);
+                tex->texturePriv().textureType(), sampler.swizzle(), caps);
         uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
                 sampler.samplerState(), sampler.proxy()->backendFormat());
         if (extraSamplerKey) {
@@ -91,7 +89,7 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcesso
     for (int i = 0; i < numTextureSamplers; ++i) {
         const GrPrimitiveProcessor::TextureSampler& sampler = pp.textureSampler(i);
         uint32_t samplerKey = sampler_key(
-                sampler.textureType(), sampler.swizzle(), sampler.config(), caps);
+                sampler.textureType(), sampler.swizzle(), caps);
         uint32_t extraSamplerKey = sampler.extraSamplerKey();
         if (extraSamplerKey) {
             // We first mark the normal sampler key with last bit to flag that it has an extra
