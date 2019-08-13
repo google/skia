@@ -411,9 +411,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         REPORTER_ASSERT(reporter, gpuWriteResult == (ioType == kRW_GrIOType));
 
         // Copies should not work with a read-only texture
-        auto copySrc = proxyProvider->createTextureProxy(
-                SkImage::MakeFromRaster(write, nullptr, nullptr), GrRenderable::kNo, 1,
-                SkBudgeted::kYes, SkBackingFit::kExact);
+        auto copySrc =
+                proxyProvider->createTextureProxy(SkImage::MakeFromRaster(write, nullptr, nullptr),
+                                                  1, SkBudgeted::kYes, SkBackingFit::kExact);
         REPORTER_ASSERT(reporter, copySrc);
         auto copyResult = surfContext->testCopy(copySrc.get());
         REPORTER_ASSERT(reporter, copyResult == (ioType == kRW_GrIOType));
