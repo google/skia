@@ -43,6 +43,24 @@ sk_sp<const GrCaps> GrContext_Base::refCaps() const { return fCaps; }
 
 sk_sp<GrSkSLFPFactoryCache> GrContext_Base::fpFactoryCache() { return fFPFactoryCache; }
 
+GrBackendFormat GrContext_Base::defaultBackendFormat(SkColorType skColorType,
+                                                     GrRenderable renderable) const {
+    const GrCaps* caps = this->caps();
+
+    GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
+
+    GrBackendFormat format = caps->getDefaultBackendFormat(grColorType, renderable);
+    if (!format.isValid()) {
+        return GrBackendFormat();
+    }
+
+    SkASSERT(caps->isFormatTexturable(grColorType, format));
+    SkASSERT(renderable == GrRenderable::kNo ||
+             caps->isFormatAsColorTypeRenderable(grColorType, format));
+
+    return format;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrBaseContextPriv::refCaps() const {
     return fContext->refCaps();

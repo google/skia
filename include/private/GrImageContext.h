@@ -18,6 +18,8 @@ class SK_API GrImageContext : public GrContext_Base {
 public:
     ~GrImageContext() override;
 
+    using GrContext_Base::defaultBackendFormat;
+
     // Provides access to functions that aren't part of the public API.
     GrImageContextPriv priv();
     const GrImageContextPriv priv() const;
