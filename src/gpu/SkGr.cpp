@@ -542,20 +542,21 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
+GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int imageHeight,
+                                                       SkFilterQuality paintFilterQuality,
                                                        const SkMatrix& viewM,
                                                        const SkMatrix& localM,
                                                        bool sharpenMipmappedTextures,
                                                        bool* doBicubic) {
     *doBicubic = false;
-    GrSamplerState::Filter textureFilterMode;
+    if (imageWidth <= 1 && imageHeight <= 1) {
+        return GrSamplerState::Filter::kNearest;
+    }
     switch (paintFilterQuality) {
         case kNone_SkFilterQuality:
-            textureFilterMode = GrSamplerState::Filter::kNearest;
-            break;
+            return GrSamplerState::Filter::kNearest;
         case kLow_SkFilterQuality:
-            textureFilterMode = GrSamplerState::Filter::kBilerp;
-            break;
+            return GrSamplerState::Filter::kBilerp;
         case kMedium_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
@@ -569,24 +570,19 @@ GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilt
             //        2^0.5/2 = s
             SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
             if (matrix.getMinScale() < mipScale) {
-                textureFilterMode = GrSamplerState::Filter::kMipMap;
+                return GrSamplerState::Filter::kMipMap;
             } else {
                 // Don't trigger MIP level generation unnecessarily.
-                textureFilterMode = GrSamplerState::Filter::kBilerp;
+                return GrSamplerState::Filter::kBilerp;
             }
-            break;
         }
         case kHigh_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
+            GrSamplerState::Filter textureFilterMode;
             *doBicubic = GrBicubicEffect::ShouldUseBicubic(matrix, &textureFilterMode);
-            break;
+            return textureFilterMode;
         }
-        default:
-            // Should be unreachable.  If not, fall back to mipmaps.
-            textureFilterMode = GrSamplerState::Filter::kMipMap;
-            break;
-
     }
-    return textureFilterMode;
+    SkUNREACHABLE;
 }
