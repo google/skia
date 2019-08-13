@@ -3700,11 +3700,14 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
     GrPixelConfig config = kUnknown_GrPixelConfig;
 
     switch (format) {
+        case GR_GL_LUMINANCE8:
+            config = kGray_8_as_Lum_GrPixelConfig;
+            break;
         case GR_GL_ALPHA8:
             config = kAlpha_8_as_Alpha_GrPixelConfig;
             break;
         case GR_GL_R8:
-            config = kAlpha_8_as_Red_GrPixelConfig;
+            config = kGray_8_as_Red_GrPixelConfig;
             break;
         case GR_GL_RG8:
             config = kRG_88_GrPixelConfig;
@@ -3757,9 +3760,9 @@ GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
     GrGLFormat grGLFormat = GrGLBackendFormatToGLFormat(format);
 
     switch (grGLFormat) {
-        case GrGLFormat::kLUMINANCE8:   return GrColorType::kGray_8;
-        case GrGLFormat::kALPHA8:       // fall through
-        case GrGLFormat::kR8:           return GrColorType::kAlpha_8;
+        case GrGLFormat::kLUMINANCE8:   // fall through
+        case GrGLFormat::kR8:           return GrColorType::kGray_8;
+        case GrGLFormat::kALPHA8:       return GrColorType::kAlpha_8;
         case GrGLFormat::kRG8:          return GrColorType::kRG_88;
         case GrGLFormat::kRGBA8:        return GrColorType::kRGBA_8888;
         case GrGLFormat::kRGB8:         return GrColorType::kRGB_888x;
