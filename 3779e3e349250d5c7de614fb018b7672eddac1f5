@@ -22,6 +22,30 @@
       "revId": "3779e3e349250d5c7de614fb018b7672eddac1f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75cf0c7b_4f2044a3",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-13T16:40:22Z",
+      "side": 1,
+      "message": "Ah, I hadn\u0027t noticed that the optimization test was also logging images. I made them more similar and share some logging helpers, which also tag everything unpremul.",
+      "parentUuid": "eb737dab_f106eb85",
+      "range": {
+        "startLine": 750,
+        "startChar": 28,
+        "endLine": 765,
+        "endChar": 82
+      },
+      "revId": "3779e3e349250d5c7de614fb018b7672eddac1f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
