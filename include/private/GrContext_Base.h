@@ -28,6 +28,15 @@ public:
      */
     GrBackendApi backend() const { return fBackend; }
 
+    /*
+     * Retrieve the default GrBackendFormat for a given SkColorType and renderability.
+     * It is guaranteed that this backend format will be the one used by the GrContext
+     * SkColorType and SkSurfaceCharacterization-based createBackendTexture methods.
+     *
+     * The caller should check that the returned format is valid.
+     */
+    GrBackendFormat defaultBackendFormat(SkColorType, GrRenderable) const;
+
     // Provides access to functions that aren't part of the public API.
     GrBaseContextPriv priv();
     const GrBaseContextPriv priv() const;

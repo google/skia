@@ -351,7 +351,7 @@ public:
      *
      * The caller should check that the returned format is valid.
      */
-    using GrRecordingContext::defaultBackendFormat;
+    using GrContext_Base::defaultBackendFormat;
 
    /*
     * The explicitly allocated backend texture API allows clients to use Skia to create backend
