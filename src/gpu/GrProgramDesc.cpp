@@ -52,9 +52,7 @@ static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
     if (caps.textureSwizzleAppliedInShader()) {
         swizzleKey = swizzle.asKey();
     }
-    return SkToU32(samplerTypeKey |
-                   swizzleKey << kSamplerOrImageTypeKeyBits |
-                   (GrSLSamplerPrecision(config) << (16 + kSamplerOrImageTypeKeyBits)));
+    return SkToU32(samplerTypeKey | swizzleKey << kSamplerOrImageTypeKeyBits);
 }
 
 static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor& fp,
