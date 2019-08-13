@@ -326,6 +326,7 @@ DEF_TEST(SkSLUsesPrecisionModifiers, r) {
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
          "precision mediump float;\n"
+         "precision mediump sampler2D;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    mediump float x = 0.75;\n"
@@ -578,6 +579,7 @@ DEF_TEST(SkSLDerivatives, r) {
          *SkSL::ShaderCapsFactory::ShaderDerivativeExtensionString(),
          "#version 400\n"
          "precision mediump float;\n"
+         "precision mediump sampler2D;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    sk_FragColor.x = 1.0;\n"
@@ -588,6 +590,7 @@ DEF_TEST(SkSLDerivatives, r) {
          "#version 400\n"
          "#extension GL_OES_standard_derivatives : require\n"
          "precision mediump float;\n"
+         "precision mediump sampler2D;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    sk_FragColor.x = dFdx(1.0);\n"
@@ -1857,6 +1860,7 @@ DEF_TEST(SkSLTypePrecision, r) {
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
          "precision mediump float;\n"
+         "precision mediump sampler2D;\n"
          "out mediump vec4 sk_FragColor;\n"
          "highp float f = 1.0;\n"
          "mediump float h = 2.0;\n"
@@ -1970,6 +1974,7 @@ DEF_TEST(SkSLForceHighPrecision, r) {
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
          "precision mediump float;\n"
+         "precision mediump sampler2D;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    mediump float x = sqrt(1.0);\n"
@@ -1986,6 +1991,7 @@ DEF_TEST(SkSLForceHighPrecision, r) {
          settings,
          "#version 400\n"
          "precision mediump float;\n"
+         "precision mediump sampler2D;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    highp float x = sqrt(1.0);\n"
@@ -2095,6 +2101,7 @@ DEF_TEST(SkSLIncompleteShortIntPrecision, r) {
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
          "precision mediump float;\n"
+         "precision mediump sampler2D;\n"
          "out mediump vec4 sk_FragColor;\n"
          "uniform sampler2D tex;\n"
          "in highp vec2 texcoord;\n"
@@ -2115,6 +2122,7 @@ DEF_TEST(SkSLIncompleteShortIntPrecision, r) {
          *SkSL::ShaderCapsFactory::IncompleteShortIntPrecision(),
          "#version 310es\n"
          "precision mediump float;\n"
+         "precision mediump sampler2D;\n"
          "out mediump vec4 sk_FragColor;\n"
          "uniform sampler2D tex;\n"
          "in highp vec2 texcoord;\n"

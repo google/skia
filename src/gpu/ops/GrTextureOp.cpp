@@ -416,7 +416,6 @@ private:
         int numProxies = 0;
         int numTotalQuads = 0;
         auto textureType = fProxies[0].fProxy->textureType();
-        auto config = fProxies[0].fProxy->config();
         const GrSwizzle& swizzle = fProxies[0].fProxy->textureSwizzle();
         GrAAType aaType = this->aaType();
         for (const auto& op : ChainRange<TextureOp>(this)) {
@@ -437,7 +436,6 @@ private:
                 if (!proxy->isInstantiated()) {
                     return;
                 }
-                SkASSERT(proxy->config() == config);
                 SkASSERT(proxy->textureType() == textureType);
                 SkASSERT(proxy->textureSwizzle() == swizzle);
             }
@@ -457,9 +455,8 @@ private:
                 samplerState, fProxies[0].fProxy->backendFormat());
 
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
-                vertexSpec, *target->caps().shaderCaps(),
-                textureType, config, samplerState, swizzle, extraSamplerKey,
-                std::move(fTextureColorSpaceXform));
+                vertexSpec, *target->caps().shaderCaps(), textureType, samplerState, swizzle,
+                extraSamplerKey, std::move(fTextureColorSpaceXform));
 
         // We'll use a dynamic state array for the GP textures when there are multiple ops.
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.
