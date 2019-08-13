@@ -58,6 +58,26 @@ static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& cap
     }
 }
 
+static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+                                                             SkSL::Program::kFragmentProcessor_Kind,
+                                                             SkSL::String(src),
+                                                             settings);
+    if (!compiler.errorCount()) {
+        compiler.optimize(*program);
+    }
+    SkSL::String skError(error);
+    if (compiler.errorText() != skError) {
+        SkDebugf("SKSL ERROR:\n    source: %s\n    expected: %s    received: %s", src, error,
+                 compiler.errorText().c_str());
+    }
+    REPORTER_ASSERT(r, compiler.errorText() == skError);
+}
+
 DEF_TEST(SkSLFPHelloWorld, r) {
     test(r,
          "/* HEADER */"
@@ -144,7 +164,7 @@ DEF_TEST(SkSLFPHelloWorld, r) {
 
 DEF_TEST(SkSLFPInput, r) {
     test(r,
-         "in half2 point;"
+         "layout(key) in half2 point;"
          "void main() {"
          "sk_OutColor = half4(point, point);"
          "}",
@@ -265,7 +285,7 @@ DEF_TEST(SkSLFPNonInlinedInUniform, r) {
 // state tracking and custom ctypes to really put the code generation through its paces.
 DEF_TEST(SkSLFPConditionalInUniform, r) {
     test(r,
-         "in bool test;"
+         "layout(key) in bool test;"
          "layout(ctype=SkPMColor4f, tracked, when=test) in uniform half4 color;"
          "void main() {"
          "  if (test) {"
@@ -394,7 +414,7 @@ DEF_TEST(SkSLFPSections, r) {
          {});
     test(r,
          "uniform half calculated;"
-         "in half provided;"
+         "layout(key) in half provided;"
          "@setData(varName) { varName.set1f(calculated, provided * 2); }"
          "void main() {"
          "sk_OutColor = half4(1);"
@@ -654,4 +674,14 @@ DEF_TEST(SkSLFPNullableChildProcessor, r) {
                                      " args.fOutputColor, _sample93.c_str(), args.fOutputColor);"
 
          });
+}
+
+DEF_TEST(SkSLFPBadIn, r) {
+    test_failure(r,
+         "in half4 c;"
+         "void main() {"
+         "    sk_OutColor = c;"
+         "}",
+         "error: 1: 'in' variable must be either 'uniform' or 'layout(key)', or there must be a "
+         "custom @setData function\n1 error\n");
 }
