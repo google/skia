@@ -2609,6 +2609,66 @@ STAGE(gauss_a_to_rgba, Ctx::None) {
     b = a;
 }
 
+SI F tile(F v, SkTileMode mode, float limit, float invLimit) {
+    // After ix_and_ptr() will clamp the output of tile(), so we need not clamp here.
+    switch (mode) {
+        case SkTileMode::kDecal:  // TODO, for now fallthrough to clamp
+        case SkTileMode::kClamp:  return v;
+        case SkTileMode::kRepeat: return v - floor_(v*invLimit)*limit;
+        case SkTileMode::kMirror:
+            return abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
+    }
+}
+
+
+STAGE(bilinear, SkRasterPipeline_SamplerCtx2* ctx) {
+    F cx = r,
+      cy = g;
+
+    F fx = fract(cx + 0.5f),
+      fy = fract(cy + 0.5f);
+
+    const F wx[] = {1.0f - fx, fx};
+    const F wy[] = {1.0f - fy, fy};
+
+    r = g = b = a= 0;
+
+    F sy = cy - 0.5f;
+    for (int j = 0; j < 2; j++, sy += 1.0f) {
+        F sx = cx - 0.5f;
+        for (int i = 0; i < 2; i++, sx += 1.0f) {
+            F x = tile(sx, ctx->tileX, ctx->width , ctx->invWidth ),
+              y = tile(sy, ctx->tileY, ctx->height, ctx->invHeight);
+
+            F R,G,B,A;
+            switch (ctx->ct) {
+                default: R = G = B = A = 0;  // TODO
+                         break;
+
+                case kRGBA_8888_SkColorType:
+                case kBGRA_8888_SkColorType: {
+                    const uint32_t* ptr;
+                    U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+                    from_8888(gather(ptr, ix), &R,&G,&B,&A);
+                    if (ctx->ct == kBGRA_8888_SkColorType) {
+                        std::swap(R,B);
+                    }
+                } break;
+            }
+
+            F w = wx[i] * wy[j];
+            r = mad(w,R,r);
+            g = mad(w,G,g);
+            b = mad(w,B,b);
+            a = mad(w,A,a);
+        }
+    }
+}
+
+STAGE(bicubic, SkRasterPipeline_SamplerCtx2* ctx) {
+    // TODO: simliar to bilinear
+}
+
 // A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
 STAGE(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     // (cx,cy) are the center of our sample.
@@ -3974,6 +4034,9 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(mirror_y)         // TODO
     NOT_IMPLEMENTED(repeat_y)         // TODO
     NOT_IMPLEMENTED(negate_x)
+    NOT_IMPLEMENTED(bilinear)
+    NOT_IMPLEMENTED(bicubic)
+    NOT_IMPLEMENTED(sample_8888)
     NOT_IMPLEMENTED(bicubic_clamp_8888)
     NOT_IMPLEMENTED(bilinear_nx)      // TODO
     NOT_IMPLEMENTED(bilinear_ny)      // TODO

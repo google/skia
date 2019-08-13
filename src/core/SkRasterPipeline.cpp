@@ -283,6 +283,7 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
         }
     }
     if (ip != reset_point) {
+        SkDebugf("lowp\n");
         return SkOpts::start_pipeline_lowp;
     }
 
