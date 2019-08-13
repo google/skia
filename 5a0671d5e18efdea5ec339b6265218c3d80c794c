@@ -104,6 +104,30 @@
       "revId": "5a0671d5e18efdea5ec339b6265218c3d80c794c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc5ff1d4_bb56b176",
+        "filename": "src/image/SkSurface_Raster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-13T16:50:48Z",
+      "side": 1,
+      "message": "Ah, perhaps you\u0027re right.",
+      "parentUuid": "c1c76e62_72e5130b",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 175,
+        "endChar": 40
+      },
+      "revId": "5a0671d5e18efdea5ec339b6265218c3d80c794c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
