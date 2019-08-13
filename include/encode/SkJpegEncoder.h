@@ -9,6 +9,7 @@
 #define SkJpegEncoder_DEFINED
 
 #include "include/encode/SkEncoder.h"
+#include "include/private/SkTemplates.h"
 
 class SkJpegEncoderMgr;
 class SkWStream;
@@ -90,7 +91,9 @@ protected:
 private:
     SkJpegEncoder(std::unique_ptr<SkJpegEncoderMgr>, const SkPixmap& src);
 
+    SkAutoTMalloc<uint8_t> fStorage;
     std::unique_ptr<SkJpegEncoderMgr> fEncoderMgr;
+
     typedef SkEncoder INHERITED;
 };
 

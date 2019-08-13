@@ -13,9 +13,11 @@
 #include "include/core/SkString.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/codec/SkColorTable.h"
 #include "src/codec/SkPngPriv.h"
 #include "src/images/SkImageEncoderFns.h"
+
 #include <vector>
 
 #include "png.h"
@@ -401,7 +403,8 @@ std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& sr
 }
 
 SkPngEncoder::SkPngEncoder(std::unique_ptr<SkPngEncoderMgr> encoderMgr, const SkPixmap& src)
-    : INHERITED(src, encoderMgr->pngBytesPerPixel() * src.width())
+    : INHERITED(src)
+    , fStorage(encoderMgr->pngBytesPerPixel() * src.width())
     , fEncoderMgr(std::move(encoderMgr))
 {}
 

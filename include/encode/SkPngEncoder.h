@@ -10,6 +10,7 @@
 
 #include "include/core/SkDataTable.h"
 #include "include/encode/SkEncoder.h"
+#include "include/private/SkTemplates.h"
 
 class SkPngEncoderMgr;
 class SkWStream;
@@ -87,6 +88,7 @@ protected:
 
     SkPngEncoder(std::unique_ptr<SkPngEncoderMgr>, const SkPixmap& src);
 
+    SkAutoTMalloc<uint8_t> fStorage;
     std::unique_ptr<SkPngEncoderMgr> fEncoderMgr;
     typedef SkEncoder INHERITED;
 };
