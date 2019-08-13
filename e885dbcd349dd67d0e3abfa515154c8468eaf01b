@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "50f14e51_ecabbf51",
+        "filename": "bench/GMBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-13T14:00:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38e75051_9d75b9ac",
+      "range": {
+        "startLine": 11,
+        "startChar": 26,
+        "endLine": 11,
+        "endChar": 29
+      },
+      "revId": "e885dbcd349dd67d0e3abfa515154c8468eaf01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5874ed8_b1fb30d4",
         "filename": "bench/nanobench.cpp",
         "patchSetId": 2
@@ -57,6 +81,47 @@
       "revId": "e885dbcd349dd67d0e3abfa515154c8468eaf01b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "632b194c_fe820a95",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-13T14:00:27Z",
+      "side": 1,
+      "message": "Yeah, it\u0027s the move in the GMBench constructor doing it. Same thing in GMSlide.",
+      "parentUuid": "9dc72648_01ed0898",
+      "revId": "e885dbcd349dd67d0e3abfa515154c8468eaf01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6ca9439_4beda683",
+        "filename": "tools/viewer/GMSlide.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-13T14:00:27Z",
+      "side": 1,
+      "message": "Same thing here.",
+      "range": {
+        "startLine": 18,
+        "startChar": 26,
+        "endLine": 18,
+        "endChar": 28
+      },
+      "revId": "e885dbcd349dd67d0e3abfa515154c8468eaf01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
