@@ -260,6 +260,23 @@ static size_t find_first_larger(const std::vector<T>& list, T value) {
     return (size_t)(std::upper_bound(list.begin(), list.end(), value) - list.begin());
 }
 
+static size_t find_closest_x(const std::vector<SkRect>& bounds, float x, size_t b, size_t e) {
+    if (b >= e) {
+        return b;
+    }
+    SkASSERT(e <= bounds.size());
+    size_t best_index = b;
+    float best_diff = ::fabsf(bounds[best_index].x() - x);
+    for (size_t i = b + 1; i < e; ++i) {
+        float d = ::fabsf(bounds[i].x() - x);
+        if (d < best_diff) {
+            best_diff = d;
+            best_index = i;
+        }
+    }
+    return best_index;
+}
+
 Editor::TextPosition Editor::move(Editor::Movement move, Editor::TextPosition pos) const {
     if (fLines.empty()) {
         return {0, 0};
@@ -325,23 +342,27 @@ Editor::TextPosition Editor::move(Editor::Movement move, Editor::TextPosition po
             break;
         case Editor::Movement::kUp:
             {
+                SkASSERT(pos.fTextByteIndex < fLines[pos.fParagraphIndex].fCursorPos.size());
+                float x = fLines[pos.fParagraphIndex].fCursorPos[pos.fTextByteIndex].left();
                 const std::vector<size_t>& list = fLines[pos.fParagraphIndex].fLineEndOffsets;
                 size_t f = find_first_larger(list, pos.fTextByteIndex);
                 // list[f] > value.  value > list[f-1]
                 if (f > 0) {
                     // not the first line in paragraph.
-                    pos.fTextByteIndex -= list[f-1];
-                    if (f > 1) {
-                        pos.fTextByteIndex += list[f-2];
-                    }
-                } else {
-                    if (pos.fParagraphIndex > 0) {
-                        --pos.fParagraphIndex;
-                        size_t r = fLines[pos.fParagraphIndex].fLineEndOffsets.size();
-                        if (r > 0) {
-                            pos.fTextByteIndex +=
-                                fLines[pos.fParagraphIndex].fLineEndOffsets[r - 1];
-                        }
+                    pos.fTextByteIndex = find_closest_x(fLines[pos.fParagraphIndex].fCursorPos, x,
+                                                        (f == 1) ? 0 : list[f - 2],
+                                                        list[f - 1]);
+                } else if (pos.fParagraphIndex > 0) {
+                    --pos.fParagraphIndex;
+                    const auto& newLine = fLines[pos.fParagraphIndex];
+                    size_t r = newLine.fLineEndOffsets.size();
+                    if (r > 0) {
+                        pos.fTextByteIndex = find_closest_x(newLine.fCursorPos, x,
+                                                            newLine.fLineEndOffsets[r - 1],
+                                                            newLine.fCursorPos.size());
+                    } else {
+                        pos.fTextByteIndex = find_closest_x(newLine.fCursorPos, x, 0,
+                                                            newLine.fCursorPos.size());
                     }
                 }
                 pos.fTextByteIndex =
@@ -351,14 +372,20 @@ Editor::TextPosition Editor::move(Editor::Movement move, Editor::TextPosition po
         case Editor::Movement::kDown:
             {
                 const std::vector<size_t>& list = fLines[pos.fParagraphIndex].fLineEndOffsets;
+                float x = fLines[pos.fParagraphIndex].fCursorPos[pos.fTextByteIndex].left();
+
                 size_t f = find_first_larger(list, pos.fTextByteIndex);
-                if (f > 0) {
-                    pos.fTextByteIndex -= list[f - 1];
-                }
                 if (f < list.size()) {
-                    pos.fTextByteIndex += list[f];
+                    const auto& bounds = fLines[pos.fParagraphIndex].fCursorPos;
+                    pos.fTextByteIndex = find_closest_x(bounds, x, list[f],
+                                                        f + 1 < list.size() ? list[f + 1]
+                                                                            : bounds.size());
                 } else if (pos.fParagraphIndex + 1 < fLines.size()) {
                     ++pos.fParagraphIndex;
+                    const auto& bounds = fLines[pos.fParagraphIndex].fCursorPos;
+                    const std::vector<size_t>& l2 = fLines[pos.fParagraphIndex].fLineEndOffsets;
+                    pos.fTextByteIndex = find_closest_x(bounds, x, 0,
+                                                        l2.size() > 0 ? l2[0] : bounds.size());
                 } else {
                     pos.fTextByteIndex = fLines[pos.fParagraphIndex].fText.size();
                 }
