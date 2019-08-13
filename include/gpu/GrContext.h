@@ -351,7 +351,9 @@ public:
      *
      * The caller should check that the returned format is valid.
      */
-    using GrRecordingContext::defaultBackendFormat;
+    GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
+        return INHERITED::defaultBackendFormat(ct, renderable);
+    }
 
    /*
     * The explicitly allocated backend texture API allows clients to use Skia to create backend
