@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef41c923_369d4a43",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "I would suggest using this format to create your texture or you\u0027re quickly going to start hitting a lot of rebasing incompatibility issues as we remove pixel config",
+      "range": {
+        "startLine": 118,
+        "startChar": 43,
+        "endLine": 118,
+        "endChar": 73
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c74b455_a0b7cf93",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "nit: I personally find this really hard to read. Maybe but in a newline between structs you\u0027re filling out?",
+      "range": {
+        "startLine": 287,
+        "startChar": 0,
+        "endLine": 308,
+        "endChar": 37
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f0d1a51_f3a7a5a2",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "Why does this need to be a member of GrDawnGpu. Couldn\u0027t it just be a stack variable here and you just pass it in with the userdata on the callback?",
+      "range": {
+        "startLine": 309,
+        "startChar": 12,
+        "endLine": 309,
+        "endChar": 27
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "184349df_3e55304e",
+        "filename": "src/gpu/dawn/GrDawnRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "out of curiosity, why did you move the register calls to the factories? Is something that we should do for all the backends which I think do it in the ctor?",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 53
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71a17d7d_2148029c",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 20,
+        "startChar": 82,
+        "endLine": 20,
+        "endChar": 115
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac3fc9a3_a28363c1",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "as mentioned earlier, the less you can depend on pixel config here the easier off you\u0027ll be when rebasing our changes",
+      "range": {
+        "startLine": 32,
+        "startChar": 9,
+        "endLine": 32,
+        "endChar": 47
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cdfd48c_58b9834c",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "I assume you would be creating a GrDawnTextureRenderTarget here? The model of all our other backends is that this logic would live out in the Gr*Gpu class, and would call a TextureRenderTarget::Make factory. My worry is that once you start handling multisampling and all the other stuff needed for TextureRenderTarget, this factory could get complicated and hard to read with lots of if (renderable) statements.\n\nBut if in the end you think it does workout better and looks cleaner/easier to read doing it this way I\u0027m not against it.",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 35
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84a54ccb_4d8100dd",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "in general some newlines in this function can definitely help readability.",
+      "range": {
+        "startLine": 120,
+        "startChar": 17,
+        "endLine": 120,
+        "endChar": 30
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8618deac_9aee70a8",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 121,
+        "startChar": 26,
+        "endLine": 121,
+        "endChar": 30
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e2db853_680a19c6",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-13T17:33:12Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 122,
+        "startChar": 24,
+        "endLine": 122,
+        "endChar": 32
+      },
+      "revId": "0eeb00c6e652929745d991c76befeb48370a9d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
