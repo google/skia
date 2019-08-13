@@ -9,8 +9,9 @@
 
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
+
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
 
 namespace {
 
@@ -26,8 +27,18 @@ public:
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
-    SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
-                           MapDirection, const SkIRect* inputRect) const override;
+
+private:
+    // Composition needs to link one filter to the next, not the default union aggregation logic.
+    skif::IRect<In::kLayer, For::kOutput> onFilterOutputBounds(
+            const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+            const SkMatrix& layerMatrix) const override;
+
+    skif::IRect<In::kLayer, For::kInput> onFilterLayerBounds(
+            const skif::IRect<In::kLayer, For::kOutput>& targetOutputBounds,
+            const SkMatrix& layerMatrix,
+            const skif::IRect<In::kLayer, For::kInput>& originalInput) const override;
+
     bool onCanHandleComplexCTM() const override { return true; }
 
 private:
@@ -103,12 +114,30 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(const Context& ctx
     return outer;
 }
 
-SkIRect SkComposeImageFilterImpl::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                 MapDirection dir, const SkIRect* inputRect) const {
+skif::IRect<In::kLayer, For::kOutput> SkComposeImageFilterImpl::onFilterOutputBounds(
+        const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+        const SkMatrix& layerMatrix) const {
     const SkImageFilter* outer = this->getInput(0);
     const SkImageFilter* inner = this->getInput(1);
 
-    const SkIRect innerRect = inner->filterBounds(src, ctm, dir, inputRect);
-    return outer->filterBounds(innerRect, ctm, dir,
-                               kReverse_MapDirection == dir ? &innerRect : nullptr);
+    // First determine what the inner filter would produce when processing 'contentBounds'
+    skif::IRect<In::kLayer, For::kOutput> innerOut = as_IFB(inner)->filterOutputBounds(
+            contentBounds, layerMatrix);
+    // Use the output of the inner filter as the content to the outer filter
+    return as_IFB(outer)->filterOutputBounds(skif::LayerCast<For::kInput>(innerOut), layerMatrix);
+}
+
+skif::IRect<In::kLayer, For::kInput> SkComposeImageFilterImpl::onFilterLayerBounds(
+        const skif::IRect<In::kLayer, For::kOutput>& targetOutputBounds,
+        const SkMatrix& layerMatrix,
+        const skif::IRect<In::kLayer, For::kInput>& originalInput) const {
+    const SkImageFilter* outer = this->getInput(0);
+    const SkImageFilter* inner = this->getInput(1);
+
+    // First determine what the outer filter requires in order to cover targetOutputBounds
+    skif::IRect<In::kLayer, For::kInput> outerInput = as_IFB(outer)->filterLayerBounds(
+            targetOutputBounds, layerMatrix, &originalInput);
+    // Use the required input as the target output for the inner filter
+    return as_IFB(inner)->filterLayerBounds(skif::LayerCast<For::kOutput>(outerInput), layerMatrix,
+                                            &outerInput);
 }

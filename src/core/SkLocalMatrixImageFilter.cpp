@@ -9,7 +9,7 @@
 #include "src/core/SkLocalMatrixImageFilter.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
-
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
 sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localM,
                                                     sk_sp<SkImageFilter> input) {
     if (!input) {
@@ -49,7 +49,22 @@ sk_sp<SkSpecialImage> SkLocalMatrixImageFilter::onFilterImage(const Context& ctx
     return this->filterInput(0, localCtx, offset);
 }
 
-SkIRect SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                 MapDirection dir, const SkIRect* inputRect) const {
-    return this->getInput(0)->filterBounds(src, SkMatrix::Concat(ctm, fLocalM), dir, inputRect);
-}
+// SkIRect SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+//                                                  MapDirection dir, const SkIRect* inputRect) const {
+//     return this->getInput(0)->filterBounds(src, SkMatrix::Concat(ctm, fLocalM), dir, inputRect);
+// }
+
+    skif::IRect<In::kLayer, For::kInput> SkLocalMatrixImageFilter::onNodeLayerBounds(
+            const skif::IRect<In::kLayer, For::kOutput>& targetOutputBounds,
+            const SkMatrix& layerMatrix,
+            const skif::IRect<In::kLayer, For::kInput>& originalInput) const {
+        return as_IFB(this->getInput(0))->filterLayerBounds(targetOutputBounds, SkMatrix::Concat(layerMatrix, fLocalM), &originalInput);
+    }
+
+    skif::IRect<In::kLayer, For::kOutput> SkLocalMatrixImageFilter::onNodeOutputBounds(
+            const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+            const SkMatrix& layerMatrix) const {
+        // Layer space is still defined by 'layerMatrix', fLocalM is purely changing
+        // how the input(0) filter maps into that space, so we don't bother modifying contentBounds
+        return as_IFB(this->getInput(0))->filterOutputBounds(contentBounds, SkMatrix::Concat(layerMatrix, fLocalM));
+    }
