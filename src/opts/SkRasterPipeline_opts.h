@@ -2609,6 +2609,80 @@ STAGE(gauss_a_to_rgba, Ctx::None) {
     b = a;
 }
 
+SI F tile(F v, SkTileMode mode, float limit, float invLimit) {
+    // The ix_and_ptr() calls in sample() will clamp tile()'s output, so no need to clamp here.
+    switch (mode) {
+        case SkTileMode::kDecal:  // TODO, for now fallthrough to clamp
+        case SkTileMode::kClamp:  return v;
+        case SkTileMode::kRepeat: return v - floor_(v*invLimit)*limit;
+        case SkTileMode::kMirror:
+            return abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
+    }
+    SkUNREACHABLE;
+}
+
+SI void sample(const SkRasterPipeline_SamplerCtx2* ctx, F x, F y,
+               F* r, F* g, F* b, F* a) {
+    x = tile(x, ctx->tileX, ctx->width , ctx->invWidth );
+    y = tile(y, ctx->tileY, ctx->height, ctx->invHeight);
+
+    switch (ctx->ct) {
+        default: *r = *g = *b = *a = 0;  // TODO
+                 break;
+
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType: {
+            const uint32_t* ptr;
+            U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+            from_8888(gather(ptr, ix), r,g,b,a);
+            if (ctx->ct == kBGRA_8888_SkColorType) {
+                std::swap(*r,*b);
+            }
+        } break;
+    }
+}
+
+template <int D>
+SI void sampler(const SkRasterPipeline_SamplerCtx2* ctx,
+                F cx, F cy, const F (&wx)[D], const F (&wy)[D],
+                F* r, F* g, F* b, F* a) {
+
+    float start = -0.5f*(D-1);
+
+    *r = *g = *b = *a = 0;
+    F y = cy + start;
+    for (int j = 0; j < D; j++, y += 1.0f) {
+        F x = cx + start;
+        for (int i = 0; i < D; i++, x += 1.0f) {
+            F R,G,B,A;
+            sample(ctx, x,y, &R,&G,&B,&A);
+
+            F w = wx[i] * wy[j];
+            *r = mad(w,R,*r);
+            *g = mad(w,G,*g);
+            *b = mad(w,B,*b);
+            *a = mad(w,A,*a);
+        }
+    }
+}
+
+STAGE(bilinear, const SkRasterPipeline_SamplerCtx2* ctx) {
+    F x = r, fx = fract(x + 0.5f),
+      y = g, fy = fract(y + 0.5f);
+    const F wx[] = {1.0f - fx, fx};
+    const F wy[] = {1.0f - fy, fy};
+
+    sampler(ctx, x,y, wx,wy, &r,&g,&b,&a);
+}
+STAGE(bicubic, SkRasterPipeline_SamplerCtx2* ctx) {
+    F x = r, fx = fract(x + 0.5f),
+      y = g, fy = fract(y + 0.5f);
+    const F wx[] = { bicubic_far(1-fx), bicubic_near(1-fx), bicubic_near(fx), bicubic_far(fx) };
+    const F wy[] = { bicubic_far(1-fy), bicubic_near(1-fy), bicubic_near(fy), bicubic_far(fy) };
+
+    sampler(ctx, x,y, wx,wy, &r,&g,&b,&a);
+}
+
 // A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
 STAGE(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     // (cx,cy) are the center of our sample.
@@ -3830,6 +3904,7 @@ STAGE_PP(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
 
 #if defined(SK_DISABLE_LOWP_BILERP_CLAMP_CLAMP_STAGE)
     static void(*bilerp_clamp_8888)(void) = nullptr;
+    static void(*bilinear)(void) = nullptr;
 #else
 STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     // (cx,cy) are the center of our sample.
@@ -3892,6 +3967,82 @@ STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     g = (g + bias/2) / bias;
     b = (b + bias/2) / bias;
     a = (a + bias/2) / bias;
+}
+
+// TODO: lowp::tile() is identical to the highp tile()... share?
+SI F tile(F v, SkTileMode mode, float limit, float invLimit) {
+    // After ix_and_ptr() will clamp the output of tile(), so we need not clamp here.
+    switch (mode) {
+        case SkTileMode::kDecal:  // TODO, for now fallthrough to clamp
+        case SkTileMode::kClamp:  return v;
+        case SkTileMode::kRepeat: return v - floor_(v*invLimit)*limit;
+        case SkTileMode::kMirror:
+            return abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
+    }
+    SkUNREACHABLE;
+}
+
+SI void sample(const SkRasterPipeline_SamplerCtx2* ctx, F x, F y,
+               U16* r, U16* g, U16* b, U16* a) {
+    x = tile(x, ctx->tileX, ctx->width , ctx->invWidth );
+    y = tile(y, ctx->tileY, ctx->height, ctx->invHeight);
+
+    switch (ctx->ct) {
+        default: *r = *g = *b = *a = 0;  // TODO
+                 break;
+
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType: {
+            const uint32_t* ptr;
+            U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+            from_8888(gather<U32>(ptr, ix), r,g,b,a);
+            if (ctx->ct == kBGRA_8888_SkColorType) {
+                std::swap(*r,*b);
+            }
+        } break;
+    }
+}
+
+template <int D>
+SI void sampler(const SkRasterPipeline_SamplerCtx2* ctx,
+                F cx, F cy, const F (&wx)[D], const F (&wy)[D],
+                U16* r, U16* g, U16* b, U16* a) {
+
+    float start = -0.5f*(D-1);
+
+    const uint16_t bias = 256;
+    U16 remaining = bias;
+
+    *r = *g = *b = *a = 0;
+    F y = cy + start;
+    for (int j = 0; j < D; j++, y += 1.0f) {
+        F x = cx + start;
+        for (int i = 0; i < D; i++, x += 1.0f) {
+            U16 R,G,B,A;
+            sample(ctx, x,y, &R,&G,&B,&A);
+
+            U16 w = (i == D-1 && j == D-1) ? remaining
+                                           : cast<U16>(wx[i]*wy[j]*bias);
+            remaining -= w;
+            *r += w*R;
+            *g += w*G;
+            *b += w*B;
+            *a += w*A;
+        }
+    }
+    *r = (*r + bias/2) / bias;
+    *g = (*g + bias/2) / bias;
+    *b = (*b + bias/2) / bias;
+    *a = (*a + bias/2) / bias;
+}
+
+STAGE_GP(bilinear, const SkRasterPipeline_SamplerCtx2* ctx) {
+    F fx = fract(x + 0.5f),
+      fy = fract(y + 0.5f);
+    const F wx[] = {1.0f - fx, fx};
+    const F wy[] = {1.0f - fy, fy};
+
+    sampler(ctx, x,y, wx,wy, &r,&g,&b,&a);
 }
 #endif
 
@@ -3974,6 +4125,7 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(mirror_y)         // TODO
     NOT_IMPLEMENTED(repeat_y)         // TODO
     NOT_IMPLEMENTED(negate_x)
+    NOT_IMPLEMENTED(bicubic)  // TODO if I can figure out negative weights
     NOT_IMPLEMENTED(bicubic_clamp_8888)
     NOT_IMPLEMENTED(bilinear_nx)      // TODO
     NOT_IMPLEMENTED(bilinear_ny)      // TODO
