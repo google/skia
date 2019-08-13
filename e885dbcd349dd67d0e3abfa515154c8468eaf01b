@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "38e75051_9d75b9ac",
+        "filename": "bench/GMBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-13T11:41:33Z",
+      "side": 1,
+      "message": "Gotta be fGM.  gm\u0027s moved from already.",
+      "range": {
+        "startLine": 11,
+        "startChar": 26,
+        "endLine": 11,
+        "endChar": 29
+      },
+      "revId": "e885dbcd349dd67d0e3abfa515154c8468eaf01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c5874ed8_b1fb30d4",
         "filename": "bench/nanobench.cpp",
         "patchSetId": 2
@@ -13,6 +36,24 @@
       "writtenOn": "2019-08-13T11:11:49Z",
       "side": 1,
       "message": "Why is `gm` null on the asan bot?\n\n    if (gm \u0026\u0026 gm-\u003erunAsBench()) {\n\nmight fix this.",
+      "revId": "e885dbcd349dd67d0e3abfa515154c8468eaf01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dc72648_01ed0898",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-13T11:41:33Z",
+      "side": 1,
+      "message": "Nah, that hasn\u0027t changed here.  I\u0027ve marked the bug with another comment.",
+      "parentUuid": "c5874ed8_b1fb30d4",
       "revId": "e885dbcd349dd67d0e3abfa515154c8468eaf01b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
