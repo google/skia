@@ -278,7 +278,7 @@ template("gcc_like_toolchain") {
         _end_group = ""
       }
 
-      command = "$cc_wrapper $cxx -shared {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
+      command = "$cxx -shared {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
       outputs = [
         "{{root_out_dir}}/$soname",
       ]
@@ -305,9 +305,9 @@ template("gcc_like_toolchain") {
         _end_group = ""
       }
       if (is_ios) {
-        command = "$cc_wrapper $cxx {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} -o $exe_name && dsymutil $exe_name"
+        command = "$cxx {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} -o $exe_name && dsymutil $exe_name"
       } else {
-        command = "$cc_wrapper $cxx {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} -o $exe_name"
+        command = "$cxx {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} -o $exe_name"
       }
 
       outputs = [
