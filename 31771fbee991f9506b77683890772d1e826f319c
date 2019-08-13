@@ -16,6 +16,24 @@
       "revId": "31771fbee991f9506b77683890772d1e826f319c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f33ea69_5b07ae02",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-13T16:33:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61538f97_3ae49c3f",
+      "revId": "31771fbee991f9506b77683890772d1e826f319c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
