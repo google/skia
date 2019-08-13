@@ -769,7 +769,7 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
     GrSamplerState samplerState;
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-            quality, viewMatrix, srcToDstRect,
+            image->width(), image->height(), quality, viewMatrix, srcToDstRect,
             fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
 
     int tileFilterPad;
@@ -1171,8 +1171,8 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         GrSamplerState sampleState;
         bool doBicubic;
         GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-                paint.getFilterQuality(), this->ctm(), srcToDstMatrix,
-                fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
+                bitmap.width(), bitmap.height(), paint.getFilterQuality(), this->ctm(),
+                srcToDstMatrix, fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
 
         int tileFilterPad;
 
