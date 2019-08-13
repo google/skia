@@ -70,6 +70,8 @@ public:
     // Needed by do_fill_path in SkScanPriv.h
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
 
+    static void FillSimplePoly(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
+
 private:
     friend class SkAAClip;
     friend class SkRegion;
