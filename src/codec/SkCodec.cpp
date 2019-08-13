@@ -30,9 +30,14 @@
 #include "src/codec/SkGifCodec.h"
 #endif
 
+using FuncIsFormat = bool (*)(const void*, size_t);
+using FuncMakeFromStream =
+        std::unique_ptr<SkCodec> (*)(std::unique_ptr<SkStream>, SkCodec::Result*);
+
 struct DecoderProc {
-    bool (*IsFormat)(const void*, size_t);
-    std::unique_ptr<SkCodec> (*MakeFromStream)(std::unique_ptr<SkStream>, SkCodec::Result*);
+    FuncIsFormat IsFormat = nullptr;
+    FuncMakeFromStream MakeFromStream = nullptr;
+    FuncMakeFromStream MakeFromStreamPreferAnimation = nullptr;
 };
 
 static std::vector<DecoderProc>* decoders() {
@@ -54,7 +59,7 @@ static std::vector<DecoderProc>* decoders() {
         { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
         { SkWbmpCodec::IsWbmp, SkWbmpCodec::MakeFromStream },
     #ifdef SK_HAS_HEIF_LIBRARY
-        { SkHeifCodec::IsHeif, SkHeifCodec::MakeFromStream },
+        { SkHeifCodec::IsHeif, SkHeifCodec::MakeFromStream, SkHeifCodec::MakeFromStreamPreferAnimation },
     #endif
     };
     return decoders;
@@ -66,9 +71,9 @@ void SkCodec::Register(
     decoders()->push_back(DecoderProc{peek, make});
 }
 
-
-std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
-                                                 Result* outResult, SkPngChunkReader* chunkReader) {
+std::unique_ptr<SkCodec> SkCodec::MakeFromStream(
+        std::unique_ptr<SkStream> stream, Result* outResult,
+        SkPngChunkReader* chunkReader, SelectionPolicy selectionPolicy) {
     Result resultStorage;
     if (!outResult) {
         outResult = &resultStorage;
@@ -76,6 +81,12 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> strea
 
     if (!stream) {
         *outResult = kInvalidInput;
+        return nullptr;
+    }
+
+    if (selectionPolicy != SelectionPolicy::kPreferStillImage
+            && selectionPolicy != SelectionPolicy::kPreferAnimation) {
+        *outResult = kInvalidParameters;
         return nullptr;
     }
 
@@ -117,6 +128,10 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> strea
     {
         for (DecoderProc proc : *decoders()) {
             if (proc.IsFormat(buffer, bytesRead)) {
+                if (selectionPolicy == SelectionPolicy::kPreferAnimation
+                        && proc.MakeFromStreamPreferAnimation) {
+                    return proc.MakeFromStreamPreferAnimation(std::move(stream), outResult);
+                }
                 return proc.MakeFromStream(std::move(stream), outResult);
             }
         }
