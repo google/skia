@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5874ed8_b1fb30d4",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-13T11:11:49Z",
+      "side": 1,
+      "message": "Why is `gm` null on the asan bot?\n\n    if (gm \u0026\u0026 gm-\u003erunAsBench()) {\n\nmight fix this.",
+      "revId": "e885dbcd349dd67d0e3abfa515154c8468eaf01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
