@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a98cb3e6_3a3ca7d5",
+        "filename": "src/gpu/effects/generated/GrRectBlurEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-13T18:04:44Z",
+      "side": 0,
+      "message": "Can we delete this method too?",
+      "range": {
+        "startLine": 44,
+        "startChar": 12,
+        "endLine": 44,
+        "endChar": 42
+      },
+      "revId": "8ca073304a66b2dd97442bdea3b6be085e26c08c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

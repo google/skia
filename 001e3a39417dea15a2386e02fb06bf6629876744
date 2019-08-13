@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b62a3ff7_91710fae",
+        "filename": "gm/skbug_9319.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-13T18:04:44Z",
+      "side": 1,
+      "message": "LLC",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "001e3a39417dea15a2386e02fb06bf6629876744",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee82167e_451d2f64",
+        "filename": "src/gpu/effects/GrRectBlurEffect.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-13T18:04:44Z",
+      "side": 1,
+      "message": "half4",
+      "range": {
+        "startLine": 21,
+        "startChar": 28,
+        "endLine": 21,
+        "endChar": 34
+      },
+      "revId": "001e3a39417dea15a2386e02fb06bf6629876744",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b00bbe76_f6718c92",
+        "filename": "src/gpu/effects/generated/GrRectBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-13T18:04:44Z",
+      "side": 1,
+      "message": "kHalf4_GrSLType",
+      "range": {
+        "startLine": 38,
+        "startChar": 80,
+        "endLine": 38,
+        "endChar": 96
+      },
+      "revId": "001e3a39417dea15a2386e02fb06bf6629876744",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
