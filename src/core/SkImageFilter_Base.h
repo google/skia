@@ -48,9 +48,12 @@ public:
      *  used as the size of the destination image. The origin of this rect
      *  should be used to offset access to the input images, and should also
      *  be added to the "offset" parameter in onFilterImage.
+     *
+     *  DEPRECATED - Remove once cropping is handled by a separate filter
      */
     bool cropRectIsSet() const { return fCropRect.flags() != 0x0; }
 
+    // DEPRECATED - Remove once cropping is handled by a separate filter
     CropRect getCropRect() const { return fCropRect; }
 
     // Expose isolated node bounds behavior for SampleImageFilterDAG and debugging
@@ -79,6 +82,8 @@ public:
      * matrix filter.
      *
      * This will never return null.
+     *
+     * DEPRECATED - Should draw the results of filterImage() directly with the remainder matrix.
      */
     sk_sp<SkImageFilter> applyCTM(const SkMatrix& ctm, SkMatrix* remainder) const;
     /**
@@ -86,6 +91,8 @@ public:
      * image to be filtered. As such,  the input to this filter will also be transformed by B^-1 if
      * the filter can't support complex CTMs, since backdrop content is already in device space and
      * must be transformed back into the CTM's local space.
+     *
+     * DEPRECATED - Should draw the results of filterImage() directly with the remainder matrix.
      */
     sk_sp<SkImageFilter> applyCTMForBackdrop(const SkMatrix& ctm, SkMatrix* remainder) const;
 
@@ -122,8 +129,6 @@ protected:
     ~SkImageFilter_Base() override;
 
     void flatten(SkWriteBuffer&) const override;
-
-    virtual bool affectsTransparentBlack() const { return false; }
 
     // DEPRECATED - Use the private context-only variant
     virtual sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const = 0;
@@ -164,20 +169,6 @@ protected:
     virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                        MapDirection, const SkIRect* inputRect) const;
 
-    /**
-     *  Return true (and returns a ref'd colorfilter) if this node in the DAG is just a
-     *  colorfilter w/o CropRect constraints.
-     */
-    virtual bool onIsColorFilterNode(SkColorFilter** /*filterPtr*/) const {
-        return false;
-    }
-
-    /**
-     *  Override this to describe the behavior of your subclass - as a leaf node. The caller will
-     *  take care of calling your inputs (and return false if any of them could not handle it).
-     */
-    virtual bool onCanHandleComplexCTM() const { return false; }
-
     // DEPRECRATED - Call the Context-only getInputFilteredImage()
     sk_sp<SkSpecialImage> filterInput(int index, const Context& ctx, SkIPoint* offset) const {
         return this->getInputFilteredImage(index, ctx).imageAndOffset(offset);
@@ -203,6 +194,7 @@ protected:
         return this->filterInput<For::kInput1>(1, context);
     }
 
+    // DEPRECATED - Remove once cropping is handled by a separate filter
     const CropRect* getCropRectIfSet() const {
         return this->cropRectIsSet() ? &fCropRect : nullptr;
     }
@@ -214,6 +206,10 @@ protected:
      *  intersecting the initial bounds with "dstBounds", to ensure that we never
      *  sample outside of the crop rect (this restriction may be relaxed in the
      *  future).
+     *
+     *  DEPRECATED - Remove once cropping is handled by a separate filter, although it may be
+     *  necessary to provide a similar convenience function to compute the output bounds given the
+     *  images returned by filterInput().
      */
     bool applyCropRect(const Context&, const SkIRect& srcBounds, SkIRect* dstBounds) const;
 
@@ -225,6 +221,8 @@ protected:
      *  needed by the caller. This version should only be used by filters
      *  which are not capable of processing a smaller source bitmap into a
      *  larger destination.
+     *
+     *  DEPRECATED - Remove once cropping is handled by a separate filter.
      */
     sk_sp<SkSpecialImage> applyCropRectAndPad(const Context&, SkSpecialImage* src,
                                               SkIPoint* srcOffset, SkIRect* bounds) const;
@@ -235,6 +233,9 @@ protected:
      *  filter requires by calling this node's
      *  onFilterNodeBounds(..., kReverse_MapDirection).
      */
+    // TODO (michaelludwig) - I don't think this is necessary to keep as protected. Other than the
+    // real use case in recursing through the DAG for filterInput(), it feels wrong for blur and
+    // other filters to need to call it.
     Context mapContext(const Context& ctx) const;
 
 #if SK_SUPPORT_GPU
@@ -259,6 +260,8 @@ protected:
     // will wrap around to the other side) we must preserve the far side of the src along that
     // axis (e.g., if we will sample beyond the left edge of the src, the right side must be
     // preserved for the repeat sampling to work).
+    // DEPRECATED - Remove once cropping is handled by a separate filter, that can also handle all
+    // tile modes (including repeat) properly
     static SkIRect DetermineRepeatedSrcBound(const SkIRect& srcBounds,
                                              const SkIVector& filterOffset,
                                              const SkISize& filterSize,
@@ -276,6 +279,26 @@ private:
     // Configuration points for the filter implementation, marked private since they should not
     // need to be invoked by the subclasses. These refer to the node's specific behavior and are
     // not responsible for aggregating the behavior of the entire filter DAG.
+
+    /**
+     *  Return true (and returns a ref'd colorfilter) if this node in the DAG is just a colorfilter
+     *  w/o CropRect constraints.
+     */
+    virtual bool onIsColorFilterNode(SkColorFilter** /*filterPtr*/) const { return false; }
+
+    /**
+     *  Return true if this filter can map from its parameter space to a layer space described by an
+     *  arbitrary transformation matrix. If this returns false, the filter only needs to worry about
+     *  mapping from parameter to layer using a scale+translate matrix.
+     */
+    virtual bool onCanHandleComplexCTM() const { return false; }
+
+    /**
+     *  Return true if this filter would transform transparent black pixels to a color other than
+     *  transparent black. When false, optimizations can be taken to discard regions known to be
+     *  transparent black and thus process fewer pixels.
+     */
+    virtual bool affectsTransparentBlack() const { return false; }
 
     /**
      *  This is the virtual which should be overridden by the derived class to perform image
