@@ -528,17 +528,17 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
     desc.fWidth = width;
     desc.fHeight = height;
 
-    GrColorType grColorType = GrCompressionTypeClosestColorType(compressionType);
     GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
 
-    if (!this->caps()->isFormatTexturable(grColorType, format)) {
+    if (!this->caps()->isFormatTexturable(format)) {
         return nullptr;
     }
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [width, height, compressionType, budgeted, data](GrResourceProvider* resourceProvider) {
+            [width, height, format, compressionType, budgeted, data]
+            (GrResourceProvider* resourceProvider) {
                 return LazyInstantiationResult(resourceProvider->createCompressedTexture(
-                        width, height, compressionType, budgeted, data.get()));
+                        width, height, format, compressionType, budgeted, data.get()));
             },
             format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
             GrMipMapsStatus::kNotAllocated, SkBackingFit::kExact, SkBudgeted::kYes,
