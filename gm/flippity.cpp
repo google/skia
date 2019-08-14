@@ -167,8 +167,7 @@ public:
         this->setBGColor(0xFFCCCCCC);
     }
 
-protected:
-
+private:
     SkString onShortName() override {
         return SkString("flippity");
     }
@@ -231,6 +230,10 @@ protected:
     }
 
     void makeLabels(GrContext* context) {
+        if (fLabels.count()) {
+            return;
+        }
+
         static const char* kLabelText[kNumLabels] = { "LL", "LR", "UL", "UR" };
 
         static const SkColor kLabelColors[kNumLabels] = {
@@ -240,7 +243,6 @@ protected:
             SK_ColorCYAN
         };
 
-        SkASSERT(!fLabels.count());
         for (int i = 0; i < kNumLabels; ++i) {
             fLabels.push_back(make_text_image(context, kLabelText[i], kLabelColors[i]));
         }
