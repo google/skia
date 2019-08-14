@@ -13,7 +13,6 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrSamplerState.h"
 #include "include/gpu/GrSurface.h"
 #include "include/private/GrTypesPriv.h"
 

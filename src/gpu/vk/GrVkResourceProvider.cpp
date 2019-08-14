@@ -7,9 +7,9 @@
 
 #include "src/gpu/vk/GrVkResourceProvider.h"
 
-#include "include/gpu/GrSamplerState.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrSamplerState.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkGpu.h"

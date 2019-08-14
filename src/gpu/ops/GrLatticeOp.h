@@ -10,7 +10,7 @@
 
 #include <memory>
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrSamplerState.h"
+#include "src/gpu/GrSamplerState.h"
 
 class GrColorSpaceXform;
 class GrDrawOp;

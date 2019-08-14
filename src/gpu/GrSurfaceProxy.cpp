@@ -26,7 +26,7 @@
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 
 #ifdef SK_DEBUG
-#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 
 static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {

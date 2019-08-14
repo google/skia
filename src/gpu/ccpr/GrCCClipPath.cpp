@@ -7,10 +7,10 @@
 
 #include "src/gpu/ccpr/GrCCClipPath.h"
 
-#include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
 void GrCCClipPath::init(

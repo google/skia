@@ -7,9 +7,9 @@
 
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 
-#include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexturePriv.h"
