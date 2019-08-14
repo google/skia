@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d81cb128_a71dd410",
+        "filename": "src/core/SkMatrixImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T15:20:02Z",
+      "side": 1,
+      "message": "just to be sure, not \u0027input\u0027 here",
+      "range": {
+        "startLine": 73,
+        "startChar": 49,
+        "endLine": 73,
+        "endChar": 55
+      },
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d6d7d8c_ea6b73e0",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T15:20:02Z",
+      "side": 1,
+      "message": "It is probably a bug",
+      "range": {
+        "startLine": 513,
+        "startChar": 0,
+        "endLine": 515,
+        "endChar": 53
+      },
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "055fddae_faa18247",
+        "filename": "src/effects/imagefilters/SkBlurImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T15:20:02Z",
+      "side": 1,
+      "message": "This seems odd",
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2f08d9f_3f93bb63",
+        "filename": "src/effects/imagefilters/SkLightingImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T15:20:02Z",
+      "side": 1,
+      "message": "Maybe add a refColorSpace method to hide this stuff ?",
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9d0a10a_735ee726",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T15:20:02Z",
+      "side": 1,
+      "message": "Maybe add a grColorType helper on the context ?",
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
