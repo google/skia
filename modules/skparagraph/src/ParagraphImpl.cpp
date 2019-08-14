@@ -296,17 +296,16 @@ void ParagraphImpl::markLineBreaks() {
             }
 
             // Process word spacing
-            auto textStyle = currentStyle->fStyle.getFirst();
-            if (textStyle->getWordSpacing() != 0) {
+            if (currentStyle->fStyle.getWordSpacing() != 0) {
                 if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
                     if (!soFarWhitespacesOnly) {
-                        shift += run.addSpacesAtTheEnd(textStyle->getWordSpacing(), cluster);
+                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
                     }
                 }
             }
             // Process letter spacing
-            if (textStyle->getLetterSpacing() != 0) {
-                shift += run.addSpacesEvenly(textStyle->getLetterSpacing(), cluster);
+            if (currentStyle->fStyle.getLetterSpacing() != 0) {
+                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
             }
 
             if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {

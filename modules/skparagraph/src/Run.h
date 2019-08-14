@@ -69,8 +69,6 @@ public:
     }
     SkVector offset() const { return fOffset; }
     SkScalar ascent() const { return fFontMetrics.fAscent; }
-    //SkScalar descent() const { return fFontMetrics.fDescent; }
-    //SkScalar leading() const { return fFontMetrics.fLeading; }
     SkScalar correctAscent() const {
 
         if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {

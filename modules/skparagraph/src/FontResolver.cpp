@@ -241,29 +241,22 @@ void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
         SkASSERT(combinedBlock.fRange.width() == 0 ||
                  combinedBlock.fRange.end == block.fRange.start);
 
-        if (block.fStyle.type() == BlockStyle::kFirstType) {
-            const auto first = block.fStyle.getFirst();
-            const auto combined = combinedBlock.fStyle.getFirst();
+        if (!block.fStyle.isPlaceholder()) {
             if (!combinedBlock.fRange.empty() &&
-                first->matchOneAttribute(StyleType::kFont, *combined)) {
+                 block.fStyle.matchOneAttribute(StyleType::kFont, combinedBlock.fStyle)) {
                 combinedBlock.add(block.fRange);
                 continue;
             }
         }
 
         if (!combinedBlock.fRange.empty()) {
-            this->findAllFontsForStyledBlock(*combinedBlock.fStyle.getFirst(), combinedBlock.fRange);
+            this->findAllFontsForStyledBlock(combinedBlock.fStyle, combinedBlock.fRange);
         }
 
-        if (block.fStyle.type() == BlockStyle::kFirstType) {
-            combinedBlock.fRange = block.fRange;
-            combinedBlock.fStyle = BlockStyle::Make(*block.fStyle.getFirst());
-        } else {
-            combinedBlock.fRange = block.fRange;
-            combinedBlock.fStyle = BlockStyle::Make(*block.fStyle.getSecond());
-        }
+        combinedBlock.fRange = block.fRange;
+        combinedBlock.fStyle = block.fStyle;
     }
-    this->findAllFontsForStyledBlock(*combinedBlock.fStyle.getFirst(), combinedBlock.fRange);
+    this->findAllFontsForStyledBlock(combinedBlock.fStyle, combinedBlock.fRange);
 
 
     fFontSwitches.reset();
