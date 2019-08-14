@@ -243,7 +243,7 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     }
 
-    sk_sp<SkImage> textureImg = rasterImg->makeTextureImage(context, nullptr);
+    sk_sp<SkImage> textureImg = rasterImg->makeTextureImage(context);
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
