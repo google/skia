@@ -170,12 +170,11 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
             return nullptr;
         }
 
-        const OutputProperties& outProps = ctx.outputProperties();
         auto textureFP = GrSimpleTextureEffect::Make(std::move(inputProxy),
                                                      SkMatrix::MakeTrans(input->subset().x(),
                                                                          input->subset().y()));
         textureFP = GrColorSpaceXformEffect::Make(std::move(textureFP), input->getColorSpace(),
-                                                  input->alphaType(), outProps.colorSpace());
+                                                  input->alphaType(), ctx.colorSpace());
         if (!textureFP) {
             return nullptr;
         }
@@ -192,7 +191,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
                                                             std::move(thresholdFP) };
         auto fp = GrFragmentProcessor::RunInSeries(fpSeries, 2);
 
-        return DrawWithFP(context, std::move(fp), bounds, outProps,
+        return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.colorSpace(),
                           isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif

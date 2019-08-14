@@ -54,9 +54,9 @@ private:
 
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> gpuFilter(
-            SkSpecialImage *source, SkVector sigma, const sk_sp<SkSpecialImage> &input,
-            SkIRect inputBounds, SkIRect dstBounds, SkIPoint inputOffset,
-            const OutputProperties& outProps, SkIPoint* offset) const;
+            SkSpecialImage *source, const Context& ctx, SkVector sigma,
+            const sk_sp<SkSpecialImage> &input,
+            SkIRect inputBounds, SkIRect dstBounds, SkIPoint inputOffset, SkIPoint* offset) const;
 #endif
 
     SkSize     fSigma;
@@ -617,9 +617,9 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     if (source->isTextureBacked()) {
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.outputProperties());
-        result = this->gpuFilter(source, sigma, input, inputBounds, dstBounds, inputOffset,
-                                 ctx.outputProperties(), &resultOffset);
+        input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
+        result = this->gpuFilter(source, ctx, sigma, input, inputBounds, dstBounds, inputOffset,
+                                 &resultOffset);
     } else
 #endif
     {
@@ -635,9 +635,9 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
-        SkSpecialImage *source, SkVector sigma, const sk_sp<SkSpecialImage> &input,
-        SkIRect inputBounds, SkIRect dstBounds, SkIPoint inputOffset,
-        const OutputProperties& outProps, SkIPoint* offset) const
+        SkSpecialImage *source, const Context& ctx, SkVector sigma,
+        const sk_sp<SkSpecialImage> &input, SkIRect inputBounds, SkIRect dstBounds,
+        SkIPoint inputOffset, SkIPoint* offset) const
 {
     if (0 == sigma.x() && 0 == sigma.y()) {
         offset->fX = inputBounds.x() + inputOffset.fX;
@@ -652,11 +652,12 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
         return nullptr;
     }
 
+    // TODO (michaelludwig) - The color space choice is odd, should it just be ctx.refColorSpace()?
     sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
                             context,
                             std::move(inputTexture),
                             input->subset().topLeft(),
-                            outProps.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
+                            ctx.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
                             dstBounds,
                             inputBounds,
                             sigma.x(),

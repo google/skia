@@ -301,14 +301,12 @@ bool SkImageFilter_Base::applyCropRect(const Context& ctx, const SkIRect& srcBou
 
 // Return a larger (newWidth x newHeight) copy of 'src' with black padding
 // around it.
-static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
-                                       const SkImageFilter_Base::OutputProperties& outProps,
+static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src, const SkImageFilter_Base::Context& ctx,
                                        int newWidth, int newHeight, int offX, int offY) {
     // We would like to operate in the source's color space (so that we return an "identical"
-    // image, other than the padding. To achieve that, we'd create new output properties:
-    //
-    // SkImageFilter::OutputProperties outProps(src->getColorSpace());
-    //
+    // image, other than the padding. To achieve that, we'd create a new context using
+    // src->getColorSpace() to replace ctx.colorSpace().
+
     // That fails in at least two ways. For formats that are texturable but not renderable (like
     // F16 on some ES implementations), we can't create a surface to do the work. For sRGB, images
     // may be tagged with an sRGB color space (which leads to an sRGB config in makeSurface). But
@@ -320,7 +318,7 @@ static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
     // switched to the destination space anyway. The one exception would be a filter that expected
     // to consume unclamped F16 data, but the padded version of the image is pre-clamped to 8888.
     // We can revisit this logic if that ever becomes an actual problem.
-    sk_sp<SkSpecialSurface> surf(src->makeSurface(outProps, SkISize::Make(newWidth, newHeight)));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(src,  SkISize::Make(newWidth, newHeight)));
     if (!surf) {
         return nullptr;
     }
@@ -349,8 +347,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::applyCropRectAndPad(const Context& ctx
     if (srcBounds.contains(*bounds)) {
         return sk_sp<SkSpecialImage>(SkRef(src));
     } else {
-        sk_sp<SkSpecialImage> img(pad_image(src, ctx.outputProperties(),
-                                            bounds->width(), bounds->height(),
+        sk_sp<SkSpecialImage> img(pad_image(src, ctx, bounds->width(), bounds->height(),
                                             Sk32_sat_sub(srcOffset->x(), bounds->x()),
                                             Sk32_sat_sub(srcOffset->y(), bounds->y())));
         *srcOffset = SkIPoint::Make(bounds->x(), bounds->y());
@@ -403,28 +400,27 @@ SkImageFilter_Base::Context SkImageFilter_Base::mapContext(const Context& ctx) c
     SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(),
                                                   MapDirection::kReverse_MapDirection,
                                                   &ctx.clipBounds());
-    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.outputProperties());
+    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.colorType(), ctx.colorSpace());
 }
 
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context,
                                                      std::unique_ptr<GrFragmentProcessor> fp,
                                                      const SkIRect& bounds,
-                                                     const OutputProperties& outputProperties,
+                                                     SkColorType colorType,
+                                                     const SkColorSpace* colorSpace,
                                                      GrProtected isProtected) {
     GrPaint paint;
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
-    GrColorType colorType = SkColorTypeToGrColorType(outputProperties.colorType());
     sk_sp<GrRenderTargetContext> renderTargetContext(
             context->priv().makeDeferredRenderTargetContext(
                     SkBackingFit::kApprox,
                     bounds.width(),
                     bounds.height(),
-                    colorType,
-                    std::move(colorSpace),
+                    SkColorTypeToGrColorType(colorType),
+                    sk_ref_sp(colorSpace),
                     1,
                     GrMipMapped::kNo,
                     kBottomLeft_GrSurfaceOrigin,
@@ -449,21 +445,22 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
 }
 
 sk_sp<SkSpecialImage> SkImageFilter_Base::ImageToColorSpace(SkSpecialImage* src,
-                                                            const OutputProperties& outProps) {
+                                                            SkColorType colorType,
+                                                            SkColorSpace* colorSpace) {
     // There are several conditions that determine if we actually need to convert the source to the
     // destination's color space. Rather than duplicate that logic here, just try to make an xform
     // object. If that produces something, then both are tagged, and the source is in a different
     // gamut than the dest. There is some overhead to making the xform, but those are cached, and
     // if we get one back, that means we're about to use it during the conversion anyway.
     auto colorSpaceXform = GrColorSpaceXform::Make(src->getColorSpace(),  src->alphaType(),
-                                                   outProps.colorSpace(), kPremul_SkAlphaType);
+                                                   colorSpace, kPremul_SkAlphaType);
 
     if (!colorSpaceXform) {
         // No xform needed, just return the original image
         return sk_ref_sp(src);
     }
 
-    sk_sp<SkSpecialSurface> surf(src->makeSurface(outProps,
+    sk_sp<SkSpecialSurface> surf(src->makeSurface(colorType, colorSpace,
                                                   SkISize::Make(src->width(), src->height())));
     if (!surf) {
         return sk_ref_sp(src);

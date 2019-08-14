@@ -17,10 +17,11 @@
 #include "include/gpu/GrTypes.h"
 #endif
 
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSpecialSurface.h"
+
 class GrFragmentProcessor;
 class GrRecordingContext;
-class SkSpecialImage;
-class SkSpecialSurface;
 class SkImageFilterCache;
 struct SkImageFilterCacheKey;
 
@@ -28,55 +29,63 @@ struct SkImageFilterCacheKey;
 // actual API surface that Skia will use to compute the filtered images.
 class SkImageFilter_Base : public SkImageFilter {
 public:
-    // Extra information about the output of a filter DAG. For now, this is just the color space
-    // (of the original requesting device). This is used when constructing intermediate rendering
-    // surfaces, so that we ensure we land in a surface that's similar/compatible to the final
-    // consumer of the DAG's output.
-    class OutputProperties {
-    public:
-        explicit OutputProperties(SkColorType colorType, SkColorSpace* colorSpace)
-            : fColorType(colorType), fColorSpace(colorSpace) {}
-
-        SkColorType colorType() const { return fColorType; }
-        SkColorSpace* colorSpace() const { return fColorSpace; }
-
-    private:
-        SkColorType fColorType;
-        // This will be a pointer to the device's color space, and our lifetime is bounded by
-        // the device, so we can store a bare pointer.
-        SkColorSpace* fColorSpace;
-    };
-
+    // The context contains all necessary information to describe how the image filter should be
+    // computed (i.e. the current layer matrix and clip), and the color information of the output of
+    // a filter DAG. For now, this is just the color space (of the original requesting device). This
+    // is used when constructing intermediate rendering surfaces, so that we ensure we land in a
+    // surface that's similar/compatible to the final consumer of the DAG's output.
     class Context {
     public:
+        // Creates a context with the given layer matrix and destination clip, reading from 'source'
+        // with an origin of (0,0).
         Context(const SkMatrix& ctm, const SkIRect& clipBounds, SkImageFilterCache* cache,
-                const OutputProperties& outputProperties)
+                SkColorType colorType, SkColorSpace* colorSpace)
             : fCTM(ctm)
             , fClipBounds(clipBounds)
             , fCache(cache)
-            , fOutputProperties(outputProperties)
-        {}
+            , fColorType(colorType)
+            , fColorSpace(colorSpace) {}
 
         const SkMatrix& ctm() const { return fCTM; }
         const SkIRect& clipBounds() const { return fClipBounds; }
         SkImageFilterCache* cache() const { return fCache; }
-        const OutputProperties& outputProperties() const { return fOutputProperties; }
+        // The output device's color type, which can be used for intermediate images to be
+        // compatible with the eventual target of the filtered result.
+        SkColorType colorType() const { return fColorType; }
+#if SK_SUPPORT_GPU
+        GrColorType grColorType() const { return SkColorTypeToGrColorType(fColorType); }
+#endif
+        // The output device's color space, so intermediate images can match, and so filtering can
+        // be performed in the destination color space.
+        SkColorSpace* colorSpace() const { return fColorSpace; }
+        sk_sp<SkColorSpace> refColorSpace() const { return sk_ref_sp(fColorSpace); }
 
         /**
-         *  Since a context can be build directly, its constructor has no chance to
-         *  "return null" if it's given invalid or unsupported inputs. Call this to
-         *  know of the the context can be used.
+         *  Since a context can be built directly, its constructor has no chance to "return null" if
+         *  it's given invalid or unsupported inputs. Call this to know of the the context can be
+         *  used.
          *
-         *  The SkImageFilterCache Key, for example, requires a finite ctm (no infinities
-         *  or NaN), so that test is part of isValid.
+         *  The SkImageFilterCache Key, for example, requires a finite ctm (no infinities or NaN),
+         *  so that test is part of isValid.
          */
         bool isValid() const { return fCTM.isFinite(); }
+
+        // Create a surface of the given size, that matches the context's color type and color space
+        // as closely as possible, and uses the same backend of the device that produced the source
+        // image.
+        sk_sp<SkSpecialSurface> makeSurface(const SkSpecialImage* source, const SkISize& size,
+                                            const SkSurfaceProps* props = nullptr) const {
+            return source->makeSurface(fColorType, fColorSpace, size, kPremul_SkAlphaType, props);
+        }
 
     private:
         SkMatrix               fCTM;
         SkIRect                fClipBounds;
         SkImageFilterCache*    fCache;
-        OutputProperties       fOutputProperties;
+        SkColorType            fColorType;
+        // This pointer is owned by the device controlling the filter process, and our
+        // lifetime is bounded by the device, so it can be a bare pointer.
+        SkColorSpace*          fColorSpace;
     };
 
     /**
@@ -303,10 +312,10 @@ protected:
 
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext* context,
-                                            std::unique_ptr<GrFragmentProcessor>
-                                                    fp,
+                                            std::unique_ptr<GrFragmentProcessor> fp,
                                             const SkIRect& bounds,
-                                            const OutputProperties& outputProperties,
+                                            SkColorType colorType,
+                                            const SkColorSpace* colorSpace,
                                             GrProtected isProtected = GrProtected::kNo);
 
     /**
@@ -314,7 +323,9 @@ protected:
      *  with the same gamut as the one from the OutputProperties. This allows filters that do many
      *  texture samples to guarantee that any color space conversion has happened before running.
      */
-    static sk_sp<SkSpecialImage> ImageToColorSpace(SkSpecialImage* src, const OutputProperties&);
+    static sk_sp<SkSpecialImage> ImageToColorSpace(SkSpecialImage* src,
+                                                   SkColorType colorType,
+                                                   SkColorSpace* colorSpace);
 #endif
 
     // If 'srcBounds' will sample outside the border of 'originalSrcBounds' (i.e., the sample

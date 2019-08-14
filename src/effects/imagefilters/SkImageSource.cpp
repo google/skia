@@ -124,7 +124,7 @@ sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(SkSpecialImage* source, c
 
     const SkIRect dstIRect = dstRect.roundOut();
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), dstIRect.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, dstIRect.size()));
     if (!surf) {
         return nullptr;
     }
