@@ -23,6 +23,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkPixelRefPriv.h"
 #include "src/core/SkPixmapPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -202,11 +203,8 @@ void SkBitmap::setPixels(void* p) {
         this->setPixelRef(nullptr, 0, 0);
         return;
     }
-
-    this->setPixelRef(SkMallocPixelRef::MakeDirect(this->info(), p, this->rowBytes()), 0, 0);
-    if (!fPixelRef) {
-        return;
-    }
+    this->setPixelRef(
+            sk_make_sp<SkPixelRef>(this->width(), this->height(), p, this->rowBytes()), 0, 0);
     SkDEBUGCODE(this->validate();)
 }
 
@@ -319,15 +317,9 @@ bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, siz
 
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
-
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeWithProc(correctedInfo, rb, pixels,
-                                                          releaseProc, context);
-    if (!pr) {
-        this->reset();
-        return false;
-    }
-
-    this->setPixelRef(std::move(pr), 0, 0);
+    this->setPixelRef(
+            SkMakePixelRefWithProc(correctedInfo.width(), correctedInfo.height(),
+                                   rb, pixels, releaseProc, context), 0, 0);
     SkDEBUGCODE(this->validate();)
     return true;
 }
