@@ -41,7 +41,10 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kRGBA_8888,        MTLPixelFormatRGBA8Unorm,      SkColors::kRed       },
         { GrColorType::kRGBA_8888_SRGB,   MTLPixelFormatRGBA8Unorm_sRGB, SkColors::kRed       },
 
-        { GrColorType::kRGB_888x,         MTLPixelFormatRGBA8Unorm,      { 1, 1, 0, 0.5f }    },
+        // In this configuration (i.e., an RGB_888x colortype with an RGBA8 backing format),
+        // there is nothing to tell Skia to make the provided color opaque. Clients will need
+        // to provide an opaque initialization color in this case.
+        { GrColorType::kRGB_888x,         MTLPixelFormatRGBA8Unorm,      SkColors::kYellow    },
 
         { GrColorType::kBGRA_8888,        MTLPixelFormatBGRA8Unorm,      SkColors::kBlue      },
 
@@ -121,20 +124,18 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                 }
 
                 // Not implemented for Metal yet
-#if 0
                 {
                     auto createWithColorMtd = [format](GrContext* context,
                                                        const SkColor4f& color,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
-                        return context->priv().createBackendTexture(32, 32, format, color,
-                                                                    mipMapped, renderable);
+                        return context->createBackendTexture(32, 32, format, color,
+                                                             mipMapped, renderable);
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
                                     combo.fColorType, combo.fColor, mipMapped, renderable);
                 }
-#endif
             }
         }
     }
