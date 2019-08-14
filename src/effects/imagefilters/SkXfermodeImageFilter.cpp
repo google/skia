@@ -40,15 +40,13 @@ public:
           , fMode(mode) {}
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
                            MapDirection, const SkIRect* inputRect) const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
-                                         const Context& ctx,
+    sk_sp<SkSpecialImage> filterImageGPU(const Context& ctx,
                                          sk_sp<SkSpecialImage> background,
                                          const SkIPoint& backgroundOffset,
                                          sk_sp<SkSpecialImage> foreground,
@@ -112,14 +110,13 @@ void SkXfermodeImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.write32((unsigned)fMode);
 }
 
-sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                               const Context& ctx,
+sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::onFilterImage(const Context& ctx,
                                                                SkIPoint* offset) const {
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> background(this->filterInput(0, source, ctx, &backgroundOffset));
+    sk_sp<SkSpecialImage> background(this->filterInput(0, ctx, &backgroundOffset));
 
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> foreground(this->filterInput(1, source, ctx, &foregroundOffset));
+    sk_sp<SkSpecialImage> foreground(this->filterInput(1, ctx, &foregroundOffset));
 
     SkIRect foregroundBounds = SkIRect::EmptyIRect();
     if (foreground) {
@@ -147,13 +144,13 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::onFilterImage(SkSpecialImage* s
     offset->fY = bounds.top();
 
 #if SK_SUPPORT_GPU
-    if (source->isTextureBacked()) {
-        return this->filterImageGPU(source, ctx, background, backgroundOffset,
+    if (ctx.gpuBacked()) {
+        return this->filterImageGPU(ctx, background, backgroundOffset,
                                     foreground, foregroundOffset, bounds);
     }
 #endif
 
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, bounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(bounds.size()));
     if (!surf) {
         return nullptr;
     }
@@ -241,16 +238,15 @@ void SkXfermodeImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
-                                                   SkSpecialImage* source,
                                                    const Context& ctx,
                                                    sk_sp<SkSpecialImage> background,
                                                    const SkIPoint& backgroundOffset,
                                                    sk_sp<SkSpecialImage> foreground,
                                                    const SkIPoint& foregroundOffset,
                                                    const SkIRect& bounds) const {
-    SkASSERT(source->isTextureBacked());
+    SkASSERT(ctx.gpuBacked());
 
-    auto context = source->getContext();
+    auto context = ctx.getContext();
 
     sk_sp<GrTextureProxy> backgroundProxy, foregroundProxy;
 

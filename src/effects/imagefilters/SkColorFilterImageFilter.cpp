@@ -26,8 +26,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     bool onIsColorFilterNode(SkColorFilter**) const override;
     bool onCanHandleComplexCTM() const override { return true; }
     bool affectsTransparentBlack() const override;
@@ -84,11 +83,10 @@ void SkColorFilterImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fColorFilter.get());
 }
 
-sk_sp<SkSpecialImage> SkColorFilterImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                                  const Context& ctx,
+sk_sp<SkSpecialImage> SkColorFilterImageFilterImpl::onFilterImage(const Context& ctx,
                                                                   SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
 
     SkIRect inputBounds;
     if (fColorFilter->affectsTransparentBlack()) {
@@ -106,7 +104,7 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilterImpl::onFilterImage(SkSpecialImage
         return nullptr;
     }
 
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, bounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(bounds.size()));
     if (!surf) {
         return nullptr;
     }

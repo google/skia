@@ -43,8 +43,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
 private:
     friend void SkMagnifierImageFilter::RegisterFlattenables();
@@ -97,11 +96,10 @@ void SkMagnifierImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fInset);
 }
 
-sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                                const Context& ctx,
+sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& ctx,
                                                                 SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -121,8 +119,8 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(SkSpecialImage* 
 
 
 #if SK_SUPPORT_GPU
-    if (source->isTextureBacked()) {
-        auto context = source->getContext();
+    if (ctx.gpuBacked()) {
+        auto context = ctx.getContext();
 
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
