@@ -162,8 +162,11 @@ public:
     virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
     virtual bool isFormatCompressed(const GrBackendFormat&) const = 0;
 
-    virtual bool isFormatTexturable(GrColorType, const GrBackendFormat&) const = 0;
-    virtual bool isConfigTexturable(GrPixelConfig) const = 0;
+    // TODO: Once we use the supportWritePixels call for uploads, we can remove this function and
+    // instead only have the version that takes a GrBackendFormat.
+    virtual bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const = 0;
+    // Can a texture be made with the GrBackendFormat, and then be bound and sampled in a shader.
+    virtual bool isFormatTexturable(const GrBackendFormat&) const = 0;
 
     // Returns whether a texture of the given format can be copied to a texture of the same format.
     virtual bool isFormatCopyable(const GrBackendFormat&) const = 0;

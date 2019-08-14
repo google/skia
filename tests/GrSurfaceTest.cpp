@@ -73,7 +73,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     context->deleteBackendTexture(backendTex);
 }
 
-// This test checks that the isConfigTexturable and isConfigRenderable are
+// This test checks that the isFormatTexturable and isFormatRenderable are
 // consistent with createTexture's result.
 DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -106,7 +106,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
             GrFillInCompressedData(type, width, height, (char*)data->writable_data(), color);
-            return rp->createCompressedTexture(width, height, SkImage::kETC1_CompressionType,
+            return rp->createCompressedTexture(width, height, format,
+                                               SkImage::kETC1_CompressionType,
                                                SkBudgeted::kNo, data.get());
         } else {
             GrSurfaceDesc desc;
@@ -146,7 +147,15 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             // Check if 'isFormatTexturable' agrees with 'createTexture' and that the mipmap
             // support check is working
             {
-                bool isTexturable = caps->isFormatTexturable(combo.fColorType, combo.fFormat);
+
+                bool compressed = caps->isFormatCompressed(combo.fFormat);
+                bool isTexturable;
+                if (compressed) {
+                    isTexturable = caps->isFormatTexturable(combo.fFormat);
+                } else {
+                    isTexturable = caps->isFormatTexturableAndUploadable(combo.fColorType,
+                                                                         combo.fFormat);
+                }
 
                 sk_sp<GrSurface> tex = createTexture(kW, kH, combo.fColorType, combo.fFormat,
                                                      GrRenderable::kNo, resourceProvider);
@@ -246,7 +255,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
             SkASSERT(combo.fColorType != GrColorType::kUnknown);
             SkASSERT(combo.fFormat.isValid());
 
-            if (!caps->isFormatTexturable(combo.fColorType, combo.fFormat)) {
+            if (!caps->isFormatTexturableAndUploadable(combo.fColorType, combo.fFormat)) {
                 continue;
             }
 

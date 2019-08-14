@@ -199,7 +199,7 @@ private:
                                      GrProtected,
                                      const GrMipLevel[],
                                      int mipLevelCount) override;
-    sk_sp<GrTexture> onCreateCompressedTexture(int width, int height,
+    sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, const GrBackendFormat&,
                                                SkImage::CompressionType compression, SkBudgeted,
                                                const void* data) override;
 
@@ -236,11 +236,10 @@ private:
                              int mipLevelCount,
                              GrMipMapsStatus* mipMapsStatus);
 
-    GrGLuint createCompressedTexture2D(const SkISize& size,
+    GrGLuint createCompressedTexture2D(const SkISize& size, GrGLFormat format,
                                        SkImage::CompressionType compression,
                                        GrGLTextureParameters::SamplerOverriddenState* initialState,
-                                       const void* data,
-                                       GrGLFormat* format);
+                                       const void* data);
 
     bool onReadPixels(GrSurface*, int left, int top, int width, int height,
                       GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
@@ -411,13 +410,13 @@ private:
                        const GrMipLevel texels[], int mipLevelCount,
                        GrMipMapsStatus* mipMapsStatus = nullptr);
 
-    // Helper for onCreateCompressedTexture. Compressed textures are read-only so we
-    // only use this to populate a new texture. Returns the internal format of the texture
-    // or kUnknown on failure.
-    GrGLFormat uploadCompressedTexData(SkImage::CompressionType,
-                                       const SkISize& size,
-                                       GrGLenum target,
-                                       const void* data);
+    // Helper for onCreateCompressedTexture. Compressed textures are read-only so we only use this
+    // to populate a new texture. Returns false if we failed to create and upload the texture.
+    bool uploadCompressedTexData(GrGLFormat,
+                                 SkImage::CompressionType,
+                                 const SkISize& size,
+                                 GrGLenum target,
+                                 const void* data);
 
     bool createRenderTargetObjects(const GrGLTexture::Desc&,
                                    int sampleCount,

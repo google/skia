@@ -111,14 +111,9 @@ public:
     bool isFormatSRGB(const GrBackendFormat&) const override;
     bool isFormatCompressed(const GrBackendFormat&) const override;
 
-    bool isFormatTexturable(GrColorType, const GrBackendFormat&) const override;
-    bool isFormatTexturable(GrColorType, GrGLFormat) const;
-
-    bool isConfigTexturable(GrPixelConfig config) const override {
-        GrColorType ct = GrPixelConfigToColorType(config);
-        auto format = this->pixelConfigToFormat(config);
-        return this->isFormatTexturable(ct, format);
-    }
+    bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const override;
+    bool isFormatTexturable(const GrBackendFormat&) const override;
+    bool isFormatTexturable(GrGLFormat) const;
 
     bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
                                        int sampleCount = 1) const override;
@@ -170,8 +165,6 @@ public:
     void getTexImageFormats(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
                             GrColorType memoryColorType, GrGLenum* internalFormat,
                             GrGLenum* externalFormat, GrGLenum* externalType) const;
-
-    bool getCompressedTexImageFormats(GrPixelConfig surfaceConfig, GrGLenum* internalFormat) const;
 
     void getReadPixelsFormat(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
                              GrColorType memoryColorType, GrGLenum* externalFormat,
@@ -435,7 +428,7 @@ public:
                        const GrTextureType* srcTypeIfTexture,
                        const SkRect& srcBounds, bool srcBoundsExact,
                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
-    bool canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTextureable) const;
+    bool canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTexturable) const;
 
     DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src,
                                                GrColorType) const override;
@@ -675,7 +668,7 @@ private:
         }
 
         enum {
-            kTextureable_Flag                = 0x1,
+            kTexturable_Flag                 = 0x1,
             /** kFBOColorAttachment means that even if the format cannot be a GrRenderTarget, we can
                 still attach it to a FBO for blitting or reading pixels. */
             kFBOColorAttachment_Flag         = 0x2,
@@ -695,9 +688,9 @@ private:
         // Not defined for uncompressed formats. Passed to glCompressedTexImage...
         GrGLenum fCompressedInternalFormat = 0;
 
-        // Value to uses as the "internalformat" argument to glTexImage... Usually one of
-        // fBaseInternalFormat or fSizedInternalFormat but may vary depending on the particular
-        // format, GL version, extensions.
+        // Value to uses as the "internalformat" argument to glTexImage and glCompressedTexImage...
+        // Usually one of fBaseInternalFormat or fSizedInternalFormat but may vary depending on the
+        // particular format, GL version, extensions.
         GrGLenum fInternalFormatForTexImage = 0;
 
         // Value to uses as the "internalformat" argument to glRenderbufferStorageMultisample...

@@ -396,3 +396,4 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
 GrContext* GrRecordingContextPriv::backdoor() {
     return (GrContext*) fContext;
 }
+
