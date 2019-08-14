@@ -274,8 +274,8 @@ protected:
             if (canvas->getGrContext()->abandoned()) {
                 return;
             }
-            mainImage = fMainImage->makeTextureImage(canvas->getGrContext(), nullptr);
-            auxImage = fAuxImage->makeTextureImage(canvas->getGrContext(), nullptr);
+            mainImage = fMainImage->makeTextureImage(canvas->getGrContext());
+            auxImage = fAuxImage->makeTextureImage(canvas->getGrContext());
         } else {
             mainImage = fMainImage;
             auxImage = fAuxImage;
