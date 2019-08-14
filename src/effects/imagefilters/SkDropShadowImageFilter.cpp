@@ -115,7 +115,7 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(SkSpecialImage*
         return nullptr;
     }
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, bounds.size()));
     if (!surf) {
         return nullptr;
     }

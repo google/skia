@@ -296,8 +296,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage*
     // With a more complex DAG attached to this input, it's not clear that working in ANY specific
     // color space makes sense, so we ignore color spaces (and gamma) entirely. This may not be
     // ideal, but it's at least consistent and predictable.
-    Context displContext(ctx.ctm(), ctx.clipBounds(), ctx.cache(),
-                         OutputProperties(kN32_SkColorType, nullptr));
+    Context displContext(ctx.ctm(), ctx.clipBounds(), ctx.cache(), kN32_SkColorType, nullptr);
     sk_sp<SkSpecialImage> displ(this->filterInput(0, source, displContext, &displOffset));
     if (!displ) {
         return nullptr;
@@ -346,7 +345,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage*
 
         SkMatrix offsetMatrix = SkMatrix::MakeTrans(SkIntToScalar(colorOffset.fX - displOffset.fX),
                                                     SkIntToScalar(colorOffset.fY - displOffset.fY));
-        SkColorSpace* colorSpace = ctx.outputProperties().colorSpace();
+        SkColorSpace* colorSpace = ctx.colorSpace();
 
         std::unique_ptr<GrFragmentProcessor> fp =
                 GrDisplacementMapEffect::Make(fXChannelSelector,
@@ -365,7 +364,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(SkSpecialImage*
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
-        GrColorType colorType = SkColorTypeToGrColorType(ctx.outputProperties().colorType());
+        GrColorType colorType = SkColorTypeToGrColorType(ctx.colorType());
 
         sk_sp<GrRenderTargetContext> renderTargetContext(
                 context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,

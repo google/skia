@@ -81,7 +81,8 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(SkSpecialImage* so
     SkIRect innerClipBounds;
     innerClipBounds = this->getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm(),
                                                       kReverse_MapDirection, &ctx.clipBounds());
-    Context innerContext(ctx.ctm(), innerClipBounds, ctx.cache(), ctx.outputProperties());
+    Context innerContext(ctx.ctm(), innerClipBounds, ctx.cache(), ctx.colorType(),
+                         ctx.colorSpace());
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> inner(this->filterInput(1, source, innerContext, &innerOffset));
     if (!inner) {
@@ -92,7 +93,7 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(SkSpecialImage* so
     outerMatrix.postTranslate(SkIntToScalar(-innerOffset.x()), SkIntToScalar(-innerOffset.y()));
     SkIRect clipBounds = ctx.clipBounds();
     clipBounds.offset(-innerOffset.x(), -innerOffset.y());
-    Context outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.outputProperties());
+    Context outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.colorType(), ctx.colorSpace());
 
     SkIPoint outerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> outer(this->filterInput(0, inner.get(), outerContext, &outerOffset));
