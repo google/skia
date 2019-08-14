@@ -8,8 +8,8 @@
 #ifndef GrXferProcessor_DEFINED
 #define GrXferProcessor_DEFINED
 
-#include "include/gpu/GrBlend.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/GrBlend.h"
 #include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProcessorAnalysis.h"
