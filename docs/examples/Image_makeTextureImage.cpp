@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
         }
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_sp<SkImage> texture(image->makeTextureImage(context, nullptr));
+        sk_sp<SkImage> texture(image->makeTextureImage(context));
         canvas->drawImage(texture, 0, 0);
         canvas->drawString(label, 20, texture->height() / 4, paint);
     };

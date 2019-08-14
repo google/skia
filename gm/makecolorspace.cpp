@@ -136,7 +136,7 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
             }
 
             images[j] = canvas->getGrContext()
-                    ? image->makeTextureImage(canvas->getGrContext(), nullptr)
+                    ? image->makeTextureImage(canvas->getGrContext())
                     : image->makeRasterImage();
 
             canvas->translate(0, 128);

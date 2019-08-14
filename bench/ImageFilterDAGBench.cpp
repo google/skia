@@ -71,7 +71,7 @@ protected:
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkIRect discardSubset;
         // makeWithFilter will only use the GPU backend if the image is already a texture
-        sk_sp<SkImage> image = fImage->makeTextureImage(canvas->getGrContext(), nullptr);
+        sk_sp<SkImage> image = fImage->makeTextureImage(canvas->getGrContext());
         if (!image) {
             image = fImage;
         }

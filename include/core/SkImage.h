@@ -1002,8 +1002,12 @@ public:
         @param mipMapped      whether created SkImage texture must allocate mip map levels
         @return               created SkImage, or nullptr
     */
-    sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
-                                    GrMipMapped mipMapped = GrMipMapped::kNo) const;
+    sk_sp<SkImage> makeTextureImage(GrContext* context, GrMipMapped = GrMipMapped::kNo) const;
+
+    sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace*,
+                                    GrMipMapped mipMapped = GrMipMapped::kNo) const {
+        return this->makeTextureImage(context, mipMapped);
+    }
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into
         CPU memory if needed. Returns original SkImage if decoded in raster bitmap,
