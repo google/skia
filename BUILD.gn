@@ -1375,6 +1375,14 @@ if (skia_enable_tools) {
         testonly = true
       }
 
+      # dsymutil seems to kill the machine when too many processes are run in
+      # parallel.
+      pool("dsymutil_pool") {
+        # This is very conservative; things seem fine until the number of
+        # parallel dsymutils exceeds the number of CPUs.
+        depth = 1
+      }
+
       action("${app_name}_dsymutil") {
         public_deps = [
           ":${app_name}_generate_executable",
@@ -1391,6 +1399,7 @@ if (skia_enable_tools) {
           "$gen_path/${app_name}.dSYM",
         ]
         testonly = true
+        pool = ":dsymutil_pool"
       }
 
       bundle_data("${app_name}_bundle_symbols") {
