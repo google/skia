@@ -12,6 +12,7 @@
 #include "dawn/dawncpp.h"
 
 class GrDawnGpu;
+struct GrDawnStagingBuffer;
 
 class GrDawnBuffer : public GrGpuBuffer {
 public:
@@ -27,7 +28,7 @@ public:
 
 private:
     dawn::Buffer fBuffer;
-    char* fData;          // Used only for map/unmap.
+    GrDawnStagingBuffer* fStagingBuffer;
     typedef GrGpuBuffer INHERITED;
 };
 
