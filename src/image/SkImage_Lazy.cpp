@@ -279,6 +279,24 @@ sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(GrRecordingContext*,
     return result;
 }
 
+sk_sp<SkImage> SkImage_Lazy::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
+    // TODO: The correct thing is to clone the generator, and modify its color space. That's hard,
+    // because we don't have a clone method, and generator is public (and derived-from by clients).
+    // So do the simple/inefficient thing here, and fallback to raster when this is called.
+
+    // We allocate the bitmap with the new color space, then generate the image using the original.
+    SkBitmap bitmap;
+    if (bitmap.tryAllocPixels(this->imageInfo().makeColorSpace(std::move(newCS)))) {
+        SkPixmap pixmap = bitmap.pixmap();
+        pixmap.setColorSpace(this->refColorSpace());
+        if (generate_pixels(ScopedGenerator(fSharedGenerator), pixmap, fOrigin.x(), fOrigin.y())) {
+            bitmap.setImmutable();
+            return SkImage::MakeFromBitmap(bitmap);
+        }
+    }
+    return nullptr;
+}
+
 sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> generator,
                                           const SkIRect* subset) {
     SkImage_Lazy::Validator

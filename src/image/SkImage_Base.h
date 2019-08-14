@@ -100,6 +100,9 @@ public:
 
     virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
                                                         SkColorType, sk_sp<SkColorSpace>) const = 0;
+
+    virtual sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const = 0;
+
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);
 
