@@ -13,6 +13,7 @@
 
 class GrPipeline;
 class GrDawnGpuRTCommandBuffer;
+class GrDawnGpuTextureCommandBuffer;
 
 namespace SkSL {
     class Compiler;
@@ -143,7 +144,8 @@ private:
     dawn::Device                                    fDevice;
     dawn::Queue                                     fQueue;
     std::unique_ptr<SkSL::Compiler>                 fCompiler;
-    std::unique_ptr<GrDawnGpuRTCommandBuffer>       fCachedRTCommandBuffer;
+    std::unique_ptr<GrDawnGpuRTCommandBuffer>       fRTCommandBuffer;
+    std::unique_ptr<GrDawnGpuTextureCommandBuffer>  fTextureCommandBuffer;
 
     typedef GrGpu INHERITED;
 };

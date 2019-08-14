@@ -20,33 +20,20 @@ class GrDawnRenderTarget;
 
 class GrDawnGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
-    GrDawnGpuTextureCommandBuffer(GrDawnGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
-        : INHERITED(texture, origin)
-        , fGpu(gpu) {
-    }
-
+    GrDawnGpuTextureCommandBuffer(GrDawnGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin);
     ~GrDawnGpuTextureCommandBuffer() override;
 
     void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
-    void insertEventMarker(const char*) override;
-
-private:
+    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
+                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                      size_t offset) override;
+    void insertEventMarker(const char*) override {}
     void submit();
 
-    struct CopyInfo {
-        CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-                 const SkIPoint& dstPoint)
-            : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
-
-        GrSurface*      fSrc;
-        GrSurfaceOrigin fSrcOrigin;
-        SkIRect         fSrcRect;
-        SkIPoint        fDstPoint;
-    };
-
-    GrDawnGpu*                   fGpu;
-    SkTArray<CopyInfo>          fCopies;
+private:
+    GrDawnGpu*                        fGpu;
+    dawn::CommandEncoder              fEncoder;
 
     typedef GrGpuTextureCommandBuffer INHERITED;
 };
@@ -129,17 +116,6 @@ private:
 
         GrOpFlushState* fFlushState;
         GrDeferredTextureUploadFn fUpload;
-    };
-
-    struct CopyInfo {
-        CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-                 const SkIPoint& dstPoint)
-            : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
-
-        GrSurface*      fSrc;
-        GrSurfaceOrigin fSrcOrigin;
-        SkIRect         fSrcRect;
-        SkIPoint        fDstPoint;
     };
 
     GrDawnGpu*                  fGpu;
