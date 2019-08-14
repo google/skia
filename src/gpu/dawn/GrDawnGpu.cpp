@@ -64,15 +64,14 @@ GrGpuRTCommandBuffer* GrDawnGpu::getCommandBuffer(
             GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    fCachedRTCommandBuffer.reset(
-        new GrDawnGpuRTCommandBuffer(this, rt, origin, colorInfo, stencilInfo));
-    return fCachedRTCommandBuffer.get();
+    fRTCommandBuffer.reset(new GrDawnGpuRTCommandBuffer(this, rt, origin, colorInfo, stencilInfo));
+    return fRTCommandBuffer.get();
 }
 
 GrGpuTextureCommandBuffer* GrDawnGpu::getCommandBuffer(GrTexture* texture,
                                                        GrSurfaceOrigin origin) {
-    SkASSERT(!"unimplemented");
-    return nullptr;
+    fTextureCommandBuffer.reset(new GrDawnGpuTextureCommandBuffer(this, texture, origin));
+    return fTextureCommandBuffer.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -337,8 +336,12 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture*) {
 }
 
 void GrDawnGpu::submit(GrGpuCommandBuffer* buffer) {
-    if (auto buf = static_cast<GrDawnGpuRTCommandBuffer*>(buffer->asRTCommandBuffer())) {
-        buf->submit();
+    if (buffer->asRTCommandBuffer()) {
+        SkASSERT(fRTCommandBuffer.get() == buffer);
+        fRTCommandBuffer->submit();
+    } else {
+        SkASSERT(fTextureCommandBuffer.get() == buffer);
+        fTextureCommandBuffer->submit();
     }
 }
 

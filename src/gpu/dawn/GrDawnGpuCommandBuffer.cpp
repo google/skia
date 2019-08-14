@@ -18,22 +18,65 @@
 #include "src/gpu/dawn/GrDawnProgramBuilder.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
 #include "src/gpu/dawn/GrDawnStencilAttachment.h"
+#include "src/gpu/dawn/GrDawnTexture.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
 #include "src/sksl/SkSLCompiler.h"
 
-void GrDawnGpuTextureCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
-                                         const SkIPoint& dstPoint) {
-    SkASSERT(!"unimplemented");
+GrDawnGpuTextureCommandBuffer::GrDawnGpuTextureCommandBuffer(GrDawnGpu* gpu,
+                                                             GrTexture* texture,
+                                                             GrSurfaceOrigin origin)
+    : INHERITED(texture, origin)
+    , fGpu(gpu) {
+    fEncoder = fGpu->device().CreateCommandEncoder();
 }
 
-void GrDawnGpuTextureCommandBuffer::insertEventMarker(const char* msg) {
-    SkASSERT(!"unimplemented");
+void GrDawnGpuTextureCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
+                                         const SkIPoint& dstPoint) {
+    if (!src->asTexture()) {
+        return;
+    }
+    uint32_t width = srcRect.width(), height = srcRect.height();
+    size_t rowBytes = srcRect.width() * GrBytesPerPixel(src->config());
+    rowBytes = GrDawnRoundRowBytes(rowBytes);
+    size_t sizeInBytes = height * rowBytes;
+
+    dawn::BufferDescriptor desc;
+    desc.usage = dawn::BufferUsageBit::CopySrc | dawn::BufferUsageBit::CopyDst;
+    desc.size = sizeInBytes;
+
+    dawn::Buffer buffer = fGpu->device().CreateBuffer(&desc);
+
+    dawn::TextureCopyView srcTextureView, dstTextureView;
+    srcTextureView.texture = static_cast<GrDawnTexture*>(src->asTexture())->texture();
+    srcTextureView.origin = {(uint32_t) srcRect.x(), (uint32_t) srcRect.y(), 0};
+    dstTextureView.texture = static_cast<GrDawnTexture*>(fTexture)->texture();
+    dstTextureView.origin = {(uint32_t) dstPoint.x(), (uint32_t) dstPoint.y(), 0};
+
+    dawn::BufferCopyView bufferView;
+    bufferView.buffer = buffer;
+    bufferView.offset = 0;
+    bufferView.rowPitch = rowBytes;
+    bufferView.imageHeight = height;
+
+    dawn::Extent3D copySize = {width, height, 1};
+    fEncoder.CopyTextureToBuffer(&srcTextureView, &bufferView, &copySize);
+    fEncoder.CopyBufferToTexture(&bufferView, &dstTextureView, &copySize);
+}
+
+void GrDawnGpuTextureCommandBuffer::transferFrom(const SkIRect& srcRect,
+                                                 GrColorType surfaceColorType,
+                                                 GrColorType bufferColorType,
+                                                 GrGpuBuffer* transferBuffer,
+                                                 size_t offset) {
+    fGpu->transferPixelsFrom(fTexture, srcRect.fLeft, srcRect.fTop, srcRect.width(),
+                             srcRect.height(), surfaceColorType, bufferColorType, transferBuffer,
+                             offset);
 }
 
 void GrDawnGpuTextureCommandBuffer::submit() {
-    for (int i = 0; i < fCopies.count(); ++i) {
-        CopyInfo& copyInfo = fCopies[i];
-        fGpu->copySurface(fTexture, copyInfo.fSrc, copyInfo.fSrcRect, copyInfo.fDstPoint);
+    dawn::CommandBuffer commandBuffer = fEncoder.Finish();
+    if (commandBuffer) {
+        fGpu->queue().Submit(1, &commandBuffer);
     }
 }
 
@@ -147,7 +190,51 @@ void GrDawnGpuRTCommandBuffer::inlineUpload(GrOpFlushState* state,
 
 void GrDawnGpuRTCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
                                     const SkIPoint& dstPoint) {
-    SkASSERT(!"unimplemented");
+    auto s = static_cast<GrDawnTexture*>(src->asTexture());
+    auto d = static_cast<GrDawnTexture*>(fRenderTarget->asTexture());
+
+    if (!s || !d) {
+        return;
+    }
+
+    dawn::Texture srcTex = s->texture();
+    dawn::Texture dstTex = d->texture();
+
+    uint32_t x = srcRect.x();
+    uint32_t y = srcRect.y();
+    uint32_t width = srcRect.width();
+    uint32_t height = srcRect.height();
+    int rowPitch = GrDawnRoundRowBytes(width * GrBytesPerPixel(src->config()));
+    int sizeInBytes = rowPitch * height;
+
+    dawn::BufferDescriptor desc;
+    desc.usage = dawn::BufferUsageBit::CopySrc | dawn::BufferUsageBit::CopyDst;
+    desc.size = sizeInBytes;
+
+    dawn::Buffer buffer = fGpu->device().CreateBuffer(&desc);
+
+    uint32_t dstX = dstPoint.x();
+    uint32_t dstY = dstPoint.y();
+    fPassEncoder.EndPass();
+
+    dawn::TextureCopyView srcTextureCopyView;
+    srcTextureCopyView.texture = srcTex;
+    srcTextureCopyView.origin = {x, y, 0};
+
+    dawn::TextureCopyView dstTextureCopyView;
+    dstTextureCopyView.texture = dstTex;
+    dstTextureCopyView.origin = {dstX, dstY, 0};
+
+    dawn::BufferCopyView bufferCopyView;
+    bufferCopyView.buffer = buffer;
+    bufferCopyView.offset = 0;
+    bufferCopyView.rowPitch = rowPitch;
+    bufferCopyView.imageHeight = height;
+
+    dawn::Extent3D copySize = {width, height, 1};
+    fEncoder.CopyTextureToBuffer(&srcTextureCopyView, &bufferCopyView, &copySize);
+    fEncoder.CopyBufferToTexture(&bufferCopyView, &dstTextureCopyView, &copySize);
+    fPassEncoder = beginRenderPass(dawn::LoadOp::Load, dawn::LoadOp::Load);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
