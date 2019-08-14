@@ -546,12 +546,11 @@ static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
 
 static sk_sp<SkSpecialImage> apply_morphology(
         GrRecordingContext* context, SkSpecialImage* input, const SkIRect& rect,
-        MorphType morphType, SkISize radius,
-        const SkImageFilter_Base::OutputProperties& outputProperties) {
+        MorphType morphType, SkISize radius, const SkImageFilter_Base::Context& ctx) {
     sk_sp<GrTextureProxy> srcTexture(input->asTextureProxyRef(context));
     SkASSERT(srcTexture);
-    sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
-    GrColorType colorType = SkColorTypeToGrColorType(outputProperties.colorType());
+    sk_sp<SkColorSpace> colorSpace = ctx.refColorSpace();
+    GrColorType colorType = ctx.grColorType();
 
     // setup new clip
     const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));
@@ -777,11 +776,10 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(SkSpecialImage*
         // called pad_image to account for our dilation of bounds, so the result will already be
         // moved to the destination color space. If a filter DAG avoids that, then we use this
         // fall-back, which saves us from having to do the xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.outputProperties());
+        input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
 
         sk_sp<SkSpecialImage> result(apply_morphology(context, input.get(), srcBounds, fType,
-                                                      SkISize::Make(width, height),
-                                                      ctx.outputProperties()));
+                                                      SkISize::Make(width, height), ctx));
         if (result) {
             offset->fX = bounds.left();
             offset->fY = bounds.top();

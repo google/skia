@@ -442,7 +442,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(SkSpecia
         // called pad_image to account for our dilation of bounds, so the result will already be
         // moved to the destination color space. If a filter DAG avoids that, then we use this
         // fall-back, which saves us from having to do the xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.outputProperties());
+        input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
 
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
@@ -469,7 +469,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(SkSpecia
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), dstBounds, ctx.outputProperties(),
+        return DrawWithFP(context, std::move(fp), dstBounds, ctx.colorType(), ctx.colorSpace(),
                           isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif

@@ -100,7 +100,7 @@ sk_sp<SkSpecialImage> SkMergeImageFilterImpl::onFilterImage(
     const int x0 = bounds.left();
     const int y0 = bounds.top();
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, bounds.size()));
     if (!surf) {
         return nullptr;
     }

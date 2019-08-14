@@ -106,7 +106,7 @@ sk_sp<SkSpecialImage> SkOffsetImageFilterImpl::onFilterImage(SkSpecialImage* sou
             return nullptr;
         }
 
-        sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+        sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, bounds.size()));
         if (!surf) {
             return nullptr;
         }

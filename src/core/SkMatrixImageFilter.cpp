@@ -70,7 +70,7 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
     SkIRect dstBounds;
     dstRect.roundOut(&dstBounds);
 
-    sk_sp<SkSpecialSurface> surf(input->makeSurface(ctx.outputProperties(), dstBounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, dstBounds.size()));
     if (!surf) {
         return nullptr;
     }

@@ -141,12 +141,12 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(SkSpecialImage* 
                                           bounds.width() * invInset,
                                           bounds.height() * invInset);
         fp = GrColorSpaceXformEffect::Make(std::move(fp), input->getColorSpace(),
-                                           input->alphaType(), ctx.outputProperties().colorSpace());
+                                           input->alphaType(), ctx.colorSpace());
         if (!fp) {
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, ctx.outputProperties(),
+        return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.colorSpace(),
                           isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif

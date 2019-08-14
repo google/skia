@@ -47,7 +47,7 @@ sk_sp<SkSpecialImage> SkLocalMatrixImageFilter::onFilterImage(SkSpecialImage* so
                                                               const Context& ctx,
                                                               SkIPoint* offset) const {
     Context localCtx(SkMatrix::Concat(ctx.ctm(), fLocalM), ctx.clipBounds(), ctx.cache(),
-                     ctx.outputProperties());
+                     ctx.colorType(), ctx.colorSpace());
     return this->filterInput(0, source, localCtx, offset);
 }
 
