@@ -140,6 +140,30 @@
       "revId": "4b874611671be63a6d574310beace7b37d91d2d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c04638cb_bc8d7d9f",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 4040,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-14T15:12:13Z",
+      "side": 1,
+      "message": "Yes, it\u0027s faster to stay in U16, but the quality does suffer last I looked.\n\nIt\u0027s worth noting that even the existing lowp bilerp stage that uses float weights is disabled in Chromium.  I keep failing to rebaseline it...  I think maybe it was even failing unrebaselineable tests?  Lemme see if I can find that CL..",
+      "parentUuid": "fc429710_b58a0d37",
+      "range": {
+        "startLine": 4040,
+        "startChar": 19,
+        "endLine": 4040,
+        "endChar": 20
+      },
+      "revId": "4b874611671be63a6d574310beace7b37d91d2d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
