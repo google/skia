@@ -69,15 +69,23 @@ public:
     void consume() override {
         SkASSERT(fCurrentChar < fText.end());
 
+        while (fCurrentStyle < fTextStyles.end() && fCurrentStyle->fStyle.type() == BlockStyle::kSecondType) {
+            ++fCurrentStyle;
+        }
+
         if (fCurrentStyle == fTextStyles.end()) {
             fCurrentChar = fText.end();
             return;
         }
 
         fCurrentChar = fText.begin() + fCurrentStyle->fRange.end;
-        fCurrentLocale = fCurrentStyle->fStyle.getLocale();
+        fCurrentLocale = fCurrentStyle->fStyle.getFirst()->getLocale();
         while (++fCurrentStyle != fTextStyles.end()) {
-            if (fCurrentStyle->fStyle.getLocale() != fCurrentLocale) {
+            if (fCurrentStyle->fStyle.type() == BlockStyle::kSecondType) {
+                continue;
+            }
+            auto textStyle = fCurrentStyle->fStyle.getFirst();
+            if (textStyle->getLocale() != fCurrentLocale) {
                 break;
             }
             fCurrentChar = fText.begin() + fCurrentStyle->fRange.end;

@@ -47,6 +47,8 @@ public:
     // Converts to u16string before adding.
     void addText(const char* text) override;
 
+    void addPlaceholder(PlaceholderStyle& placeholderStyle) override;
+
     void setParagraphStyle(const ParagraphStyle& style) override;
 
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.

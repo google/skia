@@ -158,7 +158,7 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
 
     size_t index = 0;
     for (auto& line : impl->lines()) {
@@ -224,7 +224,7 @@ DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
 
     size_t index = 0;
     for (auto& line : impl->lines()) {
@@ -464,7 +464,7 @@ DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     REPORTER_ASSERT(reporter, impl->runs().size() == 3);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
 
     paragraph->paint(canvas.get(), 0, 0);
 
@@ -543,7 +543,7 @@ DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->text().size() == std::string{text}.length());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
     REPORTER_ASSERT(reporter, impl->lines().size() == paragraph_style.getMaxLines());
 
     double expected_y = 0;
@@ -627,7 +627,7 @@ DEF_TEST(SkParagraph_RightAlignParagraph, reporter) {
 
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
     REPORTER_ASSERT(reporter, impl->lines().size() == paragraph_style.getMaxLines());
 
     double expected_y = 0;
@@ -714,7 +714,7 @@ DEF_TEST(SkParagraph_CenterAlignParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->text().size() == std::string{text}.length());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
     REPORTER_ASSERT(reporter, impl->lines().size() == paragraph_style.getMaxLines());
 
     double expected_y = 0;
@@ -804,7 +804,7 @@ DEF_TEST(SkParagraph_JustifyAlignParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->text().size() == std::string{text}.length());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
 
     double expected_y = 0;
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[0].baseline(), 24.121f, EPSILON100));
@@ -1122,7 +1122,7 @@ DEF_TEST(SkParagraph_ChineseParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->lines().size() == 7);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
 }
 
 // Checked: NO DIFF (disabled)
@@ -1164,7 +1164,7 @@ DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->lines().size() == 2);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
 }
 
 // Checked: DIFF (2 boxes and each space is a word)
@@ -2498,7 +2498,7 @@ DEF_TEST(SkParagraph_LongWordParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->text().size() == std::string{text}.length());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle == text_style);
     REPORTER_ASSERT(reporter, impl->lines().size() == 4);
 
     REPORTER_ASSERT(reporter, impl->lines()[0].width() > TestCanvasWidth / 2 - 20);

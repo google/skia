@@ -38,7 +38,7 @@ void ParagraphBuilderImpl::pushStyle(const TextStyle& style) {
         // Just continue with the same style
     } else {
         // Go with the new style
-        fStyledBlocks.emplace_back(fUtf8.size(), fUtf8.size(), fTextStyles.top());
+        fStyledBlocks.emplace_back(fUtf8.size(), fUtf8.size(), style);
     }
 }
 
@@ -52,11 +52,11 @@ void ParagraphBuilderImpl::pop() {
         SkDebugf("SkParagraphBuilder.Pop() called too many times.\n");
     }
 
-    auto top = fTextStyles.top();
-    fStyledBlocks.emplace_back(fUtf8.size(), fUtf8.size(), top);
+    fStyledBlocks.emplace_back(fUtf8.size(), fUtf8.size(), fTextStyles.top());
 }
 
 TextStyle ParagraphBuilderImpl::peekStyle() {
+
     this->endRunIfNeeded();
 
     if (!fTextStyles.empty()) {
@@ -81,17 +81,25 @@ void ParagraphBuilderImpl::addText(const char* text) {
     fUtf8.insert(fUtf8.size(), text);
 }
 
+void ParagraphBuilderImpl::addPlaceholder(PlaceholderStyle& placeholderStyle) {
+    this->endRunIfNeeded();
+
+    fStyledBlocks.emplace_back(fUtf8.size(), placeholderStyle);
+}
+
 void ParagraphBuilderImpl::endRunIfNeeded() {
     if (fStyledBlocks.empty()) {
         return;
     }
-
     auto& last = fStyledBlocks.back();
-    if (last.fRange.start == fUtf8.size()) {
-        fStyledBlocks.pop_back();
-    } else {
-        last.fRange.end = fUtf8.size();
+    if (last.fStyle.type() == BlockStyle::kFirstType) {
+        if (last.fRange.start == fUtf8.size()) {
+            fStyledBlocks.pop_back();
+        } else {
+            last.fRange.end = fUtf8.size();
+        }
     }
+
 }
 
 std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {

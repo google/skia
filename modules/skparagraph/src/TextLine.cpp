@@ -63,13 +63,17 @@ TextLine::TextLine(ParagraphImpl* master,
 
     for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
         auto b = fMaster->styles().begin() + index;
-        if (b->fStyle.hasBackground()) {
+        if (b->fStyle.type() == BlockStyle::kSecondType) {
+            continue;
+        }
+        auto textStyle = b->fStyle.getFirst();
+        if (textStyle->hasBackground()) {
             fHasBackground = true;
         }
-        if (b->fStyle.getDecorationType() != TextDecoration::kNoDecoration) {
+        if (textStyle->getDecorationType() != TextDecoration::kNoDecoration) {
             fHasDecorations = true;
         }
-        if (b->fStyle.getShadowNumber() > 0) {
+        if (textStyle->getShadowNumber() > 0) {
             fHasShadows = true;
         }
     }
@@ -719,6 +723,9 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
     SkScalar offsetX = 0;
     for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
         auto block = fMaster->styles().begin() + index;
+        if (block->fStyle.type() == BlockStyle::kSecondType) {
+            continue;
+        }
         auto intersect = intersected(block->fRange, this->trimmedText());
         if (intersect.empty()) {
             if (start == EMPTY_INDEX) {
@@ -730,7 +737,7 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
             }
         }
 
-        auto* style = &block->fStyle;
+        auto* style = block->fStyle.getFirst();
         if (start != EMPTY_INDEX && style->matchOneAttribute(styleType, *prevStyle)) {
             size += intersect.width();
             continue;

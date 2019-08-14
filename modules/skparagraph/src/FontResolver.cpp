@@ -236,24 +236,34 @@ void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
     fText = master->text();
     fTextRange = TextRange(0, fText.size());
 
-    Block combined;
+    Block combinedBlock;
     for (auto& block : fStyles) {
-        SkASSERT(combined.fRange.empty() ||
-                 combined.fRange.end == block.fRange.start);
+        SkASSERT(combinedBlock.fRange.width() == 0 ||
+                 combinedBlock.fRange.end == block.fRange.start);
 
-        if (!combined.fRange.empty() &&
-                block.fStyle.matchOneAttribute(StyleType::kFont, combined.fStyle)) {
-            combined.add(block.fRange);
-            continue;
+        if (block.fStyle.type() == BlockStyle::kFirstType) {
+            const auto first = block.fStyle.getFirst();
+            const auto combined = combinedBlock.fStyle.getFirst();
+            if (!combinedBlock.fRange.empty() &&
+                first->matchOneAttribute(StyleType::kFont, *combined)) {
+                combinedBlock.add(block.fRange);
+                continue;
+            }
         }
 
-        if (!combined.fRange.empty()) {
-            this->findAllFontsForStyledBlock(combined.fStyle, combined.fRange);
+        if (!combinedBlock.fRange.empty()) {
+            this->findAllFontsForStyledBlock(*combinedBlock.fStyle.getFirst(), combinedBlock.fRange);
         }
 
-        combined = block;
+        if (block.fStyle.type() == BlockStyle::kFirstType) {
+            combinedBlock.fRange = block.fRange;
+            combinedBlock.fStyle = BlockStyle::Make(*block.fStyle.getFirst());
+        } else {
+            combinedBlock.fRange = block.fRange;
+            combinedBlock.fStyle = BlockStyle::Make(*block.fStyle.getSecond());
+        }
     }
-    this->findAllFontsForStyledBlock(combined.fStyle, combined.fRange);
+    this->findAllFontsForStyledBlock(*combinedBlock.fStyle.getFirst(), combinedBlock.fRange);
 
 
     fFontSwitches.reset();

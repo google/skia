@@ -277,6 +277,7 @@ void ParagraphImpl::markLineBreaks() {
     SkScalar shift = 0;
     for (auto& run : fRuns) {
 
+        // TODO: skip placeholder runs
         bool soFarWhitespacesOnly = true;
         for (size_t index = 0; index != run.clusterRange().width(); ++index) {
             auto correctIndex = run.leftToRight()
@@ -295,16 +296,17 @@ void ParagraphImpl::markLineBreaks() {
             }
 
             // Process word spacing
-            if (currentStyle->fStyle.getWordSpacing() != 0) {
+            auto textStyle = currentStyle->fStyle.getFirst();
+            if (textStyle->getWordSpacing() != 0) {
                 if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
                     if (!soFarWhitespacesOnly) {
-                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
+                        shift += run.addSpacesAtTheEnd(textStyle->getWordSpacing(), cluster);
                     }
                 }
             }
             // Process letter spacing
-            if (currentStyle->fStyle.getLetterSpacing() != 0) {
-                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
+            if (textStyle->getLetterSpacing() != 0) {
+                shift += run.addSpacesEvenly(textStyle->getLetterSpacing(), cluster);
             }
 
             if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {

@@ -10,6 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextShadow.h"
+#include "modules/skparagraph/include/TypedUnion.h"
 
 // TODO: Make it external so the other platforms (Android) could use it
 #define DEFAULT_FONT_FAMILY "sans-serif"
@@ -169,24 +170,36 @@ private:
     sk_sp<SkTypeface> fTypeface;
 };
 
+class PlaceholderStyle {};
+
+typedef TypedUnion<TextStyle, PlaceholderStyle> BlockStyle;
+
 typedef size_t TextIndex;
 typedef SkRange<size_t> TextRange;
 const SkRange<size_t> EMPTY_TEXT = EMPTY_RANGE;
 
-
 struct Block {
     Block() : fRange(EMPTY_RANGE), fStyle() { }
     Block(size_t start, size_t end, const TextStyle& style)
-        : fRange(start, end), fStyle(style) {}
+        : fRange(start, end), fStyle(BlockStyle::Make(style)) {}
     Block(TextRange textRange, const TextStyle& style)
-        : fRange(textRange), fStyle(style) {}
+        : fRange(textRange), fStyle(BlockStyle::Make(style)) {}
+
+    Block(size_t start, const PlaceholderStyle& style)
+        : fRange(start, start), fStyle(BlockStyle::Make(style)) {}
+
+    Block(const Block& other) {
+        fRange = other.fRange;
+        fStyle = other.fStyle;
+    }
 
     void add(TextRange tail) {
         SkASSERT(fRange.end == tail.start);
         fRange = TextRange(fRange.start, fRange.start + fRange.width() + tail.width());
     }
+
     TextRange fRange;
-    TextStyle fStyle;
+    BlockStyle fStyle;
 };
 
 }  // namespace textlayout

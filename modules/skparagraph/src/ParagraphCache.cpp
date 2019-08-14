@@ -44,6 +44,7 @@ uint32_t ParagraphCache::KeyHash::mix(uint32_t hash, uint32_t data) const {
     hash ^= (hash >> 6);
     return hash;
 }
+
 uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const {
     uint32_t hash = 0;
     for (auto& fd : key.fFontSwitches) {
@@ -58,9 +59,14 @@ uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const
         }
     }
     for (auto& ts : key.fTextStyles) {
-        hash = mix(hash, SkGoodHash()(ts.fStyle.getLetterSpacing()));
-        hash = mix(hash, SkGoodHash()(ts.fStyle.getWordSpacing()));
-        hash = mix(hash, SkGoodHash()(ts.fRange));
+        if (ts.fStyle.type() == BlockStyle::kFirstType) {
+            const auto first = ts.fStyle.getFirst();
+            hash = mix(hash, SkGoodHash()(first->getLetterSpacing()));
+            hash = mix(hash, SkGoodHash()(first->getWordSpacing()));
+            hash = mix(hash, SkGoodHash()(ts.fRange));
+        } else {
+            // TODO: cache placeholders
+        }
     }
     hash = mix(hash, SkGoodHash()(key.fText));
     return hash;
@@ -99,17 +105,24 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     for (size_t i = 0; i < a.fTextStyles.size(); ++i) {
         auto& tsa = a.fTextStyles[i];
         auto& tsb = b.fTextStyles[i];
-        if (tsa.fStyle.getLetterSpacing() != tsb.fStyle.getLetterSpacing()) {
+        if (tsa.fStyle.type() != tsb.fStyle.type()) {
             return false;
         }
-        if (tsa.fStyle.getWordSpacing() != tsb.fStyle.getWordSpacing()) {
-            return false;
-        }
-        if (tsa.fRange.width() != tsb.fRange.width()) {
-            return false;
-        }
-        if (tsa.fRange.start != tsb.fRange.start) {
-            return false;
+        if (tsa.fStyle.type() == BlockStyle::kFirstType) {
+            if (tsa.fStyle.getFirst()->getLetterSpacing() != tsb.fStyle.getFirst()->getLetterSpacing()) {
+                return false;
+            }
+            if (tsa.fStyle.getFirst()->getWordSpacing() != tsb.fStyle.getFirst()->getWordSpacing()) {
+                return false;
+            }
+            if (tsa.fRange.width() != tsb.fRange.width()) {
+                return false;
+            }
+            if (tsa.fRange.start != tsb.fRange.start) {
+                return false;
+            }
+        } else {
+            // TODO: compare placeholders
         }
     }
 
