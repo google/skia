@@ -38,17 +38,30 @@ public:
     public:
         // Creates a context with the given layer matrix and destination clip, reading from 'source'
         // with an origin of (0,0).
-        Context(const SkMatrix& ctm, const SkIRect& clipBounds, SkImageFilterCache* cache,
+        Context(const SkMatrix& layerMatrix, const SkIRect& clipBounds, SkImageFilterCache* cache,
                 SkColorType colorType, SkColorSpace* colorSpace, const SkSpecialImage* source)
-            : fCTM(ctm)
+            : fLayerMatrix(layerMatrix)
             , fClipBounds(clipBounds)
             , fCache(cache)
             , fColorType(colorType)
             , fColorSpace(colorSpace)
             , fSource(source) {}
 
-        const SkMatrix& ctm() const { return fCTM; }
+        // The transformation from the local parameter space of the filters to the layer space where
+        // filtering is computed. This may or may not be the total canvas CTM, depending on the
+        // matrix type of the total CTM and whether or not the filter DAG supports complex CTMs. If
+        // a node returns false from canHandleComplexCTM(), layerMatrix() will be at most a scale +
+        // translate matrix and any remaining matrix will be handled by the canvas after filtering
+        // is finished.
+        const SkMatrix& layerMatrix() const { return fLayerMatrix; }
+        // DEPRECATED: Use layerMatrix() instead
+        const SkMatrix& ctm() const { return this->layerMatrix(); }
+        // The bounds, in the layer space, that the filtered image will be clipped to. The output
+        // from filterImage() must cover these clip bounds, except in areas where it will just be
+        // transparent black, in which case a smaller output image can be returned.
         const SkIRect& clipBounds() const { return fClipBounds; }
+        // The cache to use when recursing through the filter DAG, in order to avoid repeated
+        // calculations of the same image.
         SkImageFilterCache* cache() const { return fCache; }
         // The output device's color type, which can be used for intermediate images to be
         // compatible with the eventual target of the filtered result.
@@ -83,7 +96,7 @@ public:
          *  The SkImageFilterCache Key, for example, requires a finite ctm (no infinities or NaN),
          *  so that test is part of isValid.
          */
-        bool isValid() const { return fSource && fCTM.isFinite(); }
+        bool isValid() const { return fSource && fLayerMatrix.isFinite(); }
 
         // Create a surface of the given size, that matches the context's color type and color space
         // as closely as possible, and uses the same backend of the device that produced the source
@@ -93,8 +106,17 @@ public:
             return fSource->makeSurface(fColorType, fColorSpace, size, kPremul_SkAlphaType, props);
         }
 
+        // Create a new context that matches this context, but with an overridden layer CTM matrix.
+        Context withNewLayerMatrix(const SkMatrix& layerMatrix) const {
+            return Context(layerMatrix, fClipBounds, fCache, fColorType, fColorSpace, fSource);
+        }
+        // Create a new context that matches this context, but with an overridden clip bounds rect.
+        Context withNewClipBounds(const SkIRect& clipBounds) const {
+            return Context(fLayerMatrix, clipBounds, fCache, fColorType, fColorSpace, fSource);
+        }
+
     private:
-        SkMatrix               fCTM;
+        SkMatrix               fLayerMatrix;
         SkIRect                fClipBounds;
         SkImageFilterCache*    fCache;
         SkColorType            fColorType;
