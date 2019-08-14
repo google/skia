@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-
+import os # DO NOT SUBMIT
 from . import util
 
 
@@ -75,20 +75,22 @@ def compile_fn(api, checkout_root, out_dir):
   compiler      = api.vars.builder_cfg.get('compiler',      '')
   configuration = api.vars.builder_cfg.get('configuration', '')
   extra_tokens  = api.vars.extra_tokens
-  os            = api.vars.builder_cfg.get('os',            '')
+  ospart            = api.vars.builder_cfg.get('os',            '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
+  goma_ctl         = None
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
-  win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
+  win_toolchain    = os.path.relpath(str(api.vars.slave_dir.join('win_toolchain')), start=str(out_dir))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
 
   cc, cxx = None, None
   extra_cflags = []
   extra_ldflags = []
   args = {'werror': 'true'}
+  ninja_args = ['-C', out_dir]
   env = {}
 
-  if os == 'Mac':
+  if ospart == 'Mac':
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     if XCODE_CLANG_VERSION.startswith('9.'):
@@ -253,13 +255,15 @@ def compile_fn(api, checkout_root, out_dir):
           '-isystem%s' % api.vars.slave_dir.join('opencl_headers'))
       extra_ldflags.append(
           '-L%s' % api.vars.slave_dir.join('opencl_ocl_icd_linux'))
-    elif 'Win' in os:
+    elif 'Win' in ospart:
       extra_cflags.append(
-          '-imsvc%s' % api.vars.slave_dir.join('opencl_headers'))
+          '-imsvc%s' % os.path.relpath(
+              str(api.vars.slave_dir.join('opencl_headers')), start=str(out_dir)))
       extra_ldflags.append(
           '/LIBPATH:%s' %
-          skia_dir.join('third_party', 'externals', 'opencl-lib', '3-0', 'lib',
-                        'x86_64'))
+          os.path.relpath(str(skia_dir.join('third_party', 'externals',
+                                         'opencl-lib', '3-0', 'lib', 'x86_64')),
+                           start=str(out_dir)))
   if 'iOS' in extra_tokens:
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*GS9WA.*"'
@@ -267,10 +271,30 @@ def compile_fn(api, checkout_root, out_dir):
   if 'CheckGeneratedFiles' in extra_tokens:
     args['skia_compile_processors'] = 'true'
     args['skia_generate_workarounds'] = 'true'
-  if compiler == 'Clang' and 'Win' in os:
-    args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
+  if compiler == 'Clang' and 'Win' in ospart:
+    args['clang_win'] = '"%s"' % os.path.relpath(
+        str(api.vars.slave_dir.join('clang_win')), start=str(out_dir))
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
+  if 'Goma' in extra_tokens or 'GomaNoFallback' in extra_tokens:
+    # Paths mirror those used in
+    # https://cs.chromium.org/chromium/build/scripts/slave/recipe_modules/goma/api.py
+    goma_base_dir = api.vars.cache_dir.join('goma')
+    goma_client_dir = goma_base_dir.join('client')
+    goma_package = ('infra_internal/goma/client/%s' %
+                    api.cipd.platform_suffix())
+    api.cipd.ensure(goma_client_dir, {goma_package: 'release'})
+    goma_ctl = goma_client_dir.join('goma_ctl.py')
+    goma_cache_dir = goma_base_dir.join('data', api.vars.builder_name)
+    api.file.ensure_directory('mkdir goma cache dir', goma_cache_dir)
+    args['cc_wrapper'] = '"%s"' % os.path.relpath(str(goma_client_dir.join('gomacc')), start=str(out_dir))
+    ninja_args.extend(['-j', '500'])
+    env['GOMA_CACHE_DIR'] = goma_cache_dir
+    env['GOMA_USE_LOCAL'] = 'false'
+    if 'GomaNoFallback' in extra_tokens:
+      env['GOMA_HERMETIC'] = 'error'
+      env['GOMA_USE_LOCAL'] = 'false'
+      env['GOMA_FALLBACK'] = 'false'
 
   sanitize = ''
   for t in extra_tokens:
@@ -295,8 +319,8 @@ def compile_fn(api, checkout_root, out_dir):
     'sanitize': sanitize,
     'target_cpu': target_arch,
     'target_os': 'ios' if 'iOS' in extra_tokens else '',
-    'win_sdk': win_toolchain + '/win_sdk' if 'Win' in os else '',
-    'win_vc': win_toolchain + '/VC' if 'Win' in os else '',
+    'win_sdk': win_toolchain + '/win_sdk' if 'Win' in ospart else '',
+    'win_vc': win_toolchain + '/VC' if 'Win' in ospart else '',
   }.iteritems():
     if v:
       args[k] = '"%s"' % v
@@ -321,9 +345,55 @@ def compile_fn(api, checkout_root, out_dir):
               infra_step=True)
 
     with api.env(env):
-      api.run(api.step, 'gn gen',
-              cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+      build_successful = False
+      try:
+        if goma_ctl:
+          api.run(api.python, 'start goma', script=goma_ctl,
+                  args=['ensure_start'], infra_step=True)
+        api.run(api.step, 'gn gen',
+                cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
+        api.run(api.step, 'cmd', cmd=['cmd', '/c', 'ver'])
+        api.python.inline(name='check PATH', program='''
+import os
+import subprocess
+
+for p in os.environ['PATH'].split(os.pathsep):
+  for e in os.environ['PATHEXT'].split(os.pathsep):
+    cmd = os.path.join(p, 'cmd' + e)
+    print cmd
+    try:
+      print subprocess.call([cmd, '/c', 'ver'])
+    except Exception as e:
+      print e
+''')
+        api.run(api.step, 'ninja', cmd=['ninja'] + ninja_args)
+        build_successful = True
+      finally:
+        if goma_ctl:
+          if not build_successful and api.properties.get('gs_bucket', ''):
+            gs_path = '/'.join((api.properties['gs_bucket'], 'goma',
+                                api.vars.swarming_task_id, 'goma-report.tgz'))
+            step = api.run(api.python, 'goma report',
+                           script=goma_ctl, args=['report'], infra_step=True,
+                           abort_on_failure=False, fail_build_on_failure=False)
+            step.presentation.links['download'] = (
+                'https://storage.cloud.google.com/' + gs_path)
+            gsutil = api.vars.slave_dir.join('cipd_bin_packages', 'gsutil.py')
+            # 'goma_ctl report' saves goma-report.tgz in TMPDIR; there does not
+            # seem to be any way to specify an alternative location.
+            # I'm not sure how to get TMPDIR in a recipe, but it seems to always
+            # be [start_dir]/tmp/t.
+            src = api.vars.tmp_dir.join('t', 'goma-report.tgz')
+            dst = 'gs://' + gs_path
+            api.run(api.python, 'upload goma report',
+                    script=gsutil, args=['cp', src, dst], infra_step=True,
+                    abort_on_failure=False, fail_build_on_failure=False)
+          api.run(api.python, 'print goma stats',
+                  script=goma_ctl, args=['stat'], infra_step=True,
+                  abort_on_failure=False, fail_build_on_failure=False)
+          api.run(api.python, 'stop goma',
+                  script=goma_ctl, args=['ensure_stop'], infra_step=True,
+                  abort_on_failure=False, fail_build_on_failure=False)
 
 
 def copy_extra_build_products(api, src, dst):

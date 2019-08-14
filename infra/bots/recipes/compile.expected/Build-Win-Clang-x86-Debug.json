@@ -32,7 +32,7 @@
       "[START_DIR]\\skia\\bin\\gn",
       "gen",
       "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug",
-      "--args=cc=\"clang\" clang_win=\"[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"-DDUMMY_clang_win_version=42\"] target_cpu=\"x86\" werror=true win_sdk=\"[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"[START_DIR]\\win_toolchain/VC\""
+      "--args=cc=\"clang\" clang_win=\"../[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"-DDUMMY_clang_win_version=42\"] target_cpu=\"x86\" werror=true win_sdk=\"../[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"../[START_DIR]\\win_toolchain/VC\""
     ],
     "cwd": "[START_DIR]\\skia",
     "env": {
@@ -40,6 +40,43 @@
       "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "cmd",
+      "/c",
+      "ver"
+    ],
+    "cwd": "[START_DIR]\\skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "cmd"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\n\nfor p in os.environ['PATH'].split(os.pathsep):\n  for e in os.environ['PATHEXT'].split(os.pathsep):\n    cmd = os.path.join(p, 'cmd' + e)\n    print cmd\n    try:\n      print subprocess.call([cmd, '/c', 'ver'])\n    except Exception as e:\n      print e\n"
+    ],
+    "cwd": "[START_DIR]\\skia",
+    "name": "check PATH",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for p in os.environ['PATH'].split(os.pathsep):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for e in os.environ['PATHEXT'].split(os.pathsep):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    cmd = os.path.join(p, 'cmd' + e)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print cmd@@@",
+      "@@@STEP_LOG_LINE@python.inline@    try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print subprocess.call([cmd, '/c', 'ver'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@    except Exception as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print e@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
