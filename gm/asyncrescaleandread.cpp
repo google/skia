@@ -61,30 +61,38 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
                                             SkSurface::RescaleGamma rescaleGamma,
                                             SkFilterQuality quality, SkScopeExit* cleanup) {
     SkASSERT(!(dstW & 0b1) && !(dstH & 0b1));
-    std::unique_ptr<uint8_t[]> yData(new uint8_t[dstW * dstH]);
-    std::unique_ptr<uint8_t[]> uData(new uint8_t[dstW / 2 * dstH / 2]);
-    std::unique_ptr<uint8_t[]> vData(new uint8_t[dstW / 2 * dstH / 2]);
+
     struct Context {
-        int fW;
-        int fH;
-        uint8_t* fYData;
-        uint8_t* fUData;
-        uint8_t* fVData;
-        bool fCalled = false;
-        bool fSucceeded = false;
-    } context{dstW, dstH, yData.get(), uData.get(), vData.get()};
-    auto callback = [](void* c, const void* data[2], size_t rowBytes[2]) {
+        Context(int w, int h) {
+            SkImageInfo yII = SkImageInfo::Make(w, h, kGray_8_SkColorType, kPremul_SkAlphaType);
+            SkImageInfo uvII = SkImageInfo::Make(w / 2, h / 2, kGray_8_SkColorType,
+                                                 kPremul_SkAlphaType);
+
+            fYData.alloc(yII);
+            fUData.alloc(uvII);
+            fVData.alloc(uvII);
+        }
+
+        SkAutoPixmapStorage fYData;
+        SkAutoPixmapStorage fUData;
+        SkAutoPixmapStorage fVData;
+        bool                fCalled = false;
+        bool                fSucceeded = false;
+    } context(dstW, dstH);
+
+    auto callback = [](void* c, const void* data[3], size_t rowBytes[3]) {
         auto context = reinterpret_cast<Context*>(c);
         context->fCalled = true;
         if (!data) {
             return;
         }
         context->fSucceeded = true;
-        int w = context->fW;
-        int h = context->fH;
-        SkRectMemcpy(context->fYData, w, data[0], rowBytes[0], w, h);
-        SkRectMemcpy(context->fUData, w / 2, data[1], rowBytes[1], w / 2, h / 2);
-        SkRectMemcpy(context->fVData, w / 2, data[2], rowBytes[2], w / 2, h / 2);
+        SkRectMemcpy(context->fYData.writable_addr(), context->fYData.rowBytes(), data[0],
+                     rowBytes[0], context->fYData.width(), context->fYData.height());
+        SkRectMemcpy(context->fUData.writable_addr(), context->fUData.rowBytes(), data[1],
+                     rowBytes[1], context->fUData.width(), context->fUData.height());
+        SkRectMemcpy(context->fVData.writable_addr(), context->fVData.rowBytes(), data[2],
+                     rowBytes[2], context->fVData.width(), context->fVData.height());
     };
     surface->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, dstW, dstH,
                                              rescaleGamma, quality, callback, &context);
@@ -98,27 +106,20 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
     }
     auto* gr = surface->getCanvas()->getGrContext();
     GrBackendTexture backendTextures[3];
-    GrBackendFormat format = gr->defaultBackendFormat(kAlpha_8_SkColorType, GrRenderable::kNo);
 
-    // TODO: swap these over to GrContext::createBackendTexture
-    backendTextures[0] = gr->priv().getGpu()->createBackendTexture(
-            dstW, dstH, format, GrMipMapped::kNo, GrRenderable::kNo, yData.get(), dstW, nullptr,
-            GrProtected::kNo);
-    backendTextures[1] = gr->priv().getGpu()->createBackendTexture(
-            dstW / 2, dstH / 2, format, GrMipMapped::kNo, GrRenderable::kNo,
-            uData.get(), dstW / 2, nullptr, GrProtected::kNo);
-    backendTextures[2] = gr->priv().getGpu()->createBackendTexture(
-            dstW / 2, dstH / 2, format, GrMipMapped::kNo, GrRenderable::kNo,
-            vData.get(), dstW / 2, nullptr, GrProtected::kNo);
-    auto config = gr->priv().caps()->getConfigFromBackendFormat(format, GrColorType::kAlpha_8);
-    SkColorChannel channel;
-    if (config == kAlpha_8_as_Red_GrPixelConfig) {
-        channel = SkColorChannel::kR;
-    } else {
-        SkASSERT(config == kAlpha_8_as_Alpha_GrPixelConfig);
-        channel = SkColorChannel::kA;
-    }
-    SkYUVAIndex indices[4]{{0, channel}, {1, channel}, {2, channel}, {-1, SkColorChannel::kR}};
+    backendTextures[0] = gr->priv().createBackendTexture(&context.fYData, 1,
+                                                         GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[1] = gr->priv().createBackendTexture(&context.fUData, 1,
+                                                         GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[2] = gr->priv().createBackendTexture(&context.fVData, 1,
+                                                         GrRenderable::kNo, GrProtected::kNo);
+    SkYUVAIndex indices[4] = {
+        { 0, SkColorChannel::kR},
+        { 1, SkColorChannel::kR},
+        { 2, SkColorChannel::kR},
+        {-1, SkColorChannel::kR}
+    };
+
     *cleanup = {[gr, backendTextures] {
         GrFlushInfo flushInfo;
         flushInfo.fFlags = kSyncCpu_GrFlushFlag;
