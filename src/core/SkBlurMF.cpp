@@ -762,11 +762,8 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
 
     if (devRRect.isRect() || SkRRectPriv::IsCircle(devRRect)) {
         if (devRRect.isRect()) {
-            SkScalar pad = 3.0f * xformedSigma;
-            const SkRect dstCoverageRect = devRRect.rect().makeOutset(pad, pad);
-
             fp = GrRectBlurEffect::Make(proxyProvider, *context->priv().caps()->shaderCaps(),
-                                        dstCoverageRect, xformedSigma);
+                                        devRRect.rect(), xformedSigma);
         } else {
             fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, devRRect.rect(), xformedSigma);
         }

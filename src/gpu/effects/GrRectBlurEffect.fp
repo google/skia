@@ -12,140 +12,118 @@
     #include "src/gpu/GrShaderCaps.h"
 }
 
-in uniform float4 rect;
-in float sigma;
-in uniform sampler2D blurProfile;
+in float4 rect;
 
-@constructorParams {
-    GrSamplerState samplerParams
-}
+layout(key) bool highp = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
+                         abs(rect.z) > 16000 || abs(rect.w) > 16000;
 
-@samplerParams(blurProfile) {
-    samplerParams
-}
+layout(when= highp) uniform float4 rectF;
+layout(when=!highp) uniform half4  rectH;
 
-// in OpenGL ES, mediump floats have a minimum range of 2^14. If we have coordinates bigger than
-// that, the shader math will end up with infinities and result in the blur effect not working
-// correctly. To avoid this, we switch into highp when the coordinates are too big. As 2^14 is the
-// minimum range but the actual range can be bigger, we might end up switching to highp sooner than
-// strictly necessary, but most devices that have a bigger range for mediump also have mediump being
-// exactly the same as highp (e.g. all non-OpenGL ES devices), and thus incur no additional penalty
-// for the switch.
-layout(key) bool highPrecision = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
-                                 abs(rect.z) > 16000 || abs(rect.w) > 16000 ||
-                                 abs(rect.z - rect.x) > 16000 || abs(rect.w - rect.y) > 16000;
-
-layout(when=!highPrecision) uniform half4 proxyRectHalf;
-layout(when=highPrecision) uniform float4 proxyRectFloat;
-uniform half profileSize;
-
-
-@class {
-    static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProvider,
-                                                          float sigma) {
-        unsigned int profileSize = SkScalarCeilToInt(6 * sigma);
-
-        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
-        builder[0] = profileSize;
-        builder.finish();
-
-        sk_sp<GrTextureProxy> blurProfile(proxyProvider->findOrCreateProxyByUniqueKey(
-                key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin));
-        if (!blurProfile) {
-            SkImageInfo ii = SkImageInfo::MakeA8(profileSize, 1);
-
-            SkBitmap bitmap;
-            if (!bitmap.tryAllocPixels(ii)) {
-                return nullptr;
-            }
-
-            SkBlurMask::ComputeBlurProfile(bitmap.getAddr8(0, 0), profileSize, sigma);
-            bitmap.setImmutable();
-
-            sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
-            if (!image) {
-                return nullptr;
-            }
-
-            blurProfile = proxyProvider->createTextureProxy(std::move(image),
-                                                            1, SkBudgeted::kYes,
-                                                            SkBackingFit::kExact);
-            if (!blurProfile) {
-                return nullptr;
-            }
-
-            SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
-            proxyProvider->assignUniqueKeyToProxy(key, blurProfile.get());
-        }
-
-        return blurProfile;
-    }
-}
+in uniform half sigma;
 
 @make {
      static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,
                                                       const GrShaderCaps& caps,
                                                       const SkRect& rect, float sigma) {
+         float doubleProfileSize = (12 * sigma);
          if (!caps.floatIs32Bits()) {
-             // We promote the rect uniform from half to float when it has large values for
-             // precision. If we don't have full float then fail.
-             if (SkScalarAbs(rect.fLeft) > 16000.f || SkScalarAbs(rect.fTop) > 16000.f ||
-                 SkScalarAbs(rect.fRight) > 16000.f || SkScalarAbs(rect.fBottom) > 16000.f ||
-                 SkScalarAbs(rect.width()) > 16000.f || SkScalarAbs(rect.height()) > 16000.f) {
-                 return nullptr;
+             // We promote the math that gets us into the Gaussian space to full float when the rect
+             // coords are large. If we don't have full float then fail. We could probably clip the
+             // rect to an outset device bounds instead.
+             if (SkScalarAbs(rect.fLeft)  > 16000.f || SkScalarAbs(rect.fTop)    > 16000.f ||
+                 SkScalarAbs(rect.fRight) > 16000.f || SkScalarAbs(rect.fBottom) > 16000.f) {
+                    return nullptr;
              }
          }
-         int doubleProfileSize = SkScalarCeilToInt(12*sigma);
+         // Sigma is always a half.
+         SkASSERT(sigma > 0);
+         if (sigma > 16000.f) {
+             return nullptr;
+         }
 
-         if (doubleProfileSize >= rect.width() || doubleProfileSize >= rect.height()) {
+         if (doubleProfileSize >= (float) rect.width() ||
+             doubleProfileSize >= (float) rect.height()) {
              // if the blur sigma is too large so the gaussian overlaps the whole
              // rect in either direction, fall back to CPU path for now.
              return nullptr;
          }
 
-         sk_sp<GrTextureProxy> blurProfile(CreateBlurProfileTexture(proxyProvider, sigma));
-         if (!blurProfile) {
-            return nullptr;
-         }
-
-         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
-            rect, sigma, std::move(blurProfile),
-            GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kBilerp)));
+         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(rect, sigma));
      }
 }
 
 void main() {
-    @if (highPrecision) {
-        float2 translatedPos = sk_FragCoord.xy - rect.xy;
-        float width = rect.z - rect.x;
-        float height = rect.w - rect.y;
-        float2 smallDims = float2(width - profileSize, height - profileSize);
-        float center = 2 * floor(profileSize / 2 + 0.25) - 1;
-        float2 wh = smallDims - float2(center, center);
-        half hcoord = half(((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x)) / profileSize);
-        half hlookup = sample(blurProfile, float2(hcoord, 0.5)).a;
-        half vcoord = half(((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y)) / profileSize);
-        half vlookup = sample(blurProfile, float2(vcoord, 0.5)).a;
-        sk_OutColor = sk_InColor * hlookup * vlookup;
+    half invr = 1.0 / (2.0 * sigma);
+
+    // Get the smaller of the signed distance from the frag coord to the left and right edges.
+    half x;
+    @if (highp) {
+        float lDiff = rectF.x - sk_FragCoord.x;
+        float rDiff = sk_FragCoord.x - rectF.z;
+        x = half(max(lDiff, rDiff) * invr);
     } else {
-        half2 translatedPos = half2(sk_FragCoord.xy - rect.xy);
-        half width = half(rect.z - rect.x);
-        half height = half(rect.w - rect.y);
-        half2 smallDims = half2(width - profileSize, height - profileSize);
-        half center = 2 * floor(profileSize / 2 + 0.25) - 1;
-        half2 wh = smallDims - half2(center, center);
-        half hcoord = ((half(abs(translatedPos.x - 0.5 * width)) - 0.5 * wh.x)) / profileSize;
-        half hlookup = sample(blurProfile, float2(hcoord, 0.5)).a;
-        half vcoord = ((half(abs(translatedPos.y - 0.5 * height)) - 0.5 * wh.y)) / profileSize;
-        half vlookup = sample(blurProfile, float2(vcoord, 0.5)).a;
-        sk_OutColor = sk_InColor * hlookup * vlookup;
+        half lDiff = half(rectH.x - sk_FragCoord.x);
+        half rDiff = half(sk_FragCoord.x - rectH.z);
+        x = max(lDiff, rDiff) * invr;
     }
+    // This is lifted from the implementation of SkBlurMask::ComputeBlurProfile. It approximates
+    // a Gaussian as three box filters, and then computes the integral of this approximation from
+    // -inf to x.
+    // TODO: Make this a function when supported in .fp files as we duplicate it for y below.
+    half xCoverage;
+    if (x > 1.5) {
+        xCoverage = 0.0;
+    } else if (x < -1.5) {
+        xCoverage = 1.0;
+    } else {
+        half x2 = x * x;
+        half x3 = x2 * x;
+
+        if (x > 0.5) {
+            xCoverage = 0.5625 - (x3 / 6.0 - 3.0 * x2 * 0.25 + 1.125 * x);
+        } else if (x > -0.5) {
+            xCoverage = 0.5 - (0.75 * x - x3 / 3.0);
+        } else {
+            xCoverage = 0.4375 + (-x3 / 6.0 - 3.0 * x2 * 0.25 - 1.125 * x);
+        }
+    }
+
+    // Repeat of above for y.
+    half y;
+    @if (highp) {
+        float tDiff = rectF.y - sk_FragCoord.y;
+        float bDiff = sk_FragCoord.y - rectF.w;
+        y = half(max(tDiff, bDiff) * invr);
+    } else {
+        half tDiff = half(rectH.y - sk_FragCoord.y);
+        half bDiff = half(sk_FragCoord.y - rectH.w);
+        y = max(tDiff, bDiff) * invr;
+    }
+    half yCoverage;
+    if (y > 1.5) {
+        yCoverage = 0.0;
+    } else if (y < -1.5) {
+        yCoverage = 1.0;
+    } else {
+        half y2 = y * y;
+        half y3 = y2 * y;
+
+        if (y > 0.5) {
+            yCoverage = 0.5625 - (y3 / 6.0 - 3.0 * y2 * 0.25 + 1.125 * y);
+        } else if (y > -0.5) {
+            yCoverage = 0.5 - (0.75 * y - y3 / 3.0);
+        } else {
+            yCoverage = 0.4375 + (-y3 / 6.0 - 3.0 * y2 * 0.25 - 1.125 * y);
+        }
+    }
+
+    sk_OutColor = sk_InColor * xCoverage * yCoverage;
 }
 
 @setData(pdman) {
-    pdman.set1f(profileSize, SkScalarCeilToScalar(6 * sigma));
+    float r[] {rect.fLeft, rect.fTop, rect.fRight, rect.fBottom};
+    pdman.set4fv(highp ? rectF : rectH, 1, r);
 }
 
 @optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }
