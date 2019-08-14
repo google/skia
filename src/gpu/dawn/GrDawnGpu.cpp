@@ -71,8 +71,9 @@ GrGpuRTCommandBuffer* GrDawnGpu::getCommandBuffer(
 
 GrGpuTextureCommandBuffer* GrDawnGpu::getCommandBuffer(GrTexture* texture,
                                                        GrSurfaceOrigin origin) {
-    SkASSERT(!"unimplemented");
-    return nullptr;
+    fCachedTextureCommandBuffer.reset(
+        new GrDawnGpuTextureCommandBuffer(this, texture, origin));
+    return fCachedTextureCommandBuffer.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -337,8 +338,12 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture*) {
 }
 
 void GrDawnGpu::submit(GrGpuCommandBuffer* buffer) {
-    if (auto buf = static_cast<GrDawnGpuRTCommandBuffer*>(buffer->asRTCommandBuffer())) {
-        buf->submit();
+    if (buffer->asRTCommandBuffer()) {
+        SkASSERT(fCachedRTCommandBuffer.get() == buffer);
+        fCachedRTCommandBuffer->submit();
+    } else {
+        SkASSERT(fCachedTextureCommandBuffer.get() == buffer);
+        fCachedTextureCommandBuffer->submit();
     }
 }
 
