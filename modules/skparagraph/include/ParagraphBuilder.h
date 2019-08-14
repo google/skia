@@ -48,11 +48,8 @@ public:
 
     // Pushes the information requried to leave an open space, where Flutter may
     // draw a custom placeholder into.
-    //
     // Internally, this method adds a single object replacement character (0xFFFC)
-    // and emplaces a new PlaceholderRun instance to the vector of inline
-    // placeholders.
-    virtual void addPlaceholder(PlaceholderStyle& placeholderStyle) = 0;
+    virtual void addPlaceholder(const PlaceholderStyle& placeholderStyle) = 0;
 
     virtual void setParagraphStyle(const ParagraphStyle& style) = 0;
 
