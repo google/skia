@@ -146,7 +146,7 @@ protected:
     virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
     virtual bool onClipIsAA() const = 0;
     virtual void onAsRgnClip(SkRegion*) const = 0;
-    enum ClipType {
+    enum class ClipType {
         kEmpty_ClipType,
         kRect_ClipType,
         kComplex_ClipType
@@ -402,7 +402,7 @@ protected:
         rgn->setRect(SkIRect::MakeWH(this->width(), this->height()));
     }
     ClipType onGetClipType() const override {
-        return kRect_ClipType;
+        return ClipType::kRect_ClipType;
     }
 
     void drawPaint(const SkPaint& paint) override {}

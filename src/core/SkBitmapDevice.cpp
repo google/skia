@@ -802,10 +802,10 @@ void SkBitmapDevice::validateDevBounds(const SkIRect& drawClipBounds) {
 SkBaseDevice::ClipType SkBitmapDevice::onGetClipType() const {
     const SkRasterClip& rc = fRCStack.rc();
     if (rc.isEmpty()) {
-        return kEmpty_ClipType;
+        return ClipType::kEmpty_ClipType;
     } else if (rc.isRect()) {
-        return kRect_ClipType;
+        return ClipType::kRect_ClipType;
     } else {
-        return kComplex_ClipType;
+        return ClipType::kComplex_ClipType;
     }
 }

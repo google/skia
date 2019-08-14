@@ -90,19 +90,19 @@ void SkClipStackDevice::onAsRgnClip(SkRegion* rgn) const {
 
 SkBaseDevice::ClipType SkClipStackDevice::onGetClipType() const {
     if (fClipStack.isWideOpen()) {
-        return kRect_ClipType;
+        return ClipType::kRect_ClipType;
     }
     if (fClipStack.isEmpty(SkIRect::MakeWH(this->width(), this->height()))) {
-        return kEmpty_ClipType;
+        return ClipType::kEmpty_ClipType;
     } else {
         SkClipStack::BoundsType boundType;
         bool isIntersectionOfRects;
         SkRect bounds;
         fClipStack.getBounds(&bounds, &boundType, &isIntersectionOfRects);
         if (isIntersectionOfRects && SkClipStack::kNormal_BoundsType == boundType) {
-            return kRect_ClipType;
+            return ClipType::kRect_ClipType;
         } else {
-            return kComplex_ClipType;
+            return ClipType::kComplex_ClipType;
         }
     }
 }
