@@ -120,8 +120,9 @@ public:
                                    GrRenderable renderable, int renderTargetSampleCnt,
                                    SkBudgeted budgeted, GrProtected isProtected);
 
-    sk_sp<GrTexture> createCompressedTexture(int width, int height, SkImage::CompressionType,
-                                             SkBudgeted, const void* data, size_t dataSize);
+    sk_sp<GrTexture> createCompressedTexture(int width, int height, const GrBackendFormat&,
+                                             SkImage::CompressionType, SkBudgeted, const void* data,
+                                             size_t dataSize);
 
     /**
      * Implements GrResourceProvider::wrapBackendTexture
@@ -549,6 +550,7 @@ private:
                                              const GrMipLevel[],
                                              int mipLevelCount) = 0;
     virtual sk_sp<GrTexture> onCreateCompressedTexture(int width, int height,
+                                                       const GrBackendFormat&,
                                                        SkImage::CompressionType, SkBudgeted,
                                                        const void* data) = 0;
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,

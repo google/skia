@@ -433,10 +433,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
     for (auto combo : combinations) {
         SkColorType colorType = combo.fColorType;
 
-        if (!caps->isConfigTexturable(combo.fConfig)) {
-            continue;
-        }
-
         if (GrBackendApi::kMetal == context->backend()) {
             // skbug.com/9086 (Metal caps may not be handling RGBA32 correctly)
             if (kRGBA_F32_SkColorType == combo.fColorType) {
@@ -450,13 +446,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
             }
 
             for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
+                if (!caps->getDefaultBackendFormat(SkColorTypeToGrColorType(colorType),
+                                                   renderable).isValid()) {
+                    continue;
+                }
                 if (GrRenderable::kYes == renderable) {
                     if (kRGB_888x_SkColorType == combo.fColorType) {
                         // Ganesh can't perform the blends correctly when rendering this format
-                        continue;
-                    }
-                    if (!caps->getDefaultBackendFormat(SkColorTypeToGrColorType(colorType),
-                                                       renderable).isValid()) {
                         continue;
                     }
                 }
@@ -593,7 +589,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
     for (auto combo : combinations) {
         GrBackendFormat format = GrBackendFormat::MakeGL(combo.fFormat, GR_GL_TEXTURE_2D);
 
-        if (!glCaps->isFormatTexturable(combo.fColorType, format)) {
+        if (!glCaps->isFormatTexturable(format)) {
             continue;
         }
 

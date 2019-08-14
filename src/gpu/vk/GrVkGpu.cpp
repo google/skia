@@ -1054,9 +1054,9 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
 }
 
 sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(int width, int height,
+                                                    const GrBackendFormat& format,
                                                     SkImage::CompressionType compressionType,
                                                     SkBudgeted budgeted, const void* data) {
-    GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
     VkFormat pixelFormat;
     if (!format.asVkFormat(&pixelFormat)) {
         return nullptr;

@@ -29,8 +29,8 @@ public:
     bool isFormatSRGB(const GrBackendFormat&) const override;
     bool isFormatCompressed(const GrBackendFormat&) const override;
 
-    bool isFormatTexturable(GrColorType, const GrBackendFormat&) const override;
-    bool isConfigTexturable(GrPixelConfig config) const override;
+    bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const override;
+    bool isFormatTexturable(const GrBackendFormat&) const override;
     bool isFormatTexturable(MTLPixelFormat) const;
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
@@ -128,12 +128,12 @@ private:
         }
 
         enum {
-            kTextureable_Flag = 0x1,
+            kTexturable_Flag  = 0x1,
             kRenderable_Flag  = 0x2, // Color attachment and blendable
             kMSAA_Flag        = 0x4,
             kResolve_Flag     = 0x8,
         };
-        static const uint16_t kAllFlags = kTextureable_Flag | kRenderable_Flag |
+        static const uint16_t kAllFlags = kTexturable_Flag | kRenderable_Flag |
                                           kMSAA_Flag | kResolve_Flag;
 
         uint16_t fFlags = 0;

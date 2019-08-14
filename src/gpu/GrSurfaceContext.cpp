@@ -268,6 +268,10 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
             srcInfo.colorSpace(), this->colorSpaceInfo().colorSpace());
 
     const GrCaps* caps = direct->priv().caps();
+
+    auto rgbaDefaultFormat = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                           GrRenderable::kNo);
+
     // For canvas2D putImageData performance we have a special code path for unpremul RGBA_8888 srcs
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
     bool canvas2DFastPath = !caps->avoidWritePixelsFastPath() && premul && !needColorConversion &&
@@ -276,7 +280,7 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
                             SkToBool(this->asRenderTargetContext()) &&
                             (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
                              dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
-                            direct->priv().caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
+                            rgbaDefaultFormat.isValid() &&
                             direct->priv().validPMUPMConversionExists();
 
     if (!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
@@ -290,7 +294,7 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
         if (canvas2DFastPath) {
             desc.fConfig = kRGBA_8888_GrPixelConfig;
             colorType = GrColorType::kRGBA_8888;
-            format = caps->getDefaultBackendFormat(colorType, GrRenderable::kNo);
+            format = rgbaDefaultFormat;
             alphaType = kUnpremul_SkAlphaType;
         } else {
             desc.fConfig =  dstProxy->config();

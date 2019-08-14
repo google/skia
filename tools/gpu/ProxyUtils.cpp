@@ -60,13 +60,8 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
         }
 
     } else {
-        GrPixelConfig config = GrColorTypeToPixelConfig(colorType);
-        if (!context->priv().caps()->isConfigTexturable(config)) {
-            return nullptr;
-        }
-
         GrSurfaceDesc desc;
-        desc.fConfig = config;
+        desc.fConfig = GrColorTypeToPixelConfig(colorType);
         desc.fWidth = width;
         desc.fHeight = height;
         proxy = context->priv().proxyProvider()->createProxy(format, desc, renderable, 1, origin,

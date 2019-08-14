@@ -1387,16 +1387,6 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
     SkUNREACHABLE;
 }
 
-// We may need a roughly equivalent color type for a compressed texture. This should be the logical
-// format for decompressing the data into.
-static constexpr GrColorType GrCompressionTypeClosestColorType(
-        SkImage::CompressionType type) {
-    switch (type) {
-        case SkImage::CompressionType::kETC1_CompressionType: return GrColorType::kRGB_888x;
-    }
-    SkUNREACHABLE;
-}
-
 static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
     switch (config) {
         case kUnknown_GrPixelConfig:
@@ -1432,7 +1422,9 @@ static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
         case kRGBA_half_Clamped_GrPixelConfig:
             return GrColorType::kRGBA_F16_Clamped;
         case kRGB_ETC1_GrPixelConfig:
-            return GrCompressionTypeClosestColorType(SkImage::kETC1_CompressionType);
+            // We may need a roughly equivalent color type for a compressed texture. This should be
+            // the logical format for decompressing the data into.
+            return GrColorType::kRGB_888x;
         case kAlpha_8_as_Alpha_GrPixelConfig:
             return GrColorType::kAlpha_8;
         case kAlpha_8_as_Red_GrPixelConfig:

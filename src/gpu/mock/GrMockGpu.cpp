@@ -170,7 +170,7 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
             new GrMockTexture(this, budgeted, desc, isProtected, mipMapsStatus, texInfo));
 }
 
-sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(int width, int height,
+sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(int width, int height, const GrBackendFormat&,
                                                       SkImage::CompressionType compressionType,
                                                       SkBudgeted budgeted, const void* data) {
     return nullptr;
@@ -278,7 +278,7 @@ GrBackendTexture GrMockGpu::createBackendTexture(int w, int h,
                                                  const SkColor4f* /* color */,
                                                  GrProtected /* isProtected */) {
     auto colorType = format.asMockColorType();
-    if (!this->caps()->isFormatTexturable(colorType, format)) {
+    if (!this->caps()->isFormatTexturable(format)) {
         return GrBackendTexture();  // invalid
     }
 

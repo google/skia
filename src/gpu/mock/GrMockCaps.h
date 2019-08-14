@@ -49,14 +49,13 @@ public:
         return false;
     }
 
-    bool isFormatTexturable(GrColorType, const GrBackendFormat& format) const override {
+    bool isFormatTexturableAndUploadable(GrColorType,
+                                         const GrBackendFormat& format) const override {
+        return this->isFormatTexturable(format);
+    }
+    bool isFormatTexturable(const GrBackendFormat& format) const override {
         auto index = static_cast<int>(format.asMockColorType());
         return fOptions.fConfigOptions[index].fTexturable;
-    }
-
-    bool isConfigTexturable(GrPixelConfig config) const override {
-        GrColorType ct = GrPixelConfigToColorType(config);
-        return fOptions.fConfigOptions[(int)ct].fTexturable;
     }
 
     bool isFormatCopyable(const GrBackendFormat& format) const override {

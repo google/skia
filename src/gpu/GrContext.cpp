@@ -233,8 +233,10 @@ int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
 int GrContext::maxRenderTargetSize() const { return this->caps()->maxRenderTargetSize(); }
 
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
-    GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return this->caps()->isConfigTexturable(config);
+    GrBackendFormat format =
+            this->caps()->getDefaultBackendFormat(SkColorTypeToGrColorType(colorType),
+                                                  GrRenderable::kNo);
+    return format.isValid();
 }
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {

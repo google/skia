@@ -286,7 +286,8 @@ bool GrMtlCaps::isFormatCompressed(const GrBackendFormat& format) const {
 #endif
 }
 
-bool GrMtlCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format) const {
+bool GrMtlCaps::isFormatTexturableAndUploadable(GrColorType ct,
+                                                const GrBackendFormat& format) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
 
     uint32_t ctFlags = this->getFormatInfo(mtlFormat).colorTypeFlags(ct);
@@ -294,20 +295,14 @@ bool GrMtlCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format
            SkToBool(ctFlags & ColorTypeInfo::kUploadData_Flag);
 }
 
-bool GrMtlCaps::isConfigTexturable(GrPixelConfig config) const {
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(config, &format)) {
-        return false;
-    }
-    GrColorType ct = GrPixelConfigToColorType(config);
-    uint32_t ctFlags = this->getFormatInfo(format).colorTypeFlags(ct);
-    return this->isFormatTexturable(format) &&
-           SkToBool(ctFlags & ColorTypeInfo::kUploadData_Flag);
+bool GrMtlCaps::isFormatTexturable(const GrBackendFormat& format) const {
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+    return this->isFormatTexturable(mtlFormat);
 }
 
 bool GrMtlCaps::isFormatTexturable(MTLPixelFormat format) const {
     const FormatInfo& formatInfo = this->getFormatInfo(format);
-    return SkToBool(FormatInfo::kTextureable_Flag && formatInfo.fFlags);
+    return SkToBool(FormatInfo::kTexturable_Flag && formatInfo.fFlags);
 }
 
 bool GrMtlCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
@@ -483,7 +478,7 @@ void GrMtlCaps::initFormatTable() {
     // Format: A8Unorm
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatA8Unorm)];
-        info->fFlags = FormatInfo::kTextureable_Flag;
+        info->fFlags = FormatInfo::kTexturable_Flag;
         info->fColorTypeInfoCount = 1;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
         int ctIdx = 0;
@@ -553,7 +548,7 @@ void GrMtlCaps::initFormatTable() {
     // Format: RG8Unorm
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG8Unorm)];
-        info->fFlags = FormatInfo::kTextureable_Flag;
+        info->fFlags = FormatInfo::kTexturable_Flag;
         info->fColorTypeInfoCount = 1;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
         int ctIdx = 0;
@@ -601,7 +596,7 @@ void GrMtlCaps::initFormatTable() {
         if (this->isMac() || fFamilyGroup >= 3) {
             info->fFlags = FormatInfo::kAllFlags;
         } else {
-            info->fFlags = FormatInfo::kTextureable_Flag;
+            info->fFlags = FormatInfo::kTexturable_Flag;
         }
         info->fColorTypeInfoCount = 1;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
@@ -677,7 +672,7 @@ void GrMtlCaps::initFormatTable() {
         if (this->isMac()) {
             info->fFlags = FormatInfo::kAllFlags;
         } else {
-            info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+            info->fFlags = FormatInfo::kTexturable_Flag | FormatInfo::kRenderable_Flag;
         }
         info->fColorTypeInfoCount = 1;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
@@ -696,7 +691,7 @@ void GrMtlCaps::initFormatTable() {
         if (this->isMac()) {
             info->fFlags = FormatInfo::kAllFlags;
         } else {
-            info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+            info->fFlags = FormatInfo::kTexturable_Flag | FormatInfo::kRenderable_Flag;
         }
         info->fColorTypeInfoCount = 1;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
@@ -725,7 +720,7 @@ void GrMtlCaps::initFormatTable() {
         if (this->isMac()) {
             info->fFlags = FormatInfo::kAllFlags;
         } else {
-            info->fFlags = FormatInfo::kTextureable_Flag | FormatInfo::kRenderable_Flag;
+            info->fFlags = FormatInfo::kTexturable_Flag | FormatInfo::kRenderable_Flag;
         }
         info->fColorTypeInfoCount = 1;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
