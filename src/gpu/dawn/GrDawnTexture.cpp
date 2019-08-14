@@ -8,6 +8,7 @@
 #include "src/gpu/dawn/GrDawnTexture.h"
 
 #include "src/gpu/dawn/GrDawnGpu.h"
+#include "src/gpu/dawn/GrDawnTextureRenderTarget.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
 
 GrDawnTexture::GrDawnTexture(GrDawnGpu* gpu,
@@ -63,7 +64,13 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& size, Gr
     info.fLevelCount = mipLevels;
     sk_sp<GrDawnTexture> result;
     if (renderTarget) {
-        SkASSERT(!"unimplemented");
+        result = sk_sp<GrDawnTextureRenderTarget>(new GrDawnTextureRenderTarget(gpu,
+                                                                                size,
+                                                                                config,
+                                                                                textureView,
+                                                                                sampleCnt,
+                                                                                info,
+                                                                                status));
     } else {
         result = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, size, config, textureView, info,
                                                         status));
