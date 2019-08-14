@@ -8,7 +8,6 @@
 #include <set>
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/GrTexture.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipMap.h"
@@ -17,6 +16,7 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "tests/Test.h"

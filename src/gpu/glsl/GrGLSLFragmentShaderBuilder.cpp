@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/gl/GrGLGpu.h"

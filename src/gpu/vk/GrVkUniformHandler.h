@@ -8,9 +8,9 @@
 #ifndef GrVkUniformHandler_DEFINED
 #define GrVkUniformHandler_DEFINED
 
-#include "include/gpu/GrSamplerState.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/vk/GrVkSampler.h"

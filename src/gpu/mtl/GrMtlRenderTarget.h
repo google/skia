@@ -8,7 +8,7 @@
 #ifndef GrMtlRenderTarget_DEFINED
 #define GrMtlRenderTarget_DEFINED
 
-#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTarget.h"
 
 #include "include/gpu/GrBackendSurface.h"
 
