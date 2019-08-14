@@ -116,6 +116,30 @@
       "revId": "4b874611671be63a6d574310beace7b37d91d2d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc429710_b58a0d37",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 4040,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-14T15:08:17Z",
+      "side": 1,
+      "message": "No rush. I was only imagining trying it for bilerp (all positive), just to see if it made a speed diff (knowing we couldn\u0027t share as much code). Happy to wait and see/time.",
+      "parentUuid": "ce47d44c_b2fb8868",
+      "range": {
+        "startLine": 4040,
+        "startChar": 19,
+        "endLine": 4040,
+        "endChar": 20
+      },
+      "revId": "4b874611671be63a6d574310beace7b37d91d2d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
