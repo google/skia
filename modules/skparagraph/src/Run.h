@@ -43,6 +43,7 @@ struct RunShifts {
     SkSTArray<128, SkScalar, true> fShifts;
 };
 
+class LineMetrics;
 class Run {
 public:
     Run() = default;
@@ -69,8 +70,6 @@ public:
     }
     SkVector offset() const { return fOffset; }
     SkScalar ascent() const { return fFontMetrics.fAscent; }
-    //SkScalar descent() const { return fFontMetrics.fDescent; }
-    //SkScalar leading() const { return fFontMetrics.fLeading; }
     SkScalar correctAscent() const {
 
         if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
@@ -99,11 +98,14 @@ public:
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
     size_t index() const { return fIndex; }
     SkScalar lineHeight() const { return fHeightMultiplier; }
+    PlaceholderStyle* placeholderStyle() const { return fPlaceholderStyle; }
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
     SkScalar positionX(size_t pos) const;
 
     TextRange textRange() { return fTextRange; }
     ClusterRange clusterRange() { return fClusterRange; }
+
+    void updateMetrics(LineMetrics* endlineMetrics);
 
     void setClusterRange(size_t from, size_t to) { fClusterRange = ClusterRange(from, to); }
     SkRect clip() const {
@@ -157,6 +159,7 @@ private:
     SkFont fFont;
     SkFontMetrics fFontMetrics;
     SkScalar fHeightMultiplier;
+    PlaceholderStyle* fPlaceholderStyle;
     size_t fIndex;
     uint8_t fBidiLevel;
     SkVector fAdvance;
@@ -290,20 +293,25 @@ class LineMetrics {
 public:
 
     LineMetrics() { clean(); }
-    LineMetrics(bool forceStrut) : fForceStrut(forceStrut) { clean(); }
+    LineMetrics(bool forceStrut) {
+        clean();
+        fForceStrut = forceStrut;
+    }
 
-    LineMetrics(SkScalar a, SkScalar d, SkScalar l) : fForceStrut(false) {
+    LineMetrics(SkScalar a, SkScalar d, SkScalar l) {
         fAscent = a;
         fDescent = d;
         fLeading = l;
+        fForceStrut = false;
     }
 
-    LineMetrics(const SkFont& font, bool forceStrut) : fForceStrut(forceStrut) {
+    LineMetrics(const SkFont& font, bool forceStrut) {
         SkFontMetrics metrics;
         font.getMetrics(&metrics);
         fAscent = metrics.fAscent;
         fDescent = metrics.fDescent;
         fLeading = metrics.fLeading;
+        fForceStrut = forceStrut;
     }
 
     void add(Run* run) {
@@ -327,6 +335,7 @@ public:
         fAscent = 0;
         fDescent = 0;
         fLeading = 0;
+        fForceStrut = false;
     }
 
     SkScalar delta() const { return height() - ideographicBaseline(); }
@@ -343,12 +352,16 @@ public:
     SkScalar height() const { return SkScalarRoundToInt(fDescent - fAscent + fLeading); }
     SkScalar alphabeticBaseline() const { return fLeading / 2 - fAscent; }
     SkScalar ideographicBaseline() const { return fDescent - fAscent + fLeading; }
+    SkScalar deltaBaselines() const { return fLeading / 2 + fDescent; }
     SkScalar baseline() const { return fLeading / 2 - fAscent; }
     SkScalar ascent() const { return fAscent; }
     SkScalar descent() const { return fDescent; }
     SkScalar leading() const { return fLeading; }
 
 private:
+
+    friend class TextWrapper;
+
     SkScalar fAscent;
     SkScalar fDescent;
     SkScalar fLeading;

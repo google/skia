@@ -63,17 +63,16 @@ TextLine::TextLine(ParagraphImpl* master,
 
     for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
         auto b = fMaster->styles().begin() + index;
-        if (b->fStyle.type() == BlockStyle::kSecondType) {
+        if (b->fStyle.isPlaceholder()) {
             continue;
         }
-        auto textStyle = b->fStyle.getFirst();
-        if (textStyle->hasBackground()) {
+        if (b->fStyle.hasBackground()) {
             fHasBackground = true;
         }
-        if (textStyle->getDecorationType() != TextDecoration::kNoDecoration) {
+        if (b->fStyle.getDecorationType() != TextDecoration::kNoDecoration) {
             fHasDecorations = true;
         }
-        if (textStyle->getShadowNumber() > 0) {
+        if (b->fStyle.getShadowNumber() > 0) {
             fHasShadows = true;
         }
     }
@@ -723,7 +722,7 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
     SkScalar offsetX = 0;
     for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
         auto block = fMaster->styles().begin() + index;
-        if (block->fStyle.type() == BlockStyle::kSecondType) {
+        if (block->fStyle.isPlaceholder()) {
             continue;
         }
         auto intersect = intersected(block->fRange, this->trimmedText());
@@ -737,13 +736,13 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
             }
         }
 
-        auto* style = block->fStyle.getFirst();
-        if (start != EMPTY_INDEX && style->matchOneAttribute(styleType, *prevStyle)) {
+        auto& style = block->fStyle;
+        if (start != EMPTY_INDEX && style.matchOneAttribute(styleType, *prevStyle)) {
             size += intersect.width();
             continue;
         } else if (start == EMPTY_INDEX ) {
             // First time only
-            prevStyle = style;
+            prevStyle = &style;
             size = intersect.width();
             start = intersect.start;
             continue;
@@ -753,7 +752,7 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
         offsetX += width;
 
         // Start all over again
-        prevStyle = style;
+        prevStyle = &style;
         start = intersect.start;
         size = intersect.width();
     }

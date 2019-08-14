@@ -206,6 +206,75 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
     }
 }
 
+void Run::updateMetrics(LineMetrics* endlineMetrics) {
+
+    // Difference between the placeholder baseline and the line bottom
+    SkScalar baselineAdjustment = 0;
+    switch (fPlaceholderStyle->fBaseline) {
+        case TextBaseline::kAlphabetic:
+            break;
+
+        case TextBaseline::kIdeographic:
+            baselineAdjustment = endlineMetrics->deltaBaselines();
+            break;
+    }
+
+    auto height = fPlaceholderStyle->fHeight;
+    auto offset = fPlaceholderStyle->fBaselineOffset;
+
+    fFontMetrics.fLeading = 0;
+    switch (fPlaceholderStyle->fAlignment) {
+        case PlaceholderAlignment::kBaseline:
+            fFontMetrics.fAscent = baselineAdjustment - offset;
+            fFontMetrics.fDescent = baselineAdjustment + height - offset;
+            break;
+
+        case PlaceholderAlignment::kAboveBaseline:
+            fFontMetrics.fAscent = baselineAdjustment - height;
+            fFontMetrics.fDescent = baselineAdjustment;
+            break;
+
+        case PlaceholderAlignment::kBelowBaseline:
+            fFontMetrics.fAscent = baselineAdjustment;
+            fFontMetrics.fDescent = baselineAdjustment +height;
+            break;
+
+        case PlaceholderAlignment::kTop:
+            if (height < endlineMetrics->alphabeticBaseline()) {
+                fFontMetrics.fAscent = - height;
+                fFontMetrics.fDescent = 0;
+            } else {
+               fFontMetrics.fAscent = - endlineMetrics->alphabeticBaseline();
+               fFontMetrics.fDescent = height - endlineMetrics->alphabeticBaseline();
+            }
+            break;
+
+        case PlaceholderAlignment::kBottom:
+            if (height < endlineMetrics->deltaBaselines()) {
+                fFontMetrics.fAscent = 0;
+                fFontMetrics.fDescent = height;
+            } else {
+               fFontMetrics.fDescent = endlineMetrics->deltaBaselines();
+               fFontMetrics.fAscent = - (height - endlineMetrics->alphabeticBaseline());
+            }
+            break;
+
+        case PlaceholderAlignment::kMiddle:
+            double mid = endlineMetrics->height() / 2;
+            if (height + mid < endlineMetrics->deltaBaselines()) {
+                fFontMetrics.fAscent = 0;
+                fFontMetrics.fDescent = height + mid;
+            } else {
+               fFontMetrics.fDescent = endlineMetrics->deltaBaselines();
+               fFontMetrics.fAscent = - (height + mid - endlineMetrics->alphabeticBaseline());
+            }
+            break;
+    }
+
+    // Make sure the placehoder can fit the line
+    endlineMetrics->add(this);
+}
+
 void Cluster::setIsWhiteSpaces() {
 
     fWhiteSpaces = false;

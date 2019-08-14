@@ -22,7 +22,7 @@ SkUnichar utf8_next(const char** ptr, const char* end) {
 namespace skia {
 namespace textlayout {
 
-bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* height) {
+bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* height, PlaceholderStyle*& placeholder) {
 
     SkASSERT(fFontIterator != nullptr);
     TextIndex index = codepoint - fText.begin();
@@ -30,6 +30,11 @@ bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* heigh
         if (fFontIterator->fStart == index) {
             *font = fFontIterator->fFont;
             *height = fFontIterator->fHeight;
+            if (fFontIterator->fIsPlaceholder) {
+                placeholder = &fFontIterator->fPlaceholderStyle;
+            } else {
+                placeholder = nullptr;
+            }
             return true;
         }
         ++fFontIterator;
@@ -241,29 +246,23 @@ void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
         SkASSERT(combinedBlock.fRange.width() == 0 ||
                  combinedBlock.fRange.end == block.fRange.start);
 
-        if (block.fStyle.type() == BlockStyle::kFirstType) {
-            const auto first = block.fStyle.getFirst();
-            const auto combined = combinedBlock.fStyle.getFirst();
-            if (!combinedBlock.fRange.empty() &&
-                first->matchOneAttribute(StyleType::kFont, *combined)) {
-                combinedBlock.add(block.fRange);
-                continue;
+        if (!block.fStyle.isPlaceholder()) {
+            if (!combinedBlock.fRange.empty()) {
+                if (block.fStyle.matchOneAttribute(StyleType::kFont, combinedBlock.fStyle)) {
+                    combinedBlock.add(block.fRange);
+                    continue;
+                }
+                this->findAllFontsForStyledBlock(combinedBlock.fStyle, combinedBlock.fRange);
             }
-        }
-
-        if (!combinedBlock.fRange.empty()) {
-            this->findAllFontsForStyledBlock(*combinedBlock.fStyle.getFirst(), combinedBlock.fRange);
-        }
-
-        if (block.fStyle.type() == BlockStyle::kFirstType) {
-            combinedBlock.fRange = block.fRange;
-            combinedBlock.fStyle = BlockStyle::Make(*block.fStyle.getFirst());
         } else {
-            combinedBlock.fRange = block.fRange;
-            combinedBlock.fStyle = BlockStyle::Make(*block.fStyle.getSecond());
+            // Directly add the place holder to the mapping
+            fFontMapping.set(block.fRange.start, FontDescr(block.fStyle.getPlaceholderStyle()));
         }
+
+        combinedBlock.fRange = block.fRange;
+        combinedBlock.fStyle = block.fStyle;
     }
-    this->findAllFontsForStyledBlock(*combinedBlock.fStyle.getFirst(), combinedBlock.fRange);
+    this->findAllFontsForStyledBlock(combinedBlock.fStyle, combinedBlock.fRange);
 
 
     fFontSwitches.reset();

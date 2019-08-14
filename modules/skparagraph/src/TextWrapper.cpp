@@ -180,6 +180,17 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             // Make sure font metrics are not less than the strut
             parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
         }
+
+        // Deal with placeholder clusters == runs[@size==1]
+        for (auto cluster = fEndLine.startCluster(); cluster != fEndLine.endCluster(); ++cluster) {
+            if (cluster->run()->placeholderStyle() != nullptr) {
+                SkASSERT(cluster->run()->size() == 1);
+                // Update the placeholder metrics so we can get the placeholder positions later
+                // and the line metrics (to make sure the placeholder fits)
+                cluster->run()->updateMetrics(&fEndLine.metrics());
+            }
+        }
+
         fMaxIntrinsicWidth = SkMaxScalar(fMaxIntrinsicWidth, fEndLine.width());
         // TODO: keep start/end/break info for text and runs but in a better way that below
         TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end + 1);

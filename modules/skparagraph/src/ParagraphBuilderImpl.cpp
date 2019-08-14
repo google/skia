@@ -84,7 +84,9 @@ void ParagraphBuilderImpl::addText(const char* text) {
 void ParagraphBuilderImpl::addPlaceholder(PlaceholderStyle& placeholderStyle) {
     this->endRunIfNeeded();
 
+    fTextStyles.push(placeholderStyle);
     fStyledBlocks.emplace_back(fUtf8.size(), placeholderStyle);
+    addText(std::u16string(1ull, 0xFFFC));
 }
 
 void ParagraphBuilderImpl::endRunIfNeeded() {
@@ -92,14 +94,14 @@ void ParagraphBuilderImpl::endRunIfNeeded() {
         return;
     }
     auto& last = fStyledBlocks.back();
-    if (last.fStyle.type() == BlockStyle::kFirstType) {
-        if (last.fRange.start == fUtf8.size()) {
-            fStyledBlocks.pop_back();
-        } else {
-            last.fRange.end = fUtf8.size();
-        }
+    if (last.fStyle.isPlaceholder()) {
+        return;
     }
-
+    if (last.fRange.start == fUtf8.size()) {
+        fStyledBlocks.pop_back();
+    } else {
+        last.fRange.end = fUtf8.size();
+    }
 }
 
 std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {

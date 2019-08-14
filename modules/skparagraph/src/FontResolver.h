@@ -18,13 +18,18 @@ namespace textlayout {
 struct FontDescr {
     FontDescr() {}
     FontDescr(SkFont font, SkScalar height)
-            : fFont(font), fHeight(height), fStart(EMPTY_INDEX) {}
+            : fFont(font), fHeight(height), fStart(EMPTY_INDEX), fIsPlaceholder(false) { }
+    FontDescr(const PlaceholderStyle& placeholderStyle)
+            : fIsPlaceholder(true), fPlaceholderStyle(placeholderStyle) { }
     bool operator==(const FontDescr& a) const {
         return this->fFont == a.fFont && this->fHeight == a.fHeight;
     }
     SkFont fFont;
     SkScalar fHeight;
     TextIndex fStart;
+
+    bool fIsPlaceholder;
+    PlaceholderStyle fPlaceholderStyle;
 };
 
 class FontResolver {
@@ -34,7 +39,7 @@ public:
     ~FontResolver() = default;
 
     void findAllFontsForAllStyledBlocks(ParagraphImpl* master);
-    bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
+    bool findNext(const char* codepoint, SkFont* font, SkScalar* height, PlaceholderStyle*& placeholderStyle);
 
     const SkTArray<FontDescr>& switches() const { return fFontSwitches; }
 

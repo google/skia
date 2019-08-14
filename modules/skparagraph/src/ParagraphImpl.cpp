@@ -296,17 +296,16 @@ void ParagraphImpl::markLineBreaks() {
             }
 
             // Process word spacing
-            auto textStyle = currentStyle->fStyle.getFirst();
-            if (textStyle->getWordSpacing() != 0) {
+            if (currentStyle->fStyle.getWordSpacing() != 0) {
                 if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
                     if (!soFarWhitespacesOnly) {
-                        shift += run.addSpacesAtTheEnd(textStyle->getWordSpacing(), cluster);
+                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
                     }
                 }
             }
             // Process letter spacing
-            if (textStyle->getLetterSpacing() != 0) {
-                shift += run.addSpacesEvenly(textStyle->getLetterSpacing(), cluster);
+            if (currentStyle->fStyle.getLetterSpacing() != 0) {
+                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
             }
 
             if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {
@@ -346,11 +345,22 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         }
 
         void commitRunBuffer(const RunInfo&) override {
+
             auto& run = fParagraph->fRuns.back();
             if (run.size() == 0) {
                 fParagraph->fRuns.pop_back();
                 return;
             }
+
+            if (fFontIterator->currentPlaceholder() != nullptr) {
+                // Correct the side of a placeholder run
+                run.fPlaceholderStyle = fFontIterator->currentPlaceholder();
+                run.fAdvance.fX = run.fPlaceholderStyle->fWidth;
+                run.fAdvance.fY = run.fPlaceholderStyle->fHeight;
+            } else {
+                run.fPlaceholderStyle = nullptr;
+            }
+
             // Carve out the line text out of the entire run text
             fAdvance.fX += run.advance().fX;
             fAdvance.fY = SkMaxScalar(fAdvance.fY, run.advance().fY);
