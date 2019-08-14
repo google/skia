@@ -30,6 +30,16 @@ if (host_os == "win") {
   stamp = "touch"
 }
 
+if (current_toolchain == default_toolchain) {
+  # dsymutil seems to kill the machine when too many processes are run in
+  # parallel.
+  pool("dsymutil_pool") {
+    # This is very conservative; things seem fine until the number of
+    # parallel dsymutils exceeds the number of CPUs.
+    depth = 1
+  }
+}
+
 toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
