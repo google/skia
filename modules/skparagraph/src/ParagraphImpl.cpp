@@ -94,9 +94,11 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
+                             SkTArray<Placeholder, true> placeholders,
                              sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style), std::move(fonts))
         , fTextStyles(std::move(blocks))
+        , fPlaceholders(std::move(placeholders))
         , fText(text)
         , fTextSpan(fText.c_str(), fText.size())
         , fState(kUnknown)
@@ -110,9 +112,11 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
+                             SkTArray<Placeholder, true> placeholders,
                              sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style), std::move(fonts))
         , fTextStyles(std::move(blocks))
+        , fPlaceholders(std::move(placeholders))
         , fState(kUnknown)
         , fPicture(nullptr)
         , fStrutMetrics(false)
@@ -224,21 +228,32 @@ void ParagraphImpl::buildClusterTable() {
     for (RunIndex runIndex = 0; runIndex < fRuns.size(); ++runIndex) {
         auto& run = fRuns[runIndex];
         auto runStart = fClusters.size();
-        fClusters.reserve(fClusters.size() + fRuns.size());
-        // Walk through the glyph in the direction of input text
-        run.iterateThroughClustersInTextOrder([runIndex, this](
-                                                      size_t glyphStart,
-                                                      size_t glyphEnd,
-                                                      size_t charStart,
-                                                      size_t charEnd,
-                                                      SkScalar width,
-                                                      SkScalar height) {
-            SkASSERT(charEnd >= charStart);
-            SkSpan<const char> text(fTextSpan.begin() + charStart, charEnd - charStart);
+        if (run.fPlaceholderStyle != nullptr) {
+            // There are no glyphs but we want to have one cluster
+            SkSpan<const char> text(fTextSpan.begin() + run.textRange().start, run.textRange().width());
+            if (!fClusters.empty()) {
+                fClusters.back().setBreakType(Cluster::SoftLineBreak);
+            }
+            auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 0ul, text,
+                                                   run.advance().fX, run.advance().fY);
+            cluster.setBreakType(Cluster::SoftLineBreak);
+        } else {
+            fClusters.reserve(fClusters.size() + fRuns.size());
+            // Walk through the glyph in the direction of input text
+            run.iterateThroughClustersInTextOrder([runIndex, this](size_t glyphStart,
+                                                                   size_t glyphEnd,
+                                                                   size_t charStart,
+                                                                   size_t charEnd,
+                                                                   SkScalar width,
+                                                                   SkScalar height) {
+                SkASSERT(charEnd >= charStart);
+                SkSpan<const char> text(fTextSpan.begin() + charStart, charEnd - charStart);
 
-            auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text, width, height);
-            cluster.setIsWhiteSpaces();
-        });
+                auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
+                                                       width, height);
+                cluster.setIsWhiteSpaces();
+            });
+        }
 
         run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
@@ -275,9 +290,14 @@ void ParagraphImpl::markLineBreaks() {
     // Walk through all the clusters in the direction of shaped text
     // (we have to walk through the styles in the same order, too)
     SkScalar shift = 0;
+    Block* currentStyle = this->fTextStyles.begin();
     for (auto& run : fRuns) {
 
-        // TODO: skip placeholder runs
+        // Skip placeholder runs
+        if (run.fPlaceholderStyle != nullptr) {
+            continue;
+        }
+
         bool soFarWhitespacesOnly = true;
         for (size_t index = 0; index != run.clusterRange().width(); ++index) {
             auto correctIndex = run.leftToRight()
@@ -289,24 +309,24 @@ void ParagraphImpl::markLineBreaks() {
             run.shift(cluster, shift);
 
             // Synchronize styles (one cluster can be covered by few styles)
-            Block* currentStyle = this->fTextStyles.begin();
             while (!cluster->startsIn(currentStyle->fRange)) {
                 currentStyle++;
                 SkASSERT(currentStyle != this->fTextStyles.end());
             }
 
+            SkASSERT(!currentStyle->fStyle.isPlaceholder());
+
             // Process word spacing
-            auto textStyle = currentStyle->fStyle.getFirst();
-            if (textStyle->getWordSpacing() != 0) {
+            if (currentStyle->fStyle.getWordSpacing() != 0) {
                 if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
                     if (!soFarWhitespacesOnly) {
-                        shift += run.addSpacesAtTheEnd(textStyle->getWordSpacing(), cluster);
+                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
                     }
                 }
             }
             // Process letter spacing
-            if (textStyle->getLetterSpacing() != 0) {
-                shift += run.addSpacesEvenly(textStyle->getLetterSpacing(), cluster);
+            if (currentStyle->fStyle.getLetterSpacing() != 0) {
+                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
             }
 
             if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {
@@ -322,10 +342,11 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     class ShapeHandler final : public SkShaper::RunHandler {
     public:
-        explicit ShapeHandler(ParagraphImpl& paragraph, FontIterator* fontIterator)
+        explicit ShapeHandler(ParagraphImpl& paragraph, size_t firstChar, FontIterator* fontIterator, SkScalar advanceX)
                 : fParagraph(&paragraph)
+                , fFirstChar(firstChar)
                 , fFontIterator(fontIterator)
-                , fAdvance(SkVector::Make(0, 0)) {}
+                , fAdvance(SkVector::Make(advanceX, 0)) {}
 
         SkVector advance() const { return fAdvance; }
 
@@ -339,6 +360,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         Buffer runBuffer(const RunInfo& info) override {
             auto& run = fParagraph->fRuns.emplace_back(fParagraph,
                                                        info,
+                                                       fFirstChar,
                                                        fFontIterator->currentLineHeight(),
                                                        fParagraph->fRuns.count(),
                                                        fAdvance.fX);
@@ -346,19 +368,23 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         }
 
         void commitRunBuffer(const RunInfo&) override {
+
             auto& run = fParagraph->fRuns.back();
             if (run.size() == 0) {
                 fParagraph->fRuns.pop_back();
                 return;
             }
+
             // Carve out the line text out of the entire run text
             fAdvance.fX += run.advance().fX;
             fAdvance.fY = SkMaxScalar(fAdvance.fY, run.advance().fY);
+            run.fPlaceholderStyle = nullptr;
         }
 
         void commitLine() override {}
 
         ParagraphImpl* fParagraph;
+        size_t fFirstChar;
         FontIterator* fFontIterator;
         SkVector fAdvance;
     };
@@ -372,24 +398,37 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     // Check the font-resolved text against the cache
     if (!fFontCollection->getParagraphCache()->findParagraph(this)) {
-        LangIterator lang(fTextSpan, styles(), paragraphStyle().getTextStyle());
-        FontIterator font(fTextSpan, &fFontResolver);
-        ShapeHandler handler(*this, &font);
-        std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
-        SkASSERT_RELEASE(shaper != nullptr);
-        auto bidi = SkShaper::MakeIcuBiDiRunIterator(
-                fTextSpan.begin(), fTextSpan.size(),
-                fParagraphStyle.getTextDirection() == TextDirection::kLtr ? (uint8_t)2
-                                                                          : (uint8_t)1);
-        if (bidi == nullptr) {
+        // The text can be broken into many shaping sequences
+        // (by place holders, possibly, by hard line breaks or tabs, too)
+        uint8_t textDirection = fParagraphStyle.getTextDirection() == TextDirection::kLtr  ? 2 : 1;
+        auto limitlessWidth = std::numeric_limits<SkScalar>::max();
+
+        auto result = iterateThroughShapingRegions(
+                [this, textDirection, limitlessWidth]
+                (SkSpan<const char> textSpan, SkSpan<Block> styleSpan, SkScalar& advanceX, size_t start) {
+
+            LangIterator lang(textSpan, styleSpan, paragraphStyle().getTextStyle());
+            FontIterator font(textSpan, &fFontResolver);
+            auto script = SkShaper::MakeHbIcuScriptRunIterator(textSpan.begin(), textSpan.size());
+            auto bidi = SkShaper::MakeIcuBiDiRunIterator(textSpan.begin(), textSpan.size(), textDirection);
+            if (bidi == nullptr) {
+                return false;
+            }
+
+            // Set up the shaper and shape the next
+            ShapeHandler handler(*this, start, &font, advanceX);
+            auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
+            SkASSERT_RELEASE(shaper != nullptr);
+            shaper->shape(textSpan.begin(), textSpan.size(), font, *bidi, *script, lang, limitlessWidth, &handler);
+            advanceX =  handler.advance().fX;
+            return true;
+        });
+        if (!result) {
             return false;
         }
-        auto script = SkShaper::MakeHbIcuScriptRunIterator(fTextSpan.begin(), fTextSpan.size());
-
-        shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
-                      std::numeric_limits<SkScalar>::max(), &handler);
     }
 
+    // Clean the array for justification
     if (fParagraphStyle.getTextAlign() == TextAlign::kJustify) {
         fRunShifts.reset();
         fRunShifts.push_back_n(fRuns.size(), RunShifts());
@@ -398,6 +437,48 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         }
     }
 
+    return true;
+}
+
+bool ParagraphImpl::iterateThroughShapingRegions(ShapeVisitor shape) {
+
+    SkScalar advanceX = 0;
+    for (auto& placeholder : fPlaceholders) {
+        // Shape the text
+        if (placeholder.fTextBefore.width() > 0) {
+            // Set up the iterators
+            SkSpan<const char> textSpan(fTextSpan.begin() + placeholder.fTextBefore.start,
+                                        placeholder.fTextBefore.width());
+            SkSpan<Block> styleSpan(fTextStyles.begin() + placeholder.fBlocksBefore.start,
+                                    placeholder.fBlocksBefore.width());
+
+            if (!shape(textSpan, styleSpan, advanceX, placeholder.fTextBefore.start)) {
+                return false;
+            }
+        }
+
+        if (placeholder.fRange.width() == 0) {
+            continue;
+        }
+        // "Shape" the placeholder
+        const SkShaper::RunHandler::RunInfo runInfo = {
+            SkFont(),
+            (uint8_t)2,
+            SkPoint::Make(placeholder.fStyle.fWidth, placeholder.fStyle.fHeight),
+            1,
+            SkShaper::RunHandler::Range(placeholder.fRange.start, placeholder.fRange.width())
+        };
+        auto& run = fRuns.emplace_back(this,
+                                       runInfo,
+                                       0, //placeholder.fRange.start,
+                                       1,
+                                       fRuns.count(),
+                                       advanceX);
+        run.fPositions[0] = { advanceX, 0 };
+        run.fClusterIndexes[0] = 0;
+        run.fPlaceholderStyle = &placeholder.fStyle;
+        advanceX += placeholder.fStyle.fWidth;
+    }
     return true;
 }
 
@@ -630,8 +711,12 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
                 if (rectHeightStyle == RectHeightStyle::kMax) {
                     // TODO: Sort it out with Flutter people
-                    // Mimicking TxtLib: clip.fTop = line.offset().fY + line.roundingDelta();
+                    // Mimicking TxtLib:
+                    //clip.fTop = line.offset().fY + line.roundingDelta();
                     clip.fBottom = line.offset().fY + line.height();
+                    clip.fTop = line.offset().fY +
+                            line.sizes().baseline() - line.getMaxRunMetrics().baseline() +
+                            line.getMaxRunMetrics().delta();
 
                 } else if (rectHeightStyle == RectHeightStyle::kIncludeLineSpacingTop) {
                     if (&line != &fLines.front()) {
@@ -665,6 +750,8 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 bool mergedBoxes = false;
                 if (!results.empty() &&
                     lastRun != nullptr &&
+                    lastRun->placeholderStyle() == nullptr &&
+                    run->placeholderStyle() == nullptr &&
                     lastRun->lineHeight() == run->lineHeight() &&
                     lastRun->font() == run->font()) {
                     auto& lastBox = results.back();
@@ -710,6 +797,30 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     }
 
     return results;
+}
+
+std::vector<TextBox> ParagraphImpl::GetRectsForPlaceholders() {
+  std::vector<TextBox> boxes;
+
+  for (auto& line : fLines) {
+      SkScalar runOffset = 0;
+      auto text = line.trimmedText();
+      line.iterateThroughRuns(
+          text,
+          runOffset,
+          false,
+          [&boxes, &line, this](Run* run, size_t pos, size_t size, TextRange text, SkRect clip,
+                                SkScalar shift, bool clippingNeeded) {
+              if (run->placeholderStyle() == nullptr) {
+                  return true;
+              }
+              clip.offset(line.offset());
+              boxes.emplace_back(clip, run->leftToRight() ? TextDirection::kLtr : TextDirection::kRtl);
+              return true;
+          });
+  }
+
+  return boxes;
 }
 // TODO: Deal with RTL here
 PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, SkScalar dy) {

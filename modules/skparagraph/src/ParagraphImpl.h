@@ -45,12 +45,14 @@ public:
     ParagraphImpl(const SkString& text,
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
+                  SkTArray<Placeholder, true> placeholders,
                   sk_sp<FontCollection> fonts);
 
     ParagraphImpl(const std::u16string& utf16text,
-                    ParagraphStyle style,
-                    SkTArray<Block, true> blocks,
-                    sk_sp<FontCollection> fonts);
+                  ParagraphStyle style,
+                  SkTArray<Block, true> blocks,
+                  SkTArray<Placeholder, true> placeholders,
+                  sk_sp<FontCollection> fonts);
     ~ParagraphImpl() override;
 
     void layout(SkScalar width) override;
@@ -59,6 +61,7 @@ public:
                                           unsigned end,
                                           RectHeightStyle rectHeightStyle,
                                           RectWidthStyle rectWidthStyle) override;
+    std::vector<TextBox> GetRectsForPlaceholders() override;
     PositionWithAffinity getGlyphPositionAtCoordinate(SkScalar dx, SkScalar dy) override;
     SkRange<size_t> getWordBoundary(unsigned offset) override;
     bool didExceedMaxLines() override {
@@ -139,6 +142,10 @@ public:
     void setState(InternalState state);
     sk_sp<SkPicture> getPicture() { return fPicture; }
 
+    using ShapeVisitor =
+            std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, size_t)>;
+    bool iterateThroughShapingRegions(ShapeVisitor shape);
+
     void resetContext();
     void resolveStrut();
     void resetRunShifts();
@@ -169,6 +176,7 @@ private:
     SkTArray<StyleBlock<std::vector<TextShadow>>> fShadowStyles;
     SkTArray<StyleBlock<Decoration>> fDecorationStyles;
     SkTArray<Block, true> fTextStyles; // TODO: take out only the font stuff
+    SkTArray<Placeholder, true> fPlaceholders;
     SkString fText;
     SkSpan<const char> fTextSpan;
 

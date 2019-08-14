@@ -111,7 +111,9 @@ class TextWrapper {
         void restoreBreak() { fEnd = fBreak; }
 
         void trim() {
-            fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
+            if (fEnd.cluster()->run()->placeholderStyle() == nullptr) {
+                fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
+            }
         }
 
         void trim(Cluster* cluster) {
