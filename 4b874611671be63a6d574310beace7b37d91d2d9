@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5bb2937_579e876c",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2644,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-14T14:54:06Z",
+      "side": 1,
+      "message": "So cool, to be able to share the loop/template between bilerp and bicubic",
+      "range": {
+        "startLine": 2644,
+        "startChar": 14,
+        "endLine": 2644,
+        "endChar": 15
+      },
+      "revId": "4b874611671be63a6d574310beace7b37d91d2d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6992e74_864c362b",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 4031,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-14T14:54:06Z",
+      "side": 1,
+      "message": "thrill-seeker! I could never type a / and a symbol, even knowing that the compiler sees all.",
+      "range": {
+        "startLine": 4031,
+        "startChar": 24,
+        "endLine": 4031,
+        "endChar": 25
+      },
+      "revId": "4b874611671be63a6d574310beace7b37d91d2d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61f59686_7ab5821c",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 4040,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-14T14:54:06Z",
+      "side": 1,
+      "message": "less code sharing I know, but I wonder if we should try (i.e. time) using fixed coeff for bilerp (e.g. dot8) to avoid having to convert to/from float on each sample.",
+      "range": {
+        "startLine": 4040,
+        "startChar": 19,
+        "endLine": 4040,
+        "endChar": 20
+      },
+      "revId": "4b874611671be63a6d574310beace7b37d91d2d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
