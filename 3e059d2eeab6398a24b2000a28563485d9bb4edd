@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a106f37_45ff59b2",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T12:04:16Z",
+      "side": 1,
+      "message": "will just",
+      "range": {
+        "startLine": 82,
+        "startChar": 81,
+        "endLine": 82,
+        "endChar": 85
+      },
+      "revId": "3e059d2eeab6398a24b2000a28563485d9bb4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad75b7a0_66fb7b5f",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T12:04:16Z",
+      "side": 1,
+      "message": "Maybe just \"getContext\" ?",
+      "range": {
+        "startLine": 100,
+        "startChar": 24,
+        "endLine": 100,
+        "endChar": 36
+      },
+      "revId": "3e059d2eeab6398a24b2000a28563485d9bb4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32c29326_d674439e",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T12:04:16Z",
+      "side": 1,
+      "message": "These pointers",
+      "range": {
+        "startLine": 107,
+        "startChar": 7,
+        "endLine": 107,
+        "endChar": 30
+      },
+      "revId": "3e059d2eeab6398a24b2000a28563485d9bb4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f16f1156_fe34d53e",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T12:04:16Z",
+      "side": 1,
+      "message": "the raster backend currently only supports N32 ?",
+      "range": {
+        "startLine": 271,
+        "startChar": 44,
+        "endLine": 271,
+        "endChar": 75
+      },
+      "revId": "3e059d2eeab6398a24b2000a28563485d9bb4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0670d078_a2d09ccc",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T12:04:16Z",
+      "side": 1,
+      "message": "same here ?",
+      "range": {
+        "startLine": 299,
+        "startChar": 44,
+        "endLine": 299,
+        "endChar": 75
+      },
+      "revId": "3e059d2eeab6398a24b2000a28563485d9bb4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
