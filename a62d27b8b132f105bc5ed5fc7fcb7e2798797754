@@ -93,6 +93,30 @@
       "revId": "a62d27b8b132f105bc5ed5fc7fcb7e2798797754",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dfc54e96_78b0b152",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-08-14T17:12:58Z",
+      "side": 1,
+      "message": "No, I cannot remove it. There is still one lower_bound...",
+      "parentUuid": "a51cc1d5_4f639c51",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 90
+      },
+      "revId": "a62d27b8b132f105bc5ed5fc7fcb7e2798797754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
