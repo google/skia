@@ -214,9 +214,14 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, const GrBackend
 }
 
 sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
+                                                const GrBackendFormat& format,
                                                 SkImage::CompressionType compressionType,
                                                 SkBudgeted budgeted, const void* data,
                                                 size_t dataSize) {
+    // If we ever add a new CompressionType, we should add a check here to make sure the
+    // GrBackendFormat and CompressionType are compatible with eachother.
+    SkASSERT(compressionType == SkImage::kETC1_CompressionType);
+
     this->handleDirtyContext();
     if (width  < 1 || width  > this->caps()->maxTextureSize() ||
         height < 1 || height > this->caps()->maxTextureSize()) {
@@ -227,13 +232,13 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
     if (!data) {
         return nullptr;
     }
-    if (!this->caps()->isConfigTexturable(GrCompressionTypePixelConfig(compressionType))) {
+    if (!this->caps()->isFormatTexturable(format)) {
         return nullptr;
     }
     if (dataSize < GrCompressedDataSize(compressionType, width, height)) {
         return nullptr;
     }
-    return this->onCreateCompressedTexture(width, height, compressionType, budgeted, data);
+    return this->onCreateCompressedTexture(width, height, format, compressionType, budgeted, data);
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
@@ -246,7 +251,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
     const GrCaps* caps = this->caps();
     SkASSERT(caps);
 
-    if (!caps->isFormatTexturable(colorType, backendTex.getBackendFormat())) {
+    if (!caps->isFormatTexturable(backendTex.getBackendFormat())) {
         return nullptr;
     }
     if (backendTex.width() > caps->maxTextureSize() ||
@@ -268,7 +273,7 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
 
     const GrCaps* caps = this->caps();
 
-    if (!caps->isFormatTexturable(colorType, backendTex.getBackendFormat()) ||
+    if (!caps->isFormatTexturable(backendTex.getBackendFormat()) ||
         !caps->isFormatRenderable(backendTex.getBackendFormat(), sampleCnt)) {
         return nullptr;
     }
@@ -356,7 +361,7 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
                        size_t rowBytes) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
-    SkASSERT(this->caps()->isFormatTexturable(surfaceColorType, surface->backendFormat()));
+    SkASSERT(this->caps()->isFormatTexturable(surface->backendFormat()));
 
     auto subRect = SkIRect::MakeXYWH(left, top, width, height);
     auto bounds  = SkIRect::MakeWH(surface->width(), surface->height());
@@ -393,7 +398,8 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
                         const GrMipLevel texels[], int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
-    SkASSERT(this->caps()->isFormatTexturable(surfaceColorType, surface->backendFormat()));
+    SkASSERT(this->caps()->isFormatTexturableAndUploadable(surfaceColorType,
+                                                           surface->backendFormat()));
 
     if (surface->readOnly()) {
         return false;
@@ -435,7 +441,8 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
     SkASSERT(transferBuffer);
-    SkASSERT(this->caps()->isFormatTexturable(textureColorType, texture->backendFormat()));
+    SkASSERT(this->caps()->isFormatTexturableAndUploadable(textureColorType,
+                                                           texture->backendFormat()));
 
     if (texture->readOnly()) {
         return false;
@@ -480,7 +487,7 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width,
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(transferBuffer);
-    SkASSERT(this->caps()->isFormatTexturable(surfaceColorType, surface->backendFormat()));
+    SkASSERT(this->caps()->isFormatTexturable(surface->backendFormat()));
 
 #ifdef SK_DEBUG
     auto supportedRead = this->caps()->supportedReadPixelsColorType(
