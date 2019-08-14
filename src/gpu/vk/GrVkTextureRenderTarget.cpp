@@ -7,6 +7,8 @@
 
 #include "src/gpu/vk/GrVkTextureRenderTarget.h"
 
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImageView.h"
@@ -38,6 +40,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                            colorAttachmentView, resolveAttachmentView,
                            GrBackendObjectOwnership::kOwned) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
+    this->initSurfaceFlags();
     this->registerWithCache(budgeted);
 }
 
@@ -55,6 +58,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                       GrBackendObjectOwnership::kOwned)
         , GrVkRenderTarget(gpu, desc, info, layout, colorAttachmentView,
                            GrBackendObjectOwnership::kOwned) {
+    this->initSurfaceFlags();
     this->registerWithCache(budgeted);
 }
 
@@ -77,6 +81,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
         , GrVkRenderTarget(gpu, desc, sampleCnt, info, layout, msaaInfo, std::move(msaaLayout),
                            colorAttachmentView, resolveAttachmentView, ownership) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
+    this->initSurfaceFlags();
     this->registerWithCacheWrapped(cacheable);
 }
 
@@ -93,7 +98,18 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
         , GrVkImage(info, layout, ownership)
         , GrVkTexture(gpu, desc, info, layout, texView, mipMapsStatus, ownership)
         , GrVkRenderTarget(gpu, desc, info, layout, colorAttachmentView, ownership) {
+    this->initSurfaceFlags();
     this->registerWithCacheWrapped(cacheable);
+}
+
+void GrVkTextureRenderTarget::initSurfaceFlags() {
+    if (this->numSamples() > 1) {
+        // Currently the Vulkan backend does not support multisampled-render-to-texture extensions.
+        // This means, for the time being, that we always require manual msaa resolve for texture
+        // render targets.
+        SkASSERT(!this->getContext()->priv().caps()->msaaResolvesAutomatically());
+        this->setRequiresManualMSAAResolve();
+    }
 }
 
 namespace {

@@ -48,6 +48,9 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
 inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDs& idDesc) {
     if (!idDesc.fRTFBOID) {
         this->setGLRTFBOIDIs0();
+    } else if (idDesc.fRTFBOID != idDesc.fTexFBOID && idDesc.fTexFBOID != kUnresolvableFBOID) {
+        SkASSERT(!glCaps.msaaResolvesAutomatically());
+        this->setRequiresManualMSAAResolve();
     }
 }
 
