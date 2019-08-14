@@ -252,8 +252,13 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     GrMockRenderTargetInfo rtInfo(texInfo.fColorType, NextInternalRenderTargetID());
 
     auto isProtected = GrProtected(tex.isProtected());
-    return sk_sp<GrRenderTarget>(new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc,
-                                                        sampleCnt, isProtected, rtInfo));
+    sk_sp<GrRenderTarget> rt(new GrMockRenderTarget(
+            this, GrMockRenderTarget::kWrapped, desc, sampleCnt, isProtected, rtInfo));
+    if (sampleCnt > 1) {
+        SkASSERT(!this->caps()->msaaResolvesAutomatically());
+        rt->renderTargetPriv().setRequiresManualMSAAResolve();
+    }
+    return rt;
 }
 
 sk_sp<GrGpuBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,

@@ -18,6 +18,12 @@ class GrStencilSettings;
     data members or virtual methods. */
 class GrRenderTargetPriv {
 public:
+    void setRequiresManualMSAAResolve() {
+        SkASSERT(!fRenderTarget->glRTFBOIDis0());
+        SkASSERT(fRenderTarget->asRenderTarget());
+        fRenderTarget->fSurfaceFlags |= GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
+    }
+
     /**
      * GrStencilAttachment is not part of the public API.
      */

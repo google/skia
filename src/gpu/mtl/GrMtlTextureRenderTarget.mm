@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
@@ -23,6 +25,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
         : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, resolveTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, sampleCnt, colorTexture, resolveTexture) {
+    this->initSurfaceFlags();
     this->registerWithCache(budgeted);
 }
 
@@ -34,6 +37,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
         : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, colorTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, colorTexture) {
+    this->initSurfaceFlags();
     this->registerWithCache(budgeted);
 }
 
@@ -47,6 +51,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
         : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, resolveTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, sampleCnt, colorTexture, resolveTexture) {
+    this->initSurfaceFlags();
     this->registerWithCacheWrapped(cacheable);
 }
 
@@ -58,7 +63,18 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
         : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, colorTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, colorTexture) {
+    this->initSurfaceFlags();
     this->registerWithCacheWrapped(cacheable);
+}
+
+void GrMtlTextureRenderTarget::initSurfaceFlags() {
+    if (this->numSamples() > 1) {
+        // Currently the Metal backend does not support multisampled-render-to-texture extensions,
+        // nor wrapping backend textures as render targets. This means, for the time being, that
+        // we require manual msaa resolve if and only if it's a texture render target.
+        SkASSERT(!this->getContext()->priv().caps()->msaaResolvesAutomatically());
+        this->renderTargetPriv().setRequiresManualMSAAResolve();
+    }
 }
 
 id<MTLTexture> create_msaa_texture(GrMtlGpu* gpu, const GrSurfaceDesc& desc, int sampleCnt) {
