@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "358db883_64e01217",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:20:41Z",
+      "side": 1,
+      "message": "withNewClipBounds ?",
+      "range": {
+        "startLine": 402,
+        "startChar": 15,
+        "endLine": 402,
+        "endChar": 19
+      },
+      "revId": "46c50b5c19fa0f586c43053a0785af2a49e5bf48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7f08e68_84ddcdd2",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:20:41Z",
+      "side": 1,
+      "message": "withNew* in both places ?",
+      "revId": "46c50b5c19fa0f586c43053a0785af2a49e5bf48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
