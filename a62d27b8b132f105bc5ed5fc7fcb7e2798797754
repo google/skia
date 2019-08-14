@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "95991c37_ab2e49fb",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-08-14T17:08:28Z",
+      "side": 1,
+      "message": "Yes, I will",
+      "parentUuid": "e13453bc_5afe5961",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 2
+      },
+      "revId": "a62d27b8b132f105bc5ed5fc7fcb7e2798797754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bf00396_405a7299",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 15
@@ -45,6 +69,30 @@
       "revId": "a62d27b8b132f105bc5ed5fc7fcb7e2798797754",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a51cc1d5_4f639c51",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-08-14T17:08:28Z",
+      "side": 1,
+      "message": "I added std::lower_bound and then I removed it but forgot the operation. I will remove it.",
+      "parentUuid": "1bf00396_405a7299",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 90
+      },
+      "revId": "a62d27b8b132f105bc5ed5fc7fcb7e2798797754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
