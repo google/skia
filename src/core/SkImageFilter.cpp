@@ -399,8 +399,7 @@ SkImageFilter_Base::Context SkImageFilter_Base::mapContext(const Context& ctx) c
     SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(),
                                                   MapDirection::kReverse_MapDirection,
                                                   &ctx.clipBounds());
-    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.colorType(), ctx.colorSpace(),
-                   ctx.sourceImage());
+    return ctx.withNewClipBounds(clipBounds);
 }
 
 #if SK_SUPPORT_GPU
