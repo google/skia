@@ -290,10 +290,10 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
     // the clip bounds (since it is assumed to already be in image space).
     SkImageFilter_Base::Context context(SkMatrix::MakeTrans(-subset.x(), -subset.y()),
                                         clipBounds.makeOffset(-subset.x(), -subset.y()),
-                                        cache.get(), fInfo.colorType(), fInfo.colorSpace());
+                                        cache.get(), fInfo.colorType(), fInfo.colorSpace(),
+                                        srcSpecialImage.get());
 
-    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(srcSpecialImage.get(), context,
-                                                               offset);
+    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(context, offset);
     if (!result) {
         return nullptr;
     }

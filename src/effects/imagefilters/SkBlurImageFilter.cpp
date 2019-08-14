@@ -43,8 +43,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
 
@@ -54,7 +53,7 @@ private:
 
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> gpuFilter(
-            SkSpecialImage *source, const Context& ctx, SkVector sigma,
+            const Context& ctx, SkVector sigma,
             const sk_sp<SkSpecialImage> &input,
             SkIRect inputBounds, SkIRect dstBounds, SkIPoint inputOffset, SkIPoint* offset) const;
 #endif
@@ -390,7 +389,7 @@ static void blur_one_direction(Sk4u* buffer, int window,
 }
 
 static sk_sp<SkSpecialImage> copy_image_with_bounds(
-        SkSpecialImage *source, const sk_sp<SkSpecialImage> &input,
+        const SkImageFilter_Base::Context& ctx, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
     SkBitmap inputBM;
     if (!input->getROPixels(&inputBM)) {
@@ -451,19 +450,19 @@ static sk_sp<SkSpecialImage> copy_image_with_bounds(
 
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
                                                           dstBounds.height()),
-                                          dst, &source->props());
+                                          dst, ctx.surfaceProps());
 }
 
 // TODO: Implement CPU backend for different fTileMode.
 static sk_sp<SkSpecialImage> cpu_blur(
-        SkVector sigma,
-        SkSpecialImage *source, const sk_sp<SkSpecialImage> &input,
+        const SkImageFilter_Base::Context& ctx,
+        SkVector sigma, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
     auto windowW = calculate_window(sigma.x()),
          windowH = calculate_window(sigma.y());
 
     if (windowW <= 1 && windowH <= 1) {
-        return copy_image_with_bounds(source, input, srcBounds, dstBounds);
+        return copy_image_with_bounds(ctx, input, srcBounds, dstBounds);
     }
 
     SkBitmap inputBM;
@@ -560,7 +559,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
 
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
                                                           dstBounds.height()),
-                                          dst, &source->props());
+                                          dst, ctx.surfaceProps());
 }
 
 // This rather arbitrary-looking value results in a maximum box blur kernel size
@@ -578,12 +577,11 @@ static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
     return sigma;
 }
 
-sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                           const Context& ctx,
+sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(const Context& ctx,
                                                            SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
 
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -614,16 +612,16 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 
     sk_sp<SkSpecialImage> result;
 #if SK_SUPPORT_GPU
-    if (source->isTextureBacked()) {
+    if (ctx.gpuBacked()) {
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
         input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
-        result = this->gpuFilter(source, ctx, sigma, input, inputBounds, dstBounds, inputOffset,
+        result = this->gpuFilter(ctx, sigma, input, inputBounds, dstBounds, inputOffset,
                                  &resultOffset);
     } else
 #endif
     {
-        result = cpu_blur(sigma, source, input, inputBounds, dstBounds);
+        result = cpu_blur(ctx, sigma, input, inputBounds, dstBounds);
     }
 
     // Return the resultOffset if the blur succeeded.
@@ -635,17 +633,15 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
-        SkSpecialImage *source, const Context& ctx, SkVector sigma,
-        const sk_sp<SkSpecialImage> &input, SkIRect inputBounds, SkIRect dstBounds,
-        SkIPoint inputOffset, SkIPoint* offset) const
-{
+        const Context& ctx, SkVector sigma, const sk_sp<SkSpecialImage> &input, SkIRect inputBounds,
+        SkIRect dstBounds, SkIPoint inputOffset, SkIPoint* offset) const {
     if (0 == sigma.x() && 0 == sigma.y()) {
         offset->fX = inputBounds.x() + inputOffset.fX;
         offset->fY = inputBounds.y() + inputOffset.fY;
         return input->makeSubset(inputBounds);
     }
 
-    auto context = source->getContext();
+    auto context = ctx.getContext();
 
     sk_sp<GrTextureProxy> inputTexture(input->asTextureProxyRef(context));
     if (!inputTexture) {
@@ -674,7 +670,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
             kNeedNewImageUniqueID_SpecialImage,
             renderTargetContext->asTextureProxyRef(),
             sk_ref_sp(input->getColorSpace()),
-            &source->props());
+            ctx.surfaceProps());
 }
 #endif
 

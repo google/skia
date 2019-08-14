@@ -421,8 +421,7 @@ protected:
     SkScalar surfaceScale() const { return fSurfaceScale; }
 
 #if SK_SUPPORT_GPU
-    sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
-                                         const Context& ctx,
+    sk_sp<SkSpecialImage> filterImageGPU(const Context& ctx,
                                          SkSpecialImage* input,
                                          const SkIRect& bounds,
                                          const SkMatrix& matrix) const;
@@ -470,14 +469,13 @@ void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTarget
 }
 
 sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
-                                                   SkSpecialImage* source,
                                                    const Context& ctx,
                                                    SkSpecialImage* input,
                                                    const SkIRect& offsetBounds,
                                                    const SkMatrix& matrix) const {
-    SkASSERT(source->isTextureBacked());
+    SkASSERT(ctx.gpuBacked());
 
-    auto context = source->getContext();
+    auto context = ctx.getContext();
 
     sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
     SkASSERT(inputProxy);
@@ -561,8 +559,7 @@ protected:
                                  sk_sp<SkImageFilter> input, const CropRect* cropRect);
     void flatten(SkWriteBuffer& buffer) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> makeFragmentProcessor(sk_sp<GrTextureProxy>,
@@ -596,8 +593,7 @@ protected:
                                   sk_sp<SkImageFilter> input, const CropRect*);
     void flatten(SkWriteBuffer& buffer) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> makeFragmentProcessor(sk_sp<GrTextureProxy>,
@@ -1244,11 +1240,10 @@ void SkDiffuseLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fKD);
 }
 
-sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(SkSpecialImage* source,
-                                                                  const Context& ctx,
+sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(const Context& ctx,
                                                                   SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -1265,11 +1260,11 @@ sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(SkSpecialImage
     bounds.offset(-inputOffset);
 
 #if SK_SUPPORT_GPU
-    if (source->isTextureBacked()) {
+    if (ctx.gpuBacked()) {
         SkMatrix matrix(ctx.ctm());
         matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
 
-        return this->filterImageGPU(source, ctx, input.get(), bounds, matrix);
+        return this->filterImageGPU(ctx, input.get(), bounds, matrix);
     }
 #endif
 
@@ -1379,11 +1374,10 @@ void SkSpecularLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fShininess);
 }
 
-sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(SkSpecialImage* source,
-                                                                   const Context& ctx,
+sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(const Context& ctx,
                                                                    SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -1400,11 +1394,11 @@ sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(SkSpecialImag
     bounds.offset(-inputOffset);
 
 #if SK_SUPPORT_GPU
-    if (source->isTextureBacked()) {
+    if (ctx.gpuBacked()) {
         SkMatrix matrix(ctx.ctm());
         matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
 
-        return this->filterImageGPU(source, ctx, input.get(), bounds, matrix);
+        return this->filterImageGPU(ctx, input.get(), bounds, matrix);
     }
 #endif
 
