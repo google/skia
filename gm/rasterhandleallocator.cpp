@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRasterHandleAllocator.h"
+#include "include/core/SkSurface.h"
 #include "src/core/SkMakeUnique.h"
 
 class GraphicsPort {
@@ -43,6 +44,47 @@ public:
     }
 
     SkCanvas* peekCanvas() const { return fCanvas; }
+};
+
+class SkiaGraphicsPort : public GraphicsPort {
+public:
+    SkiaGraphicsPort(SkCanvas* canvas) : GraphicsPort(canvas) {}
+
+    void drawRect(const SkRect& r, SkColor c) override {
+        SkCanvas* canvas = (SkCanvas*)fCanvas->accessTopRasterHandle();
+        canvas->drawRect(r, SkPaint(SkColor4f::FromColor(c)));
+    }
+};
+
+class SkiaAllocator : public SkRasterHandleAllocator {
+public:
+    SkiaAllocator() {}
+
+    bool allocHandle(const SkImageInfo& info, Rec* rec) override {
+        sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+        if (!surface) {
+            return false;
+        }
+        SkCanvas* canvas = surface->getCanvas();
+        SkPixmap pixmap;
+        canvas->peekPixels(&pixmap);
+
+        rec->fReleaseProc = [](void* pixels, void* ctx){ SkSafeUnref((SkSurface*)ctx); };
+        rec->fReleaseCtx = surface.release();
+        rec->fPixels = pixmap.writable_addr();
+        rec->fRowBytes = pixmap.rowBytes();
+        rec->fHandle = canvas;
+        canvas->save();    // balanced each time updateHandle is called
+        return true;
+    }
+
+    void updateHandle(Handle hndl, const SkMatrix& ctm, const SkIRect& clip) override {
+        SkCanvas* canvas = (SkCanvas*)hndl;
+        canvas->restore();
+        canvas->save();
+        canvas->clipRect(SkRect::Make(clip));
+        canvas->concat(ctm);
+    }
 };
 
 #ifdef SK_BUILD_FOR_MAC
@@ -79,9 +121,9 @@ static CGAffineTransform matrix_to_transform(CGContextRef cg, const SkMatrix& ct
                                  matrix[SkMatrix::kMTransY]);
 }
 
-class Allocator_CG : public SkRasterHandleAllocator {
+class CGAllocator : public SkRasterHandleAllocator {
 public:
-    Allocator_CG() {}
+    CGAllocator() {}
 
     bool allocHandle(const SkImageInfo& info, Rec* rec) override {
         // let CG allocate the pixels
@@ -94,7 +136,7 @@ public:
         rec->fPixels = CGBitmapContextGetData(cg);
         rec->fRowBytes = CGBitmapContextGetBytesPerRow(cg);
         rec->fHandle = cg;
-        CGContextSaveGState(cg);    // balanced each time updateContext is called
+        CGContextSaveGState(cg);    // balanced each time updateHandle is called
         return true;
     }
 
@@ -108,8 +150,8 @@ public:
     }
 };
 
-#define MyPort CGGraphicsPort
-#define MyAllocator Allocator_CG
+using MyPort = CGGraphicsPort;
+using MyAllocator = CGAllocator;
 
 #elif defined(SK_BUILD_FOR_WIN)
 
@@ -221,8 +263,13 @@ public:
     }
 };
 
-#define MyPort GDIGraphicsPort
-#define MyAllocator GDIAllocator
+using MyPort = GDIGraphicsPort;
+using MyAllocator = GDIAllocator;
+
+#else
+
+using MyPort = SkiaGraphicsPort;
+using MyAllocator = SkiaAllocator;
 
 #endif
 
@@ -246,11 +293,9 @@ DEF_SIMPLE_GM(rasterallocator, canvas, 600, 300) {
     };
 
     // TODO: this common code fails pic-8888 and serialize-8888
-    sk_ignore_unused_variable(doDraw);
     //GraphicsPort skiaPort(canvas);
     //doDraw(&skiaPort);
 
-#ifdef MyAllocator
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     std::unique_ptr<SkCanvas> nativeCanvas =
         SkRasterHandleAllocator::MakeCanvas(skstd::make_unique<MyAllocator>(), info);
@@ -262,5 +307,4 @@ DEF_SIMPLE_GM(rasterallocator, canvas, 600, 300) {
     SkBitmap bm;
     bm.installPixels(pm);
     canvas->drawBitmap(bm, 280, 0, nullptr);
-#endif
 }
