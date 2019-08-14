@@ -35,8 +35,7 @@ protected:
      *  @param SkReadBuffer Serialized picture data.
      */
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
 private:
     friend void SkPictureImageFilter::RegisterFlattenables();
@@ -108,8 +107,7 @@ void SkPictureImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fCropRect);
 }
 
-sk_sp<SkSpecialImage> SkPictureImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                              const Context& ctx,
+sk_sp<SkSpecialImage> SkPictureImageFilterImpl::onFilterImage(const Context& ctx,
                                                               SkIPoint* offset) const {
     if (!fPicture) {
         return nullptr;
@@ -127,7 +125,7 @@ sk_sp<SkSpecialImage> SkPictureImageFilterImpl::onFilterImage(SkSpecialImage* so
     // Given the standard usage of the picture image filter (i.e., to render content at a fixed
     // resolution that, most likely, differs from the screen's) disable LCD text.
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, bounds.size(), &props));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(bounds.size(), &props));
     if (!surf) {
         return nullptr;
     }

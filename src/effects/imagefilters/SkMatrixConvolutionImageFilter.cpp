@@ -54,8 +54,7 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
     bool affectsTransparentBlack() const override;
@@ -402,11 +401,10 @@ static GrTextureDomain::Mode convert_tilemodes(SkTileMode tileMode) {
 }
 #endif
 
-sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                                        const Context& ctx,
+sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Context& ctx,
                                                                         SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -434,9 +432,9 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(SkSpecia
 
 #if SK_SUPPORT_GPU
     // Note: if the kernel is too big, the GPU path falls back to SW
-    if (source->isTextureBacked() &&
+    if (ctx.gpuBacked() &&
         fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE) {
-        auto context = source->getContext();
+        auto context = ctx.getContext();
 
         // Ensure the input is in the destination color space. Typically applyCropRect will have
         // called pad_image to account for our dilation of bounds, so the result will already be

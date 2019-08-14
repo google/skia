@@ -43,8 +43,7 @@ public:
 protected:
     FailImageFilter() : INHERITED(nullptr, 0, nullptr) {}
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override {
         return nullptr;
     }
 
@@ -67,10 +66,9 @@ public:
 
     SK_FLATTENABLE_HOOKS(IdentityImageFilter)
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> onFilterImage(const Context& ctx, SkIPoint* offset) const override {
         offset->set(0, 0);
-        return sk_ref_sp<SkSpecialImage>(source);
+        return sk_ref_sp<SkSpecialImage>(ctx.sourceImage());
     }
 
 private:

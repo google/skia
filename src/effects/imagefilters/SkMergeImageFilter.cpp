@@ -26,8 +26,7 @@ public:
     }
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     bool onCanHandleComplexCTM() const override { return true; }
 
 private:
@@ -60,8 +59,8 @@ sk_sp<SkFlattenable> SkMergeImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     return SkMergeImageFilter::Make(common.inputs(), common.inputCount(), &common.cropRect());
 }
 
-sk_sp<SkSpecialImage> SkMergeImageFilterImpl::onFilterImage(
-        SkSpecialImage* source, const Context& ctx, SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkMergeImageFilterImpl::onFilterImage(const Context& ctx,
+                                                            SkIPoint* offset) const {
     int inputCount = this->countInputs();
     if (inputCount < 1) {
         return nullptr;
@@ -76,7 +75,7 @@ sk_sp<SkSpecialImage> SkMergeImageFilterImpl::onFilterImage(
     // Filter all of the inputs.
     for (int i = 0; i < inputCount; ++i) {
         offsets[i] = { 0, 0 };
-        inputs[i] = this->filterInput(i, source, ctx, &offsets[i]);
+        inputs[i] = this->filterInput(i, ctx, &offsets[i]);
         if (!inputs[i]) {
             continue;
         }
@@ -100,7 +99,7 @@ sk_sp<SkSpecialImage> SkMergeImageFilterImpl::onFilterImage(
     const int x0 = bounds.left();
     const int y0 = bounds.top();
 
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, bounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(bounds.size()));
     if (!surf) {
         return nullptr;
     }

@@ -199,15 +199,16 @@ void SkImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fCropRect.flags());
 }
 
-sk_sp<SkSpecialImage> SkImageFilter_Base::filterImage(SkSpecialImage* src, const Context& context,
+sk_sp<SkSpecialImage> SkImageFilter_Base::filterImage(const Context& context,
                                                       SkIPoint* offset) const {
-    SkASSERT(src && offset);
+    SkASSERT(offset);
     if (!context.isValid()) {
         return nullptr;
     }
 
-    uint32_t srcGenID = fUsesSrcInput ? src->uniqueID() : 0;
-    const SkIRect srcSubset = fUsesSrcInput ? src->subset() : SkIRect::MakeWH(0, 0);
+    uint32_t srcGenID = fUsesSrcInput ? context.sourceImage()->uniqueID() : 0;
+    const SkIRect srcSubset = fUsesSrcInput ? context.sourceImage()->subset()
+                                            : SkIRect::MakeWH(0, 0);
     SkImageFilterCacheKey key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID, srcSubset);
     if (context.cache()) {
         sk_sp<SkSpecialImage> result = context.cache()->get(key, offset);
@@ -216,14 +217,13 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::filterImage(SkSpecialImage* src, const
         }
     }
 
-    sk_sp<SkSpecialImage> result(this->onFilterImage(src, context, offset));
+    sk_sp<SkSpecialImage> result(this->onFilterImage(context, offset));
 
 #if SK_SUPPORT_GPU
-    if (src->isTextureBacked() && result && !result->isTextureBacked()) {
+    if (context.gpuBacked() && result && !result->isTextureBacked()) {
         // Keep the result on the GPU - this is still required for some
         // image filters that don't support GPU in all cases
-        auto context = src->getContext();
-        result = result->makeTextureImage(context);
+        result = result->makeTextureImage(context.getContext());
     }
 #endif
 
@@ -318,7 +318,7 @@ static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src, const SkImageFilter_
     // switched to the destination space anyway. The one exception would be a filter that expected
     // to consume unclamped F16 data, but the padded version of the image is pre-clamped to 8888.
     // We can revisit this logic if that ever becomes an actual problem.
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(src,  SkISize::Make(newWidth, newHeight)));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(SkISize::Make(newWidth, newHeight)));
     if (!surf) {
         return nullptr;
     }
@@ -381,17 +381,16 @@ SkIRect SkImageFilter_Base::onFilterNodeBounds(const SkIRect& src, const SkMatri
 }
 
 sk_sp<SkSpecialImage> SkImageFilter_Base::filterInput(int index,
-                                                      SkSpecialImage* src,
                                                       const Context& ctx,
                                                       SkIPoint* offset) const {
     const SkImageFilter* input = this->getInput(index);
     if (!input) {
-        return sk_sp<SkSpecialImage>(SkRef(src));
+        return sk_ref_sp(ctx.sourceImage());
     }
 
-    sk_sp<SkSpecialImage> result(as_IFB(input)->filterImage(src, this->mapContext(ctx), offset));
+    sk_sp<SkSpecialImage> result(as_IFB(input)->filterImage(this->mapContext(ctx), offset));
 
-    SkASSERT(!result || src->isTextureBacked() == result->isTextureBacked());
+    SkASSERT(!result || ctx.gpuBacked() == result->isTextureBacked());
 
     return result;
 }
@@ -400,7 +399,8 @@ SkImageFilter_Base::Context SkImageFilter_Base::mapContext(const Context& ctx) c
     SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(),
                                                   MapDirection::kReverse_MapDirection,
                                                   &ctx.clipBounds());
-    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.colorType(), ctx.colorSpace());
+    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.colorType(), ctx.colorSpace(),
+                   ctx.sourceImage());
 }
 
 #if SK_SUPPORT_GPU

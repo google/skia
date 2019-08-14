@@ -39,12 +39,13 @@ public:
         // Creates a context with the given layer matrix and destination clip, reading from 'source'
         // with an origin of (0,0).
         Context(const SkMatrix& ctm, const SkIRect& clipBounds, SkImageFilterCache* cache,
-                SkColorType colorType, SkColorSpace* colorSpace)
+                SkColorType colorType, SkColorSpace* colorSpace, const SkSpecialImage* source)
             : fCTM(ctm)
             , fClipBounds(clipBounds)
             , fCache(cache)
             , fColorType(colorType)
-            , fColorSpace(colorSpace) {}
+            , fColorSpace(colorSpace)
+            , fSource(source) {}
 
         const SkMatrix& ctm() const { return fCTM; }
         const SkIRect& clipBounds() const { return fClipBounds; }
@@ -59,6 +60,20 @@ public:
         // be performed in the destination color space.
         SkColorSpace* colorSpace() const { return fColorSpace; }
         sk_sp<SkColorSpace> refColorSpace() const { return sk_ref_sp(fColorSpace); }
+        // The default surface properties to use when making transient surfaces during filtering.
+        const SkSurfaceProps* surfaceProps() const { return &fSource->props(); }
+
+        // This is the image to use whenever an expected input filter has been set to null. In the
+        // majority of cases, this is the original source image for the image filter DAG so it comes
+        // from the SkDevice that holds either the saveLayer or the temporary rendered result. The
+        // exception is composing two image filters (via SkImageFilters::Compose), which must use
+        // the output of the inner DAG as the "source" for the outer DAG.
+        const SkSpecialImage* sourceImage() const { return fSource; }
+
+        // True if image filtering should occur on the GPU if possible.
+        bool gpuBacked() const { return fSource->isTextureBacked(); }
+        // The recording context to use when computing the filter with the GPU.
+        GrRecordingContext* getContext() const { return fSource->getContext(); }
 
         /**
          *  Since a context can be built directly, its constructor has no chance to "return null" if
@@ -68,14 +83,14 @@ public:
          *  The SkImageFilterCache Key, for example, requires a finite ctm (no infinities or NaN),
          *  so that test is part of isValid.
          */
-        bool isValid() const { return fCTM.isFinite(); }
+        bool isValid() const { return fSource && fCTM.isFinite(); }
 
         // Create a surface of the given size, that matches the context's color type and color space
         // as closely as possible, and uses the same backend of the device that produced the source
         // image.
-        sk_sp<SkSpecialSurface> makeSurface(const SkSpecialImage* source, const SkISize& size,
+        sk_sp<SkSpecialSurface> makeSurface(const SkISize& size,
                                             const SkSurfaceProps* props = nullptr) const {
-            return source->makeSurface(fColorType, fColorSpace, size, kPremul_SkAlphaType, props);
+            return fSource->makeSurface(fColorType, fColorSpace, size, kPremul_SkAlphaType, props);
         }
 
     private:
@@ -83,9 +98,10 @@ public:
         SkIRect                fClipBounds;
         SkImageFilterCache*    fCache;
         SkColorType            fColorType;
-        // This pointer is owned by the device controlling the filter process, and our
-        // lifetime is bounded by the device, so it can be a bare pointer.
+        // These pointers are owned by the device controlling the filter process, and our
+        // lifetime is bounded by the device, so they can be bare pointers.
         SkColorSpace*          fColorSpace;
+        const SkSpecialImage*  fSource;
     };
 
     /**
@@ -104,8 +120,7 @@ public:
      *  TODO: Right now the imagefilters sometimes return empty result bitmaps/
      *        specialimages. That doesn't seem quite right.
      */
-    sk_sp<SkSpecialImage> filterImage(SkSpecialImage* src, const Context& context,
-                                      SkIPoint* offset) const;
+    sk_sp<SkSpecialImage> filterImage(const Context& context, SkIPoint* offset) const;
 
     /**
      *  Returns whether any edges of the crop rect have been set. The crop
@@ -214,8 +229,7 @@ protected:
      *  than nothing and is necessary for the clipped out case.
      *  If the return value is nullptr then offset should be ignored.
      */
-    virtual sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* src, const Context&,
-                                                SkIPoint* offset) const = 0;
+    virtual sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const = 0;
 
     /**
      * This function recurses into its inputs with the given rect (first
@@ -253,12 +267,10 @@ protected:
     virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                        MapDirection, const SkIRect* inputRect) const;
 
-    // Helper function which invokes filter processing on the input at the
-    // specified "index". If the input is null, it returns "src" and leaves
-    // "offset" untouched. If the input is non-null, it
-    // calls filterImage() on that input, and returns the result.
+    // Helper function which invokes filter processing on the input at the specified "index". If the
+    // input is null, it returns the Context's source image "src" and leaves "offset" untouched. If
+    // the input is non-null, it calls filterImage() on that input, and returns the result.
     sk_sp<SkSpecialImage> filterInput(int index,
-                                      SkSpecialImage* src,
                                       const Context&,
                                       SkIPoint* offset) const;
 
