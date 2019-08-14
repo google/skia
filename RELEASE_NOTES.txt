@@ -10,6 +10,8 @@ Milestone 78
 
  * SkDrawLooper is no longer supported in SkPaint or SkCanvas.
 
+ * SkImage: new factories: DecodeToRaster, DecodeToTexture
+
  * SkImageFilter API refactor started:
    - Provide new factory API in include/effects/SkImageFilters
    - Consolidated enum types to use SkTileMode and SkColorChannel
