@@ -53,9 +53,6 @@ static std::vector<DecoderProc>* decoders() {
     #endif
         { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
         { SkWbmpCodec::IsWbmp, SkWbmpCodec::MakeFromStream },
-    #ifdef SK_HAS_HEIF_LIBRARY
-        { SkHeifCodec::IsHeif, SkHeifCodec::MakeFromStream },
-    #endif
     };
     return decoders;
 }
@@ -66,9 +63,9 @@ void SkCodec::Register(
     decoders()->push_back(DecoderProc{peek, make});
 }
 
-
-std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
-                                                 Result* outResult, SkPngChunkReader* chunkReader) {
+std::unique_ptr<SkCodec> SkCodec::MakeFromStream(
+        std::unique_ptr<SkStream> stream, Result* outResult,
+        SkPngChunkReader* chunkReader, SelectionPolicy selectionPolicy) {
     Result resultStorage;
     if (!outResult) {
         outResult = &resultStorage;
@@ -76,6 +73,12 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> strea
 
     if (!stream) {
         *outResult = kInvalidInput;
+        return nullptr;
+    }
+
+    if (selectionPolicy != SelectionPolicy::kPreferStillImage
+            && selectionPolicy != SelectionPolicy::kPreferAnimation) {
+        *outResult = kInvalidParameters;
         return nullptr;
     }
 
@@ -120,6 +123,12 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> strea
                 return proc.MakeFromStream(std::move(stream), outResult);
             }
         }
+
+#ifdef SK_HAS_HEIF_LIBRARY
+        if (SkHeifCodec::IsHeif(buffer, bytesRead)) {
+            return SkHeifCodec::MakeFromStream(std::move(stream), selectionPolicy, outResult);
+        }
+#endif
 
 #ifdef SK_CODEC_DECODES_RAW
         // Try to treat the input as RAW if all the other checks failed.

@@ -32,6 +32,7 @@ struct HeifStream {
 };
 
 struct HeifFrameInfo {
+#ifdef SK_LEGACY_HEIF_API
     int mRotationAngle;
     int mWidth;
     int mHeight;
@@ -39,6 +40,14 @@ struct HeifFrameInfo {
 
     size_t                  mIccSize;
     std::unique_ptr<char[]> mIccData;
+#else
+    uint32_t mWidth;
+    uint32_t mHeight;
+    int32_t  mRotationAngle;           // Rotation angle, clockwise, should be multiple of 90
+    uint32_t mBytesPerPixel;           // Number of bytes for one pixel
+    int64_t mDurationUs;               // Duration of the frame in us
+    std::vector<uint8_t> mIccData;     // ICC data array
+#endif
 };
 
 struct HeifDecoder {
@@ -47,9 +56,21 @@ struct HeifDecoder {
         return false;
     }
 
+#ifndef SK_LEGACY_HEIF_API
+    bool getSequenceInfo(HeifFrameInfo* frameInfo, size_t *frameCount) {
+        return false;
+    }
+#endif
+
     bool decode(HeifFrameInfo*) {
         return false;
     }
+
+#ifndef SK_LEGACY_HEIF_API
+    bool decodeSequence(int frameIndex, HeifFrameInfo* frameInfo) {
+        return false;
+    }
+#endif
 
     bool setOutputColor(HeifColorFormat) {
         return false;

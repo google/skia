@@ -26,3 +26,6 @@ Milestone 78
 
  * Vulkan backend now supports YCbCr sampler for I420 Vulkan images that are not
    backed by external images.
+
+ * Add SkCodec::SelectionPolicy for distinguishing between decoding a still image
+   or an image sequence for a container format that has both (e.g. HEIF).
