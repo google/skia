@@ -252,8 +252,16 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     GrMockRenderTargetInfo rtInfo(texInfo.fColorType, NextInternalRenderTargetID());
 
     auto isProtected = GrProtected(tex.isProtected());
-    return sk_sp<GrRenderTarget>(new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc,
-                                                        sampleCnt, isProtected, rtInfo));
+    auto rt = sk_adopt_sp(new GrMockRenderTarget(
+            this, GrMockRenderTarget::kWrapped, desc, sampleCnt, isProtected, rtInfo));
+    if (sampleCnt > 1) {
+        SkASSERT(!this->caps()->msaaResolvesAutomatically());
+        rt->renderTargetPriv().setRequiresManualMSAAResolve();
+    }
+    // "warning: prior to the resolution of a defect report against ISO C++11, local variable 'rt'
+    // would have been copied despite being returned by name, due to its not matching the function
+    // return type"
+    return std::move(rt);
 }
 
 sk_sp<GrGpuBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,

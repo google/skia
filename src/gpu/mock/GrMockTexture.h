@@ -143,6 +143,7 @@ public:
             : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, isProtected)
             , GrMockTexture(gpu, desc, isProtected, mipMapsStatus, texInfo)
             , GrMockRenderTarget(gpu, desc, sampleCnt, isProtected, rtInfo) {
+        this->initSurfaceFlags(*gpu->caps());
         this->registerWithCache(budgeted);
     }
 
@@ -154,6 +155,7 @@ public:
             : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, isProtected)
             , GrMockTexture(gpu, desc, isProtected, mipMapsStatus, texInfo)
             , GrMockRenderTarget(gpu, desc, sampleCnt, isProtected, rtInfo) {
+        this->initSurfaceFlags(*gpu->caps());
         this->registerWithCacheWrapped(cacheble);
     }
 
@@ -171,6 +173,13 @@ protected:
     void willRemoveLastRefOrPendingIO() override { GrTexture::willRemoveLastRefOrPendingIO(); }
 
 private:
+    void initSurfaceFlags(const GrCaps& caps) {
+        if (this->numSamples() > 1) {
+            SkASSERT(!caps.msaaResolvesAutomatically());
+            this->renderTargetPriv().setRequiresManualMSAAResolve();
+        }
+    }
+
     void onAbandon() override {
         GrRenderTarget::onAbandon();
         GrMockTexture::onAbandon();
