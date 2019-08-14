@@ -165,7 +165,7 @@ protected:
                     continue;
                 }
                 if (GrContext* context = canvas->getGrContext()) {
-                    image = image->makeTextureImage(context, canvas->imageInfo().colorSpace());
+                    image = image->makeTextureImage(context);
                 }
                 if (image) {
                     for (SkColorType dstColorType : colorTypes) {
