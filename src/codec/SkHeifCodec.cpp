@@ -118,48 +118,85 @@ private:
     std::unique_ptr<SkStream> fStream;
 };
 
-std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(
-        std::unique_ptr<SkStream> stream, Result* result) {
+#ifndef SK_LEGACY_HEIF_API
+static void releaseProc(const void* ptr, void* context) {
+    delete reinterpret_cast<std::vector<uint8_t>*>(context);
+}
+#endif
+
+std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+        SkCodec::SelectionPolicy selectionPolicy, Result* result) {
     std::unique_ptr<HeifDecoder> heifDecoder(createHeifDecoder());
     if (heifDecoder.get() == nullptr) {
         *result = kInternalError;
         return nullptr;
     }
 
-    HeifFrameInfo frameInfo;
-    if (!heifDecoder->init(new SkHeifStreamWrapper(stream.release()),
-                           &frameInfo)) {
+    HeifFrameInfo heifInfo;
+    if (!heifDecoder->init(new SkHeifStreamWrapper(stream.release()), &heifInfo)) {
         *result = kInvalidInput;
         return nullptr;
     }
 
+#ifndef SK_LEGACY_HEIF_API
+    size_t frameCount = 1;
+    if (selectionPolicy == SkCodec::SelectionPolicy::kPreferAnimation) {
+        HeifFrameInfo sequenceInfo;
+        if (heifDecoder->getSequenceInfo(&sequenceInfo, &frameCount) &&
+                frameCount > 1) {
+            heifInfo = std::move(sequenceInfo);
+        }
+    }
+#endif
+
     std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
-    if ((frameInfo.mIccSize > 0) && (frameInfo.mIccData != nullptr)) {
+#ifdef SK_LEGACY_HEIF_API
+    if ((heifInfo.mIccSize > 0) && (heifInfo.mIccData != nullptr)) {
         // FIXME: Would it be possible to use MakeWithoutCopy?
-        auto icc = SkData::MakeWithCopy(frameInfo.mIccData.get(), frameInfo.mIccSize);
+        auto icc = SkData::MakeWithCopy(heifInfo.mIccData.get(), heifInfo.mIccSize);
         profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
     }
+#else
+    if (heifInfo.mIccData.size() > 0) {
+        auto iccData = new std::vector<uint8_t>(std::move(heifInfo.mIccData));
+        auto icc = SkData::MakeWithProc(iccData->data(), iccData->size(), releaseProc, iccData);
+        profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
+    }
+#endif
     if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
         // This will result in sRGB.
         profile = nullptr;
     }
 
-    SkEncodedInfo info = SkEncodedInfo::Make(frameInfo.mWidth, frameInfo.mHeight,
+    SkEncodedInfo info = SkEncodedInfo::Make(heifInfo.mWidth, heifInfo.mHeight,
             SkEncodedInfo::kYUV_Color, SkEncodedInfo::kOpaque_Alpha, 8, std::move(profile));
-    SkEncodedOrigin orientation = get_orientation(frameInfo);
+    SkEncodedOrigin orientation = get_orientation(heifInfo);
 
     *result = kSuccess;
-    return std::unique_ptr<SkCodec>(new SkHeifCodec(std::move(info), heifDecoder.release(),
-                                                    orientation));
+    return std::unique_ptr<SkCodec>(new SkHeifCodec(
+            std::move(info), heifDecoder.release(), orientation
+#ifndef SK_LEGACY_HEIF_API
+            , frameCount > 1
+#endif
+            ));
 }
 
-SkHeifCodec::SkHeifCodec(SkEncodedInfo&& info, HeifDecoder* heifDecoder, SkEncodedOrigin origin)
+SkHeifCodec::SkHeifCodec(
+        SkEncodedInfo&& info,
+        HeifDecoder* heifDecoder,
+        SkEncodedOrigin origin
+#ifndef SK_LEGACY_HEIF_API
+        , bool useAnimation
+#endif
+        )
     : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, nullptr, origin)
     , fHeifDecoder(heifDecoder)
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
+#ifndef SK_LEGACY_HEIF_API
+    , fUseAnimation(useAnimation)
+#endif
 {}
-
 
 bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaque,
                                       bool needsColorXform) {
@@ -249,6 +286,79 @@ int SkHeifCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     return count;
 }
 
+#ifndef SK_LEGACY_HEIF_API
+int SkHeifCodec::onGetFrameCount() {
+    if (!fUseAnimation) {
+        return 1;
+    }
+
+    if (fFrameHolder.size() == 0) {
+        size_t frameCount;
+        HeifFrameInfo frameInfo;
+        if (!fHeifDecoder->getSequenceInfo(&frameInfo, &frameCount)
+                || frameCount <= 1) {
+            fUseAnimation = false;
+            return 1;
+        }
+        fFrameHolder.reserve(frameCount);
+        for (size_t i = 0; i < frameCount; i++) {
+            Frame* frame = fFrameHolder.appendNewFrame();
+            frame->setXYWH(0, 0, frameInfo.mWidth, frameInfo.mHeight);
+            frame->setDisposalMethod(SkCodecAnimation::DisposalMethod::kKeep);
+            // TODO: fill in per-frame durations
+            // Currently we don't know the duration until the frame is actually
+            // decoded (onGetFrameInfo is also called before frame is decoded).
+            // For now, fill it base on the value reported for the sequence.
+            frame->setDuration(frameInfo.mDurationUs / 1000);
+            frame->setRequiredFrame(SkCodec::kNoFrame);
+            frame->setHasAlpha(false);
+        }
+    }
+
+    return fFrameHolder.size();
+}
+
+const SkFrame* SkHeifCodec::FrameHolder::onGetFrame(int i) const {
+    return static_cast<const SkFrame*>(this->frame(i));
+}
+
+SkHeifCodec::Frame* SkHeifCodec::FrameHolder::appendNewFrame() {
+    const int i = this->size();
+    fFrames.emplace_back(i); // TODO: need to handle frame duration here
+    return &fFrames[i];
+}
+
+const SkHeifCodec::Frame* SkHeifCodec::FrameHolder::frame(int i) const {
+    SkASSERT(i >= 0 && i < this->size());
+    return &fFrames[i];
+}
+
+bool SkHeifCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
+    if (i >= fFrameHolder.size()) {
+        return false;
+    }
+
+    const Frame* frame = fFrameHolder.frame(i);
+    if (!frame) {
+        return false;
+    }
+
+    if (frameInfo) {
+        frameInfo->fRequiredFrame = SkCodec::kNoFrame;
+        frameInfo->fDuration = frame->getDuration();
+        frameInfo->fFullyReceived = true;
+        frameInfo->fAlphaType = kOpaque_SkAlphaType;
+        frameInfo->fDisposalMethod = SkCodecAnimation::DisposalMethod::kKeep;
+    }
+
+    return true;
+}
+
+int SkHeifCodec::onGetRepetitionCount() {
+    return kRepetitionCountInfinite;
+}
+#endif // SK_LEGACY_HEIF_API
+
 /*
  * Performs the heif decode
  */
@@ -263,9 +373,22 @@ SkCodec::Result SkHeifCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
+#ifdef SK_LEGACY_HEIF_API
     if (!fHeifDecoder->decode(&fFrameInfo)) {
         return kInvalidInput;
     }
+#else
+    bool success;
+    if (fUseAnimation) {
+        success = fHeifDecoder->decodeSequence(options.fFrameIndex, &fFrameInfo);
+    } else {
+        success = fHeifDecoder->decode(&fFrameInfo);
+    }
+
+    if (!success) {
+        return kInvalidInput;
+    }
+#endif // SK_LEGACY_HEIF_API
 
     fSwizzler.reset(nullptr);
     this->allocateStorage(dstInfo);
