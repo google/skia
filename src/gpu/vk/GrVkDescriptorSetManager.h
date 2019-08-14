@@ -74,7 +74,7 @@ private:
 
     private:
         enum {
-            kUniformDescPerSet = 1,
+            kUniformDescPerSet = 2,
             kMaxDescriptors = 1024,
             kStartNumDescriptors = 16, // must be less than kMaxUniformDescriptors
         };

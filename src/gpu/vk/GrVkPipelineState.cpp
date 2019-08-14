@@ -33,7 +33,8 @@ GrVkPipelineState::GrVkPipelineState(
         const GrVkDescriptorSetManager::Handle& samplerDSHandle,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
-        uint32_t uniformSize,
+        uint32_t geometryUniformSize,
+        uint32_t fragmentUniformSize,
         const UniformInfoArray& samplers,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
@@ -48,12 +49,13 @@ GrVkPipelineState::GrVkPipelineState(
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
-        , fDataManager(uniforms, uniformSize) {
+        , fDataManager(uniforms, geometryUniformSize, fragmentUniformSize) {
     fDescriptorSets[0] = VK_NULL_HANDLE;
     fDescriptorSets[1] = VK_NULL_HANDLE;
     fDescriptorSets[2] = VK_NULL_HANDLE;
 
-    fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
+    fGeometryUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, geometryUniformSize));
+    fFragmentUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, fragmentUniformSize));
 
     fNumSamplers = samplers.count();
 
@@ -75,9 +77,14 @@ void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
         fPipeline = nullptr;
     }
 
-    if (fUniformBuffer) {
-        fUniformBuffer->release(gpu);
-        fUniformBuffer.reset();
+    if (fGeometryUniformBuffer) {
+        fGeometryUniformBuffer->release(gpu);
+        fGeometryUniformBuffer.reset();
+    }
+
+    if (fFragmentUniformBuffer) {
+        fFragmentUniformBuffer->release(gpu);
+        fFragmentUniformBuffer.reset();
     }
 
     if (fUniformDescriptorSet) {
@@ -97,9 +104,14 @@ void GrVkPipelineState::abandonGPUResources() {
         fPipeline = nullptr;
     }
 
-    if (fUniformBuffer) {
-        fUniformBuffer->abandon();
-        fUniformBuffer.reset();
+    if (fGeometryUniformBuffer) {
+        fGeometryUniformBuffer->abandon();
+        fGeometryUniformBuffer.reset();
+    }
+
+    if (fFragmentUniformBuffer) {
+        fFragmentUniformBuffer->abandon();
+        fFragmentUniformBuffer.reset();
     }
 
     if (fUniformDescriptorSet) {
@@ -142,9 +154,10 @@ void GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
     }
 
     // Get new descriptor set
-    if (fUniformBuffer) {
+    if (fGeometryUniformBuffer || fFragmentUniformBuffer) {
         int uniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
-        if (fDataManager.uploadUniformBuffers(gpu, fUniformBuffer.get()) ||
+        if (fDataManager.uploadUniformBuffers(
+                    gpu, fGeometryUniformBuffer.get(), fFragmentUniformBuffer.get()) ||
             !fUniformDescriptorSet) {
             if (fUniformDescriptorSet) {
                 fUniformDescriptorSet->recycle(gpu);
@@ -158,8 +171,11 @@ void GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
         if (fUniformDescriptorSet) {
             commandBuffer->addRecycledResource(fUniformDescriptorSet);
         }
-        if (fUniformBuffer) {
-            commandBuffer->addRecycledResource(fUniformBuffer->resource());
+        if (fGeometryUniformBuffer) {
+            commandBuffer->addRecycledResource(fGeometryUniformBuffer->resource());
+        }
+        if (fFragmentUniformBuffer) {
+            commandBuffer->addRecycledResource(fFragmentUniformBuffer->resource());
         }
     }
 }
@@ -268,7 +284,8 @@ void GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
 void set_uniform_descriptor_writes(VkWriteDescriptorSet* descriptorWrite,
                                    VkDescriptorBufferInfo* bufferInfo,
                                    const GrVkUniformBuffer* buffer,
-                                   VkDescriptorSet descriptorSet) {
+                                   VkDescriptorSet descriptorSet,
+                                   uint32_t binding) {
 
     memset(bufferInfo, 0, sizeof(VkDescriptorBufferInfo));
     bufferInfo->buffer = buffer->buffer();
@@ -279,7 +296,7 @@ void set_uniform_descriptor_writes(VkWriteDescriptorSet* descriptorWrite,
     descriptorWrite->sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     descriptorWrite->pNext = nullptr;
     descriptorWrite->dstSet = descriptorSet;
-    descriptorWrite->dstBinding = GrVkUniformHandler::kUniformBinding;
+    descriptorWrite->dstBinding = binding;
     descriptorWrite->dstArrayElement = 0;
     descriptorWrite->descriptorCount = 1;
     descriptorWrite->descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -294,11 +311,23 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
 
     uint32_t writeCount = 0;
 
-    if (fUniformBuffer.get()) {
+    // Geometry Uniform Buffer
+    if (fGeometryUniformBuffer.get()) {
         set_uniform_descriptor_writes(&descriptorWrites[writeCount],
                                       &bufferInfos[writeCount],
-                                      fUniformBuffer.get(),
-                                      fDescriptorSets[GrVkUniformHandler::kUniformBufferDescSet]);
+                                      fGeometryUniformBuffer.get(),
+                                      fDescriptorSets[GrVkUniformHandler::kUniformBufferDescSet],
+                                      GrVkUniformHandler::kGeometryBinding);
+        ++writeCount;
+    }
+
+    // Fragment Uniform Buffer
+    if (fFragmentUniformBuffer.get()) {
+        set_uniform_descriptor_writes(&descriptorWrites[writeCount],
+                                      &bufferInfos[writeCount],
+                                      fFragmentUniformBuffer.get(),
+                                      fDescriptorSets[GrVkUniformHandler::kUniformBufferDescSet],
+                                      GrVkUniformHandler::kFragBinding);
         ++writeCount;
     }
 
