@@ -1375,18 +1375,18 @@ if (skia_enable_tools) {
         testonly = true
       }
 
-      bundle_data("${app_name}_bundle_symbols") {
-        public_deps = [
-          ":${app_name}_generate_executable",
-        ]
-        sources = [
-          "$gen_path/${app_name}.dSYM",
-        ]
-        outputs = [
-          "{{bundle_executable_dir}}/${app_name}.dSYM",
-        ]
-        testonly = true
-      }
+      #bundle_data("${app_name}_bundle_symbols") {
+      #  public_deps = [
+      #    ":${app_name}_generate_executable",
+      #  ]
+      #  sources = [
+      #    "$gen_path/${app_name}.dSYM",
+      #  ]
+      #  outputs = [
+      #    "{{bundle_executable_dir}}/${app_name}.dSYM",
+      #  ]
+      #  testonly = true
+      #}
 
       create_bundle("$app_name") {
         product_type = "com.apple.product-type.application"
