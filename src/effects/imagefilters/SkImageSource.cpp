@@ -33,8 +33,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
@@ -99,7 +98,7 @@ void SkImageSourceImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeImage(fImage.get());
 }
 
-sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(SkSpecialImage* source, const Context& ctx,
+sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(const Context& ctx,
                                                        SkIPoint* offset) const {
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
@@ -116,15 +115,15 @@ sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(SkSpecialImage* source, c
             offset->fX = iLeft;
             offset->fY = iTop;
 
-            return SkSpecialImage::MakeFromImage(source->getContext(),
+            return SkSpecialImage::MakeFromImage(ctx.getContext(),
                                                  SkIRect::MakeWH(fImage->width(), fImage->height()),
-                                                 fImage, &source->props());
+                                                 fImage, ctx.surfaceProps());
         }
     }
 
     const SkIRect dstIRect = dstRect.roundOut();
 
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, dstIRect.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(dstIRect.size()));
     if (!surf) {
         return nullptr;
     }
