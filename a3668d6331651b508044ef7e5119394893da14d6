@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a214681_e4bab946",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-14T21:11:50Z",
+      "side": 1,
+      "message": "oh boy",
+      "range": {
+        "startLine": 747,
+        "startChar": 0,
+        "endLine": 757,
+        "endChar": 0
+      },
+      "revId": "a3668d6331651b508044ef7e5119394893da14d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a994dd9_0d71297a",
+        "filename": "src/gpu/gl/GrGLRenderTarget.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-14T21:11:50Z",
+      "side": 1,
+      "message": "Is there anything stopping us from removing this virtual and go by the flags even without the render task implementation? I\u0027m ok with leaving it in the short term, just curious.",
+      "revId": "a3668d6331651b508044ef7e5119394893da14d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03f4ac30_3f0c086b",
+        "filename": "src/gpu/mock/GrMockGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-14T21:11:50Z",
+      "side": 1,
+      "message": "I\u0027m not in favor of commenting about these warnings. Or if we need to could we just have a macro like SkMOVE_RETURN() or something that documents it once (and could be changed all at once)?\n\nOr could we just turn off this warning?\n\nWe already have tons of them with no comments, and maybe a few that have a comment.",
+      "range": {
+        "startLine": 261,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 19
+      },
+      "revId": "a3668d6331651b508044ef7e5119394893da14d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
