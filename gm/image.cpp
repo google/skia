@@ -348,8 +348,7 @@ DEF_SIMPLE_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
     for (auto factory : imageFactories) {
         auto image(factory());
         if (image) {
-            sk_sp<SkImage> texImage(image->makeTextureImage(context,
-                                                            canvas->imageInfo().colorSpace()));
+            sk_sp<SkImage> texImage(image->makeTextureImage(context));
             if (texImage) {
                 canvas->drawImage(texImage, 0, 0);
             }

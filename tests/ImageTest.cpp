@@ -408,8 +408,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                     continue;
                 }
 
-                sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get(),
-                                                                mipMapped));
+                sk_sp<SkImage> texImage(image->makeTextureImage(context, mipMapped));
                 if (!texImage) {
                     GrContext* imageContext = as_IB(image)->context();
 
@@ -463,12 +462,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contex
         create_picture_image,
         [context] { return create_gpu_image(context); },
     };
-    SkColorSpace* legacyColorSpace = nullptr;
     for (auto factory : imageFactories) {
         sk_sp<SkImage> image = factory();
         if (!image->isTextureBacked()) {
             REPORTER_ASSERT(reporter, image->makeNonTextureImage().get() == image.get());
-            if (!(image = image->makeTextureImage(context, legacyColorSpace))) {
+            if (!(image = image->makeTextureImage(context))) {
                 continue;
             }
         }
@@ -516,7 +514,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
                     SkColorSetARGB((U8CPU)y, 255 - (U8CPU)y, (U8CPU)x, 255 - (U8CPU)x);
         }
     }
-    auto texImage = SkImage::MakeFromBitmap(bmp)->makeTextureImage(ctxInfo.grContext(), nullptr);
+    auto texImage = SkImage::MakeFromBitmap(bmp)->makeTextureImage(ctxInfo.grContext());
     if (!texImage || texImage->alphaType() != kUnpremul_SkAlphaType) {
         ERRORF(reporter, "Failed to make unpremul texture image.");
         return;
