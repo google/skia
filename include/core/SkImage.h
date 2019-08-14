@@ -154,18 +154,76 @@ public:
     static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator,
                                             const SkIRect* subset = nullptr);
 
-    /** Creates SkImage from encoded data.
-        subset allows selecting a portion of the full image. Pass nullptr to select the entire
-        image; otherwise, subset must be contained by image bounds.
-
-        SkImage is returned if format of the encoded data is recognized and supported.
-        Recognized formats vary by platform.
-
-        @param encoded  data of SkImage to decode
-        @param subset   bounds of returned SkImage; may be nullptr
-        @return         created SkImage, or nullptr
+    /**
+     *  Return an image backed by the encoded data, but attempt to defer decoding until the image
+     *  is actually used/drawn. This deferral allows the system to cache the result, either on the
+     *  CPU or on the GPU, depending on where the image is drawn. If memory is low, the cache may
+     *  be purged, causing the next draw of the image to have to re-decode.
+     *
+     *  The subset parameter specifies a area within the decoded image to create the image from.
+     *  If subset is null, then the entire image is returned.
+     *
+     *  This is similar to DecodeTo[Raster,Texture], but this method will attempt to defer the
+     *  actual decode, while the DecodeTo... method explicitly decode and allocate the backend
+     *  when the call is made.
+     *
+     *  If the encoded format is not supported, or subset is outside of the bounds of the decoded
+     *  image, nullptr is returned.
+     *
+     *  @param encoded  the encoded data
+     *  @param length   the number of bytes of encoded data
+     *  @param subset   the bounds of the pixels within the decoded image to return. may be null.
+     *  @return         created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
+
+    /**
+     *  Decode the data in encoded/length into a raster image.
+     *
+     *  The subset parameter specifies a area within the decoded image to create the image from.
+     *  If subset is null, then the entire image is returned.
+     *
+     *  This is similar to MakeFromEncoded, but this method will always decode immediately, and
+     *  allocate the memory for the pixels for the lifetime of the returned image.
+     *
+     *  If the encoded format is not supported, or subset is outside of the bounds of the decoded
+     *  image, nullptr is returned.
+     *
+     *  @param encoded  the encoded data
+     *  @param length   the number of bytes of encoded data
+     *  @param subset   the bounds of the pixels within the decoded image to return. may be null.
+     *  @return         created SkImage, or nullptr
+     */
+    static sk_sp<SkImage> DecodeToRaster(const void* encoded, size_t length,
+                                         const SkIRect* subset = nullptr);
+    static sk_sp<SkImage> DecodeToRaster(const sk_sp<SkData>& data,
+                                         const SkIRect* subset = nullptr) {
+        return DecodeToRaster(data->data(), data->size(), subset);
+    }
+
+    /**
+     *  Decode the data in encoded/length into a texture-backed image.
+     *
+     *  The subset parameter specifies a area within the decoded image to create the image from.
+     *  If subset is null, then the entire image is returned.
+     *
+     *  This is similar to MakeFromEncoded, but this method will always decode immediately, and
+     *  allocate the texture for the pixels for the lifetime of the returned image.
+     *
+     *  If the encoded format is not supported, or subset is outside of the bounds of the decoded
+     *  image, nullptr is returned.
+     *
+     *  @param encoded  the encoded data
+     *  @param length   the number of bytes of encoded data
+     *  @param subset   the bounds of the pixels within the decoded image to return. may be null.
+     *  @return         created SkImage, or nullptr
+     */
+    static sk_sp<SkImage> DecodeToTexture(GrContext* ctx, const void* encoded, size_t length,
+                                          const SkIRect* subset = nullptr);
+    static sk_sp<SkImage> DecodeToTexture(GrContext* ctx, const sk_sp<SkData>& data,
+                                          const SkIRect* subset = nullptr) {
+        return DecodeToTexture(ctx, data->data(), data->size(), subset);
+    }
 
     // Experimental
     enum CompressionType {

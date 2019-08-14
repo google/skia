@@ -287,6 +287,44 @@ sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> gene
     return validator ? sk_make_sp<SkImage_Lazy>(&validator) : nullptr;
 }
 
+sk_sp<SkImage> SkImage::DecodeToRaster(const void* encoded, size_t length, const SkIRect* subset) {
+    // The generator will not outlive this function, so we can wrap the encoded data without copy
+    auto gen = SkImageGenerator::MakeFromEncoded(SkData::MakeWithoutCopy(encoded, length));
+    if (!gen) {
+        return nullptr;
+    }
+    SkImageInfo info = gen->getInfo();
+    if (info.isEmpty()) {
+        return nullptr;
+    }
+
+    SkIPoint origin = {0, 0};
+    if (subset) {
+        if (!SkIRect::MakeWH(info.width(), info.height()).contains(*subset)) {
+            return nullptr;
+        }
+        info = info.makeWH(subset->width(), subset->height());
+        origin = {subset->x(), subset->y()};
+    }
+
+    size_t rb = info.minRowBytes();
+    if (rb == 0) {
+        return nullptr; // rb was too big
+    }
+    size_t size = info.computeByteSize(rb);
+    if (size == SIZE_MAX) {
+        return nullptr;
+    }
+    auto data = SkData::MakeUninitialized(size);
+
+    SkPixmap pmap(info, data->writable_data(), rb);
+    if (!generate_pixels(gen.get(), pmap, origin.x(), origin.y())) {
+        return nullptr;
+    }
+
+    return SkImage::MakeRasterData(info, data, rb);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
@@ -497,5 +535,15 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImage> SkImage::DecodeToTexture(GrContext* ctx, const void* encoded, size_t length,
+                                        const SkIRect* subset) {
+    // img will not survive this function, so we don't need to copy/own the encoded data,
+    auto img = MakeFromEncoded(SkData::MakeWithoutCopy(encoded, length), subset);
+    if (!img) {
+        return nullptr;
+    }
+    return img->makeTextureImage(ctx, nullptr);
+}
 
 #endif
