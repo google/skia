@@ -1,0 +1,204 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfc1c1c1_f4de7262",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "useGpu ?",
+      "range": {
+        "startLine": 393,
+        "startChar": 28,
+        "endLine": 393,
+        "endChar": 58
+      },
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52c94c16_9b1ad7b0",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "// This is the original source image for the image filter DAG so, the SkDevice that holds either the saveLayer or the temporary rendered result. It is used whenever an expected input has been set to null.\n\n?\n\nBasically, make it a bit more concrete where this thing is coming from and there is only ever one and it is constant throughout the DAG\u0027s evaluation.",
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f0f9a64_0ab2e517",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "maybe \"gpuBacked\" ?",
+      "range": {
+        "startLine": 63,
+        "startChar": 13,
+        "endLine": 63,
+        "endChar": 19
+      },
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0daafcc_8dece028",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 64,
+        "startChar": 40,
+        "endLine": 64,
+        "endChar": 44
+      },
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "338b95af_85d16df2",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "SkImage\u0027s actually (will) hold SkImageContexts but, since we\u0027re rendering we will always have a rendering context somewhere.",
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca686c63_c780bef3",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "update",
+      "range": {
+        "startLine": 262,
+        "startChar": 47,
+        "endLine": 262,
+        "endChar": 64
+      },
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11bab119_5fba00bd",
+        "filename": "src/core/SkLocalMatrixImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "Seems like we should have a makeLocal method for this mess.",
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0a8a1d0_c86514f0",
+        "filename": "src/effects/imagefilters/SkBlurImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "const\u0026 ?",
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24471551_ec3a7c3f",
+        "filename": "src/effects/imagefilters/SkComposeImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "// Big comment here since we\u0027re changing the source image\n\nCan this be ctx.sourceImage ?",
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db1b1f6a_bcdb81f5",
+        "filename": "src/effects/imagefilters/SkPaintImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-14T17:09:09Z",
+      "side": 1,
+      "message": "ctx.sourceImage()-\u003ebounds() ?",
+      "range": {
+        "startLine": 71,
+        "startChar": 30,
+        "endLine": 72,
+        "endChar": 75
+      },
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
