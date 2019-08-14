@@ -22,6 +22,30 @@
       "revId": "952f4e9d0c5c14824cd71629a761c1730d8dc655",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a23be13f_200c60b1",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-14T17:26:28Z",
+      "side": 1,
+      "message": "Well right now we only have ETC1 compression type which is compatible with ETC1 and 2 so there\u0027s a verification :).\n\nBut really I guess we could have something in caps that verifies and format and compression?\n\nOr we remove the compression. I had left the compression in there as a description of the data being passed in. Maybe this isn\u0027t need and we always just assume the data is in the format we need it be in?",
+      "parentUuid": "9745a2ac_adcdda1a",
+      "range": {
+        "startLine": 1505,
+        "startChar": 52,
+        "endLine": 1506,
+        "endChar": 89
+      },
+      "revId": "952f4e9d0c5c14824cd71629a761c1730d8dc655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
