@@ -31,3 +31,5 @@ Milestone 78
    or an image sequence for a container format that has both (e.g. HEIF).
 
 * SkImage::makeTextureImage no longer takes an SkColorSpace parameter. It was unused.
+
+* SkImage::reinterpretColorSpace - to reinterpret image contents in a new color space.

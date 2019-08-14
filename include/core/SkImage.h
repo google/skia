@@ -1145,6 +1145,12 @@ public:
     sk_sp<SkImage> makeColorTypeAndColorSpace(SkColorType targetColorType,
                                               sk_sp<SkColorSpace> targetColorSpace) const;
 
+    /** Creates a new SkImage identical to this one, but with a different SkColorSpace.
+        This does not convert the underlying pixel data, so the resulting image will draw
+        differently.
+    */
+    sk_sp<SkImage> reinterpretColorSpace(sk_sp<SkColorSpace> newColorSpace) const;
+
 private:
     SkImage(const SkImageInfo& info, uint32_t uniqueID);
     friend class SkImage_Base;

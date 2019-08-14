@@ -40,6 +40,8 @@ public:
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
                                                 SkColorType, sk_sp<SkColorSpace>) const final;
 
+    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
+
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makePromiseImage.
      */

@@ -377,6 +377,25 @@ sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
                                                      targetColorType, std::move(targetColorSpace));
 }
 
+sk_sp<SkImage> SkImage::reinterpretColorSpace(sk_sp<SkColorSpace> target) const {
+    if (!target) {
+        return nullptr;
+    }
+
+    // No need to create a new image if:
+    // (1) The color spaces are equal.
+    // (2) The color type is kAlpha8.
+    SkColorSpace* colorSpace = this->colorSpace();
+    if (!colorSpace) {
+        colorSpace = sk_srgb_singleton();
+    }
+    if (SkColorSpace::Equals(colorSpace, target.get()) || this->isAlphaOnly()) {
+        return sk_ref_sp(const_cast<SkImage*>(this));
+    }
+
+    return as_IB(this)->onReinterpretColorSpace(std::move(target));
+}
+
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
     if (!this->isTextureBacked()) {
         return sk_ref_sp(const_cast<SkImage*>(this));
@@ -509,34 +528,4 @@ void SkImage_unpinAsTexture(const SkImage* image, GrContext* ctx) {
 SkIRect SkImage_getSubset(const SkImage* image) {
     SkASSERT(image);
     return as_IB(image)->onGetSubset();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImage> SkImageMakeRasterCopyAndAssignColorSpace(const SkImage* src,
-                                                        SkColorSpace* colorSpace) {
-    // Read the pixels out of the source image, with no conversion
-    const SkImageInfo& info = src->imageInfo();
-    if (kUnknown_SkColorType == info.colorType()) {
-        SkDEBUGFAIL("Unexpected color type");
-        return nullptr;
-    }
-
-    size_t rowBytes = info.minRowBytes();
-    size_t size = info.computeByteSize(rowBytes);
-    if (SkImageInfo::ByteSizeOverflowed(size)) {
-        return nullptr;
-    }
-    auto data = SkData::MakeUninitialized(size);
-    if (!data) {
-        return nullptr;
-    }
-
-    SkPixmap pm(info, data->writable_data(), rowBytes);
-    if (!src->readPixels(pm, 0, 0, SkImage::kDisallow_CachingHint)) {
-        return nullptr;
-    }
-
-    // Wrap them in a new image with a different color space
-    return SkImage::MakeRasterData(info.makeColorSpace(sk_ref_sp(colorSpace)), data, rowBytes);
 }
