@@ -9,10 +9,10 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrSamplerState.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSamplerState.h"
 
 class GrColorSpaceXform;
 class GrDrawOp;

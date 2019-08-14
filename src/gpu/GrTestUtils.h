@@ -14,12 +14,12 @@
 
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/gpu/GrSamplerState.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrFPArgs.h"
+#include "src/gpu/GrSamplerState.h"
 #include "src/shaders/SkShaderBase.h"
 
 class GrColorSpaceInfo;

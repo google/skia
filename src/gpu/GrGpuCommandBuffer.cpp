@@ -9,13 +9,13 @@
 
 #include "include/core/SkRect.h"
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrRenderTarget.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 
 void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, const SkPMColor4f& color) {

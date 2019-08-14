@@ -25,6 +25,7 @@ static DEFINE_double(frame, 1.0,
 #include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
 // Globals externed in fiddle_main.h

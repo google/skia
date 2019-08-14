@@ -9,10 +9,10 @@
 #define GrTextureProducer_DEFINED
 
 #include "include/core/SkImageInfo.h"
-#include "include/gpu/GrSamplerState.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrSamplerState.h"
 
 class GrFragmentProcessor;
 class GrRecordingContext;

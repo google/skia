@@ -6,7 +6,7 @@
  */
 
 
-#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTarget.h"
 
 #include "include/gpu/GrContext.h"
 #include "src/core/SkRectPriv.h"

@@ -9,7 +9,7 @@
 #ifndef GrVkRenderTarget_DEFINED
 #define GrVkRenderTarget_DEFINED
 
-#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/vk/GrVkImage.h"
 
 #include "include/gpu/vk/GrVkTypes.h"

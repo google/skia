@@ -14,9 +14,9 @@
 #include "include/gpu/vk/GrVkVulkan.h"
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "tools/gpu/GrContextFactory.h"
 
 #include "include/gpu/vk/GrVkTypes.h"

@@ -7,9 +7,9 @@
 #ifndef GrMockTexture_DEFINED
 #define GrMockTexture_DEFINED
 
-#include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/GrTexture.h"
 #include "include/gpu/mock/GrMockTypes.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexturePriv.h"

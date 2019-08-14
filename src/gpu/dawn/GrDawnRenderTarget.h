@@ -8,8 +8,8 @@
 #ifndef GrDawnRenderTarget_DEFINED
 #define GrDawnRenderTarget_DEFINED
 
-#include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/dawn/GrDawnTypes.h"
+#include "src/gpu/GrRenderTarget.h"
 
 class GrDawnGpu;
 

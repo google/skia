@@ -8,7 +8,7 @@
 #ifndef GrTextureProxy_DEFINED
 #define GrTextureProxy_DEFINED
 
-#include "include/gpu/GrSamplerState.h"
+#include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceProxy.h"
 
 class GrCaps;
