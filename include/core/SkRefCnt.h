@@ -411,4 +411,15 @@ template <typename T> sk_sp<T> sk_ref_sp(const T* obj) {
     return sk_sp<T>(const_cast<T*>(SkSafeRef(obj)));
 }
 
+/** Returns a sk_sp wrapping the provided ptr and does *NOT* modify the ref count.
+ *
+ *  This is idental to calling the constructor for sk_sp, except it reduces the number of times the
+ *  caller must enter the type name.
+ *
+ *  e.g.: sk_adopt_sp(...) instead of sk_sp<SkMyReallyLongTypeName>(...)
+ */
+template <typename T> sk_sp<T> sk_adopt_sp(T* obj) {
+    return sk_sp<T>(obj);
+}
+
 #endif
