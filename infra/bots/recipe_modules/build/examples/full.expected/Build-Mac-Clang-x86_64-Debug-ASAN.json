@@ -64,6 +64,43 @@
   },
   {
     "cmd": [
+      "cmd",
+      "/c",
+      "ver"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "cmd"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\n\nfor p in os.environ['PATH'].split(os.pathsep):\n  for e in os.environ['PATHEXT'].split(os.pathsep):\n    cmd = os.path.join(p, 'cmd' + e)\n    print cmd\n    try:\n      print subprocess.call([cmd, '/c', 'ver'])\n    except Exception as e:\n      print e\n"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "name": "check PATH",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for p in os.environ['PATH'].split(os.pathsep):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for e in os.environ['PATHEXT'].split(os.pathsep):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    cmd = os.path.join(p, 'cmd' + e)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print cmd@@@",
+      "@@@STEP_LOG_LINE@python.inline@    try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print subprocess.call([cmd, '/c', 'ver'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@    except Exception as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print e@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-ASAN/Debug"
