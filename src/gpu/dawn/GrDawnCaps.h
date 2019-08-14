@@ -48,7 +48,7 @@ public:
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
-    bool canClearTextureOnCreation() const override;
+    bool canClearTextureOnCreation(const GrBackendFormat&) const override;
 
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
 

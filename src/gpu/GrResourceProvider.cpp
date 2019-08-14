@@ -97,7 +97,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                       renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
-    bool mustInitializeAllLevels = this->caps()->createTextureMustSpecifyAllLevels();
+    bool mustInitializeAllLevels = this->caps()->createTextureMustSpecifyAllLevels(format);
     bool rowBytesSupport = this->caps()->writePixelsRowBytesSupport();
     SkAutoSTMalloc<14, GrMipLevel> tmpTexels;
     SkAutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
@@ -164,7 +164,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     GrContext* context = fGpu->getContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    bool mustInitialize = this->caps()->createTextureMustSpecifyAllLevels();
+    bool mustInitialize = this->caps()->createTextureMustSpecifyAllLevels(format);
     bool rowBytesSupport = this->caps()->writePixelsRowBytesSupport();
 
     size_t bpp = GrBytesPerPixel(desc.fConfig);
@@ -241,7 +241,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         }
     }
 
-    if (fCaps->createTextureMustSpecifyAllLevels()) {
+    if (fCaps->createTextureMustSpecifyAllLevels(format)) {
         size_t rowBytes = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
         size_t size = rowBytes * desc.fHeight;
         std::unique_ptr<char[]> zeros(new char[size]());
@@ -324,7 +324,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return tex;
     }
 
-    if (this->caps()->createTextureMustSpecifyAllLevels()) {
+    if (this->caps()->createTextureMustSpecifyAllLevels(format)) {
         size_t rowBytes = GrBytesPerPixel(copyDesc->fConfig) * copyDesc->fWidth;
         size_t size = rowBytes * copyDesc->fHeight;
         std::unique_ptr<char[]> zeros(new char[size]());

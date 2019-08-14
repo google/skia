@@ -1490,13 +1490,24 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             this->caps()->shouldInitializeTextures() && this->glCaps().clearTextureSupport();
 
     if (clearLevelsWithoutData) {
-        static constexpr uint32_t kZero = 0;
-        int levelCnt = SkTMax(1, tex->texturePriv().maxMipMapLevel());
-        for (int i = 0; i < levelCnt; ++i) {
-            if (i >= mipLevelCount || !texels[i].fPixels) {
-                GL_CALL(ClearTexImage(tex->textureID(), i, GR_GL_RGBA, GR_GL_UNSIGNED_BYTE,
-                                      &kZero));
+        if (this->glCaps().clearTextureSupport()) {
+            static constexpr uint32_t kZero = 0;
+            int levelCnt = SkTMax(1, tex->texturePriv().maxMipMapLevel());
+            for (int i = 0; i < levelCnt; ++i) {
+                if (i >= mipLevelCount || !texels[i].fPixels) {
+                    GL_CALL(ClearTexImage(tex->textureID(), i, GR_GL_RGBA, GR_GL_UNSIGNED_BYTE,
+                                          &kZero));
+                }
             }
+        } else {
+            SkASSERT(this->glCaps().canFormatBeFBOColorAttachment(format.asGLFormat()));
+            this->bindSurfaceFBOForPixelOps(tex.get(), GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
+            this->disableScissor();
+            this->disableWindowRectangles();
+            this->flushColorWrite(true);
+            this->flushClearColor(0, 0, 0, 0);
+            GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
+            this->unbindTextureFBOForPixelOps(kDst_TempFBOTarget, tex.get());
         }
     }
     return std::move(tex);
