@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0b667170_bd74fc00",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-14T19:49:06Z",
+      "side": 1,
+      "message": "IIRC, it\u0027s because someone needs to hold a ref to them. The caller of GrGpu::getCommandBuffer() does not take ownership. If GrGpu::getCommandBuffer() returned a shared_ptr or something, that would obviate the need for the member vars, I think.\n\nYou\u0027re right that they\u0027re not cached or reused beyond the first submit, though. I\u0027ve renamed them to reflect that.",
+      "parentUuid": "6bd69437_d18db9d0",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 44
+      },
+      "revId": "075f38a2074a927bd105ddf7ed1d2b620f6e8e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "390e219b_81ed6366",
         "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9793beb3_839182e2",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-14T19:49:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "390e219b_81ed6366",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 74
+      },
+      "revId": "075f38a2074a927bd105ddf7ed1d2b620f6e8e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab1b3ebf_eb475aa4",
         "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
         "patchSetId": 4
@@ -68,6 +116,30 @@
       "revId": "075f38a2074a927bd105ddf7ed1d2b620f6e8e49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bbf5d5b_6ef56904",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-14T19:49:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab1b3ebf_eb475aa4",
+      "range": {
+        "startLine": 198,
+        "startChar": 3,
+        "endLine": 225,
+        "endChar": 74
+      },
+      "revId": "075f38a2074a927bd105ddf7ed1d2b620f6e8e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
