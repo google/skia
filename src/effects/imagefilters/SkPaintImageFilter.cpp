@@ -27,8 +27,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
 private:
     friend void SkPaintImageFilter::RegisterFlattenables();
@@ -66,16 +65,16 @@ void SkPaintImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writePaint(fPaint);
 }
 
-sk_sp<SkSpecialImage> SkPaintImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                            const Context& ctx,
+sk_sp<SkSpecialImage> SkPaintImageFilterImpl::onFilterImage(const Context& ctx,
                                                             SkIPoint* offset) const {
     SkIRect bounds;
-    const SkIRect srcBounds = SkIRect::MakeWH(source->width(), source->height());
+    const SkIRect srcBounds = SkIRect::MakeWH(ctx.sourceImage()->width(),
+                                              ctx.sourceImage()->height());
     if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
         return nullptr;
     }
 
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(source, bounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(bounds.size()));
     if (!surf) {
         return nullptr;
     }

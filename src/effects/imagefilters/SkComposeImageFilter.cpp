@@ -25,8 +25,7 @@ public:
     SkRect computeFastBounds(const SkRect& src) const override;
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
                            MapDirection, const SkIRect* inputRect) const override;
     bool onCanHandleComplexCTM() const override { return true; }
@@ -72,8 +71,7 @@ SkRect SkComposeImageFilterImpl::computeFastBounds(const SkRect& src) const {
     return outer->computeFastBounds(inner->computeFastBounds(src));
 }
 
-sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                              const Context& ctx,
+sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(const Context& ctx,
                                                               SkIPoint* offset) const {
     // The bounds passed to the inner filter must be filtered by the outer
     // filter, so that the inner filter produces the pixels that the outer
@@ -82,21 +80,30 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(SkSpecialImage* so
     innerClipBounds = this->getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm(),
                                                       kReverse_MapDirection, &ctx.clipBounds());
     Context innerContext(ctx.ctm(), innerClipBounds, ctx.cache(), ctx.colorType(),
-                         ctx.colorSpace());
+                         ctx.colorSpace(), ctx.sourceImage());
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> inner(this->filterInput(1, source, innerContext, &innerOffset));
+    sk_sp<SkSpecialImage> inner(this->filterInput(1, innerContext, &innerOffset));
     if (!inner) {
         return nullptr;
     }
 
+    // TODO (michaelludwig) - Once all filters are updated to process coordinate spaces more
+    // robustly, we can allow source images to have non-(0,0) origins, which will mean that the
+    // CTM/clipBounds modifications for the outerContext can go away.
     SkMatrix outerMatrix(ctx.ctm());
     outerMatrix.postTranslate(SkIntToScalar(-innerOffset.x()), SkIntToScalar(-innerOffset.y()));
     SkIRect clipBounds = ctx.clipBounds();
     clipBounds.offset(-innerOffset.x(), -innerOffset.y());
-    Context outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.colorType(), ctx.colorSpace());
+    // NOTE: This is the only spot in image filtering where the source image of the context
+    // is not constant for the entire DAG evaluation. Given that the inner and outer DAG branches
+    // were already created, there's no alternative way for the leaf nodes of the outer DAG to
+    // get the results of the inner DAG. Overriding the source image of the context has the correct
+    // effect, but means that the source image is not fixed for the entire filter process.
+    Context outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.colorType(), ctx.colorSpace(),
+                         inner.get());
 
     SkIPoint outerOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> outer(this->filterInput(0, inner.get(), outerContext, &outerOffset));
+    sk_sp<SkSpecialImage> outer(this->filterInput(0, outerContext, &outerOffset));
     if (!outer) {
         return nullptr;
     }

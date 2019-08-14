@@ -42,8 +42,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> createMaskTexture(GrRecordingContext*,
@@ -132,11 +131,10 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingC
 }
 #endif
 
-sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                                const Context& ctx,
+sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& ctx,
                                                                 SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -150,8 +148,8 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
     }
 
 #if SK_SUPPORT_GPU
-    if (source->isTextureBacked()) {
-        auto context = source->getContext();
+    if (ctx.gpuBacked()) {
+        auto context = ctx.getContext();
 
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
