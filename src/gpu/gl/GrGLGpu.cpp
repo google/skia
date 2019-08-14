@@ -3770,14 +3770,21 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
-GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
-                                               const GrBackendFormat& format,
-                                               GrMipMapped mipMapped,
-                                               GrRenderable renderable,
-                                               const void* srcPixels, size_t rowBytes,
-                                               const SkColor4f* color,
-                                               GrProtected isProtected) {
+GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
+                                                 const GrBackendFormat& format,
+                                                 GrMipMapped mipMapped,
+                                                 GrRenderable renderable,
+                                                 const SkPixmap srcData[], int numMipLevels,
+                                                 const SkColor4f* color,
+                                                 GrProtected isProtected) {
     this->handleDirtyContext();
+
+    const GrCaps* caps = this->caps();
+
+    // GrGpu::createBackendTexture should ensure these conditions
+    SkASSERT(w >= 1 && w <= caps->maxTextureSize() && h >= 1 && h <= caps->maxTextureSize());
+    SkASSERT(GrGpu::MipMapsAreCorrect(w, h, mipMapped, srcData, numMipLevels));
+    SkASSERT(mipMapped == GrMipMapped::kNo || caps->mipMapSupport());
 
     GrGLFormat glFormat = format.asGLFormat();
     if (glFormat == GrGLFormat::kUnknown) {
@@ -3785,26 +3792,11 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
     }
 
     GrPixelConfig config = gl_format_to_pixel_config(glFormat);
-
     if (config == kUnknown_GrPixelConfig) {
         return GrBackendTexture();  // invalid
     }
 
     if (!this->caps()->isConfigTexturable(config)) {
-        return GrBackendTexture();  // invalid
-    }
-
-    if (w < 1 || w > this->caps()->maxTextureSize() ||
-        h < 1 || h > this->caps()->maxTextureSize()) {
-        return GrBackendTexture();  // invalid
-    }
-
-    // Currently we don't support uploading pixel data when mipped.
-    if (srcPixels && GrMipMapped::kYes == mipMapped) {
-        return GrBackendTexture();  // invalid
-    }
-
-    if (mipMapped == GrMipMapped::kYes && !this->caps()->mipMapSupport()) {
         return GrBackendTexture();  // invalid
     }
 
@@ -3838,10 +3830,12 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         info.fFormat = GrGLFormatToEnum(format);
         info.fTarget = GR_GL_TEXTURE_2D;
     } else {
-        if (srcPixels) {
-            mipLevelCount = 1;
+        if (srcData) {
+            mipLevelCount = numMipLevels;
             texels.reset(mipLevelCount);
-            texels.get()[0] = {srcPixels, rowBytes};
+            for (int i = 0; i < mipLevelCount; ++i) {
+                texels.get()[i] = { srcData[i].addr(), srcData[i].rowBytes() };
+            }
         } else if (color) {
             mipLevelCount = 1;
             if (GrMipMapped::kYes == mipMapped) {

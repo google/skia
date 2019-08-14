@@ -1846,20 +1846,18 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     return true;
 }
 
-GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
-                                               const GrBackendFormat& format,
-                                               GrMipMapped mipMapped,
-                                               GrRenderable renderable,
-                                               const void* srcData, size_t rowBytes,
-                                               const SkColor4f* color, GrProtected isProtected) {
-    const GrVkCaps& caps = this->vkCaps();
+GrBackendTexture GrVkGpu::onCreateBackendTexture(int w, int h,
+                                                 const GrBackendFormat& format,
+                                                 GrMipMapped mipMapped,
+                                                 GrRenderable renderable,
+                                                 const SkPixmap srcData1[], int numMipLevels,
+                                                 const SkColor4f* color, GrProtected isProtected) {
     this->handleDirtyContext();
 
-    if (fProtectedContext != isProtected) {
-        return GrBackendTexture();
-    }
+    const GrVkCaps& caps = this->vkCaps();
+    SkASSERT(w >= 1 && w <= caps.maxTextureSize() && h >= 1 && h <= caps.maxTextureSize());
 
-    if (w > caps.maxTextureSize() || h > caps.maxTextureSize()) {
+    if (fProtectedContext != isProtected) {
         return GrBackendTexture();
     }
 
