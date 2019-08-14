@@ -1053,8 +1053,10 @@ static bool allocate_and_populate_texture(GrGLFormat format,
                     *mipMapsStatus = GrMipMapsStatus::kDirty;
                 }
 
-                // Even if curremtMipData is nullptr, continue to call TexImage2D.
-                // This will allocate texture memory which we can later populate.
+                // We are considering modifying the interface to GrGpu to no longer allow data to
+                // be provided when creating a texture. To test whether that is feasible for
+                // performance on ES2 GPUs without tex storage we're calling glTexImage2D and then
+                // glTexSubImage2D and hoping we don't get any performance regressions.
                 GL_ALLOC_CALL(&interface,
                               TexImage2D(target,
                                          currentMipLevel,
@@ -1063,7 +1065,18 @@ static bool allocate_and_populate_texture(GrGLFormat format,
                                          currentHeight,
                                          0, // border
                                          externalFormat, externalType,
-                                         currentMipData));
+                                         nullptr));
+                if (currentMipData) {
+                    GR_GL_CALL(&interface,
+                               TexSubImage2D(target,
+                                             currentMipLevel,
+                                             0, 0,
+                                             currentWidth,
+                                             currentHeight,
+                                             externalFormat,
+                                             externalType,
+                                             currentMipData));
+                }
                 GrGLenum error = CHECK_ALLOC_ERROR(&interface);
                 if (error != GR_GL_NO_ERROR) {
                     return false;
