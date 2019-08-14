@@ -697,6 +697,22 @@ static int build_tri_edges(SkEdge edge[], const SkPoint pts[],
     return (int)(list - start);
 }
 
+static int build_poly_edges(SkEdge edge[], const SkPoint pts[], int count, const SkIRect* clipRect,
+                            SkEdge* list[]) {
+    SkEdge** start = list;
+
+    for (int i = 0; i < count - 1; ++i) {
+        if (edge->setLine(pts[i], pts[i+1], clipRect, 0)) {
+            *list++ = edge;
+            edge = (SkEdge*)((char*)edge + sizeof(SkEdge));
+        }
+    }
+    if (edge->setLine(pts[count - 1], pts[0], clipRect, 0)) {
+        *list++ = edge;
+        edge = (SkEdge*)((char*)edge + sizeof(SkEdge));
+    }
+    return (int)(list - start);
+}
 
 static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
                              SkBlitter* blitter, const SkIRect& ir) {
@@ -738,8 +754,48 @@ static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
     walk_simple_edges(&headEdge, blitter, start_y, stop_y);
 }
 
-void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
-                          SkBlitter* blitter) {
+static void sk_fill_simple_poly(const SkPoint pts[], int count, const SkIRect* clipRect,
+                                SkBlitter* blitter, const SkIRect& ir) {
+    SkASSERT(pts && blitter);
+
+    SkSTArenaAlloc<256> alloc;
+    SkEdge* edgeStorage = alloc.makeArray<SkEdge>(count);
+    SkEdge** list = alloc.makeArray<SkEdge*>(count);
+
+    count = build_poly_edges(edgeStorage, pts, count, clipRect, list);
+    if (count < 2) {
+        return;
+    }
+
+    SkEdge headEdge, tailEdge, *last;
+
+    // this returns the first and last edge after they're sorted into a dlink list
+    SkEdge* edge = sort_edges(list, count, &last);
+
+    headEdge.fPrev = nullptr;
+    headEdge.fNext = edge;
+    headEdge.fFirstY = kEDGE_HEAD_Y;
+    headEdge.fX = SK_MinS32;
+    edge->fPrev = &headEdge;
+
+    tailEdge.fPrev = last;
+    tailEdge.fNext = nullptr;
+    tailEdge.fFirstY = kEDGE_TAIL_Y;
+    last->fNext = &tailEdge;
+
+    // now edge is the head of the sorted linklist
+    int stop_y = ir.fBottom;
+    if (clipRect && stop_y > clipRect->fBottom) {
+        stop_y = clipRect->fBottom;
+    }
+    int start_y = ir.fTop;
+    if (clipRect && start_y < clipRect->fTop) {
+        start_y = clipRect->fTop;
+    }
+    walk_simple_edges(&headEdge, blitter, start_y, stop_y);
+}
+
+void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip, SkBlitter* blitter) {
     if (clip.isEmpty()) {
         return;
     }
@@ -776,5 +832,46 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
     blitter = clipper.getBlitter();
     if (blitter) {
         sk_fill_triangle(pts, clipper.getClipRect(), blitter, ir);
+    }
+}
+
+void SkScan::FillSimplePoly(const SkPoint pts[], int count, const SkRasterClip& clip,
+                            SkBlitter* blitter) {
+    if (clip.isEmpty()) {
+        return;
+    }
+
+    SkRect  r;
+    r.set(pts, count);
+    // If r is too large (larger than can easily fit in SkFixed) then we need perform geometric
+    // clipping. This is a bit of work, so we just call the general FillPath() to handle it.
+    // Use FixedMax/2 as the limit so we can subtract two edges and still store that in Fixed.
+    const SkScalar limit = SK_MaxS16 >> 1;
+    if (!SkRect::MakeLTRB(-limit, -limit, limit, limit).contains(r)) {
+        SkPath path;
+        path.addPoly(pts, count, false);
+        FillPath(path, clip, blitter);
+        return;
+    }
+
+    SkIRect ir = conservative_round_to_int(r);
+    if (ir.isEmpty() || !SkIRect::Intersects(ir, clip.getBounds())) {
+        return;
+    }
+
+    SkAAClipBlitterWrapper wrap;
+    const SkRegion* clipRgn;
+    if (clip.isBW()) {
+        clipRgn = &clip.bwRgn();
+    } else {
+        wrap.init(clip, blitter);
+        clipRgn = &wrap.getRgn();
+        blitter = wrap.getBlitter();
+    }
+
+    SkScanClipper clipper(blitter, clipRgn, ir);
+    blitter = clipper.getBlitter();
+    if (blitter) {
+        sk_fill_simple_poly(pts, count, clipper.getClipRect(), blitter, ir);
     }
 }

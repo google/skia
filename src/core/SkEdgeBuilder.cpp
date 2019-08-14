@@ -299,6 +299,88 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canC
     return SkToInt(edgePtr - (char**)fEdgeList);
 }
 
+class PolyContourIter {
+    const SkPoint*  fPts;
+    const int       fLast;
+    int             fIndex = 0;
+public:
+    PolyContourIter(const SkPoint pts[], int count) : fPts(pts), fLast(count - 1) {
+        if (count < 3) {
+            fIndex = -1;    // signal done
+        }
+    }
+
+    bool next(SkPoint pts[2]) {
+        if (fIndex < 0) {
+            return false;
+        }
+        if (fIndex < fLast) {
+            pts[0] = fPts[fIndex++];
+            pts[1] = fPts[fIndex];
+        } else {
+            pts[0] = fPts[fLast];
+            pts[1] = fPts[0];
+            fIndex = -1;    // signal done next time
+        }
+        return true;
+    }
+};
+
+int SkEdgeBuilder::buildSimplePolyEdges(const SkPoint contourPts[], int count,
+                                        const SkIRect* iclip) {
+    size_t maxEdgeCount = count;
+    if (iclip) {
+        // clipping can turn 1 line into (up to) kMaxClippedLineSegments, since
+        // we turn portions that are clipped out on the left/right into vertical
+        // segments.
+        SkSafeMath safe;
+        maxEdgeCount = safe.mul(maxEdgeCount, SkLineClipper::kMaxClippedLineSegments);
+        if (!safe) {
+            return 0;
+        }
+    }
+
+    size_t edgeSize;
+    char* edge = this->allocEdges(maxEdgeCount, &edgeSize);
+
+    SkDEBUGCODE(char* edgeStart = edge);
+    char** edgePtr = fAlloc.makeArrayDefault<char*>(maxEdgeCount);
+    fEdgeList = (void**)edgePtr;
+
+    PolyContourIter iter(contourPts, count);
+    SkPoint pts[2];
+
+    if (iclip) {
+        const bool canCullToTheRight = true;    // since we're simple
+        SkRect clip = this->recoverClip(*iclip);
+        while (iter.next(pts)) {
+            SkPoint lines[SkLineClipper::kMaxPoints];
+            int lineCount = SkLineClipper::ClipLine(pts, clip, lines, canCullToTheRight);
+            SkASSERT(lineCount <= SkLineClipper::kMaxClippedLineSegments);
+            for (int i = 0; i < lineCount; i++) {
+                switch( this->addPolyLine(lines + i, edge, edgePtr) ) {
+                    case kTotal_Combine:   edgePtr--; break;
+                    case kPartial_Combine:            break;
+                    case kNo_Combine: *edgePtr++ = edge;
+                        edge += edgeSize;
+                }
+            }
+        }
+    } else {
+        while (iter.next(pts)) {
+            switch( this->addPolyLine(pts, edge, edgePtr) ) {
+                case kTotal_Combine:   edgePtr--; break;
+                case kPartial_Combine:            break;
+                case kNo_Combine: *edgePtr++ = edge;
+                    edge += edgeSize;
+            }
+        }
+    }
+    SkASSERT((size_t)(edge - edgeStart) <= maxEdgeCount * edgeSize);
+    SkASSERT((size_t)(edgePtr - (char**)fEdgeList) <= maxEdgeCount);
+    return SkToInt(edgePtr - (char**)fEdgeList);
+}
+
 int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullToTheRight) {
     SkAutoConicToQuads quadder;
     const SkScalar conicTol = SK_Scalar1 / 4;
@@ -418,8 +500,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
     return is_finite ? fList.count() : 0;
 }
 
-int SkEdgeBuilder::buildEdges(const SkPath& path,
-                              const SkIRect* shiftedClip) {
+int SkEdgeBuilder::buildEdges(const SkPath& path, const SkIRect* shiftedClip) {
     // If we're convex, then we need both edges, even if the right edge is past the clip.
     const bool canCullToTheRight = !path.isConvex();
 

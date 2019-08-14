@@ -17,8 +17,8 @@ class SkPath;
 
 class SkEdgeBuilder {
 public:
-    int buildEdges(const SkPath& path,
-                   const SkIRect* shiftedClip);
+    int buildEdges(const SkPath& path, const SkIRect* shiftedClip);
+    int buildSimplePolyEdges(const SkPoint[], int count, const SkIRect* shiftedClip);
 
 protected:
     SkEdgeBuilder() = default;
