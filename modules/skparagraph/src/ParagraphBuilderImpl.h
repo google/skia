@@ -47,7 +47,7 @@ public:
     // Converts to u16string before adding.
     void addText(const char* text) override;
 
-    void addPlaceholder(PlaceholderStyle& placeholderStyle) override;
+    void addPlaceholder(const PlaceholderStyle& placeholderStyle) override;
 
     void setParagraphStyle(const ParagraphStyle& style) override;
 
@@ -56,10 +56,12 @@ public:
 
 private:
     void endRunIfNeeded();
+    void addPlaceholder(const PlaceholderStyle& placeholderStyle, bool lastOne);
 
     SkString fUtf8;
     std::stack<TextStyle> fTextStyles;
     SkTArray<Block, true> fStyledBlocks;
+    SkTArray<Placeholder, true> fPlaceholders;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
 };
