@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f596afd_a624eaab",
+        "filename": "src/gpu/dawn/GrDawnTextureRenderTarget.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-14T18:26:57Z",
+      "side": 1,
+      "message": "I",
+      "range": {
+        "startLine": 33,
+        "startChar": 41,
+        "endLine": 33,
+        "endChar": 42
+      },
+      "revId": "37dd206d2687aa23534ce9c57d2d209c50f2ac83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
