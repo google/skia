@@ -26,15 +26,10 @@ bool GrDawnCaps::isFormatCompressed(const GrBackendFormat& format) const {
     return false;
 }
 
-bool GrDawnCaps::isConfigTexturable(GrPixelConfig config) const {
-    switch (config) {
-        case kRGBA_8888_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kAlpha_8_GrPixelConfig:
-            return true;
-        default:
-            return false;
-    }
+bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format) const {
+    // Currently, all the formats in GrDawnFormatToPixelConfig are texturable.
+    dawn::TextureFormat dawnFormat;
+    return format.asDawnFormat(&dawnFormat);
 }
 
 GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
@@ -100,13 +95,9 @@ static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorTyp
     return GrSwizzle::RGBA();
 }
 
-bool GrDawnCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format) const {
-    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-
-    return this->isConfigTexturable(config);
+bool GrDawnCaps::isFormatTexturableAndUploadable(GrColorType ct,
+                                                 const GrBackendFormat& format) const {
+    return this->isFormatTexturable(format);
 }
 
 bool GrDawnCaps::isFormatRenderable(const GrBackendFormat& format,
