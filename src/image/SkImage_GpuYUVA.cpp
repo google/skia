@@ -208,6 +208,12 @@ sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(GrRecordingContext*
     return result;
 }
 
+sk_sp<SkImage> SkImage_GpuYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
+    return sk_make_sp<SkImage_GpuYUVA>(fContext, this->width(), this->height(),
+                                       kNeedNewImageUniqueID, fYUVColorSpace, fProxies, fNumProxies,
+                                       fYUVAIndices, fOrigin, std::move(newCS));
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,

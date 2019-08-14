@@ -54,6 +54,7 @@ public:
     bool onIsLazyGenerated() const override { return true; }
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
                                                 SkColorType, sk_sp<SkColorSpace>) const override;
+    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 
     bool onIsValid(GrContext*) const override;
 
