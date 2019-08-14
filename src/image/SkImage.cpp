@@ -293,7 +293,7 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
                                         cache.get(), fInfo.colorType(), fInfo.colorSpace(),
                                         srcSpecialImage.get());
 
-    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(context, offset);
+    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(context).imageAndOffset(offset);
     if (!result) {
         return nullptr;
     }
