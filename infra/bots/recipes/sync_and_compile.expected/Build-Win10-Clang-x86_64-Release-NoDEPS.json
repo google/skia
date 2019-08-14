@@ -80,6 +80,19 @@
   },
   {
     "cmd": [
+      "cmd",
+      "/c",
+      "[START_DIR]\\clang_win\\bin\\clang-cl.exe",
+      "-v"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "cmd clang_win"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
@@ -111,7 +124,7 @@
       "[START_DIR]\\skia\\bin\\gn",
       "gen",
       "[START_DIR]\\skia\\out\\Build-Win10-Clang-x86_64-Release-NoDEPS\\Release_x64",
-      "--args=cc=\"clang\" clang_win=\"[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_clang_win_version=42\"] is_debug=false is_official_build=true skia_enable_fontmgr_empty=true skia_enable_gpu=true skia_enable_pdf=false skia_use_expat=false skia_use_freetype=false skia_use_harfbuzz=false skia_use_libjpeg_turbo=false skia_use_libpng=false skia_use_libwebp=false skia_use_vulkan=false skia_use_zlib=false target_cpu=\"x86_64\" werror=true win_sdk=\"[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"[START_DIR]\\win_toolchain/VC\""
+      "--args=cc=\"clang\" clang_win=\"../[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_clang_win_version=42\"] is_debug=false is_official_build=true skia_enable_fontmgr_empty=true skia_enable_gpu=true skia_enable_pdf=false skia_use_expat=false skia_use_freetype=false skia_use_harfbuzz=false skia_use_libjpeg_turbo=false skia_use_libpng=false skia_use_libwebp=false skia_use_vulkan=false skia_use_zlib=false target_cpu=\"x86_64\" werror=true win_sdk=\"../[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"../[START_DIR]\\win_toolchain/VC\""
     ],
     "cwd": "[START_DIR]\\skia",
     "env": {
@@ -119,6 +132,43 @@
       "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "cmd",
+      "/c",
+      "ver"
+    ],
+    "cwd": "[START_DIR]\\skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "cmd"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\n\nfor p in os.environ['PATH'].split(os.pathsep):\n  for e in os.environ['PATHEXT'].split(os.pathsep):\n    cmd = os.path.join(p, 'cmd' + e)\n    print cmd\n    try:\n      print subprocess.call([cmd, '/c', 'ver'])\n    except Exception as e:\n      print e\n"
+    ],
+    "cwd": "[START_DIR]\\skia",
+    "name": "check PATH",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for p in os.environ['PATH'].split(os.pathsep):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for e in os.environ['PATHEXT'].split(os.pathsep):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    cmd = os.path.join(p, 'cmd' + e)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print cmd@@@",
+      "@@@STEP_LOG_LINE@python.inline@    try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print subprocess.call([cmd, '/c', 'ver'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@    except Exception as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print e@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
