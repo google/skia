@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "df896834_fba6b9a1",
+        "filename": "src/core/SkMatrixImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-14T18:12:10Z",
+      "side": 1,
+      "message": "I think this was just a mistake in the old code, all other filter implementations make the surface using the source image. The only way this would lead to different behavior is if somehow the source and input special images changed between raster and GPU, but filterImage() already makes them consistent.\n\nIn a later CL, this will just become ctx.makeSurface(dstBounds) and assumes that it should always use the source image.",
+      "parentUuid": "d81cb128_a71dd410",
+      "range": {
+        "startLine": 73,
+        "startChar": 49,
+        "endLine": 73,
+        "endChar": 55
+      },
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6d7d8c_ea6b73e0",
         "filename": "src/core/SkSpecialImage.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9747e07d_fc629207",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-14T18:12:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2d6d7d8c_ea6b73e0",
+      "range": {
+        "startLine": 513,
+        "startChar": 0,
+        "endLine": 515,
+        "endChar": 53
+      },
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "055fddae_faa18247",
         "filename": "src/effects/imagefilters/SkBlurImageFilter.cpp",
         "patchSetId": 1
@@ -62,6 +110,24 @@
       "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a69e29c7_15e9ef92",
+        "filename": "src/effects/imagefilters/SkBlurImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-14T18:12:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "055fddae_faa18247",
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "f79cd1c6_7a187aa7",
+        "filename": "src/effects/imagefilters/SkLightingImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-14T18:12:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2f08d9f_3f93bb63",
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9d0a10a_735ee726",
         "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
         "patchSetId": 1
@@ -96,6 +180,24 @@
       "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e6bb026_99c4960b",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-14T18:12:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9d0a10a_735ee726",
+      "revId": "39d0ffeec22e05f0a1d001078abb2a3b458eec13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
