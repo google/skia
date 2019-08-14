@@ -112,6 +112,24 @@ public:
     static const char* ResultToString(Result);
 
     /**
+     * For container formats that contain both still images and image sequences,
+     * instruct the decoder how the output should be selected. (Refer to comments
+     * for each value for more details.)
+     */
+    enum class SelectionPolicy {
+        /**
+         *  If the container format contains both still images and image sequences,
+         *  SkCodec should choose one of the still images. This is the default.
+         */
+        kPreferStillImage,
+        /**
+         *  If the container format contains both still images and image sequences,
+         *  SkCodec should choose one of the image sequences for animation.
+         */
+        kPreferAnimation,
+    };
+
+    /**
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
      *
@@ -145,8 +163,10 @@ public:
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
-    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result* = nullptr,
-                                                   SkPngChunkReader* = nullptr);
+    static std::unique_ptr<SkCodec> MakeFromStream(
+            std::unique_ptr<SkStream>, Result* = nullptr,
+            SkPngChunkReader* = nullptr,
+            SelectionPolicy selectionPolicy = SelectionPolicy::kPreferStillImage);
 
     /**
      *  If this data represents an encoded image that we know how to decode,
