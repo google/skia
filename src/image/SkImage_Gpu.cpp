@@ -363,8 +363,7 @@ static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTexturePr
                                    sk_ref_sp(producer->colorSpace()));
 }
 
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
-                                         GrMipMapped mipMapped) const {
+sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, GrMipMapped mipMapped) const {
     if (!context) {
         return nullptr;
     }
@@ -690,7 +689,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
 
     // Ensure we have a texture backed image.
     if (!image->isTextureBacked()) {
-        image = image->makeTextureImage(ctx, nullptr);
+        image = image->makeTextureImage(ctx);
         if (!image) {
             return false;
         }
