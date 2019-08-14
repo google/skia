@@ -10,10 +10,10 @@
 
 #include "include/core/SkMath.h"
 #include "include/core/SkString.h"
-#include "include/gpu/GrSamplerState.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrProcessorUnitTest.h"
+#include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxy.h"

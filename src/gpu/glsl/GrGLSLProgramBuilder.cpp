@@ -7,9 +7,9 @@
 
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
-#include "include/gpu/GrRenderTarget.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
