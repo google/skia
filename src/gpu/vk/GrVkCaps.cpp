@@ -16,7 +16,6 @@
 #include "src/gpu/vk/GrVkCaps.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/gpu/vk/GrVkTexture.h"
-#include "src/gpu/vk/GrVkUniformHandler.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -1556,14 +1555,6 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
         }
     }
     return {GrColorType::kUnknown, 0};
-}
-
-int GrVkCaps::getFragmentUniformBinding() const {
-    return GrVkUniformHandler::kUniformBinding;
-}
-
-int GrVkCaps::getFragmentUniformSet() const {
-    return GrVkUniformHandler::kUniformBufferDescSet;
 }
 
 #if GR_TEST_UTILS

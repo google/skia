@@ -22,7 +22,8 @@ public:
     typedef GrVkUniformHandler::UniformInfoArray UniformInfoArray;
 
     GrVkPipelineStateDataManager(const UniformInfoArray&,
-                                 uint32_t uniformSize);
+                                 uint32_t geometryUniformSize,
+                                 uint32_t fragmentUniformSize);
 
     void set1i(UniformHandle, int32_t) const override;
     void set1iv(UniformHandle, int arrayCount, const int32_t v[]) const override;
@@ -59,9 +60,11 @@ public:
     // VkBuffer object in order upload data. If true is returned, this is a signal to the caller
     // that they will need to update the descriptor set that is using these buffers.
     bool uploadUniformBuffers(GrVkGpu* gpu,
-                              GrVkUniformBuffer* buffer) const;
+                              GrVkUniformBuffer* geometryBuffer,
+                              GrVkUniformBuffer* fragmentBuffer) const;
 private:
     struct Uniform {
+        uint32_t fBinding;
         uint32_t fOffset;
         SkDEBUGCODE(
             GrSLType    fType;
@@ -74,12 +77,15 @@ private:
 
     void* getBufferPtrAndMarkDirty(const Uniform& uni) const;
 
-    uint32_t fUniformSize;
+    uint32_t fGeometryUniformSize;
+    uint32_t fFragmentUniformSize;
 
     SkTArray<Uniform, true> fUniforms;
 
-    mutable SkAutoMalloc fUniformData;
-    mutable bool         fUniformsDirty;
+    mutable SkAutoMalloc fGeometryUniformData;
+    mutable SkAutoMalloc fFragmentUniformData;
+    mutable bool         fGeometryUniformsDirty;
+    mutable bool         fFragmentUniformsDirty;
 };
 
 #endif
