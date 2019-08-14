@@ -6,10 +6,10 @@
  */
 
 #include "include/core/SkBlendMode.h"
-#include "include/gpu/GrBlend.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
+#include "src/gpu/GrBlend.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPaint.h"

@@ -8,7 +8,7 @@
 #ifndef GrGLSLFragmentShaderBuilder_DEFINED
 #define GrGLSLFragmentShaderBuilder_DEFINED
 
-#include "include/gpu/GrBlend.h"
+#include "src/gpu/GrBlend.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLShaderBuilder.h"
