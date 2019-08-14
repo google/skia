@@ -46,6 +46,30 @@
       "revId": "952f4e9d0c5c14824cd71629a761c1730d8dc655",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6efb1ee4_3cefc898",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-14T18:15:34Z",
+      "side": 1,
+      "message": "I added an assert and comment as talked about offline.",
+      "parentUuid": "a23be13f_200c60b1",
+      "range": {
+        "startLine": 1505,
+        "startChar": 52,
+        "endLine": 1506,
+        "endChar": 89
+      },
+      "revId": "952f4e9d0c5c14824cd71629a761c1730d8dc655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
