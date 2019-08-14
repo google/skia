@@ -1859,16 +1859,25 @@ void GrGLGpu::resolveAndGenerateMipMapsForProcessorTextures(
         int numPrimitiveProcessorTextureSets) {
     auto genLevelsIfNeeded = [this](GrTexture* tex, const GrSamplerState& sampler) {
         SkASSERT(tex);
-        if (sampler.filter() == GrSamplerState::Filter::kMipMap &&
-            tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
-            tex->texturePriv().mipMapsAreDirty()) {
-            SkASSERT(this->caps()->mipMapSupport());
-            this->regenerateMipMapLevels(static_cast<GrGLTexture*>(tex));
-            SkASSERT(!tex->asRenderTarget() || !tex->asRenderTarget()->needsResolve());
-        } else if (auto* rt = tex->asRenderTarget()) {
-            if (rt->needsResolve()) {
-                this->resolveRenderTarget(rt);
+        auto* rt = tex->asRenderTarget();
+        if (rt && rt->needsResolve()) {
+            this->resolveRenderTarget(rt);
+            // TEMPORARY: MSAA resolve will have dirtied mipmaps. This goes away once we switch
+            // to resolving MSAA from the opList as well.
+            if (GrSamplerState::Filter::kMipMap == sampler.filter() &&
+                (tex->width() != 1 || tex->height() != 1)) {
+                SkASSERT(tex->texturePriv().mipMapped() == GrMipMapped::kYes);
+                SkASSERT(tex->texturePriv().mipMapsAreDirty());
+                this->regenerateMipMapLevels(tex);
             }
+        }
+        // Ensure mipmaps were all resolved ahead of time by the opList.
+        if (GrSamplerState::Filter::kMipMap == sampler.filter() &&
+            (tex->width() != 1 || tex->height() != 1)) {
+            // There are some cases where we might be given a non-mipmapped texture with a mipmap
+            // filter. See skbug.com/7094.
+            SkASSERT(tex->texturePriv().mipMapped() != GrMipMapped::kYes ||
+                     !tex->texturePriv().mipMapsAreDirty());
         }
     };
 
