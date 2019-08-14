@@ -304,18 +304,11 @@ template("gcc_like_toolchain") {
         _start_group = ""
         _end_group = ""
       }
-      if (is_ios) {
-        command = "$cxx {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} -o $exe_name && dsymutil $exe_name"
-      } else {
-        command = "$cxx {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} -o $exe_name"
-      }
+      command = "$cxx {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} -o $exe_name"
 
       outputs = [
         "$exe_name",
       ]
-      if (is_ios) {
-        outputs += [ "{{root_out_dir}}/{{target_output_name}}.dSYM" ]
-      }
       description = "link {{output}}"
     }
 
