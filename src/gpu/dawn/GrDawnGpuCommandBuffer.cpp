@@ -38,29 +38,14 @@ void GrDawnGpuTextureCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
     uint32_t width = srcRect.width(), height = srcRect.height();
     size_t rowBytes = srcRect.width() * GrBytesPerPixel(src->config());
     rowBytes = GrDawnRoundRowBytes(rowBytes);
-    size_t sizeInBytes = height * rowBytes;
-
-    dawn::BufferDescriptor desc;
-    desc.usage = dawn::BufferUsageBit::CopySrc | dawn::BufferUsageBit::CopyDst;
-    desc.size = sizeInBytes;
-
-    dawn::Buffer buffer = fGpu->device().CreateBuffer(&desc);
 
     dawn::TextureCopyView srcTextureView, dstTextureView;
     srcTextureView.texture = static_cast<GrDawnTexture*>(src->asTexture())->texture();
     srcTextureView.origin = {(uint32_t) srcRect.x(), (uint32_t) srcRect.y(), 0};
     dstTextureView.texture = static_cast<GrDawnTexture*>(fTexture)->texture();
     dstTextureView.origin = {(uint32_t) dstPoint.x(), (uint32_t) dstPoint.y(), 0};
-
-    dawn::BufferCopyView bufferView;
-    bufferView.buffer = buffer;
-    bufferView.offset = 0;
-    bufferView.rowPitch = rowBytes;
-    bufferView.imageHeight = height;
-
     dawn::Extent3D copySize = {width, height, 1};
-    fEncoder.CopyTextureToBuffer(&srcTextureView, &bufferView, &copySize);
-    fEncoder.CopyBufferToTexture(&bufferView, &dstTextureView, &copySize);
+    fEncoder.CopyTextureToTexture(&srcTextureView, &dstTextureView, &copySize);
 }
 
 void GrDawnGpuTextureCommandBuffer::transferFrom(const SkIRect& srcRect,
@@ -74,15 +59,12 @@ void GrDawnGpuTextureCommandBuffer::transferFrom(const SkIRect& srcRect,
 }
 
 void GrDawnGpuTextureCommandBuffer::submit() {
-    dawn::CommandBuffer commandBuffer = fEncoder.Finish();
-    if (commandBuffer) {
-        fGpu->queue().Submit(1, &commandBuffer);
-    }
+    fGpu->appendCommandBuffer(fEncoder.Finish());
 }
 
 GrDawnGpuTextureCommandBuffer::~GrDawnGpuTextureCommandBuffer() {}
 
-////////////////////////////////////////////////////////////////////////////////
+namespace {
 
 static dawn::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
     switch (loadOp) {
@@ -102,6 +84,8 @@ static dawn::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
     }
 }
 
+}
+
 GrDawnGpuRTCommandBuffer::GrDawnGpuRTCommandBuffer(GrDawnGpu* gpu,
                                                    GrRenderTarget* rt, GrSurfaceOrigin origin,
                                                    const LoadAndStoreInfo& colorInfo,
@@ -114,6 +98,11 @@ GrDawnGpuRTCommandBuffer::GrDawnGpuRTCommandBuffer(GrDawnGpu* gpu,
     dawn::LoadOp stencilOp = to_dawn_load_op(stencilInfo.fLoadOp);
     fPassEncoder = beginRenderPass(colorOp, stencilOp);
 }
+
+GrDawnGpuRTCommandBuffer::~GrDawnGpuRTCommandBuffer() {
+}
+
+GrGpu* GrDawnGpuRTCommandBuffer::gpu() { return fGpu; }
 
 dawn::RenderPassEncoder GrDawnGpuRTCommandBuffer::beginRenderPass(dawn::LoadOp colorOp,
                                                                   dawn::LoadOp stencilOp) {
@@ -143,26 +132,16 @@ dawn::RenderPassEncoder GrDawnGpuRTCommandBuffer::beginRenderPass(dawn::LoadOp c
         depthStencilAttachment.depthStoreOp = dawn::StoreOp::Store;
         depthStencilAttachment.stencilStoreOp = dawn::StoreOp::Store;
         renderPassDescriptor.depthStencilAttachment = &depthStencilAttachment;
-    } else {
-        renderPassDescriptor.depthStencilAttachment = nullptr;
     }
     return fEncoder.BeginRenderPass(&renderPassDescriptor);
 }
-
-GrDawnGpuRTCommandBuffer::~GrDawnGpuRTCommandBuffer() {
-}
-
-GrGpu* GrDawnGpuRTCommandBuffer::gpu() { return fGpu; }
 
 void GrDawnGpuRTCommandBuffer::end() {
     fPassEncoder.EndPass();
 }
 
 void GrDawnGpuRTCommandBuffer::submit() {
-    dawn::CommandBuffer commandBuffer = fEncoder.Finish();
-    if (commandBuffer) {
-        fGpu->queue().Submit(1, &commandBuffer);
-    }
+    fGpu->appendCommandBuffer(fEncoder.Finish());
 }
 
 void GrDawnGpuRTCommandBuffer::insertEventMarker(const char* msg) {
@@ -221,7 +200,6 @@ void GrDawnGpuRTCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
 
     uint32_t dstX = dstPoint.x();
     uint32_t dstY = dstPoint.y();
-    fPassEncoder.EndPass();
 
     dawn::TextureCopyView srcTextureCopyView;
     srcTextureCopyView.texture = srcTex;
@@ -231,64 +209,13 @@ void GrDawnGpuRTCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
     dstTextureCopyView.texture = dstTex;
     dstTextureCopyView.origin = {dstX, dstY, 0};
 
-    dawn::BufferCopyView bufferCopyView;
-    bufferCopyView.buffer = buffer;
-    bufferCopyView.offset = 0;
-    bufferCopyView.rowPitch = rowPitch;
-    bufferCopyView.imageHeight = height;
-
     dawn::Extent3D copySize = {width, height, 1};
-    fEncoder.CopyTextureToBuffer(&srcTextureCopyView, &bufferCopyView, &copySize);
-    fEncoder.CopyBufferToTexture(&bufferCopyView, &dstTextureCopyView, &copySize);
+    fPassEncoder.EndPass();
+    fEncoder.CopyTextureToTexture(&srcTextureCopyView, &dstTextureCopyView, &copySize);
     fPassEncoder = beginRenderPass(dawn::LoadOp::Load, dawn::LoadOp::Load);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-static dawn::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {
-    switch (type) {
-    case kFloat_GrVertexAttribType:
-    case kHalf_GrVertexAttribType:
-        return dawn::VertexFormat::Float;
-    case kFloat2_GrVertexAttribType:
-    case kHalf2_GrVertexAttribType:
-        return dawn::VertexFormat::Float2;
-    case kFloat3_GrVertexAttribType:
-    case kHalf3_GrVertexAttribType:
-        return dawn::VertexFormat::Float3;
-    case kFloat4_GrVertexAttribType:
-    case kHalf4_GrVertexAttribType:
-        return dawn::VertexFormat::Float4;
-    case kUShort2_GrVertexAttribType:
-        return dawn::VertexFormat::UShort2;
-    case kInt_GrVertexAttribType:
-        return dawn::VertexFormat::Int;
-    case kUByte4_norm_GrVertexAttribType:
-        return dawn::VertexFormat::UChar4Norm;
-    default:
-        SkASSERT(!"unsupported vertex format");
-        return dawn::VertexFormat::Float4;
-    }
-}
-
-static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primitiveType) {
-    switch (primitiveType) {
-        case GrPrimitiveType::kTriangles:
-            return dawn::PrimitiveTopology::TriangleList;
-        case GrPrimitiveType::kTriangleStrip:
-            return dawn::PrimitiveTopology::TriangleStrip;
-        case GrPrimitiveType::kPoints:
-            return dawn::PrimitiveTopology::PointList;
-        case GrPrimitiveType::kLines:
-            return dawn::PrimitiveTopology::LineList;
-        case GrPrimitiveType::kLineStrip:
-            return dawn::PrimitiveTopology::LineStrip;
-        case GrPrimitiveType::kLinesAdjacency:
-        default:
-            SkASSERT(!"unsupported primitive topology");
-            return dawn::PrimitiveTopology::TriangleList;
-    }
-}
 
 void GrDawnGpuRTCommandBuffer::setScissorState(
         const GrPipeline& pipeline,
@@ -316,96 +243,17 @@ void GrDawnGpuRTCommandBuffer::applyState(const GrPipeline& pipeline,
                                           const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                                           const GrPrimitiveType primitiveType,
                                           bool hasPoints) {
-    GrProgramDesc desc;
-    GrProgramDesc::Build(&desc, fRenderTarget, primProc, hasPoints, pipeline, fGpu);
-    dawn::TextureFormat colorFormat;
-    SkAssertResult(GrPixelConfigToDawnFormat(fRenderTarget->config(), &colorFormat));
-    dawn::TextureFormat stencilFormat = dawn::TextureFormat::Depth24PlusStencil8;
-    bool hasDepthStencil = fRenderTarget->renderTargetPriv().getStencilAttachment() != nullptr;
-    sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(fGpu, fRenderTarget, fOrigin,
-                                                               pipeline, primProc, primProcProxies,
-                                                               colorFormat, hasDepthStencil,
-                                                               stencilFormat, &desc);
-    SkASSERT(program);
-    program->setData(primProc, fRenderTarget, fOrigin, pipeline);
-
-    std::vector<dawn::VertexBufferDescriptor> inputs;
-    std::vector<dawn::VertexAttributeDescriptor> vertexAttributes;
-    if (primProc.numVertexAttributes() > 0) {
-        size_t offset = 0;
-        int i = 0;
-        for (const auto& attrib : primProc.vertexAttributes()) {
-            dawn::VertexAttributeDescriptor attribute;
-            attribute.shaderLocation = i;
-            attribute.offset = offset;
-            attribute.format = to_dawn_vertex_format(attrib.cpuType());
-            vertexAttributes.push_back(attribute);
-            offset += attrib.sizeAlign4();
-            i++;
-        }
-        dawn::VertexBufferDescriptor input;
-        input.stride = offset;
-        input.stepMode = dawn::InputStepMode::Vertex;
-        input.attributes = &vertexAttributes.front();
-        input.attributeCount = vertexAttributes.size();
-        inputs.push_back(input);
-    }
-    std::vector<dawn::VertexAttributeDescriptor> instanceAttributes;
-    if (primProc.numInstanceAttributes() > 0) {
-        size_t offset = 0;
-        int i = 0;
-        for (const auto& attrib : primProc.instanceAttributes()) {
-            dawn::VertexAttributeDescriptor attribute;
-            attribute.shaderLocation = i;
-            attribute.offset = offset;
-            attribute.format = to_dawn_vertex_format(attrib.cpuType());
-            instanceAttributes.push_back(attribute);
-            offset += attrib.sizeAlign4();
-            i++;
-        }
-        dawn::VertexBufferDescriptor input;
-        input.stride = offset;
-        input.stepMode = dawn::InputStepMode::Instance;
-        input.attributes = &instanceAttributes.front();
-        input.attributeCount = instanceAttributes.size();
-        inputs.push_back(input);
-    }
-    dawn::VertexInputDescriptor vertexInput;
-    vertexInput.bufferCount = inputs.size();
-    vertexInput.buffers = &inputs.front();
-    vertexInput.indexFormat = dawn::IndexFormat::Uint16;
-
-    dawn::PipelineStageDescriptor vsDesc;
-    vsDesc.module = program->fVSModule;
-    vsDesc.entryPoint = "main";
-
-    dawn::PipelineStageDescriptor fsDesc;
-    fsDesc.module = program->fFSModule;
-    fsDesc.entryPoint = "main";
-
-    dawn::RasterizationStateDescriptor rastDesc;
-
-    rastDesc.frontFace = dawn::FrontFace::CW;
-    rastDesc.cullMode = dawn::CullMode::None;
-    rastDesc.depthBias = 0;
-    rastDesc.depthBiasSlopeScale = 0.0f;
-    rastDesc.depthBiasClamp = 0.0f;
-
-    dawn::RenderPipelineDescriptor rpDesc;
-    rpDesc.layout = program->fPipelineLayout;
-    rpDesc.vertexStage = &vsDesc;
-    rpDesc.fragmentStage = &fsDesc;
-    rpDesc.vertexInput = &vertexInput;
-    rpDesc.rasterizationState = &rastDesc;
-    rpDesc.primitiveTopology = to_dawn_primitive_topology(primitiveType);
-    rpDesc.sampleCount = 1;
-    rpDesc.depthStencilState = hasDepthStencil ? &program->fDepthStencilState : nullptr;
-    rpDesc.colorStateCount = 1;
-    dawn::ColorStateDescriptor* colorStates[] = { &program->fColorState };
-    rpDesc.colorStates = colorStates;
-    dawn::RenderPipeline renderPipeline = fGpu->device().CreateRenderPipeline(&rpDesc);
-    fPassEncoder.SetPipeline(renderPipeline);
-    fPassEncoder.SetBindGroup(0, program->fBindGroup, 0, nullptr);
+    sk_sp<GrDawnProgram> program = fGpu->getOrCreateRenderPipeline(fRenderTarget,
+                                                                  fOrigin,
+                                                                  pipeline,
+                                                                  primProc,
+                                                                  primProcProxies,
+                                                                  hasPoints,
+                                                                  primitiveType);
+    auto bindGroup = program->setData(fGpu, fRenderTarget, fOrigin, primProc, pipeline,
+                                      primProcProxies);
+    fPassEncoder.SetPipeline(program->fRenderPipeline);
+    fPassEncoder.SetBindGroup(0, bindGroup, 0, nullptr);
     if (pipeline.isStencilEnabled()) {
         fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fFront.fRef);
     }

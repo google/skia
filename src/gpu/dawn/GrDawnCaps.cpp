@@ -40,12 +40,12 @@ bool GrDawnCaps::isConfigTexturable(GrPixelConfig config) const {
     switch (config) {
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
-        case kRGBA_4444_GrPixelConfig:
-        case kRGB_565_GrPixelConfig:
-        case kGray_8_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:
             return true;
+        case kGray_8_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
         default:
             return false;
     }
