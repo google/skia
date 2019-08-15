@@ -1022,10 +1022,11 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
         fMSFBOType = kNone_MSFBOType;
     }
 
-    // We disable MSAA for all Intel GPUs. Before Gen9, performance was very bad. Even with Gen9,
-    // we've seen driver crashes in the wild. We don't have data on Gen11 yet.
-    // chromium:527565, chromium:983926
-    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+    // We disable MSAA for older (pre-Gen9) Intel GPUs for performance reasons.
+    // ApolloLake is the first Gen9 chipset.
+    if (kIntel_GrGLVendor == ctxInfo.vendor() &&
+        (ctxInfo.renderer() < kIntelApolloLake_GrGLRenderer ||
+         ctxInfo.renderer() == kOther_GrGLRenderer)) {
         fMSFBOType = kNone_MSFBOType;
     }
 }
