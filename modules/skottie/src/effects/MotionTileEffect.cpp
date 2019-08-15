@@ -216,7 +216,7 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachMotionTileEffect(const skjson::Arra
             tiler->setHorizontalPhase(SkScalarRoundToInt(hp));
         });
 
-    return std::move(tiler);
+    return tiler;
 }
 
 } // namespace internal

@@ -496,6 +496,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
-    return std::move(interface);
+    return interface;
 }
 #endif

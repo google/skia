@@ -166,7 +166,7 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachRadialWipeEffect(const skjson::Arra
             wiper->setFeather(f);
         });
 
-    return std::move(wiper);
+    return wiper;
 }
 
 } // namespace internal

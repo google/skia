@@ -436,7 +436,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrGpuBufferT
                                                                     const void* data,
                                                                     const GrUniqueKey& key) {
     if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(key)) {
-        return std::move(buffer);
+        return buffer;
     }
     if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern, data)) {
         // We shouldn't bin and/or cache static buffers.
@@ -486,7 +486,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(const ui
         SkASSERT(key->isValid());
         this->assignUniqueKeyToResource(*key, buffer.get());
     }
-    return std::move(buffer);
+    return buffer;
 }
 
 static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;

@@ -231,6 +231,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     interface->fStandard = kWebGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
-    return std::move(interface);
+    return interface;
 }
 #endif
