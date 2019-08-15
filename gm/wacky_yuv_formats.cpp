@@ -1082,7 +1082,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
         // GrContext::createBackendTexture API
         tex = gpu->createBackendTexture(bm.width(), bm.height(), format,
                                         GrMipMapped::kNo, GrRenderable::kNo,
-                                        pixels, rowBytes, nullptr, GrProtected::kNo);
+                                        &bm.pixmap(), 1, nullptr, GrProtected::kNo);
     } else {
         tex = context->priv().createBackendTexture(&bm.pixmap(), 1,
                                                    GrRenderable::kNo, GrProtected::kNo);

@@ -642,3 +642,77 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 #endif
 
 #endif
+
+#include "src/core/SkMipMap.h"
+
+bool GrGpu::MipMapsAreCorrect(int baseWidth, int baseHeight, GrMipMapped mipMapped,
+                              const SkPixmap srcData[], int numMipLevels) {
+    if (!srcData) {
+        return true;
+    }
+
+    if (baseWidth != srcData[0].width() || baseHeight != srcData[0].height()) {
+        return false;
+    }
+
+    if (mipMapped == GrMipMapped::kYes) {
+        if (numMipLevels != SkMipMap::ComputeLevelCount(baseWidth, baseHeight) + 1) {
+            return false;
+        }
+
+        SkColorType colorType = srcData[0].colorType();
+
+        int currentWidth = baseWidth;
+        int currentHeight = baseHeight;
+        for (int i = 1; i < numMipLevels; ++i) {
+            currentWidth = SkTMax(1, currentWidth / 2);
+            currentHeight = SkTMax(1, currentHeight / 2);
+
+            if (srcData[i].colorType() != colorType) {
+                return false;
+            }
+
+            if (srcData[i].width() != currentWidth || srcData[i].height() != currentHeight) {
+                return false;
+            }
+        }
+    } else if (numMipLevels != 1) {
+        return false;
+    }
+
+    return true;
+}
+
+GrBackendTexture GrGpu::createBackendTexture(int w, int h, const GrBackendFormat& format,
+                                             GrMipMapped mipMapped, GrRenderable renderable,
+                                             const SkPixmap srcData[], int numMipLevels,
+                                             const SkColor4f* color, GrProtected isProtected) {
+    const GrCaps* caps = this->caps();
+
+    if (!format.isValid()) {
+        return {};
+    }
+
+    if (caps->isFormatCompressed(format)) {
+        // Uninitialized and solid color compressed images don't make a whole lot of sense
+        // There is no ETC1 SkColorType so we can't create initialized versions
+        return {};
+    }
+
+    if (w < 1 || w > caps->maxTextureSize() || h < 1 || h > caps->maxTextureSize()) {
+        return {};
+    }
+
+    // TODO: maybe just ignore the mipMapped parameter in this case
+    if (mipMapped == GrMipMapped::kYes && !this->caps()->mipMapSupport()) {
+        return {};
+    }
+
+    if (!MipMapsAreCorrect(w, h, mipMapped, srcData, numMipLevels)) {
+        return {};
+    }
+
+    return this->onCreateBackendTexture(w, h, format, mipMapped, renderable,
+                                        srcData, numMipLevels, color, isProtected);
+}
+
