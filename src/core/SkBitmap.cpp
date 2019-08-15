@@ -195,16 +195,18 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 
 void SkBitmap::setPixels(void* p) {
     if (nullptr == p) {
-        this->setPixelRef(nullptr, 0, 0);
+        SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, nullptr, this->rowBytes());
+        fPixelRef = nullptr;
         return;
     }
 
     if (kUnknown_SkColorType == this->colorType()) {
-        this->setPixelRef(nullptr, 0, 0);
+        SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, nullptr, this->rowBytes());
+        fPixelRef = nullptr;
         return;
     }
-    this->setPixelRef(
-            sk_make_sp<SkPixelRef>(this->width(), this->height(), p, this->rowBytes()), 0, 0);
+    fPixelRef = sk_make_sp<SkPixelRef>(this->width(), this->height(), p, this->rowBytes());
+    SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, p, this->rowBytes());
     SkDEBUGCODE(this->validate();)
 }
 
@@ -268,7 +270,8 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
     if (!pr) {
         return reset_return_false(this);
     }
-    this->setPixelRef(std::move(pr), 0, 0);
+    SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, pr->pixels(), rowBytes);
+    fPixelRef = std::move(pr);
     if (nullptr == this->getPixels()) {
         return reset_return_false(this);
     }
@@ -289,7 +292,8 @@ bool SkBitmap::tryAllocPixelsFlags(const SkImageInfo& requestedInfo, uint32_t al
     if (!pr) {
         return reset_return_false(this);
     }
-    this->setPixelRef(std::move(pr), 0, 0);
+    SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, pr->pixels(), correctedInfo.minRowBytes());
+    fPixelRef = std::move(pr);
     if (nullptr == this->getPixels()) {
         return reset_return_false(this);
     }
@@ -317,9 +321,10 @@ bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, siz
 
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
-    this->setPixelRef(
-            SkMakePixelRefWithProc(correctedInfo.width(), correctedInfo.height(),
-                                   rb, pixels, releaseProc, context), 0, 0);
+
+    SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, pixels, rb);
+    fPixelRef = SkMakePixelRefWithProc(correctedInfo.width(), correctedInfo.height(),
+                                       rb, pixels, releaseProc, context);
     SkDEBUGCODE(this->validate();)
     return true;
 }
@@ -369,7 +374,8 @@ bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst) {
         return false;
     }
 
-    dst->setPixelRef(std::move(pr), 0, 0);
+    SkPixmapPriv::ResetPixmapKeepInfo(&dst->fPixmap, pr->pixels(), dst->rowBytes());
+    dst->fPixelRef = std::move(pr);
     SkDEBUGCODE(dst->validate();)
     return true;
 }
@@ -455,14 +461,16 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkASSERT(static_cast<unsigned>(r.fLeft) < static_cast<unsigned>(this->width()));
     SkASSERT(static_cast<unsigned>(r.fTop) < static_cast<unsigned>(this->height()));
 
+    size_t rb = this->rowBytes();
     SkBitmap dst;
-    dst.setInfo(this->info().makeWH(r.width(), r.height()), this->rowBytes());
+    dst.setInfo(this->info().makeWH(r.width(), r.height()), rb);
     dst.setIsVolatile(this->isVolatile());
 
     if (fPixelRef) {
-        SkIPoint origin = this->pixelRefOrigin();
         // share the pixelref with a custom offset
-        dst.setPixelRef(fPixelRef, origin.x() + r.fLeft, origin.y() + r.fTop);
+        void* p = (char*)this->getPixels() + (rb * r.y()) + (r.x() << this->shiftPerPixel());
+        SkPixmapPriv::ResetPixmapKeepInfo(&dst.fPixmap, p, rb);
+        dst.fPixelRef = fPixelRef;
     }
     SkDEBUGCODE(dst.validate();)
 
