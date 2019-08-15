@@ -68,26 +68,9 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
     // Need to create an RG texture for two-channel planes
     GrBackendTexture tex;
     if (2 == channelCount) {
-        const GrCaps* caps = context->priv().caps();
-        GrGpu* gpu = context->priv().getGpu();
-
         SkASSERT(kRGBA_8888_SkColorType == pm.colorType());
-        SkAutoTMalloc<char> pixels(2 * pm.width()*pm.height());
-        char* currPixel = pixels;
-        for (int y = 0; y < pm.height(); ++y) {
-            for (int x = 0; x < pm.width(); ++x) {
-                SkColor color = pm.getColor(x, y);
-                currPixel[0] = SkColorGetR(color);
-                currPixel[1] = SkColorGetG(color);
-                currPixel += 2;
-            }
-        }
-
-        GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRG_88,
-                                                               GrRenderable::kNo);
-        tex = gpu->createBackendTexture(pm.width(), pm.height(), format,
-                                        GrMipMapped::kNo, GrRenderable::kNo,
-                                        pixels, 2 * pm.width(), nullptr, GrProtected::kNo);
+        // TODO: we need an kRG_88_SkColorType! For now we'll waste space with an RGBA_8888
+        tex = context->priv().createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo);
     } else {
         tex = context->priv().createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo);
     }
