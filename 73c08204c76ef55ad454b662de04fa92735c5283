@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "556cc168_dbf4bfa5",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-15T20:24:42Z",
+      "side": 1,
+      "message": "you\u0027re going to need an isFormatTexturable[andUpdatable] call here. The Config version was recently removed.",
+      "range": {
+        "startLine": 242,
+        "startChar": 4,
+        "endLine": 242,
+        "endChar": 52
+      },
+      "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60168dc4_1a22d812",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-15T20:24:42Z",
+      "side": 1,
+      "message": "why make a GrScissorState object here? Can\u0027t we just do:\nrect \u003d fixedDynamicState ? fixedDynamicState-\u003efScissorRect : kBogusScissor;",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 300,
+        "endChar": 98
+      },
+      "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cfd7605_0f7b3f9d",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-15T20:24:42Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 416,
+        "startChar": 4,
+        "endLine": 416,
+        "endChar": 19
+      },
+      "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce105195_5ef02f91",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-15T20:24:42Z",
+      "side": 1,
+      "message": "can dawn share a uniform buffer between the vertex and fragment stages? Ethan is currently making some changes in SkSL to share a uniform in different shaders of a program which is much easier done with one uniform buffer. Recently the vulkan and metal backends have been switched to using one shared buffer.",
+      "range": {
+        "startLine": 330,
+        "startChar": 4,
+        "endLine": 338,
+        "endChar": 70
+      },
+      "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
