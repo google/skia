@@ -462,72 +462,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> encoded,
-                                                    bool buildMips, SkColorSpace* dstColorSpace,
-                                                    bool limitToMaxTextureSize) {
-    sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(std::move(encoded));
-    if (!codecImage) {
-        return nullptr;
-    }
-
-    // Some backends or drivers don't support (safely) moving resources between contexts
-    if (!context || !context->priv().caps()->crossContextTextureSupport()) {
-        return codecImage;
-    }
-
-    // If non-power-of-two mipmapping isn't supported, ignore the client's request
-    if (!context->priv().caps()->mipMapSupport()) {
-        buildMips = false;
-    }
-
-    auto maxTextureSize = context->priv().caps()->maxTextureSize();
-    if (limitToMaxTextureSize &&
-        (codecImage->width() > maxTextureSize || codecImage->height() > maxTextureSize)) {
-        SkAutoPixmapStorage pmap;
-        SkImageInfo info = codecImage->imageInfo();
-        if (!dstColorSpace) {
-            info = info.makeColorSpace(nullptr);
-        }
-        if (!pmap.tryAlloc(info) || !codecImage->readPixels(pmap, 0, 0, kDisallow_CachingHint)) {
-            return nullptr;
-        }
-        return MakeCrossContextFromPixmap(context, pmap, buildMips, dstColorSpace, true);
-    }
-
-    // Turn the codec image into a GrTextureProxy
-    GrImageTextureMaker maker(context, codecImage.get(), kDisallow_CachingHint);
-    GrSamplerState samplerState(
-            GrSamplerState::WrapMode::kClamp,
-            buildMips ? GrSamplerState::Filter::kMipMap : GrSamplerState::Filter::kBilerp);
-    SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(maker.refTextureProxyForParams(samplerState, scaleAdjust));
-    // Given that we disable mipmaps if non-power-of-two mipmapping isn't supported, we always
-    // expect the created texture to be unscaled.
-    SkASSERT(scaleAdjust[0] == 1.0f && scaleAdjust[1] == 1.0f);
-    if (!proxy) {
-        return codecImage;
-    }
-
-    // Flush any writes or uploads
-    context->priv().flushSurface(proxy.get());
-    if (!proxy->isInstantiated()) {
-        return codecImage;
-    }
-
-    sk_sp<GrTexture> texture = sk_ref_sp(proxy->peekTexture());
-
-    GrGpu* gpu = context->priv().getGpu();
-    sk_sp<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
-
-    auto gen = GrBackendTextureImageGenerator::Make(
-            std::move(texture), proxy->origin(), std::move(sema), codecImage->colorType(),
-            codecImage->alphaType(), codecImage->refColorSpace());
-    return SkImage::MakeFromGenerator(std::move(gen));
-}
-
 sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
                                                    const SkPixmap& originalPixmap, bool buildMips,
-                                                   SkColorSpace* dstColorSpace,
                                                    bool limitToMaxTextureSize) {
     // Some backends or drivers don't support (safely) moving resources between contexts
     if (!context || !context->priv().caps()->crossContextTextureSupport()) {
