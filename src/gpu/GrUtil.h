@@ -33,8 +33,6 @@ enum GrIntelGpuFamily {
 
     // 11th gen
     kIceLake_IntelGpuFamily,
-
-    kFirstGen9_IntelGpuFamily = kApolloLake_IntelGpuFamily,
 };
 
 GrIntelGpuFamily GrGetIntelGpuFamily(uint32_t deviceID) {
