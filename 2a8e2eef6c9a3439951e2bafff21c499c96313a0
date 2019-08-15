@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6e844da0_106f9bc0",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-15T19:47:29Z",
+      "side": 1,
+      "message": "What are your thoughts on the debug only primary array?",
+      "parentUuid": "78812238_94e279be",
+      "range": {
+        "startLine": 629,
+        "startChar": 0,
+        "endLine": 635,
+        "endChar": 1
+      },
+      "revId": "2a8e2eef6c9a3439951e2bafff21c499c96313a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "61ac3a1b_26535879",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 1
@@ -39,6 +63,24 @@
       "revId": "2a8e2eef6c9a3439951e2bafff21c499c96313a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4012e4bc_380ed8e1",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-15T19:47:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61ac3a1b_26535879",
+      "revId": "2a8e2eef6c9a3439951e2bafff21c499c96313a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
