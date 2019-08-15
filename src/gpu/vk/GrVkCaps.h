@@ -161,6 +161,11 @@ public:
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
+    VkFormat getFormatFromColorType(GrColorType colorType) const {
+        int idx = static_cast<int>(colorType);
+        return fColorTypeToFormatTable[idx];
+    }
+
     bool canClearTextureOnCreation() const override;
 
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -258,6 +263,12 @@ private:
 
     FormatInfo& getFormatInfo(VkFormat);
     const FormatInfo& getFormatInfo(VkFormat) const;
+
+    VkFormat fColorTypeToFormatTable[kGrColorTypeCnt];
+#ifdef SK_DEBUG
+    VkFormat fPrimaryColorTypeToFormatTable[kGrColorTypeCnt];
+#endif
+    void setColorTypeFormat(GrColorType, VkFormat, bool primaryOption);
 
     StencilFormat fPreferredStencilFormat;
 

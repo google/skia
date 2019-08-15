@@ -1929,14 +1929,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
         return GrBackendRenderTarget();
     }
 
-    auto config = GrColorTypeToPixelConfig(ct);
-    if (kUnknown_GrPixelConfig == config) {
-        return {};
-    }
-    VkFormat vkFormat;
-    if (!GrPixelConfigToVkFormat(config, &vkFormat)) {
-        return {};
-    }
+    VkFormat vkFormat = this->vkCaps().getFormatFromColorType(ct);
 
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, w, h, false, true, GrMipMapped::kNo,
