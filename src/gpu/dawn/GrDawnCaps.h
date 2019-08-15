@@ -20,7 +20,7 @@ public:
     bool isFormatSRGB(const GrBackendFormat&) const override;
     bool isFormatCompressed(const GrBackendFormat&) const override;
 
-    bool isFormatTexturable(GrColorType, const GrBackendFormat& format) const override;
+    bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat& format) const override;
     bool isFormatRenderable(const GrBackendFormat& format,
                             int sampleCount = 1) const override;
     bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
@@ -29,7 +29,7 @@ public:
 
     bool isFormatCopyable(const GrBackendFormat& format) const override { return true; }
 
-    bool isConfigTexturable(GrPixelConfig config) const override;
+    bool isFormatTexturable(const GrBackendFormat& format) const override;
 
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,

@@ -26,15 +26,10 @@ bool GrDawnCaps::isFormatCompressed(const GrBackendFormat& format) const {
     return false;
 }
 
-bool GrDawnCaps::isConfigTexturable(GrPixelConfig config) const {
-    switch (config) {
-        case kRGBA_8888_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kAlpha_8_GrPixelConfig:
-            return true;
-        default:
-            return false;
-    }
+bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format) const {
+    // Currently, all the formats in GrDawnFormatToPixelConfig are texturable.
+    dawn::TextureFormat dawnFormat;
+    return format.asDawnFormat(&dawnFormat);
 }
 
 GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
@@ -100,13 +95,23 @@ static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorTyp
     return GrSwizzle::RGBA();
 }
 
-bool GrDawnCaps::isFormatTexturable(GrColorType ct, const GrBackendFormat& format) const {
-    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
-    if (kUnknown_GrPixelConfig == config) {
+bool GrDawnCaps::isFormatTexturableAndUploadable(GrColorType ct,
+                                                 const GrBackendFormat& format) const {
+    dawn::TextureFormat dawnFormat;
+    if (!format.asDawnFormat(&dawnFormat)) {
         return false;
     }
-
-    return this->isConfigTexturable(config);
+    switch (ct) {
+        case GrColorType::kAlpha_8:
+            return dawn::TextureFormat::R8Unorm == dawnFormat;
+        case GrColorType::kRGBA_8888:
+        case GrColorType::kRGB_888x:
+        case GrColorType::kBGRA_8888:
+            return dawn::TextureFormat::RGBA8Unorm == dawnFormat ||
+                   dawn::TextureFormat::BGRA8Unorm == dawnFormat;
+        default:
+            return false;
+    }
 }
 
 bool GrDawnCaps::isFormatRenderable(const GrBackendFormat& format,
@@ -184,8 +189,11 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrDawnCaps::getTestingCombin
     std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
         { GrColorType::kAlpha_8,   GrBackendFormat::MakeDawn(dawn::TextureFormat::R8Unorm)    },
         { GrColorType::kRGBA_8888, GrBackendFormat::MakeDawn(dawn::TextureFormat::RGBA8Unorm) },
+        { GrColorType::kRGBA_8888, GrBackendFormat::MakeDawn(dawn::TextureFormat::BGRA8Unorm) },
         { GrColorType::kRGB_888x,  GrBackendFormat::MakeDawn(dawn::TextureFormat::RGBA8Unorm) },
+        { GrColorType::kRGB_888x,  GrBackendFormat::MakeDawn(dawn::TextureFormat::BGRA8Unorm) },
         { GrColorType::kBGRA_8888, GrBackendFormat::MakeDawn(dawn::TextureFormat::BGRA8Unorm) },
+        { GrColorType::kBGRA_8888, GrBackendFormat::MakeDawn(dawn::TextureFormat::RGBA8Unorm) },
     };
 
 #ifdef SK_DEBUG
