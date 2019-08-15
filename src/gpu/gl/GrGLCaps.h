@@ -137,30 +137,14 @@ public:
 
     bool canFormatBeFBOColorAttachment(GrGLFormat) const;
 
-    bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {
-        auto format = this->pixelConfigToFormat(config);
-        return this->canFormatBeFBOColorAttachment(format);
-    }
-
-    bool configSupportsTexStorage(GrPixelConfig config) const {
-        auto format = this->pixelConfigToFormat(config);
-        return this->formatSupportsTexStorage(format);
-    }
-
     GrGLFormat getFormatFromColorType(GrColorType colorType) const {
         int idx = static_cast<int>(colorType);
         return fColorTypeToFormatTable[idx];
     }
 
-    GrGLenum configSizedInternalFormat(GrPixelConfig config) const {
-        return this->getSizedInternalFormat(this->pixelConfigToFormat(config));
-    }
     GrGLenum formatSizedInternalFormat(GrGLFormat format) const {
         return this->getFormatInfo(format).fSizedInternalFormat;
     }
-
-    // TODO: Once pixel config is no longer used in the caps remove this helper function.
-    GrGLFormat pixelConfigToFormat(GrPixelConfig) const;
 
     void getTexImageFormats(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
                             GrColorType memoryColorType, GrGLenum* internalFormat,
@@ -289,13 +273,6 @@ public:
 
     /// The maximum number of fragment uniform vectors (GLES has min. 16).
     int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
-
-    /**
-     * Depending on the ES extensions present the BGRA external format may
-     * correspond to either a BGRA or RGBA internalFormat. On desktop GL it is
-     * RGBA.
-     */
-    bool bgraIsInternalFormat() const;
 
     /// Is there support for GL_PACK_REVERSE_ROW_ORDER
     bool packFlipYSupport() const { return fPackFlipYSupport; }
@@ -561,20 +538,6 @@ private:
         GrGLenum fFormat;
         GrGLenum fType;
     };
-
-    struct ConfigFormats {
-        ConfigFormats() {
-            // Inits to known bad GL enum values.
-            memset(this, 0xAB, sizeof(ConfigFormats));
-        }
-
-    };
-
-    struct ConfigInfo {
-        ConfigFormats fFormats;
-    };
-
-    ConfigInfo fConfigTable[kGrPixelConfigCnt];
 
     /** Number type of the components (with out considering number of bits.) */
     enum class FormatType {
