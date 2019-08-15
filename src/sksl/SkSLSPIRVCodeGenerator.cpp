@@ -15,6 +15,10 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
+#ifdef SK_VULKAN
+#include "src/gpu/vk/GrVkCaps.h"
+#endif
+
 namespace SkSL {
 
 static const int32_t SKSL_MAGIC  = 0x0; // FIXME: we should probably register a magic number
@@ -1808,10 +1812,26 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             std::shared_ptr<SymbolTable> st(new SymbolTable(&fErrors));
             SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
             std::vector<Type::Field> fields;
-            fields.emplace_back(Modifiers(), SKSL_RTHEIGHT_NAME, fContext.fFloat_Type.get());
+            SkASSERT(fProgram.fSettings.fRTHeightOffset >= 0);
+            fields.emplace_back(Modifiers(Layout(0, -1, fProgram.fSettings.fRTHeightOffset, -1,
+                                                 -1, -1, -1, -1, Layout::Format::kUnspecified,
+                                                 Layout::kUnspecified_Primitive, -1, -1, "",
+                                                 Layout::kNo_Key, Layout::CType::kDefault), 0),
+                                SKSL_RTHEIGHT_NAME, fContext.fFloat_Type.get());
             StringFragment name("sksl_synthetic_uniforms");
             Type intfStruct(-1, name, fields);
-            Layout layout(0, -1, -1, 1, -1, -1, -1, -1, Layout::Format::kUnspecified,
+            int binding;
+            int set;
+#ifdef SK_VULKAN
+            const GrVkCaps* vkCaps = fProgram.fSettings.fVkCaps;
+            SkASSERT(vkCaps);
+            binding = vkCaps->getFragmentUniformBinding();
+            set = vkCaps->getFragmentUniformSet();
+#else
+            binding = 0;
+            set = 0;
+#endif
+            Layout layout(0, -1, -1, binding, -1, set, -1, -1, Layout::Format::kUnspecified,
                           Layout::kUnspecified_Primitive, -1, -1, "", Layout::kNo_Key,
                           Layout::CType::kDefault);
             Variable* intfVar = (Variable*) fSynthetics.takeOwnership(std::unique_ptr<Symbol>(
