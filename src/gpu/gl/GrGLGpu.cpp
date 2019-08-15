@@ -694,7 +694,9 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
                                                GrColorType colorType, GrWrapOwnership ownership,
                                                GrWrapCacheable cacheable, GrIOType ioType) {
     GrGLTexture::Desc desc;
-    if (!check_backend_texture(backendTex, colorType, this->glCaps(), &desc)) {
+    // We do not check whether texture rectangle is supported by Skia - if the caller provided us
+    // with a texture rectangle,we assume the necessary support exists.
+    if (!check_backend_texture(backendTex, colorType, this->glCaps(), &desc, true)) {
         return nullptr;
     }
 
