@@ -1,0 +1,296 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52e79162_4962ac77",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "I know this name is for brevity but Image is already a very overloaded word in Skia.",
+      "range": {
+        "startLine": 204,
+        "startChar": 6,
+        "endLine": 204,
+        "endChar": 11
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d12aca59_207bfb8d",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "So, although \u0027context\u0027 is const \u0027cache\u0027 is not ?",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46e9dd1e_a4b5830f",
+        "filename": "src/core/SkImageFilterCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "const\u0026 here ?",
+      "range": {
+        "startLine": 44,
+        "startChar": 30,
+        "endLine": 44,
+        "endChar": 35
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1787fcec_354bc482",
+        "filename": "src/core/SkImageFilterCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "Is this for raster?\nDo they still need it ?",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac76cbfd_b6da55c7",
+        "filename": "src/core/SkImageFilterCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "// It would\u0027ve been great if whoever added this had added a comment",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca2c054e_c6e43ceb",
+        "filename": "src/core/SkImageFilterCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "// Note: that this is the _specific_ unique ID of the image filter so refiltering the same image with a copy of an image filter (with exactly the same parameters) will not yield a cache hit.\n\n?",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a76ffed_648184d6",
+        "filename": "src/core/SkImageFilterCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "\u0027result\u0027",
+      "range": {
+        "startLine": 60,
+        "startChar": 45,
+        "endLine": 60,
+        "endChar": 51
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e77ce059_7f48531d",
+        "filename": "src/core/SkImageFilterCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "// \u0027filter\u0027 is included in the caching to allow the purging of all of an image filter\u0027s cached results when it is destroyed\n\n?\n\nWhy do we store the filter pointer at all? IIUC we have the image filter\u0027s unique id in the key so, why can\u0027t we use that to remove all of a image filter\u0027s cached results?",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbd6ca24_4381f862",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "there can be only one (form of to be)",
+      "range": {
+        "startLine": 26,
+        "startChar": 84,
+        "endLine": 26,
+        "endChar": 93
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "010daed6_d09bf04d",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "Do we care about this comment ?",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 59
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "810a13ba_a37880a6",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "What ?",
+      "range": {
+        "startLine": 186,
+        "startChar": 70,
+        "endLine": 187,
+        "endChar": 79
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8aa355d5_22175194",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "affects ?",
+      "range": {
+        "startLine": 190,
+        "startChar": 73,
+        "endLine": 190,
+        "endChar": 79
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "679f52e3_01342108",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "it should ?",
+      "range": {
+        "startLine": 191,
+        "startChar": 7,
+        "endLine": 191,
+        "endChar": 13
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "525d0505_d83c5563",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T13:34:10Z",
+      "side": 1,
+      "message": "Not sure I follow this comment entirely",
+      "range": {
+        "startLine": 275,
+        "startChar": 0,
+        "endLine": 277,
+        "endChar": 77
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
