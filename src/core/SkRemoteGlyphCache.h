@@ -81,8 +81,6 @@ protected:
 
 private:
     class TrackLayerDevice;
-
-    static SkScalar SetupForPath(SkPaint* paint, SkFont* font);
 };
 
 using SkDiscardableHandleId = uint32_t;
@@ -117,7 +115,7 @@ public:
     explicit SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
     ~SkStrikeServer() override;
 
-    // Serializes the typeface to be remoted using this server.
+    // Serializes the typeface to be transmitted using this server.
     sk_sp<SkData> serializeTypeface(SkTypeface*);
 
     // Serializes the strike data captured using a SkTextBlobCacheDiffCanvas. Any
@@ -125,7 +123,7 @@ public:
     // unlocked after this call.
     void writeStrikeData(std::vector<uint8_t>* memory);
 
-    // Methods used internally in skia ------------------------------------------
+    // Methods used internally in Skia ------------------------------------------
     class SkGlyphCacheState;
 
     SkGlyphCacheState* getOrCreateCache(const SkPaint&,
@@ -138,6 +136,8 @@ public:
     SkScopedStrike findOrCreateScopedStrike(const SkDescriptor& desc,
                                             const SkScalerContextEffects& effects,
                                             const SkTypeface& typeface) override;
+
+    void addGlyphForTesting(SkGlyphCacheState* cache, SkPackedGlyphID glyphID, bool pathOnly);
 
     void setMaxEntriesInDescriptorMapForTesting(size_t count) {
         fMaxEntriesInDescriptorMap = count;
@@ -187,7 +187,7 @@ public:
     // An interface to delete handles that may be pinned by the remote server.
     class DiscardableHandleManager : public SkRefCnt {
     public:
-        virtual ~DiscardableHandleManager() = default;
+        ~DiscardableHandleManager() override = default;
 
         // Returns true if the handle was unlocked and can be safely deleted. Once
         // successful, subsequent attempts to delete the same handle are invalid.
