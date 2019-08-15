@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78812238_94e279be",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-15T19:36:27Z",
+      "side": 1,
+      "message": "Is there a way we can formulate this so that we\u0027d notice if more than one claimed to be the \"primary\"?",
+      "range": {
+        "startLine": 629,
+        "startChar": 0,
+        "endLine": 635,
+        "endChar": 1
+      },
+      "revId": "2a8e2eef6c9a3439951e2bafff21c499c96313a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61ac3a1b_26535879",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-15T19:36:27Z",
+      "side": 1,
+      "message": "std::fill_n(fColorTypeToFormatTable.begin(), kGrColorTypeCnt, VK_FORMAT_UNDEFINED);\n?",
+      "revId": "2a8e2eef6c9a3439951e2bafff21c499c96313a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
