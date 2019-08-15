@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c502e5fb_921797c1",
+        "filename": "infra/bots/recipe_modules/build/chromecast.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-08-15T19:16:33Z",
+      "side": 1,
+      "message": "It\u0027s been a while since we updated the software on the Chorizo. When I get around to updating them, maybe it will be worth trying without this to see if they have the newer lib.",
+      "range": {
+        "startLine": 32,
+        "startChar": 63,
+        "endLine": 32,
+        "endChar": 70
+      },
+      "revId": "47e51ea0f39ebb7ebfc6b1332a73100d75d75c21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
