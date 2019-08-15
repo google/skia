@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0ac5abe_5721743e",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-15T18:54:33Z",
+      "side": 1,
+      "message": "Not sure if I could just make this the default?",
+      "range": {
+        "startLine": 697,
+        "startChar": 4,
+        "endLine": 698,
+        "endChar": 71
+      },
+      "revId": "601c45501fbd3c0e99ec5fc0be87e2ea6c1156a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
