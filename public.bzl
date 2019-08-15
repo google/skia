@@ -566,7 +566,9 @@ def DM_ARGS(asan):
 ################################################################################
 
 def base_copts(os_conditions):
-    return skia_select(
+    return [
+        "-std=c++17",
+    ] + skia_select(
         os_conditions,
         [
             # UNIX
