@@ -2572,6 +2572,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
 }
 
 void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
+    SkASSERT(layout.fBinding != 1 || layout.fSet != 0);
     if (layout.fLocation >= 0) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationLocation, layout.fLocation,
                                fDecorationBuffer);
