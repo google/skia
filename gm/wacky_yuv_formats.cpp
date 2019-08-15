@@ -1057,32 +1057,34 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
 
     if (format_uses_16_bpp(yuvFormat) || 2 == channelCount) {
         // Due to the limitations of SkPixmap these cases need to be handled separately
-        const GrCaps* caps = context->priv().caps();
-        GrGpu* gpu = context->priv().getGpu();
 
-        SkAutoTMalloc<uint8_t> pixels;
-        GrBackendFormat format;
-        size_t rowBytes;
+        SkBitmap newBM;
 
         if (2 == channelCount) {
             if (format_uses_16_bpp(yuvFormat)) {
-                make_RG_1616(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                // TODO: expand SkColorType to support RG_1616
+                //make_RG_1616(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                return tex;
             } else {
-                make_RG_88(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                // TODO: expaand SkColorType to support RG_88. For now we'll waste space and
+                // create and RGBA_8888 texture. The lameness is palpable.
+                //make_RG_88(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                newBM = bm;
             }
         } else {
             if (kRGBA_8888_SkColorType == bm.colorType()) {
-                make_RGBA_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                // TODO: expand SkColorType to support RGBA_16
+                //make_RGBA_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                return tex;
             } else {
-                make_R_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                // TODO: expand SkColorType to support R_16
+                //make_R_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                return tex;
             }
         }
 
-        // TODO: SkColorType needs to be expanded to allow this to be done via the
-        // GrContext::createBackendTexture API
-        tex = gpu->createBackendTexture(bm.width(), bm.height(), format,
-                                        GrMipMapped::kNo, GrRenderable::kNo,
-                                        pixels, rowBytes, nullptr, GrProtected::kNo);
+        tex = context->priv().createBackendTexture(&newBM.pixmap(), 1,
+                                                   GrRenderable::kNo, GrProtected::kNo);
     } else {
         tex = context->priv().createBackendTexture(&bm.pixmap(), 1,
                                                    GrRenderable::kNo, GrProtected::kNo);

@@ -135,11 +135,6 @@ public:
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget* rt, int width, int height, int numStencilSamples) override;
-    GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
-                                          GrMipMapped, GrRenderable,
-                                          const void* pixels, size_t rowBytes,
-                                          const SkColor4f* color,
-                                          GrProtected isProtected) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 
 #if GR_TEST_UTILS
@@ -183,6 +178,11 @@ private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 
     // GrGpu overrides
+    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
+                                            GrMipMapped, GrRenderable,
+                                            const SkPixmap srcData[], int numMipLevels,
+                                            const SkColor4f* color, GrProtected) override;
+
     void onResetContext(uint32_t resetBits) override;
 
     void onResetTextureBindings() override;
