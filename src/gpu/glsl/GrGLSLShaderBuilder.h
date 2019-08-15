@@ -97,13 +97,21 @@ public:
     void codeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
        va_list args;
        va_start(args, format);
-       this->code().appendVAList(format, args);
+       SkString code;
+       code.appendVAList(format, args);
+       SkASSERT(!strstr(code.c_str(), "void main"));
+       this->code() += code;
        va_end(args);
     }
 
-    void codeAppend(const char* str) { this->code().append(str); }
+    void codeAppend(const char* str) {
+       SkASSERT(!strstr(str, "void main"));
+       this->code().append(str);
+   }
 
-    void codeAppend(const char* str, size_t length) { this->code().append(str, length); }
+    void codeAppend(const char* str, size_t length) {
+        this->code().append(str, length);
+    }
 
     void codePrependf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
        va_list args;

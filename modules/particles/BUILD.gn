@@ -25,5 +25,8 @@ static_library("particles") {
     ]
     sources = skia_particle_sources
     configs += [ "../../:skia_private" ]
+    if (skia_enable_tools) {
+      configs += [ "../../:our_vulkan_headers" ]
+    }
   }
 }
