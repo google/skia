@@ -34,6 +34,8 @@
 #endif
 #include <atomic>
 
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // SkImageFilter - A number of the public APIs on SkImageFilter downcast to SkImageFilter_Base
 // in order to perform their actual work.
@@ -60,17 +62,19 @@ bool SkImageFilter::isColorFilterNode(SkColorFilter** filterPtr) const {
 
 SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
                                     MapDirection direction, const SkIRect* inputRect) const {
+    // Map on to the new, coordinate system tagged APIs
     if (kReverse_MapDirection == direction) {
-        SkIRect bounds = as_IFB(this)->onFilterNodeBounds(src, ctm, direction, inputRect);
-        return as_IFB(this)->onFilterBounds(bounds, ctm, direction, &bounds);
+        skif::IRect<In::kLayer, For::kInput> taggedInputRect(inputRect ? *inputRect
+                                                                       : SkIRect::MakeEmpty());
+        skif::IRect<In::kLayer, For::kInput> layerBounds = as_IFB(this)->filterLayerBounds(
+                skif::IRect<In::kLayer, For::kOutput>(src), ctm,
+                inputRect ? &taggedInputRect : nullptr);
+        return SkIRect(layerBounds);
     } else {
         SkASSERT(!inputRect);
-        SkIRect bounds = as_IFB(this)->onFilterBounds(src, ctm, direction, nullptr);
-        bounds = as_IFB(this)->onFilterNodeBounds(bounds, ctm, direction, nullptr);
-        SkIRect dst;
-        as_IFB(this)->getCropRect().applyTo(
-                bounds, ctm, as_IFB(this)->affectsTransparentBlack(), &dst);
-        return dst;
+        skif::IRect<In::kLayer, For::kOutput> outputBounds = as_IFB(this)->filterOutputBounds(
+                skif::IRect<In::kLayer, For::kInput>(src), ctm);
+        return SkIRect(outputBounds);
     }
 }
 
@@ -128,8 +132,6 @@ sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // SkImageFilter_Base
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-SK_USE_FLUENT_IMAGE_FILTER_TYPES
 
 static int32_t next_image_filter_unique_id() {
     static std::atomic<int32_t> nextID{1};
@@ -206,7 +208,7 @@ skif::Image<For::kOutput> SkImageFilter_Base::filterImage(const skif::Context& c
     // (originally passed separately) has an origin of (0, 0). SkComposeImageFilter makes an effort
     // to ensure that remains the case. Once everyone uses the new type systems for bounds, non
     // (0, 0) source origins will be easy to support.
-    SkASSERT(context.source().origin().fX == 0 && context.source().origin().fY == 0);
+    SkASSERT(context.source().origin()->fX == 0 && context.source().origin()->fY == 0);
 
     skif::Image<For::kOutput> result;
     if (!context.isValid()) {
@@ -246,7 +248,8 @@ skif::Image<For::kOutput> SkImageFilter_Base::filterImage(const skif::Context& c
 skif::Image<For::kOutput> SkImageFilter_Base::onFilterImage(const skif::Context& context) const {
     SkIPoint origin;
     auto image = this->onFilterImage(context, &origin);
-    return skif::Image<For::kOutput>(std::move(image), origin);
+    return skif::Image<For::kOutput>(std::move(image),
+                                     skif::IPoint<In::kLayer, For::kOutput>(origin));
 }
 
 bool SkImageFilter_Base::canHandleComplexCTM() const {
@@ -300,6 +303,113 @@ void SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds, const SkMatrix
             }
         }
     }
+}
+
+skif::IRect<In::kLayer, For::kOutput> SkImageFilter_Base::filterOutputBounds(
+        const skif::IRect<In::kLayer, For::kInput>& content, const SkMatrix& layer) const {
+    SkASSERT(layer.isScaleTranslate() || this->canHandleComplexCTM());
+    auto output = this->onFilterOutputBounds(content, layer);
+
+    // TODO (michaelludwig) - Currently have to apply the crop rect here to match the old behavior
+    // of filterBounds(). Eventually, cropping will be handled in its own image filter and this no
+    // longer needs to be explicit. Until then, unfortunately, cropping is not CS/usage tagged.
+    if (this->cropRectIsSet()) {
+        SkIRect dst;
+        this->getCropRect().applyTo(SkIRect(output), layer, this->affectsTransparentBlack(), &dst);
+        return skif::IRect<In::kLayer, For::kOutput>(dst);
+    } else {
+        return output;
+    }
+}
+
+// Default to using the old onFilterNodeBounds with kForward, until filters are all updated
+// Once onFilterNodeBounds is gone, this will default to:
+//     return skif::LayerCast<For::kOutput>(contentBounds);
+skif::IRect<In::kLayer, For::kOutput> SkImageFilter_Base::onNodeOutputBounds(
+        const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+        const SkMatrix& layerMatrix) const {
+    SkIRect output = this->onFilterNodeBounds(SkIRect(contentBounds), layerMatrix,
+                                              kForward_MapDirection, nullptr);
+    return skif::IRect<In::kLayer, For::kOutput>(output);
+}
+
+skif::IRect<In::kLayer, For::kOutput> SkImageFilter_Base::onFilterOutputBounds(
+        const skif::IRect<In::kLayer, For::kInput>& content, const SkMatrix& layer) const {
+    if (this->countInputs() == 0) {
+        // Leaf node just processes the input content directly
+        return this->onNodeOutputBounds(content, layer);
+    }
+
+    skif::IRect<In::kLayer, For::kOutput> childOutputs(SkIRect::MakeEmpty());
+    for (int i = 0; i < this->countInputs(); ++i) {
+        const SkImageFilter* filter = this->getInput(i);
+        if (filter) {
+            auto filterOutput = as_IFB(filter)->filterOutputBounds(content, layer);
+            childOutputs->join(SkIRect(filterOutput));
+        } else {
+            // The input doesn't have a filter set, so this filter would process the dynamic source
+            // image, which presumably is the same region as 'content'.
+            childOutputs->join(SkIRect(content));
+        }
+    }
+
+    // The final output is what this node does to the union of its child outputs
+    return this->onNodeOutputBounds(skif::LayerCast<For::kInput>(childOutputs), layer);
+}
+
+skif::IRect<In::kLayer, For::kInput> SkImageFilter_Base::filterLayerBounds(
+        const skif::IRect<In::kLayer, For::kOutput>& target, const SkMatrix& layer,
+        const skif::IRect<In::kLayer, For::kInput>* originalInput) const {
+    SkASSERT(layer.isScaleTranslate() || this->canHandleComplexCTM());
+    if (originalInput) {
+        return this->onFilterLayerBounds(target, layer, *originalInput);
+    } else {
+        // Assume the input fits the target output
+        return this->onFilterLayerBounds(target, layer, skif::LayerCast<For::kInput>(target));
+    }
+}
+
+// Default to using the old onFilterNodeBounds with kReverse, until filters are all updated.
+// Once onFilterNodeBounds is gone, this will just default to:
+//     return skif::LayerCast<For::kInput>(targetOutputBounds);
+skif::IRect<In::kLayer, For::kInput> SkImageFilter_Base::onNodeLayerBounds(
+        const skif::IRect<In::kLayer, For::kOutput>& targetOutputBounds,
+        const SkMatrix& layerMatrix,
+        const skif::IRect<In::kLayer, For::kInput>& originalInput) const {
+    const SkIRect* inputPtr = &(static_cast<const SkIRect&>(originalInput));
+    SkIRect layer = this->onFilterNodeBounds(SkIRect(targetOutputBounds), layerMatrix,
+                                             kReverse_MapDirection, inputPtr);
+    return skif::IRect<In::kLayer, For::kInput>(layer);
+}
+
+
+skif::IRect<In::kLayer, For::kInput> SkImageFilter_Base::onFilterLayerBounds(
+        const skif::IRect<In::kLayer, For::kOutput>& target, const SkMatrix& layer,
+        const skif::IRect<In::kLayer, For::kInput>& originalInput) const {
+    auto baseInput = this->onNodeLayerBounds(target, layer, originalInput);
+    if (this->countInputs() == 0) {
+        // Leaf node doesn't have further contributions from child inputs
+        return baseInput;
+    }
+
+    // Whatever this node needs as its base input is the required output of its child filters.
+    auto requiredOutput = skif::LayerCast<For::kOutput>(baseInput);
+
+    skif::IRect<In::kLayer, For::kInput> layerBounds(SkIRect::MakeEmpty());
+    for (int i = 0; i < this->countInputs(); ++i) {
+        const SkImageFilter_Base* filter = static_cast<const SkImageFilter_Base*>(this->getInput(i));
+        if (filter) {
+            // Accumulate what the input filter needs in order for it to cover 'baseInput'
+            auto filterInput = filter->filterLayerBounds(requiredOutput, layer, &baseInput);
+            layerBounds->join(SkIRect(filterInput));
+        } else {
+            // The input doesn't have a filter set, so it would just use the dynamic source image
+            // unmodified, so make sure the source image covers 'baseInput'
+            layerBounds->join(SkIRect(baseInput));
+        }
+    }
+
+    return layerBounds;
 }
 
 bool SkImageFilter_Base::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
