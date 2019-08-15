@@ -260,13 +260,12 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
     rowBytes = this->rowBytes();
 
     sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(correctedInfo, rowBytes);
-    if (!pr) {
+    if (!pr || !pr->pixels()) {
         return reset_return_false(this);
     }
-    this->setPixelRef(std::move(pr), 0, 0);
-    if (nullptr == this->getPixels()) {
-        return reset_return_false(this);
-    }
+    SkASSERT(rowBytes == pr->rowBytes());
+    SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, pr->pixels(), rowBytes);
+    fPixelRef = std::move(pr);
     SkDEBUGCODE(this->validate();)
     return true;
 }
@@ -281,13 +280,12 @@ bool SkBitmap::tryAllocPixelsFlags(const SkImageInfo& requestedInfo, uint32_t al
 
     sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(correctedInfo,
                                                           correctedInfo.minRowBytes());
-    if (!pr) {
+    if (!pr || !pr->pixels()) {
         return reset_return_false(this);
     }
-    this->setPixelRef(std::move(pr), 0, 0);
-    if (nullptr == this->getPixels()) {
-        return reset_return_false(this);
-    }
+    SkASSERT(correctedInfo.minRowBytes() == pr->rowBytes());
+    SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, pr->pixels(), correctedInfo.minRowBytes());
+    fPixelRef = std::move(pr);
     SkDEBUGCODE(this->validate();)
     return true;
 }
@@ -312,9 +310,9 @@ bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, siz
 
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
-    this->setPixelRef(
-            SkMakePixelRefWithProc(correctedInfo.width(), correctedInfo.height(),
-                                   rb, pixels, releaseProc, context), 0, 0);
+    SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, pixels, rb);
+    fPixelRef = SkMakePixelRefWithProc(correctedInfo.width(), correctedInfo.height(),
+                                       rb, pixels, releaseProc, context);
     SkDEBUGCODE(this->validate();)
     return true;
 }
@@ -363,8 +361,8 @@ bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst) {
     if (!pr) {
         return false;
     }
-
-    dst->setPixelRef(std::move(pr), 0, 0);
+    SkPixmapPriv::ResetPixmapKeepInfo(&dst->fPixmap, pr->pixels(), dst->rowBytes());
+    dst->fPixelRef = std::move(pr);
     SkDEBUGCODE(dst->validate();)
     return true;
 }
@@ -435,12 +433,12 @@ void SkBitmap::eraseColor(SkColor c) const {
 bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkDEBUGCODE(this->validate();)
 
-    if (nullptr == result || !fPixelRef) {
+    if (nullptr == result || nullptr == this->getPixels()) {
         return false;   // no src pixels
     }
 
-    SkIRect srcRect, r;
-    srcRect.set(0, 0, this->width(), this->height());
+    SkIRect srcRect = this->bounds();
+    SkIRect r;
     if (!r.intersect(srcRect, subset)) {
         return false;   // r is empty (i.e. no intersection)
     }
@@ -450,19 +448,20 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkASSERT(static_cast<unsigned>(r.fLeft) < static_cast<unsigned>(this->width()));
     SkASSERT(static_cast<unsigned>(r.fTop) < static_cast<unsigned>(this->height()));
 
+    size_t rb = this->rowBytes();
     SkBitmap dst;
-    dst.setInfo(this->info().makeWH(r.width(), r.height()), this->rowBytes());
+    dst.setInfo(this->info().makeWH(r.width(), r.height()), rb);
     dst.setIsVolatile(this->isVolatile());
 
-    if (fPixelRef) {
-        SkIPoint origin = this->pixelRefOrigin();
-        // share the pixelref with a custom offset
-        dst.setPixelRef(fPixelRef, origin.x() + r.fLeft, origin.y() + r.fTop);
-    }
+    // share the pixelref with a custom offset
+    void* p = reinterpret_cast<char*>(this->getPixels()) +
+              (r.y() * rb) + (r.x() << this->shiftPerPixel());
+    SkPixmapPriv::ResetPixmapKeepInfo(&dst.fPixmap, p, rb);
+    dst.fPixmap = fPixmap;
     SkDEBUGCODE(dst.validate();)
 
     // we know we're good, so commit to result
-    result->swap(dst);
+    *result = std::move(dst);
     return true;
 }
 
