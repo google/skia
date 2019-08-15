@@ -310,7 +310,6 @@ skia_core_sources = [
   "$_src/core/SkRegion_path.cpp",
   "$_src/core/SkRemoteGlyphCache.h",
   "$_src/core/SkRemoteGlyphCache.cpp",
-  "$_src/core/SkRemoteGlyphCacheImpl.h",
   "$_src/core/SkResourceCache.cpp",
   "$_src/core/SkRRect.cpp",
   "$_src/core/SkRRectPriv.h",
