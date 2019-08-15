@@ -627,6 +627,13 @@ static bool format_is_srgb(VkFormat format) {
     }
 }
 
+void GrVkCaps::setColorTypeFormat(GrColorType colorType, VkFormat format, bool primaryOption) {
+    int idx = static_cast<int>(colorType);
+    if (primaryOption || fColorTypeToFormatTable[idx] == VK_FORMAT_UNDEFINED) {
+        fColorTypeToFormatTable[idx] = format;
+    }
+}
+
 // These are all the valid VkFormats that we support in Skia. They are roughly ordered from most
 // frequently used to least to improve look up times in arrays.
 static constexpr VkFormat kVkFormats[] = {
@@ -675,232 +682,278 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     static_assert(SK_ARRAY_COUNT(kVkFormats) == GrVkCaps::kNumVkFormats,
                   "Size of VkFormats array must match static value in header");
 
-    // Go through all the formats and init their support surface and data GrColorTypes.
+    for (int i = 0; i < kGrColorTypeCnt; ++i) {
+        fColorTypeToFormatTable[i] = VK_FORMAT_UNDEFINED;
+    }
 
+    // Go through all the formats and init their support surface and data GrColorTypes.
     // Format: VK_FORMAT_R8G8B8A8_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R8G8B8A8_UNORM);
-        info.init(interface, physDev, properties, VK_FORMAT_R8G8B8A8_UNORM);
+        constexpr VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R8G8B8A8_UNORM, Surface: kRGBA_8888
             {
+                constexpr GrColorType ct = GrColorType::kRGBA_8888;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGBA_8888;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
             // Format: VK_FORMAT_R8G8B8A8_UNORM, Surface: kRGB_888x
             {
+                constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGB_888x;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
                 ctInfo.fTextureSwizzle = GrSwizzle::RGB1();
+                this->setColorTypeFormat(ct, format, false);
             }
         }
     }
 
     // Format: VK_FORMAT_R8_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R8_UNORM);
-        info.init(interface, physDev, properties, VK_FORMAT_R8_UNORM);
+        constexpr VkFormat format = VK_FORMAT_R8_UNORM;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R8_UNORM, Surface: kAlpha_8
             {
+                constexpr GrColorType ct = GrColorType::kAlpha_8;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kAlpha_8;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
                 ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
+                this->setColorTypeFormat(ct, format, true);
             }
             // Format: VK_FORMAT_R8_UNORM, Surface: kGray_8
             {
+                constexpr GrColorType ct = GrColorType::kGray_8;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kGray_8;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
                 ctInfo.fTextureSwizzle = GrSwizzle("rrr1");
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_B8G8R8A8_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_B8G8R8A8_UNORM);
-        info.init(interface, physDev, properties, VK_FORMAT_B8G8R8A8_UNORM);
+        constexpr VkFormat format = VK_FORMAT_B8G8R8A8_UNORM;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_B8G8R8A8_UNORM, Surface: kBGRA_8888
             {
+                constexpr GrColorType ct = GrColorType::kBGRA_8888;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kBGRA_8888;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R5G6B5_UNORM_PACK16
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R5G6B5_UNORM_PACK16);
-        info.init(interface, physDev, properties, VK_FORMAT_R5G6B5_UNORM_PACK16);
+        constexpr VkFormat format = VK_FORMAT_R5G6B5_UNORM_PACK16;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R5G6B5_UNORM_PACK16, Surface: kBGR_565
             {
+                constexpr GrColorType ct = GrColorType::kBGR_565;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kBGR_565;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R16G16B16A16_SFLOAT
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R16G16B16A16_SFLOAT);
-        info.init(interface, physDev, properties, VK_FORMAT_R16G16B16A16_SFLOAT);
+        constexpr VkFormat format = VK_FORMAT_R16G16B16A16_SFLOAT;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R16G16B16A16_SFLOAT, Surface: GrColorType::kRGBA_F16
             {
+                constexpr GrColorType ct = GrColorType::kRGBA_F16;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGBA_F16;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
             // Format: VK_FORMAT_R16G16B16A16_SFLOAT, Surface: GrColorType::kRGBA_F16_Clamped
             {
+                constexpr GrColorType ct = GrColorType::kRGBA_F16_Clamped;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGBA_F16_Clamped;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R16_SFLOAT
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R16_SFLOAT);
-        info.init(interface, physDev, properties, VK_FORMAT_R16_SFLOAT);
+        constexpr VkFormat format = VK_FORMAT_R16_SFLOAT;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R16_SFLOAT, Surface: kAlpha_F16
             {
+                constexpr GrColorType ct = GrColorType::kAlpha_F16;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kAlpha_F16;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
                 ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R8G8B8_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R8G8B8_UNORM);
-        info.init(interface, physDev, properties, VK_FORMAT_R8G8B8_UNORM);
+        constexpr VkFormat format = VK_FORMAT_R8G8B8_UNORM;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R8G8B8_UNORM, Surface: kRGB_888x
             {
+                constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGB_888x;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R8G8_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R8G8_UNORM);
-        info.init(interface, physDev, properties, VK_FORMAT_R8G8_UNORM);
+        constexpr VkFormat format = VK_FORMAT_R8G8_UNORM;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R8G8_UNORM, Surface: kRG_88
             {
+                constexpr GrColorType ct = GrColorType::kRG_88;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRG_88;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_A2B10G10R10_UNORM_PACK32
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_A2B10G10R10_UNORM_PACK32);
-        info.init(interface, physDev, properties, VK_FORMAT_A2B10G10R10_UNORM_PACK32);
+        constexpr VkFormat format = VK_FORMAT_A2B10G10R10_UNORM_PACK32;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_A2B10G10R10_UNORM_PACK32, Surface: kRGBA_1010102
             {
+                constexpr GrColorType ct = GrColorType::kRGBA_1010102;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGBA_1010102;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_B4G4R4A4_UNORM_PACK16
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_B4G4R4A4_UNORM_PACK16);
-        info.init(interface, physDev, properties, VK_FORMAT_B4G4R4A4_UNORM_PACK16);
+        constexpr VkFormat format = VK_FORMAT_B4G4R4A4_UNORM_PACK16;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_B4G4R4A4_UNORM_PACK16, Surface: kABGR_4444
             {
+                constexpr GrColorType ct = GrColorType::kABGR_4444;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kABGR_4444;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fTextureSwizzle = GrSwizzle::BGRA();
                 ctInfo.fOutputSwizzle = GrSwizzle::BGRA();
+                this->setColorTypeFormat(ct, format, false);
             }
         }
     }
     // Format: VK_FORMAT_R4G4B4A4_UNORM_PACK16
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R4G4B4A4_UNORM_PACK16);
-        info.init(interface, physDev, properties, VK_FORMAT_R4G4B4A4_UNORM_PACK16);
+        constexpr VkFormat format = VK_FORMAT_R4G4B4A4_UNORM_PACK16;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R4G4B4A4_UNORM_PACK16, Surface: kABGR_4444
             {
+                constexpr GrColorType ct = GrColorType::kABGR_4444;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kABGR_4444;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R32G32B32A32_SFLOAT
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R32G32B32A32_SFLOAT);
-        info.init(interface, physDev, properties, VK_FORMAT_R32G32B32A32_SFLOAT);
+        constexpr VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R32G32B32A32_SFLOAT, Surface: kRGBA_F32
             {
+                constexpr GrColorType ct = GrColorType::kRGBA_F32;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGBA_F32;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R8G8B8A8_SRGB
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R8G8B8A8_SRGB);
+        constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+        auto& info = this->getFormatInfo(format);
         if (fSRGBSupport) {
-            info.init(interface, physDev, properties, VK_FORMAT_R8G8B8A8_SRGB);
+            info.init(interface, physDev, properties, format);
         }
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
@@ -908,81 +961,96 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
             int ctIdx = 0;
             // Format: VK_FORMAT_R8G8B8A8_SRGB, Surface: kRGBA_8888_SRGB
             {
+                constexpr GrColorType ct = GrColorType::kRGBA_8888_SRGB;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGBA_8888_SRGB;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R16_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R16_UNORM);
-        info.init(interface, physDev, properties, VK_FORMAT_R16_UNORM);
+        constexpr VkFormat format = VK_FORMAT_R16_UNORM;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R16_UNORM, Surface: kR_16
             {
+                constexpr GrColorType ct = GrColorType::kR_16;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kR_16;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R16G16_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R16G16_UNORM);
-        info.init(interface, physDev, properties, VK_FORMAT_R16G16_UNORM);
+        constexpr VkFormat format = VK_FORMAT_R16G16_UNORM;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R16G16_UNORM, Surface: kRG_1616
             {
+                constexpr GrColorType ct = GrColorType::kRG_1616;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRG_1616;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R16G16B16A16_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R16G16B16A16_UNORM);
-        info.init(interface, physDev, properties, VK_FORMAT_R16G16B16A16_UNORM);
+        constexpr VkFormat format = VK_FORMAT_R16G16B16A16_UNORM;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R16G16B16A16_UNORM, Surface: kRGBA_16161616
             {
+                constexpr GrColorType ct = GrColorType::kRGBA_16161616;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kRGBA_16161616;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_R16G16_SFLOAT
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_R16G16_SFLOAT);
-        info.init(interface, physDev, properties, VK_FORMAT_R16G16_SFLOAT);
+        constexpr VkFormat format = VK_FORMAT_R16G16_SFLOAT;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: VK_FORMAT_R16G16_SFLOAT, Surface: kRG_F16
             {
+                constexpr GrColorType ct = GrColorType::kRG_F16;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRG_F16;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(ct, format, true);
             }
         }
     }
     // Format: VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM);
+        constexpr VkFormat format = VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM;
+        auto& info = this->getFormatInfo(format);
         if (fSupportsYcbcrConversion) {
-            info.init(interface, physDev, properties, VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM);
+            info.init(interface, physDev, properties, format);
         }
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
@@ -990,17 +1058,19 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
             int ctIdx = 0;
             // Format: VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM, Surface: kRGB_888x
             {
+                constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGB_888x;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
             }
         }
     }
     // Format: VK_FORMAT_G8_B8R8_2PLANE_420_UNORM
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_G8_B8R8_2PLANE_420_UNORM);
+        constexpr VkFormat format = VK_FORMAT_G8_B8R8_2PLANE_420_UNORM;
+        auto& info = this->getFormatInfo(format);
         if (fSupportsYcbcrConversion) {
-            info.init(interface, physDev, properties, VK_FORMAT_G8_B8R8_2PLANE_420_UNORM);
+            info.init(interface, physDev, properties, format);
         }
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
@@ -1008,16 +1078,18 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
             int ctIdx = 0;
             // Format: VK_FORMAT_G8_B8R8_2PLANE_420_UNORM, Surface: kRGB_888x
             {
+                constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGB_888x;
+                ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
             }
         }
     }
     // Format: VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK
     {
-        auto& info = this->getFormatInfo(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
-        info.init(interface, physDev, properties, VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
+        constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
         // No supported GrColorTypes.
     }
 }
@@ -1301,6 +1373,32 @@ bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     return true;
 }
 
+bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
+                                                 const GrBackendFormat& format) const {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
+        return false;
+    }
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    SkASSERT(ycbcrInfo);
+
+    if (ycbcrInfo->isValid() && !GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+        // Format may be undefined for external images, which are required to have YCbCr conversion.
+        if (VK_FORMAT_UNDEFINED == vkFormat) {
+            return true;
+        }
+        return false;
+    }
+
+    const auto& info = this->getFormatInfo(vkFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        if (info.fColorTypeInfos[i].fColorType == ct) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool hasYcbcrConversion) {
     if (hasYcbcrConversion) {
         if (GrVkFormatNeedsYcbcrSampler(format)) {
@@ -1430,19 +1528,6 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
     return kUnknown_GrPixelConfig;
 }
 
-bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
-                                                 const GrBackendFormat& format) const {
-    VkFormat vkFormat;
-    if (!format.asVkFormat(&vkFormat)) {
-        return false;
-    }
-    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
-    SkASSERT(ycbcrInfo);
-
-    return kUnknown_GrPixelConfig != validate_image_info(vkFormat, ct, ycbcrInfo->isValid());
-}
-
-
 GrPixelConfig GrVkCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                      GrColorType ct) const {
     VkFormat vkFormat;
@@ -1482,12 +1567,8 @@ GrColorType GrVkCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
 
 GrBackendFormat GrVkCaps::onGetDefaultBackendFormat(GrColorType ct,
                                                     GrRenderable renderable) const {
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
-    if (config == kUnknown_GrPixelConfig) {
-        return GrBackendFormat();
-    }
-    VkFormat format;
-    if (!GrPixelConfigToVkFormat(config, &format)) {
+    VkFormat format = this->getFormatFromColorType(ct);
+    if (format == VK_FORMAT_UNDEFINED) {
         return GrBackendFormat();
     }
     return GrBackendFormat::MakeVk(format);
@@ -1580,12 +1661,6 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinat
         { GrColorType::kRGBA_16161616,    GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_UNORM)   },
         { GrColorType::kRG_F16,           GrBackendFormat::MakeVk(VK_FORMAT_R16G16_SFLOAT)        },
     };
-
-#ifdef SK_DEBUG
-    for (auto combo : combos) {
-        SkASSERT(this->onAreColorTypeAndFormatCompatible(combo.fColorType, combo.fFormat));
-    }
-#endif
 
     return combos;
 }
