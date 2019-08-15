@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a4fdfd0_178e2bad",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4105,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-15T19:28:52Z",
+      "side": 0,
+      "message": "Since we are now using our format table to determine compatibility this assert is no longer always valid. For example if one of the combos above has a format that is not supported on the device we don\u0027t add GrColorTypes to its FormatInfo.\n\nOn a side note, since this function is for testing purposes, I don\u0027t think it is necessarily wrong to return invalid combinations. The code that uses this (either the test or is skia) should be checking that the combos actually work together in the calls they are making.",
+      "range": {
+        "startLine": 4101,
+        "startChar": 0,
+        "endLine": 4105,
+        "endChar": 6
+      },
+      "revId": "df6517e3fd9c147311aac30394ef6b7cf33841fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
