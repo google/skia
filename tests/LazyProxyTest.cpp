@@ -100,7 +100,7 @@ public:
                                     desc, format, GrRenderable::kNo, 1, SkBudgeted::kYes,
                                     GrProtected::kNo, GrResourceProvider::Flags::kNoPendingIO);
                             REPORTER_ASSERT(fTest->fReporter, texture);
-                            return std::move(texture);
+                            return texture;
                         }
                     },
                     format, GrRenderable::kNo, 1, GrProtected::kNo, kTopLeft_GrSurfaceOrigin,
@@ -478,7 +478,7 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
                     }
                     (*instantiatePtr)++;
                     texture->setRelease(DeinstantiateReleaseProc, releasePtr);
-                    return std::move(texture);
+                    return texture;
                 },
                 format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                 GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kReadOnly,
