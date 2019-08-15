@@ -53,6 +53,9 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
+// static_assert with no message is a c++17 feature.
+static_assert(true);
+
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
     SkCanvas contains a stack of SkMatrix and clip values.
