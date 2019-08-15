@@ -11,7 +11,6 @@
 #include "include/private/SkMutex.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRemoteGlyphCache.h"
-#include "src/core/SkRemoteGlyphCacheImpl.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
@@ -988,7 +987,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         auto* cacheState = server.getOrCreateCache(
                 paint, font, SkSurfacePropsCopyOrDefault(nullptr),
                 SkMatrix::I(), flags, &effects);
-        cacheState->addGlyph(lostGlyphID, false);
+        SkStrikeServer::AddGlyphForTesting(cacheState, lostGlyphID, false);
 
         std::vector<uint8_t> serverStrikeData;
         server.writeStrikeData(&serverStrikeData);
