@@ -46,6 +46,8 @@ void main(inout half4 color) {
 )";
 #endif
 
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
+
 namespace {
 
 class ArithmeticImageFilterImpl final : public SkImageFilter_Base {
@@ -56,9 +58,6 @@ public:
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
-
-    SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
-                           MapDirection, const SkIRect* inputRect) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> filterImageGPU(const Context& ctx,
@@ -78,6 +77,16 @@ private:
     SK_FLATTENABLE_HOOKS(ArithmeticImageFilterImpl)
 
     bool affectsTransparentBlack() const override { return !SkScalarNearlyZero(fK[3]); }
+
+    // Take over full control of aggregation of input bounds, since the coefficients can let us
+    // shrink the output shape. No need to override the layer bounds calculations since this
+    // operates per pixel.
+    // FIXME (michaelludwig) - That last sentence is based on how the old onFilterBounds() was
+    // implemented, but I think we could use similar logic that rules out one inputs needs if its
+    // coefficients never had to read from it.
+    skif::IRect<In::kLayer, For::kOutput> onFilterOutputBounds(
+            const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+            const SkMatrix& layerMatrix) const override;
 
     const float fK[4];
     const bool fEnforcePMColor;
@@ -265,20 +274,19 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::onFilterImage(const Context& ct
     return surf->makeImageSnapshot();
 }
 
-SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
-                                                  const SkMatrix& ctm,
-                                                  MapDirection dir,
-                                                  const SkIRect* inputRect) const {
-    if (kReverse_MapDirection == dir) {
-        return INHERITED::onFilterBounds(src, ctm, dir, inputRect);
-    }
-
+skif::IRect<In::kLayer, For::kOutput> ArithmeticImageFilterImpl::onFilterOutputBounds(
+        const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+        const SkMatrix& layerMatrix) const {
     SkASSERT(2 == this->countInputs());
 
     // result(i1,i2) = k1*i1*i2 + k2*i1 + k3*i2 + k4
     // Note that background (getInput(0)) is i2, and foreground (getInput(1)) is i1.
-    auto i2 = this->getInput(0) ? this->getInput(0)->filterBounds(src, ctm, dir, nullptr) : src;
-    auto i1 = this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, dir, nullptr) : src;
+    auto i2 = this->getInput(0) ?
+            as_IFB(this->getInput(0))->filterOutputBounds(contentBounds, layerMatrix) :
+            skif::LayerCast<For::kOutput>(contentBounds);
+    auto i1 = this->getInput(1) ?
+            as_IFB(this->getInput(1))->filterOutputBounds(contentBounds, layerMatrix) :
+            skif::LayerCast<For::kOutput>(contentBounds);
 
     // Arithmetic with non-zero k4 may influence the complete filter primitive
     // region. [k4 > 0 => result(0,0) = k4 => result(i1,i2) >= k4]
@@ -310,13 +318,13 @@ SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
     // [k1 > 0 and k2 = k3 = k4 = 0 => result(i1,i2) = k1*i1*i2]
     if (!SkScalarNearlyZero(fK[0])) {
         if (!i1.intersect(i2)) {
-            return SkIRect::MakeEmpty();
+            return skif::IRect<In::kLayer, For::kOutput>(SkIRect::MakeEmpty());
         }
         return i1;
     }
 
     // [k1 = k2 = k3 = k4 = 0 => result(i1,i2) = 0]
-    return SkIRect::MakeEmpty();
+    return skif::IRect<In::kLayer, For::kOutput>(SkIRect::MakeEmpty());
 }
 
 #if SK_SUPPORT_GPU

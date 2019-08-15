@@ -22,15 +22,24 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
-    SkIRect onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                           MapDirection, const SkIRect* inputRect) const override;
-
-    bool onCanHandleComplexCTM() const override { return true; }
 
 private:
     SK_FLATTENABLE_HOOKS(SkLocalMatrixImageFilter)
 
     SkLocalMatrixImageFilter(const SkMatrix& localM, sk_sp<SkImageFilter> input);
+
+    // LocalMatrixImageFilter takes over the entire bounds process to properly fiddle with the
+    // context's layer matrix.
+    skif::IRect<In::kLayer, For::kInput> onFilterLayerBounds(
+            const skif::IRect<In::kLayer, For::kOutput>& targetOutputBounds,
+            const SkMatrix& layerMatrix,
+            const skif::IRect<In::kLayer, For::kInput>& originalInput) const override;
+
+    skif::IRect<In::kLayer, For::kOutput> onFilterOutputBounds(
+            const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+            const SkMatrix& layerMatrix) const override;
+
+    bool onCanHandleComplexCTM() const override { return true; }
 
     SkMatrix fLocalM;
 

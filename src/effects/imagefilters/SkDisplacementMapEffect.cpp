@@ -32,6 +32,8 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
+
 namespace {
 
 class SkDisplacementMapEffectImpl final : public SkImageFilter_Base {
@@ -46,11 +48,6 @@ public:
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
-    virtual SkIRect onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                   MapDirection, const SkIRect* inputRect) const override;
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
-                               MapDirection, const SkIRect* inputRect) const override;
-
 protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
@@ -64,8 +61,19 @@ private:
     SkColorChannel fYChannelSelector;
     SkScalar fScale;
 
-    const SkImageFilter* getDisplacementInput() const { return getInput(0); }
-    const SkImageFilter* getColorInput() const { return getInput(1); }
+    const SkImageFilter_Base* getDisplacementInput() const { return as_IFB(getInput(0)); }
+    const SkImageFilter_Base* getColorInput() const { return as_IFB(getInput(1)); }
+
+    // DisplacementMapEffect takes over the entire bounds process so that the displacement input
+    // is not used for bounds calculations.
+    skif::IRect<In::kLayer, For::kInput> onFilterLayerBounds(
+            const skif::IRect<In::kLayer, For::kOutput>& targetOutputBounds,
+            const SkMatrix& layerMatrix,
+            const skif::IRect<In::kLayer, For::kInput>& originalInput) const override;
+
+    skif::IRect<In::kLayer, For::kOutput> onFilterOutputBounds(
+            const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+            const SkMatrix& layerMatrix) const override;
 
     typedef SkImageFilter_Base INHERITED;
 };
@@ -295,7 +303,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
     // color space makes sense, so we ignore color spaces (and gamma) entirely. This may not be
     // ideal, but it's at least consistent and predictable.
     Context displContext(ctx.ctm(), ctx.clipBounds(), ctx.cache(),
-                         kN32_SkColorType, nullptr, ctx.source());
+                         kN32_SkColorType, nullptr, ctx.sourceImage());
     sk_sp<SkSpecialImage> displ(this->filterInput(0, displContext, &displOffset));
     if (!displ) {
         return nullptr;
@@ -431,21 +439,50 @@ SkRect SkDisplacementMapEffectImpl::computeFastBounds(const SkRect& src) const {
     return bounds;
 }
 
-SkIRect SkDisplacementMapEffectImpl::onFilterNodeBounds(
-        const SkIRect& src, const SkMatrix& ctm, MapDirection, const SkIRect* inputRect) const {
-    SkVector scale = SkVector::Make(fScale, fScale);
-    ctm.mapVectors(&scale, 1);
-    return src.makeOutset(SkScalarCeilToInt(SkScalarAbs(scale.fX) * SK_ScalarHalf),
-                          SkScalarCeilToInt(SkScalarAbs(scale.fY) * SK_ScalarHalf));
+// The node-specific action of the displacement map effect is actually the same, regardless of if it
+// is calculating what it needs for input, or what it would output.
+static void adjust_node_bounds(float scale, const SkMatrix& layerMatrix,
+                               skif::IRect<In::kLayer, For::kOutput>* bounds) {
+    // First must transform the filter parameters into the layer space
+    skif::Vector<In::kLayer, For::kOutput> layerScale = skif::ParameterToLayer<For::kOutput>(
+            skif::Vector<In::kParameter>(SkVector::Make(scale, scale)), layerMatrix);
+    // Pixels can move up to +/-scale in either X or Y depending on the displacement map. This means
+    // that the bounds need to be outset by half that on each side, since the output shape could
+    // expand by that much, and input pixels could move from the larger shape into the target output
+    int32_t maxDx = SkScalarCeilToInt(SkScalarAbs(SK_ScalarHalf * layerScale.x()));
+    int32_t maxDy = SkScalarCeilToInt(SkScalarAbs(SK_ScalarHalf * layerScale.y()));
+    bounds->outset(maxDx, maxDy);
 }
 
-SkIRect SkDisplacementMapEffectImpl::onFilterBounds(
-        const SkIRect& src, const SkMatrix& ctm, MapDirection dir, const SkIRect* inputRect) const {
-    // Recurse only into color input.
+skif::IRect<In::kLayer, For::kInput> SkDisplacementMapEffectImpl::onFilterLayerBounds(
+        const skif::IRect<In::kLayer, For::kOutput>& targetOutputBounds,
+        const SkMatrix& layerMatrix,
+        const skif::IRect<In::kLayer, For::kInput>& originalInput) const {
+    // First determine what the input requirements are for this node (we keep it marked as kOutput
+    // since it is becoming the target output of our input filter).
+    skif::IRect<In::kLayer, For::kOutput> adjustedBounds = targetOutputBounds;
+    adjust_node_bounds(fScale, layerMatrix, &adjustedBounds);
+
+    // If we have a color input filter, must incorporate its input requirements for it to produce
+    // something that covers 'safeInput'.
     if (this->getColorInput()) {
-        return this->getColorInput()->filterBounds(src, ctm, dir, inputRect);
+        return this->getColorInput()->filterLayerBounds(adjustedBounds, layerMatrix,
+                                                        &originalInput);
+    } else {
+        return skif::LayerCast<For::kInput>(adjustedBounds);
     }
-    return src;
+}
+
+skif::IRect<In::kLayer, For::kOutput> SkDisplacementMapEffectImpl::onFilterOutputBounds(
+        const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+        const SkMatrix& layerMatrix) const {
+    // Recurse only to the color input filter for its output
+    skif::IRect<In::kLayer, For::kOutput> output = this->getColorInput() ?
+            this->getColorInput()->filterOutputBounds(contentBounds, layerMatrix) :
+            skif::LayerCast<For::kOutput>(contentBounds);
+    // Then determine how this node may move those pixels
+    adjust_node_bounds(fScale, layerMatrix, &output);
+    return output;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

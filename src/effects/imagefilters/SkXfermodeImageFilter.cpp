@@ -30,6 +30,8 @@
 #endif
 #include "src/core/SkClipOpPriv.h"
 
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
+
 namespace {
 
 class SkXfermodeImageFilterImpl : public SkImageFilter_Base {
@@ -41,9 +43,6 @@ public:
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
-
-    SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
-                           MapDirection, const SkIRect* inputRect) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> filterImageGPU(const Context& ctx,
@@ -65,6 +64,16 @@ protected:
 private:
     friend void SkXfermodeImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkXfermodeImageFilterImpl)
+
+    // Take over full control of aggregation of input bounds, since the blend mode can let us
+    // shrink the output shape. No need to override the layer bounds calculations since this
+    // operates per pixel.
+    // FIXME (michaelludwig) - That last sentence is based on how the old onFilterBounds() was
+    // implemented, but I think we could use similar logic that rules out one inputs needs if its
+    // blend mode never had to read from it.
+    skif::IRect<In::kLayer, For::kOutput> onFilterOutputBounds(
+            const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+            const SkMatrix& layerMatrix) const override;
 
     SkBlendMode fMode;
 
@@ -174,25 +183,23 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::onFilterImage(const Context& ct
     return surf->makeImageSnapshot();
 }
 
-SkIRect SkXfermodeImageFilterImpl::onFilterBounds(const SkIRect& src,
-                                                  const SkMatrix& ctm,
-                                                  MapDirection dir,
-                                                  const SkIRect* inputRect) const {
-    if (kReverse_MapDirection == dir) {
-        return INHERITED::onFilterBounds(src, ctm, dir, inputRect);
-    }
-
-    SkASSERT(!inputRect);
+skif::IRect<In::kLayer, For::kOutput> SkXfermodeImageFilterImpl::onFilterOutputBounds(
+        const skif::IRect<In::kLayer, For::kInput>& contentBounds,
+        const SkMatrix& layerMatrix) const {
     SkASSERT(2 == this->countInputs());
     auto getBackground = [&]() {
-        return this->getInput(0) ? this->getInput(0)->filterBounds(src, ctm, dir, inputRect) : src;
+        return this->getInput(0) ?
+                as_IFB(this->getInput(0))->filterOutputBounds(contentBounds, layerMatrix) :
+                skif::LayerCast<For::kOutput>(contentBounds);
     };
     auto getForeground = [&]() {
-        return this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, dir, inputRect) : src;
+        return this->getInput(1) ?
+                as_IFB(this->getInput(1))->filterOutputBounds(contentBounds, layerMatrix) :
+                skif::LayerCast<For::kOutput>(contentBounds);
     };
     switch (fMode) {
         case SkBlendMode::kClear:
-            return SkIRect::MakeEmpty();
+            return skif::IRect<In::kLayer, For::kOutput>(SkIRect::MakeEmpty());
 
         case SkBlendMode::kSrc:
         case SkBlendMode::kDstATop:
@@ -206,7 +213,7 @@ SkIRect SkXfermodeImageFilterImpl::onFilterBounds(const SkIRect& src,
         case SkBlendMode::kDstIn: {
             auto result = getBackground();
             if (!result.intersect(getForeground())) {
-                return SkIRect::MakeEmpty();
+                return skif::IRect<In::kLayer, For::kOutput>(SkIRect::MakeEmpty());
             }
             return result;
         }
