@@ -22,6 +22,30 @@
       "revId": "47e51ea0f39ebb7ebfc6b1332a73100d75d75c21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aecd175e_8a52fe5f",
+        "filename": "infra/bots/recipe_modules/build/chromecast.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-15T19:18:39Z",
+      "side": 1,
+      "message": "Sure, yeah, that might be nice to try.  I think this should continue to work even with the update, and then we can try backing it out after the update.  Looks like it\u0027s got at least glibc 2.17 right now.",
+      "parentUuid": "c502e5fb_921797c1",
+      "range": {
+        "startLine": 32,
+        "startChar": 63,
+        "endLine": 32,
+        "endChar": 70
+      },
+      "revId": "47e51ea0f39ebb7ebfc6b1332a73100d75d75c21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
