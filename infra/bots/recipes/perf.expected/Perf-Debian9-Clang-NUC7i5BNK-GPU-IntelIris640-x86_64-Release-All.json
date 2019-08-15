@@ -191,7 +191,6 @@
       "--config",
       "gl",
       "glsrgb",
-      "glmsaa8",
       "gles",
       "glessrgb",
       "--match",
