@@ -51,7 +51,7 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachTintEffect(const skjson::ArrayValue
             tint_node->setWeight(w / 100); // 100-based
         });
 
-    return std::move(tint_node);
+    return tint_node;
 }
 
 } // namespace internal

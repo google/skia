@@ -711,7 +711,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
                                             backendTex.getGLTextureParams(), cacheable, ioType);
     // We don't know what parameters are already set on wrapped textures.
     texture->textureParamsModified();
-    return std::move(texture);
+    return texture;
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -759,7 +759,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     texRT->baseLevelWasBoundToFBO();
     // We don't know what parameters are already set on wrapped textures.
     texRT->textureParamsModified();
-    return std::move(texRT);
+    return texRT;
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
@@ -1511,7 +1511,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             }
         }
     }
-    return std::move(tex);
+    return tex;
 }
 
 sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(int width, int height,
@@ -1534,7 +1534,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(int width, int height,
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                            fResetTimestampForTextureParameters);
-    return std::move(tex);
+    return tex;
 }
 
 namespace {

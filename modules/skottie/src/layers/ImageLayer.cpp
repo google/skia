@@ -94,7 +94,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
 
     if (asset_size == image->bounds().size()) {
         // No resize needed.
-        return std::move(image_node);
+        return image_node;
     }
 
     return sksg::TransformEffect::Make(std::move(image_node),

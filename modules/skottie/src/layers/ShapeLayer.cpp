@@ -64,7 +64,7 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const skjson::ObjectValue& jrect,
         return nullptr;
     }
 
-    return std::move(rect_node);
+    return rect_node;
 }
 
 sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const skjson::ObjectValue& jellipse,
@@ -91,7 +91,7 @@ sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const skjson::ObjectValue& jelli
         return nullptr;
     }
 
-    return std::move(rect_node);
+    return rect_node;
 }
 
 sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jstar,
@@ -139,7 +139,7 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jsta
             adapter->setRotation(r);
         });
 
-    return std::move(path_node);
+    return path_node;
 }
 
 sk_sp<sksg::ShaderPaint> AttachGradient(const skjson::ObjectValue& jgrad,

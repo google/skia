@@ -472,7 +472,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
         this->clearTexture(tex.get(), colorType, levelMask);
     }
 
-    return std::move(tex);
+    return tex;
 }
 
 static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex) {

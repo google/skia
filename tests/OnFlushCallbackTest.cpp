@@ -314,10 +314,9 @@ public:
                     desc.fHeight = kAtlasTileSize;
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-                    auto texture = resourceProvider->createTexture(
+                    return resourceProvider->createTexture(
                             desc, format, GrRenderable::kYes, 1, SkBudgeted::kYes, GrProtected::kNo,
                             GrResourceProvider::Flags::kNoPendingIO);
-                    return std::move(texture);
                 },
                 format,
                 GrRenderable::kYes,

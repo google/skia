@@ -36,10 +36,7 @@ sk_sp<GrRenderTask> GrTextureResolveRenderTask::Make(
         textureProxy->markMipMapsClean();
     }
 
-    // On some old ISO C++11 compilers, 'resolveTask' will require an explicit std::move() when
-    // returned from this function. This is because its type (sk_sp<GrTextureResolveRenderTask>)
-    // does not match the return type (sk_sp<GrRenderTask>).
-    return std::move(resolveTask);
+    return resolveTask;
 }
 
 void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
