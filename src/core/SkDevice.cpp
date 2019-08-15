@@ -54,7 +54,7 @@ void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
 }
 
 bool SkBaseDevice::clipIsWideOpen() const {
-    if (kRect_ClipType == this->onGetClipType()) {
+    if (ClipType::kRect == this->onGetClipType()) {
         SkRegion rgn;
         this->onAsRgnClip(&rgn);
         SkASSERT(rgn.isRect());
@@ -474,4 +474,3 @@ void SkBaseDevice::LogDrawScaleFactor(const SkMatrix& view, const SkMatrix& srcT
     SK_HISTOGRAM_ENUMERATION("FilterQuality", filterQuality, kLast_SkFilterQuality + 1);
 #endif
 }
-

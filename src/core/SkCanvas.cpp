@@ -1537,7 +1537,7 @@ bool SkCanvas::isClipEmpty() const {
 bool SkCanvas::isClipRect() const {
     SkBaseDevice* dev = this->getTopDevice();
     // if no device we return false
-    return dev && dev->onGetClipType() == SkBaseDevice::kRect_ClipType;
+    return dev && dev->onGetClipType() == SkBaseDevice::ClipType::kRect;
 }
 
 static inline bool is_nan_or_clipped(const Sk4f& devRect, const Sk4f& devClip) {
@@ -2991,5 +2991,3 @@ SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> all
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-
