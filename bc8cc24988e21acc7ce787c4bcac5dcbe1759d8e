@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e335bbfe_3e8337c4",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-15T14:45:04Z",
+      "side": 1,
+      "message": "I don\u0027t know if I would call this nextUniformOffset. Cause depending on what the next uniform is that uniform might have alignment rules that push uniform to a further offset. I think I would be explicit and call this fOffsetIfRTHeightUniformNeeded (or an actual better name along those lines). Along the same lines we can\u0027t just use fUniformHandler.fCurrentUBOOffset since that just gets updated to be the end of the last uniform, it may need to be aligned for the next thing.",
+      "range": {
+        "startLine": 205,
+        "startChar": 13,
+        "endLine": 205,
+        "endChar": 31
+      },
+      "revId": "bc8cc24988e21acc7ce787c4bcac5dcbe1759d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
