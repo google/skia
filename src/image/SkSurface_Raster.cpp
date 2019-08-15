@@ -17,7 +17,7 @@ public:
     SkSurface_Raster(const SkImageInfo&, void*, size_t rb,
                      void (*releaseProc)(void* pixels, void* context), void* context,
                      const SkSurfaceProps*);
-    SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef>, const SkSurfaceProps*);
+    SkSurface_Raster(SkBitmap, const SkSurfaceProps*);
 
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
@@ -77,13 +77,12 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, void* pixels, size_t
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
-SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef> pr,
+SkSurface_Raster::SkSurface_Raster(SkBitmap bitmap,
                                    const SkSurfaceProps* props)
-    : INHERITED(pr->width(), pr->height(), props)
+    : INHERITED(bitmap.width(), bitmap.height(), props)
+    , fBitmap(std::move(bitmap))
 {
-    fBitmap.setInfo(info, pr->rowBytes());
-    fRowBytes = pr->rowBytes(); // we track this, so that subsequent re-allocs will match
-    fBitmap.setPixelRef(std::move(pr), 0, 0);
+    fRowBytes = fBitmap.rowBytes(); // we track this, so that subsequent re-allocs will match
     fWeOwnThePixels = true;
 }
 
@@ -188,15 +187,15 @@ sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
     if (!SkSurfaceValidateRasterInfo(info)) {
         return nullptr;
     }
-
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, rowBytes);
-    if (!pr) {
+    SkBitmap bitmap;
+    if (!bitmap.setInfo(info, rowBytes) ||
+        !bitmap.tryAllocPixels(info, bitmap.rowBytes())) {
         return nullptr;
     }
     if (rowBytes) {
-        SkASSERT(pr->rowBytes() == rowBytes);
+        SkASSERT(bitmap.rowBytes() == rowBytes);
     }
-    return sk_make_sp<SkSurface_Raster>(info, std::move(pr), props);
+    return sk_make_sp<SkSurface_Raster>(std::move(bitmap), props);
 }
 
 sk_sp<SkSurface> SkSurface::MakeRasterN32Premul(int width, int height,
