@@ -163,8 +163,8 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     canvas->translate(0.0f, 128.0f);
 
     // GPU images
-    if (canvas->getGrContext()) {
-        image = image->makeTextureImage(canvas->getGrContext(), nullptr);
+    if (auto gpuImage = image->makeTextureImage(canvas->getGrContext())) {
+        image = gpuImage;
     }
 
     canvas->drawImage(image, 0.0f, 0.0f);
