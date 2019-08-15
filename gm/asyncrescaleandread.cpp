@@ -101,6 +101,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
     GrBackendFormat format = gr->defaultBackendFormat(kAlpha_8_SkColorType, GrRenderable::kNo);
 
     // TODO: swap these over to GrContext::createBackendTexture
+#if 0
     backendTextures[0] = gr->priv().getGpu()->createBackendTexture(
             dstW, dstH, format, GrMipMapped::kNo, GrRenderable::kNo, yData.get(), dstW, nullptr,
             GrProtected::kNo);
@@ -110,6 +111,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
     backendTextures[2] = gr->priv().getGpu()->createBackendTexture(
             dstW / 2, dstH / 2, format, GrMipMapped::kNo, GrRenderable::kNo,
             vData.get(), dstW / 2, nullptr, GrProtected::kNo);
+#endif
     auto config = gr->priv().caps()->getConfigFromBackendFormat(format, GrColorType::kAlpha_8);
     SkColorChannel channel;
     if (config == kAlpha_8_as_Red_GrPixelConfig) {
