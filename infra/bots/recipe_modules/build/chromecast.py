@@ -12,9 +12,9 @@ def compile_fn(api, checkout_root, out_dir):
   toolchain_dir = api.vars.slave_dir.join('cast_toolchain', 'armv7a')
   gles_dir = api.vars.slave_dir.join('chromebook_arm_gles')
 
-  target  = ['-target', 'armv7a-cros-linux-gnueabi']
+  target  = ['-target', 'armv7a-cros-linux-gnueabihf']
   sysroot = ['--sysroot',
-             '%s/usr/armv7a-cros-linux-gnueabi' % toolchain_dir]
+             '%s/usr/armv7a-cros-linux-gnueabihf' % toolchain_dir]
 
   extra_asmflags = target
 
@@ -24,8 +24,6 @@ def compile_fn(api, checkout_root, out_dir):
     "-DSK_NO_COMMAND_BUFFER",
     # Avoid unused warning with yyunput
     '-Wno-error=unused-function',
-    # This bot's compiler's doesn't handle try_acquire_capability correctly.
-    '-Wno-thread-safety-analysis',
     # Makes the binary small enough to fit on the small disk.
     '-g0',
     ('-DDUMMY_cast_toolchain_version=%s' %
@@ -33,18 +31,19 @@ def compile_fn(api, checkout_root, out_dir):
   ]
 
   extra_ldflags = target + sysroot + [
-    # Chromecast does not package libstdc++
+    # Chromecast does not package libc++.
     '-static-libstdc++', '-static-libgcc',
     '-L%s' % toolchain_dir.join('lib'),
+    '-L%s' % gles_dir.join('lib'),
     '-fuse-ld=gold',
     '-B%s/usr/libexec/gcc' % toolchain_dir,
   ]
 
   quote = lambda x: '"%s"' % x
   args = {
-    'cc':  quote(toolchain_dir.join('usr', 'bin', 'clang-3.9.elf')),
-    'cxx': quote(toolchain_dir.join('usr', 'bin', 'clang++-3.9.elf')),
-    'ar':  quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-ar')),
+    'cc':  quote(toolchain_dir.join('usr', 'bin', 'clang-9.elf')),
+    'cxx': quote(toolchain_dir.join('usr', 'bin', 'clang++-9.elf')),
+    'ar':  quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabihf-ar')),
     'target_cpu': quote(target_arch),
     'skia_use_fontconfig': 'false',
     'skia_enable_gpu': 'true',
