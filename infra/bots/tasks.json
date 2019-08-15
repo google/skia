@@ -3314,7 +3314,7 @@
         {
           "name": "skia/bots/cast_toolchain",
           "path": "cast_toolchain",
-          "version": "version:4"
+          "version": "version:8"
         },
         {
           "name": "skia/bots/chromebook_arm_gles",
@@ -3812,7 +3812,7 @@
         {
           "name": "skia/bots/cast_toolchain",
           "path": "cast_toolchain",
-          "version": "version:4"
+          "version": "version:8"
         },
         {
           "name": "skia/bots/chromebook_arm_gles",
