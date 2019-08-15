@@ -89,9 +89,8 @@ def nanobench_flags(api, bot):
           'Nexus7'      in bot):
         sample_count = ''
     elif 'Intel' in bot:
-      # We don't want to test MSAA on older Intel chipsets. These are all newer (Gen9).
-      if 'Iris655' not in bot and 'Iris640' not in bot and 'Iris540' not in bot:
-        sample_count = ''
+      # MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
+      sample_count = ''
     elif 'ChromeOS' in bot:
       gl_prefix = 'gles'
 
@@ -114,8 +113,8 @@ def nanobench_flags(api, bot):
         if 'Pixel2XL' not in bot:
           configs.append('vkmsaa4')
       else:
-        # skbug.com/9023
-        if 'IntelHD405' not in bot:
+        # MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926, skia:9023
+        if 'Intel' not in bot:
           configs.append('vkmsaa8')
 
     if 'Metal' in bot:

@@ -1068,10 +1068,8 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrVkInterface* interface,
         return;
     }
     if (kIntel_VkVendor == physProps.vendorID) {
-        // MSAA on Intel before Gen 9 is slow and/or buggy
-        if (GrGetIntelGpuFamily(physProps.deviceID) < kFirstGen9_IntelGpuFamily) {
-            return;
-        }
+        // MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
+        return;
     }
     if (flags & VK_SAMPLE_COUNT_2_BIT) {
         fColorSampleCounts.push_back(2);
