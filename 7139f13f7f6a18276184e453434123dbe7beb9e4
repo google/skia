@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09d5a8f6_eb56ef83",
+        "filename": "src/ports/SkTLS_pthread.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-15T20:18:58Z",
+      "side": 0,
+      "message": "Yeah, there\u0027s really no reason for SkOnce::operator()() to take the functor and arguments, but odd that it\u0027s no longer working.",
+      "revId": "7139f13f7f6a18276184e453434123dbe7beb9e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
