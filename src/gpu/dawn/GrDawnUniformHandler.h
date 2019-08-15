@@ -20,11 +20,6 @@ public:
     const GrShaderVar& getUniformVariable(UniformHandle u) const override;
     const char* getUniformCStr(UniformHandle u) const override;
 
-    enum {
-        kUniformBufferBindGroup = 0,
-        kSamplerBindGroup = 1,
-        kTexelBufferBindGroup = 2,
-    };
     struct UniformInfo {
         GrShaderVar    fVar;
         int            fUBOOffset;
@@ -34,6 +29,7 @@ public:
     enum {
         kGeometryBinding = 0,
         kFragBinding = 1,
+        kSamplerBindingBase = 2,
     };
 
 private:
@@ -51,8 +47,12 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    GrShaderVar fDummyVar;
-    UniformInfoArray fUniforms;
+    UniformInfoArray     fUniforms;
+    UniformInfoArray     fSamplers;
+    UniformInfoArray     fTextures;
+    SkTArray<GrSwizzle>  fSamplerSwizzles;
+    SkTArray<SkString>   fSamplerReferences;
+
     uint32_t fCurrentGeometryUBOOffset = 0;
     uint32_t fCurrentFragmentUBOOffset = 0;
 

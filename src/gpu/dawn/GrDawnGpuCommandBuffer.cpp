@@ -84,13 +84,19 @@ GrDawnGpuTextureCommandBuffer::~GrDawnGpuTextureCommandBuffer() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-dawn::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
+static dawn::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
     switch (loadOp) {
         case GrLoadOp::kLoad:
             return dawn::LoadOp::Load;
+        case GrLoadOp::kDiscard:
+            // Use LoadOp::Load to emulate DontCare.
+            // Dawn doesn't have DontCare, for security reasons.
+            // Load should be equivalent to DontCare for desktop; Clear would
+            // probably be better for tilers. If Dawn does add DontCare
+            // as an extension, use it here.
+            return dawn::LoadOp::Load;
         case GrLoadOp::kClear:
             return dawn::LoadOp::Clear;
-        case GrLoadOp::kDiscard:
         default:
             SK_ABORT("Invalid LoadOp");
     }
@@ -255,6 +261,8 @@ static dawn::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {
         return dawn::VertexFormat::Float4;
     case kUShort2_GrVertexAttribType:
         return dawn::VertexFormat::UShort2;
+    case kInt_GrVertexAttribType:
+        return dawn::VertexFormat::Int;
     case kUByte4_norm_GrVertexAttribType:
         return dawn::VertexFormat::UChar4Norm;
     default:
@@ -280,6 +288,24 @@ static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primit
             SkASSERT(!"unsupported primitive topology");
             return dawn::PrimitiveTopology::TriangleList;
     }
+}
+
+void GrDawnGpuRTCommandBuffer::setScissorState(
+        const GrPipeline& pipeline,
+        const GrPipeline::FixedDynamicState* fixedDynamicState,
+        const GrPipeline::DynamicStateArrays* dynamicStateArrays) {
+    SkIRect rect;
+    if (pipeline.isScissorEnabled()) {
+        constexpr SkIRect kBogusScissor{0, 0, 1, 1};
+        rect = fixedDynamicState ? fixedDynamicState->fScissorRect : kBogusScissor;
+        if (kBottomLeft_GrSurfaceOrigin == fOrigin) {
+            rect.setXYWH(rect.x(), fRenderTarget->height() - rect.bottom(),
+                         rect.width(), rect.height());
+        }
+    } else {
+        rect = SkIRect::MakeWH(fRenderTarget->width(), fRenderTarget->height());
+    }
+    fPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 void GrDawnGpuRTCommandBuffer::applyState(const GrPipeline& pipeline,
@@ -378,10 +404,15 @@ void GrDawnGpuRTCommandBuffer::applyState(const GrPipeline& pipeline,
     rpDesc.colorStates = colorStates;
     dawn::RenderPipeline renderPipeline = fGpu->device().CreateRenderPipeline(&rpDesc);
     fPassEncoder.SetPipeline(renderPipeline);
-    fPassEncoder.SetBindGroup(0, program->fUniformBindGroup, 0, nullptr);
+    fPassEncoder.SetBindGroup(0, program->fBindGroup, 0, nullptr);
     if (pipeline.isStencilEnabled()) {
         fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fFront.fRef);
     }
+    GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
+    const float* c = blendInfo.fBlendConstant.vec();
+    dawn::Color color{c[0], c[1], c[2], c[3]};
+    fPassEncoder.SetBlendColor(&color);
+    this->setScissorState(pipeline, fixedDynamicState, dynamicStateArrays);
 }
 
 void GrDawnGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,

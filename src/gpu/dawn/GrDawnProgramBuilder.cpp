@@ -11,11 +11,13 @@
 #include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
+#include "src/gpu/dawn/GrDawnTexture.h"
 #include "src/sksl/SkSLCompiler.h"
 
 static SkSL::String sksl_to_spirv(const GrDawnGpu* gpu, const char* shaderString,
                                   SkSL::Program::Kind kind, SkSL::Program::Inputs* inputs) {
     SkSL::Program::Settings settings;
+    settings.fCaps = gpu->caps()->shaderCaps();
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
         kind,
         shaderString,
@@ -149,6 +151,35 @@ static dawn::StencilOperation to_dawn_stencil_operation(GrStencilOp op) {
     }
 }
 
+static dawn::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
+    switch (filter) {
+        case GrSamplerState::Filter::kNearest:
+            return dawn::FilterMode::Nearest;
+        case GrSamplerState::Filter::kBilerp:
+        case GrSamplerState::Filter::kMipMap:
+            return dawn::FilterMode::Linear;
+        default:
+            SkASSERT(!"unsupported filter mode");
+            return dawn::FilterMode::Nearest;
+    }
+}
+
+static dawn::AddressMode to_dawn_address_mode(GrSamplerState::WrapMode wrapMode) {
+    switch (wrapMode) {
+        case GrSamplerState::WrapMode::kClamp:
+            return dawn::AddressMode::ClampToEdge;
+        case GrSamplerState::WrapMode::kClampToBorder:
+            // TODO: unsupported
+            return dawn::AddressMode::ClampToEdge;
+        case GrSamplerState::WrapMode::kRepeat:
+            return dawn::AddressMode::Repeat;
+        case GrSamplerState::WrapMode::kMirrorRepeat:
+            return dawn::AddressMode::MirrorRepeat;
+    }
+    SkASSERT(!"unsupported address mode");
+    return dawn::AddressMode::ClampToEdge;
+}
+
 static dawn::ColorStateDescriptor create_color_state(const GrDawnGpu* gpu,
                                                      const GrPipeline& pipeline,
                                                      dawn::TextureFormat colorFormat) {
@@ -215,6 +246,19 @@ static dawn::DepthStencilStateDescriptor create_depth_stencil_state(
     return state;
 }
 
+static dawn::Sampler create_sampler(const GrDawnGpu* gpu, const GrSamplerState& samplerState) {
+    dawn::SamplerDescriptor desc;
+    desc.addressModeU = to_dawn_address_mode(samplerState.wrapModeX());
+    desc.addressModeV = to_dawn_address_mode(samplerState.wrapModeY());
+    desc.addressModeW = dawn::AddressMode::ClampToEdge;
+    desc.magFilter = desc.minFilter = to_dawn_filter_mode(samplerState.filter());
+    desc.mipmapFilter = dawn::FilterMode::Linear;
+    desc.lodMinClamp = 0.0f;
+    desc.lodMaxClamp = 1000.0f;
+    desc.compare = dawn::CompareFunction::Never;
+    return gpu->device().CreateSampler(&desc);
+}
+
 static dawn::BindGroupBinding make_bind_group_binding(uint32_t binding, const dawn::Buffer& buffer,
                                                       uint32_t offset, uint32_t size, const
                                                       dawn::Sampler& sampler,
@@ -232,6 +276,16 @@ static dawn::BindGroupBinding make_bind_group_binding(uint32_t binding, const da
 static dawn::BindGroupBinding make_bind_group_binding(uint32_t binding, const dawn::Buffer& buffer,
                                                       uint32_t offset, uint32_t size) {
     return make_bind_group_binding(binding, buffer, offset, size, nullptr, nullptr);
+}
+
+static dawn::BindGroupBinding make_bind_group_binding(uint32_t binding,
+                                                      const dawn::Sampler& sampler) {
+    return make_bind_group_binding(binding, nullptr, 0, 0, sampler, nullptr);
+}
+
+static dawn::BindGroupBinding make_bind_group_binding(uint32_t binding,
+                                                      const dawn::TextureView& textureView) {
+    return make_bind_group_binding(binding, nullptr, 0, 0, nullptr, textureView);
 }
 
 sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
@@ -273,40 +327,74 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     result->fFragmentProcessorCnt = builder.fFragmentProcessorCnt;
     std::vector<dawn::BindGroupLayoutBinding> layoutBindings;
     std::vector<dawn::BindGroupBinding> bindings;
-
+    if (0 != geometryUniformSize) {
+        layoutBindings.push_back({ GrDawnUniformHandler::kGeometryBinding,
+                                   dawn::ShaderStageBit::Vertex,
+                                   dawn::BindingType::UniformBuffer});
+    }
+    if (0 != fragmentUniformSize) {
+        layoutBindings.push_back({ GrDawnUniformHandler::kFragBinding,
+                                   dawn::ShaderStageBit::Fragment,
+                                   dawn::BindingType::UniformBuffer});
+    }
+    uint32_t binding = GrDawnUniformHandler::kSamplerBindingBase;
+    for (int i = 0; i < builder.fUniformHandler.fSamplers.count(); ++i) {
+        layoutBindings.push_back({ binding++, dawn::ShaderStageBit::Fragment,
+                                   dawn::BindingType::Sampler});
+        layoutBindings.push_back({ binding++, dawn::ShaderStageBit::Fragment,
+                                   dawn::BindingType::SampledTexture});
+    }
+    dawn::BindGroupLayoutDescriptor bindGroupLayoutDesc;
+    bindGroupLayoutDesc.bindingCount = layoutBindings.size();
+    bindGroupLayoutDesc.bindings = layoutBindings.data();
+    auto bindGroupLayout = gpu->device().CreateBindGroupLayout(&bindGroupLayoutDesc);
+    dawn::PipelineLayoutDescriptor pipelineLayoutDesc;
+    pipelineLayoutDesc.bindGroupLayoutCount = 1;
+    pipelineLayoutDesc.bindGroupLayouts = &bindGroupLayout;
+    result->fPipelineLayout = gpu->device().CreatePipelineLayout(&pipelineLayoutDesc);
     if (0 != geometryUniformSize) {
         dawn::BufferDescriptor desc;
         desc.usage = dawn::BufferUsageBit::Uniform | dawn::BufferUsageBit::CopyDst;
         desc.size = geometryUniformSize;
         result->fGeometryUniformBuffer = gpu->device().CreateBuffer(&desc);
-        bindings.push_back(make_bind_group_binding(0, result->fGeometryUniformBuffer, 0,
-                                                   geometryUniformSize));
-        layoutBindings.push_back({ 0, dawn::ShaderStageBit::Vertex,
-                                   dawn::BindingType::UniformBuffer});
+        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kGeometryBinding,
+                                                   result->fGeometryUniformBuffer,
+                                                   0, geometryUniformSize));
     }
     if (0 != fragmentUniformSize) {
         dawn::BufferDescriptor desc;
         desc.usage = dawn::BufferUsageBit::Uniform | dawn::BufferUsageBit::CopyDst;
         desc.size = fragmentUniformSize;
         result->fFragmentUniformBuffer = gpu->device().CreateBuffer(&desc);
-        bindings.push_back(make_bind_group_binding(1, result->fFragmentUniformBuffer, 0,
-                                                   fragmentUniformSize));
-        layoutBindings.push_back({ 1, dawn::ShaderStageBit::Fragment,
-                                   dawn::BindingType::UniformBuffer});
+        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kFragBinding,
+                                                   result->fFragmentUniformBuffer,
+                                                   0, fragmentUniformSize));
     }
-    dawn::BindGroupLayoutDescriptor bindGroupLayoutDesc;
-    bindGroupLayoutDesc.bindingCount = layoutBindings.size();
-    bindGroupLayoutDesc.bindings = layoutBindings.data();
-    auto bindGroupLayout = gpu->device().CreateBindGroupLayout(&bindGroupLayoutDesc);
-    dawn::BindGroupDescriptor descriptor;
-    descriptor.layout = bindGroupLayout;
-    descriptor.bindingCount = bindings.size();
-    descriptor.bindings = bindings.data();
-    result->fUniformBindGroup = gpu->device().CreateBindGroup(&descriptor);
-    dawn::PipelineLayoutDescriptor pipelineLayoutDesc;
-    pipelineLayoutDesc.bindGroupLayoutCount = 1;
-    pipelineLayoutDesc.bindGroupLayouts = &bindGroupLayout;
-    result->fPipelineLayout = gpu->device().CreatePipelineLayout(&pipelineLayoutDesc);
+    binding = GrDawnUniformHandler::kSamplerBindingBase;
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+        dawn::Sampler sampler = create_sampler(gpu, primProc.textureSampler(i).samplerState());
+        bindings.push_back(make_bind_group_binding(binding++, sampler));
+        GrDawnTexture* tex = static_cast<GrDawnTexture*>(primProcProxies[i]->peekTexture());
+        dawn::TextureView textureView = tex->textureView();
+        bindings.push_back(make_bind_group_binding(binding++, textureView));
+    }
+    GrFragmentProcessor::Iter iter(pipeline);
+    const GrFragmentProcessor* fp = iter.next();
+    while (fp) {
+        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
+            dawn::Sampler sampler = create_sampler(gpu, fp->textureSampler(i).samplerState());
+            bindings.push_back(make_bind_group_binding(binding++, sampler));
+            GrDawnTexture* tex = static_cast<GrDawnTexture*>(fp->textureSampler(i).peekTexture());
+            dawn::TextureView textureView = tex->textureView();
+            bindings.push_back(make_bind_group_binding(binding++, textureView));
+        }
+        fp = iter.next();
+    }
+    dawn::BindGroupDescriptor bindGroupDescriptor;
+    bindGroupDescriptor.layout = bindGroupLayout;
+    bindGroupDescriptor.bindingCount = bindings.size();
+    bindGroupDescriptor.bindings = bindings.data();
+    result->fBindGroup = gpu->device().CreateBindGroup(&bindGroupDescriptor);
     result->fBuiltinUniformHandles = builder.fUniformHandles;
     result->fColorState = create_color_state(gpu, pipeline, colorFormat);
     GrStencilSettings stencil;

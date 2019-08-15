@@ -64,6 +64,9 @@ public:
 private:
     GrGpu* gpu() override;
 
+    void setScissorState(const GrPipeline&,
+                         const GrPipeline::FixedDynamicState* fixedDynamicState,
+                         const GrPipeline::DynamicStateArrays* dynamicStateArrays);
     void applyState(const GrPipeline& pipeline,
                     const GrPrimitiveProcessor& primProc,
                     const GrTextureProxy* const primProcProxies[],

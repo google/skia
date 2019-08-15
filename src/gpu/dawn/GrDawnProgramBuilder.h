@@ -63,7 +63,7 @@ struct GrDawnProgram : public SkRefCnt {
     dawn::Buffer fGeometryUniformBuffer;
     dawn::Buffer fFragmentUniformBuffer;
     dawn::PipelineLayout fPipelineLayout;
-    dawn::BindGroup fUniformBindGroup;
+    dawn::BindGroup fBindGroup;
     dawn::ColorStateDescriptor fColorState;
     dawn::DepthStencilStateDescriptor fDepthStencilState;
     GrDawnProgramDataManager fDataManager;
