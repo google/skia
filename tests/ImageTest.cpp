@@ -1010,19 +1010,6 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
     }
 }
 
-DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
-    sk_sp<SkData> data = GetResourceAsData("images/mandrill_128.png");
-    if (!data) {
-       ERRORF(reporter, "missing resource");
-       return;
-    }
-
-    test_cross_context_image(reporter, options, "SkImage_MakeCrossContextFromEncodedRelease",
-                             [&data](GrContext* ctx) {
-        return SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr);
-    });
-}
-
 DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     SkBitmap bitmap;
     SkPixmap pixmap;
@@ -1032,7 +1019,7 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     }
     test_cross_context_image(reporter, options, "SkImage_MakeCrossContextFromPixmapRelease",
                              [&pixmap](GrContext* ctx) {
-        return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
+        return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false);
     });
 }
 
@@ -1051,7 +1038,7 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
                 continue;
             }
 
-            sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
+            sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false);
             REPORTER_ASSERT(reporter, image);
 
             sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef(

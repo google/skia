@@ -372,7 +372,6 @@
 #include "../../docs/examples/ImageInfo_width.cpp"
 #include "../../docs/examples/Image_Filter_Methods.cpp"
 #include "../../docs/examples/Image_MakeBackendTextureFromSkImage.cpp"
-#include "../../docs/examples/Image_MakeCrossContextFromEncoded.cpp"
 #include "../../docs/examples/Image_MakeCrossContextFromPixmap.cpp"
 #include "../../docs/examples/Image_MakeFromAdoptedTexture.cpp"
 #include "../../docs/examples/Image_MakeFromBitmap.cpp"

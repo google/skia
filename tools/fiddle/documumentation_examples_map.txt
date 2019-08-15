@@ -1208,13 +1208,9 @@ int32_t y() const;
 SkImage
 static bool MakeBackendTextureFromSkImage(GrContext* context, sk_sp<SkImage> image, GrBackendTexture* backendTexture, BackendTextureReleaseProc* backendTextureReleaseProc);
 
-[Image_MakeCrossContextFromEncoded]
-SkImage
-static sk_sp<SkImage> MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> data, bool buildMips, SkColorSpace* dstColorSpace, bool limitToMaxTextureSize = false);
-
 [Image_MakeCrossContextFromPixmap]
 SkImage
-static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap, bool buildMips, SkColorSpace* dstColorSpace, bool limitToMaxTextureSize = false);
+static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap, bool buildMips, bool limitToMaxTextureSize = false);
 
 [Image_MakeFromAdoptedTexture]
 SkImage
