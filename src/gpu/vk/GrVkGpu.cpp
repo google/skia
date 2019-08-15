@@ -147,7 +147,7 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
          !vkGpu->vkCaps().supportsProtectedMemory()) {
          return nullptr;
      }
-     return std::move(vkGpu);
+     return vkGpu;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1050,7 +1050,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                                           ranges.count(), ranges.begin());
         }
     }
-    return std::move(tex);
+    return tex;
 }
 
 sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(int width, int height,
@@ -1099,7 +1099,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(int width, int height,
         return nullptr;
     }
 
-    return std::move(tex);
+    return tex;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1294,7 +1294,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         SkASSERT(tgt->canAttemptStencilAttachment());
     }
 
-    return std::move(tgt);
+    return tgt;
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,

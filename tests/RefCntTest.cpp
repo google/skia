@@ -138,7 +138,7 @@ struct EffectImpl : public Effect {
 static sk_sp<Effect> make_effect() {
     auto foo = EffectImpl::Create();
     foo->fValue = 42;
-    return std::move(foo);
+    return foo;
 }
 
 static void reset_counters() {
