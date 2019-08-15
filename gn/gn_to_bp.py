@@ -27,7 +27,8 @@ cc_library_static {
     ],
 
     cppflags:[
-        $cflags_cc
+        $cflags_cc,
+        "-std=c++17"
     ],
 
     export_include_dirs: [
