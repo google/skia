@@ -21,6 +21,7 @@ public:
                                      SkBudgeted, int mipLevels, GrMipMapsStatus);
 
     static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, const SkISize& size, GrPixelConfig config,
+                                            GrRenderable, int sampleCnt,
                                             GrMipMapsStatus, GrWrapCacheable,
                                             const GrDawnImageInfo&);
 
