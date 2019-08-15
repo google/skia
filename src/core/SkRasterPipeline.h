@@ -41,7 +41,8 @@
     M(force_opaque) M(force_opaque_dst)                            \
     M(set_rgb) M(unbounded_set_rgb) M(swap_rb) M(swap_rb_dst)      \
     M(from_srgb) M(to_srgb)                                        \
-    M(black_color) M(white_color) M(uniform_color) M(unbounded_uniform_color) \
+    M(black_color) M(white_color)                                  \
+    M(uniform_color) M(unbounded_uniform_color) M(uniform_color_dst) \
     M(seed_shader) M(dither)                                       \
     M(load_a8)     M(load_a8_dst)   M(store_a8)    M(gather_a8)    \
     M(load_565)    M(load_565_dst)  M(store_565)   M(gather_565)   \
@@ -264,7 +265,6 @@ public:
     void append_gamut_clamp_if_normalized(const SkImageInfo&);
 
     bool empty() const { return fStages == nullptr; }
-
 
 private:
     struct StageList {
