@@ -213,6 +213,24 @@
     },
     {
       "key": {
+        "uuid": "107605ce_87687ecd",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T12:08:10Z",
+      "side": 1,
+      "message": "Forget it - this is an SkSpecialImage",
+      "parentUuid": "338b95af_85d16df2",
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca686c63_c780bef3",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 3
@@ -400,6 +418,30 @@
       "side": 1,
       "message": "SkSpecialImage doesn\u0027t define bounds(), but we don\u0027t want to use subset() here since this is meant to be a layer-space rectangle, not the proxy-space.",
       "parentUuid": "db1b1f6a_bcdb81f5",
+      "range": {
+        "startLine": 71,
+        "startChar": 30,
+        "endLine": 72,
+        "endChar": 75
+      },
+      "revId": "21c0e480b5f7dfc81adc945cb765a9d2ea1a01b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c38cec28_af8d4c12",
+        "filename": "src/effects/imagefilters/SkPaintImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-15T12:08:10Z",
+      "side": 1,
+      "message": "Ah - we should add a bounds call to SkSpecialImage - it is supposed to be a parallel of SkImage after all.",
+      "parentUuid": "af805b43_0e1eea21",
       "range": {
         "startLine": 71,
         "startChar": 30,
