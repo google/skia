@@ -158,7 +158,6 @@ private:
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
     void simplifyTextBlobIgnoringRSXForm(
-            const SkPaint& paint,
             const SkTextBlobRunIterator& it,
             SkPoint* positions);
 
