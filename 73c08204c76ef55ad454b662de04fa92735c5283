@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "30c7220c_12a7c675",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-15T20:47:36Z",
+      "side": 1,
+      "message": "See https://skia-review.googlesource.com/c/skia/+/234380/ (ready for review :) ).",
+      "parentUuid": "556cc168_dbf4bfa5",
+      "range": {
+        "startLine": 242,
+        "startChar": 4,
+        "endLine": 242,
+        "endChar": 52
+      },
+      "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "60168dc4_1a22d812",
         "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
         "patchSetId": 11
@@ -45,6 +69,30 @@
       "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e7d9915_c1bb5332",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-15T20:47:36Z",
+      "side": 1,
+      "message": "I dunno. Hysterical reasons? :)\n\nGood point. Done.",
+      "parentUuid": "60168dc4_1a22d812",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 300,
+        "endChar": 98
+      },
+      "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "8d72bd70_e7c29f0b",
+        "filename": "src/gpu/dawn/GrDawnGpuCommandBuffer.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-15T20:47:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6cfd7605_0f7b3f9d",
+      "range": {
+        "startLine": 416,
+        "startChar": 4,
+        "endLine": 416,
+        "endChar": 19
+      },
+      "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce105195_5ef02f91",
         "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
         "patchSetId": 11
@@ -91,6 +163,30 @@
       "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7229c99_dbbe9db0",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-15T20:47:36Z",
+      "side": 1,
+      "message": "I don\u0027t see why it wouldn\u0027t work in Dawn. Will take a look. Thanks for the pointer!",
+      "parentUuid": "ce105195_5ef02f91",
+      "range": {
+        "startLine": 330,
+        "startChar": 4,
+        "endLine": 338,
+        "endChar": 70
+      },
+      "revId": "73c08204c76ef55ad454b662de04fa92735c5283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
