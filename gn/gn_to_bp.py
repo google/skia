@@ -174,6 +174,9 @@ cc_defaults {
     pgo: {
         enable_profile_use: false,
     },
+    cflags_cc: [
+        "-std=c++17",
+    ],
 }
 
 cc_defaults {
