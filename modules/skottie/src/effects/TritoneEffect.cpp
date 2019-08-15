@@ -53,7 +53,7 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachTritoneEffect(const skjson::ArrayVa
             tritone_node->setWeight((100 - w) / 100); // 100-based, inverted (!?).
         });
 
-    return std::move(tritone_node);
+    return tritone_node;
 }
 
 } // namespace internal

@@ -104,7 +104,7 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachTransformEffect(const skjson::Array
             opacity_node->setOpacity(o * 0.01f);
         });
 
-    return std::move(opacity_node);
+    return opacity_node;
 }
 
 } // namespace internal
