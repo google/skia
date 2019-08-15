@@ -198,9 +198,12 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     VkPipelineShaderStageCreateInfo shaderStageInfo[3];
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
+    settings.fVkCaps = &this->gpu()->vkCaps();
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures =
                         this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
+    SkASSERT(sizeof(float) == 4);
+    settings.fRTHeightOffset = GrSizeAlignUp(fUniformHandler.fCurrentUBOOffset, sizeof(float));
     SkASSERT(!this->fragColorIsInOut());
 
     sk_sp<SkData> cached;
@@ -318,8 +321,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                  samplerDSHandle,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
-                                 fUniformHandler.fCurrentGeometryUBOOffset,
-                                 fUniformHandler.fCurrentFragmentUBOOffset,
+                                 fUniformHandler.fCurrentUBOOffset,
                                  fUniformHandler.fSamplers,
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),
