@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0bcc850_f97d0716",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-16T19:44:14Z",
+      "side": 0,
+      "message": "I do kind of find this useful to be able to flick it on and off when hacking around.",
+      "range": {
+        "startLine": 444,
+        "startChar": 8,
+        "endLine": 444,
+        "endChar": 12
+      },
+      "revId": "bb651c4902ede18869e7cb854d4a10e18a6ddb79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

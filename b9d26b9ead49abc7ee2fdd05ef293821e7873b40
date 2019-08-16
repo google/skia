@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0971ebd_b076ac99",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-16T19:44:14Z",
+      "side": 1,
+      "message": "So theoretically something like a color shader would want to return a non-null SkStageUpdator that does nothing, right?",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 19
+      },
+      "revId": "b9d26b9ead49abc7ee2fdd05ef293821e7873b40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0240805_2a5dafd6",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-16T19:44:14Z",
+      "side": 1,
+      "message": "We\u0027d have to look, but I bet it doesn\u0027t matter.  It\u0027s usually a cheap enough thing to do any constant number of times.",
+      "revId": "b9d26b9ead49abc7ee2fdd05ef293821e7873b40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e6a2599_73095f05",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-16T19:44:14Z",
+      "side": 1,
+      "message": "You thinking of extending this to all shaders?",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 197,
+        "endChar": 5
+      },
+      "revId": "b9d26b9ead49abc7ee2fdd05ef293821e7873b40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
