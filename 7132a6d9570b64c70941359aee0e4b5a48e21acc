@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "173dabb1_066a52ec",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-16T17:19:33Z",
+      "side": 1,
+      "message": "Sure, I can rename to make it clearer",
+      "parentUuid": "7eff0659_b331abe4",
+      "range": {
+        "startLine": 305,
+        "startChar": 9,
+        "endLine": 305,
+        "endChar": 23
+      },
+      "revId": "7132a6d9570b64c70941359aee0e4b5a48e21acc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c5501037_b26a2cc3",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 8
@@ -36,6 +60,24 @@
       "writtenOn": "2019-08-16T16:59:56Z",
       "side": 1,
       "message": "Think it\u0027s clearer/quicker to compare everything against pts[0]?",
+      "revId": "7132a6d9570b64c70941359aee0e4b5a48e21acc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71f3aa07_413bc693",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-16T17:19:33Z",
+      "side": 1,
+      "message": "Agreed. My next rev already thought of that.",
+      "parentUuid": "c5501037_b26a2cc3",
       "revId": "7132a6d9570b64c70941359aee0e4b5a48e21acc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
