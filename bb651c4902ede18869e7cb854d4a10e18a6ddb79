@@ -22,6 +22,30 @@
       "revId": "bb651c4902ede18869e7cb854d4a10e18a6ddb79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5880f8c7_4e77d2b3",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-16T20:00:52Z",
+      "side": 0,
+      "message": "Agreed, I\u0027ll restore it.",
+      "parentUuid": "d0bcc850_f97d0716",
+      "range": {
+        "startLine": 444,
+        "startChar": 8,
+        "endLine": 444,
+        "endChar": 12
+      },
+      "revId": "bb651c4902ede18869e7cb854d4a10e18a6ddb79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
