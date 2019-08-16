@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1710df6c_08bd0bf7",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 1442,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-16T18:50:07Z",
+      "side": 0,
+      "message": "I like that the default behavior is to not skip very short segments anymore :-)",
+      "range": {
+        "startLine": 1441,
+        "startChar": 12,
+        "endLine": 1442,
+        "endChar": 37
+      },
+      "revId": "d95c9ac5994bb4182121de5255f0b90fe5ae0e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

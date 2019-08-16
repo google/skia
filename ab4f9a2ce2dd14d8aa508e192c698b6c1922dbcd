@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11e356ab_d558ddbf",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-16T18:50:07Z",
+      "side": 1,
+      "message": "Do we need to check the control point on (convex) quadratics and conics? I think it would suffice to just check the endpoints:\n\np0 !\u003d p2",
+      "range": {
+        "startLine": 331,
+        "startChar": 33,
+        "endLine": 331,
+        "endChar": 44
+      },
+      "revId": "ab4f9a2ce2dd14d8aa508e192c698b6c1922dbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2712f2e8_3fadfbb3",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-16T18:50:07Z",
+      "side": 1,
+      "message": "I might consider something more specialized, like \"IsCubicEmpty\" instead, that does something more tolerant like this:\n\np0\u003d\u003dp3 \u0026\u0026 (p0\u003d\u003dp1 || p0\u003d\u003dp2 || p1\u003d\u003dp2)\n\n\"p0\u003d\u003dp3\" also gives an early out where we almost never have to do more than one check to conclude that a cubic is not empty.",
+      "revId": "ab4f9a2ce2dd14d8aa508e192c698b6c1922dbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
