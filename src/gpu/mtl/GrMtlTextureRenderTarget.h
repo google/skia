@@ -69,6 +69,8 @@ private:
                              GrMipMapsStatus,
                              GrWrapCacheable cacheable);
 
+    void initSurfaceFlags();
+
     size_t onGpuMemorySize() const override {
         // TODO: When used as render targets certain formats may actually have a larger size than
         // the base format size. Check to make sure we are reporting the correct value here.
