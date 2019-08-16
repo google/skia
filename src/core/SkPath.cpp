@@ -302,6 +302,15 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
         return false;
     }
 
+    auto degenerate_pts = [](const SkPoint pts[], int n) {
+        for (int i = 1; i < n; ++i) {
+            if (pts[i-1] != pts[i]) {
+                return false;
+            }
+        }
+        return true;
+    };
+
     SkPoint firstPt;
     SkPoint prevPt;
     SkPath::Iter iter(*this, true);
@@ -320,20 +329,26 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
                 firstPt = prevPt = pts[0];
                 break;
             case kLine_Verb:
-                nextPt = 1;
-                SkASSERT(moveCnt && !closeCount);
-                ++segmentCount;
+                if (!degenerate_pts(pts, 2)) {
+                    nextPt = 1;
+                    SkASSERT(moveCnt && !closeCount);
+                    ++segmentCount;
+                }
                 break;
             case kQuad_Verb:
             case kConic_Verb:
-                SkASSERT(moveCnt && !closeCount);
-                ++segmentCount;
-                nextPt = 2;
+                if (!degenerate_pts(pts, 3)) {
+                    SkASSERT(moveCnt && !closeCount);
+                    ++segmentCount;
+                    nextPt = 2;
+                }
                 break;
             case kCubic_Verb:
-                SkASSERT(moveCnt && !closeCount);
-                ++segmentCount;
-                nextPt = 3;
+                if (!degenerate_pts(pts, 4)) {
+                    SkASSERT(moveCnt && !closeCount);
+                    ++segmentCount;
+                    nextPt = 3;
+                }
                 break;
             case kClose_Verb:
                 SkDEBUGCODE(++closeCount;)
