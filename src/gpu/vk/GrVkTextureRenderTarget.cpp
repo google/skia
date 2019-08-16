@@ -117,8 +117,7 @@ static Views create_views(GrVkGpu* gpu, const GrSurfaceDesc& desc, int sampleCnt
         return {};
     }
 
-    VkFormat pixelFormat;
-    GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat);
+    VkFormat pixelFormat = info.fFormat;
 
     VkImage colorImage;
 
