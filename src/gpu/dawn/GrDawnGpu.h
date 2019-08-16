@@ -10,8 +10,14 @@
 
 #include "src/gpu/GrGpu.h"
 #include "dawn/dawncpp.h"
+#include "src/core/SkLRUCache.h"
+#include "src/gpu/dawn/GrDawnRingBuffer.h"
+#include "src/gpu/dawn/GrDawnStagingManager.h"
+
+#include <unordered_map>
 
 class GrPipeline;
+struct GrDawnProgram;
 class GrDawnGpuRTCommandBuffer;
 class GrDawnGpuTextureCommandBuffer;
 
@@ -50,6 +56,7 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
+    void flush();
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -81,6 +88,22 @@ public:
     void checkFinishProcs() override;
 
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
+
+    sk_sp<GrDawnProgram> getOrCreateRenderPipeline(GrRenderTarget*,
+                                                   GrSurfaceOrigin origin,
+                                                   const GrPipeline&,
+                                                   const GrPrimitiveProcessor&,
+                                                   const GrTextureProxy* const* primProcProxies,
+                                                   bool hasPoints,
+                                                   GrPrimitiveType primitiveType);
+
+    dawn::Sampler getOrCreateSampler(const GrSamplerState& samplerState);
+
+    GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
+    GrDawnStagingBuffer* getStagingBuffer(size_t size);
+    GrDawnStagingManager* getStagingManager() { return &fStagingManager; }
+    dawn::CommandEncoder getCopyEncoder() { return fCopyEncoder; }
+    void appendCommandBuffer(dawn::CommandBuffer commandBuffer);
 
 private:
     void onResetContext(uint32_t resetBits) override {}
@@ -147,6 +170,25 @@ private:
     std::unique_ptr<SkSL::Compiler>                 fCompiler;
     std::unique_ptr<GrDawnGpuRTCommandBuffer>       fRTCommandBuffer;
     std::unique_ptr<GrDawnGpuTextureCommandBuffer>  fTextureCommandBuffer;
+    GrDawnRingBuffer                                fUniformRingBuffer;
+    dawn::CommandEncoder                            fCopyEncoder;
+
+    struct ProgramDescHash {
+        uint32_t operator()(const GrProgramDesc& desc) const {
+            return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+        }
+    };
+
+    struct SamplerHash {
+        size_t operator()(const GrSamplerState& samplerState) const {
+            return SkOpts::hash_fn(&samplerState, sizeof(samplerState), 0);
+        }
+    };
+
+    SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
+    std::unordered_map<GrSamplerState, dawn::Sampler, SamplerHash> fSamplers;
+    GrDawnStagingManager fStagingManager;
+    std::vector<dawn::CommandBuffer> fCommandBuffers;
 
     typedef GrGpu INHERITED;
 };
