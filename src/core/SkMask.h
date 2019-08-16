@@ -237,7 +237,7 @@ template <> struct SkMask::AlphaIter<SkMask::kLCD16_Format> {
  *  Stack class used to manage the fImage buffer in a SkMask.
  *  When this object loses scope, the buffer is freed with SkMask::FreeImage().
  */
-using SkAutoMaskFreeImage = std::unique_ptr<uint8_t,SkFunctionWrapper<void,void,SkMask::FreeImage>>;
+using SkAutoMaskFreeImage = std::unique_ptr<uint8_t, SkFunctionWrapper<decltype(SkMask::FreeImage), SkMask::FreeImage>>;
 #define SkAutoMaskFreeImage(...) SK_REQUIRE_LOCAL_VAR(SkAutoMaskFreeImage)
 
 #endif

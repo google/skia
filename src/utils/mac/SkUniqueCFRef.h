@@ -19,7 +19,7 @@
 
 template <typename CFRef> using SkUniqueCFRef =
     std::unique_ptr<skstd::remove_pointer_t<CFRef>,
-                    SkFunctionWrapper<void, skstd::remove_pointer_t<CFTypeRef>, CFRelease>>;
+                    SkFunctionWrapper<decltype(CFRelease), CFRelease>>;
 
 #endif
 #endif
