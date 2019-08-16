@@ -83,10 +83,13 @@ public:
     }
 
     ~TestCanvas() {
-        SkString path = SkOSPath::Join("/usr/local/google/home/jlavrova/Temp/skia/", name);
-        SkFILEWStream file(path.c_str());
-        if (!SkEncodeImage(&file, bits, SkEncodedImageFormat::kPNG, 100)) {
-            SkDebugf("Cannot write a picture %s\n", name);
+        SkString tmpDir = skiatest::GetTmpDir();
+        if (!tmpDir.isEmpty()) {
+            SkString path = SkOSPath::Join(tmpDir.c_str(), name);
+            SkFILEWStream file(path.c_str());
+            if (!SkEncodeImage(&file, bits, SkEncodedImageFormat::kPNG, 100)) {
+                SkDebugf("Cannot write a picture %s\n", name);
+            }
         }
         delete canvas;
     }
