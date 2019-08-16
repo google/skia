@@ -317,7 +317,11 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTex
         return nullptr;
     }
 
-    return this->onWrapBackendTextureAsRenderTarget(backendTex, sampleCnt, colorType);
+    auto rt = this->onWrapBackendTextureAsRenderTarget(backendTex, sampleCnt, colorType);
+    if (sampleCnt > 1 && !this->caps()->msaaResolvesAutomatically()) {
+        rt->renderTargetPriv().setRequiresManualMSAAResolve();
+    }
+    return rt;
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo& imageInfo,

@@ -76,8 +76,10 @@ public:
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
         if (this->numSamples() > 1) {
+            SkASSERT(this->requiresManualMSAAResolve());
             return kCanResolve_ResolveType;
         }
+        SkASSERT(!this->requiresManualMSAAResolve());
         return kAutoResolves_ResolveType;
     }
 
