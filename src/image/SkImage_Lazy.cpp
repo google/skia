@@ -561,7 +561,7 @@ sk_sp<SkImage> SkImage::DecodeToTexture(GrContext* ctx, const void* encoded, siz
     if (!img) {
         return nullptr;
     }
-    return img->makeTextureImage(ctx, nullptr);
+    return img->makeTextureImage(ctx);
 }
 
 #endif
