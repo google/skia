@@ -29,11 +29,6 @@ class GrVkGpu;
 #define GR_VK_CALL_ERRCHECK(IFACE, X)  (void) GR_VK_CALL(IFACE, X)
 #endif
 
-/**
- * Returns the vulkan texture format for the given GrPixelConfig
- */
-bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format);
-
 bool GrVkFormatIsSupported(VkFormat);
 
 bool GrVkFormatNeedsYcbcrSampler(VkFormat format);

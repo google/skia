@@ -161,6 +161,11 @@ public:
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
+    VkFormat getFormatFromColorType(GrColorType colorType) const {
+        int idx = static_cast<int>(colorType);
+        return fColorTypeToFormatTable[idx];
+    }
+
     bool canClearTextureOnCreation() const override;
 
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -218,6 +223,9 @@ private:
             // Does Ganesh itself support rendering to this colorType & format pair. Renderability
             // still additionally depends on if the format itself is renderable.
             kRenderable_Flag = 0x2,
+            // Indicates that this colorType is supported only if we are wrapping a texture with
+            // the given format and colorType. We do not allow creation with this pair.
+            kWrappedOnly_Flag = 0x4,
         };
         uint32_t fFlags = 0;
 
@@ -261,6 +269,9 @@ private:
 
     FormatInfo& getFormatInfo(VkFormat);
     const FormatInfo& getFormatInfo(VkFormat) const;
+
+    VkFormat fColorTypeToFormatTable[kGrColorTypeCnt];
+    void setColorType(GrColorType, std::initializer_list<VkFormat> formats);
 
     StencilFormat fPreferredStencilFormat;
 

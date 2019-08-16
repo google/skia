@@ -139,8 +139,7 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
     SkASSERT(VK_NULL_HANDLE != info.fImage);
 
     SkASSERT(1 == info.fLevelCount);
-    VkFormat pixelFormat;
-    GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat);
+    VkFormat pixelFormat = info.fFormat;
 
     VkImage colorImage;
 

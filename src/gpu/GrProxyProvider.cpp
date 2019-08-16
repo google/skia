@@ -483,7 +483,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 
     SkASSERT(GrCaps::AreConfigsCompatible(desc.fConfig,
                                           caps->getConfigFromBackendFormat(format, colorType)));
-    SkASSERT(caps->areColorTypeAndFormatCompatible(colorType, format));
+    // TODO: This check should be removed once we get the swizzle outside of GrProxyProvider and
+    // either pass them to the proxy or store the on some view object.
+    if (!caps->areColorTypeAndFormatCompatible(colorType, format)) {
+        return nullptr;
+    }
 
     if (GrMipMapped::kYes == mipMapped) {
         // SkMipMap doesn't include the base level in the level count so we have to add 1
