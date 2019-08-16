@@ -84,7 +84,8 @@ GrBackendFormat GrDawnTexture::backendFormat() const {
 }
 
 sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& size,
-                                                GrPixelConfig config, GrMipMapsStatus status,
+                                                GrPixelConfig config, GrRenderable renderable,
+                                                int sampleCnt, GrMipMapsStatus status,
                                                 GrWrapCacheable cacheable,
                                                 const GrDawnImageInfo& info) {
     dawn::TextureView textureView = info.fTexture.CreateDefaultView();
@@ -92,7 +93,13 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& s
         return nullptr;
     }
 
-    sk_sp<GrDawnTexture> tex(new GrDawnTexture(gpu, size, config, textureView, info, status));
+    sk_sp<GrDawnTexture> tex;
+    if (GrRenderable::kYes == renderable) {
+        tex = sk_sp<GrDawnTexture>(new GrDawnTextureRenderTarget(gpu, size, config, textureView,
+                                                                 sampleCnt, info, status));
+    } else {
+        tex = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, size, config, textureView, info, status));
+    }
     tex->registerWithCacheWrapped(cacheable);
     return tex;
 }
