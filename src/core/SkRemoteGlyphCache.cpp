@@ -320,10 +320,10 @@ class SkTextBlobCacheDiffCanvas::TrackLayerDevice final : public SkNoPixelsDevic
 public:
     TrackLayerDevice(
             const SkIRect& bounds, const SkSurfaceProps& props, SkStrikeServer* server,
-            sk_sp<SkColorSpace> colorSpace, const SkTextBlobCacheDiffCanvas::Settings& settings)
+            sk_sp<SkColorSpace> colorSpace, bool DFTSupport)
             : SkNoPixelsDevice(bounds, props, std::move(colorSpace))
             , fStrikeServer(server)
-            , fSettings(settings)
+            , fDFTSupport(DFTSupport)
             , fPainter{props, kUnknown_SkColorType, imageInfo().colorSpace(), fStrikeServer} {
         SkASSERT(fStrikeServer != nullptr);
     }
@@ -331,21 +331,19 @@ public:
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
         return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps, fStrikeServer,
-                                    cinfo.fInfo.refColorSpace(), fSettings);
+                                    cinfo.fInfo.refColorSpace(), fDFTSupport);
     }
 
 protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
 #if SK_SUPPORT_GPU
         GrTextContext::Options options;
-        options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
-        options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
         GrTextContext::SanitizeOptions(&options);
 
         fPainter.processGlyphRunList(glyphRunList,
                                      this->ctm(),
                                      this->surfaceProps(),
-                                     fSettings.fContextSupportsDistanceFieldText,
+                                     fDFTSupport,
                                      options,
                                      nullptr);
 #endif  // SK_SUPPORT_GPU
@@ -353,26 +351,39 @@ protected:
 
 private:
     SkStrikeServer* const fStrikeServer;
-    const SkTextBlobCacheDiffCanvas::Settings fSettings;
+    const bool fDFTSupport{false};
     SkGlyphRunListPainter fPainter;
 };
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
+// DEPRECATED
+// TODO(herb): remove uses in Chrome
 SkTextBlobCacheDiffCanvas::Settings::Settings() = default;
 
-SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(
-        int width, int height, const SkSurfaceProps& props,
-        SkStrikeServer* strikeServer, Settings settings)
-    : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(
-            SkIRect::MakeWH(width, height), props, strikeServer, nullptr, settings)} {}
+SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
+                                                     const SkSurfaceProps& props,
+                                                     SkStrikeServer* strikeServer,
+                                                     bool DFTSupport)
+    : SkTextBlobCacheDiffCanvas{width, height, props, strikeServer, nullptr, DFTSupport} { }
 
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkSurfaceProps& props,
                                                      SkStrikeServer* strikeServer,
                                                      sk_sp<SkColorSpace> colorSpace,
                                                      Settings settings)
-    : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props,
-                                                  strikeServer, std::move(colorSpace), settings)} {}
+    : SkTextBlobCacheDiffCanvas{width, height, props, strikeServer, std::move(colorSpace),
+                                settings.fContextSupportsDistanceFieldText} { }
+
+SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
+                                                     const SkSurfaceProps& props,
+                                                     SkStrikeServer* strikeServer,
+                                                     sk_sp<SkColorSpace> colorSpace,
+                                                     bool DFTSupport)
+     : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height),
+                                                   props,
+                                                   strikeServer,
+                                                   std::move(colorSpace),
+                                                   DFTSupport)} { }
 
 SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
 
