@@ -25,11 +25,12 @@ public:
         (void)_outer;
         auto matrix = _outer.matrix;
         (void)matrix;
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+        SkString sk_TransformedCoords2D_0 =
+                fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
         fragBuilder->codeAppendf(
                 "%s = %s * sample(%s, %s).%s;\n", args.fOutputColor, args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                sk_TransformedCoords2D_0.c_str(),
+                args.fHasCoordOverrides ? "_coords" : sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
     }
 

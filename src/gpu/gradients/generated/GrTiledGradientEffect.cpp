@@ -41,9 +41,9 @@ public:
                 (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
                                                                                        : "false"),
                 args.fOutputColor, (_outer.mirror ? "true" : "false"));
-        SkString _input0("t");
+        SkString _input1464("t");
         SkString _sample1464("_sample1464");
-        this->invokeChild(_outer.colorizer_index, _input0.c_str(), &_sample1464, args);
+        this->invokeChild(_outer.colorizer_index, _input1464.c_str(), &_sample1464, args);
         fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
                                  args.fOutputColor, _sample1464.c_str(),
                                  (_outer.makePremul ? "true" : "false"), args.fOutputColor,
