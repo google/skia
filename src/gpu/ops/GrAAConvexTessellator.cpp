@@ -388,6 +388,14 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     // Presumptive inner ring: 6*numPts + 6
     fIndices.setReserve(18*path.countPoints() + 6);
 
+    auto degenerate_pts = [](const SkPoint pts[], int n) {
+        for (int i = 1; i < n; ++i) {
+            if (pts[i-1] != pts[i]) {
+                return false;
+            }
+        }
+        return true;
+    };
     // TODO: is there a faster way to extract the points from the path? Perhaps
     // get all the points via a new entry point, transform them all in bulk
     // and then walk them to find duplicates?
@@ -397,16 +405,24 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kLine_Verb:
-                this->lineTo(m, pts[1], kSharp_CurveState);
+                if (!degenerate_pts(pts, 2)) {
+                    this->lineTo(m, pts[1], kSharp_CurveState);
+                }
                 break;
             case SkPath::kQuad_Verb:
-                this->quadTo(m, pts);
+                if (!degenerate_pts(pts, 3)) {
+                    this->quadTo(m, pts);
+                }
                 break;
             case SkPath::kCubic_Verb:
-                this->cubicTo(m, pts);
+                if (!degenerate_pts(pts, 4)) {
+                    this->cubicTo(m, pts);
+                }
                 break;
             case SkPath::kConic_Verb:
-                this->conicTo(m, pts, iter.conicWeight());
+                if (!degenerate_pts(pts, 3)) {
+                    this->conicTo(m, pts, iter.conicWeight());
+                }
                 break;
             case SkPath::kMove_Verb:
             case SkPath::kClose_Verb:

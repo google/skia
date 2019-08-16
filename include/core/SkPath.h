@@ -1447,7 +1447,7 @@ public:
             @return                      next SkPath::Verb from verb array
         */
         Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false) {
-            if (doConsumeDegenerates) {
+            if (doConsumeDegenerates && false) {
                 this->consumeDegenerateSegments(exact);
             }
             return this->doNext(pts);
