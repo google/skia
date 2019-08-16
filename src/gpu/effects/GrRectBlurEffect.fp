@@ -72,22 +72,16 @@ void main() {
     // -inf to x.
     // TODO: Make this a function when supported in .fp files as we duplicate it for y below.
     half xCoverage;
-    if (x > 1.5) {
-        xCoverage = 0.0;
-    } else if (x < -1.5) {
-        xCoverage = 1.0;
+    half x2 = x * x;
+    half x3 = x2 * x;
+    if (x > 0.5) {
+        xCoverage = 0.5625 - (x3 / 6.0 - 3.0 * x2 * 0.25 + 1.125 * x);
+    } else if (x > -0.5) {
+        xCoverage = 0.5 - (0.75 * x - x3 / 3.0);
     } else {
-        half x2 = x * x;
-        half x3 = x2 * x;
-
-        if (x > 0.5) {
-            xCoverage = 0.5625 - (x3 / 6.0 - 3.0 * x2 * 0.25 + 1.125 * x);
-        } else if (x > -0.5) {
-            xCoverage = 0.5 - (0.75 * x - x3 / 3.0);
-        } else {
-            xCoverage = 0.4375 + (-x3 / 6.0 - 3.0 * x2 * 0.25 - 1.125 * x);
-        }
+        xCoverage = 0.4375 + (-x3 / 6.0 - 3.0 * x2 * 0.25 - 1.125 * x);
     }
+    xCoverage = clamp(xCoverage, 0, 1);
 
     // Repeat of above for y.
     half y;
@@ -101,22 +95,17 @@ void main() {
         y = max(tDiff, bDiff) * invr;
     }
     half yCoverage;
-    if (y > 1.5) {
-        yCoverage = 0.0;
-    } else if (y < -1.5) {
-        yCoverage = 1.0;
-    } else {
-        half y2 = y * y;
-        half y3 = y2 * y;
+    half y2 = y * y;
+    half y3 = y2 * y;
 
-        if (y > 0.5) {
-            yCoverage = 0.5625 - (y3 / 6.0 - 3.0 * y2 * 0.25 + 1.125 * y);
-        } else if (y > -0.5) {
-            yCoverage = 0.5 - (0.75 * y - y3 / 3.0);
-        } else {
-            yCoverage = 0.4375 + (-y3 / 6.0 - 3.0 * y2 * 0.25 - 1.125 * y);
-        }
+    if (y > 0.5) {
+        yCoverage = 0.5625 - (y3 / 6.0 - 3.0 * y2 * 0.25 + 1.125 * y);
+    } else if (y > -0.5) {
+        yCoverage = 0.5 - (0.75 * y - y3 / 3.0);
+    } else {
+        yCoverage = 0.4375 + (-y3 / 6.0 - 3.0 * y2 * 0.25 - 1.125 * y);
     }
+    yCoverage = clamp(yCoverage, 0, 1);
 
     sk_OutColor = sk_InColor * xCoverage * yCoverage;
 }
