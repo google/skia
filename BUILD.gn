@@ -981,14 +981,6 @@ component("skia") {
   ]
 
   defines = []
-  if (!skia_enable_skpicture) {
-    defines = [ "SK_DISABLE_SKPICTURE" ]
-    public -= skia_skpicture_public
-    sources -= skia_skpicture_sources
-    sources -= [ "//src/effects/imagefilters/SkPictureImageFilter.cpp" ]
-    sources += [ "src/core/SkPicture_none.cpp" ]
-  }
-
   libs = []
 
   if (is_win) {
