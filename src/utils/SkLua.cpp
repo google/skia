@@ -1372,7 +1372,7 @@ static int lpath_getVerbs(lua_State* L) {
     bool done = false;
     int i = 0;
     do {
-        switch (iter.next(pts, true)) {
+        switch (iter.next(pts)) {
             case SkPath::kMove_Verb:
                 setarray_string(L, ++i, "move");
                 break;

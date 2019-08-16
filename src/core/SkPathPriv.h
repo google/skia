@@ -272,6 +272,15 @@ public:
         SkRect tmp;
         return (path.fPathRef->fIsRRect | path.fPathRef->fIsOval) || path.isRect(&tmp);
     }
+
+    static bool AllPointsEq(const SkPoint pts[], int count) {
+        for (int i = 1; i < count; ++i) {
+            if (pts[0] != pts[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 };
 
 #endif

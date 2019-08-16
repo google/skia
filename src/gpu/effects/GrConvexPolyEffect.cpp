@@ -125,7 +125,7 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType typ
     // Iterate here to consume any degenerate contours and only process the points
     // on the actual convex contour.
     int n = 0;
-    while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
                 SkASSERT(n == 0);
@@ -135,17 +135,19 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType typ
                 if (n >= kMaxEdges) {
                     return nullptr;
                 }
-                SkVector v = pts[1] - pts[0];
-                v.normalize();
-                if (SkPathPriv::kCCW_FirstDirection == dir) {
-                    edges[3 * n] = v.fY;
-                    edges[3 * n + 1] = -v.fX;
-                } else {
-                    edges[3 * n] = -v.fY;
-                    edges[3 * n + 1] = v.fX;
+                if (pts[0] != pts[1]) {
+                    SkVector v = pts[1] - pts[0];
+                    v.normalize();
+                    if (SkPathPriv::kCCW_FirstDirection == dir) {
+                        edges[3 * n] = v.fY;
+                        edges[3 * n + 1] = -v.fX;
+                    } else {
+                        edges[3 * n] = -v.fY;
+                        edges[3 * n + 1] = v.fX;
+                    }
+                    edges[3 * n + 2] = -(edges[3 * n] * pts[1].fX + edges[3 * n + 1] * pts[1].fY);
+                    ++n;
                 }
-                edges[3 * n + 2] = -(edges[3 * n] * pts[1].fX + edges[3 * n + 1] * pts[1].fY);
-                ++n;
                 break;
             }
             default:

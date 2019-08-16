@@ -1435,22 +1435,14 @@ public:
 
             Zero to four SkPoint are stored in pts, depending on the returned SkPath::Verb.
 
-            If doConsumeDegenerates is true, skip consecutive kMove_Verb entries, returning
-            only the last in the series; and skip very small lines, quads, and conics; and
-            skip kClose_Verb following kMove_Verb.
-            if doConsumeDegenerates is true and exact is true, only skip lines, quads, and
-            conics with zero lengths.
-
-            @param pts                   storage for SkPoint data describing returned SkPath::Verb
-            @param doConsumeDegenerates  if true, skip degenerate verbs
-            @param exact                 skip zero length curves
-            @return                      next SkPath::Verb from verb array
+            @param pts  storage for SkPoint data describing returned SkPath::Verb
+            @return     next SkPath::Verb from verb array
         */
-        Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false) {
-            if (doConsumeDegenerates) {
-                this->consumeDegenerateSegments(exact);
-            }
-            return this->doNext(pts);
+        Verb next(SkPoint pts[4]);
+
+        // DEPRECATED
+        Verb next(SkPoint pts[4], bool /*doConsumeDegenerates*/, bool /*exact*/ = false) {
+            return this->next(pts);
         }
 
         /** Returns conic weight if next() returned kConic_Verb.
@@ -1503,9 +1495,6 @@ public:
 
         inline const SkPoint& cons_moveTo();
         Verb autoClose(SkPoint pts[2]);
-        void consumeDegenerateSegments(bool exact);
-        Verb doNext(SkPoint pts[4]);
-
     };
 
     /** \class SkPath::RawIter

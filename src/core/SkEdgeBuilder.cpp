@@ -245,7 +245,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canC
     if (iclip) {
         SkRect clip = this->recoverClip(*iclip);
 
-        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kMove_Verb:
                 case SkPath::kClose_Verb:
@@ -272,7 +272,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canC
             }
         }
     } else {
-        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kMove_Verb:
                 case SkPath::kClose_Verb:
@@ -332,7 +332,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
             }
         };
 
-        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kMove_Verb:
                 case SkPath::kClose_Verb:
@@ -370,7 +370,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
             }
         }
     } else {
-        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
             auto handle_quad = [this](const SkPoint pts[3]) {
                 SkPoint monoX[5];
                 int n = SkChopQuadAtYExtrema(pts, monoX);

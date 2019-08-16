@@ -1415,7 +1415,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 
     for (;;) {
         SkPoint  pts[4];
-        switch (iter.next(pts, false)) {
+        switch (iter.next(pts)) {
             case SkPath::kMove_Verb:
                 stroker.moveTo(pts[0]);
                 break;

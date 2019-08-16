@@ -10,6 +10,8 @@ Milestone 78
 
  * SkDrawLooper is no longer supported in SkPaint or SkCanvas.
 
+ * SkPath::Iter::next() now ignores its consumDegenerates bools. Those will so go away entirely
+
  * SkImage: new factories: DecodeToRaster, DecodeToTexture
 
  * SkImageFilter API refactor started:

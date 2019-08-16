@@ -236,7 +236,7 @@ void SkParsePath::ToSVGString(const SkPath& path, SkString* str) {
     SkPoint         pts[4];
 
     for (;;) {
-        switch (iter.next(pts, false)) {
+        switch (iter.next(pts)) {
             case SkPath::kConic_Verb: {
                 const SkScalar tol = SK_Scalar1 / 1024; // how close to a quad
                 SkAutoConicToQuads quadder;
