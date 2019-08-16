@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c460cc3c_b6dc1456",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-16T18:22:08Z",
+      "side": 1,
+      "message": "I assume we only put the color type into the formatinfo array if the format is supported at runtime?",
+      "range": {
+        "startLine": 678,
+        "startChar": 0,
+        "endLine": 683,
+        "endChar": 9
+      },
+      "revId": "2c9f50062998799efe5f4c2c9f3d7bd7bf9541c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
