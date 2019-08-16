@@ -25,10 +25,9 @@ bool TextBreaker::initialize(SkSpan<const char> text, UBreakIteratorType type) {
     UErrorCode status = U_ZERO_ERROR;
     fIterator = nullptr;
     fSize = text.size();
-    UText utf8UText = UTEXT_INITIALIZER;
-    utext_openUTF8(&utf8UText, text.begin(), text.size(), &status);
-    fAutoClose =
-            std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>>(&utf8UText);
+    UText sUtf8UText = UTEXT_INITIALIZER;
+    std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>> utf8UText(
+        utext_openUTF8(&sUtf8UText, text.begin(), text.size(), &status));
     if (U_FAILURE(status)) {
         SkDebugf("Could not create utf8UText: %s", u_errorName(status));
         return false;
@@ -39,7 +38,7 @@ bool TextBreaker::initialize(SkSpan<const char> text, UBreakIteratorType type) {
         SK_ABORT("");
     }
 
-    ubrk_setUText(fIterator.get(), &utf8UText, &status);
+    ubrk_setUText(fIterator.get(), utf8UText.get(), &status);
     if (U_FAILURE(status)) {
         SkDebugf("Could not setText on break iterator: %s", u_errorName(status));
         return false;

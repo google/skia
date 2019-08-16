@@ -16,11 +16,12 @@
 #include "hb.h"
 #include "hb-subset.h"
 
-template <class T, void(*P)(T*)> using resource = std::unique_ptr<T, SkFunctionWrapper<void, T, P>>;
-using HBBlob = resource<hb_blob_t, hb_blob_destroy>;
-using HBFace = resource<hb_face_t, hb_face_destroy>;
-using HBSubsetInput = resource<hb_subset_input_t, hb_subset_input_destroy>;
-using HBSet = resource<hb_set_t, hb_set_destroy>;
+template <class T, void(*P)(T*)> using resource =
+    std::unique_ptr<T, SkFunctionWrapper<skstd::remove_pointer_t<decltype(P)>, P>>;
+using HBBlob = resource<hb_blob_t, &hb_blob_destroy>;
+using HBFace = resource<hb_face_t, &hb_face_destroy>;
+using HBSubsetInput = resource<hb_subset_input_t, &hb_subset_input_destroy>;
+using HBSet = resource<hb_set_t, &hb_set_destroy>;
 
 static HBBlob to_blob(sk_sp<SkData> data) {
     using blob_size_t = SkCallableTraits<decltype(hb_blob_create)>::argument<1>::type;

@@ -55,13 +55,15 @@ template <> struct is_bitmask_enum<hb_buffer_flags_t> : std::true_type {};
 }
 
 namespace {
-template <class T, void(*P)(T*)> using resource = std::unique_ptr<T, SkFunctionWrapper<void, T, P>>;
-using HBBlob   = resource<hb_blob_t     , hb_blob_destroy  >;
-using HBFace   = resource<hb_face_t     , hb_face_destroy  >;
-using HBFont   = resource<hb_font_t     , hb_font_destroy  >;
-using HBBuffer = resource<hb_buffer_t   , hb_buffer_destroy>;
-using ICUBiDi  = resource<UBiDi         , ubidi_close      >;
-using ICUBrk   = resource<UBreakIterator, ubrk_close       >;
+template <typename T, void(*P)(T*)> using resource =
+    std::unique_ptr<T, SkFunctionWrapper<skstd::remove_pointer_t<decltype(P)>, P>>;
+using HBBlob   = resource<hb_blob_t     , &hb_blob_destroy  >;
+using HBFace   = resource<hb_face_t     , &hb_face_destroy  >;
+using HBFont   = resource<hb_font_t     , &hb_font_destroy  >;
+using HBBuffer = resource<hb_buffer_t   , &hb_buffer_destroy>;
+using ICUBiDi  = resource<UBiDi         , &ubidi_close      >;
+using ICUBrk   = resource<UBreakIterator, &ubrk_close       >;
+using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>>;
 
 HBBlob stream_to_blob(std::unique_ptr<SkStreamAsset> asset) {
     size_t size = asset->getLength();
@@ -863,14 +865,13 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
             UBreakIterator& breakIterator = *fLineBreakIterator;
             {
                 UErrorCode status = U_ZERO_ERROR;
-                UText utf8UText = UTEXT_INITIALIZER;
-                utext_openUTF8(&utf8UText, utf8Start, utf8runLength, &status);
-                std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>> autoClose(&utf8UText);
+                UText sUtf8UText = UTEXT_INITIALIZER;
+                ICUUText utf8UText(utext_openUTF8(&sUtf8UText, utf8Start, utf8runLength, &status));
                 if (U_FAILURE(status)) {
                     SkDebugf("Could not create utf8UText: %s", u_errorName(status));
                     return;
                 }
-                ubrk_setUText(&breakIterator, &utf8UText, &status);
+                ubrk_setUText(&breakIterator, utf8UText.get(), &status);
                 if (U_FAILURE(status)) {
                     SkDebugf("Could not setText on break iterator: %s", u_errorName(status));
                     return;
@@ -966,20 +967,19 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
     UBreakIterator& graphemeBreakIterator = *fGraphemeBreakIterator;
     {
         UErrorCode status = U_ZERO_ERROR;
-        UText utf8UText = UTEXT_INITIALIZER;
-        utext_openUTF8(&utf8UText, utf8, utf8Bytes, &status);
-        std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>> autoClose(&utf8UText);
+        UText sUtf8UText = UTEXT_INITIALIZER;
+        ICUUText utf8UText(utext_openUTF8(&sUtf8UText, utf8, utf8Bytes, &status));
         if (U_FAILURE(status)) {
             SkDebugf("Could not create utf8UText: %s", u_errorName(status));
             return;
         }
 
-        ubrk_setUText(&lineBreakIterator, &utf8UText, &status);
+        ubrk_setUText(&lineBreakIterator, utf8UText.get(), &status);
         if (U_FAILURE(status)) {
             SkDebugf("Could not setText on line break iterator: %s", u_errorName(status));
             return;
         }
-        ubrk_setUText(&graphemeBreakIterator, &utf8UText, &status);
+        ubrk_setUText(&graphemeBreakIterator, utf8UText.get(), &status);
         if (U_FAILURE(status)) {
             SkDebugf("Could not setText on grapheme break iterator: %s", u_errorName(status));
             return;

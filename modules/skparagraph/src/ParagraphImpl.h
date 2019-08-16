@@ -75,8 +75,7 @@ public:
     bool eof() { return fPos == icu::BreakIterator::DONE; }
 
 private:
-    std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>> fAutoClose;
-    std::unique_ptr<UBreakIterator, SkFunctionWrapper<void, UBreakIterator, ubrk_close>> fIterator;
+    std::unique_ptr<UBreakIterator, SkFunctionWrapper<decltype(ubrk_close), ubrk_close>> fIterator;
     bool fInitialized;
     int32_t fPos;
     size_t fSize;
