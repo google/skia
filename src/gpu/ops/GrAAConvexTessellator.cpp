@@ -394,19 +394,27 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     SkPath::Iter iter(path, true);
     SkPoint pts[4];
     SkPath::Verb verb;
-    while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kLine_Verb:
-                this->lineTo(m, pts[1], kSharp_CurveState);
+                if (!SkPathPriv::AllPointsEq(pts, 2)) {
+                    this->lineTo(m, pts[1], kSharp_CurveState);
+                }
                 break;
             case SkPath::kQuad_Verb:
-                this->quadTo(m, pts);
+                if (!SkPathPriv::AllPointsEq(pts, 3)) {
+                    this->quadTo(m, pts);
+                }
                 break;
             case SkPath::kCubic_Verb:
-                this->cubicTo(m, pts);
+                if (!SkPathPriv::AllPointsEq(pts, 4)) {
+                    this->cubicTo(m, pts);
+                }
                 break;
             case SkPath::kConic_Verb:
-                this->conicTo(m, pts, iter.conicWeight());
+                if (!SkPathPriv::AllPointsEq(pts, 3)) {
+                    this->conicTo(m, pts, iter.conicWeight());
+                }
                 break;
             case SkPath::kMove_Verb:
             case SkPath::kClose_Verb:
