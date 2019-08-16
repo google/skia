@@ -116,19 +116,11 @@ void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
     SK_ABORT("Requested an unsupported feature set");
 }
 
-bool GrMtlCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount,
-                              GrPixelConfig srcConfig, int srcSampleCount,
+bool GrMtlCaps::canCopyAsBlit(MTLPixelFormat dstFormat, int dstSampleCount,
+                              MTLPixelFormat srcFormat, int srcSampleCount,
                               const SkIRect& srcRect, const SkIPoint& dstPoint,
                               bool areDstSrcSameObj) const {
-    // There is only one variation of Gray_8 in Metal and that is _as_Red. So downcast the generic
-    // config to the specific config to make the subsequent comparison check valid.
-    if (srcConfig == kGray_8_GrPixelConfig) {
-        srcConfig = kGray_8_as_Red_GrPixelConfig;
-    }
-    if (dstConfig == kGray_8_GrPixelConfig) {
-        dstConfig = kGray_8_as_Red_GrPixelConfig;
-    }
-    if (dstConfig != srcConfig) {
+    if (!dstFormat || dstFormat != srcFormat) {
         return false;
     }
     if ((dstSampleCount > 1 || srcSampleCount > 1) && (dstSampleCount != srcSampleCount)) {
@@ -181,8 +173,9 @@ bool GrMtlCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
 
-    return this->canCopyAsBlit(dst->config(), dstSampleCnt, src->config(), srcSampleCnt, srcRect,
-                               dstPoint, dst == src);
+    return this->canCopyAsBlit(GrBackendFormatAsMTLPixelFormat(dst->backendFormat()), dstSampleCnt,
+                               GrBackendFormatAsMTLPixelFormat(src->backendFormat()), srcSampleCnt,
+                               srcRect, dstPoint, dst == src);
 }
 
 void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
@@ -436,6 +429,36 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
 
     MTLPixelFormatInvalid,
 };
+
+void GrMtlCaps::setColorType(GrColorType colorType, std::initializer_list<MTLPixelFormat> formats) {
+#ifdef SK_DEBUG
+    for (size_t i = 0; i < kNumMtlFormats; ++i) {
+        const auto& formatInfo = fFormatTable[i];
+        for (int j = 0; j < formatInfo.fColorTypeInfoCount; ++j) {
+            const auto& ctInfo = formatInfo.fColorTypeInfos[j];
+            if (ctInfo.fColorType == colorType) {
+                bool found = false;
+                for (auto it = formats.begin(); it != formats.end(); ++it) {
+                    if (kMtlFormats[i] == *it) {
+                        found = true;
+                    }
+                }
+                SkASSERT(found);
+            }
+        }
+    }
+#endif
+    int idx = static_cast<int>(colorType);
+    for (auto it = formats.begin(); it != formats.end(); ++it) {
+        const auto& info = this->getFormatInfo(*it);
+        for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+            if (info.fColorTypeInfos[i].fColorType == colorType) {
+                fColorTypeToFormatTable[idx] = *it;
+                return;
+            }
+        }
+    }
+}
 
 size_t GrMtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
     static_assert(SK_ARRAY_COUNT(kMtlFormats) == GrMtlCaps::kNumMtlFormats,
@@ -747,6 +770,35 @@ void GrMtlCaps::initFormatTable() {
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Map GrColorTypes (used for creating GrSurfaces) to MTLPixelFormats. The order in which the
+    // formats are passed into the setColorType function indicates the priority in selecting which
+    // format we use for a given GrcolorType.
+
+    std::fill_n(fColorTypeToFormatTable, kGrColorTypeCnt, MTLPixelFormatInvalid);
+
+    this->setColorType(GrColorType::kAlpha_8,          { MTLPixelFormatR8Unorm,
+                                                         MTLPixelFormatA8Unorm });
+#ifdef SK_BUILD_FOR_IOS
+    this->setColorType(GrColorType::kBGR_565,          { MTLPixelFormatB5G6R5Unorm });
+    this->setColorType(GrColorType::kABGR_4444,        { MTLPixelFormatABGR4Unorm });
+#endif
+    this->setColorType(GrColorType::kRGBA_8888,        { MTLPixelFormatRGBA8Unorm });
+    this->setColorType(GrColorType::kRGBA_8888_SRGB,   { MTLPixelFormatRGBA8Unorm_sRGB });
+    this->setColorType(GrColorType::kRGB_888x,         { MTLPixelFormatRGBA8Unorm });
+    this->setColorType(GrColorType::kRG_88,            { MTLPixelFormatRG8Unorm });
+    this->setColorType(GrColorType::kBGRA_8888,        { MTLPixelFormatBGRA8Unorm });
+    this->setColorType(GrColorType::kRGBA_1010102,     { MTLPixelFormatRGB10A2Unorm });
+    this->setColorType(GrColorType::kGray_8,           { MTLPixelFormatR8Unorm });
+    this->setColorType(GrColorType::kAlpha_F16,        { MTLPixelFormatR16Float });
+    this->setColorType(GrColorType::kRGBA_F16,         { MTLPixelFormatRGBA16Float });
+    this->setColorType(GrColorType::kRGBA_F16_Clamped, { MTLPixelFormatRGBA16Float });
+    this->setColorType(GrColorType::kRGBA_F32,         { MTLPixelFormatRGBA32Float });
+    this->setColorType(GrColorType::kR_16,             { MTLPixelFormatR16Unorm });
+    this->setColorType(GrColorType::kRG_1616,          { MTLPixelFormatRG16Unorm });
+    this->setColorType(GrColorType::kRGBA_16161616,    { MTLPixelFormatRGBA16Unorm });
+    this->setColorType(GrColorType::kRG_F16,           { MTLPixelFormatRG16Float });
 }
 
 void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
@@ -879,9 +931,14 @@ static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, 
 bool GrMtlCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                   const GrBackendFormat& format) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
-    return kUnknown_GrPixelConfig != validate_sized_format(mtlFormat, ct);
+    const auto& info = this->getFormatInfo(mtlFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        if (info.fColorTypeInfos[i].fColorType == ct) {
+            return true;
+        }
+    }
+    return false;
 }
-
 
 GrPixelConfig GrMtlCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                       GrColorType ct) const {
@@ -909,12 +966,8 @@ GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& 
 
 GrBackendFormat GrMtlCaps::onGetDefaultBackendFormat(GrColorType ct,
                                                      GrRenderable renderable) const {
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
-    if (config == kUnknown_GrPixelConfig) {
-        return GrBackendFormat();
-    }
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(config, &format)) {
+    MTLPixelFormat format = this->getFormatFromColorType(ct);
+    if (!format) {
         return GrBackendFormat();
     }
     return GrBackendFormat::MakeMtl(format);

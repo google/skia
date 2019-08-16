@@ -61,7 +61,7 @@ public:
         return fPreferredStencilFormat;
     }
 
-    bool canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount, GrPixelConfig srcConfig,
+    bool canCopyAsBlit(MTLPixelFormat dstFormat, int dstSampleCount, MTLPixelFormat srcFormat,
                        int srcSampleCount, const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool areDstSrcSameObj) const;
 
@@ -72,6 +72,11 @@ public:
                                                   bool isAlphaChannel) const override;
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
+
+    MTLPixelFormat getFormatFromColorType(GrColorType colorType) const {
+        int idx = static_cast<int>(colorType);
+        return fColorTypeToFormatTable[idx];
+    }
 
     bool canClearTextureOnCreation() const override { return true; }
 
@@ -153,6 +158,9 @@ private:
         size_t index = GetFormatIndex(pixelFormat);
         return fFormatTable[index];
     }
+
+    MTLPixelFormat fColorTypeToFormatTable[kGrColorTypeCnt];
+    void setColorType(GrColorType, std::initializer_list<MTLPixelFormat> formats);
 
     enum class Platform {
         kMac,
