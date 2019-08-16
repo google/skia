@@ -16,7 +16,8 @@
 #include "hb.h"
 #include "hb-subset.h"
 
-template <class T, void(*P)(T*)> using resource = std::unique_ptr<T, SkFunctionWrapper<void, T, P>>;
+template <class T, void(*P)(T*)> using resource =
+    std::unique_ptr<T, SkFunctionWrapper<skstd::remove_pointer_t<decltype(P)>, P>>;
 using HBBlob = resource<hb_blob_t, hb_blob_destroy>;
 using HBFace = resource<hb_face_t, hb_face_destroy>;
 using HBSubsetInput = resource<hb_subset_input_t, hb_subset_input_destroy>;
