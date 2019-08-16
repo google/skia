@@ -135,17 +135,19 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType typ
                 if (n >= kMaxEdges) {
                     return nullptr;
                 }
-                SkVector v = pts[1] - pts[0];
-                v.normalize();
-                if (SkPathPriv::kCCW_FirstDirection == dir) {
-                    edges[3 * n] = v.fY;
-                    edges[3 * n + 1] = -v.fX;
-                } else {
-                    edges[3 * n] = -v.fY;
-                    edges[3 * n + 1] = v.fX;
+                if (pts[0] != pts[1]) {
+                    SkVector v = pts[1] - pts[0];
+                    v.normalize();
+                    if (SkPathPriv::kCCW_FirstDirection == dir) {
+                        edges[3 * n] = v.fY;
+                        edges[3 * n + 1] = -v.fX;
+                    } else {
+                        edges[3 * n] = -v.fY;
+                        edges[3 * n + 1] = v.fX;
+                    }
+                    edges[3 * n + 2] = -(edges[3 * n] * pts[1].fX + edges[3 * n + 1] * pts[1].fY);
+                    ++n;
                 }
-                edges[3 * n + 2] = -(edges[3 * n] * pts[1].fX + edges[3 * n + 1] * pts[1].fY);
-                ++n;
                 break;
             }
             default:
