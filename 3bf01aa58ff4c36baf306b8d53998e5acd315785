@@ -16,6 +16,24 @@
       "revId": "3bf01aa58ff4c36baf306b8d53998e5acd315785",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fda72429_91f17172",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-16T20:35:21Z",
+      "side": 1,
+      "message": "I propose experimenting with that in a follow-up CL. May also help if I try moding a 2nd shader type as well.",
+      "parentUuid": "44da22f4_559b0879",
+      "revId": "3bf01aa58ff4c36baf306b8d53998e5acd315785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
