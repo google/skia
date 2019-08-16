@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44da22f4_559b0879",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-16T20:10:13Z",
+      "side": 1,
+      "message": "Have you thought about doing\n\n   using SkStageUpdator \u003d \n       std::function\u003cbool(const SkMatrix\u0026, const SkMatrix*)\u003e;\n\n?  That way you can write the updator logic inline in appendStages(),\n\n\nSkStageUpdator appendStages(...) {\n   \n   ...\n   float* matrix \u003d alloc-\u003emakeArray(6);\n   pipeline-\u003eappendStage(SkRasterPipeline::matrix_2x3, matrix);\n   ...\n\n   auto updator \u003d [\u003d](SkMatrix ctm, SkMatrix local) {\n      bool ok \u003d (...whatever...).asAffine(matrix);\n      return ok;\n   };\n   return updator;\n}\n\n(In place of nullptr, you can use a default SkStageUpdator(), which tests as false in if-statements.)",
+      "revId": "3bf01aa58ff4c36baf306b8d53998e5acd315785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
