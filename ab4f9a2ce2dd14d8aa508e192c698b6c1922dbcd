@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "542ee093_7741f32d",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-16T19:17:28Z",
+      "side": 1,
+      "message": "In that case the CL lgtm",
+      "parentUuid": "1a828255_012501f0",
+      "range": {
+        "startLine": 331,
+        "startChar": 33,
+        "endLine": 331,
+        "endChar": 44
+      },
+      "revId": "ab4f9a2ce2dd14d8aa508e192c698b6c1922dbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2712f2e8_3fadfbb3",
         "filename": "src/core/SkPathPriv.h",
         "patchSetId": 12
