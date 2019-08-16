@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a828255_012501f0",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-16T19:01:42Z",
+      "side": 1,
+      "message": "The old code always checked all the pts. For this change, I\u0027d like to keep it that way.\n\nA value of externalizing this is that each caller can/should specialize these checks as they see fit. I vote we make that change/optimization later.",
+      "parentUuid": "11e356ab_d558ddbf",
+      "range": {
+        "startLine": 331,
+        "startChar": 33,
+        "endLine": 331,
+        "endChar": 44
+      },
+      "revId": "ab4f9a2ce2dd14d8aa508e192c698b6c1922dbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2712f2e8_3fadfbb3",
         "filename": "src/core/SkPathPriv.h",
         "patchSetId": 12
