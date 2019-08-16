@@ -1317,6 +1317,13 @@ STAGE(unbounded_uniform_color, const SkRasterPipeline_UniformColorCtx* c) {
     b = c->b;
     a = c->a;
 }
+// load 4 floats from memory, and splat them into dr,dg,db,da
+STAGE(uniform_color_dst, const SkRasterPipeline_UniformColorCtx* c) {
+    dr = c->r;
+    dg = c->g;
+    db = c->b;
+    da = c->a;
+}
 
 // splats opaque-black into r,g,b,a
 STAGE(black_color, Ctx::None) {
@@ -3144,6 +3151,12 @@ STAGE_PP(uniform_color, const SkRasterPipeline_UniformColorCtx* c) {
     g = c->rgba[1];
     b = c->rgba[2];
     a = c->rgba[3];
+}
+STAGE_PP(uniform_color_dst, const SkRasterPipeline_UniformColorCtx* c) {
+    dr = c->rgba[0];
+    dg = c->rgba[1];
+    db = c->rgba[2];
+    da = c->rgba[3];
 }
 STAGE_PP(black_color, Ctx::None) { r = g = b =   0; a = 255; }
 STAGE_PP(white_color, Ctx::None) { r = g = b = 255; a = 255; }
