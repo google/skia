@@ -337,10 +337,6 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    if (!backendFormat.isValid()) {
-        return GrBackendTexture();
-    }
-
     return fGpu->createBackendTexture(width, height, backendFormat,
                                       mipMapped, renderable,
                                       nullptr, 0, nullptr, isProtected);
@@ -484,7 +480,16 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     }
 
     GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
-    SkColor4f swizzledColor = this->caps()->getOutputSwizzle(format, grColorType).applyTo(color);
+
+    SkColor4f foo;
+    if (grColorType == GrColorType::kGray_8) {
+        float gray = color.fA * (0.2126f * color.fR + 0.7152f * color.fG + 0.0722f * color.fB);
+        foo = { gray, gray, gray, gray };
+    } else {
+        foo = color;
+    }
+
+    SkColor4f swizzledColor = this->caps()->getOutputSwizzle(format, grColorType).applyTo(foo);
 
     return this->createBackendTexture(width, height, format, swizzledColor, mipMapped, renderable,
                                       isProtected);

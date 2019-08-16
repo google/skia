@@ -358,37 +358,11 @@ GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], i
     int baseHeight = srcData[0].height();
     SkColorType colorType = srcData[0].colorType();
 
-    if (numLevels > 1) {
-        if (numLevels != SkMipMap::ComputeLevelCount(baseWidth, baseHeight) + 1) {
-            return {};
-        }
-
-        int currentWidth = baseWidth;
-        int currentHeight = baseHeight;
-        for (int i = 1; i < numLevels; ++i) {
-            currentWidth = SkTMax(1, currentWidth / 2);
-            currentHeight = SkTMax(1, currentHeight / 2);
-
-            if (srcData[i].colorType() != colorType) {
-                return {};
-            }
-
-            if (srcData[i].width() != currentWidth || srcData[i].height() != currentHeight) {
-                return {};
-            }
-        }
-    }
-
     GrBackendFormat backendFormat = fContext->defaultBackendFormat(colorType, renderable);
-    if (!backendFormat.isValid()) {
-        return {};
-    }
 
     GrGpu* gpu = fContext->fGpu.get();
 
-    // TODO: propagate the array of pixmaps interface to GrGpu
     return gpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
-                                     GrMipMapped::kNo, // TODO: use real mipmap setting here
-                                     renderable, srcData[0].addr(), srcData[0].rowBytes(),
-                                     nullptr, isProtected);
+                                     numLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo,
+                                     renderable, srcData, numLevels, nullptr, isProtected);
 }
