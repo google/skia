@@ -91,11 +91,17 @@ public:
 
 protected:
     void setGLRTFBOIDIs0() {
+        SkASSERT(!this->requiresManualMSAAResolve());
+        SkASSERT(!this->asTexture());
         SkASSERT(this->asRenderTarget());
         fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
     bool glRTFBOIDis0() const {
         return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    }
+
+    bool requiresManualMSAAResolve() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
     }
 
     void setReadOnly() {
@@ -108,8 +114,9 @@ protected:
     bool hasPendingWrite() const;
     bool hasPendingIO() const;
 
-    // Provides access to methods that should be public within Skia code.
+    // These both provide access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
+    friend class GrRenderTargetPriv;
 
     GrSurface(GrGpu* gpu, const SkISize& size, GrPixelConfig config, GrProtected isProtected)
             : INHERITED(gpu)

@@ -269,6 +269,15 @@ public:
      */
     bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
 
+    /**
+     * The surface has two backings: A multisampled renderbuffer for writing, and a standard texture
+     * for reading. Every time we read the texture, we must first check the dirty status of the
+     * texture, and manually resolve the MSAA renderbuffer into it if needed.
+     */
+    bool requiresManualMSAAResolve() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
+    }
+
     void setLastRenderTask(GrRenderTask*);
     GrRenderTask* getLastRenderTask() { return fLastRenderTask; }
 
