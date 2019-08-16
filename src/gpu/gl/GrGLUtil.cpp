@@ -218,6 +218,10 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         }
         return;
     }
+    static constexpr char kEmulatorPrefix[] = "Android Emulator OpenGL ES Translator";
+    if (0 == strncmp(kEmulatorPrefix, rendererString, strlen(kEmulatorPrefix))) {
+        *outDriver = kAndroidEmulator_GrGLDriver;
+    }
 }
 
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {

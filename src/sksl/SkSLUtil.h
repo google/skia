@@ -120,6 +120,10 @@ public:
         return false;
     }
 
+    bool noDefaultPrecisionForExternalSamplers() const {
+        return false;
+    }
+
     bool floatIs32Bits() const {
         return true;
     }

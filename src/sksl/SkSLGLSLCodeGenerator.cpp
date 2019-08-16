@@ -1605,7 +1605,8 @@ bool GLSLCodeGenerator::generateCode() {
     if (this->usesPrecisionModifiers()) {
         this->writeLine("precision mediump float;");
         this->writeLine("precision mediump sampler2D;");
-        if (fFoundExternalSamplerDecl) {
+        if (fFoundExternalSamplerDecl &&
+            !fProgram.fSettings.fCaps->noDefaultPrecisionForExternalSamplers()) {
             this->writeLine("precision mediump samplerExternalOES;");
         }
         if (fFoundRectSamplerDecl) {
