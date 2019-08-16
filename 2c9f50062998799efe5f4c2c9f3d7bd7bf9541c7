@@ -22,6 +22,30 @@
       "revId": "2c9f50062998799efe5f4c2c9f3d7bd7bf9541c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "794a6d48_630e4358",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-16T18:34:19Z",
+      "side": 1,
+      "message": "Yeah the format has to be supported or we don\u0027t add the colorType.",
+      "parentUuid": "c460cc3c_b6dc1456",
+      "range": {
+        "startLine": 678,
+        "startChar": 0,
+        "endLine": 683,
+        "endChar": 9
+      },
+      "revId": "2c9f50062998799efe5f4c2c9f3d7bd7bf9541c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
