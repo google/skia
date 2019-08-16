@@ -106,6 +106,8 @@ private:
                             GrBackendObjectOwnership,
                             GrWrapCacheable);
 
+    void initSurfaceFlags();
+
     // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;
 

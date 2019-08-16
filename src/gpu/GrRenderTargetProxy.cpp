@@ -7,8 +7,10 @@
 
 #include "src/gpu/GrRenderTargetProxy.h"
 
+#include "include/gpu/GrContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/GrRenderTargetPriv.h"
@@ -53,6 +55,15 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin 
         , fSampleCnt(fTarget->asRenderTarget()->numSamples())
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
         , fOutputSwizzle(outputSwizzle) {
+    // The kRequiresManualMSAAResolve flag better not be set if we are not multisampled or if
+    // MSAA resolve should happen automatically.
+    //
+    // From the other side, we don't know enough about the wrapped surface to assert when
+    // kRequiresManualMSAAResolve *should* be set. e.g., The caller might be wrapping a backend
+    // texture as a render target at this point but we wouldn't know it.
+    SkASSERT(!(this->numSamples() <= 1 ||
+               fTarget->getContext()->priv().caps()->msaaResolvesAutomatically()) ||
+             !this->requiresManualMSAAResolve());
 }
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
@@ -125,7 +136,7 @@ void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
-    SkASSERT((proxyFlags & GrInternalSurfaceFlags::kRenderTargetMask) ==
-             (surfaceFlags & GrInternalSurfaceFlags::kRenderTargetMask));
+    SkASSERT(((int)proxyFlags & kGrInternalRenderTargetFlagsMask) ==
+             ((int)surfaceFlags & kGrInternalRenderTargetFlagsMask));
 }
 #endif
