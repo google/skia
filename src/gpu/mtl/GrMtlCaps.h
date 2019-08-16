@@ -61,7 +61,7 @@ public:
         return fPreferredStencilFormat;
     }
 
-    bool canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount, GrPixelConfig srcConfig,
+    bool canCopyAsBlit(MTLPixelFormat dstFormat, int dstSampleCount, MTLPixelFormat srcFormat,
                        int srcSampleCount, const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool areDstSrcSameObj) const;
 
@@ -153,6 +153,9 @@ private:
         size_t index = GetFormatIndex(pixelFormat);
         return fFormatTable[index];
     }
+
+    MTLPixelFormat fColorTypeToFormatTable[kGrColorTypeCnt];
+    void setColorType(GrColorType, std::initializer_list<MTLPixelFormat> formats);
 
     enum class Platform {
         kMac,
