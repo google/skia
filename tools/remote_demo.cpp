@@ -137,7 +137,7 @@ static bool push_font_data(const SkPicture& pic, SkStrikeServer* strikeServer,
     const SkIRect bounds = pic.cullRect().round();
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
     SkTextBlobCacheDiffCanvas filter(bounds.width(), bounds.height(), props,
-                                     strikeServer, std::move(colorSpace));
+                                     strikeServer, std::move(colorSpace), true);
     pic.playback(&filter);
 
     std::vector<uint8_t> fontData;
