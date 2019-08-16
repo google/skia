@@ -104,6 +104,7 @@ enum GrGLDriver {
     kANGLE_GrGLDriver,
     kSwiftShader_GrGLDriver,
     kQualcomm_GrGLDriver,
+    kAndroidEmulator_GrGLDriver,
     kUnknown_GrGLDriver
 };
 

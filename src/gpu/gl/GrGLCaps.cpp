@@ -3574,6 +3574,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Pixel2XL/Adreno540 and Pixel3/Adreno630
     formatWorkarounds->fDisableLuminance16F = kIntelBroadwell_GrGLRenderer == ctxInfo.renderer() ||
                                               ctxInfo.vendor() == kQualcomm_GrGLVendor;
+
+    // https://github.com/flutter/flutter/issues/38700
+    if (kAndroidEmulator_GrGLDriver == ctxInfo.driver()) {
+        shaderCaps->fNoDefaultPrecisionForExternalSamplers = true;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {

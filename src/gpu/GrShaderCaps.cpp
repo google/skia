@@ -42,6 +42,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fRewriteDoWhileLoops = false;
     fRemovePowWithConstantExponent = false;
     fMustWriteToFragColor = false;
+    fNoDefaultPrecisionForExternalSamplers = false;
     fFlatInterpolationSupport = false;
     fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
@@ -117,6 +118,8 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Rewrite do while loops", fRewriteDoWhileLoops);
     writer->appendBool("Rewrite pow with constant exponent", fRemovePowWithConstantExponent);
     writer->appendBool("Must write to sk_FragColor [workaround]", fMustWriteToFragColor);
+    writer->appendBool("Don't add default precision statement for samplerExternalOES",
+                       fNoDefaultPrecisionForExternalSamplers);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
@@ -161,6 +164,7 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fRewriteDoWhileLoops);
         SkASSERT(!fRemovePowWithConstantExponent);
         SkASSERT(!fMustWriteToFragColor);
+        SkASSERT(!fNoDefaultPrecisionForExternalSamplers);
     }
 #if GR_TEST_UTILS
     fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;

@@ -158,6 +158,12 @@ public:
     // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
     bool mustWriteToFragColor() const { return fMustWriteToFragColor; }
 
+    // The Android emulator claims samplerExternalOES is an unknown type if a default precision
+    // statement is made for the type.
+    bool noDefaultPrecisionForExternalSamplers() const {
+        return fNoDefaultPrecisionForExternalSamplers;
+    }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
@@ -275,6 +281,7 @@ private:
     bool fRewriteDoWhileLoops                         : 1;
     bool fRemovePowWithConstantExponent               : 1;
     bool fMustWriteToFragColor                        : 1;
+    bool fNoDefaultPrecisionForExternalSamplers       : 1;
 
     const char* fVersionDeclString;
 
