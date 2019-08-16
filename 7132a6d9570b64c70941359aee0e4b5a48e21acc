@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7eff0659_b331abe4",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-16T16:59:56Z",
+      "side": 1,
+      "message": "Maybe all_degenerate_pts?  Little unclear if it returns true for all or any as-is.\n\nOr even just, all_equal_pts?",
+      "range": {
+        "startLine": 305,
+        "startChar": 9,
+        "endLine": 305,
+        "endChar": 23
+      },
+      "revId": "7132a6d9570b64c70941359aee0e4b5a48e21acc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5501037_b26a2cc3",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-16T16:59:56Z",
+      "side": 1,
+      "message": "Think it\u0027s clearer/quicker to compare everything against pts[0]?",
+      "revId": "7132a6d9570b64c70941359aee0e4b5a48e21acc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
