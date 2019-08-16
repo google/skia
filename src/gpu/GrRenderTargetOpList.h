@@ -37,15 +37,7 @@ public:
 
     ~GrRenderTargetOpList() override;
 
-    void makeClosed(const GrCaps& caps) override {
-        if (this->isClosed()) {
-            return;
-        }
-
-        this->forwardCombine(caps);
-
-        INHERITED::makeClosed(caps);
-    }
+    void makeClosed(const GrCaps&) override;
 
     bool isEmpty() const { return fOpChains.empty(); }
 
@@ -125,6 +117,8 @@ private:
     // cases, draw ops must be used, which makes the RTC the best place for those decisions. This,
     // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
     friend class GrRenderTargetContext;
+
+    bool isNoOp() const { return fOpChains.empty() && GrLoadOp::kLoad == fColorLoadOp; }
 
     bool onIsUsed(GrSurfaceProxy*) const override;
 
@@ -230,6 +224,10 @@ private:
 
     void forwardCombine(const GrCaps&);
 
+    GrLoadOp                       fColorLoadOp    = GrLoadOp::kLoad;
+    SkPMColor4f                    fLoadClearColor = SK_PMColor4fTRANSPARENT;
+    GrLoadOp                       fStencilLoadOp  = GrLoadOp::kLoad;
+
     uint32_t                       fLastClipStackGenID;
     SkIRect                        fLastDevClipBounds;
     int                            fLastClipNumAnalyticFPs;
@@ -238,7 +236,7 @@ private:
     bool fHasWaitOp = false;;
 
     // For ops/opList we have mean: 5 stdDev: 28
-    SkSTArray<25, OpChain, true> fOpChains;
+    SkSTArray<25, OpChain, true>   fOpChains;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
