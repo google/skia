@@ -818,7 +818,7 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
     }
     SkAutoConicToQuads converter;
     SkPath::Verb verb;
-    while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kConic_Verb: {
                 SkScalar weight = iter.conicWeight();
