@@ -20,16 +20,18 @@
 #include "src/core/SkScan.h"
 
 static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
-                      const SkRect& r, SkBlitter* blitter) {
+                      const SkRect& r, SkBlitter* blitter,
+                      SkPath* reusablePath) {
     if (ctm.rectStaysRect()) {
         SkRect dr;
         ctm.mapRect(&dr, r);
         SkScan::FillRect(dr, rc, blitter);
     } else {
-        SkPath path;
-        path.addRect(r);
-        path.transform(ctm);
-        SkScan::FillPath(path, rc, blitter);
+        reusablePath->rewind();
+        reusablePath->addRect(r);
+        reusablePath->transform(ctm);
+        reusablePath->setConvexity(SkPath::kConvex_Convexity);
+        SkScan::FillPath(*reusablePath, rc, blitter);
     }
 }
 
@@ -96,6 +98,7 @@ void SkDraw::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRe
         isOpaque = false;
     }
 
+    SkPath reusablePath;
     auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, &alloc);
 
     for (int i = 0; i < count; ++i) {
@@ -111,6 +114,6 @@ void SkDraw::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRe
         mx.postConcat(*fMatrix);
 
         updator->update(mx, nullptr);
-        fill_rect(mx, *fRC, textures[i], blitter);
+        fill_rect(mx, *fRC, textures[i], blitter, &reusablePath);
     }
 }

@@ -553,6 +553,30 @@ void SkPathRef::interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef*
     out->fIsRRect = false;
 }
 
+SkPoint* SkPathRef::growForVerbs(int numVbs, int numPts, unsigned segMask, uint8_t** reverseVerbs) {
+    size_t space = numVbs * sizeof(uint8_t) + numPts * sizeof (SkPoint);
+    this->makeSpace(space);
+
+    SkPoint* ret = fPoints + fPointCnt;
+    uint8_t* vb = fVerbs - fVerbCnt;
+
+    SkSafeMath safe;
+    fVerbCnt = safe.addInt(fVerbCnt, numVbs);
+    fPointCnt = safe.addInt(fPointCnt, numPts);
+    if (!safe) {
+        SK_ABORT("cannot grow path");
+    }
+    fFreeSpace -= space;
+    fSegmentMask |= segMask;
+    fBoundsIsDirty = true;  // this also invalidates fIsFinite
+    fIsOval = false;
+    fIsRRect = false;
+
+    SkDEBUGCODE(this->validate();)
+    *reverseVerbs = vb;
+    return ret;
+}
+
 SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
                                         int numVbs,
                                         SkScalar** weights) {
