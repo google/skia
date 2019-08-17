@@ -219,7 +219,8 @@ char* SkAnalyticEdgeBuilder::allocEdges(size_t n, size_t* size) {
 
 // TODO: maybe get rid of buildPoly() entirely?
 int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canCullToTheRight) {
-    SkPath::Iter    iter(path, true);
+//    SkPath::Iter    iter(path, true);
+    SkPathEdger     iter(path);
     SkPoint         pts[4];
     SkPath::Verb    verb;
 
@@ -303,7 +304,8 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
     SkAutoConicToQuads quadder;
     const SkScalar conicTol = SK_Scalar1 / 4;
 
-    SkPath::Iter    iter(path, true);
+//    SkPath::Iter    iter(path, true);
+    SkPathEdger     iter(path);
     SkPoint         pts[4];
     SkPath::Verb    verb;
 

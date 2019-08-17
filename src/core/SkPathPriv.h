@@ -283,4 +283,99 @@ public:
     }
 };
 
+class SkPathEdger {
+    const uint8_t*  fVerbsStart;
+    const uint8_t*  fVerbs; // reverse
+    const SkPoint*  fPts;
+    const SkPoint*  fMoveToPtr;
+    const SkScalar* fConicWeights;
+    SkPath::Verb    fPrevVerb;
+
+    SkDEBUGCODE(bool fIsConic);
+
+public:
+    SkPathEdger(const SkPath& path) {
+        fMoveToPtr = fPts = path.fPathRef->points();
+        fVerbs = path.fPathRef->verbs();
+        fVerbsStart = path.fPathRef->verbsMemBegin();
+        fConicWeights = path.fPathRef->conicWeights();
+        if (fConicWeights) {
+            fConicWeights -= 1;  // begin one behind
+        }
+
+        fPrevVerb = SkPath::kMove_Verb; // ensure we don't do anything when we see the first Move
+        SkDEBUGCODE(fIsConic = false;)
+    }
+
+    SkScalar conicWeight() const {
+        SkASSERT(fIsConic);
+        return *fConicWeights;
+    }
+
+    SkPath::Verb next(SkPoint pts[4]) {
+        unsigned verb;
+
+    AGAIN:
+        SkASSERT(fVerbs >= fVerbsStart);
+        if (fVerbs == fVerbsStart) {
+            if (fPrevVerb != SkPath::kMove_Verb && fPrevVerb != SkPath::kClose_Verb) {
+                pts[0] = fPts[-1];
+                pts[1] = *fMoveToPtr;
+                fPrevVerb = SkPath::kClose_Verb;
+                return SkPath::kLine_Verb;
+            }
+            return SkPath::kDone_Verb;
+        }
+
+        SkDEBUGCODE(fIsConic = false;)
+        verb = *--fVerbs;
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                fMoveToPtr = fPts++;
+                if (fPrevVerb != SkPath::kMove_Verb && fPrevVerb != SkPath::kClose_Verb) {
+                    pts[0] = fPts[-2];
+                    pts[1] = *fMoveToPtr;
+                    fPrevVerb = SkPath::kMove_Verb;
+                    return SkPath::kLine_Verb;
+                }
+                goto AGAIN;
+            case SkPath::kLine_Verb:
+                pts[0] = fPts[-1];
+                pts[1] = fPts[0];
+                fPts++;
+                break;
+            case SkPath::kConic_Verb:
+                SkDEBUGCODE(fIsConic = true;)
+                fConicWeights++;
+                // fall-through to Quad case
+            case SkPath::kQuad_Verb:
+                pts[0] = fPts[-1];
+                pts[1] = fPts[0];
+                pts[1] = fPts[1];
+                fPts += 2;
+                break;
+            case SkPath::kCubic_Verb:
+                pts[0] = fPts[-1];
+                pts[1] = fPts[0];
+                pts[2] = fPts[1];
+                pts[3] = fPts[2];
+                fPts += 3;
+                break;
+            case SkPath::kClose_Verb:
+                if (fPrevVerb != SkPath::kMove_Verb && fPrevVerb != SkPath::kClose_Verb) {
+                    pts[0] = fPts[-1];
+                    pts[1] = *fMoveToPtr;
+                    fPrevVerb = SkPath::kClose_Verb;
+                    return SkPath::kLine_Verb;
+                }
+                goto AGAIN;
+            default:
+                SkASSERT(false);
+                break;
+        }
+        fPrevVerb = (SkPath::Verb)verb;
+        return (SkPath::Verb)verb;
+    }
+};
+
 #endif
