@@ -22,6 +22,30 @@
       "revId": "b46ca85e9eb33245c28e3ad37ef67496ff15595e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50cd2408_a0f8e3c9",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-17T15:37:30Z",
+      "side": 1,
+      "message": "Ah, that seems likely to be the issue.",
+      "parentUuid": "ca78d89c_235f8100",
+      "range": {
+        "startLine": 241,
+        "startChar": 12,
+        "endLine": 241,
+        "endChar": 36
+      },
+      "revId": "b46ca85e9eb33245c28e3ad37ef67496ff15595e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
