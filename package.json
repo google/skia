@@ -27,7 +27,13 @@
       [
         "cp",
         "-a",
-        "#{self.target_dir}/out/Release/.",
+        "#{self.target_dir}/out/Static/.",
+        "#{self.lib}"
+      ],
+      [
+        "cp",
+        "-a",
+        "#{self.target_dir}/out/Shared/.",
         "#{self.lib}"
       ],
       [
