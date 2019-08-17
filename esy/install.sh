@@ -1,15 +1,26 @@
+#! /bin/bash
+
 OS=$1
 
-if which x86_64-w64-mingw32-gcc; then
+# Copy artifacts into output directories
+if [[ $OS == 'windows' ]]
+then
+    cp -a $cur__target_dir/out/Shared/skia.a $cur__lib
+    cp -a $cur__target_dir/out/Shared/skia.dll $cur__bin
+else
+    cp -a $cur__target_dir/out/Static/skia.a $cur__lib
+fi
+
+# Create pkg-config file skia.pc
+if [[ $OS == "darwin" ]]
+then
+    platformSpecificFlags="-framework CoreServices -framework CoreGraphics -framework CoreText -framework CoreFoundation"
+elif [[ $OS == 'windows' ]]
+then
+    platformSpecificFlags="-luser32"
+else
     # TODO find out what is needed here
     platformSpecificFlags=
-else
-    if [ "$(uname)" == "Darwin" ]; then
-        platformSpecificFlags="-framework CoreServices -framework CoreGraphics -framework CoreText -framework CoreFoundation"
-    else
-        # TODO find out what is needed here
-        platformSpecificFlags=
-    fi
 fi
 
 

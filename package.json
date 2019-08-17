@@ -21,23 +21,15 @@
     },
     "buildsInSource": true,
     "build": [
-      "bash ./esy/build.sh #{os} #{esy-libjpeg-turbo.install}"
+      "bash",
+      "./esy/build.sh",
+      "#{os}",
+      "#{esy-libjpeg-turbo.install}"
     ],
     "install": [
       [
-        "cp",
-        "-a",
-        "#{self.target_dir}/out/Static/.",
-        "#{self.lib}"
-      ],
-      [
-        "cp",
-        "-a",
-        "#{self.target_dir}/out/Shared/.",
-        "#{self.lib}"
-      ],
-      [
-        "esy/create-pkg-config.sh",
+        "bash",
+        "./esy/install.sh",
         "#{os}"
       ]
     ],
