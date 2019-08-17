@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca78d89c_235f8100",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5700
+      },
+      "writtenOn": "2019-08-17T00:00:20Z",
+      "side": 1,
+      "message": "The problem might be that the shader needs to call texture2DRect, not textureRect, when running on Chromium. It looks like that\u0027s how this support was added as an OpenGL ES 2.0 / GLSL ES 1.00 extension.\n\nhttps://cs.chromium.org/chromium/src/third_party/angle/src/compiler/translator/builtin_function_declarations.txt?q\u003dtexture2DRect+f:builtin_function_declarations.txt\u0026sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d287",
+      "range": {
+        "startLine": 241,
+        "startChar": 12,
+        "endLine": 241,
+        "endChar": 36
+      },
+      "revId": "b46ca85e9eb33245c28e3ad37ef67496ff15595e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
