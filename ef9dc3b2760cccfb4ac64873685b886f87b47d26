@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4366a208_3ba6c945",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-17T15:35:45Z",
+      "side": 1,
+      "message": "Why do we do this in GrGpu only for the texture-as-rt case? Why not in say the renderable wrap texture case?",
+      "revId": "ef9dc3b2760cccfb4ac64873685b886f87b47d26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
