@@ -89,6 +89,11 @@ public:
             return fPathRef->growForRepeatedVerb(verb, numVbs, weights);
         }
 
+        SkPoint* growForVerbs(int verbCount, int ptCount, unsigned segMask,
+                              uint8_t** reverseVerbs) {
+            return fPathRef->growForVerbs(verbCount, ptCount, segMask, reverseVerbs);
+        }
+
         /**
          * Resets the path ref to a new verb and point count. The new verbs and points are
          * uninitialized.
@@ -450,6 +455,16 @@ private:
      * uninitialized.
      */
     SkPoint* growForVerb(int /*SkPath::Verb*/ verb, SkScalar weight);
+
+    /**
+     *  Increases verb and pt counts appropriately, and returns the starting pointer to append
+     *  points, and the pointer to 1 past the end of where to (reverse) append verbs.
+     *
+     *  e.g.
+     *      *pts++ = next point
+     *      *--reverseVerbs = next verb
+     */
+    SkPoint* growForVerbs(int verbCount, int ptCount, unsigned segMask, uint8_t** reverseVerbs);
 
     /**
      * Ensures that the free space available in the path ref is >= size. The verb and point counts
