@@ -15,14 +15,13 @@ fi
 if [[ $OS == "darwin" ]]
 then
     platformSpecificFlags="-framework CoreServices -framework CoreGraphics -framework CoreText -framework CoreFoundation"
-elif [[ $OS == 'windows' ]]
+elif [[ $OS == "windows" ]]
 then
     platformSpecificFlags="-luser32"
 else
     # TODO find out what is needed here
     platformSpecificFlags=
 fi
-
 
 cat >$cur__lib/skia.pc << EOF
 includedir=$cur__root/include
@@ -35,7 +34,7 @@ Cflags: -I\${includedir}/android -I\${includedir}/atlastext -I\${includedir}/c -
 Libs: -L\${libdir} $platformSpecificFlags -lskia -lstdc++
 EOF
 
-if [[ $OS != 'windows' ]]
+if [[ $OS != "windows" ]]
 then
     echo "Requires: libjpeg" >> $cur__lib/skia.pc
 fi

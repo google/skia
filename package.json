@@ -19,12 +19,13 @@
     "buildEnv": {
       "PATH": "#{self.target_dir : $PATH}"
     },
-    "buildsInSource": true,
     "build": [
-      "bash",
-      "./esy/build.sh",
-      "#{os}",
-      "#{esy-libjpeg-turbo.install}"
+      [
+        "bash",
+        "./esy/build.sh",
+        "#{os}",
+        "#{esy-libjpeg-turbo.install}"
+      ]
     ],
     "install": [
       [
@@ -43,5 +44,8 @@
   "dependencies": {
     "@esy-cross/ninja-build": "^1.8.2001",
     "esy-libjpeg-turbo": "prometheansacrifice/libjpeg-turbo#50e8e32c48"
+  },
+  "scripts": {
+    "postinstall": "python tools/git-sync-deps"
   }
 }
