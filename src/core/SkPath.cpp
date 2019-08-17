@@ -1060,19 +1060,26 @@ SkPath& SkPath::addRect(const SkRect &rect, Direction dir, unsigned startIndex) 
     SkAutoPathBoundsUpdate apbu(this, rect);
 
     SkDEBUGCODE(int initialVerbCount = this->countVerbs());
-
-    const int kVerbs = 5; // moveTo + 3x lineTo + close
-    this->incReserve(kVerbs);
+    SkDEBUGCODE(int initialPtCount = this->countPoints());
 
     RectPointIterator iter(rect, dir, startIndex);
 
-    this->moveTo(iter.current());
-    this->lineTo(iter.next());
-    this->lineTo(iter.next());
-    this->lineTo(iter.next());
-    this->close();
+    const int kVerbs = 5; // moveTo + 3x lineTo + close
+    const int kPts = 4;   // rect corners
+    SkPathRef::Editor ed(&fPathRef);
+
+    uint8_t* reverseVerbs;
+    SkPoint* pts = ed.growForVerbs(kVerbs, kPts, kLine_SegmentMask, &reverseVerbs);
+
+    *pts++ = iter.current(); *--reverseVerbs = kMove_Verb;
+    for (int i = 0; i < 3; ++i) {
+        *pts++ = iter.next(); *--reverseVerbs = kLine_Verb;
+    }
+    *--reverseVerbs = kClose_Verb;
+    fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
 
     SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
+    SkASSERT(this->countPoints() == initialPtCount + kPts);
     return *this;
 }
 
