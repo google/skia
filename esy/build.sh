@@ -2,10 +2,15 @@
 
 OS=$1
 ESY_LIBJPEG_TURBO_PREFIX=$2
-
 if [[ $OS == "windows" ]]
 then
     cp /usr/bin/python $cur__target_dir/python.exe
+fi
+
+python tools/git-sync-deps
+ln -s third_party/externals/gyp tools/gyp
+if [[ $OS == "windows" ]]
+then
     bin/gn gen $cur__target_dir/out/Shared --args='is_debug=false is_component_build=true'
     ninja.exe -C $cur__target_dir/out/Shared
     esy/gendef.exe - $cur__target_dir/out/Shared/skia.dll > $cur__target_dir/out/Shared/skia.def

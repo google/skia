@@ -19,6 +19,7 @@
     "buildEnv": {
       "PATH": "#{self.target_dir : $PATH}"
     },
+    "buildsInSource": true,
     "build": [
       [
         "bash",
