@@ -12,7 +12,7 @@ require (
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.9.6 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
-	go.chromium.org/luci v0.0.0-20190816194131-4b600c9efb12 // indirect
+	go.chromium.org/luci v0.0.0-20190817201146-7dcb2ec41a67 // indirect
 	go.skia.org/infra v0.0.0-20190816193747-38befdd44040
 	golang.org/x/mobile v0.0.0-20190814143026-e8b3e6111d02 // indirect
 	golang.org/x/tools v0.0.0-20190816200558-6889da9d5479 // indirect
