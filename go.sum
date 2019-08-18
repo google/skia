@@ -585,6 +585,8 @@ go.chromium.org/luci v0.0.0-20190815232225-01c7a47c499b h1:wIlYorSkVJ2K7UNbnG6BO
 go.chromium.org/luci v0.0.0-20190815232225-01c7a47c499b/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.chromium.org/luci v0.0.0-20190816194131-4b600c9efb12 h1:mY6O4bEXDOKJNhqkv17p5Pxjk3hM9RoRPeMc2CJWM2A=
 go.chromium.org/luci v0.0.0-20190816194131-4b600c9efb12/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
+go.chromium.org/luci v0.0.0-20190817201146-7dcb2ec41a67 h1:h8jrCmB1u4VXw7pond4qCBV4Lj79nMTsWMr+1nq7RYM=
+go.chromium.org/luci v0.0.0-20190817201146-7dcb2ec41a67/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
