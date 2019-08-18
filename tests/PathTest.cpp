@@ -5573,3 +5573,50 @@ DEF_TEST(path_last_move_to_index, r) {
 
     copyPath.rConicTo(1, 1, 3, 3, 0.707107f);
 }
+
+static void test_edger(skiatest::Reporter* r,
+                       const std::initializer_list<SkPath::Verb>& in,
+                       const std::initializer_list<SkPath::Verb>& expected) {
+    SkPath path;
+    SkScalar x = 0, y = 0;
+    for (auto v : in) {
+        switch (v) {
+            case SkPath::kMove_Verb: path.moveTo(x++, y++); break;
+            case SkPath::kLine_Verb: path.lineTo(x++, y++); break;
+            case SkPath::kClose_Verb: path.close(); break;
+            default: SkASSERT(false);
+        }
+    }
+
+    SkPoint pts[4];
+    SkPathEdger edger(path);
+    SkPathEdger edger2(path);
+    for (auto v : expected) {
+        auto vv = edger.next(pts);
+        auto res = edger2.next();
+        REPORTER_ASSERT(r, vv == v);
+        REPORTER_ASSERT(r, res.fVerb == v);
+        SkDebugf(" %g,%g --> %g,%g\n", pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY);
+        REPORTER_ASSERT(r, !memcmp(pts, res.fPts, 2*sizeof(SkPoint)));
+    }
+    auto vv = edger.next(pts);
+    REPORTER_ASSERT(r, vv == SkPath::kDone_Verb);
+    SkDebugf("\n");
+}
+
+DEF_TEST(pathedger, r) {
+    auto M = SkPath::kMove_Verb;
+    auto L = SkPath::kLine_Verb;
+    auto C = SkPath::kClose_Verb;
+
+    test_edger(r, { M }, {});
+    test_edger(r, { M, M }, {});
+    test_edger(r, { M, C }, {});
+    test_edger(r, { M, M, C }, {});
+    test_edger(r, { M, L }, { L, L });
+    test_edger(r, { M, L, C }, { L, L });
+    test_edger(r, { M, L, L }, { L, L, L });
+    test_edger(r, { M, L, L, C }, { L, L, L });
+
+    test_edger(r, { M, L, L, M, L, L }, { L, L, L,   L, L, L });
+}

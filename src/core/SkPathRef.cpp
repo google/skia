@@ -943,3 +943,84 @@ bool SkPathRef::isValid() const {
     }
     return true;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkPathEdger::SkPathEdger(const SkPath& path) {
+    fMoveToPtr = fPts = path.fPathRef->points();
+    fVerbs = path.fPathRef->verbs();
+    fVerbsStart = path.fPathRef->verbsMemBegin();
+    fConicWeights = path.fPathRef->conicWeights();
+    if (fConicWeights) {
+        fConicWeights -= 1;  // begin one behind
+    }
+
+    fNeedsCloseLine = false;
+    SkDEBUGCODE(fIsConic = false;)
+}
+
+SkPath::Verb SkPathEdger::next(SkPoint pts[4]) {
+    unsigned verb;
+
+AGAIN:
+    SkASSERT(fVerbs >= fVerbsStart);
+    if (fVerbs == fVerbsStart) {
+        if (fNeedsCloseLine) {
+            pts[0] = fPts[-1];
+            pts[1] = *fMoveToPtr;
+            fNeedsCloseLine = false;
+            return SkPath::kLine_Verb;
+        }
+        return SkPath::kDone_Verb;
+    }
+
+    SkDEBUGCODE(fIsConic = false;)
+    verb = *--fVerbs;
+    switch (verb) {
+        case SkPath::kMove_Verb:
+            if (fNeedsCloseLine) {
+                pts[0] = fPts[-1];
+                pts[1] = *fMoveToPtr;
+                fNeedsCloseLine = false;
+                fMoveToPtr = fPts++;
+                return SkPath::kLine_Verb;
+            }
+            fMoveToPtr = fPts++;
+            goto AGAIN;
+        case SkPath::kLine_Verb:
+            pts[0] = fPts[-1];
+            pts[1] = fPts[0];
+            fPts++;
+            break;
+        case SkPath::kConic_Verb:
+            SkDEBUGCODE(fIsConic = true;)
+            fConicWeights++;
+            // fall-through to Quad case
+        case SkPath::kQuad_Verb:
+            pts[0] = fPts[-1];
+            pts[1] = fPts[0];
+            pts[2] = fPts[1];
+            fPts += 2;
+            break;
+        case SkPath::kCubic_Verb:
+            pts[0] = fPts[-1];
+            pts[1] = fPts[0];
+            pts[2] = fPts[1];
+            pts[3] = fPts[2];
+            fPts += 3;
+            break;
+        case SkPath::kClose_Verb:
+            if (fNeedsCloseLine) {
+                pts[0] = fPts[-1];
+                pts[1] = *fMoveToPtr;
+                fNeedsCloseLine = false;
+                return SkPath::kLine_Verb;
+            }
+            goto AGAIN;
+        default:
+            SkASSERT(false);
+            break;
+    }
+    fNeedsCloseLine = true;
+    return (SkPath::Verb)verb;
+}

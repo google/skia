@@ -283,4 +283,92 @@ public:
     }
 };
 
+class SkPathEdger {
+    const uint8_t*  fVerbsStart;
+    const uint8_t*  fVerbs; // reverse
+    const SkPoint*  fPts;
+    const SkPoint*  fMoveToPtr;
+    const SkScalar* fConicWeights;
+    bool            fNeedsCloseLine;
+
+    SkDEBUGCODE(bool fIsConic);
+
+    SkPoint fScratch[2];
+
+public:
+    SkPathEdger(const SkPath& path);
+
+    SkPath::Verb next(SkPoint pts[4]);
+
+    SkScalar conicWeight() const {
+        SkASSERT(fIsConic);
+        return *fConicWeights;
+    }
+
+    struct Result {
+        const SkPoint*  fPts;
+        SkPath::Verb    fVerb;
+
+        operator bool() {
+            return fVerb != SkPath::kDone_Verb;
+        }
+    };
+    Result next() {
+        auto closeline = [&]() {
+            fScratch[0] = fPts[-1];
+            fScratch[1] = *fMoveToPtr;
+            fNeedsCloseLine = false;
+            return Result{ fScratch, SkPath::kLine_Verb };
+        };
+
+        for (;;) {
+            SkASSERT(fVerbs >= fVerbsStart);
+            if (fVerbs == fVerbsStart) {
+                if (fNeedsCloseLine) {
+                    return closeline();
+                }
+                return { nullptr, SkPath::kDone_Verb };
+            }
+
+            SkDEBUGCODE(fIsConic = false;)
+            switch (*--fVerbs) {
+                case SkPath::kMove_Verb: {
+                    if (fNeedsCloseLine) {
+                        auto res = closeline();
+                        fMoveToPtr = fPts++;
+                        return res;
+                    }
+                    fMoveToPtr = fPts++;
+                } break;
+                case SkPath::kLine_Verb:
+                    fNeedsCloseLine = true;
+                    fPts += 1;
+                    return { &fPts[-2], SkPath::kLine_Verb };
+                case SkPath::kConic_Verb:
+                    SkDEBUGCODE(fIsConic = true;)
+                    fNeedsCloseLine = true;
+                    fConicWeights++;
+                    fPts += 2;
+                    return { &fPts[-3], SkPath::kConic_Verb };
+                case SkPath::kQuad_Verb:
+                    fNeedsCloseLine = true;
+                    fPts += 2;
+                    return { &fPts[-3], SkPath::kQuad_Verb };
+                case SkPath::kCubic_Verb:
+                    fNeedsCloseLine = true;
+                    fPts += 3;
+                    return { &fPts[-4], SkPath::kCubic_Verb };
+                case SkPath::kClose_Verb:
+                    if (fNeedsCloseLine) {
+                        return closeline();
+                    }
+                    break;
+                default:
+                    SkASSERT(false);
+                    break;
+            }
+        }
+    }
+};
+
 #endif
