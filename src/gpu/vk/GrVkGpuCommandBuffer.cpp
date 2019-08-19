@@ -762,10 +762,6 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
             SkASSERT(vkTexture->texturePriv().mipMapped() == GrMipMapped::kYes);
             SkASSERT(!vkTexture->texturePriv().mipMapsAreDirty());
         }
-        cbInfo.fSampledTextures.push_back(vkTexture);
-
-        SkASSERT(!texture->isProtected() ||
-                 (fRenderTarget->isProtected() && fGpu->protectedContext()));
     };
 
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
@@ -773,12 +769,14 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
             for (int s = 0; s < primProc.numTextureSamplers(); ++s, ++i) {
                 auto texture = dynamicStateArrays->fPrimitiveProcessorTextures[i]->peekTexture();
                 prepareSampledImage(texture, primProc.textureSampler(s).samplerState().filter());
+                this->appendSampledTexture(texture);
             }
         }
     } else {
         for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
             auto texture = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
             prepareSampledImage(texture, primProc.textureSampler(i).samplerState().filter());
+            this->appendSampledTexture(texture);
         }
     }
     GrFragmentProcessor::Iter iter(pipeline);
@@ -786,10 +784,11 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const GrFragmentProcessor::TextureSampler& sampler = fp->textureSampler(i);
             prepareSampledImage(sampler.peekTexture(), sampler.samplerState().filter());
+            this->appendSampledTexture(sampler.peekTexture());
         }
     }
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
-        cbInfo.fSampledTextures.push_back(sk_ref_sp(static_cast<GrVkTexture*>(dstTexture)));
+        this->appendSampledTexture(dstTexture);
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
@@ -832,6 +831,11 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
 
     cbInfo.fBounds.join(bounds);
     cbInfo.fIsEmpty = false;
+}
+
+void GrVkGpuRTCommandBuffer::appendSampledTexture(GrTexture* tex) {
+    SkASSERT(!tex->isProtected() || (fRenderTarget->isProtected() && fGpu->protectedContext()));
+    fCommandBufferInfos[fCurrentCmdInfo].fSampledTextures.push_back(static_cast<GrVkTexture*>(tex));
 }
 
 void GrVkGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType,
