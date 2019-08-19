@@ -845,9 +845,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
 
     return sk_sp<GrTextureProxy>((renderable == GrRenderable::kYes)
             ? new GrTextureRenderTargetProxy(
-                    std::move(callback), lazyType, format, desc, renderTargetSampleCnt, origin,
-                    mipMapped, mipMapsStatus, texSwizzle, outSwizzle, fit, budgeted, isProtected,
-                    surfaceFlags)
+                    *this->caps(), std::move(callback), lazyType, format, desc,
+                    renderTargetSampleCnt, origin, mipMapped, mipMapsStatus, texSwizzle, outSwizzle,
+                    fit, budgeted, isProtected, surfaceFlags)
             : new GrTextureProxy(
                     std::move(callback), lazyType, format, desc, origin, mipMapped, mipMapsStatus,
                     texSwizzle, fit, budgeted, isProtected, surfaceFlags));
@@ -883,7 +883,7 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
         // actual VkImage to texture from.
         SkASSERT(!wrapsVkSecondaryCB);
         return sk_sp<GrRenderTargetProxy>(new GrTextureRenderTargetProxy(
-                std::move(callback), lazyType, format, desc, sampleCnt, origin,
+                *this->caps(), std::move(callback), lazyType, format, desc, sampleCnt, origin,
                 textureInfo->fMipMapped, mipMapsStatus, texSwizzle, outSwizzle, fit, budgeted,
                 isProtected, surfaceFlags));
     }
@@ -919,7 +919,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(
 
     return sk_sp<GrTextureProxy>((GrRenderable::kYes == renderable)
             ? new GrTextureRenderTargetProxy(
-                    std::move(callback), LazyInstantiationType::kSingleUse, format, desc,
+                    caps, std::move(callback), LazyInstantiationType::kSingleUse, format, desc,
                     renderTargetSampleCnt, origin, GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated,
                     texSwizzle, outSwizzle, SkBackingFit::kApprox, SkBudgeted::kYes, isProtected,
                     surfaceFlags)

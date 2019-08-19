@@ -269,6 +269,16 @@ public:
      */
     bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
 
+    /**
+     * This means surface is a multisampled render target, and internally holds a non-msaa texture
+     * for resolving into. The render target resolves itself by blitting into this internal texture.
+     * (asTexture() might or might not return the internal texture, but if it does, we always
+     * resolve the render target before accessing this texture's data.)
+     */
+    bool requiresManualMSAAResolve() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
+    }
+
     void setLastRenderTask(GrRenderTask*);
     GrRenderTask* getLastRenderTask() { return fLastRenderTask; }
 

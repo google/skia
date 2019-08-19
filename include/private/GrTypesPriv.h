@@ -724,22 +724,35 @@ enum GrAccessPattern {
 enum class GrInternalSurfaceFlags {
     kNone                           = 0,
 
-    // Surface-level
     // Texture-level
 
     // Means the pixels in the texture are read-only. Cannot also be a GrRenderTarget[Proxy].
     kReadOnly                       = 1 << 0,
 
-    kTextureMask                    = kReadOnly,
-
     // RT-level
 
     // This flag is for use with GL only. It tells us that the internal render target wraps FBO 0.
-    kGLRTFBOIDIs0                   = 1 << 2,
+    kGLRTFBOIDIs0                   = 1 << 1,
 
-   kRenderTargetMask               = kGLRTFBOIDIs0,
+    // This means the render target is multisampled, and internally holds a non-msaa texture for
+    // resolving into. The render target resolves itself by blitting into this internal texture.
+    // (asTexture() might or might not return the internal texture, but if it does, we always
+    // resolve the render target before accessing this texture's data.)
+    kRequiresManualMSAAResolve      = 1 << 2,
 };
+
 GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
+
+// 'GR_MAKE_BITFIELD_CLASS_OPS' defines the & operator on GrInternalSurfaceFlags to return bool.
+// We want to find the bitwise & with these masks, so we declare them as ints.
+constexpr static int kGrInternalTextureFlagsMask = static_cast<int>(
+        GrInternalSurfaceFlags::kReadOnly);
+
+constexpr static int kGrInternalRenderTargetFlagsMask = static_cast<int>(
+        GrInternalSurfaceFlags::kGLRTFBOIDIs0 | GrInternalSurfaceFlags::kRequiresManualMSAAResolve);
+
+constexpr static int kGrInternalTextureRenderTargetFlagsMask =
+        kGrInternalTextureFlagsMask | kGrInternalRenderTargetFlagsMask;
 
 #ifdef SK_DEBUG
 // Takes a pointer to a GrCaps, and will suppress prints if required
