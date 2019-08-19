@@ -171,7 +171,6 @@ public:
             return box;
         };
 
-        // Only ShapeToFit cares about the result height, and it uses kVisualCenter.
         SkASSERT(!shaped_height || fDesc.fVAlign == Shaper::VAlign::kVisualCenter);
 
         // Perform additional adjustments based on VAlign.
@@ -197,6 +196,7 @@ public:
             v_offset = fBox.fBottom - extent_box().fBottom;
             break;
         case Shaper::VAlign::kVisualResizeToFit:
+        case Shaper::VAlign::kVisualDownscaleToFit:
             SkASSERT(false);
             break;
         }
@@ -406,16 +406,35 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    return (desc.fVAlign == VAlign::kVisualResizeToFit) // makes no sense in point mode
+    return (desc.fVAlign == VAlign::kVisualResizeToFit ||
+            desc.fVAlign == VAlign::kVisualDownscaleToFit) // makes no sense in point mode
             ? Result()
             : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()), fontmgr);
 }
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkRect& box,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    return (desc.fVAlign == VAlign::kVisualResizeToFit)
-            ? ShapeToFit(txt, desc, box, fontmgr)
-            : ShapeImpl(txt, desc, box, fontmgr);
+    if (desc.fVAlign == VAlign::kVisualResizeToFit) {
+        return ShapeToFit(txt, desc, box, fontmgr);
+    }
+
+    if (desc.fVAlign == VAlign::kVisualDownscaleToFit) {
+        auto adjusted_desc = desc;
+        adjusted_desc.fVAlign = VAlign::kVisualCenter;
+
+        float height;
+        auto result = ShapeImpl(txt, adjusted_desc, box, fontmgr, &height);
+
+        if (height <= box.height()) {
+            return result;
+        }
+
+        adjusted_desc.fVAlign = VAlign::kVisualResizeToFit;
+
+        return ShapeToFit(txt, adjusted_desc, box, fontmgr);
+    }
+
+    return ShapeImpl(txt, desc, box, fontmgr);
 }
 
 SkRect Shaper::Result::computeVisualBounds() const {
