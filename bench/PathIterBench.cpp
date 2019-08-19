@@ -10,6 +10,7 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathIter.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
@@ -25,14 +26,20 @@ static int rand_pts(SkRandom& rand, SkPoint pts[4]) {
     return n;
 }
 
+enum IterType {
+    kRaw,
+    kConsume,
+    kNew
+};
+
 class PathIterBench : public Benchmark {
     SkString    fName;
     SkPath      fPath;
-    bool        fRaw;
+    IterType    fRaw;
 
 public:
-    PathIterBench(bool raw)  {
-        fName.printf("pathiter_%s", raw ? "raw" : "consume");
+    PathIterBench(IterType raw)  {
+        fName.printf("pathiter_%s", raw == 0 ? "raw" : (raw == 1 ? "consume" : "new"));
         fRaw = raw;
 
         SkRandom rand;
@@ -60,28 +67,47 @@ public:
         return backend == kNonRendering_Backend;
     }
 
+    virtual void handlePts(const SkPoint pts[]) {}
+
 protected:
     const char* onGetName() override {
         return fName.c_str();
     }
 
-    void onDraw(int loops, SkCanvas*) override {
-        if (fRaw) {
-            for (int i = 0; i < loops; ++i) {
-                SkPath::RawIter iter(fPath);
-                SkPath::Verb verb;
-                SkPoint      pts[4];
+    void onDraw(const int loops, SkCanvas*) override {
+        for (int j = 0; j < 1000; ++j) {
+        switch (fRaw) {
+            case kRaw:
+                for (int i = 0; i < loops; ++i) {
+                    SkPath::RawIter iter(fPath);
+                    SkPath::Verb verb;
+                    SkPoint      pts[4];
 
-                while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
-            }
-        } else {
-            for (int i = 0; i < loops; ++i) {
-                SkPath::Iter iter(fPath, false);
-                SkPath::Verb verb;
-                SkPoint      pts[4];
+                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+                        this->handlePts(pts);
+                    }
+                }
+                break;
+            case kConsume:
+                for (int i = 0; i < loops; ++i) {
+                    SkPath::Iter iter(fPath, false);
+                    SkPath::Verb verb;
+                    SkPoint      pts[4];
 
-                while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
-            }
+                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+                        this->handlePts(pts);
+                    }
+                }
+                break;
+            case kNew: {
+                for (int i = 0; i < loops; ++i) {
+                    SkPathIter iter(fPath);
+                    while (iter.next()) {
+                        this->handlePts(iter.currPts());
+                    }
+                }
+            } break;
+        }
         }
     }
 
@@ -89,7 +115,6 @@ private:
     typedef Benchmark INHERITED;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-DEF_BENCH( return new PathIterBench(false); )
-DEF_BENCH( return new PathIterBench(true); )
+DEF_BENCH( return new PathIterBench(kRaw); )
+DEF_BENCH( return new PathIterBench(kConsume); )
+DEF_BENCH( return new PathIterBench(kNew); )

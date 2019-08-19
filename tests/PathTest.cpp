@@ -29,6 +29,36 @@
 #include <cmath>
 #include <utility>
 #include <vector>
+#include "include/core/SkPathIter.h"
+
+static void test_2_iters(const SkPath& path) {
+    SkPath::RawIter iter0(path);
+    SkPathIter      iter1(path);
+
+    SkPoint pts[4];
+    SkPath::Verb verb;
+    while ((verb = iter0.next(pts)) != SkPath::kDone_Verb) {
+        SkASSERT(iter1.next());
+        SkASSERT(!iter1.done());
+        SkASSERT(iter1.currVerb() == (SkPathVerb)verb);
+        int n = 0;
+        switch (verb) {
+            case SkPath::kMove_Verb: n = 1; break;
+            case SkPath::kLine_Verb: n = 2; break;
+            case SkPath::kQuad_Verb: n = 3; break;
+            case SkPath::kConic_Verb: n = 3; break;
+            case SkPath::kCubic_Verb: n = 4; break;
+            case SkPath::kClose_Verb: n = 0; break;
+            default:
+                SkASSERT(!"unexpected");
+        }
+        for (int i = 0; i < n; ++i) {
+            SkASSERT(pts[i] == iter1.currPts()[i]);
+        }
+    }
+    SkASSERT(iter1.done());
+    SkDebugf("test_2_iters\n");
+}
 
 static void set_radii(SkVector radii[4], int index, float rad) {
     sk_bzero(radii, sizeof(SkVector) * 4);
@@ -972,6 +1002,7 @@ static void test_islastcontourclosed(skiatest::Reporter* reporter) {
 //
 static void test_poly(skiatest::Reporter* reporter, const SkPath& path,
                       const SkPoint srcPts[], bool expectClose) {
+    test_2_iters(path);
     SkPath::RawIter iter(path);
     SkPoint         pts[4];
 
@@ -1058,6 +1089,7 @@ const SkPathPriv::FirstDirection kDontCheckDir = static_cast<SkPathPriv::FirstDi
 
 static void check_direction(skiatest::Reporter* reporter, const SkPath& path,
                             SkPathPriv::FirstDirection expected) {
+    test_2_iters(path);
     if (expected == kDontCheckDir) {
         return;
     }

@@ -1691,6 +1691,7 @@ private:
     friend class Iter;
     friend class SkPathPriv;
     friend class SkPathStroker;
+    friend class SkPathIter;
 
     /*  Append, in reverse order, the first contour of path, ignoring path's
         last point. If no moveTo() call has been made for this contour, the
