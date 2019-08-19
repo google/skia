@@ -16,6 +16,24 @@
       "revId": "ef9dc3b2760cccfb4ac64873685b886f87b47d26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60c147de_3b35e295",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-19T06:45:30Z",
+      "side": 1,
+      "message": "Done. This simplified the code quite a bit.",
+      "parentUuid": "4366a208_3ba6c945",
+      "revId": "ef9dc3b2760cccfb4ac64873685b886f87b47d26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
