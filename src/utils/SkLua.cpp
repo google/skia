@@ -1309,9 +1309,19 @@ static int lpath_getSegmentTypes(lua_State* L) {
     return 1;
 }
 
+bool SkPath_isNumericallyUnstable(const SkPath* p) {
+    return p->isNumericallyUnstable();
+}
+
 static int lpath_isConvex(lua_State* L) {
     bool isConvex = SkPath::kConvex_Convexity == get_obj<SkPath>(L, 1)->getConvexity();
     SkLua(L).pushBool(isConvex);
+    return 1;
+}
+
+static int lpath_isNumericallyUnstable(lua_State* L) {
+    bool isUnstable = SkPath_isNumericallyUnstable(get_obj<SkPath>(L, 1));
+    SkLua(L).pushBool(isUnstable);
     return 1;
 }
 
@@ -1445,6 +1455,7 @@ static const struct luaL_Reg gSkPath_Methods[] = {
     { "getSegmentTypes", lpath_getSegmentTypes },
     { "getVerbs", lpath_getVerbs },
     { "isConvex", lpath_isConvex },
+    { "isUnstable", lpath_isNumericallyUnstable },
     { "isEmpty", lpath_isEmpty },
     { "isRect", lpath_isRect },
     { "isNestedFillRects", lpath_isNestedFillRects },

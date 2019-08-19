@@ -2776,6 +2776,23 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     return setComputedConvexity(kConvex_Convexity);
 }
 
+bool SkPath::isNumericallyUnstable() const {
+    int numPoints = this->countPoints();
+    SkPoint lastPt = this->getPoint(0);
+    for (int i = 1; i < 2 * numPoints; ++i) {
+        SkPoint pt = this->getPoint(i % numPoints);
+        if (pt != lastPt) {
+            SkVector v = pt - lastPt;
+            constexpr SkScalar nearZeroSqd = SK_ScalarNearlyZero * SK_ScalarNearlyZero;
+            if (SkScalarNearlyZero(SkPointPriv::LengthSqd(v), nearZeroSqd)) {
+                return true;
+            }
+            lastPt = pt;
+        }
+    }
+    return false;
+}
+
 bool SkPathPriv::IsConvex(const SkPoint points[], int count) {
     SkPath::Convexity convexity = Convexicator::BySign(points, count);
     if (SkPath::kConvex_Convexity != convexity) {
