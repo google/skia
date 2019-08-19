@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee0c4de0_d983c54a",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-19T18:09:26Z",
+      "side": 1,
+      "message": "Given the direction we\u0027re headed in with everything else (making callers prepare data for before texture creation and possibly separating creation from population) this seems pretty incomplete to me. Seems like we want something like GrConvertPixels that takes a single input color rather than a pixel grid and loads it with the \"uniform_color\" stage. (E.g. Things would just work when we fix the initial data for GL_RGB8 issue, or if say we add a renderable GL_RGBA8/kAlpha_8  combo for GLs that don\u0027t have a renderable single channel format).",
+      "range": {
+        "startLine": 487,
+        "startChar": 0,
+        "endLine": 496,
+        "endChar": 100
+      },
+      "revId": "41605906b984be0c5bd23150757d3544757b8dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78462c41_1bd73a15",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-19T18:09:26Z",
+      "side": 1,
+      "message": "Should we be using SkColor4f here?\n\nWDYT about something like TestUtils.h\u0027s compare_pixels that takes one pixel array and one color and is reusable? I\u0027m guessing we already have several versions of functions like this, though could be worng.",
+      "range": {
+        "startLine": 106,
+        "startChar": 31,
+        "endLine": 106,
+        "endChar": 52
+      },
+      "revId": "41605906b984be0c5bd23150757d3544757b8dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae9c1885_25b8c2d2",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-19T18:09:26Z",
+      "side": 1,
+      "message": "I could be wrong, but I think we\u0027d be better off just always using kUnpremul for the source and dst. Avoids any premuling/unpremulling conversions, but also any clamping for the f16_clamped format.",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 82
+      },
+      "revId": "41605906b984be0c5bd23150757d3544757b8dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b297bbe1_931ec898",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-19T18:09:26Z",
+      "side": 1,
+      "message": "same q about color type... should we read to full float?",
+      "range": {
+        "startLine": 173,
+        "startChar": 47,
+        "endLine": 173,
+        "endChar": 69
+      },
+      "revId": "41605906b984be0c5bd23150757d3544757b8dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbb7cef0_75e78206",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-19T18:09:26Z",
+      "side": 1,
+      "message": "Curious what failures we\u0027re getting. Is it just for gray?",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 6
+      },
+      "revId": "41605906b984be0c5bd23150757d3544757b8dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c16900b_b5a600ba",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-19T18:09:26Z",
+      "side": 1,
+      "message": "I don\u0027t get why this works like this... do we clear the texture when we wrap it?",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 215,
+        "endChar": 9
+      },
+      "revId": "41605906b984be0c5bd23150757d3544757b8dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
