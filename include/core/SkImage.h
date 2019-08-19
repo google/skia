@@ -407,20 +407,23 @@ public:
     /** Creates an SkImage by flattening the specified YUVA planes into a single, interleaved RGBA
         image. 'backendTexture' is used to store the result of the flattening.
 
-        @param context         GPU context
-        @param yuvColorSpace   How the YUV values are converted to RGB. One of:
+        @param context            GPU context
+        @param yuvColorSpace      How the YUV values are converted to RGB. One of:
                                            kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                                            kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
-        @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
-                               possibly interleaved, YUVA planes
-        @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
-                               in that texture, maps to each component of YUVA.
-        @param imageSize       size of the resulting image
-        @param imageOrigin     origin of the resulting image. One of: kBottomLeft_GrSurfaceOrigin,
-                               kTopLeft_GrSurfaceOrigin
-        @param backendTexture  the resource that stores the final pixels
-        @param imageColorSpace range of colors of the resulting image; may be nullptr
-        @return                created SkImage, or nullptr
+        @param yuvaTextures       array of (up to four) YUVA textures on GPU which contain the,
+                                  possibly interleaved, YUVA planes
+        @param yuvaIndices        array indicating which texture in yuvaTextures, and channel
+                                  in that texture, maps to each component of YUVA.
+        @param imageSize          size of the resulting image
+        @param imageOrigin        origin of the resulting image. One of:
+                                            kBottomLeft_GrSurfaceOrigin,
+                                            kTopLeft_GrSurfaceOrigin
+        @param backendTexture     the resource that stores the final pixels
+        @param imageColorSpace    range of colors of the resulting image; may be nullptr
+        @param textureReleaseProc function called when backendTexture can be released
+        @param releaseContext     state passed to textureReleaseProc
+        @return                   created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromYUVATexturesCopyWithExternalBackend(
             GrContext* context,
@@ -430,7 +433,9 @@ public:
             SkISize imageSize,
             GrSurfaceOrigin imageOrigin,
             const GrBackendTexture& backendTexture,
-            sk_sp<SkColorSpace> imageColorSpace = nullptr);
+            sk_sp<SkColorSpace> imageColorSpace = nullptr,
+            TextureReleaseProc textureReleaseProc = nullptr,
+            ReleaseContext releaseContext = nullptr);
 
     /** Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
         via multitexturing.
@@ -499,9 +504,12 @@ public:
     /** To be deprecated.
     */
     static sk_sp<SkImage> MakeFromYUVTexturesCopyWithExternalBackend(
-            GrContext* context, SkYUVColorSpace yuvColorSpace,
-            const GrBackendTexture yuvTextures[3], GrSurfaceOrigin imageOrigin,
-            const GrBackendTexture& backendTexture, sk_sp<SkColorSpace> imageColorSpace = nullptr);
+            GrContext* context,
+            SkYUVColorSpace yuvColorSpace,
+            const GrBackendTexture yuvTextures[3],
+            GrSurfaceOrigin imageOrigin,
+            const GrBackendTexture& backendTexture,
+            sk_sp<SkColorSpace> imageColorSpace = nullptr);
 
     /** Creates SkImage from copy of nv12Textures, an array of textures on GPU.
         nv12Textures[0] contains pixels for YUV component y plane.
@@ -531,14 +539,16 @@ public:
         Returned SkImage has the dimensions nv12Textures[2] and stores pixels in backendTexture.
         yuvColorSpace describes how YUV colors convert to RGB colors.
 
-        @param context         GPU context
-        @param yuvColorSpace   one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                               kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
-        @param nv12Textures    array of YUV textures on GPU
-        @param imageOrigin     one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param backendTexture  the resource that stores the final pixels
-        @param imageColorSpace range of colors; may be nullptr
-        @return                created SkImage, or nullptr
+        @param context            GPU context
+        @param yuvColorSpace      one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                                  kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param nv12Textures       array of YUV textures on GPU
+        @param imageOrigin        one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param backendTexture     the resource that stores the final pixels
+        @param imageColorSpace    range of colors; may be nullptr
+        @param textureReleaseProc function called when backendTexture can be released
+        @param releaseContext     state passed to textureReleaseProc
+        @return                   created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromNV12TexturesCopyWithExternalBackend(
             GrContext* context,
@@ -546,7 +556,9 @@ public:
             const GrBackendTexture nv12Textures[2],
             GrSurfaceOrigin imageOrigin,
             const GrBackendTexture& backendTexture,
-            sk_sp<SkColorSpace> imageColorSpace = nullptr);
+            sk_sp<SkColorSpace> imageColorSpace = nullptr,
+            TextureReleaseProc textureReleaseProc = nullptr,
+            ReleaseContext releaseContext = nullptr);
 
     enum class BitDepth {
         kU8,  //!< uses 8-bit unsigned int per color component
