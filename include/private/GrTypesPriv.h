@@ -825,42 +825,6 @@ enum class GrSRGBConversion {
  * Utility functions for GrPixelConfig
  */
 
-static constexpr bool GrPixelConfigIsSRGB(GrPixelConfig config) {
-    switch (config) {
-        case kSRGBA_8888_GrPixelConfig:
-            return true;
-        case kUnknown_GrPixelConfig:
-        case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
-        case kGray_8_GrPixelConfig:
-        case kGray_8_as_Lum_GrPixelConfig:
-        case kGray_8_as_Red_GrPixelConfig:
-        case kRGB_565_GrPixelConfig:
-        case kRGBA_4444_GrPixelConfig:
-        case kRGB_888_GrPixelConfig:
-        case kRGB_888X_GrPixelConfig:
-        case kRG_88_GrPixelConfig:
-        case kRGBA_8888_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
-        case kRGBA_float_GrPixelConfig:
-        case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Lum_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
-        case kRGBA_half_GrPixelConfig:
-        case kRGBA_half_Clamped_GrPixelConfig:
-        case kRGB_ETC1_GrPixelConfig:
-        case kR_16_GrPixelConfig:
-        case kRG_1616_GrPixelConfig:
-        // Experimental (for Y416 and mutant P016/P010)
-        case kRGBA_16161616_GrPixelConfig:
-        case kRG_half_GrPixelConfig:
-            return false;
-    }
-    SkUNREACHABLE;
-}
-
 static constexpr GrPixelConfig GrCompressionTypePixelConfig(SkImage::CompressionType compression) {
     switch (compression) {
         case SkImage::kETC1_CompressionType: return kRGB_ETC1_GrPixelConfig;
@@ -1036,19 +1000,6 @@ static constexpr bool GrPixelConfigIsCompressed(GrPixelConfig config) {
             return false;
     }
     SkUNREACHABLE;
-}
-
-/**
- * If the pixel config is compressed, return an equivalent uncompressed format.
- */
-static constexpr GrPixelConfig GrMakePixelConfigUncompressed(GrPixelConfig config) {
-    switch (config) {
-        case kRGB_ETC1_GrPixelConfig:
-            return kRGBA_8888_GrPixelConfig;
-        default:
-            return config;
-        }
-        SkUNREACHABLE;
 }
 
 /**
