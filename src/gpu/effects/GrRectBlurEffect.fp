@@ -54,71 +54,48 @@ in uniform half sigma;
 }
 
 void main() {
-    half invr = 1.0 / (2.0 * sigma);
-
-    // Get the smaller of the signed distance from the frag coord to the left and right edges.
-    half x;
-    @if (highp) {
-        float lDiff = rectF.x - sk_FragCoord.x;
-        float rDiff = sk_FragCoord.x - rectF.z;
-        x = half(max(lDiff, rDiff) * invr);
-    } else {
-        half lDiff = half(rectH.x - sk_FragCoord.x);
-        half rDiff = half(sk_FragCoord.x - rectH.z);
-        x = max(lDiff, rDiff) * invr;
-    }
-    // This is lifted from the implementation of SkBlurMask::ComputeBlurProfile. It approximates
-    // a Gaussian as three box filters, and then computes the integral of this approximation from
-    // -inf to x.
-    // TODO: Make this a function when supported in .fp files as we duplicate it for y below.
-    half xCoverage;
-    if (x > 1.5) {
-        xCoverage = 0.0;
-    } else if (x < -1.5) {
-        xCoverage = 1.0;
-    } else {
+        // Get the smaller of the signed distance from the frag coord to the left and right edges
+        // and similar for y.
+        half x;
+        @if (highp) {
+            x = min(half(sk_FragCoord.x - rectF.x), half(rectF.z - sk_FragCoord.x));
+        } else {
+            x = min(half(sk_FragCoord.x - rectH.x), half(rectH.z - sk_FragCoord.x));
+        }
+        half y;
+        @if (highp) {
+            y = min(half(sk_FragCoord.y - rectF.y), half(rectF.w - sk_FragCoord.y));
+        } else {
+            y = min(half(sk_FragCoord.y - rectH.y), half(rectH.w - sk_FragCoord.y));
+        }
+        // The sw code computes an approximation of an integral of the Gaussian from -inf to x,
+        // where x is the signed distance to the edge (positive inside the rect). The approximation
+        // is based on three box filters and is a piecewise cubic. The piecewise nature introduces
+        // branches so here we use a 5th degree very close approximation of the piecewise cubic. The
+        // piecewise cubic goes from 0 to 1 as x goes from -1.5 to 1.5.
+        half r = 1 / (2.0 * sigma);
+        x *= r;
+        y *= r;
+        // The polynomial is such that we can either clamp the domain or the range. Clamping the
+        // range (xCoverage/yCoverage) seems to be faster but the polynomial quickly produces very
+        // large absolute values outside the [-1.5, 1.5] domain and some mobile GPUs don't seem to
+        // properly produce -infs or infs in that case. So instead we clamp the domain (x/y). The
+        // perf is probably because clamping to [0, 1] is faster than clamping to [-1.5, 1.5].
+        x = clamp(x, -1.5, 1.5);
+        y = clamp(y, -1.5, 1.5);
         half x2 = x * x;
         half x3 = x2 * x;
-
-        if (x > 0.5) {
-            xCoverage = 0.5625 - (x3 / 6.0 - 3.0 * x2 * 0.25 + 1.125 * x);
-        } else if (x > -0.5) {
-            xCoverage = 0.5 - (0.75 * x - x3 / 3.0);
-        } else {
-            xCoverage = 0.4375 + (-x3 / 6.0 - 3.0 * x2 * 0.25 - 1.125 * x);
-        }
-    }
-
-    // Repeat of above for y.
-    half y;
-    @if (highp) {
-        float tDiff = rectF.y - sk_FragCoord.y;
-        float bDiff = sk_FragCoord.y - rectF.w;
-        y = half(max(tDiff, bDiff) * invr);
-    } else {
-        half tDiff = half(rectH.y - sk_FragCoord.y);
-        half bDiff = half(sk_FragCoord.y - rectH.w);
-        y = max(tDiff, bDiff) * invr;
-    }
-    half yCoverage;
-    if (y > 1.5) {
-        yCoverage = 0.0;
-    } else if (y < -1.5) {
-        yCoverage = 1.0;
-    } else {
+        half x5 = x2 * x3;
+        half a =  0.734822;
+        half b = -0.313376;
+        half c =  0.0609169;
+        half d =  0.5;
+        half xCoverage = a * x + b * x3 + c * x5 + d;
         half y2 = y * y;
         half y3 = y2 * y;
-
-        if (y > 0.5) {
-            yCoverage = 0.5625 - (y3 / 6.0 - 3.0 * y2 * 0.25 + 1.125 * y);
-        } else if (y > -0.5) {
-            yCoverage = 0.5 - (0.75 * y - y3 / 3.0);
-        } else {
-            yCoverage = 0.4375 + (-y3 / 6.0 - 3.0 * y2 * 0.25 - 1.125 * y);
-        }
-    }
-
-    sk_OutColor = sk_InColor * xCoverage * yCoverage;
+        half y5 = y2 * y3;
+        half yCoverage = a * y + b * y3 + c * y5 + d;
+        sk_OutColor = sk_InColor * xCoverage * yCoverage;
 }
 
 @setData(pdman) {
