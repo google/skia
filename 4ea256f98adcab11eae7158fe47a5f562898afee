@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70b93c41_62ba21ad",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-19T21:07:39Z",
+      "side": 1,
+      "message": "Does this need to be public ?",
+      "revId": "4ea256f98adcab11eae7158fe47a5f562898afee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
