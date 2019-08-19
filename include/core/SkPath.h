@@ -1723,6 +1723,9 @@ private:
     // called by stroker to see if all points (in the last contour) are equal and worthy of a cap
     bool isZeroLengthSincePoint(int startPtIndex) const;
 
+    bool isNumericallyUnstable() const;
+    friend bool SkPath_isNumericallyUnstable(const SkPath*);
+
     /** Returns if the path can return a bound at no cost (true) or will have to
         perform some computation (false).
      */
