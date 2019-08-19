@@ -123,7 +123,6 @@ public:
                                                           const SkPoint positions[],
                                                           size_t n,
                                                           int maxDimension,
-                                                          PreparationDetail detail,
                                                           SkGlyphPos results[]) override;
 
     void onAboutToExitScope() override;

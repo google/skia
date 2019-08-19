@@ -193,7 +193,6 @@ SkStrike::prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
                                        const SkPoint positions[],
                                        size_t n,
                                        int maxDimension,
-                                       PreparationDetail detail,
                                        SkGlyphPos results[]) {
     size_t drawableGlyphCount = 0;
     for (size_t i = 0; i < n; i++) {
@@ -203,10 +202,7 @@ SkStrike::prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
             if (!glyphPtr->isEmpty()) {
                 results[drawableGlyphCount++] = {i, glyphPtr, pos};
                 if (glyphPtr->maxDimension() <= maxDimension) {
-                    // The glyph fits; ensure the image if needed.
-                    if (detail == SkStrikeInterface::kImageIfNeeded) {
-                        this->prepareImage(glyphPtr);
-                    }
+                    // The glyph fits. Prepare image later.
                 } else if (!glyphPtr->isColor()) {
                     // The out of atlas glyph is not color so we can draw it using paths.
                     this->preparePath(glyphPtr);

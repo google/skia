@@ -192,7 +192,6 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     fPositions,
                     glyphRun.runSize(),
                     0,
-                    SkStrikeInterface::kBoundsOnly,
                     fGlyphPos);
 
             SkTDArray<SkPathPos> pathsAndPositions;
@@ -241,24 +240,21 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     fPositions,
                     fPackedGlyphIDs);
 
-            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawingRemoveEmpty(
-                    packedGlyphIDs.data(),
-                    fPositions,
-                    glyphRun.runSize(),
-                    std::numeric_limits<int>::max(),
-                    SkStrikeInterface::kImageIfNeeded,
-                    fGlyphPos);
+            SkBulkGlyphMetricsAndImages glyphImages{strikeSpec};
+            SkSpan<const SkGlyph*> glyphs = glyphImages.glyphs(packedGlyphIDs);
 
             SkTDArray<SkMask> masks;
-            masks.setReserve(glyphPosSpan.size());
+            masks.setReserve(runSize);
 
-            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
-                const SkGlyph& glyph = *glyphPos.glyph;
-                SkPoint position = glyphPos.position;
+            SkPoint* posCursor = fPositions.get();
+            for (const SkGlyph* glyph : glyphs) {
+                SkPoint position = *posCursor++;
                 // The glyph could have dimensions (!isEmpty()), but still may have no bits if
                 // the width is too wide. So check that there really is an image.
-                if (check_glyph_position(position) && glyph.image() != nullptr) {
-                    masks.push_back(glyph.mask(position));
+                if (check_glyph_position(position)
+                    && !glyph->isEmpty()
+                    && glyph->image() != nullptr) {
+                    masks.push_back(glyph->mask(position));
                 }
             }
 
@@ -338,7 +334,6 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fARGBPositions.data(),
                 fARGBGlyphsIDs.size(),
                 SkStrikeCommon::kSkSideTooBigForAtlas,
-                SkStrikeInterface::kBoundsOnly,
                 fGlyphPos);
 
         if (process) {
@@ -364,7 +359,6 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fARGBPositions.data(),
                 fARGBGlyphsIDs.size(),
                 SkStrikeCommon::kSkSideTooBigForAtlas,
-                SkStrikeInterface::kBoundsOnly,
                 fGlyphPos);
 
         if (process) {
@@ -429,7 +423,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fPositions,
                     glyphRun.runSize(),
                     SkStrikeCommon::kSkSideTooBigForAtlas,
-                    SkStrikeInterface::kBoundsOnly,
                     fGlyphPos);
 
             size_t glyphsWithMaskCount = 0;
@@ -499,7 +492,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fPositions,
                     glyphRun.runSize(),
                     0,
-                    SkStrikeInterface::kBoundsOnly,
                     fGlyphPos);
 
             // As opposed to SDF and mask, path handling puts paths in fGlyphPos instead of fPaths.
@@ -551,7 +543,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fPositions,
                     glyphRun.runSize(),
                     SkStrikeCommon::kSkSideTooBigForAtlas,
-                    SkStrikeInterface::kBoundsOnly,
                     fGlyphPos);
 
             // Sort glyphs into the three bins: mask (fGlyphPos), path (fPaths), and fallback.

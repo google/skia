@@ -51,25 +51,17 @@ public:
     virtual ~SkStrikeInterface() = default;
     virtual const SkDescriptor& getDescriptor() const = 0;
 
-    enum PreparationDetail {
-        kBoundsOnly,
-        kImageIfNeeded,
-    };
-
     // prepareForDrawingRemoveEmpty takes glyphIDs, and position, and returns a list of SkGlyphs
     // and positions where all the data to draw the glyph has been created. The maxDimension
     // parameter determines if the mask/SDF version will be created, or an alternate drawing
     // format should be used. For path-only drawing set maxDimension to 0, and for bitmap-device
     // drawing (where there is no upper limit to the glyph in the cache) use INT_MAX.
-    // * PreparationDetail determines, in the mask case, if the mask/SDF should be generated.
-    //   This does not affect the path or fallback cases.
     // prepareForDrawingRemoveEmpty should remove all empty glyphs from the returned span.
     virtual SkSpan<const SkGlyphPos>
     prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
                                  const SkPoint positions[],
                                  size_t n,
                                  int maxDimension,
-                                 PreparationDetail detail,
                                  SkGlyphPos results[]) = 0;
 
     // rounding() and subpixelMask are used to calculate the subpixel position of a glyph.

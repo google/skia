@@ -41,13 +41,11 @@ public:
                                  const SkPoint positions[],
                                  size_t n,
                                  int maxDimension,
-                                 PreparationDetail detail,
                                  SkGlyphPos results[]) override {
         return fStrike.prepareForDrawingRemoveEmpty(packedGlyphIDs,
                                                     positions,
                                                     n,
                                                     maxDimension,
-                                                    detail,
                                                     results);
     }
 
