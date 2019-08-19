@@ -1,6 +1,7 @@
 # Copyright 2019 Google LLC.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+
 SkqpGnArgs = {
     'extra_cflags':                     '[ "-DSK_ENABLE_DUMP_GPU", "-DSK_BUILD_FOR_SKQP" ]',
     'skia_enable_fontmgr_android':      'false',
@@ -17,3 +18,15 @@ SkqpGnArgs = {
     'skia_use_piex':                    'false',
     'skia_use_vulkan':                  'true',
 }
+
+def GetGNArgs(arch, android_ndk, debug, api_level):
+    def gn_quote(s):
+        return '"%s"' % s
+    gn_args = {
+        'target_cpu':  gn_quote(arch),
+        'ndk':         gn_quote(android_ndk),
+        'is_debug':    'true' if debug else 'false',
+        'ndk_api':     api_level,
+    }
+    gn_args.update(SkqpGnArgs)
+    return gn_args
