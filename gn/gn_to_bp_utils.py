@@ -116,4 +116,7 @@ def WriteUserConfig(userConfigPath, defines):
     print >>f, '#pragma once'
     print >>f, '#include "SkUserConfigManual.h"'
     for define in sorted(defines):
-      print >>f, '#define', define.replace('=', ' ')
+      print >>f, ''
+      print >>f, '#ifndef', define.split('=')[0]
+      print >>f, '#define', define.replace('=', ' ', 1)
+      print >>f, '#endif'
