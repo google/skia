@@ -215,15 +215,15 @@ private:
 
     void lineTo(const SkPoint& p, CurveState curve);
 
-    void lineTo(const SkMatrix& m, SkPoint p, CurveState curve);
+    void lineTo(const SkMatrix& m, const SkPoint& p, CurveState curve);
 
     void quadTo(const SkPoint pts[3]);
 
-    void quadTo(const SkMatrix& m, SkPoint pts[3]);
+    void quadTo(const SkMatrix& m, const SkPoint pts[3]);
 
-    void cubicTo(const SkMatrix& m, SkPoint pts[4]);
+    void cubicTo(const SkMatrix& m, const SkPoint pts[4]);
 
-    void conicTo(const SkMatrix& m, SkPoint pts[3], SkScalar w);
+    void conicTo(const SkMatrix& m, const SkPoint pts[3], SkScalar w);
 
     void terminate(const Ring& lastRing);
 

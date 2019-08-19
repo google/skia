@@ -1753,6 +1753,7 @@ private:
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
     friend class SkAutoDisableDirectionCheck;
+    friend class SkPathEdgeIter;
     friend class SkPathWriter;
     friend class SkOpBuilder;
     friend class SkBench_AddPathTest; // perf test reversePathTo

@@ -788,40 +788,31 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
     // create initial distance data
     init_distances(dataPtr, width * height);
 
-    SkPath::Iter iter(workingPath, true);
+    SkPathEdgeIter iter(workingPath);
     SkSTArray<15, PathSegment, true> segments;
 
-    for (;;) {
-        SkPoint pts[4];
-        SkPath::Verb verb = iter.next(pts);
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                break;
-            case SkPath::kLine_Verb: {
-                add_line_to_segment(pts, &segments);
+    while (auto e = iter.next()) {
+        switch (e.fEdge) {
+            case SkPathEdgeIter::Edge::kLine: {
+                add_line_to_segment(e.fPts, &segments);
                 break;
             }
-            case SkPath::kQuad_Verb:
-                add_quad_segment(pts, &segments);
+            case SkPathEdgeIter::Edge::kQuad:
+                add_quad_segment(e.fPts, &segments);
                 break;
-            case SkPath::kConic_Verb: {
+            case SkPathEdgeIter::Edge::kConic: {
                 SkScalar weight = iter.conicWeight();
                 SkAutoConicToQuads converter;
-                const SkPoint* quadPts = converter.computeQuads(pts, weight, kConicTolerance);
+                const SkPoint* quadPts = converter.computeQuads(e.fPts, weight, kConicTolerance);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     add_quad_segment(quadPts + 2*i, &segments);
                 }
                 break;
             }
-            case SkPath::kCubic_Verb: {
-                add_cubic_segments(pts, &segments);
+            case SkPathEdgeIter::Edge::kCubic: {
+                add_cubic_segments(e.fPts, &segments);
                 break;
             }
-            default:
-                break;
-        }
-        if (verb == SkPath::kDone_Verb) {
-            break;
         }
     }
 

@@ -943,3 +943,18 @@ bool SkPathRef::isValid() const {
     }
     return true;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) {
+    fMoveToPtr = fPts = path.fPathRef->points();
+    fVerbs = path.fPathRef->verbs();
+    fVerbsStart = path.fPathRef->verbsMemBegin();
+    fConicWeights = path.fPathRef->conicWeights();
+    if (fConicWeights) {
+        fConicWeights -= 1;  // begin one behind
+    }
+
+    fNeedsCloseLine = false;
+    SkDEBUGCODE(fIsConic = false;)
+}
