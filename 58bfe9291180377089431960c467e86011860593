@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d3b81cf_100cf99d",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 838,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-19T18:24:18Z",
+      "side": 1,
+      "message": "Do you think this works? Or would you prefer a static method that we pass cbInfo into, or a lambda that captures cbInfo?",
+      "range": {
+        "startLine": 838,
+        "startChar": 4,
+        "endLine": 838,
+        "endChar": 40
+      },
+      "revId": "58bfe9291180377089431960c467e86011860593",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
