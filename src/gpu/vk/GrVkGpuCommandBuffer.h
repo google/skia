@@ -151,6 +151,8 @@ private:
                 int meshCount,
                 const SkRect& bounds) override;
 
+    void appendSampledTexture(GrTexture*);
+
     // GrMesh::SendToGpuImpl methods. These issue the actual Vulkan draw commands.
     // Marked final as a hint to the compiler to not use virtual dispatch.
     void sendMeshToGpu(GrPrimitiveType primType, const GrBuffer* vertexBuffer, int vertexCount,
