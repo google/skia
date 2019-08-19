@@ -73,6 +73,7 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
                                  const GrCaps& caps) {
     GrRenderTask* dependedOnTask = dependedOn->getLastRenderTask();
     GrTextureProxy* textureProxy = dependedOn->asTextureProxy();
+    auto textureResolveFlags = GrTextureResolveFlags::kNone;
 
     if (GrMipMapped::kYes == mipMapped) {
         SkASSERT(textureProxy);
@@ -80,17 +81,25 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
             // There are some cases where we might be given a non-mipmapped texture with a mipmap
             // filter. See skbug.com/7094.
             mipMapped = GrMipMapped::kNo;
+        } else if (textureProxy->mipMapsAreDirty()) {
+            textureResolveFlags |= GrTextureResolveFlags::kMipMaps;
         }
     }
 
-    // Does this proxy have mipmaps that need to be regenerated?
-    if (GrMipMapped::kYes == mipMapped && textureProxy->mipMapsAreDirty()) {
+    if (auto* renderTargetProxy = textureProxy->asRenderTargetProxy()) {
+        if (renderTargetProxy->isMSAADirty()) {
+            textureResolveFlags |= GrTextureResolveFlags::kMSAA;
+        }
+    }
+
+    // Does this proxy have msaa to resolve and/or mipmaps to regenerate?
+    if (GrTextureResolveFlags::kNone != textureResolveFlags) {
         // We only read our own target during dst reads, and we shouldn't use mipmaps in that case.
         SkASSERT(dependedOnTask != this);
 
         // Create an opList that resolves the texture's mipmap data.
         GrRenderTask* textureResolveTask = textureResolveManager.newTextureResolveRenderTask(
-                sk_ref_sp(textureProxy), GrTextureResolveFlags::kMipMaps, caps);
+                sk_ref_sp(textureProxy), textureResolveFlags, caps);
 
         // The GrTextureResolveRenderTask factory should have called addDependency (in this
         // instance, recursively) on the textureProxy.

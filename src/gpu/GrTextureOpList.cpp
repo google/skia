@@ -57,6 +57,10 @@ void GrTextureOpList::makeClosed(const GrCaps& caps) {
     }
 
     if (!fRecordedOps.empty()) {
+        GrRenderTargetProxy* renderTargetProxy = fTarget->asRenderTargetProxy();
+        if (renderTargetProxy && renderTargetProxy->requiresManualMSAAResolve()) {
+            renderTargetProxy->markMSAADirty();
+        }
         GrTextureProxy* textureProxy = fTarget->asTextureProxy();
         SkASSERT(textureProxy);
         if (GrMipMapped::kYes == textureProxy->mipMapped()) {
