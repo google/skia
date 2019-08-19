@@ -283,4 +283,96 @@ public:
     }
 };
 
+// Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).
+// Does not return kMove or kClose.
+// Always "auto-closes" each contour.
+// Roughly the same as SkPath::Iter(path, true), but does not return moves or closes
+//
+class SkPathEdger {
+    const uint8_t*  fVerbsStart;
+    const uint8_t*  fVerbs; // reverse
+    const SkPoint*  fPts;
+    const SkPoint*  fMoveToPtr;
+    const SkScalar* fConicWeights;
+    SkPoint         fScratch[2];    // for auto-close lines
+    bool            fNeedsCloseLine;
+    SkDEBUGCODE(bool fIsConic);
+
+public:
+    SkPathEdger(const SkPath& path);
+
+    SkScalar conicWeight() const {
+        SkASSERT(fIsConic);
+        return *fConicWeights;
+    }
+
+    struct Result {
+        const SkPoint*  fPts;   // points for the segment, or null if done
+        SkPath::Verb    fVerb;  // contains line/quad/conic/cubic or done
+
+        // Returns true when it as a segment, false when the path is done.
+        operator bool() {
+            SkASSERT( fPts && (fVerb != SkPath::kDone_Verb) ||
+                     !fPts && (fVerb == SkPath::kDone_Verb));
+            return fPts != nullptr;
+        }
+    };
+    Result next() {
+        auto closeline = [&]() {
+            fScratch[0] = fPts[-1];
+            fScratch[1] = *fMoveToPtr;
+            fNeedsCloseLine = false;
+            return Result{ fScratch, SkPath::kLine_Verb };
+        };
+
+        for (;;) {
+            SkASSERT(fVerbs >= fVerbsStart);
+            if (fVerbs == fVerbsStart) {
+                if (fNeedsCloseLine) {
+                    return closeline();
+                }
+                return { nullptr, SkPath::kDone_Verb };
+            }
+
+            SkDEBUGCODE(fIsConic = false;)
+            switch (*--fVerbs) {
+                case SkPath::kMove_Verb: {
+                    if (fNeedsCloseLine) {
+                        auto res = closeline();
+                        fMoveToPtr = fPts++;
+                        return res;
+                    }
+                    fMoveToPtr = fPts++;
+                } break;
+                case SkPath::kLine_Verb:
+                    fNeedsCloseLine = true;
+                    fPts += 1;
+                    return { &fPts[-2], SkPath::kLine_Verb };
+                case SkPath::kConic_Verb:
+                    SkDEBUGCODE(fIsConic = true;)
+                    fNeedsCloseLine = true;
+                    fConicWeights++;
+                    fPts += 2;
+                    return { &fPts[-3], SkPath::kConic_Verb };
+                case SkPath::kQuad_Verb:
+                    fNeedsCloseLine = true;
+                    fPts += 2;
+                    return { &fPts[-3], SkPath::kQuad_Verb };
+                case SkPath::kCubic_Verb:
+                    fNeedsCloseLine = true;
+                    fPts += 3;
+                    return { &fPts[-4], SkPath::kCubic_Verb };
+                case SkPath::kClose_Verb:
+                    if (fNeedsCloseLine) {
+                        return closeline();
+                    }
+                    break;
+                default:
+                    SkASSERT(false);
+                    break;
+            }
+        }
+    }
+};
+
 #endif
