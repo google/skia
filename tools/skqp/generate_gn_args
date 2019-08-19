@@ -8,14 +8,7 @@ import argparse
 import os
 import sys
 
-from skqp_gn_args import SkqpGnArgs
-
-fmt = '''
-target_cpu = "{arch}"
-ndk = "{android_ndk_dir}"
-is_debug = {debug}
-ndk_api = {api_level}
-'''
+import skqp_gn_args
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Generate args.gn file.')
@@ -25,23 +18,19 @@ def parse_args():
         help='defaults to "arm", valid values: "arm" "arm64" "x86" "x64"')
     parser.add_argument('--api_level', type=int, metavar='api_level',
         default=26, help='android API level, defaults to 26')
-    parser.add_argument('--enable_workarounds', default=False,
-        action='store_true', help="enable GPU work-arounds, defaults to false")
     parser.add_argument('--debug', default=False, action='store_true',
         help='compile native code in debug mode, defaults to false')
-
-    # parse the args and convert bools to strings.
     args = parser.parse_args()
-    gn_bool = lambda b : 'true' if b else 'false'
-    args.enable_workarounds = gn_bool(args.enable_workarounds)
-    args.debug = gn_bool(args.debug)
-    args.android_ndk_dir = os.path.abspath(args.android_ndk_dir)
-    return args
+    result = skqp_gn_args.GetGNArgs(args.arch,
+                                    os.path.abspath(args.android_ndk_dir),
+                                    args.debug,
+                                    args.api_level)
+    return args.target_build_dir, result)
 
 def write_gn(o, args):
-    o.write(fmt.format(**args))
-    for k, v in SkqpGnArgs.iteritems():
-        o.write('%s = %s\n' % (k,v) )
+    l = max(len(k) for k in args)
+    for k, v in sorted(args.items()):
+        o.write('%-*s = %s\n' % (l, k, v))
 
 def make_args_gn(out_dir, args):
     if out_dir == '-':
@@ -53,5 +42,5 @@ def make_args_gn(out_dir, args):
         write_gn(o, args)
 
 if __name__ == '__main__':
-    args = parse_args()
-    make_args_gn(args.target_build_dir, vars(args))
+    build_dir, args = parse_args()
+    make_args_gn(build_dir, args)
