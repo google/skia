@@ -63,6 +63,9 @@ public:
         kVisualBottom,
         // Resize the text such that the extent box fits (snuggly) in the text box.
         kVisualResizeToFit,
+        // Same kVisualResizeToFit if the text doesn't fit at the specified font size.
+        // Otherwise, same as kVisualCenter.
+        kVisualDownscaleToFit,
     };
 
     enum Flags : uint32_t {
