@@ -26,6 +26,8 @@ public:
     GrTextureOpList(sk_sp<GrOpMemoryPool>, sk_sp<GrTextureProxy>, GrAuditTrail*);
     ~GrTextureOpList() override;
 
+    void makeClosed(const GrCaps&) override;
+
     /**
      * Empties the draw buffer of any queued ops.
      */
