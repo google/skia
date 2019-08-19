@@ -41,40 +41,30 @@ public:
         sigmaVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "sigma");
         fragBuilder->codeAppendf(
-                "/* key */ bool highp = %s;\nhalf invr = 1.0 / (2.0 * %s);\nhalf x;\n@if (highp) "
-                "{\n    float lDiff = %s.x - sk_FragCoord.x;\n    float rDiff = sk_FragCoord.x - "
-                "%s.z;\n    x = half(max(lDiff, rDiff) * float(invr));\n} else {\n    half lDiff = "
-                "half(float(%s.x) - sk_FragCoord.x);\n    half rDiff = half(sk_FragCoord.x - "
-                "float(%s.z));\n    x = max(lDiff, rDiff) * invr;\n}\nhalf xCoverage;\nif (x > "
-                "1.5) {\n    xCoverage = 0.0;\n} else if (x < -1.5) {\n    xCoverage = 1.0;\n} "
-                "else {\n    half x2 = x * x;\n    half",
-                (highp ? "true" : "false"), args.fUniformHandler->getUniformCStr(sigmaVar),
+                "/* key */ bool highp = %s;\nhalf x;\n@if (highp) {\n    x = "
+                "min(half(sk_FragCoord.x - %s.x), half(%s.z - sk_FragCoord.x));\n} else {\n    x = "
+                "min(half(sk_FragCoord.x - float(%s.x)), half(float(%s.z) - "
+                "sk_FragCoord.x));\n}\nhalf y;\n@if (highp) {\n    y = min(half(sk_FragCoord.y - "
+                "%s.y), half(%s.w - sk_FragCoord.y));\n} else {\n    y = min(half(sk_FragCoord.y - "
+                "float(%s.y)), half(float(%s.w) - sk_FragCoord.y));\n}\nhalf r = 1.0 / (2.0 * "
+                "%s);\nx *= r;\ny *= r;\nx = clamp(x, -1.5, 1.5);\ny = clamp(y, -1.5, 1.5",
+                (highp ? "true" : "false"),
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
-        fragBuilder->codeAppendf(
-                " x3 = x2 * x;\n    if (x > 0.5) {\n        xCoverage = 0.5625 - ((x3 / 6.0 - (3.0 "
-                "* x2) * 0.25) + 1.125 * x);\n    } else if (x > -0.5) {\n        xCoverage = 0.5 "
-                "- (0.75 * x - x3 / 3.0);\n    } else {\n        xCoverage = 0.4375 + ((-x3 / 6.0 "
-                "- (3.0 * x2) * 0.25) - 1.125 * x);\n    }\n}\nhalf y;\n@if (highp) {\n    float "
-                "tDiff = %s.y - sk_FragCoord.y;\n    float bDiff = sk_FragCoord.y - %s.w;\n    y = "
-                "half(max(tDiff, bDiff) * float(invr));\n} else {\n    half tDiff = "
-                "half(float(%s.y) - sk_FragCoord.y);\n  ",
+                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
+                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                args.fUniformHandler->getUniformCStr(sigmaVar));
         fragBuilder->codeAppendf(
-                "  half bDiff = half(sk_FragCoord.y - float(%s.w));\n    y = max(tDiff, bDiff) * "
-                "invr;\n}\nhalf yCoverage;\nif (y > 1.5) {\n    yCoverage = 0.0;\n} else if (y < "
-                "-1.5) {\n    yCoverage = 1.0;\n} else {\n    half y2 = y * y;\n    half y3 = y2 * "
-                "y;\n    if (y > 0.5) {\n        yCoverage = 0.5625 - ((y3 / 6.0 - (3.0 * y2) * "
-                "0.25) + 1.125 * y);\n    } else if (y > -0.5) {\n        yCoverage = 0.5 - (0.75 "
-                "* y - y3 / 3.0);\n    } else {\n        yCoverage = 0.4375 + ((-y3 / 6.0 - (3.0 * "
-                "y2) * 0.25) - 1.125 * y);\n ",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
-        fragBuilder->codeAppendf("   }\n}\n%s = (%s * xCoverage) * yCoverage;\n", args.fOutputColor,
-                                 args.fInputColor);
+                ");\nhalf x2 = x * x;\nhalf x3 = x2 * x;\nhalf x5 = x2 * x3;\n\n\n\n\nhalf "
+                "xCoverage = ((0.73482197523117065 * x + -0.31337600946426392 * x3) + "
+                "0.060916900634765625 * x5) + 0.5;\nhalf y2 = y * y;\nhalf y3 = y2 * y;\nhalf y5 = "
+                "y2 * y3;\nhalf yCoverage = ((0.73482197523117065 * y + -0.31337600946426392 * y3) "
+                "+ 0.060916900634765625 * y5) + 0.5;\n%s = (%s * xCoverage) * yCoverage;\n",
+                args.fOutputColor, args.fInputColor);
     }
 
 private:
