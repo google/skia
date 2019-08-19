@@ -1076,12 +1076,6 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
         { GrColorType::kRG_F16,           GrBackendFormat::MakeMtl(MTLPixelFormatRG16Float)       },
     };
 
-#ifdef SK_DEBUG
-    for (auto combo : combos) {
-        SkASSERT(this->onAreColorTypeAndFormatCompatible(combo.fColorType, combo.fFormat));
-    }
-#endif
-
     return combos;
 }
 #endif
