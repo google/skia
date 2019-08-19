@@ -46,6 +46,30 @@
       "revId": "b46ca85e9eb33245c28e3ad37ef67496ff15595e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b34612c0_78431de2",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-19T07:05:46Z",
+      "side": 1,
+      "message": "Thanks a lot for debugging this Ken. Using texture2DRect did fix the shader compilation issues. The only remaining failures on this patch now should be resolved with: https://chromium-review.googlesource.com/c/chromium/src/+/1755409",
+      "parentUuid": "50cd2408_a0f8e3c9",
+      "range": {
+        "startLine": 241,
+        "startChar": 12,
+        "endLine": 241,
+        "endChar": 36
+      },
+      "revId": "b46ca85e9eb33245c28e3ad37ef67496ff15595e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
