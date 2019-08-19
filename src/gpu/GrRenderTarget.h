@@ -26,6 +26,9 @@ class GrBackendRenderTarget;
  */
 class GrRenderTarget : virtual public GrSurface {
 public:
+    // Make setRequiresManualMSAAResolve publicly accessible from GrRenderTarget.
+    using GrSurface::setRequiresManualMSAAResolve;
+
     virtual bool alwaysClearStencil() const { return false; }
 
     // GrSurface overrides

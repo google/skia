@@ -16,6 +16,9 @@
 class GrRenderTargetProxyPriv {
 public:
     void setGLRTFBOIDIs0() {
+        // FBO0 should never be wrapped as a texture render target.
+        SkASSERT(!fRenderTargetProxy->requiresManualMSAAResolve());
+        SkASSERT(!fRenderTargetProxy->asTextureProxy());
         fRenderTargetProxy->setGLRTFBOIDIs0();
     }
 

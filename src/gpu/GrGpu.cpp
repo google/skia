@@ -202,6 +202,11 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
             }
         }
         SkASSERT(tex->backendFormat() == format);
+        SkASSERT(!tex || GrRenderable::kNo == renderable || tex->asRenderTarget());
+        if (renderTargetSampleCnt > 1 && !this->caps()->msaaResolvesAutomatically()) {
+            SkASSERT(GrRenderable::kYes == renderable);
+            tex->asRenderTarget()->setRequiresManualMSAAResolve();
+        }
     }
     return tex;
 }
@@ -285,6 +290,9 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
     sk_sp<GrTexture> tex = this->onWrapRenderableBackendTexture(backendTex, sampleCnt, colorType,
                                                                 ownership, cacheable);
     SkASSERT(!tex || tex->asRenderTarget());
+    if (tex && sampleCnt > 1 && !caps->msaaResolvesAutomatically()) {
+        tex->asRenderTarget()->setRequiresManualMSAAResolve();
+    }
     return tex;
 }
 
@@ -317,7 +325,11 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTex
         return nullptr;
     }
 
-    return this->onWrapBackendTextureAsRenderTarget(backendTex, sampleCnt, colorType);
+    auto rt = this->onWrapBackendTextureAsRenderTarget(backendTex, sampleCnt, colorType);
+    if (rt && sampleCnt > 1 && !this->caps()->msaaResolvesAutomatically()) {
+        rt->setRequiresManualMSAAResolve();
+    }
+    return rt;
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo& imageInfo,
