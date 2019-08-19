@@ -16,6 +16,24 @@
       "revId": "4ea256f98adcab11eae7158fe47a5f562898afee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a61f76d_e1080ee4",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-19T21:56:10Z",
+      "side": 1,
+      "message": "Used by a test, and the entire file is private",
+      "parentUuid": "70b93c41_62ba21ad",
+      "revId": "4ea256f98adcab11eae7158fe47a5f562898afee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
