@@ -31,37 +31,38 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
     SkFont font(ToolUtils::create_portable_typeface(), 25);
 
-    const double sigmas[] = {3.0, 8.0, 16.0, 24.0, 32.0};
+    const double sigmas[] = {3.0, 8.0, 16.0};
 
-    canvas->drawString("mask blur",  285, 50, font, paint);
-    canvas->drawString("image blur", 285 + 250, 50, font, paint);
+    //canvas->drawString("mask blur",  285, 50, font, paint);
+   // canvas->drawString("image blur", 285 + 250, 50, font, paint);
 
 
-    SkRect r = {35, 100, 135, 200};
-    for (auto sigma:sigmas) {
+    int N = 30;
+    for (int i = 0; i < N; ++i) {
+        SkRect r = {35, 100, 335, 350};
+        for (auto sigma : sigmas) {
+            // canvas->drawRect(r, paint);
 
-        canvas->drawRect(r, paint);
+            char out[100];
+            sprintf(out, "Sigma: %g", sigma);
+            //canvas->drawString(out, r.left(), r.bottom() + 35, font, paint);
 
-        char out[100];
-        sprintf(out, "Sigma: %g", sigma);
-        canvas->drawString(out, r.left(), r.bottom() + 35, font, paint);
+            r.offset(250, 0);
 
-        r.offset(250, 0);
+            paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
+            canvas->drawRect(r, paint);
+            paint.setMaskFilter(nullptr);
 
-        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
-        canvas->drawRect(r, paint);
-        paint.setMaskFilter(nullptr);
+            SkPaint imageBlurPaint;
+            r.offset(250, 0);
+            imageBlurPaint.setImageFilter(SkImageFilters::Blur(sigma, sigma, nullptr));
+            //canvas->saveLayer(nullptr, &imageBlurPaint);
 
-        SkPaint imageBlurPaint;
-        r.offset(250, 0);
-        imageBlurPaint.setImageFilter(SkImageFilters::Blur(sigma, sigma, nullptr));
-        canvas->saveLayer(nullptr, &imageBlurPaint);
-
-        canvas->drawRect(r, paint);
-        canvas->restore();
-        r.offset(-500, 200);
+            // canvas->drawRect(r, paint);
+            //canvas->restore();
+            r.offset(-500, 400);
+        }
     }
-
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(blur_image, canvas, errorMsg, 500, 500) {

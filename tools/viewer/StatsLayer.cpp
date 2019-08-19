@@ -13,6 +13,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
 
+#include "include/utils/SkNoDrawCanvas.h"
+
 StatsLayer::StatsLayer()
     : fCurrentMeasurement(-1)
     , fLastTotalBegin(0)
@@ -89,7 +91,9 @@ void StatsLayer::onPaint(SkSurface* surface) {
     static const int kGraphPadding = 3;
     static const SkScalar kBaseMS = 1000.f / 60.f;  // ms/frame to hit 60 fps
 
-    auto canvas = surface->getCanvas();
+//    auto canvas = surface->getCanvas();
+    auto canvas = new SkNoDrawCanvas(1,1);
+
     SkISize canvasSize = canvas->getBaseLayerSize();
     SkRect rect = SkRect::MakeXYWH(SkIntToScalar(canvasSize.fWidth-kDisplayWidth-kDisplayPadding),
                                    SkIntToScalar(kDisplayPadding),
@@ -165,6 +169,7 @@ void StatsLayer::onPaint(SkSurface* surface) {
     double measure = fCumulativeMeasurementTime / SkTMax(1, fCumulativeMeasurementCount);
     canvas->drawString(SkStringPrintf("%4.3f ms -> %4.3f ms", time, measure),
                        rect.fLeft + 3, rect.fTop + 14, font, paint);
+    SkDebugf("Time: %4.3f ms %4.3f ms\n", time, measure);
 
     for (int timer = 0; timer < fTimers.count(); ++timer) {
         paint.setColor(fTimers[timer].fLabelColor);
