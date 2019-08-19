@@ -13,6 +13,16 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkPathPriv.h"
+
+enum Type {
+    kIter,
+    kRaw,
+    kEdge,
+};
+const char* names[] = {
+    "iter", "raw", "edge", "result"
+};
 
 static int rand_pts(SkRandom& rand, SkPoint pts[4]) {
     int n = rand.nextU() & 3;
@@ -28,12 +38,11 @@ static int rand_pts(SkRandom& rand, SkPoint pts[4]) {
 class PathIterBench : public Benchmark {
     SkString    fName;
     SkPath      fPath;
-    bool        fRaw;
+    Type        fType;
 
 public:
-    PathIterBench(bool raw)  {
-        fName.printf("pathiter_%s", raw ? "raw" : "consume");
-        fRaw = raw;
+    PathIterBench(Type t) : fType(t) {
+        fName.printf("pathiter_%s", names[t]);
 
         SkRandom rand;
         for (int i = 0; i < 1000; ++i) {
@@ -66,22 +75,27 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        if (fRaw) {
-            for (int i = 0; i < loops; ++i) {
-                SkPath::RawIter iter(fPath);
-                SkPath::Verb verb;
-                SkPoint      pts[4];
-
-                while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
-            }
-        } else {
-            for (int i = 0; i < loops; ++i) {
-                SkPath::Iter iter(fPath, false);
-                SkPath::Verb verb;
-                SkPoint      pts[4];
-
-                while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
-            }
+        SkPath::Verb verb;
+        SkPoint      pts[4];
+        switch (fType) {
+            case kIter:
+                for (int i = 0; i < loops; ++i) {
+                    SkPath::Iter iter(fPath, true);
+                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
+                }
+                break;
+            case kRaw:
+                for (int i = 0; i < loops; ++i) {
+                    SkPath::RawIter iter(fPath);
+                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
+                }
+                break;
+            case kEdge:
+                for (int i = 0; i < loops; ++i) {
+                    SkPathEdger iter(fPath);
+                    while (iter.next()) { }
+                }
+                break;
         }
     }
 
@@ -91,5 +105,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new PathIterBench(false); )
-DEF_BENCH( return new PathIterBench(true); )
+DEF_BENCH( return new PathIterBench(kIter); )
+DEF_BENCH( return new PathIterBench(kRaw); )
+DEF_BENCH( return new PathIterBench(kEdge); )
