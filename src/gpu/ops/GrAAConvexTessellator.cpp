@@ -391,35 +391,30 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     // TODO: is there a faster way to extract the points from the path? Perhaps
     // get all the points via a new entry point, transform them all in bulk
     // and then walk them to find duplicates?
-    SkPath::Iter iter(path, true);
-    SkPoint pts[4];
-    SkPath::Verb verb;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
+    SkPathEdger edger(path);
+    while (auto res = edger.next()) {
+        switch (res.fVerb) {
             case SkPath::kLine_Verb:
-                if (!SkPathPriv::AllPointsEq(pts, 2)) {
-                    this->lineTo(m, pts[1], kSharp_CurveState);
+                if (!SkPathPriv::AllPointsEq(res.fPts, 2)) {
+                    this->lineTo(m, res.fPts[1], kSharp_CurveState);
                 }
                 break;
             case SkPath::kQuad_Verb:
-                if (!SkPathPriv::AllPointsEq(pts, 3)) {
-                    this->quadTo(m, pts);
+                if (!SkPathPriv::AllPointsEq(res.fPts, 3)) {
+                    this->quadTo(m, res.fPts);
                 }
                 break;
             case SkPath::kCubic_Verb:
-                if (!SkPathPriv::AllPointsEq(pts, 4)) {
-                    this->cubicTo(m, pts);
+                if (!SkPathPriv::AllPointsEq(res.fPts, 4)) {
+                    this->cubicTo(m, res.fPts);
                 }
                 break;
             case SkPath::kConic_Verb:
-                if (!SkPathPriv::AllPointsEq(pts, 3)) {
-                    this->conicTo(m, pts, iter.conicWeight());
+                if (!SkPathPriv::AllPointsEq(res.fPts, 3)) {
+                    this->conicTo(m, res.fPts, edger.conicWeight());
                 }
                 break;
-            case SkPath::kMove_Verb:
-            case SkPath::kClose_Verb:
-            case SkPath::kDone_Verb:
-                break;
+            default: SkASSERT(false); break;
         }
     }
 
@@ -935,9 +930,8 @@ void GrAAConvexTessellator::lineTo(const SkPoint& p, CurveState curve) {
     this->addPt(p, 0.0f, initialRingCoverage, false, curve);
 }
 
-void GrAAConvexTessellator::lineTo(const SkMatrix& m, SkPoint p, CurveState curve) {
-    m.mapPoints(&p, 1);
-    this->lineTo(p, curve);
+void GrAAConvexTessellator::lineTo(const SkMatrix& m, const SkPoint& p, CurveState curve) {
+    this->lineTo(m.mapXY(p.fX, p.fY), curve);
 }
 
 void GrAAConvexTessellator::quadTo(const SkPoint pts[3]) {
@@ -953,13 +947,15 @@ void GrAAConvexTessellator::quadTo(const SkPoint pts[3]) {
     this->lineTo(fPointBuffer[count - 1], kIndeterminate_CurveState);
 }
 
-void GrAAConvexTessellator::quadTo(const SkMatrix& m, SkPoint pts[3]) {
-    m.mapPoints(pts, 3);
+void GrAAConvexTessellator::quadTo(const SkMatrix& m, const SkPoint srcPts[3]) {
+    SkPoint pts[3];
+    m.mapPoints(pts, srcPts, 3);
     this->quadTo(pts);
 }
 
-void GrAAConvexTessellator::cubicTo(const SkMatrix& m, SkPoint pts[4]) {
-    m.mapPoints(pts, 4);
+void GrAAConvexTessellator::cubicTo(const SkMatrix& m, const SkPoint srcPts[4]) {
+    SkPoint pts[4];
+    m.mapPoints(pts, srcPts, 4);
     int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
     fPointBuffer.setCount(maxCount);
     SkPoint* target = fPointBuffer.begin();
@@ -975,8 +971,9 @@ void GrAAConvexTessellator::cubicTo(const SkMatrix& m, SkPoint pts[4]) {
 // include down here to avoid compilation errors caused by "-" overload in SkGeometry.h
 #include "src/core/SkGeometry.h"
 
-void GrAAConvexTessellator::conicTo(const SkMatrix& m, SkPoint pts[3], SkScalar w) {
-    m.mapPoints(pts, 3);
+void GrAAConvexTessellator::conicTo(const SkMatrix& m, const SkPoint srcPts[3], SkScalar w) {
+    SkPoint pts[3];
+    m.mapPoints(pts, srcPts, 3);
     SkAutoConicToQuads quadder;
     const SkPoint* quads = quadder.computeQuads(pts, w, kConicTolerance);
     SkPoint lastPoint = *(quads++);

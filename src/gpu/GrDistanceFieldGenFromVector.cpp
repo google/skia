@@ -788,40 +788,32 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
     // create initial distance data
     init_distances(dataPtr, width * height);
 
-    SkPath::Iter iter(workingPath, true);
+    SkPathEdger edger(workingPath);
     SkSTArray<15, PathSegment, true> segments;
 
-    for (;;) {
-        SkPoint pts[4];
-        SkPath::Verb verb = iter.next(pts);
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                break;
+    while (auto res = edger.next()) {
+        switch (res.fVerb) {
             case SkPath::kLine_Verb: {
-                add_line_to_segment(pts, &segments);
+                add_line_to_segment(res.fPts, &segments);
                 break;
             }
             case SkPath::kQuad_Verb:
-                add_quad_segment(pts, &segments);
+                add_quad_segment(res.fPts, &segments);
                 break;
             case SkPath::kConic_Verb: {
-                SkScalar weight = iter.conicWeight();
+                SkScalar weight = edger.conicWeight();
                 SkAutoConicToQuads converter;
-                const SkPoint* quadPts = converter.computeQuads(pts, weight, kConicTolerance);
+                const SkPoint* quadPts = converter.computeQuads(res.fPts, weight, kConicTolerance);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     add_quad_segment(quadPts + 2*i, &segments);
                 }
                 break;
             }
             case SkPath::kCubic_Verb: {
-                add_cubic_segments(pts, &segments);
+                add_cubic_segments(res.fPts, &segments);
                 break;
             }
-            default:
-                break;
-        }
-        if (verb == SkPath::kDone_Verb) {
-            break;
+            default: SkASSERT(false); break;
         }
     }
 
