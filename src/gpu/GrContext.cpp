@@ -484,7 +484,16 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     }
 
     GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
-    SkColor4f swizzledColor = this->caps()->getOutputSwizzle(format, grColorType).applyTo(color);
+
+    SkColor4f modifiedColor;
+    if (grColorType == GrColorType::kGray_8) {
+        float gray = color.fA * (0.2126f * color.fR + 0.7152f * color.fG + 0.0722f * color.fB);
+        modifiedColor = { gray, gray, gray, gray };
+    } else {
+        modifiedColor = color;
+    }
+
+    auto swizzledColor = this->caps()->getOutputSwizzle(format, grColorType).applyTo(modifiedColor);
 
     return this->createBackendTexture(width, height, format, swizzledColor, mipMapped, renderable,
                                       isProtected);
