@@ -378,6 +378,10 @@ void GrRenderTargetOpList::makeClosed(const GrCaps& caps) {
     this->forwardCombine(caps);
 
     if (!this->isNoOp()) {
+        GrRenderTargetProxy* renderTargetProxy = fTarget->asRenderTargetProxy();
+        if (renderTargetProxy && renderTargetProxy->requiresManualMSAAResolve()) {
+            renderTargetProxy->markMSAADirty();
+        }
         GrTextureProxy* textureProxy = fTarget->asTextureProxy();
         if (textureProxy && GrMipMapped::kYes == textureProxy->mipMapped()) {
             textureProxy->markMipMapsDirty();
