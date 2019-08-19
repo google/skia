@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69f3b249_4b5ca90a",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-19T14:58:17Z",
+      "side": 1,
+      "message": "nit: can we put this on the next line? It just makes it easier to see where the multi-line predicate ends and the block starts.",
+      "range": {
+        "startLine": 256,
+        "startChar": 50,
+        "endLine": 256,
+        "endChar": 51
+      },
+      "revId": "72be6bf1e33116a3c003319699c62a0fc9613f83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
