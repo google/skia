@@ -264,7 +264,7 @@ public:
     T* release() { return fPtr.release(); }
 
 private:
-    std::unique_ptr<T, SkFunctionWrapper<decltype(sk_free), sk_free>> fPtr;
+    std::unique_ptr<T, SkFunctionWrapper<void(void*), sk_free>> fPtr;
 };
 
 template <size_t kCountRequested, typename T> class SkAutoSTMalloc {
@@ -439,7 +439,7 @@ private:
     SkAlignedSStorage<sizeof(T)*N> fStorage;
 };
 
-using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<decltype(sk_free), sk_free>>;
+using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void(void*), sk_free>>;
 
 template<typename C, std::size_t... Is>
 constexpr auto SkMakeArrayFromIndexSequence(C c, skstd::index_sequence<Is...>)
