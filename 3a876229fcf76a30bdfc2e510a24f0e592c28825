@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4250c233_c5e8da2c",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T17:15:29Z",
+      "side": 1,
+      "message": "Now I\u0027m curious... want to try computing these instead of using a table?\n\nLike, for {line,quad,conic,cubic}, the point count is (v/2)+1 or (v+2)/2,\nand cubic weight count is v/4, right?",
+      "revId": "3a876229fcf76a30bdfc2e510a24f0e592c28825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
