@@ -16,6 +16,24 @@
       "revId": "b069c028722b0a5c6f4033b40496fd35dfa58247",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fc43068_4ebd1138",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-20T18:51:56Z",
+      "side": 1,
+      "message": "We need to convert to Edge anyway (return value), and operating on Edge values is mostly domain documentation (the formulas don\u0027t make sense for certain Verb values).\n\nDon\u0027t feel strong either way, I\u0027ll update.",
+      "parentUuid": "d9854f42_5d5df6c1",
+      "revId": "b069c028722b0a5c6f4033b40496fd35dfa58247",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
