@@ -38,7 +38,7 @@ PUBLIC_API_OWNERS = (
 )
 
 AUTHORS_FILE_NAME = 'AUTHORS'
-RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.txt'
+RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.md'
 
 DOCS_PREVIEW_URL = 'https://skia.org/?cl='
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
