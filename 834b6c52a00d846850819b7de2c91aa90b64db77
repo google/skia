@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d2eda7d5_9d94b11c",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-20T19:57:54Z",
+      "side": 1,
+      "message": "Good idea, done.",
+      "parentUuid": "badb29ee_4fa65824",
+      "revId": "834b6c52a00d846850819b7de2c91aa90b64db77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bdcbe8d4_4423c7a6",
         "filename": "src/core/SkPathPriv.h",
         "patchSetId": 7
@@ -39,6 +57,30 @@
       "revId": "834b6c52a00d846850819b7de2c91aa90b64db77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a8cc944_eabd2af5",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-20T19:57:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bdcbe8d4_4423c7a6",
+      "range": {
+        "startLine": 377,
+        "startChar": 54,
+        "endLine": 377,
+        "endChar": 58
+      },
+      "revId": "834b6c52a00d846850819b7de2c91aa90b64db77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
