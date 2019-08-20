@@ -32,6 +32,7 @@
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrTextureResolveRenderTask.h"
 #include "src/gpu/GrTracing.h"
+#include "src/gpu/GrTransferFromRenderTask.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrTextContext.h"
 #include "src/image/SkSurface_Gpu.h"
@@ -613,8 +614,8 @@ void GrDrawingManager::validate() const {
 }
 #endif
 
-void GrDrawingManager::closeRenderTasksForNewOpList(GrSurfaceProxy* target) {
-    if (fDAG.sortingRenderTasks() && fReduceOpListSplitting) {
+void GrDrawingManager::closeRenderTasksForNewRenderTask(GrSurfaceProxy* target) {
+    if (target && fDAG.sortingRenderTasks() && fReduceOpListSplitting) {
         // In this case we need to close all the renderTasks that rely on the current contents of
         // 'target'. That is bc we're going to update the content of the proxy so they need to be
         // split in case they use both the old and new content. (This is a bit of an overkill: they
@@ -638,7 +639,7 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetPr
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
-    this->closeRenderTasksForNewOpList(rtp.get());
+    this->closeRenderTasksForNewRenderTask(rtp.get());
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                         fContext->priv().refOpMemoryPool(),
@@ -662,7 +663,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> 
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
-    this->closeRenderTasksForNewOpList(textureProxy.get());
+    this->closeRenderTasksForNewRenderTask(textureProxy.get());
 
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->priv().refOpMemoryPool(),
                                                       textureProxy,
@@ -698,6 +699,35 @@ GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
     // sorting/opList-splitting-reduction mode) because it will depend upon this resolve task.
     // NOTE: Putting it here will also reduce the amount of work required by the topological sort.
     return fDAG.addBeforeLast(std::move(textureResolveTask));
+}
+
+void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
+                                                 const SkIRect& srcRect,
+                                                 GrColorType surfaceColorType,
+                                                 GrColorType dstColorType,
+                                                 sk_sp<GrGpuBuffer> dstBuffer,
+                                                 size_t dstOffset) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+    // This copies from srcProxy to dstBuffer so it doesn't have a real target.
+    this->closeRenderTasksForNewRenderTask(nullptr);
+
+    sk_sp<GrRenderTask> task(new GrTransferFromRenderTask(srcProxy, srcRect, surfaceColorType,
+                                                          dstColorType, std::move(dstBuffer),
+                                                          dstOffset));
+
+    const GrCaps& caps = *fContext->priv().caps();
+
+    // We always say GrMipMapped::kNo here since we are always just copying from the base layer. We
+    // don't need to make sure the whole mip map chain is valid.
+    task->addDependency(srcProxy.get(), GrMipMapped::kNo, GrTextureResolveManager(this), caps);
+    task->makeClosed(caps);
+
+    fDAG.add(std::move(task));
+    // We have closed the previous active oplist but since a new oplist isn't being added there
+    // shouldn't be an active one.
+    SkASSERT(!fActiveOpList);
+    SkDEBUGCODE(this->validate());
 }
 
 GrTextContext* GrDrawingManager::getTextContext() {

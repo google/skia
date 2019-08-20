@@ -23,7 +23,6 @@
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrCopySurfaceOp.h"
-#include "src/gpu/ops/GrTransferFromOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -603,18 +602,6 @@ bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
     this->addOp(std::move(op), GrTextureResolveManager(context->priv().drawingManager()),
                 *context->priv().caps());
     return true;
-}
-
-void GrRenderTargetOpList::transferFrom(GrRecordingContext* context,
-                                        const SkIRect& srcRect,
-                                        GrColorType surfaceColorType,
-                                        GrColorType dstColorType,
-                                        sk_sp<GrGpuBuffer> dst,
-                                        size_t dstOffset) {
-    auto op = GrTransferFromOp::Make(context, srcRect, surfaceColorType, dstColorType,
-                                     std::move(dst), dstOffset);
-    this->addOp(std::move(op), GrTextureResolveManager(context->priv().drawingManager()),
-                *context->priv().caps());
 }
 
 void GrRenderTargetOpList::handleInternalAllocationFailure() {

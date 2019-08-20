@@ -209,6 +209,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrSWMaskHelper.cpp",
   "$_src/gpu/GrSWMaskHelper.h",
   "$_src/gpu/GrTracing.h",
+  "$_src/gpu/GrTransferFromRenderTask.cpp",
+  "$_src/gpu/GrTransferFromRenderTask.h",
   "$_src/gpu/GrTessellator.cpp",
   "$_src/gpu/GrTessellator.h",
   "$_src/gpu/GrTestUtils.cpp",
@@ -305,8 +307,6 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrTessellatingPathRenderer.h",
   "$_src/gpu/ops/GrTextureOp.cpp",
   "$_src/gpu/ops/GrTextureOp.h",
-  "$_src/gpu/ops/GrTransferFromOp.cpp",
-  "$_src/gpu/ops/GrTransferFromOp.h",
 
   "$_src/gpu/effects/GrCoverageSetOpXP.cpp",
   "$_src/gpu/effects/GrCoverageSetOpXP.h",
