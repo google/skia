@@ -1506,6 +1506,21 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     badFirstVector.lineTo(501.087708f, 319.610352f);
     badFirstVector.close();
     check_convexity(reporter, badFirstVector, SkPath::kConcave_Convexity);
+
+    // http://crbug.com/993330
+    SkPath falseBackEdge;
+    falseBackEdge.moveTo(-217.83430557928145f,      -382.14948768484857f);
+    falseBackEdge.lineTo(-227.73867866614847f,      -399.52485512718323f);
+    falseBackEdge.cubicTo(-158.3541047666846f,      -439.0757140459542f,
+                          -79.8654464485281f,       -459.875f,
+                          -1.1368683772161603e-13f, -459.875f);
+    falseBackEdge.lineTo(-8.08037266162413e-14f,    -439.875f);
+    falseBackEdge.lineTo(-8.526512829121202e-14f,   -439.87499999999994f);
+    falseBackEdge.cubicTo(-76.39209188702645f,      -439.87499999999994f,
+                          -151.46727226799754f,     -419.98027663161537f,
+                          -217.83430557928145f,     -382.14948768484857f);
+    falseBackEdge.close();
+    check_convexity(reporter, falseBackEdge, SkPath::kConcave_Convexity);
 }
 
 static void test_convexity_doubleback(skiatest::Reporter* reporter) {
@@ -3656,9 +3671,10 @@ static void test_rrect(skiatest::Reporter* reporter) {
     rr.setRectRadii(infR, radii);
     REPORTER_ASSERT(reporter, rr.isEmpty());
 
+    // We consider any path with very small (numerically unstable) edges to be concave.
     SkRect tinyR = {0, 0, 1e-9f, 1e-9f};
     p.addRoundRect(tinyR, 5e-11f, 5e-11f);
-    test_rrect_is_convex(reporter, &p, SkPath::kCW_Direction);
+    test_rrect_convexity_is_unknown(reporter, &p, SkPath::kCW_Direction);
 }
 
 static void test_arc(skiatest::Reporter* reporter) {
