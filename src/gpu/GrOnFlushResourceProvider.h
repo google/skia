@@ -37,9 +37,8 @@ public:
      * callback. The callback should return the render target contexts used to render the atlases
      * in 'results'.
      */
-    virtual void preFlush(GrOnFlushResourceProvider*,
-                          const uint32_t* opListIDs, int numOpListIDs,
-                          SkTArray<sk_sp<GrRenderTargetContext>>* results) = 0;
+    virtual void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
+                          SkTArray<std::unique_ptr<GrRenderTargetContext>>* results) = 0;
 
     /**
      * Called once flushing is complete and all ops indicated by preFlush have been executed and
@@ -66,10 +65,10 @@ class GrOnFlushResourceProvider {
 public:
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
 
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
-                                                         GrColorType,
-                                                         sk_sp<SkColorSpace>,
-                                                         const SkSurfaceProps*);
+    std::unique_ptr<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
+                                                                   GrColorType,
+                                                                   sk_sp<SkColorSpace>,
+                                                                   const SkSurfaceProps*);
 
     // Proxy unique key management. See GrProxyProvider.h.
     bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);

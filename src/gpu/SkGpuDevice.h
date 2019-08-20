@@ -42,7 +42,8 @@ public:
      * Creates an SkGpuDevice from a GrRenderTargetContext whose backing width/height is
      * different than its actual width/height (e.g., approx-match scratch texture).
      */
-    static sk_sp<SkGpuDevice> Make(GrContext*, sk_sp<GrRenderTargetContext> renderTargetContext,
+    static sk_sp<SkGpuDevice> Make(GrContext*,
+                                   std::unique_ptr<GrRenderTargetContext> renderTargetContext,
                                    int width, int height, InitContents);
 
     /**
@@ -65,7 +66,8 @@ public:
     void clearAll();
 
     void replaceRenderTargetContext(bool shouldRetainContent);
-    void replaceRenderTargetContext(sk_sp<GrRenderTargetContext>, bool shouldRetainContent);
+    void replaceRenderTargetContext(std::unique_ptr<GrRenderTargetContext>,
+                                    bool shouldRetainContent);
 
     GrRenderTargetContext* accessRenderTargetContext() override;
 
@@ -133,7 +135,7 @@ protected:
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.
     sk_sp<GrContext>             fContext;
-    sk_sp<GrRenderTargetContext> fRenderTargetContext;
+    std::unique_ptr<GrRenderTargetContext> fRenderTargetContext;
 
     SkISize                      fSize;
 
@@ -145,7 +147,8 @@ private:
     static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
                                           unsigned* flags);
 
-    SkGpuDevice(GrContext*, sk_sp<GrRenderTargetContext>, int width, int height, unsigned flags);
+    SkGpuDevice(GrContext*, std::unique_ptr<GrRenderTargetContext>, int width, int height,
+                unsigned flags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
@@ -233,13 +236,13 @@ private:
                            const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                            const uint16_t indices[], int indexCount, const SkPaint&);
 
-    static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
-                                                                SkBudgeted,
-                                                                const SkImageInfo&,
-                                                                int sampleCount,
-                                                                GrSurfaceOrigin,
-                                                                const SkSurfaceProps*,
-                                                                GrMipMapped);
+    static std::unique_ptr<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
+                                                                          SkBudgeted,
+                                                                          const SkImageInfo&,
+                                                                          int sampleCount,
+                                                                          GrSurfaceOrigin,
+                                                                          const SkSurfaceProps*,
+                                                                          GrMipMapped);
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps

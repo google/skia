@@ -30,8 +30,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ct
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetContext> rtc(
-            ctx->priv().makeVulkanSecondaryCBRenderTargetContext(imageInfo, vkInfo, props));
+    auto rtc = ctx->priv().makeVulkanSecondaryCBRenderTargetContext(imageInfo, vkInfo, props);
     SkASSERT(rtc->asSurfaceProxy()->isInstantiated());
 
     int width = rtc->width();

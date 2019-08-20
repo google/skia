@@ -156,7 +156,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // TODO: If I make this TopLeft origin to match resolve_origin calls for kDefault, this test
     // fails on the Nexus5. Why?
-    sk_sp<GrTextureContext> surfaceContext = context0->priv().makeBackendTextureContext(
+    auto surfaceContext = context0->priv().makeBackendTextureContext(
             backendTex, kBottomLeft_GrSurfaceOrigin, GrColorType::kRGBA_8888, kPremul_SkAlphaType,
             nullptr);
 
@@ -178,7 +178,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Should not be able to wrap as a RT
     {
-        sk_sp<GrRenderTargetContext> temp = context0->priv().makeBackendTextureRenderTargetContext(
+        auto temp = context0->priv().makeBackendTextureRenderTargetContext(
                 backendTex, kBottomLeft_GrSurfaceOrigin, 1, GrColorType::kRGBA_8888, nullptr);
         if (temp) {
             ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");

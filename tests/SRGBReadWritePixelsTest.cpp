@@ -186,8 +186,9 @@ static std::unique_ptr<uint32_t[]> make_data() {
     return data;
 }
 
-static sk_sp<GrSurfaceContext> make_surface_context(Encoding contextEncoding, GrContext* context,
-                                                    skiatest::Reporter* reporter) {
+static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEncoding,
+                                                              GrContext* context,
+                                                              skiatest::Reporter* reporter) {
     auto surfaceContext = context->priv().makeDeferredRenderTargetContext(
             SkBackingFit::kExact, kW, kH, GrColorType::kRGBA_8888,
             encoding_as_color_space(contextEncoding), 1, GrMipMapped::kNo,

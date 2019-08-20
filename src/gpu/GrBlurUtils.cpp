@@ -174,11 +174,9 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrRecordingContext* context,
                                              const SkMatrix& origViewMatrix,
                                              const GrShape& shape,
                                              int sampleCnt) {
-    sk_sp<GrRenderTargetContext> rtContext(
-            context->priv().makeDeferredRenderTargetContextWithFallback(
-                    SkBackingFit::kApprox, maskRect.width(), maskRect.height(),
-                    GrColorType::kAlpha_8, nullptr, sampleCnt, GrMipMapped::kNo,
-                    kTopLeft_GrSurfaceOrigin));
+    auto rtContext = context->priv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, maskRect.width(), maskRect.height(), GrColorType::kAlpha_8,
+            nullptr, sampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtContext) {
         return nullptr;
     }

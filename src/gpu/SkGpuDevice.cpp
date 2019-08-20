@@ -81,7 +81,7 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
 }
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
-                                     sk_sp<GrRenderTargetContext> renderTargetContext,
+                                     std::unique_ptr<GrRenderTargetContext> renderTargetContext,
                                      int width, int height,
                                      InitContents init) {
     if (!renderTargetContext || context->priv().abandoned()) {
@@ -104,10 +104,8 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(MakeRenderTargetContext(context, budgeted,
-                                                                             info, sampleCount,
-                                                                             origin, props,
-                                                                             mipMapped));
+    auto renderTargetContext =
+            MakeRenderTargetContext(context, budgeted, info, sampleCount, origin, props, mipMapped);
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -122,13 +120,14 @@ static SkImageInfo make_info(GrRenderTargetContext* context, int w, int h, bool 
                              context->colorSpaceInfo().refColorSpace());
 }
 
-SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> renderTargetContext,
-                         int width, int height, unsigned flags)
-    : INHERITED(make_info(renderTargetContext.get(), width, height,
-                          SkToBool(flags & kIsOpaque_Flag)), renderTargetContext->surfaceProps())
-    , fContext(SkRef(context))
-    , fRenderTargetContext(std::move(renderTargetContext))
-{
+SkGpuDevice::SkGpuDevice(GrContext* context,
+                         std::unique_ptr<GrRenderTargetContext> renderTargetContext, int width,
+                         int height, unsigned flags)
+        : INHERITED(make_info(renderTargetContext.get(), width, height,
+                              SkToBool(flags & kIsOpaque_Flag)),
+                    renderTargetContext->surfaceProps())
+        , fContext(SkRef(context))
+        , fRenderTargetContext(std::move(renderTargetContext)) {
     fSize.set(width, height);
 
     if (flags & kNeedClear_Flag) {
@@ -136,19 +135,14 @@ SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> render
     }
 }
 
-sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
-                                                               GrContext* context,
-                                                               SkBudgeted budgeted,
-                                                               const SkImageInfo& origInfo,
-                                                               int sampleCount,
-                                                               GrSurfaceOrigin origin,
-                                                               const SkSurfaceProps* surfaceProps,
-                                                               GrMipMapped mipMapped) {
-    if (kUnknown_SkColorType == origInfo.colorType() ||
-        origInfo.width() < 0 || origInfo.height() < 0) {
-        return nullptr;
-    }
-
+std::unique_ptr<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
+        GrContext* context,
+        SkBudgeted budgeted,
+        const SkImageInfo& origInfo,
+        int sampleCount,
+        GrSurfaceOrigin origin,
+        const SkSurfaceProps* surfaceProps,
+        GrMipMapped mipMapped) {
     if (!context) {
         return nullptr;
     }
@@ -224,7 +218,7 @@ void SkGpuDevice::clearAll() {
                                 GrRenderTargetContext::CanClearFullscreen::kYes);
 }
 
-void SkGpuDevice::replaceRenderTargetContext(sk_sp<GrRenderTargetContext> rtc,
+void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetContext> rtc,
                                              bool shouldRetainContent) {
     SkASSERT(rtc->width() == this->width());
     SkASSERT(rtc->height() == this->height());
@@ -251,14 +245,13 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
 
     // This entry point is used by SkSurface_Gpu::onCopyOnWrite so it must create a
     // kExact-backed render target context.
-    sk_sp<GrRenderTargetContext> newRTC(MakeRenderTargetContext(
-                                                            this->context(),
-                                                            budgeted,
-                                                            this->imageInfo(),
-                                                            fRenderTargetContext->numSamples(),
-                                                            fRenderTargetContext->origin(),
-                                                            &this->surfaceProps(),
-                                                            fRenderTargetContext->mipMapped()));
+    auto newRTC = MakeRenderTargetContext(this->context(),
+                                          budgeted,
+                                          this->imageInfo(),
+                                          fRenderTargetContext->numSamples(),
+                                          fRenderTargetContext->origin(),
+                                          &this->surfaceProps(),
+                                          fRenderTargetContext->mipMapped());
     if (!newRTC) {
         return;
     }
@@ -1661,7 +1654,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
         colorType = GrColorType::kRGBA_8888;
     }
 
-    sk_sp<GrRenderTargetContext> rtc(fContext->priv().makeDeferredRenderTargetContext(
+    auto rtc = fContext->priv().makeDeferredRenderTargetContext(
             fit,
             cinfo.fInfo.width(),
             cinfo.fInfo.height(),
@@ -1673,7 +1666,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
             &props,
             SkBudgeted::kYes,
             fRenderTargetContext->asSurfaceProxy()->isProtected() ? GrProtected::kYes
-                                                                  : GrProtected::kNo));
+                                                                  : GrProtected::kNo);
     if (!rtc) {
         return nullptr;
     }
