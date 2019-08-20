@@ -52,6 +52,24 @@
       "revId": "65e119bbec7a593549a9f423a44031ec54be1e2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1023631_ed934789",
+        "filename": "bench/PathIterBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-20T17:26:59Z",
+      "side": 1,
+      "message": "It was hard to tell before, but I think they were not being skipped. It is clear now that they aren\u0027t, but you\u0027re right that it is not self-proving one way or the other.\n\nI also thought it would be useful to actually read the values, since even if the code executes, if we don\u0027t actually read the returned values, we aren\u0027t seeing any diffs in memory caching between the different approaches (copying in Iter -vs- returning pointers in Edger).\n\nWe don\u0027t have to make any change. Just thought this would be more likely to be meaningful.",
+      "parentUuid": "a680e66d_9edc23c0",
+      "revId": "65e119bbec7a593549a9f423a44031ec54be1e2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
