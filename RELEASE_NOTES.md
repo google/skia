@@ -1,12 +1,14 @@
 Skia Graphics Release Notes
+===========================
 
 This file includes a list of high level updates for each milestone release.
 
------
+* * *
 
 Milestone 78
+------------
 
-  * Added RELEASE_NOTES.txt file
+  * Added RELEASE\_NOTES.txt file
     https://review.skia.org/229760
 
   * SkDrawLooper is no longer supported in SkPaint or SkCanvas.
@@ -21,11 +23,11 @@ Milestone 78
     https://review.skia.org/234476
 
   * SkImageFilter API refactor started:
-    - Provide new factory API in include/effects/SkImageFilters
-    - Consolidated enum types to use SkTileMode and SkColorChannel
-    - Hide filter implementation classes
-    - Hide previously public functions on SkImageFilter that were intended for
-      internal use only
+      - Provide new factory API in include/effects/SkImageFilters
+      - Consolidated enum types to use SkTileMode and SkColorChannel
+      - Hide filter implementation classes
+      - Hide previously public functions on SkImageFilter that were intended for
+        internal use only
     https://review.skia.org/230198
     https://review.skia.org/230876
     https://review.skia.org/231256
@@ -38,7 +40,7 @@ Milestone 78
     class for GL formats.
     https://review.skia.org/233160
 
-  * Expose GrContext::dump() when SK_ENABLE_DUMP_GPU is defined.
+  * Expose GrContext::dump() when SK\_ENABLE\_DUMP\_GPU is defined.
     https://review.skia.org/233557
 
   * Vulkan backend now supports YCbCr sampler for I420 Vulkan images that are
