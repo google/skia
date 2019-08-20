@@ -52,18 +52,18 @@ using SkDescriptorSet =
 
 // A SkTextBlobCacheDiffCanvas is used to populate the SkStrikeServer with ops
 // which will be serialized and rendered using the SkStrikeClient.
-class SK_API SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
+class SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
 public:
 
     // For testing use only
     SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
                               SkStrikeServer* strikeServer, bool DFTSupport = true);
 
-    SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
-                              SkStrikeServer* strikeServer, sk_sp<SkColorSpace> colorSpace,
-                              bool DFTSupport);
+    SK_API SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
+                                     SkStrikeServer* strikeServer, sk_sp<SkColorSpace> colorSpace,
+                                     bool DFTSupport);
 
-    ~SkTextBlobCacheDiffCanvas() override;
+    SK_API ~SkTextBlobCacheDiffCanvas() override;
 
 protected:
     SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
@@ -78,17 +78,17 @@ private:
 using SkDiscardableHandleId = uint32_t;
 
 // This class is not thread-safe.
-class SK_API SkStrikeServer final : public SkStrikeCacheInterface {
+class SkStrikeServer final : public SkStrikeCacheInterface {
 public:
     // An interface used by the server to create handles for pinning SkStrike
     // entries on the remote client.
-    class SK_API DiscardableHandleManager {
+    class DiscardableHandleManager {
     public:
-        virtual ~DiscardableHandleManager() = default;
+        SK_API virtual ~DiscardableHandleManager() = default;
 
         // Creates a new *locked* handle and returns a unique ID that can be used to identify
         // it on the remote client.
-        virtual SkDiscardableHandleId createHandle() = 0;
+        SK_API virtual SkDiscardableHandleId createHandle() = 0;
 
         // Returns true if the handle could be successfully locked. The server can
         // assume it will remain locked until the next set of serialized entries is
@@ -96,24 +96,24 @@ public:
         // If returns false, the cache entry mapped to the handle has been deleted
         // on the client. Any subsequent attempts to lock the same handle are not
         // allowed.
-        virtual bool lockHandle(SkDiscardableHandleId) = 0;
+        SK_API virtual bool lockHandle(SkDiscardableHandleId) = 0;
 
         // Returns true if a handle has been deleted on the remote client. It is
         // invalid to use a handle id again with this manager once this returns true.
         // TODO(khushalsagar): Make pure virtual once chrome implementation lands.
-        virtual bool isHandleDeleted(SkDiscardableHandleId) { return false; }
+        SK_API virtual bool isHandleDeleted(SkDiscardableHandleId) { return false; }
     };
 
-    explicit SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
-    ~SkStrikeServer() override;
+    SK_API explicit SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
+    SK_API ~SkStrikeServer() override;
 
     // Serializes the typeface to be transmitted using this server.
-    sk_sp<SkData> serializeTypeface(SkTypeface*);
+    SK_API sk_sp<SkData> serializeTypeface(SkTypeface*);
 
     // Serializes the strike data captured using a SkTextBlobCacheDiffCanvas. Any
     // handles locked using the DiscardableHandleManager will be assumed to be
     // unlocked after this call.
-    void writeStrikeData(std::vector<uint8_t>* memory);
+    SK_API void writeStrikeData(std::vector<uint8_t>* memory);
 
     // Methods used internally in Skia ------------------------------------------
     class SkGlyphCacheState;
@@ -159,7 +159,7 @@ private:
     std::vector<WireTypeface> fTypefacesToSend;
 };
 
-class SK_API SkStrikeClient {
+class SkStrikeClient {
 public:
     // This enum is used in histogram reporting in chromium. Please don't re-order the list of
     // entries, and consider it to be append-only.
@@ -199,26 +199,25 @@ public:
         virtual void notifyReadFailure(const ReadFailureData& data) {}
     };
 
-    explicit SkStrikeClient(sk_sp<DiscardableHandleManager>,
-                            bool isLogging = true,
-                            SkStrikeCache* strikeCache = nullptr);
-    ~SkStrikeClient();
+    SK_API explicit SkStrikeClient(sk_sp<DiscardableHandleManager>,
+                                   bool isLogging = true,
+                                   SkStrikeCache* strikeCache = nullptr);
+    SK_API ~SkStrikeClient();
 
     // Deserializes the typeface previously serialized using the SkStrikeServer. Returns null if the
     // data is invalid.
-    sk_sp<SkTypeface> deserializeTypeface(const void* data, size_t length);
-
-    static bool ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer);
+    SK_API sk_sp<SkTypeface> deserializeTypeface(const void* data, size_t length);
 
     // Deserializes the strike data from a SkStrikeServer. All messages generated
     // from a server when serializing the ops must be deserialized before the op
     // is rasterized.
     // Returns false if the data is invalid.
-    bool readStrikeData(const volatile void* memory, size_t memorySize);
+    SK_API bool readStrikeData(const volatile void* memory, size_t memorySize);
 
 private:
     class DiscardableStrikePinner;
 
+    static bool ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer);
     sk_sp<SkTypeface> addTypeface(const WireTypeface& wire);
 
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
