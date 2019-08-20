@@ -82,7 +82,7 @@ void GrDawnGpuTextureCommandBuffer::submit() {
 
 GrDawnGpuTextureCommandBuffer::~GrDawnGpuTextureCommandBuffer() {}
 
-////////////////////////////////////////////////////////////////////////////////
+namespace {
 
 static dawn::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
     switch (loadOp) {
@@ -100,6 +100,8 @@ static dawn::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
         default:
             SK_ABORT("Invalid LoadOp");
     }
+}
+
 }
 
 GrDawnGpuRTCommandBuffer::GrDawnGpuRTCommandBuffer(GrDawnGpu* gpu,
@@ -326,7 +328,8 @@ void GrDawnGpuRTCommandBuffer::applyState(const GrPipeline& pipeline,
                                                                colorFormat, hasDepthStencil,
                                                                stencilFormat, &desc);
     SkASSERT(program);
-    program->setData(primProc, fRenderTarget, fOrigin, pipeline);
+    auto bindGroup = program->setData(fGpu, fRenderTarget, fOrigin, primProc, pipeline,
+                                      primProcProxies);
 
     std::vector<dawn::VertexBufferDescriptor> inputs;
     std::vector<dawn::VertexAttributeDescriptor> vertexAttributes;
@@ -404,7 +407,7 @@ void GrDawnGpuRTCommandBuffer::applyState(const GrPipeline& pipeline,
     rpDesc.colorStates = colorStates;
     dawn::RenderPipeline renderPipeline = fGpu->device().CreateRenderPipeline(&rpDesc);
     fPassEncoder.SetPipeline(renderPipeline);
-    fPassEncoder.SetBindGroup(0, program->fBindGroup, 0, nullptr);
+    fPassEncoder.SetBindGroup(0, bindGroup, 0, nullptr);
     if (pipeline.isStencilEnabled()) {
         fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fFront.fRef);
     }

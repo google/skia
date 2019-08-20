@@ -347,54 +347,11 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     dawn::BindGroupLayoutDescriptor bindGroupLayoutDesc;
     bindGroupLayoutDesc.bindingCount = layoutBindings.size();
     bindGroupLayoutDesc.bindings = layoutBindings.data();
-    auto bindGroupLayout = gpu->device().CreateBindGroupLayout(&bindGroupLayoutDesc);
+    result->fBindGroupLayout = gpu->device().CreateBindGroupLayout(&bindGroupLayoutDesc);
     dawn::PipelineLayoutDescriptor pipelineLayoutDesc;
     pipelineLayoutDesc.bindGroupLayoutCount = 1;
-    pipelineLayoutDesc.bindGroupLayouts = &bindGroupLayout;
+    pipelineLayoutDesc.bindGroupLayouts = &result->fBindGroupLayout;
     result->fPipelineLayout = gpu->device().CreatePipelineLayout(&pipelineLayoutDesc);
-    if (0 != geometryUniformSize) {
-        dawn::BufferDescriptor desc;
-        desc.usage = dawn::BufferUsageBit::Uniform | dawn::BufferUsageBit::CopyDst;
-        desc.size = geometryUniformSize;
-        result->fGeometryUniformBuffer = gpu->device().CreateBuffer(&desc);
-        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kGeometryBinding,
-                                                   result->fGeometryUniformBuffer,
-                                                   0, geometryUniformSize));
-    }
-    if (0 != fragmentUniformSize) {
-        dawn::BufferDescriptor desc;
-        desc.usage = dawn::BufferUsageBit::Uniform | dawn::BufferUsageBit::CopyDst;
-        desc.size = fragmentUniformSize;
-        result->fFragmentUniformBuffer = gpu->device().CreateBuffer(&desc);
-        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kFragBinding,
-                                                   result->fFragmentUniformBuffer,
-                                                   0, fragmentUniformSize));
-    }
-    binding = GrDawnUniformHandler::kSamplerBindingBase;
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        dawn::Sampler sampler = create_sampler(gpu, primProc.textureSampler(i).samplerState());
-        bindings.push_back(make_bind_group_binding(binding++, sampler));
-        GrDawnTexture* tex = static_cast<GrDawnTexture*>(primProcProxies[i]->peekTexture());
-        dawn::TextureView textureView = tex->textureView();
-        bindings.push_back(make_bind_group_binding(binding++, textureView));
-    }
-    GrFragmentProcessor::Iter iter(pipeline);
-    const GrFragmentProcessor* fp = iter.next();
-    while (fp) {
-        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
-            dawn::Sampler sampler = create_sampler(gpu, fp->textureSampler(i).samplerState());
-            bindings.push_back(make_bind_group_binding(binding++, sampler));
-            GrDawnTexture* tex = static_cast<GrDawnTexture*>(fp->textureSampler(i).peekTexture());
-            dawn::TextureView textureView = tex->textureView();
-            bindings.push_back(make_bind_group_binding(binding++, textureView));
-        }
-        fp = iter.next();
-    }
-    dawn::BindGroupDescriptor bindGroupDescriptor;
-    bindGroupDescriptor.layout = bindGroupLayout;
-    bindGroupDescriptor.bindingCount = bindings.size();
-    bindGroupDescriptor.bindings = bindings.data();
-    result->fBindGroup = gpu->device().CreateBindGroup(&bindGroupDescriptor);
     result->fBuiltinUniformHandles = builder.fUniformHandles;
     result->fColorState = create_color_state(gpu, pipeline, colorFormat);
     GrStencilSettings stencil;
@@ -465,22 +422,70 @@ void GrDawnProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrig
     }
 }
 
-void GrDawnProgram::setData(const GrPrimitiveProcessor& primProc,
-                            const GrRenderTarget* renderTarget,
-                            GrSurfaceOrigin origin,
-                            const GrPipeline& pipeline) {
+static void setTexture(GrDawnGpu* gpu, const GrSamplerState& state, GrTexture* texture,
+                       std::vector<dawn::BindGroupBinding> *bindings, int* binding) {
+    // FIXME: could probably cache samplers in GrDawnProgram
+    dawn::Sampler sampler = create_sampler(gpu, state);
+    bindings->push_back(make_bind_group_binding((*binding)++, sampler));
+    GrDawnTexture* tex = static_cast<GrDawnTexture*>(texture);
+    dawn::TextureView textureView = tex->textureView();
+    bindings->push_back(make_bind_group_binding((*binding)++, textureView));
+}
+
+dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* renderTarget,
+                                       GrSurfaceOrigin origin,
+                                       const GrPrimitiveProcessor& primProc,
+                                       const GrPipeline& pipeline,
+                                       const GrTextureProxy* const primProcTextures[]) {
+    std::vector<dawn::BindGroupBinding> bindings;
+    GrDawnRingBuffer::Slice geom, frag;
+    uint32_t geometryUniformSize = fDataManager.geometryUniformSize();
+    uint32_t fragmentUniformSize = fDataManager.fragmentUniformSize();
+    if (0 != geometryUniformSize) {
+        geom = gpu->allocateUniformRingBufferSlice(geometryUniformSize);
+        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kGeometryBinding,
+                                                   geom.fBuffer, geom.fOffset,
+                                                   geometryUniformSize));
+    }
+    if (0 != fragmentUniformSize) {
+        frag = gpu->allocateUniformRingBufferSlice(fragmentUniformSize);
+        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kFragBinding,
+                                                   frag.fBuffer, frag.fOffset,
+                                                   fragmentUniformSize));
+    }
     this->setRenderTargetState(renderTarget, origin);
     fGeometryProcessor->setData(fDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
+    int binding = GrDawnUniformHandler::kSamplerBindingBase;
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+        auto& sampler = primProc.textureSampler(i);
+        setTexture(gpu, sampler.samplerState(), primProcTextures[i]->peekTexture(), &bindings,
+                   &binding);
+    }
     GrFragmentProcessor::Iter iter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
     while (fp && glslFP) {
         glslFP->setData(fDataManager, *fp);
+        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
+            auto& s = fp->textureSampler(i);
+            setTexture(gpu, s.samplerState(), s.peekTexture(), &bindings, &binding);
+        }
         fp = iter.next();
         glslFP = glslIter.next();
     }
-    fDataManager.uploadUniformBuffers(fGeometryUniformBuffer,
-                                      fFragmentUniformBuffer);
+    SkIPoint offset;
+    GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
+    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+    if (GrTextureProxy* proxy = pipeline.dstTextureProxy()) {
+        GrFragmentProcessor::TextureSampler sampler(sk_ref_sp(proxy));
+        setTexture(gpu, sampler.samplerState(), sampler.peekTexture(), &bindings, &binding);
+    }
+    fDataManager.uploadUniformBuffers(geom, frag);
+    dawn::BindGroupDescriptor descriptor;
+    descriptor.layout = fBindGroupLayout;
+    descriptor.bindingCount = bindings.size();
+    descriptor.bindings = bindings.data();
+    return gpu->device().CreateBindGroup(&descriptor);
 }
