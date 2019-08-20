@@ -358,21 +358,12 @@ private:
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
 // DEPRECATED
 // TODO(herb): remove uses in Chrome
-SkTextBlobCacheDiffCanvas::Settings::Settings() = default;
 
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkSurfaceProps& props,
                                                      SkStrikeServer* strikeServer,
                                                      bool DFTSupport)
     : SkTextBlobCacheDiffCanvas{width, height, props, strikeServer, nullptr, DFTSupport} { }
-
-SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
-                                                     const SkSurfaceProps& props,
-                                                     SkStrikeServer* strikeServer,
-                                                     sk_sp<SkColorSpace> colorSpace,
-                                                     Settings settings)
-    : SkTextBlobCacheDiffCanvas{width, height, props, strikeServer, std::move(colorSpace),
-                                settings.fContextSupportsDistanceFieldText} { }
 
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkSurfaceProps& props,
