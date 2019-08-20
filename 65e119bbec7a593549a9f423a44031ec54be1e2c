@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f52d218f_0f6d5f58",
+        "filename": "bench/PathIterBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T17:00:41Z",
+      "side": 1,
+      "message": "If you really want to be sure, accumulate them into volatiles?",
+      "revId": "65e119bbec7a593549a9f423a44031ec54be1e2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
