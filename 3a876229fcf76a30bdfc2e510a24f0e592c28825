@@ -34,6 +34,24 @@
       "revId": "3a876229fcf76a30bdfc2e510a24f0e592c28825",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53e1085d_4d79b041",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T17:19:41Z",
+      "side": 1,
+      "message": "Duh, (v \u0026 (v-1))/2.",
+      "parentUuid": "76d6b9c1_5963ca8b",
+      "revId": "3a876229fcf76a30bdfc2e510a24f0e592c28825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
