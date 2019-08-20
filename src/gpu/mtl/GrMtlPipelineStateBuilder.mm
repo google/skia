@@ -381,6 +381,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     bool timedout;
     id<MTLRenderPipelineState> pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
                                                      fGpu->device(), pipelineDescriptor, &timedout);
+    printf("     %x %x samples:%d stencil:%d\n"
     if (timedout) {
         // try a second time
         pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(

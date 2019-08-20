@@ -132,6 +132,7 @@ GrMtlResourceProvider::PipelineStateCache::~PipelineStateCache() {
 }
 
 void GrMtlResourceProvider::PipelineStateCache::release() {
+    printf("GrMtlResourceProvider::PipelineStateCache::release\n");
     fMap.reset();
 }
 
@@ -158,6 +159,7 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
+        printf("miss (%d)\n", fMap.count());
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         ++fCacheMisses;
 #endif
