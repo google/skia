@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04331df4_3b3b3289",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-20T13:55:51Z",
+      "side": 1,
+      "message": "Have you considered LUT-encoding this switch? I think I see some patterns.",
+      "revId": "5f152f07455c7e2b92a4845626f3c51225ee2396",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
