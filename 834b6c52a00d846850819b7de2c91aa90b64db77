@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "badb29ee_4fa65824",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T19:37:14Z",
+      "side": 1,
+      "message": "Is there something we can assert pts_count against?\n\n   SkASSERT(pts_count \u003d\u003d SkPathPriv::PtsInIter(v) - 1);\n\n?",
+      "revId": "834b6c52a00d846850819b7de2c91aa90b64db77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdcbe8d4_4423c7a6",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T19:37:14Z",
+      "side": 1,
+      "message": "even just Edge(v) here?",
+      "range": {
+        "startLine": 377,
+        "startChar": 54,
+        "endLine": 377,
+        "endChar": 58
+      },
+      "revId": "834b6c52a00d846850819b7de2c91aa90b64db77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
