@@ -62,11 +62,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
 
     for (auto make : { make_deferred, make_wrapped }) {
-        // Pending IO ref
+        // An extra ref
         {
             sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
-            if (proxy.get()) {
-                GrProxyPendingIO pendingIO(proxy.get());
+            if (proxy) {
+                sk_sp<GrTextureProxy> extraRef(proxy);
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
@@ -103,23 +103,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         // Continue using (reffing) proxy after instantiation
         {
             sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
-            if (proxy.get()) {
-                proxy->ref();
-
-                GrProxyPendingIO pendingIO(proxy.get());
+            if (proxy) {
+                sk_sp<GrTextureProxy> firstExtraRef(proxy);
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                check_refs(reporter, proxy.get(), 3, backingRefs);
+                check_refs(reporter, proxy.get(), 2, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                check_refs(reporter, proxy.get(), 3, 1);
-
-                proxy->unref();
                 check_refs(reporter, proxy.get(), 2, 1);
 
-                GrProxyPendingIO secondPendingIO(proxy.get());
+                sk_sp<GrTextureProxy> secondExtraRef(proxy);
                 check_refs(reporter, proxy.get(), 3, 1);
             }
             check_refs(reporter, proxy.get(), 1, 1);
