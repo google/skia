@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6d03439_c36a3772",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2019-08-20T15:34:36Z",
+      "side": 1,
+      "message": "Let\u0027s just remove this part- we sometimes find there is an external/unknown client. then lgtm!",
+      "range": {
+        "startLine": 42,
+        "startChar": 67,
+        "endLine": 43,
+        "endChar": 35
+      },
+      "revId": "1d90a128e36bac8db12369465e1a5a03df19bcbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
