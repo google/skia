@@ -15,7 +15,7 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 
-sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
+std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
         sk_sp<GrSurfaceProxy> proxy,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
@@ -27,8 +27,8 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(fDrawingMgr->makeRenderTargetContext(
-            std::move(proxy), colorType, std::move(colorSpace), props, false));
+    auto renderTargetContext = fDrawingMgr->makeRenderTargetContext(
+            std::move(proxy), colorType, std::move(colorSpace), props, false);
 
     if (!renderTargetContext) {
         return nullptr;

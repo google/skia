@@ -281,11 +281,11 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
     if (!fOnFlushCBObjects.empty()) {
         fDAG.gatherIDs(&fFlushingRenderTaskIDs);
 
-        SkSTArray<4, sk_sp<GrRenderTargetContext>> renderTargetContexts;
+        SkSTArray<4, std::unique_ptr<GrRenderTargetContext>> renderTargetContexts;
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
             onFlushCBObject->preFlush(&onFlushProvider, fFlushingRenderTaskIDs.begin(),
                                       fFlushingRenderTaskIDs.count(), &renderTargetContexts);
-            for (const sk_sp<GrRenderTargetContext>& rtc : renderTargetContexts) {
+            for (const auto& rtc : renderTargetContexts) {
                 sk_sp<GrRenderTargetOpList> onFlushOpList = sk_ref_sp(rtc->getRTOpList());
                 if (!onFlushOpList) {
                     continue;   // Odd - but not a big deal
@@ -794,7 +794,7 @@ void GrDrawingManager::flushIfNecessary() {
     }
 }
 
-sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
+std::unique_ptr<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
         sk_sp<GrSurfaceProxy> sProxy,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
@@ -813,18 +813,20 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     sk_sp<GrRenderTargetProxy> renderTargetProxy(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
-    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext,
-                                                                  std::move(renderTargetProxy),
-                                                                  colorType,
-                                                                  std::move(colorSpace),
-                                                                  surfaceProps,
-                                                                  managedOpList));
+    return std::unique_ptr<GrRenderTargetContext>(
+            new GrRenderTargetContext(fContext,
+                                      std::move(renderTargetProxy),
+                                      colorType,
+                                      std::move(colorSpace),
+                                      surfaceProps,
+                                      managedOpList));
 }
 
-sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,
-                                                             GrColorType colorType,
-                                                             SkAlphaType alphaType,
-                                                             sk_sp<SkColorSpace> colorSpace) {
+std::unique_ptr<GrTextureContext> GrDrawingManager::makeTextureContext(
+        sk_sp<GrSurfaceProxy> sProxy,
+        GrColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace) {
     if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
         return nullptr;
     }
@@ -841,9 +843,6 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
 
-    return sk_sp<GrTextureContext>(new GrTextureContext(fContext,
-                                                        std::move(textureProxy),
-                                                        colorType,
-                                                        alphaType,
-                                                        std::move(colorSpace)));
+    return std::unique_ptr<GrTextureContext>(new GrTextureContext(
+            fContext, std::move(textureProxy), colorType, alphaType, std::move(colorSpace)));
 }

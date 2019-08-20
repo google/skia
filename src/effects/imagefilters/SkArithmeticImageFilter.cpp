@@ -401,19 +401,18 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->priv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kApprox,
-                    bounds.width(),
-                    bounds.height(),
-                    ctx.grColorType(),
-                    ctx.refColorSpace(),
-                    1,
-                    GrMipMapped::kNo,
-                    kBottomLeft_GrSurfaceOrigin,
-                    nullptr,
-                    SkBudgeted::kYes,
-                    isProtected));
+    auto renderTargetContext =
+            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                            bounds.width(),
+                                                            bounds.height(),
+                                                            ctx.grColorType(),
+                                                            ctx.refColorSpace(),
+                                                            1,
+                                                            GrMipMapped::kNo,
+                                                            kBottomLeft_GrSurfaceOrigin,
+                                                            nullptr,
+                                                            SkBudgeted::kYes,
+                                                            isProtected);
     if (!renderTargetContext) {
         return nullptr;
     }
