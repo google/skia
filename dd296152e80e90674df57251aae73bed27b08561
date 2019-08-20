@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "408aef1c_25ea4712",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "062b7d41_eabfe383",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99bd7d9c_fb43300f",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "dd296152e80e90674df57251aae73bed27b08561",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7eb211cf_8d5b28cb",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Updated, but your comment isn\u0027t really true. In the copy case we will have a target but still not have an active oplist. It doesn\u0027t have an active oplist because we are not creating an oplist.",
+      "parentUuid": "99bd7d9c_fb43300f",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +112,48 @@
     },
     {
       "key": {
+        "uuid": "a2875df6_03e4f1b1",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc5fefe2_10b87a65",
+      "range": {
+        "startLine": 62,
+        "startChar": 9,
+        "endLine": 62,
+        "endChar": 24
+      },
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c379f702_57f0c6e4",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "419fc640_fcf3dfb2",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "83a42a54_cc7f7373",
         "filename": "src/gpu/GrDrawingManager.h",
         "patchSetId": 2
@@ -99,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "ce132ea1_fba4c246",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83a42a54_cc7f7373",
+      "range": {
+        "startLine": 63,
+        "startChar": 37,
+        "endLine": 63,
+        "endChar": 53
+      },
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b9f45f7_002b7425",
         "filename": "src/gpu/GrRenderTask.cpp",
         "patchSetId": 2
@@ -116,6 +218,24 @@
     },
     {
       "key": {
+        "uuid": "e8e637f8_dbb99d41",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b9f45f7_002b7425",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e1ae2d44_1376f64c",
         "filename": "src/gpu/GrSurfaceContext.cpp",
         "patchSetId": 2
@@ -130,6 +250,24 @@
       "revId": "dd296152e80e90674df57251aae73bed27b08561",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afa49fd8_28ae6b46",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "No. Nothing should be making a new oplist.",
+      "parentUuid": "e1ae2d44_1376f64c",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -156,6 +294,30 @@
     },
     {
       "key": {
+        "uuid": "5620a741_9a465747",
+        "filename": "src/gpu/GrTransferFromRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f382e2d8_08c102ec",
+      "range": {
+        "startLine": 17,
+        "startChar": 10,
+        "endLine": 17,
+        "endChar": 28
+      },
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8dafdce_dea93265",
         "filename": "src/gpu/GrTransferFromRenderTask.h",
         "patchSetId": 2
@@ -170,6 +332,24 @@
       "revId": "dd296152e80e90674df57251aae73bed27b08561",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86e1cd90_5b640906",
+        "filename": "src/gpu/GrTransferFromRenderTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8dafdce_dea93265",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -196,6 +376,30 @@
     },
     {
       "key": {
+        "uuid": "54caee78_2b29c7f5",
+        "filename": "src/gpu/GrTransferFromRenderTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dcd68b60_ebcefbfe",
+      "range": {
+        "startLine": 33,
+        "startChar": 15,
+        "endLine": 33,
+        "endChar": 21
+      },
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de5f1393_4438d74d",
         "filename": "src/gpu/GrTransferFromRenderTask.h",
         "patchSetId": 2
@@ -210,6 +414,24 @@
       "revId": "dd296152e80e90674df57251aae73bed27b08561",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e4207d6_39cd6bf1",
+        "filename": "src/gpu/GrTransferFromRenderTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T14:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de5f1393_4438d74d",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
