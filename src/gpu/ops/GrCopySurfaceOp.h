@@ -49,8 +49,8 @@ private:
     GrCopySurfaceOp(GrSurfaceProxy* src, GrSurfaceProxy* dst, const SkIRect& srcRect,
                     const SkIPoint& dstPoint)
             : INHERITED(ClassID())
-            , fSrc(src)
-            , fDst(dst)
+            , fSrc(sk_ref_sp(src))
+            , fDst(sk_ref_sp(dst))
             , fSrcRect(srcRect)
             , fDstPoint(dstPoint) {
         SkRect bounds =
@@ -72,10 +72,10 @@ private:
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    GrProxyPendingIO fSrc;
-    GrProxyPendingIO fDst;
-    SkIRect          fSrcRect;
-    SkIPoint         fDstPoint;
+    sk_sp<GrSurfaceProxy> fSrc;
+    sk_sp<GrSurfaceProxy> fDst;
+    SkIRect               fSrcRect;
+    SkIPoint              fDstPoint;
 
     typedef GrOp INHERITED;
 };

@@ -87,6 +87,7 @@ public:
         void setOffset(int ox, int oy) { fOffset.set(ox, oy); }
 
         GrTextureProxy* proxy() const { return fProxy.get(); }
+        sk_sp<GrTextureProxy> refProxy() const { return fProxy; }
 
         void setProxy(sk_sp<GrTextureProxy> proxy) {
             fProxy = std::move(proxy);
