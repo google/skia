@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "957c4e54_c5ccc0a7",
+        "filename": "src/gpu/GrTransferFromRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-20T18:11:08Z",
+      "side": 1,
+      "message": "Why does Gerrit think this is a new file?",
+      "revId": "37b3a17aff4451b25bcdd7ec4b44bc99c252646a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
