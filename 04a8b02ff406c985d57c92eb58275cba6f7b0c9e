@@ -22,6 +22,30 @@
       "revId": "04a8b02ff406c985d57c92eb58275cba6f7b0c9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e261aeb_97998a53",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T13:31:15Z",
+      "side": 1,
+      "message": "Basically without reordering we don\u0027t have a way to propagate load ops from one op list to another right now. So what happens sometimes is we get a new surface from the cache which automatically puts a discard on it. Then instead of immediately drawing to that one we draw to a surface in a different layer (that will be dropped down onto the original). So we end up with an oplist that only has a discard load in it with no ops. If we were to drop this oplist, then when we execute the next oplist that targets the same surface it will do a load op. But Vulkan will complain since we are loading uninitialized data.",
+      "parentUuid": "b9b8bbbd_bddf7551",
+      "range": {
+        "startLine": 491,
+        "startChar": 2,
+        "endLine": 500,
+        "endChar": 0
+      },
+      "revId": "04a8b02ff406c985d57c92eb58275cba6f7b0c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
