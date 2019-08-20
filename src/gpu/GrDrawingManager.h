@@ -59,6 +59,15 @@ public:
     GrRenderTask* newTextureResolveRenderTask(
             sk_sp<GrTextureProxy>, GrTextureResolveFlags, const GrCaps&);
 
+    // Create a new render task which copies the pixels from the srcProxy into the dstBuffer. This
+    // is used to support the asynchronous readback API. The srcRect is the region of the srcProxy
+    // to be copied. The surfaceColorType says how we should interpret the data when reading back
+    // from the source. DstColorType describes how the data should be stored in the dstBuffer.
+    // DstOffset is the offset into the dstBuffer where we will start writing data.
+    void newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy, const SkIRect& srcRect,
+                                   GrColorType surfaceColorType, GrColorType dstColorType,
+                                   sk_sp<GrGpuBuffer> dstBuffer, size_t dstOffset);
+
     GrRecordingContext* getContext() { return fContext; }
 
     GrTextContext* getTextContext();
@@ -162,7 +171,7 @@ private:
     // Closes the target's dependent render tasks (or, if not in sorting/opList-splitting-reduction
     // mode, closes fActiveOpList) in preparation for us opening a new opList that will write to
     // 'target'.
-    void closeRenderTasksForNewOpList(GrSurfaceProxy* target);
+    void closeRenderTasksForNewRenderTask(GrSurfaceProxy* target);
 
     // return true if any opLists were actually executed; false otherwise
     bool executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState*,
