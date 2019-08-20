@@ -17,12 +17,10 @@
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkRTShader.h"
 #include "tools/Resources.h"
 
 #include <stddef.h>
-
-extern sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
-                                            const SkMatrix* localMatrix, bool isOpaque);
 
 const char* gProg = R"(
     layout(ctype=SkRect) in uniform half4 gColor;
@@ -52,7 +50,7 @@ class RuntimeShader : public skiagm::GM {
             fData = SkData::MakeUninitialized(sizeof(SkColor4f));
             SkColor4f* c = (SkColor4f*)fData->writable_data();
             *c = {1, 0, 0, 1};
-            gShader = SkRuntimeShaderMaker(SkString(gProg), fData, &localM, true);
+            gShader = SkRuntimeShaderFactory(SkString(gProg), true).make(fData, &localM);
         }
     }
 
