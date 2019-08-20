@@ -55,26 +55,9 @@ using SkDescriptorSet =
 class SK_API SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
 public:
 
-    // DEPRECATED
-    // TODO(herb): remove uses in Chrome
-    struct SK_API Settings {
-        Settings();
-        bool fContextSupportsDistanceFieldText = true;
-
-        // These are set by Chrome, but not used in Skia.
-        int fMaxTextureSize = 0;
-        size_t fMaxTextureBytes = 0u;
-    };
-
     // For testing use only
     SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
                               SkStrikeServer* strikeServer, bool DFTSupport = true);
-
-    // DEPRECATED
-    // TODO(herb) : remove uses in Chrome.
-    SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
-                              SkStrikeServer* strikeServer, sk_sp<SkColorSpace> colorSpace,
-                              Settings settings = Settings());
 
     SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
                               SkStrikeServer* strikeServer, sk_sp<SkColorSpace> colorSpace,
