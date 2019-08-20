@@ -14,26 +14,26 @@
 #include "src/gpu/GrTexturePriv.h"
 
 sk_sp<GrRenderTask> GrTextureResolveRenderTask::Make(
-        sk_sp<GrTextureProxy> textureProxyPtr, GrTextureResolveFlags flags, const GrCaps& caps) {
-    GrTextureProxy* textureProxy = textureProxyPtr.get();
+        sk_sp<GrTextureProxy> textureProxy, GrTextureResolveFlags flags, const GrCaps& caps) {
+    GrTextureProxy* textureProxyPtr = textureProxy.get();
     sk_sp<GrTextureResolveRenderTask> resolveTask(
-            new GrTextureResolveRenderTask(std::move(textureProxyPtr), flags));
+            new GrTextureResolveRenderTask(std::move(textureProxy), flags));
 
     // Add the target as a dependency: We will read the existing contents of this texture while
     // generating mipmap levels and/or resolving MSAA.
     //
     // NOTE: This must be called before makeClosed.
     resolveTask->addDependency(
-            textureProxy, GrMipMapped::kNo, GrTextureResolveManager(nullptr), caps);
-    textureProxy->setLastRenderTask(resolveTask.get());
+            textureProxyPtr, GrMipMapped::kNo, GrTextureResolveManager(nullptr), caps);
+    textureProxyPtr->setLastRenderTask(resolveTask.get());
 
     // We only resolve the texture; nobody should try to do anything else with this opList.
     resolveTask->makeClosed(caps);
 
     if (GrTextureResolveFlags::kMipMaps & flags) {
-        SkASSERT(GrMipMapped::kYes == textureProxy->mipMapped());
-        SkASSERT(textureProxy->mipMapsAreDirty());
-        textureProxy->markMipMapsClean();
+        SkASSERT(GrMipMapped::kYes == textureProxyPtr->mipMapped());
+        SkASSERT(textureProxyPtr->mipMapsAreDirty());
+        textureProxyPtr->markMipMapsClean();
     }
 
     return resolveTask;

@@ -25,14 +25,6 @@ public:
         fGpu->copySurface(fTexture, src, srcRect, dstPoint);
     }
 
-    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
-                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                      size_t offset) override {
-        fGpu->transferPixelsFrom(fTexture, srcRect.fLeft, srcRect.fTop, srcRect.width(),
-                                 srcRect.height(), surfaceColorType, bufferColorType,
-                                 transferBuffer, offset);
-    }
-
     void insertEventMarker(const char* msg) override {
         fGpu->insertEventMarker(msg);
     }
@@ -69,14 +61,6 @@ public:
 
     void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
         fGpu->copySurface(fRenderTarget, src,srcRect, dstPoint);
-    }
-
-    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
-                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                      size_t offset) override {
-        fGpu->transferPixelsFrom(fRenderTarget, srcRect.fLeft, srcRect.fTop, srcRect.width(),
-                                 srcRect.height(), surfaceColorType, bufferColorType,
-                                 transferBuffer, offset);
     }
 
     void set(GrRenderTarget*, GrSurfaceOrigin,

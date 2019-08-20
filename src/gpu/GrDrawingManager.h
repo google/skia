@@ -59,6 +59,10 @@ public:
     GrRenderTask* newTextureResolveRenderTask(
             sk_sp<GrTextureProxy>, GrTextureResolveFlags, const GrCaps&);
 
+    void newTransferFrom(sk_sp<GrSurfaceProxy> srcProxy, const SkIRect& srcRect,
+                         GrColorType surfaceColorType, GrColorType dstColorType,
+                         sk_sp<GrGpuBuffer> dstBuffer, size_t dstOffset);
+
     GrRecordingContext* getContext() { return fContext; }
 
     GrTextContext* getTextContext();
@@ -162,7 +166,7 @@ private:
     // Closes the target's dependent render tasks (or, if not in sorting/opList-splitting-reduction
     // mode, closes fActiveOpList) in preparation for us opening a new opList that will write to
     // 'target'.
-    void closeRenderTasksForNewOpList(GrSurfaceProxy* target);
+    void closeRenderTasksForNewRenderTask(GrSurfaceProxy* target);
 
     // return true if any opLists were actually executed; false otherwise
     bool executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState*,
