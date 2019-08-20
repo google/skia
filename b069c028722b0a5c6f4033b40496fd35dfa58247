@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9854f42_5d5df6c1",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T18:32:34Z",
+      "side": 1,
+      "message": "What\u0027s the need for the verb-\u003eedge map and all this down here?  Can\u0027t you just do the math based on the verb value directly?\n\n  default: {\n    int pts_count \u003d (v/2)+1,\n        cws_count \u003d (v\u0026(v-1))/2;\n    ...",
+      "revId": "b069c028722b0a5c6f4033b40496fd35dfa58247",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
