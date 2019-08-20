@@ -46,9 +46,6 @@ public:
     GrVkGpuTextureCommandBuffer(GrVkGpu* gpu) : fGpu(gpu) {}
 
     void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
-                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                      size_t offset) override;
 
     void insertEventMarker(const char*) override;
 
@@ -104,9 +101,6 @@ public:
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 
     void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
-                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                      size_t offset) override;
 
     void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 

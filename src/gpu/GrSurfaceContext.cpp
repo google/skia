@@ -630,8 +630,9 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
         srcRect = SkIRect::MakeLTRB(rect.fLeft, this->height() - rect.fBottom, rect.fRight,
                                     this->height() - rect.fTop);
     }
-    this->getOpList()->transferFrom(fContext, srcRect, this->colorSpaceInfo().colorType(),
-                                    supportedRead.fColorType, buffer, 0);
+    this->drawingManager()->newTransferFromRenderTask(this->asSurfaceProxyRef(), srcRect,
+                                                      this->colorSpaceInfo().colorType(),
+                                                      supportedRead.fColorType, buffer, 0);
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);
     auto at = this->colorSpaceInfo().alphaType();
