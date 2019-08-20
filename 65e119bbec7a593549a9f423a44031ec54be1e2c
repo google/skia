@@ -34,6 +34,24 @@
       "revId": "65e119bbec7a593549a9f423a44031ec54be1e2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a680e66d_9edc23c0",
+        "filename": "bench/PathIterBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T17:22:08Z",
+      "side": 1,
+      "message": "So... by that same logic, what makes you think the path iterator calls will be skipped?  Are they being skipped?",
+      "parentUuid": "abf4bc00_b255aa82",
+      "revId": "65e119bbec7a593549a9f423a44031ec54be1e2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
