@@ -2634,6 +2634,11 @@ private:
         largest = SkTMax(largest, -smallest);
 
         if (almost_equal(largest, largest + cross)) {
+            constexpr SkScalar nearlyZeroSqd = SK_ScalarNearlyZero * SK_ScalarNearlyZero;
+            if (SkScalarNearlyZero(SkPointPriv::LengthSqd(fLastVec), nearlyZeroSqd) ||
+                SkScalarNearlyZero(SkPointPriv::LengthSqd(curVec), nearlyZeroSqd)) {
+                return kUnknown_DirChange;
+            }
             return fLastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
         }
         return 1 == SkScalarSignAsInt(cross) ? kRight_DirChange : kLeft_DirChange;
