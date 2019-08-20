@@ -1,0 +1,43 @@
+/*
+ * Copyright 2019 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "src/gpu/GrTransferFromRenderTask.h"
+
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrResourceAllocator.h"
+
+sk_sp<GrRenderTask> GrTransferFromRenderTask::Make(sk_sp<GrSurfaceProxy> srcProxy,
+                                                   const SkIRect& srcRect,
+                                                   GrColorType surfaceColorType,
+                                                   GrColorType dstColorType,
+                                                   sk_sp<GrGpuBuffer> dstBuffer,
+                                                   size_t dstOffset) {
+    sk_sp<GrTransferFromRenderTask> transferTask(
+            new GrTransferFromRenderTask(srcProxy, srcRect, surfaceColorType,
+                                         dstColorType, std::move(dstBuffer), dstOffset));
+    return transferTask;
+}
+
+void GrTransferFromRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+    // This renderTask doesn't have "normal" ops. In this case we still need to add an interval (so
+    // fEndOfOpListOpIndices will remain in sync), so we create a fake op# to capture the fact that
+    // we manipulate fTarget.
+    alloc->addInterval(fSrcProxy.get(), alloc->curOp(), alloc->curOp(),
+                       GrResourceAllocator::ActualUse::kYes);
+    alloc->incOps();
+}
+
+bool GrTransferFromRenderTask::onExecute(GrOpFlushState* flushState) {
+    if (!fSrcProxy->isInstantiated()) {
+        return false;
+    }
+    flushState->gpu()->transferPixelsFrom(
+            fSrcProxy->peekSurface(), fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.width(), fSrcRect.height(),
+            fSurfaceColorType, fDstColorType, fDstBuffer.get(), fDstOffset);
+    return true;
+}

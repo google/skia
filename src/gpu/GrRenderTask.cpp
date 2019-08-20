@@ -170,6 +170,10 @@ void GrRenderTask::closeThoseWhoDependOnMe(const GrCaps& caps) {
 }
 
 bool GrRenderTask::isInstantiated() const {
+    if (!fTarget) {
+        return true;
+    }
+
     if (!fTarget->isInstantiated()) {
         return false;
     }
