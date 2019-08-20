@@ -40,6 +40,9 @@ class PathIterBench : public Benchmark {
     SkPath          fPath;
     PathIterType    fType;
 
+    int fVerbInc = 0;
+    SkScalar fXInc = 0, fYInc = 0;
+
 public:
     PathIterBench(PathIterType t) : fType(t) {
         fName.printf("pathiter_%s", gPathIterNames[static_cast<unsigned>(t)]);
@@ -75,25 +78,39 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas*) override {
+        // Need to do *something* with the results, so the compile doesn't elide
+        // away the code we want to time.
+        auto handle = [this](int verb, const SkPoint pts[]) {
+            fVerbInc += verb;
+            fXInc += pts[0].fX;
+            fYInc += pts[0].fY;
+        };
+
         SkPath::Verb verb;
         SkPoint      pts[4];
         switch (fType) {
             case PathIterType::kIter:
                 for (int i = 0; i < loops; ++i) {
                     SkPath::Iter iter(fPath, true);
-                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
+                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+                        handle(verb, pts);
+                    }
                 }
                 break;
             case PathIterType::kRaw:
                 for (int i = 0; i < loops; ++i) {
                     SkPath::RawIter iter(fPath);
-                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
+                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+                        handle(verb, pts);
+                    }
                 }
                 break;
             case PathIterType::kEdge:
                 for (int i = 0; i < loops; ++i) {
                     SkPathEdgeIter iter(fPath);
-                    while (iter.next()) { }
+                    while (auto r = iter.next()) {
+                        handle((int)r.fEdge, r.fPts);
+                    }
                 }
                 break;
         }
