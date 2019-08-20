@@ -180,6 +180,7 @@ DEF_TEST(Bitmap_eraseColor_Premul, r) {
 DEF_TEST(Bitmap_compute_is_opaque, r) {
     SkColorType colorTypes[] = {
         kAlpha_8_SkColorType,
+        kRG_88_SkColorType,
         kRGB_565_SkColorType,
         kARGB_4444_SkColorType,
         kRGBA_8888_SkColorType,
@@ -342,6 +343,7 @@ DEF_TEST(getalphaf, reporter) {
     } recs[] = {
         { kRGB_565_SkColorType,     opaque },
         { kGray_8_SkColorType,      opaque },
+        { kRG_88_SkColorType,       opaque },
         { kRGB_888x_SkColorType,    opaque },
         { kRGB_101010x_SkColorType, opaque },
 
