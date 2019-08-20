@@ -957,4 +957,14 @@ SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) {
 
     fNeedsCloseLine = false;
     SkDEBUGCODE(fIsConic = false;)
+
+    static_assert(PointCount(Edge::kLine ) == 1, "");
+    static_assert(PointCount(Edge::kQuad ) == 2, "");
+    static_assert(PointCount(Edge::kConic) == 2, "");
+    static_assert(PointCount(Edge::kCubic) == 3, "");
+
+    static_assert(ConicWeightCount(Edge::kLine ) == 0, "");
+    static_assert(ConicWeightCount(Edge::kQuad ) == 0, "");
+    static_assert(ConicWeightCount(Edge::kConic) == 1, "");
+    static_assert(ConicWeightCount(Edge::kCubic) == 0, "");
 }

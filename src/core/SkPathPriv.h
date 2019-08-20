@@ -340,14 +340,15 @@ public:
         for (;;) {
             SkASSERT(fVerbs >= fVerbsStart);
             if (fVerbs == fVerbsStart) {
-                if (fNeedsCloseLine) {
-                    return closeline();
-                }
-                return { nullptr, Edge(kIllegalEdgeValue) };
+                return fNeedsCloseLine
+                    ? closeline()
+                    : Result{ nullptr, Edge(kIllegalEdgeValue) };
             }
 
             SkDEBUGCODE(fIsConic = false;)
-            switch (*--fVerbs) {
+
+            const auto v = *--fVerbs;
+            switch (v) {
                 case SkPath::kMove_Verb: {
                     if (fNeedsCloseLine) {
                         auto res = closeline();
@@ -356,34 +357,57 @@ public:
                     }
                     fMoveToPtr = fPts++;
                 } break;
-                case SkPath::kLine_Verb:
-                    fNeedsCloseLine = true;
-                    fPts += 1;
-                    return { &fPts[-2], Edge::kLine };
-                case SkPath::kConic_Verb:
-                    SkDEBUGCODE(fIsConic = true;)
-                    fNeedsCloseLine = true;
-                    fConicWeights++;
-                    fPts += 2;
-                    return { &fPts[-3], Edge::kConic };
-                case SkPath::kQuad_Verb:
-                    fNeedsCloseLine = true;
-                    fPts += 2;
-                    return { &fPts[-3], Edge::kQuad };
-                case SkPath::kCubic_Verb:
-                    fNeedsCloseLine = true;
-                    fPts += 3;
-                    return { &fPts[-4], Edge::kCubic };
                 case SkPath::kClose_Verb:
-                    if (fNeedsCloseLine) {
-                        return closeline();
-                    }
+                    if (fNeedsCloseLine) return closeline();
                     break;
-                default:
-                    SkASSERT(false);
-                    break;
+                default: {
+                    // Actual edge.
+                    const auto edge = VerbToEdge(v);
+                    const auto pts_count = PointCount(edge),
+                               cws_count = ConicWeightCount(edge);
+                    SkASSERT(pts_count > 0);
+
+                    fNeedsCloseLine  = true;
+                    fPts            += pts_count;
+                    fConicWeights   += cws_count;
+
+                    SkDEBUGCODE(fIsConic = (v == SkPath::kConic_Verb);)
+                    SkASSERT(fIsConic == (cws_count > 0));
+
+                    return { &fPts[-(pts_count + 1)], edge };
+                }
             }
         }
+    }
+
+private:
+    static Edge VerbToEdge(uint8_t v) {
+        static constexpr Edge gVerbToEdgeMap[] = {
+            Edge(kIllegalEdgeValue), // kMove_Verb
+            Edge::kLine            , // kLine_Verb
+            Edge::kQuad            , // kQuad_Verb
+            Edge::kConic           , // kConic_Verb
+            Edge::kCubic           , // kCubic_Verb
+            Edge(kIllegalEdgeValue), // kClose_Verb
+        };
+        static_assert(SkPath::kMove_Verb  == 0, "");
+        static_assert(SkPath::kLine_Verb  == 1, "");
+        static_assert(SkPath::kQuad_Verb  == 2, "");
+        static_assert(SkPath::kConic_Verb == 3, "");
+        static_assert(SkPath::kCubic_Verb == 4, "");
+        static_assert(SkPath::kClose_Verb == 5, "");
+
+        SkASSERT(v < SK_ARRAY_COUNT(gVerbToEdgeMap));
+        return gVerbToEdgeMap[v];
+    }
+
+    static constexpr size_t PointCount(Edge e) {
+        return 1 + SkToSizeT(e) / 2;
+    }
+
+    static constexpr size_t ConicWeightCount(Edge edge) {
+        const auto e = SkToSizeT(edge);
+        return (e & (e - 1)) / 2;
     }
 };
 
