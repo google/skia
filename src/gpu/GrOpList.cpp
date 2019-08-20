@@ -29,17 +29,3 @@ void GrOpList::endFlush() {
     fDeferredProxies.reset();
     fAuditTrail = nullptr;
 }
-
-#ifdef SK_DEBUG
-static const char* op_to_name(GrLoadOp op) {
-    return GrLoadOp::kLoad == op ? "load" : GrLoadOp::kClear == op ? "clear" : "discard";
-}
-
-void GrOpList::dump(bool printDependencies) const {
-    GrRenderTask::dump(printDependencies);
-    SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
-             op_to_name(fColorLoadOp),
-             GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor.toBytes_RGBA() : 0x0,
-             op_to_name(fStencilLoadOp));
-}
-#endif

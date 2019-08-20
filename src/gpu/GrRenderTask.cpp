@@ -45,6 +45,22 @@ bool GrRenderTask::deferredProxiesAreInstantiated() const {
 }
 #endif
 
+void GrRenderTask::makeClosed(const GrCaps& caps) {
+    if (this->isClosed()) {
+        return;
+    }
+
+    if (ExpectedOutcome::kTargetDirty == this->onMakeClosed(caps)) {
+        GrTextureProxy* textureProxy = fTarget->asTextureProxy();
+        if (textureProxy && GrMipMapped::kYes == textureProxy->mipMapped()) {
+            textureProxy->markMipMapsDirty();
+        }
+    }
+
+    this->setFlag(kClosed_Flag);
+}
+
+
 void GrRenderTask::prepare(GrOpFlushState* flushState) {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
         fDeferredProxies[i]->texPriv().scheduleUpload(flushState);

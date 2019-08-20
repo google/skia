@@ -37,16 +37,6 @@ public:
 
     ~GrRenderTargetOpList() override;
 
-    void makeClosed(const GrCaps& caps) override {
-        if (this->isClosed()) {
-            return;
-        }
-
-        this->forwardCombine(caps);
-
-        INHERITED::makeClosed(caps);
-    }
-
     bool isEmpty() const { return fOpChains.empty(); }
 
     /**
@@ -118,6 +108,20 @@ private:
     // cases, draw ops must be used, which makes the RTC the best place for those decisions. This,
     // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
     friend class GrRenderTargetContext;
+
+    bool isNoOp() const {
+        // TODO: GrLoadOp::kDiscard -> [empty opList] -> GrStoreOp::kStore should also be a no-op.
+        // We don't count it as a no-op right now because of Vulkan. There are real cases where we
+        // store a discard, and if we skip that render pass, then the next time we load the render
+        // target, Vulkan detects loading of uninitialized memory and complains. If we don't skip
+        // storing the discard, then we trick Vulkan and it doesn't notice us doing anything wrong.
+        // We should definitely address this issue properly.
+        //
+        // TODO: We should also consider stencil load/store here. We get away with it for now
+        // because we never discard stencil buffers.
+        return fOpChains.empty() && GrLoadOp::kClear != fColorLoadOp &&
+               GrLoadOp::kDiscard != fColorLoadOp;
+    }
 
     bool onIsUsed(GrSurfaceProxy*) const override;
 
@@ -223,6 +227,15 @@ private:
 
     void forwardCombine(const GrCaps&);
 
+    ExpectedOutcome onMakeClosed(const GrCaps& caps) override {
+        this->forwardCombine(caps);
+        return (this->isNoOp()) ? ExpectedOutcome::kTargetUnchanged : ExpectedOutcome::kTargetDirty;
+    }
+
+    GrLoadOp                       fColorLoadOp    = GrLoadOp::kLoad;
+    SkPMColor4f                    fLoadClearColor = SK_PMColor4fTRANSPARENT;
+    GrLoadOp                       fStencilLoadOp  = GrLoadOp::kLoad;
+
     uint32_t                       fLastClipStackGenID;
     SkIRect                        fLastDevClipBounds;
     int                            fLastClipNumAnalyticFPs;
@@ -231,7 +244,7 @@ private:
     bool fHasWaitOp = false;;
 
     // For ops/opList we have mean: 5 stdDev: 28
-    SkSTArray<25, OpChain, true> fOpChains;
+    SkSTArray<25, OpChain, true>   fOpChains;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.

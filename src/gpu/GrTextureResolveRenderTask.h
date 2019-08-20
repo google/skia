@@ -29,6 +29,11 @@ private:
     }
     void handleInternalAllocationFailure() override {}
     void gatherProxyIntervals(GrResourceAllocator*) const override;
+
+    ExpectedOutcome onMakeClosed(const GrCaps&) override {
+        return ExpectedOutcome::kTargetUnchanged;
+    }
+
     bool onExecute(GrOpFlushState*) override;
 
     const GrTextureResolveFlags fResolveFlags;

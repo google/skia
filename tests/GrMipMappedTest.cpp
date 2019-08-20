@@ -419,7 +419,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrManyDependentsMipMappedTest, reporter, ctxInfo) {
 
     // Render something to dirty the mips.
     mipmapRTC->clear(nullptr, {.1f,.2f,.3f,.4f}, GrRenderTargetContext::CanClearFullscreen::kYes);
-    REPORTER_ASSERT(reporter, mipmapProxy->mipMapsAreDirty());
     REPORTER_ASSERT(reporter, mipmapProxy->getLastRenderTask());
     // mipmapProxy's last render task should just be the opList containing the clear at this point.
     REPORTER_ASSERT(
