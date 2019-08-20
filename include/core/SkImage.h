@@ -344,12 +344,6 @@ public:
                                                      bool buildMips,
                                                      bool limitToMaxTextureSize = false);
 
-    static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
-                                                     bool buildMips, SkColorSpace*,
-                                                     bool limitToMaxTextureSize = false) {
-        return MakeCrossContextFromPixmap(context, pixmap, buildMips, limitToMaxTextureSize);
-    }
-
     /** Creates SkImage from backendTexture associated with context. backendTexture and
         returned SkImage are managed internally, and are released when no longer needed.
 
