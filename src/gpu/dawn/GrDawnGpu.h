@@ -10,6 +10,7 @@
 
 #include "src/gpu/GrGpu.h"
 #include "dawn/dawncpp.h"
+#include "src/gpu/dawn/GrDawnRingBuffer.h"
 
 class GrPipeline;
 class GrDawnGpuRTCommandBuffer;
@@ -82,6 +83,8 @@ public:
 
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
+    GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
+
 private:
     void onResetContext(uint32_t resetBits) override {}
 
@@ -147,6 +150,7 @@ private:
     std::unique_ptr<SkSL::Compiler>                 fCompiler;
     std::unique_ptr<GrDawnGpuRTCommandBuffer>       fRTCommandBuffer;
     std::unique_ptr<GrDawnGpuTextureCommandBuffer>  fTextureCommandBuffer;
+    GrDawnRingBuffer                                fUniformRingBuffer;
 
     typedef GrGpu INHERITED;
 };
