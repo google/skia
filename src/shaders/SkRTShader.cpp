@@ -35,12 +35,12 @@ static inline uint32_t new_sksl_unique_id() {
 }
 #endif
 
-SkRTShader::SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
+SkRTShader::SkRTShader(int index, SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
                        bool isOpaque)
     : SkShaderBase(localMatrix)
     , fSkSL(std::move(sksl))
     , fInputs(std::move(inputs))
-    , fUniqueID(new_sksl_unique_id())
+    , fUniqueID(index)
     , fIsOpaque(isOpaque)
 {}
 
@@ -91,6 +91,10 @@ enum Flags {
 };
 
 void SkRTShader::flatten(SkWriteBuffer& buffer) const {
+    // the client is responsible for ensuring that the indices match up between flattening and
+    // unflattening; we don't have a reasonable way to enforce that at the moment
+    buffer.writeInt(fUniqueID);
+
     uint32_t flags = 0;
     if (fIsOpaque) {
         flags |= kIsOpaque_Flag;
@@ -112,6 +116,8 @@ void SkRTShader::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
+    int index = buffer.readInt();
+
     SkString sksl;
     buffer.readString(&sksl);
     sk_sp<SkData> inputs = buffer.readByteArrayAsData();
@@ -124,14 +130,8 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         localMPtr = &localM;
     }
 
-    return sk_sp<SkFlattenable>(new SkRTShader(std::move(sksl), std::move(inputs),
+    return sk_sp<SkFlattenable>(new SkRTShader(index, std::move(sksl), std::move(inputs),
                                                localMPtr, isOpaque));
-}
-
-sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
-                                     const SkMatrix* localMatrix, bool isOpaque) {
-    return sk_sp<SkShader>(new SkRTShader(std::move(sksl), std::move(inputs),
-                                          localMatrix, isOpaque));
 }
 
 #if SK_SUPPORT_GPU
@@ -145,3 +145,13 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
                           &matrix);
 }
 #endif
+
+SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkString sksl, bool isOpaque)
+    : fIndex(new_sksl_unique_id())
+    , fSkSL(std::move(sksl))
+    , fIsOpaque(isOpaque) {}
+
+sk_sp<SkShader> SkRuntimeShaderFactory::make(sk_sp<SkData> inputs, const SkMatrix* localMatrix) {
+    return sk_sp<SkShader>(
+            new SkRTShader(fIndex, fSkSL, std::move(inputs), localMatrix, fIsOpaque));
+}
