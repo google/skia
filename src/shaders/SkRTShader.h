@@ -22,7 +22,8 @@ class SkMatrix;
 
 class SkRTShader : public SkShaderBase {
 public:
-    SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix, bool isOpaque);
+    SkRTShader(int index, SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
+               bool isOpaque);
 
     bool isOpaque() const override { return fIsOpaque; }
 
@@ -46,6 +47,18 @@ private:
     mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
 
     typedef SkShaderBase INHERITED;
+};
+
+class SkRuntimeShaderFactory {
+public:
+    SkRuntimeShaderFactory(SkString sksl, bool isOpaque);
+
+    sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix);
+
+private:
+    int fIndex;
+    SkString fSkSL;
+    bool fIsOpaque;
 };
 
 #endif

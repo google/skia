@@ -35,12 +35,12 @@ static inline uint32_t new_sksl_unique_id() {
 }
 #endif
 
-SkRTShader::SkRTShader(SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
+SkRTShader::SkRTShader(int index, SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
                        bool isOpaque)
     : SkShaderBase(localMatrix)
     , fSkSL(std::move(sksl))
     , fInputs(std::move(inputs))
-    , fUniqueID(new_sksl_unique_id())
+    , fUniqueID(index)
     , fIsOpaque(isOpaque)
 {}
 
@@ -112,6 +112,11 @@ void SkRTShader::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
+    // We don't have a way to ensure that indices are consistent and correct when deserializing.
+    // Perhaps we should have a hash table to map strings to indices? For now, all shaders get a
+    // new unique ID after serialization.
+    int index = new_sksl_unique_id();
+
     SkString sksl;
     buffer.readString(&sksl);
     sk_sp<SkData> inputs = buffer.readByteArrayAsData();
@@ -124,14 +129,8 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         localMPtr = &localM;
     }
 
-    return sk_sp<SkFlattenable>(new SkRTShader(std::move(sksl), std::move(inputs),
+    return sk_sp<SkFlattenable>(new SkRTShader(index, std::move(sksl), std::move(inputs),
                                                localMPtr, isOpaque));
-}
-
-sk_sp<SkShader> SkRuntimeShaderMaker(SkString sksl, sk_sp<SkData> inputs,
-                                     const SkMatrix* localMatrix, bool isOpaque) {
-    return sk_sp<SkShader>(new SkRTShader(std::move(sksl), std::move(inputs),
-                                          localMatrix, isOpaque));
 }
 
 #if SK_SUPPORT_GPU
@@ -145,3 +144,13 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
                           &matrix);
 }
 #endif
+
+SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkString sksl, bool isOpaque)
+    : fIndex(new_sksl_unique_id())
+    , fSkSL(std::move(sksl))
+    , fIsOpaque(isOpaque) {}
+
+sk_sp<SkShader> SkRuntimeShaderFactory::make(sk_sp<SkData> inputs, const SkMatrix* localMatrix) {
+    return sk_sp<SkShader>(
+            new SkRTShader(fIndex, fSkSL, std::move(inputs), localMatrix, fIsOpaque));
+}
