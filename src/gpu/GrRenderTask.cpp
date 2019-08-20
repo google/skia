@@ -170,6 +170,11 @@ void GrRenderTask::closeThoseWhoDependOnMe(const GrCaps& caps) {
 }
 
 bool GrRenderTask::isInstantiated() const {
+    // Some renderTasks (e.g. GrTransferFromRenderTask) don't have a target.
+    if (!fTarget) {
+        return true;
+    }
+
     if (!fTarget->isInstantiated()) {
         return false;
     }
