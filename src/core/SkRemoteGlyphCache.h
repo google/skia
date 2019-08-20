@@ -155,7 +155,8 @@ private:
     SkTHashMap<SkFontID, sk_sp<SkData>> fSerializedTypefaces;
 
     // State cached until the next serialization.
-    SkDescriptorSet fLockedDescs;
+    std::unordered_set<SkGlyphCacheState*> fStrikesToSend;
+    //SkDescriptorSet fLockedDescs;
     std::vector<WireTypeface> fTypefacesToSend;
 };
 
