@@ -113,6 +113,8 @@ private:
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 
+    void tick();
+
     struct InlineUploadInfo {
         InlineUploadInfo(GrOpFlushState* state, const GrDeferredTextureUploadFn& upload)
                 : fFlushState(state), fUpload(upload) {}
