@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9b8bbbd_bddf7551",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-20T13:24:34Z",
+      "side": 1,
+      "message": "I realize this was here before, so not trying to hold up this CL over it. But I don\u0027t get this. Why do we execute an oplist that just has a discard?",
+      "range": {
+        "startLine": 491,
+        "startChar": 2,
+        "endLine": 500,
+        "endChar": 0
+      },
+      "revId": "04a8b02ff406c985d57c92eb58275cba6f7b0c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
