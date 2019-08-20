@@ -1,0 +1,215 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "062b7d41_eabfe383",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "// This renderTask copies from \u0027srcProxy\u0027 to \u0027dstBuffer\u0027 so doesn\u0027t have a real target\n\n?",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99bd7d9c_fb43300f",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "// In active-opList mode this will close the current active opList but not replace it with a new one (bc it doesn\u0027t have a target).\n\n?",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "419fc640_fcf3dfb2",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "// This renderTask supports the asynchronous readback API. \n\nIs there anything else useful/interesting to say about it ?\n\nIs \u0027dstOffset\u0027 the offset in \u0027dstBuffer\u0027 at which to write the contents of \u0027srcProxy\u0027 ?",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc5fefe2_10b87a65",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "newTransferFromRenderTask ?",
+      "range": {
+        "startLine": 62,
+        "startChar": 9,
+        "endLine": 62,
+        "endChar": 24
+      },
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83a42a54_cc7f7373",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "Is this srcColorType?",
+      "range": {
+        "startLine": 63,
+        "startChar": 37,
+        "endLine": 63,
+        "endChar": 53
+      },
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b9f45f7_002b7425",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "// Some renderTasks (e.g., GrTransferFromRenderTask) don\u0027t have a target.\n\n?",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1ae2d44_1376f64c",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "Just to make sure, we aren\u0027t creating an unused opList somewhere in this code path, right?",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f382e2d8_08c102ec",
+        "filename": "src/gpu/GrTransferFromRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "read \u0027fSrcProxy\u0027\n\n?",
+      "range": {
+        "startLine": 17,
+        "startChar": 10,
+        "endLine": 17,
+        "endChar": 28
+      },
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8dafdce_dea93265",
+        "filename": "src/gpu/GrTransferFromRenderTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "Maybe, replace this w/ and assert that fTarget is null?",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcd68b60_ebcefbfe",
+        "filename": "src/gpu/GrTransferFromRenderTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "proxy \u003d\u003d fSrcProxy.get();",
+      "range": {
+        "startLine": 33,
+        "startChar": 15,
+        "endLine": 33,
+        "endChar": 21
+      },
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de5f1393_4438d74d",
+        "filename": "src/gpu/GrTransferFromRenderTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-20T14:10:23Z",
+      "side": 1,
+      "message": "// If \u0027fSrcProxy\u0027 is uninstantited at flush time we simply skip the transfer ?",
+      "revId": "dd296152e80e90674df57251aae73bed27b08561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
