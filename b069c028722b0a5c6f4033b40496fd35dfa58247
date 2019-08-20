@@ -34,6 +34,24 @@
       "revId": "b069c028722b0a5c6f4033b40496fd35dfa58247",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0486cc71_2788b3a1",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T18:54:05Z",
+      "side": 1,
+      "message": "Oh.  Still can just be (Edge)v right if these things match up numerically?  No table needed?",
+      "parentUuid": "4fc43068_4ebd1138",
+      "revId": "b069c028722b0a5c6f4033b40496fd35dfa58247",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
