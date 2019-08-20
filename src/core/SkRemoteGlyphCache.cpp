@@ -77,7 +77,7 @@ size_t serialization_alignment() {
 
 class Serializer {
 public:
-    Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} { }
+    explicit Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} { }
 
     template <typename T, typename... Args>
     T* emplace(Args&&... args) {
@@ -229,14 +229,16 @@ public:
 
     void onAboutToExitScope() override {}
 
-private:
     bool hasPendingGlyphs() const {
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
     }
+
+    void resetScalerContext();
+
+private:
     void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
 
     void ensureScalerContext();
-    void resetScalerContext();
 
     // The set of glyphs cached on the remote client.
     SkTHashSet<SkPackedGlyphID> fCachedGlyphImages;
@@ -356,9 +358,6 @@ private:
 };
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
-// DEPRECATED
-// TODO(herb): remove uses in Chrome
-
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkSurfaceProps& props,
                                                      SkStrikeServer* strikeServer,
@@ -426,22 +425,34 @@ sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
 }
 
 void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
-    if (fLockedDescs.empty() && fTypefacesToSend.empty()) {
+    size_t countStrikesToSend = 0;
+    for (SkGlyphCacheState* strike : fStrikesToSend) {
+        if (strike->hasPendingGlyphs()) {
+            // Only send strikes with pending glyphs.
+            countStrikesToSend++;
+        } else {
+            strike->resetScalerContext();
+        }
+    }
+
+    if (fTypefacesToSend.empty() && countStrikesToSend == 0) {
         return;
     }
 
     Serializer serializer(memory);
     serializer.emplace<uint64_t>(fTypefacesToSend.size());
-    for (const auto& tf : fTypefacesToSend) serializer.write<WireTypeface>(tf);
+    for (const WireTypeface& tf : fTypefacesToSend) {
+        serializer.write<WireTypeface>(tf);
+    }
     fTypefacesToSend.clear();
 
-    serializer.emplace<uint64_t>(fLockedDescs.size());
-    for (const auto* desc : fLockedDescs) {
-        auto it = fRemoteGlyphStateMap.find(desc);
-        SkASSERT(it != fRemoteGlyphStateMap.end());
-        it->second->writePendingGlyphs(&serializer);
+    serializer.emplace<uint64_t>(countStrikesToSend);
+    for (SkGlyphCacheState* strike : fStrikesToSend) {
+        if (strike->hasPendingGlyphs()) {
+            strike->writePendingGlyphs(&serializer);
+        }
     }
-    fLockedDescs.clear();
+    fStrikesToSend.clear();
 }
 
 SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
@@ -497,29 +508,26 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
             )
     );
 
-    // Already locked.
-    if (fLockedDescs.find(&desc) != fLockedDescs.end()) {
-        auto it = fRemoteGlyphStateMap.find(&desc);
-        SkASSERT(it != fRemoteGlyphStateMap.end());
-        SkGlyphCacheState* cache = it->second.get();
-        cache->setTypefaceAndEffects(&typeface, effects);
-        return cache;
-    }
-
     // Try to lock.
     auto it = fRemoteGlyphStateMap.find(&desc);
     if (it != fRemoteGlyphStateMap.end()) {
         SkGlyphCacheState* cache = it->second.get();
-        bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
-        if (locked) {
-            fLockedDescs.insert(it->first);
-            cache->setTypefaceAndEffects(&typeface, effects);
+        cache->setTypefaceAndEffects(&typeface, effects);
+        bool inserted;
+        std::tie(std::ignore, inserted) = fStrikesToSend.insert(cache);
+        if (!inserted) {
+            // Already existed in fStrikesToSend.
             return cache;
+        } else {
+            bool locked = fDiscardableHandleManager->lockHandle(cache->discardableHandleId());
+            if (locked) {
+                return cache;
+            }
+            // If the lock failed, the entry was deleted on the client. Remove our
+            // tracking.
+            fStrikesToSend.erase(cache);
+            fRemoteGlyphStateMap.erase(it);
         }
-
-        // If the lock failed, the entry was deleted on the client. Remove our
-        // tracking.
-        fRemoteGlyphStateMap.erase(it);
     }
 
     const SkFontID typefaceId = typeface.uniqueID();
@@ -538,7 +546,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
 
     auto* cacheStatePtr = cacheState.get();
 
-    fLockedDescs.insert(&cacheStatePtr->getDescriptor());
+    fStrikesToSend.insert(cacheStatePtr);
     fRemoteGlyphStateMap[&cacheStatePtr->getDescriptor()] = std::move(cacheState);
 
     checkForDeletedEntries();
@@ -561,13 +569,6 @@ static void writeGlyph(SkGlyph* glyph, Serializer* serializer) {
 }
 
 void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serializer) {
-    // TODO(khushalsagar): Write a strike only if it has any pending glyphs.
-    serializer->emplace<bool>(this->hasPendingGlyphs());
-    if (!this->hasPendingGlyphs()) {
-        this->resetScalerContext();
-        return;
-    }
-
     // Write the desc.
     serializer->emplace<StrikeSpec>(fContext->getTypeface()->uniqueID(), fDiscardableHandleId);
     serializer->writeDescriptor(*fDescriptor.getDesc());
@@ -776,11 +777,6 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
     if (!deserializer.read<uint64_t>(&strikeCount)) READ_FAILURE
 
     for (size_t i = 0; i < strikeCount; ++i) {
-        bool has_glyphs = false;
-        if (!deserializer.read<bool>(&has_glyphs)) READ_FAILURE
-
-        if (!has_glyphs) continue;
-
         StrikeSpec spec;
         if (!deserializer.read<StrikeSpec>(&spec)) READ_FAILURE
 
