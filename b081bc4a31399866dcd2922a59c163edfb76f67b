@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4cbbfd6_dbe93121",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T16:44:40Z",
+      "side": 0,
+      "message": "Curious to see how we like reading a hybrid approach, and how it performs...\n\nswitch (*--fVerbs) {\n    case SkPath::kMove_Verb: { ... } break;\n    case SkPath::kClose_Verb: { ... } break;\n    default:   { ... table-based code ... } break;\n}",
+      "revId": "b081bc4a31399866dcd2922a59c163edfb76f67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
