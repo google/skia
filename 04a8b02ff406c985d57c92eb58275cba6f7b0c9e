@@ -70,6 +70,30 @@
       "revId": "04a8b02ff406c985d57c92eb58275cba6f7b0c9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d803a3c_beb17267",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-20T16:01:32Z",
+      "side": 1,
+      "message": "In a security sense yes it is unitialized, but from the Vulkan API once you do a store it is assumed that data is no longer unitialzed since you are storing the values you \"want\"",
+      "parentUuid": "29c020cc_e7fd7767",
+      "range": {
+        "startLine": 491,
+        "startChar": 2,
+        "endLine": 500,
+        "endChar": 0
+      },
+      "revId": "04a8b02ff406c985d57c92eb58275cba6f7b0c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
