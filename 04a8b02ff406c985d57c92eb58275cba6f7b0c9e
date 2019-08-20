@@ -46,6 +46,30 @@
       "revId": "04a8b02ff406c985d57c92eb58275cba6f7b0c9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29c020cc_e7fd7767",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-20T15:46:10Z",
+      "side": 1,
+      "message": "Is it not also uninitialized data if the previous opList did a discard load, made no modifications, then stored it?",
+      "parentUuid": "8e261aeb_97998a53",
+      "range": {
+        "startLine": 491,
+        "startChar": 2,
+        "endLine": 500,
+        "endChar": 0
+      },
+      "revId": "04a8b02ff406c985d57c92eb58275cba6f7b0c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
