@@ -626,6 +626,7 @@ static int min_rgb_channel_bits(SkColorType ct) {
         case kAlpha_8_SkColorType:      return 8;
         case kRGB_565_SkColorType:      return 5;
         case kARGB_4444_SkColorType:    return 4;
+        case kRG_88_SkColorType:        return 8;
         case kRGBA_8888_SkColorType:    return 8;
         case kRGB_888x_SkColorType:     return 8;
         case kBGRA_8888_SkColorType:    return 8;
