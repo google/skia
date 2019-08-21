@@ -17,14 +17,13 @@
 std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext* context,
                                             const SkMatrix& viewMatrix,
                                             bool useHWAA,
-                                            GrPathRendering::FillType fillType,
                                             bool hasStencilClip,
                                             const GrScissorState& scissor,
-                                            const GrPath* path) {
+                                            sk_sp<const GrPath> path) {
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrStencilPathOp>(viewMatrix, useHWAA, fillType,
-                                           hasStencilClip, scissor, path);
+    return pool->allocate<GrStencilPathOp>(viewMatrix, useHWAA,
+                                           hasStencilClip, scissor, std::move(path));
 }
 
 void GrStencilPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
@@ -32,7 +31,7 @@ void GrStencilPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds
     SkASSERT(rt);
 
     int numStencilBits = rt->renderTargetPriv().numStencilBits();
-    GrStencilSettings stencil(GrPathRendering::GetStencilPassSettings(fFillType),
+    GrStencilSettings stencil(GrPathRendering::GetStencilPassSettings(fPath->getFillType()),
                               fHasStencilClip, numStencilBits);
 
     GrPathRendering::StencilPathArgs args(fUseHWAA, state->drawOpArgs().fProxy,

@@ -78,7 +78,7 @@ public:
     }
 
     void stencilPath(
-            const GrHardClip&, GrAA doStencilMSAA, const SkMatrix& viewMatrix, const GrPath*);
+            const GrHardClip&, GrAA doStencilMSAA, const SkMatrix& viewMatrix, sk_sp<const GrPath>);
 
     /**
      * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
