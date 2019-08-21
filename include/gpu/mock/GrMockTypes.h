@@ -93,6 +93,7 @@ struct GrMockOptions {
     };
 
     // GrCaps options.
+    bool fMipMapSupport = false;
     bool fInstanceAttribSupport = false;
     bool fHalfFloatVertexAttributeSupport = false;
     uint32_t fMapBufferFlags = 0;

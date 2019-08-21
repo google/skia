@@ -54,9 +54,9 @@ sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
 
 GrGpuRTCommandBuffer* GrMockGpu::getCommandBuffer(
                                 GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
-                                const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+                                const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
                                 const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) {
-    return new GrMockGpuRTCommandBuffer(this, rt, origin);
+    return new GrMockGpuRTCommandBuffer(this, rt, origin, colorInfo);
 }
 
 GrGpuTextureCommandBuffer* GrMockGpu::getCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin) {
@@ -159,6 +159,12 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
 
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
+    for (int i = 0; i < mipLevelCount; ++i) {
+        if (!texels[i].fPixels) {
+            mipMapsStatus = GrMipMapsStatus::kDirty;
+            break;
+        }
+    }
     GrMockTextureInfo texInfo(ct, NextInternalTextureID());
     if (renderable == GrRenderable::kYes) {
         GrMockRenderTargetInfo rtInfo(ct, NextInternalRenderTargetID());
