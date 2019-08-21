@@ -45,6 +45,22 @@ bool GrRenderTask::deferredProxiesAreInstantiated() const {
 }
 #endif
 
+void GrRenderTask::makeClosed(const GrCaps& caps) {
+    if (this->isClosed()) {
+        return;
+    }
+
+    if (ExpectedOutcome::kTargetDirty == this->onMakeClosed(caps)) {
+        GrTextureProxy* textureProxy = fTarget->asTextureProxy();
+        if (textureProxy && GrMipMapped::kYes == textureProxy->mipMapped()) {
+            textureProxy->markMipMapsDirty();
+        }
+    }
+
+    this->setFlag(kClosed_Flag);
+}
+
+
 void GrRenderTask::prepare(GrOpFlushState* flushState) {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
         fDeferredProxies[i]->texPriv().scheduleUpload(flushState);
@@ -71,9 +87,27 @@ void GrRenderTask::addDependency(GrRenderTask* dependedOn) {
 void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapped,
                                  GrTextureResolveManager textureResolveManager,
                                  const GrCaps& caps) {
-    GrRenderTask* dependedOnTask = dependedOn->getLastRenderTask();
-    GrTextureProxy* textureProxy = dependedOn->asTextureProxy();
+    // If it is still receiving dependencies, this GrRenderTask shouldn't be closed
+    SkASSERT(!this->isClosed());
 
+    GrRenderTask* dependedOnTask = dependedOn->getLastRenderTask();
+
+    if (dependedOnTask == this) {
+        // self-read - presumably for dst reads. We can't make it closed in the self-read case.
+        SkASSERT(GrMipMapped::kNo == mipMapped);
+        SkASSERT(!dependedOn->asTextureProxy() ||
+                 !dependedOn->asTextureProxy()->texPriv().isDeferred());
+        return;
+    }
+
+    if (dependedOnTask) {
+        // We are closing 'dependedOnTask' here bc the current contents of it are what 'this'
+        // renderTask depends on. We need a break in 'dependedOnTask' so that the usage of
+        // that state has a chance to execute.
+        dependedOnTask->makeClosed(caps);
+    }
+
+    GrTextureProxy* textureProxy = dependedOn->asTextureProxy();
     if (GrMipMapped::kYes == mipMapped) {
         SkASSERT(textureProxy);
         if (GrMipMapped::kYes != textureProxy->mipMapped()) {
@@ -85,9 +119,6 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
 
     // Does this proxy have mipmaps that need to be regenerated?
     if (GrMipMapped::kYes == mipMapped && textureProxy->mipMapsAreDirty()) {
-        // We only read our own target during dst reads, and we shouldn't use mipmaps in that case.
-        SkASSERT(dependedOnTask != this);
-
         // Create an opList that resolves the texture's mipmap data.
         GrRenderTask* textureResolveTask = textureResolveManager.newTextureResolveRenderTask(
                 sk_ref_sp(textureProxy), GrTextureResolveFlags::kMipMaps, caps);
@@ -98,10 +129,11 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
         SkASSERT(!textureProxy->texPriv().isDeferred() ||
                  textureResolveTask->fDeferredProxies.back() == textureProxy);
 
-        // The GrTextureResolveRenderTask factory should have also marked the mipmaps clean and set
-        // the last opList on the textureProxy to textureResolveTask.
+        // The GrTextureResolveRenderTask factory should have also marked the mipmaps clean, set the
+        // last opList on the textureProxy to textureResolveTask, and closed textureResolveTask.
         SkASSERT(!textureProxy->mipMapsAreDirty());
         SkASSERT(textureProxy->getLastRenderTask() == textureResolveTask);
+        SkASSERT(textureResolveTask->isClosed());
 
         // Fall through and add textureResolveTask as a dependency of "this".
         dependedOnTask = textureResolveTask;
@@ -110,19 +142,7 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
     }
 
     if (dependedOnTask) {
-        // If it is still receiving dependencies, this GrRenderTask shouldn't be closed
-        SkASSERT(!this->isClosed());
-
-        if (dependedOnTask == this) {
-            // self-read - presumably for dst reads. We can't make it closed in the self-read case.
-        } else {
-            this->addDependency(dependedOnTask);
-
-            // We are closing 'dependedOnTask' here bc the current contents of it are what 'this'
-            // dependedOnTask depends on. We need a break in 'dependedOnTask' so that the usage of
-            // that state has a chance to execute.
-            dependedOnTask->makeClosed(caps);
-        }
+        this->addDependency(dependedOnTask);
     }
 }
 

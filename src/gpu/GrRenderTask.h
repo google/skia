@@ -28,15 +28,11 @@ public:
     GrRenderTask(sk_sp<GrSurfaceProxy> target);
     ~GrRenderTask() override;
 
+    void makeClosed(const GrCaps&);
+
     // These two methods are only invoked at flush time
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
-
-    virtual void makeClosed(const GrCaps&) {
-        if (!this->isClosed()) {
-            this->setFlag(kClosed_Flag);
-        }
-    }
 
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
@@ -81,6 +77,13 @@ protected:
     bool isInstantiated() const;
 
     SkDEBUGCODE(bool deferredProxiesAreInstantiated() const;)
+
+    enum class ExpectedOutcome : bool {
+        kTargetUnchanged,
+        kTargetDirty,
+    };
+
+    virtual ExpectedOutcome onMakeClosed(const GrCaps&) = 0;
 
     sk_sp<GrSurfaceProxy> fTarget;
 

@@ -39,21 +39,12 @@ public:
 
     void endFlush() override;
 
-    /*
-     * Dump out the GrOpList dependency DAG
-     */
-    SkDEBUGCODE(void dump(bool printDependencies) const override;)
-
 protected:
     // This is a backpointer to the GrOpMemoryPool that holds the memory for this opLists' ops.
     // In the DDL case, these back pointers keep the DDL's GrOpMemoryPool alive as long as its
     // constituent opLists survive.
     sk_sp<GrOpMemoryPool> fOpMemoryPool;
     GrAuditTrail*         fAuditTrail;
-
-    GrLoadOp              fColorLoadOp    = GrLoadOp::kLoad;
-    SkPMColor4f           fLoadClearColor = SK_PMColor4fTRANSPARENT;
-    GrLoadOp              fStencilLoadOp  = GrLoadOp::kLoad;
 };
 
 #endif

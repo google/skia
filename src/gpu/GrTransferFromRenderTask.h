@@ -35,6 +35,11 @@ private:
     // If fSrcProxy is uninstantiated at flush time we simply will skip doing the transfer.
     void handleInternalAllocationFailure() override {}
     void gatherProxyIntervals(GrResourceAllocator*) const override;
+
+    ExpectedOutcome onMakeClosed(const GrCaps&) override {
+        return ExpectedOutcome::kTargetUnchanged;
+    }
+
     bool onExecute(GrOpFlushState*) override;
 
     sk_sp<GrSurfaceProxy> fSrcProxy;
