@@ -43,6 +43,7 @@ Run::Run(ParagraphImpl* master,
     // To make edge cases easier:
     fPositions[info.glyphCount] = fOffset + fAdvance;
     fClusterIndexes[info.glyphCount] = info.utf8Range.end();
+    fEllipsis = false;
 }
 
 SkShaper::RunHandler::Buffer Run::newRunBuffer() {
@@ -80,7 +81,7 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector o
     }
 }
 
-std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text) {
+std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text) const {
     auto less = [](const Cluster& c1, const Cluster& c2) {
         return c1.textRange().end <= c2.textRange().start;
     };

@@ -107,6 +107,7 @@ class TextWrapper {
                 fEnd.move(false);
                 fWidth -= cluster->width();
             } else {
+                fEnd.move(false);
                 fWidth = 0;
             }
         }
