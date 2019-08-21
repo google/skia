@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3af1577_e3c52eeb",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-21T18:47:03Z",
+      "side": 1,
+      "message": "This is an excellent change, both for using a pointer based comparison and avoiding an allocation for the vector in the case where we get complete cache hits. Thanks!\n\nI was just trying to think if there is some clever way we could avoid iterating this list twice if we do need to send anything but can\u0027t think of anything simple.",
+      "range": {
+        "startLine": 428,
+        "startChar": 0,
+        "endLine": 436,
+        "endChar": 5
+      },
+      "revId": "0ff50316c85be16aa59c7362625a07c4783bcaa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
