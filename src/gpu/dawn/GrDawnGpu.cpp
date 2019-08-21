@@ -49,7 +49,8 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
         : INHERITED(context)
         , fDevice(device)
         , fQueue(device.CreateQueue())
-        , fCompiler(new SkSL::Compiler()) {
+        , fCompiler(new SkSL::Compiler())
+        , fUniformRingBuffer(this, dawn::BufferUsageBit::Uniform) {
     fCaps.reset(new GrDawnCaps(options));
 }
 
@@ -476,4 +477,8 @@ void GrDawnGpu::checkFinishProcs() {
 sk_sp<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
     SkASSERT(!"unimplemented");
     return nullptr;
+}
+
+GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
+    return fUniformRingBuffer.allocate(size);
 }
