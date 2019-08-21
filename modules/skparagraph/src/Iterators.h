@@ -37,6 +37,7 @@ public:
                 break;
             }
         }
+        SkDebugf("font consume: %d %d\n", *fCurrentChar, fCurrentChar - fText.begin());
     }
 
     size_t endOfCurrentRun() const override { return fCurrentChar - fText.begin(); }
@@ -78,6 +79,8 @@ public:
             }
             fCurrentChar = fText.begin() + fCurrentStyle->fRange.end;
         }
+
+        SkDebugf("language consume: %d %d\n", *fCurrentChar, fCurrentChar - fText.begin());
     }
 
     size_t endOfCurrentRun() const override { return fCurrentChar - fText.begin(); }
