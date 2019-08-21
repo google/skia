@@ -614,9 +614,7 @@ private:
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
     // value is false then a texture copy could not be made.
-    bool SK_WARN_UNUSED_RESULT setupDstProxy(GrRenderTargetProxy*,
-                                             const GrClip&,
-                                             const GrOp& op,
+    bool SK_WARN_UNUSED_RESULT setupDstProxy(const GrClip&, const GrOp& op,
                                              GrXferProcessor::DstProxy* result);
 
     // The async read step of asyncRescaleAndReadPixels()
