@@ -58,7 +58,6 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fTextStyles(std::move(blocks))
         , fPlaceholders(std::move(placeholders))
         , fText(text)
-        , fTextSpan(fText.c_str(), fText.size())
         , fState(kUnknown)
         , fPicture(nullptr)
         , fStrutMetrics(false)
@@ -84,7 +83,6 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
     std::string str;
     unicode.toUTF8String(str);
     fText = SkString(str.data(), str.size());
-    fTextSpan = SkSpan<const char>(fText.c_str(), fText.size());
     // TODO: extractStyles();
 }
 
@@ -177,6 +175,7 @@ void ParagraphImpl::resetContext() {
     fIdeographicBaseline = 0;
     fMaxIntrinsicWidth = 0;
     fMinIntrinsicWidth = 0;
+    fMaxWidthWithTrailingSpaces = 0;
 }
 
 // Clusters in the order of the input text
@@ -188,7 +187,7 @@ void ParagraphImpl::buildClusterTable() {
         auto runStart = fClusters.size();
         if (run.isPlaceholder()) {
             // There are no glyphs but we want to have one cluster
-            SkSpan<const char> text(fTextSpan.begin() + run.textRange().start, run.textRange().width());
+            SkSpan<const char> text = this->text(run.textRange());
             if (!fClusters.empty()) {
                 fClusters.back().setBreakType(Cluster::SoftLineBreak);
             }
@@ -205,7 +204,7 @@ void ParagraphImpl::buildClusterTable() {
                                                                    SkScalar width,
                                                                    SkScalar height) {
                 SkASSERT(charEnd >= charStart);
-                SkSpan<const char> text(fTextSpan.begin() + charStart, charEnd - charStart);
+                SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
 
                 auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
                                                        width, height);
@@ -223,7 +222,7 @@ void ParagraphImpl::markLineBreaks() {
     // Find all possible (soft) line breaks
     // This iterator is used only once for a paragraph so we don't have to keep it
     TextBreaker breaker;
-    if (!breaker.initialize(fTextSpan, UBRK_LINE)) {
+    if (!breaker.initialize(this->text(), UBRK_LINE)) {
         return;
     }
 
@@ -347,12 +346,12 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         SkVector fAdvance;
     };
 
-    if (fTextSpan.empty()) {
-        return false;
-    }
-
     // This is a pretty big step - resolving all characters against all given fonts
     fFontResolver.findAllFontsForAllStyledBlocks(this);
+
+    if (fText.size() == 0) {
+        return false;
+    }
 
     // Check the font-resolved text against the cache
     if (!fFontCollection->getParagraphCache()->findParagraph(this)) {
@@ -405,8 +404,7 @@ bool ParagraphImpl::iterateThroughShapingRegions(ShapeVisitor shape) {
         // Shape the text
         if (placeholder.fTextBefore.width() > 0) {
             // Set up the iterators
-            SkSpan<const char> textSpan(fTextSpan.begin() + placeholder.fTextBefore.start,
-                                        placeholder.fTextBefore.width());
+            SkSpan<const char> textSpan = this->text(placeholder.fTextBefore);
             SkSpan<Block> styleSpan(fTextStyles.begin() + placeholder.fBlocksBefore.start,
                                     placeholder.fBlocksBefore.width());
 
@@ -571,15 +569,16 @@ void ParagraphImpl::markGraphemes() {
 
     // This breaker gets called only once for a paragraph so we don't have to keep it
     TextBreaker breaker;
-    if (!breaker.initialize(fTextSpan, UBRK_CHARACTER)) {
+    if (!breaker.initialize(this->text(), UBRK_CHARACTER)) {
         return;
     }
 
-    auto ptr = fTextSpan.begin();
-    while (ptr < fTextSpan.end()) {
+    auto ptr = fText.c_str();
+    auto end = fText.c_str() + fText.size();
+    while (ptr < end) {
 
-        size_t index = ptr - fTextSpan.begin();
-        SkUnichar u = SkUTF::NextUTF8(&ptr, fTextSpan.end());
+        size_t index = ptr - fText.c_str();
+        SkUnichar u = SkUTF::NextUTF8(&ptr, end);
         uint16_t buffer[2];
         size_t count = SkUTF::ToUTF16(u, buffer);
         fCodePoints.emplace_back(EMPTY_INDEX, index);
@@ -625,10 +624,10 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     // Make sure the edges are set on the glyph edges
     TextRange text;
     text.end = end >= fCodePoints.size()
-                        ? fTextSpan.size()
+                        ? fText.size()
                         : fGraphemes[fCodePoints[end].fGrapeme].fTextRange.start;
     text.start = start >=  fCodePoints.size()
-                        ? fTextSpan.size()
+                        ? fText.size()
                         : fGraphemes[fCodePoints[start].fGrapeme].fTextRange.start;
 
     for (auto& line : fLines) {
@@ -877,7 +876,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 
     if (!fWordBreaker.initialized()) {
-        if (!fWordBreaker.initialize(fTextSpan, UBRK_WORD)) {
+        if (!fWordBreaker.initialize(this->text(), UBRK_WORD)) {
             return {0, 0};
         }
     }
@@ -890,7 +889,8 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 
 SkSpan<const char> ParagraphImpl::text(TextRange textRange) {
     SkASSERT(textRange.start < fText.size() && textRange.end <= fText.size());
-    return SkSpan<const char>(&fText[textRange.start], textRange.width());
+    auto start = fText.c_str() + textRange.start;
+    return SkSpan<const char>(start, textRange.width());
 }
 
 SkSpan<Cluster> ParagraphImpl::clusters(ClusterRange clusterRange) {
