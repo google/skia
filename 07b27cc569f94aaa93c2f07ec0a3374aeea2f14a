@@ -22,6 +22,30 @@
       "revId": "07b27cc569f94aaa93c2f07ec0a3374aeea2f14a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa4591b5_b5038bab",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-21T18:04:51Z",
+      "side": 1,
+      "message": "Whoops.\n\nThe others don\u0027t look like theyr\u0027e in git, but maybe the .bat files belong in my own local .gitignore. Thoughts?",
+      "parentUuid": "a8e4ab1d_453f20fc",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 35
+      },
+      "revId": "07b27cc569f94aaa93c2f07ec0a3374aeea2f14a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
