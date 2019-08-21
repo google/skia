@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8e4ab1d_453f20fc",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-08-21T17:24:25Z",
+      "side": 1,
+      "message": "This is currently in git. Not sure about the rest. Do we want to rip them out of the repo?",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 35
+      },
+      "revId": "07b27cc569f94aaa93c2f07ec0a3374aeea2f14a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
