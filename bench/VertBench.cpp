@@ -12,26 +12,29 @@
 #include "include/core/SkString.h"
 #include "include/core/SkVertices.h"
 #include "include/utils/SkRandom.h"
+#include "tools/Resources.h"
 
 enum VertFlags {
-    kColors_VertFlag,
-    kTexture_VertFlag,
+    kColors_VertFlag  = 1 << 0,
+    kTexture_VertFlag = 1 << 1,
 };
 
 class VertBench : public Benchmark {
     SkString fName;
     enum {
-        W = 640,
-        H = 480,
+        W = 64*2,
+        H = 48*2,
         ROW = 20,
         COL = 20,
         PTS = (ROW + 1) * (COL + 1),
         IDX = ROW * COL * 6,
     };
 
+    sk_sp<SkShader> fShader;
     SkPoint fPts[PTS];
     SkColor fColors[PTS];
     uint16_t fIdx[IDX];
+    unsigned fFlags;
 
     static void load_2_tris(uint16_t idx[], int x, int y, int rb) {
         int n = y * rb + x;
@@ -39,8 +42,15 @@ class VertBench : public Benchmark {
         idx[3] = n; idx[4] = rb + n + 1; idx[5] = n + rb;
     }
 
+    void onDelayedSetup() override {
+        auto img = GetResourceAsImage("images/mandrill_256.png");
+        if (img) {
+            fShader = img->makeShader();
+        }
+    }
+
 public:
-    VertBench() {
+    VertBench(unsigned flags) : fFlags(flags) {
         const SkScalar dx = SkIntToScalar(W) / COL;
         const SkScalar dy = SkIntToScalar(H) / COL;
 
@@ -74,6 +84,12 @@ public:
         }
 
         fName.set("verts");
+        if (fFlags & kTexture_VertFlag) {
+            fName.append("_textures");
+        }
+        if (fFlags & kColors_VertFlag) {
+            fName.append("_colors");
+        }
     }
 
 protected:
@@ -81,9 +97,12 @@ protected:
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         this->setupPaint(&paint);
+        paint.setShader(fShader);
 
+        const SkPoint* texs = (fFlags & kTexture_VertFlag) ? fPts    : nullptr;
+        const SkColor* cols = (fFlags & kColors_VertFlag)  ? fColors : nullptr;
         auto verts = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, PTS,
-                                          fPts, nullptr, fColors, IDX, fIdx);
+                                          fPts, texs, cols, IDX, fIdx);
         for (int i = 0; i < loops; i++) {
             canvas->drawVertices(verts, SkBlendMode::kModulate, paint);
         }
@@ -91,7 +110,9 @@ protected:
 private:
     typedef Benchmark INHERITED;
 };
-DEF_BENCH(return new VertBench();)
+DEF_BENCH(return new VertBench(kTexture_VertFlag);)
+DEF_BENCH(return new VertBench(kColors_VertFlag);)
+DEF_BENCH(return new VertBench(kColors_VertFlag | kTexture_VertFlag);)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
