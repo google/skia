@@ -14,6 +14,7 @@
 #include "src/core/SkTTopoSort.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrCopyRenderTask.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
@@ -728,6 +729,34 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     // shouldn't be an active one.
     SkASSERT(!fActiveOpList);
     SkDEBUGCODE(this->validate());
+}
+
+bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
+                                         const SkIRect& srcRect,
+                                         sk_sp<GrSurfaceProxy> dstProxy,
+                                         const SkIPoint& dstPoint) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+    this->closeRenderTasksForNewRenderTask(dstProxy.get());
+
+    sk_sp<GrRenderTask> task = GrCopyRenderTask::Make(srcProxy, srcRect, dstProxy, dstPoint);
+    if (!task) {
+        return false;
+    }
+
+    const GrCaps& caps = *fContext->priv().caps();
+
+    // We always say GrMipMapped::kNo here since we are always just copying from the base layer to
+    // another base layer. We don't need to make sure the whole mip map chain is valid.
+    task->addDependency(srcProxy.get(), GrMipMapped::kNo, GrTextureResolveManager(this), caps);
+    task->makeClosed(caps);
+
+    fDAG.add(std::move(task));
+    // We have closed the previous active oplist but since a new oplist isn't being added there
+    // shouldn't be an active one.
+    SkASSERT(!fActiveOpList);
+    SkDEBUGCODE(this->validate());
+    return true;
 }
 
 GrTextContext* GrDrawingManager::getTextContext() {

@@ -268,7 +268,7 @@ private:
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
+                       const SkIPoint& dstPoint) override;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);

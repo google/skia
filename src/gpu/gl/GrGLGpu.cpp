@@ -3178,7 +3178,7 @@ void GrGLGpu::deleteFramebuffer(GrGLuint fboid) {
 }
 
 bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                            const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) {
+                            const SkIPoint& dstPoint) {
     // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
     // This implicitly handles this->glCaps().useDrawInsteadOfAllRenderTargetWrites().
     bool preferCopy = SkToBool(dst->asRenderTarget());

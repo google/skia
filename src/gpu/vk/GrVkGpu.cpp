@@ -869,7 +869,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     if (copyTexture.get()) {
         SkASSERT(dataColorType == GrColorType::kRGB_888x);
         SkAssertResult(this->copySurface(tex, copyTexture.get(), SkIRect::MakeWH(width, height),
-                                         SkIPoint::Make(left, top), false));
+                                         SkIPoint::Make(left, top)));
     }
     if (1 == mipLevelCount) {
         tex->texturePriv().markMipMapsDirty();
@@ -2204,7 +2204,7 @@ void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect
 }
 
 bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                            const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) {
+                            const SkIPoint& dstPoint) {
 #ifdef SK_DEBUG
     if (GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget())) {
         SkASSERT(!srcRT->wrapsSecondaryCommandBuffer());

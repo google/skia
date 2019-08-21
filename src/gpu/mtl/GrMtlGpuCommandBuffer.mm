@@ -57,14 +57,6 @@ void GrMtlGpuRTCommandBuffer::submit() {
     fGpu->submitIndirectCommandBuffer(fRenderTarget, fOrigin, &iBounds);
 }
 
-void GrMtlGpuRTCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
-const SkIPoint& dstPoint) {
-    // We cannot have an active encoder when we call copy since it requires its own
-    // command encoder.
-    SkASSERT(nil == fActiveRenderCmdEncoder);
-    fGpu->copySurface(fRenderTarget, src, srcRect, dstPoint);
-}
-
 GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
         const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,

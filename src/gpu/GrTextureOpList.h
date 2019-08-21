@@ -38,11 +38,6 @@ public:
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
 
-    bool copySurface(GrRecordingContext*,
-                     GrSurfaceProxy* src,
-                     const SkIRect& srcRect,
-                     const SkIPoint& dstPoint) override;
-
     GrTextureOpList* asTextureOpList() override { return this; }
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)

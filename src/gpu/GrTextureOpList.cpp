@@ -18,7 +18,6 @@
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/ops/GrCopySurfaceOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -138,30 +137,6 @@ void GrTextureOpList::endFlush() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-// This closely parallels GrRenderTargetOpList::copySurface but renderTargetOpList
-// stores extra data with the op
-bool GrTextureOpList::copySurface(GrRecordingContext* context,
-                                  GrSurfaceProxy* src,
-                                  const SkIRect& srcRect,
-                                  const SkIPoint& dstPoint) {
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(
-            context, fTarget.get(), src, srcRect, dstPoint);
-    if (!op) {
-        return false;
-    }
-
-    GrTextureResolveManager textureResolveManager(context->priv().drawingManager());
-    const GrCaps* caps = context->priv().caps();
-    auto addDependency = [ textureResolveManager, caps, this ] (
-            GrSurfaceProxy* p, GrMipMapped mipmapped) {
-        this->addDependency(p, mipmapped, textureResolveManager, *caps);
-    };
-    op->visitProxies(addDependency);
-
-    this->recordOp(std::move(op));
-    return true;
-}
 
 void GrTextureOpList::handleInternalAllocationFailure() {
     bool hasUninstantiatedProxy = false;

@@ -21,7 +21,6 @@ public:
 
     ~GrMockGpuTextureCommandBuffer() override {}
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {}
     void insertEventMarker(const char*) override {}
 
 private:
@@ -46,9 +45,6 @@ public:
         }
     }
     void end() override {}
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
-        this->markRenderTargetDirty();
-    }
 
     int numDraws() const { return fNumDraws; }
 

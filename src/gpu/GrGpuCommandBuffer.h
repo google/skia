@@ -29,11 +29,6 @@ class GrGpuCommandBuffer {
 public:
     virtual ~GrGpuCommandBuffer() {}
 
-    // Copy src into current surface owned by either a GrGpuTextureCommandBuffer or
-    // GrGpuRenderTargetCommandBuffer. The srcRect and dstPoint must be in dst coords and have
-    // already been adjusted for any origin flips.
-    virtual void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
-
     virtual void insertEventMarker(const char*) = 0;
 
     virtual GrGpuRTCommandBuffer* asRTCommandBuffer() { return nullptr; }
