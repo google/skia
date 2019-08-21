@@ -101,18 +101,20 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
     if (fResolvedFonts.count() == 0) {
         auto result = fFontCollection->defaultFallback(firstUnresolved(), style.getFontStyle(), style.getLocale());
         if (result == nullptr) {
-            SkDebugf("No fallback!!!\n");
+            if (fText.size() > 0) {
+                SkDebugf("No fallback!!!\n");
+            }
             return;
         }
-        makeFont(result,
-                 style.getFontSize(),
-                 style.getHeight());
-        if (fFirstResolvedFont.fFont.getTypeface() != nullptr) {
-            SkString name;
-            fFirstResolvedFont.fFont.getTypeface()->getFamilyName(&name);
-            SkDebugf("Urgent font resolution: %s\n", name.c_str());
-        } else {
-            SkDebugf("No font!!!\n");
+        makeFont(result, style.getFontSize(), style.getHeight());
+        if (fText.size() > 0) {
+            if (fFirstResolvedFont.fFont.getTypeface() != nullptr) {
+                SkString name;
+                fFirstResolvedFont.fFont.getTypeface()->getFamilyName(&name);
+                SkDebugf("Urgent font resolution: %s\n", name.c_str());
+            } else {
+                SkDebugf("No font!!!\n");
+            }
         }
     }
 }
