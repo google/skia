@@ -65,9 +65,9 @@ std::vector<sk_sp<SkFontMgr>> FontCollection::getFontManagerOrder() const {
     return order;
 }
 
-sk_sp<SkTypeface> FontCollection::matchTypeface(const char familyName[], SkFontStyle fontStyle) {
+sk_sp<SkTypeface> FontCollection::matchTypeface(const char familyName[], SkFontStyle fontStyle, const SkString& locale) {
     // Look inside the font collections cache first
-    FamilyKey familyKey(familyName, "en", fontStyle);
+    FamilyKey familyKey(familyName, locale.c_str(), fontStyle);
     auto found = fTypefaces.find(familyKey);
     if (found) {
         return *found;
@@ -123,6 +123,7 @@ sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle) {
     return nullptr;
 }
 
+// Find ANY font in available font managers that resolves the unicode codepoint
 sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const SkString& locale) {
 
     for (const auto& manager : this->getFontManagerOrder()) {
@@ -131,7 +132,7 @@ sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle
             bcp47.push_back(locale.c_str());
         }
         sk_sp<SkTypeface> typeface(manager->matchFamilyStyleCharacter(
-                0, fontStyle, bcp47.data(), bcp47.size(), unicode));
+                0, SkFontStyle(), bcp47.data(), bcp47.size(), unicode));
         if (typeface != nullptr) {
             return typeface;
         }
