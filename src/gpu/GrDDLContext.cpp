@@ -15,7 +15,7 @@
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
  * cannot allocate any GPU resources.
  */
-class SK_API GrDDLContext : public GrContext {
+class GrDDLContext : public GrContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
             : INHERITED(proxy->backend(), proxy->priv().options(), proxy->priv().contextID()) {

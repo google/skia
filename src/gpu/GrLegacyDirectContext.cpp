@@ -33,7 +33,7 @@ static const bool kDefaultReduceOpListSplitting = false;
 static const bool kDefaultReduceOpListSplitting = false;
 #endif
 
-class SK_API GrLegacyDirectContext : public GrContext {
+class GrLegacyDirectContext : public GrContext {
 public:
     GrLegacyDirectContext(GrBackendApi backend, const GrContextOptions& options)
             : INHERITED(backend, options)
