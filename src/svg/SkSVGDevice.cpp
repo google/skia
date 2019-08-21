@@ -298,10 +298,13 @@ private:
 void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& resources) {
     SkPaint::Style style = paint.getStyle();
     if (style == SkPaint::kFill_Style || style == SkPaint::kStrokeAndFill_Style) {
-        this->addAttribute("fill", resources.fPaintServer);
+        static constexpr char kDefaultFill[] = "rgb(0,0,0)";
+        if (!resources.fPaintServer.equals(kDefaultFill)) {
+            this->addAttribute("fill", resources.fPaintServer);
 
-        if (SK_AlphaOPAQUE != SkColorGetA(paint.getColor())) {
-            this->addAttribute("fill-opacity", svg_opacity(paint.getColor()));
+            if (SK_AlphaOPAQUE != SkColorGetA(paint.getColor())) {
+                this->addAttribute("fill-opacity", svg_opacity(paint.getColor()));
+            }
         }
     } else {
         SkASSERT(style == SkPaint::kStroke_Style);
@@ -340,7 +343,7 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
         }
     } else {
         SkASSERT(style == SkPaint::kFill_Style);
-        this->addAttribute("stroke", "none");
+        // SVG default stroke value is "none".
     }
 }
 
