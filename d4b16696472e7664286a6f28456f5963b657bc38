@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "01372567_3812f3e3",
+        "filename": "src/gpu/GrCopyRenderTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-21T16:30:07Z",
+      "side": 1,
+      "message": "\\n here ?",
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d7d963d4_24c9d7ca",
         "filename": "src/gpu/GrCopyRenderTask.cpp",
         "patchSetId": 4
@@ -18,6 +35,86 @@
         "startChar": 0,
         "endLine": 62,
         "endChar": 20
+      },
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc8ba731_7c9d5be2",
+        "filename": "src/gpu/GrCopyRenderTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-21T16:30:07Z",
+      "side": 1,
+      "message": "wdyt about just grabbing the src \u0026 dst GrSurfaces out here and skipping all the peeking later on ?",
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fffef48a_55aa7e86",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-21T16:30:07Z",
+      "side": 1,
+      "message": "Is this not handled by the base class ?",
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "060d7037_5ca95c6f",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-21T16:30:07Z",
+      "side": 1,
+      "message": "the area ?",
+      "range": {
+        "startLine": 74,
+        "startChar": 47,
+        "endLine": 74,
+        "endChar": 52
+      },
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3157885b_88b4bf90",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-21T16:30:07Z",
+      "side": 1,
+      "message": "Do we need this parameter ?",
+      "range": {
+        "startLine": 25,
+        "startChar": 33,
+        "endLine": 25,
+        "endChar": 46
       },
       "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
