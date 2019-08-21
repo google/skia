@@ -16,13 +16,13 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
-#include "src/gpu/ops/GrCopySurfaceOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -574,23 +574,6 @@ bool GrRenderTargetOpList::resetForFullscreenClear(CanDiscardPreviousOps canDisc
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-// This closely parallels GrTextureOpList::copySurface but renderTargetOpLists
-// also store the applied clip and dest proxy with the op
-bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
-                                       GrSurfaceProxy* src,
-                                       const SkIRect& srcRect,
-                                       const SkIPoint& dstPoint) {
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(
-            context, fTarget.get(), src, srcRect, dstPoint);
-    if (!op) {
-        return false;
-    }
-
-    this->addOp(std::move(op), GrTextureResolveManager(context->priv().drawingManager()),
-                *context->priv().caps());
-    return true;
-}
 
 void GrRenderTargetOpList::handleInternalAllocationFailure() {
     bool hasUninstantiatedProxy = false;

@@ -89,11 +89,6 @@ public:
 
     void discard();
 
-    bool copySurface(GrRecordingContext*,
-                     GrSurfaceProxy* src,
-                     const SkIRect& srcRect,
-                     const SkIPoint& dstPoint) override;
-
     GrRenderTargetOpList* asRenderTargetOpList() override { return this; }
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)

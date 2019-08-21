@@ -68,6 +68,15 @@ public:
                                    GrColorType surfaceColorType, GrColorType dstColorType,
                                    sk_sp<GrGpuBuffer> dstBuffer, size_t dstOffset);
 
+    // Creates a new render task which copies a pixel rectangle from srcProxy into dstProxy. The src
+    // pixels copied are specified by srcRect. They are copied to a rect of the same size in
+    // dstProxy with top left at dstPoint. If the src rect is clipped by the src bounds then  pixel
+    // values in the dst rect corresponding to the area clipped by the src rect are not overwritten.
+    // This method is not guaranteed to succeed depending on the type of surface, formats, etc, and
+    // the backend-specific limitations.
+    bool newCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy, const SkIRect& srcRect,
+                           sk_sp<GrSurfaceProxy> dstProxy, const SkIPoint& dstPoint);
+
     GrRecordingContext* getContext() { return fContext; }
 
     GrTextContext* getTextContext();

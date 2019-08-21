@@ -149,7 +149,7 @@ GrGpuRTCommandBuffer* GrMtlGpu::getCommandBuffer(
 
 GrGpuTextureCommandBuffer* GrMtlGpu::getCommandBuffer(GrTexture* texture,
                                                       GrSurfaceOrigin origin) {
-    return new GrMtlGpuTextureCommandBuffer(this, texture, origin);
+    return new GrMtlGpuTextureCommandBuffer(texture, origin);
 }
 
 void GrMtlGpu::submit(GrGpuCommandBuffer* buffer) {
@@ -918,7 +918,7 @@ void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& 
 }
 
 bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                             const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) {
+                             const SkIPoint& dstPoint) {
     SkASSERT(!src->isProtected() && !dst->isProtected());
 
     MTLPixelFormat dstFormat = GrBackendFormatAsMTLPixelFormat(dst->backendFormat());

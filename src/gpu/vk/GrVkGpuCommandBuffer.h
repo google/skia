@@ -45,8 +45,6 @@ class GrVkGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
     GrVkGpuTextureCommandBuffer(GrVkGpu* gpu) : fGpu(gpu) {}
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-
     void insertEventMarker(const char*) override;
 
     void reset() {
@@ -99,8 +97,6 @@ public:
     void insertEventMarker(const char*) override;
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
-
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
     void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
