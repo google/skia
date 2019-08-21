@@ -2333,7 +2333,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
 
     GrXferProcessor::DstProxy dstProxy;
     if (analysis.requiresDstTexture()) {
-        if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, *op, &dstProxy)) {
+        if (!this->setupDstProxy(clip, *op, &dstProxy)) {
             fContext->priv().opMemoryPool()->release(std::move(op));
             return;
         }
@@ -2348,17 +2348,17 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
                       GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
-bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,
-                                          const GrOp& op, GrXferProcessor::DstProxy* dstProxy) {
+bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
+                                          GrXferProcessor::DstProxy* dstProxy) {
     // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
     // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
     // start and stop the render pass in order to make the copy.
-    if (rtProxy->wrapsVkSecondaryCB()) {
+    if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
         return false;
     }
 
-    if (this->caps()->textureBarrierSupport()) {
-        if (GrTextureProxy* texProxy = rtProxy->asTextureProxy()) {
+    if (this->caps()->textureBarrierSupport() && !fRenderTargetProxy->requiresManualMSAAResolve()) {
+        if (GrTextureProxy* texProxy = fRenderTargetProxy->asTextureProxy()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
             // will be responsible to detect this situation and request a texture barrier.
             dstProxy->setProxy(sk_ref_sp(texProxy));
@@ -2367,10 +2367,11 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
         }
     }
 
-    SkIRect copyRect = SkIRect::MakeWH(rtProxy->width(), rtProxy->height());
+    SkIRect copyRect = SkIRect::MakeWH(fRenderTargetProxy->width(), fRenderTargetProxy->height());
 
     SkIRect clippedRect;
-    clip.getConservativeBounds(rtProxy->width(), rtProxy->height(), &clippedRect);
+    clip.getConservativeBounds(
+            fRenderTargetProxy->width(), fRenderTargetProxy->height(), &clippedRect);
     SkRect opBounds = op.bounds();
     // If the op has aa bloating or is a infinitely thin geometry (hairline) outset the bounds by
     // 0.5 pixels.
@@ -2380,7 +2381,8 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
         // performance we may ignore the clip when the draw is entirely inside the clip is float
         // space but will hit pixels just outside the clip when actually rasterizing.
         clippedRect.outset(1, 1);
-        clippedRect.intersect(SkIRect::MakeWH(rtProxy->width(), rtProxy->height()));
+        clippedRect.intersect(SkIRect::MakeWH(
+                fRenderTargetProxy->width(), fRenderTargetProxy->height()));
     }
     SkIRect opIBounds;
     opBounds.roundOut(&opIBounds);
@@ -2394,7 +2396,7 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrCaps::DstCopyRestrictions restrictions = this->caps()->getDstCopyRestrictions(
-            rtProxy, this->colorSpaceInfo().colorType());
+            fRenderTargetProxy.get(), this->colorSpaceInfo().colorType());
 
     if (!restrictions.fMustCopyWholeSrc) {
         copyRect = clippedRect;
@@ -2409,9 +2411,9 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
         dstOffset = {copyRect.fLeft, copyRect.fTop};
         fit = SkBackingFit::kApprox;
     }
-    sk_sp<GrTextureProxy> newProxy =
-            GrSurfaceProxy::Copy(fContext, rtProxy, GrMipMapped::kNo, copyRect, fit,
-                                 SkBudgeted::kYes, restrictions.fRectsMustMatch);
+    sk_sp<GrTextureProxy> newProxy = GrSurfaceProxy::Copy(
+            fContext, fRenderTargetProxy.get(), GrMipMapped::kNo, copyRect, fit, SkBudgeted::kYes,
+            restrictions.fRectsMustMatch);
     SkASSERT(newProxy);
 
     dstProxy->setProxy(std::move(newProxy));
