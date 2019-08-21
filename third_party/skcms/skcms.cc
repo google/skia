@@ -1476,13 +1476,18 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 
     // We need to enforce the same constraints here that we do when fitting a curve,
     // a >= 0 and ad+b >= 0.  These constraints are checked by tf_is_valid(), so they're true
-    // of the source function if we're here.  And if the source a >= 0, inv.a definitely is too.
-    assert (inv.a >= 0);
+    // of the source function if we're here.
 
-    // On the other hand our ad+b could have gone slightly negative here.  Tweak inv.b if needed.
+    // Just like when fitting the curve, there's really no way to rescue a < 0.
+    if (inv.a < 0) {
+        return false;
+    }
+    // On the other hand we can rescue an ad+b that's gone slightly negative here.
     if (inv.a * inv.d + inv.b < 0) {
         inv.b = -inv.a * inv.d;
     }
+
+    assert (inv.a >= 0);
     assert (inv.a * inv.d + inv.b >= 0);
 
     // Now in principle we're done.
