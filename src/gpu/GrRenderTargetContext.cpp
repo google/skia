@@ -875,7 +875,7 @@ void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool i
 void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
                                             GrAA doStencilMSAA,
                                             const SkMatrix& viewMatrix,
-                                            const GrPath* path) {
+                                            sk_sp<const GrPath> path) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
@@ -900,10 +900,9 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     std::unique_ptr<GrOp> op = GrStencilPathOp::Make(fRenderTargetContext->fContext,
                                                      viewMatrix,
                                                      GrAA::kYes == doStencilMSAA,
-                                                     path->getFillType(),
                                                      appliedClip.hasStencilClip(),
                                                      appliedClip.scissorState(),
-                                                     path);
+                                                     std::move(path));
     if (!op) {
         return;
     }

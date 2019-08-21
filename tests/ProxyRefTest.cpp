@@ -11,7 +11,6 @@
 
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrPendingIOResource.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrResourceProvider.h"

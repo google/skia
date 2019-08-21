@@ -79,7 +79,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
                               "GrStencilAndCoverPathRenderer::onStencilPath");
     sk_sp<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
     args.fRenderTargetContext->priv().stencilPath(
-            *args.fClip, args.fDoStencilMSAA, *args.fViewMatrix, p.get());
+            *args.fClip, args.fDoStencilMSAA, *args.fViewMatrix, std::move(p));
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -120,7 +120,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         // Just ignore the analytic FPs (if any) during the stencil pass. They will still clip the
         // final draw and it is meaningless to multiply by coverage when drawing to stencil.
         args.fRenderTargetContext->priv().stencilPath(
-                stencilClip, GrAA(doStencilMSAA), viewMatrix, path.get());
+                stencilClip, GrAA(doStencilMSAA), viewMatrix, std::move(path));
 
         {
             static constexpr GrUserStencilSettings kInvertedCoverPass(
@@ -162,7 +162,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     } else {
         std::unique_ptr<GrDrawOp> op = GrDrawPathOp::Make(
-                args.fContext, viewMatrix, std::move(args.fPaint), GrAA(doStencilMSAA), path.get());
+                args.fContext, viewMatrix, std::move(args.fPaint), GrAA(doStencilMSAA),
+                std::move(path));
         args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     }
 

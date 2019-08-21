@@ -13,7 +13,6 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrNonAtomicRef.h"
-#include "src/gpu/GrPendingIOResource.h"
 #include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrScissorState.h"

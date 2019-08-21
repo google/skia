@@ -46,8 +46,9 @@ private:
 
 class Copy : public GrVkPrimaryCommandBufferTask {
 public:
-    Copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint, bool shouldDiscardDst)
-            : fSrc(src)
+    Copy(sk_sp<GrSurface> src, const SkIRect& srcRect, const SkIPoint& dstPoint,
+         bool shouldDiscardDst)
+            : fSrc(std::move(src))
             , fSrcRect(srcRect)
             , fDstPoint(dstPoint)
             , fShouldDiscardDst(shouldDiscardDst) {}
@@ -57,11 +58,10 @@ public:
     }
 
 private:
-    using Src = GrPendingIOResource<GrSurface, kRead_GrIOType>;
-    Src fSrc;
-    SkIRect fSrcRect;
-    SkIPoint fDstPoint;
-    bool fShouldDiscardDst;
+    sk_sp<GrSurface> fSrc;
+    SkIRect          fSrcRect;
+    SkIPoint         fDstPoint;
+    bool             fShouldDiscardDst;
 };
 
 }  // anonymous namespace
@@ -71,7 +71,7 @@ private:
 void GrVkGpuTextureCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
     SkASSERT(!src->isProtected() || (fTexture->isProtected() && fGpu->protectedContext()));
-    fTasks.emplace<Copy>(src, srcRect, dstPoint, false);
+    fTasks.emplace<Copy>(sk_ref_sp(src), srcRect, dstPoint, false);
 }
 
 void GrVkGpuTextureCommandBuffer::insertEventMarker(const char* msg) {
@@ -549,7 +549,8 @@ void GrVkGpuRTCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
     }
 
     fPreCommandBufferTasks.emplace<Copy>(
-            src, srcRect, dstPoint, LoadStoreState::kStartsWithDiscard == cbInfo.fLoadStoreState);
+            sk_ref_sp(src), srcRect, dstPoint,
+            LoadStoreState::kStartsWithDiscard == cbInfo.fLoadStoreState);
     ++fCommandBufferInfos[fCurrentCmdInfo].fNumPreCmds;
 
     if (LoadStoreState::kLoadAndStore != cbInfo.fLoadStoreState) {
@@ -792,7 +793,9 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
 
 void GrVkGpuRTCommandBuffer::appendSampledTexture(GrTexture* tex) {
     SkASSERT(!tex->isProtected() || (fRenderTarget->isProtected() && fGpu->protectedContext()));
-    fCommandBufferInfos[fCurrentCmdInfo].fSampledTextures.push_back(static_cast<GrVkTexture*>(tex));
+    GrVkTexture* vkTex = static_cast<GrVkTexture*>(tex);
+
+    fCommandBufferInfos[fCurrentCmdInfo].fSampledTextures.push_back(sk_ref_sp(vkTex));
 }
 
 void GrVkGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType,

@@ -71,7 +71,7 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrDrawOp> Make(
-            GrRecordingContext*, const SkMatrix& viewMatrix, GrPaint&&, GrAA, GrPath*);
+            GrRecordingContext*, const SkMatrix& viewMatrix, GrPaint&&, GrAA, sk_sp<const GrPath>);
 
     const char* name() const override { return "DrawPath"; }
 
@@ -82,16 +82,16 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    GrDrawPathOp(const SkMatrix& viewMatrix, GrPaint&& paint, GrAA aa, const GrPath* path)
+    GrDrawPathOp(const SkMatrix& viewMatrix, GrPaint&& paint, GrAA aa, sk_sp<const GrPath> path)
             : GrDrawPathOpBase(
                     ClassID(), viewMatrix, std::move(paint), path->getFillType(), aa)
-            , fPath(path) {
-        this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+            , fPath(std::move(path)) {
+        this->setTransformedBounds(fPath->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
+    sk_sp<const GrPath> fPath;
 
     typedef GrDrawPathOpBase INHERITED;
 };

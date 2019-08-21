@@ -54,9 +54,8 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs&, const GrPath*) {}
 std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext*,
                                             const SkMatrix&,
                                             bool,
-                                            GrPathRendering::FillType,
                                             bool,
                                             const GrScissorState&,
-                                            const GrPath*) { return nullptr; }
+                                            sk_sp<const GrPath>) { return nullptr; }
 
 void GrPath::ComputeKey(const GrShape&, GrUniqueKey*, bool*) {}
