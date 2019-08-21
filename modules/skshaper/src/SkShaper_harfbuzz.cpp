@@ -343,8 +343,10 @@ public:
                 break;
             }
             u = utf8_next(&fEndOfCurrentRun, fEnd);
+
             fUTF16LogicalPosition += SkUTF::ToUTF16(u);
         }
+        SkDebugf("bidi consume: %d %d %d\n", fLevel, u, fUTF16LogicalPosition);
     }
     size_t endOfCurrentRun() const override {
         return fEndOfCurrentRun - fBegin;
@@ -403,6 +405,7 @@ public:
         if (fCurrentScript == HB_SCRIPT_INHERITED) {
             fCurrentScript = HB_SCRIPT_COMMON;
         }
+        SkDebugf("script consume: %d %d\n", u, fCurrent - fBegin);
     }
     size_t endOfCurrentRun() const override {
         return fCurrent - fBegin;

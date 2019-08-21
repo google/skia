@@ -89,6 +89,19 @@ TextLine::TextLine(ParagraphImpl* master,
     for (auto index : logicalOrder) {
         fLogical.push_back(firstRunIndex + index);
     }
+/*
+    SkDebugf("Visual Runs: %d\n", fLogical.size());
+    for (size_t l = 0; l < fLogical.size(); ++l) {
+        auto p = fLogical[l];
+        auto run = fMaster->run(p);
+        if (run.placeholder() != nullptr) {
+            SkDebugf("run[%d], %d: %d*d\n", p, run.fBidiLevel, run.placeholder()->fWidth, run.placeholder()->fHeight);
+        } else {
+            auto text = fMaster->text(run.textRange());
+            SkDebugf("run[%d], %d: %s\n", p, run.fBidiLevel, SkString(text.begin(), text.size()).c_str());
+        }
+    }
+*/
 }
 
 void TextLine::paint(SkCanvas* textCanvas) {
@@ -195,10 +208,15 @@ SkScalar TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextSt
     auto shiftDown =  this->baseline();
     return this->iterateThroughRuns(
         textRange, offsetX, false,
-        [canvas, paint, shiftDown](Run* run, int32_t pos, size_t size, TextRange, SkRect clip, SkScalar shift, bool clippingNeeded) {
+        [this, canvas, paint, shiftDown](Run* run, int32_t pos, size_t size, TextRange intersect, SkRect clip, SkScalar shift, bool clippingNeeded) {
             if (run->placeholder() != nullptr) {
                 return true;
             }
+
+            auto text = fMaster->text(intersect);
+            SkString str(text.begin(), text.size());
+            SkDebugf("paintText '%s'[%d:%d) for run[%d] +%f [%f:%f)\n", str.c_str(), intersect.start, intersect.end, run->fIndex, shift, clip.fLeft, clip.fRight);
+
             SkTextBlobBuilder builder;
             run->copyTo(builder, SkToU32(pos), size, SkVector::Make(0, shiftDown));
             canvas->save();
@@ -557,7 +575,7 @@ SkRect TextLine::measureTextInsideOneRun(
         size = 1;
         clippingNeeded = false;
         return SkRect::MakeXYWH(
-                0, sizes().runTop(run), run->calculateWidth(0, 1, false), run->calculateHeight());
+                0, sizes().runTop(run), run->placeholder()->fWidth, run->calculateHeight());
     }
 
     // Find [start:end] clusters for the text
@@ -581,7 +599,7 @@ SkRect TextLine::measureTextInsideOneRun(
     // Anything else (when we want the cluster width contain all the spaces -
     // coming from letter spacing or word spacing or justification)
     auto range = includeGhostSpaces ? fGhostClusterRange : fClusterRange;
-    bool needsClipping = (run->leftToRight() ? endIndex == range.end  - 1 : startIndex == range.end - 1);
+    bool needsClipping = (run->leftToRight() ? endIndex == range.end  - 1 : startIndex == range.end);
     SkRect clip =
             SkRect::MakeXYWH(run->positionX(start->startPos()) - run->positionX(0),
                              sizes().runTop(run),
@@ -655,10 +673,10 @@ SkScalar TextLine::calculateLeftVisualOffset(TextRange textRange) const {
                 if (part.width() == 0) {
                     return false;
                 }
-                size_t pos;
-                size_t size;
-                bool clippingNeeded;
-                SkRect partClip = this->measureTextInsideOneRun(part, run, pos, size, true, clippingNeeded);
+                size_t pos0;
+                size_t size0;
+                bool clippingNeeded0;
+                SkRect partClip = this->measureTextInsideOneRun(part, run, pos0, size0, true, clippingNeeded0);
                 partOfTheCurrentRun = partClip.width();
                 return false;
             }
@@ -676,6 +694,13 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
     TRACE_EVENT0("skia", TRACE_FUNC);
 
     SkScalar width = 0;
+    SkScalar prevRunWidth = 0;
+    SkScalar prevClipWidth = 0;
+    SkDebugf("iterateThroughRuns[%d:%d)\n", textRange.start, textRange.end);
+    for (auto& runIndex : fLogical) {
+        const auto run = &this->fMaster->run(runIndex);
+        SkDebugf("run[%d]=%d\n", runIndex, run->fBidiLevel);
+    }
     for (auto& runIndex : fLogical) {
         const auto run = &this->fMaster->run(runIndex);
         // Only skip the text if it does not even touch the run
@@ -688,6 +713,11 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
         if (run->textRange().empty() || intersect.empty()) {
             continue;
         }
+
+        // For all runs except the last one we move by the entire run width
+        // and the width of the text should be incremented by the same value
+        runOffset += width == 0 ? prevClipWidth : prevRunWidth;
+        width += width == 0 ? prevClipWidth : prevRunWidth;
 
         // Measure the text
         size_t pos;
@@ -714,6 +744,11 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
             return width;
         }
 
+        // For all runs except the last one we move by the entire run width
+        // and the width of the text should be incremented by the same value
+        prevRunWidth = run->advance().fX;
+        prevClipWidth = clip.width();
+        /*
         if (run->leftToRight() || &runIndex == &fLogical.back()) {
             width += clip.width();
             runOffset += clip.width();
@@ -721,8 +756,10 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
             width += run->advance().fX;
             runOffset += run->advance().fX;
         }
-
+        */
     }
+
+    width += prevClipWidth;
 
     if (this->ellipsis() != nullptr) {
         auto ellipsis = this->ellipsis();
@@ -768,7 +805,6 @@ void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
             start = intersect.start;
             continue;
         }
-
         auto width = visitor(TextRange(start, start + size), *prevStyle, offsetX);
         offsetX += width;
 

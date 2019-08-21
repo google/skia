@@ -89,7 +89,36 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
 ParagraphImpl::~ParagraphImpl() = default;
 
 void ParagraphImpl::layout(SkScalar width) {
+/*
+    SkDebugf("layout(%f): %s\n", width, fText.c_str());
+    for (size_t i = 0; i < fText.size(); ++i) {
+      SkDebugf("%d ", fText[i]);
+    }
 
+    SkDebugf("Styles\n");
+    for (auto& ts : fTextStyles) {
+        SkDebugf("[%d:%d] '%s'", ts.fRange.start, ts.fRange.end, ts.fStyle.getLocale().c_str());
+        for (auto& ff: ts.fStyle.getFontFamilies()) {
+            SkDebugf("%s, ", ff.c_str());
+        }
+        SkDebugf("%f\n", ts.fStyle.getFontSize());
+    }
+    SkDebugf("Default: '%s' ", fParagraphStyle.getTextStyle().getLocale().c_str());
+    for (auto& ff: fParagraphStyle.getTextStyle().getFontFamilies()) {
+        SkDebugf("%s, ", ff.c_str());
+    }
+    SkDebugf("%f\n", fParagraphStyle.getTextStyle().getFontSize());
+
+    if (!fPlaceholders.empty()) {
+        SkDebugf("Placeholders\n");
+        for (auto& ph : fPlaceholders) {
+            if (&ph != &fPlaceholders.back()) {
+                SkDebugf("[%d:%d] ", ph.fRange.start, ph.fRange.end);
+                SkDebugf("%f * %f\n", ph.fStyle.fWidth, ph.fStyle.fHeight);
+            }
+        }
+    }
+*/
     if (fState < kShaped) {
         // Layout marked as dirty for performance/testing reasons
         this->fRuns.reset();
@@ -104,14 +133,18 @@ void ParagraphImpl::layout(SkScalar width) {
 
         if (!this->shapeTextIntoEndlessLine()) {
             // Apply the last style to the empty text
-            FontIterator font(SkMakeSpan(" "), &fFontResolver);
-            // Get the font metrics
-            font.consume();
-            LineMetrics lineMetrics(font.currentFont(), paragraphStyle().getStrutStyle().getForceStrutHeight());
+            SkFont font;
+            SkScalar height;
+            fFontResolver.getFirstFont(&font, &height);
+            LineMetrics lineMetrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
             // Set the important values that are not zero
-            fHeight = lineMetrics.height();
+            fWidth = 0;
+            fHeight = lineMetrics.height() * (height == 0 || height == 1 ? 1 : height);
             fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
             fIdeographicBaseline = lineMetrics.ideographicBaseline();
+            this->fOldWidth = width;
+            this->fOldHeight = this->fHeight;
+            return;
         }
         if (fState < kShaped) {
             fState = kShaped;
@@ -499,7 +532,7 @@ void ParagraphImpl::resolveStrut() {
 
     sk_sp<SkTypeface> typeface;
     for (auto& fontFamily : strutStyle.getFontFamilies()) {
-        typeface = fFontCollection->matchTypeface(fontFamily.c_str(), strutStyle.getFontStyle());
+        typeface = fFontCollection->matchTypeface(fontFamily.c_str(), strutStyle.getFontStyle(), SkString(""));
         if (typeface.get() != nullptr) {
             break;
         }
@@ -615,8 +648,13 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                                                      unsigned end,
                                                      RectHeightStyle rectHeightStyle,
                                                      RectWidthStyle rectWidthStyle) {
-    markGraphemes();
     std::vector<TextBox> results;
+    if (fText.isEmpty()) {
+        results.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
+        return results;
+    }
+
+    markGraphemes();
     if (start >= end || start > fCodePoints.size() || end == 0) {
         return results;
     }
@@ -711,8 +749,10 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                     lastRun->lineHeight() == run->lineHeight() &&
                     lastRun->font() == run->font()) {
                     auto& lastBox = results.back();
-                    if (lastBox.rect.fTop == clip.fTop && lastBox.rect.fBottom == clip.fBottom &&
-                            (lastBox.rect.fLeft == clip.fRight || lastBox.rect.fRight == clip.fLeft)) {
+                    if (SkScalarNearlyEqual(lastBox.rect.fTop, clip.fTop) &&
+                        SkScalarNearlyEqual(lastBox.rect.fBottom, clip.fBottom) &&
+                            (SkScalarNearlyEqual(lastBox.rect.fLeft, clip.fRight) ||
+                             SkScalarNearlyEqual(lastBox.rect.fRight, clip.fLeft))) {
                         lastBox.rect.fLeft = SkTMin(lastBox.rect.fLeft, clip.fLeft);
                         lastBox.rect.fRight = SkTMax(lastBox.rect.fRight, clip.fRight);
                         mergedBoxes = true;
@@ -757,7 +797,14 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
 std::vector<TextBox> ParagraphImpl::GetRectsForPlaceholders() {
   std::vector<TextBox> boxes;
-
+  if (fText.isEmpty()) {
+      boxes.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
+      return boxes;
+  }
+  if (fPlaceholders.empty()) {
+      boxes.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
+      return boxes;
+  }
   for (auto& line : fLines) {
       SkScalar runOffset = 0;
       auto text = line.trimmedText();
@@ -770,6 +817,9 @@ std::vector<TextBox> ParagraphImpl::GetRectsForPlaceholders() {
               if (run->placeholder() == nullptr) {
                   return true;
               }
+              if (run->textRange().width() == 0) {
+                  return false;
+              }
               clip.offset(line.offset());
               boxes.emplace_back(clip, run->leftToRight() ? TextDirection::kLtr : TextDirection::kRtl);
               return true;
@@ -781,8 +831,12 @@ std::vector<TextBox> ParagraphImpl::GetRectsForPlaceholders() {
 // TODO: Deal with RTL here
 PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, SkScalar dy) {
 
-    markGraphemes();
     PositionWithAffinity result(0, Affinity::kDownstream);
+    if (fText.isEmpty()) {
+        return result;
+    }
+
+    markGraphemes();
     for (auto& line : fLines) {
         // Let's figure out if we can stop looking
         auto offsetY = line.offset().fY;
@@ -888,7 +942,7 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 }
 
 SkSpan<const char> ParagraphImpl::text(TextRange textRange) {
-    SkASSERT(textRange.start < fText.size() && textRange.end <= fText.size());
+    SkASSERT(textRange.start <= fText.size() && textRange.end <= fText.size());
     auto start = fText.c_str() + textRange.start;
     return SkSpan<const char>(start, textRange.width());
 }

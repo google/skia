@@ -72,7 +72,9 @@ void ParagraphBuilderImpl::addText(const std::u16string& text) {
     unicode.setTo((UChar*)text.data());
     std::string str;
     unicode.toUTF8String(str);
+    auto old = fUtf8.size();
     fUtf8.insert(fUtf8.size(), str.c_str());
+    SkDebugf("addText(%d->%d): %s\n", old, fUtf8.size(), text.c_str());
 }
 
 void ParagraphBuilderImpl::addText(const char* text) {
