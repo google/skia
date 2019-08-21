@@ -37,6 +37,11 @@ bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* heigh
     return false;
 }
 
+void FontResolver::getFirstFont(SkFont* font, SkScalar* height) {
+    *font = fFirstResolvedFont.fFont;
+    *height = fFirstResolvedFont.fHeight;
+}
+
 void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange textRange) {
     fCodepoints.reset();
     fCharacters.reset();
@@ -106,6 +111,9 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
             }
             return;
         }
+        SkString name;
+        result->getFamilyName(&name);
+        SkDebugf("Default font: %s,%d\n", name.c_str(), style.getFontSize());
         makeFont(result, style.getFontSize(), style.getHeight());
         if (fText.size() > 0) {
             if (fFirstResolvedFont.fFont.getTypeface() != nullptr) {
@@ -236,6 +244,51 @@ void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
     fFontCollection = master->fontCollection();
     fStyles = master->styles();
     fText = master->text();
+    fDefaultStyle = master->paragraphStyle().getTextStyle();
+
+    if (fText.empty()) {
+        SkDebugf("FontResolver: empty text\n");
+        TextStyle foundStyle;
+        sk_sp<SkTypeface> typeface = nullptr;
+        for (auto& style : fStyles) {
+            for (auto& fontFamily : style.fStyle.getFontFamilies()) {
+                typeface = fFontCollection->matchTypeface(fontFamily.c_str(), style.fStyle.getFontStyle());
+                if (typeface.get() != nullptr) {
+                    SkDebugf("FontResolver: found %s\n", fontFamily.c_str(), style.fStyle.getFontSize());
+                    foundStyle = style.fStyle;
+                    break;
+                }
+            }
+            if (typeface != nullptr) {
+              break;
+            }
+        }
+        if (typeface == nullptr) {
+            for (auto& fontFamily : fDefaultStyle.getFontFamilies()) {
+                typeface = fFontCollection->matchTypeface(fontFamily.c_str(), fDefaultStyle.getFontStyle());
+                if (typeface.get() != nullptr) {
+                    SkDebugf("FontResolver: found default %s\n", fontFamily.c_str(), fDefaultStyle.getFontSize());
+                    foundStyle = fDefaultStyle;
+                    break;
+                }
+            }
+        }
+
+        if (typeface == nullptr) {
+            foundStyle = fStyles.empty() ? fDefaultStyle : fStyles.front().fStyle;
+            typeface = fFontCollection->defaultFallback(0, foundStyle.getFontStyle(), foundStyle.getLocale());
+            if (typeface == nullptr) {
+                SkDebugf("No typeface at all\n");
+                return;
+            }
+            SkString name;
+            typeface->getFamilyName(&name);
+            SkDebugf("FontResolver: found any %s\n", name.c_str(), foundStyle.getFontSize());
+
+        }
+        fFirstResolvedFont = makeFont(typeface, foundStyle.getFontSize(), foundStyle.getHeight());
+        return;
+    }
 
     Block combinedBlock;
     for (auto& block : fStyles) {
