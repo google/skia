@@ -30,7 +30,7 @@ class SkPath;
 /**
  *  Base class for drawing paths into a GrOpList.
  */
-class SK_API GrPathRenderer : public SkRefCnt {
+class GrPathRenderer : public SkRefCnt {
 public:
     GrPathRenderer();
 

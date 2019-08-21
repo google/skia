@@ -13,7 +13,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/gpu/text/GrSDFMaskFilter.h"
 
-class SK_API GrSDFMaskFilterImpl : public SkMaskFilterBase {
+class GrSDFMaskFilterImpl : public SkMaskFilterBase {
 public:
     GrSDFMaskFilterImpl();
 

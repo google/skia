@@ -37,6 +37,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get
     return nullptr;
 }
 
-SK_API const GrGLInterface* GrGLAssembleInterface(void *ctx, GrGLGetProc get) {
+const GrGLInterface* GrGLAssembleInterface(void *ctx, GrGLGetProc get) {
     return GrGLMakeAssembledInterface(ctx, get).release();
 }

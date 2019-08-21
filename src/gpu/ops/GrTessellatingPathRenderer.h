@@ -14,7 +14,7 @@
  *  Subclass that renders the path by converting to screen-space trapezoids plus
  *   extra 1-pixel geometry for AA.
  */
-class SK_API GrTessellatingPathRenderer : public GrPathRenderer {
+class GrTessellatingPathRenderer : public GrPathRenderer {
 public:
     GrTessellatingPathRenderer();
 #if GR_TEST_UTILS

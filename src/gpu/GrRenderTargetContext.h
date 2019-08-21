@@ -55,7 +55,7 @@ class SkVertices;
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class SK_API GrRenderTargetContext : public GrSurfaceContext {
+class GrRenderTargetContext : public GrSurfaceContext {
 public:
     ~GrRenderTargetContext() override;
 
