@@ -1311,21 +1311,6 @@ public:
                           b.fLeft, b.fTop, b.fRight, b.fBottom);
     }
 
-    /** Constructs SkRect to intersect from (left, top, right, bottom). Does not sort
-        construction.
-
-        Sets SkRect to the union of itself and the construction.
-
-        Has no effect if construction is empty. Otherwise, if SkRect is empty, sets
-        SkRect to construction.
-
-        @param left    x-axis minimum of constructed SkRect
-        @param top     y-axis minimum of constructed SkRect
-        @param right   x-axis maximum of constructed SkRect
-        @param bottom  y-axis maximum of constructed SkRect
-    */
-    void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
-
     /** Sets SkRect to the union of itself and r.
 
         Has no effect if r is empty. Otherwise, if SkRect is empty, sets
@@ -1333,9 +1318,12 @@ public:
 
         @param r  expansion SkRect
     */
-    void join(const SkRect& r) {
-        this->join(r.fLeft, r.fTop, r.fRight, r.fBottom);
+    void join(const SkRect& r);
+#if 0
+    void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
+        this->join({left, top, right, bottom});
     }
+#endif
 
     /** Sets SkRect to the union of itself and r.
 
