@@ -23,7 +23,7 @@ struct SkIRect;
  * A helper object to orchestrate commands (currently just copies) for GrSurfaces that are
  * GrTextures and not GrRenderTargets.
  */
-class SK_API GrTextureContext : public GrSurfaceContext {
+class GrTextureContext : public GrSurfaceContext {
 public:
     ~GrTextureContext() override;
 
