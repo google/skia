@@ -15,6 +15,16 @@ namespace textlayout {
 
 class TextLine {
 public:
+
+    struct ClipContext {
+      const Run* run;
+      size_t pos;
+      size_t size;
+      SkRect clip;
+      SkScalar shift;
+      bool clippingNeeded;
+    };
+
     TextLine() = default;
     ~TextLine() = default;
 
@@ -50,18 +60,14 @@ public:
     SkScalar ideographicBaseline() const { return fSizes.ideographicBaseline(); }
     SkScalar baseline() const { return fSizes.baseline(); }
 
-    using StyleVisitor = std::function<SkScalar(TextRange textRange, const TextStyle& style,
-                                                SkScalar offsetX)>;
-    void iterateThroughStylesInTextOrder(StyleType styleType, const StyleVisitor& visitor) const;
-
     SkScalar calculateLeftVisualOffset(TextRange textRange) const;
 
-    using RunVisitor = std::function<bool(Run* run, size_t pos, size_t size, TextRange text,
-                                          SkRect clip, SkScalar shift, bool clippingNeeded)>;
-    SkScalar iterateThroughRuns(TextRange textRange,
-                                SkScalar offsetX,
-                                bool includeGhostWhitespaces,
-                                const RunVisitor& visitor) const;
+    using RunVisitor = std::function<bool(ClipContext runContext, SkScalar runOffset, TextRange textRange)>;
+    SkScalar iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisitor& runVisitor) const;
+    using RunStyleVisitor = std::function<void(TextRange textRange, const TextStyle& style, const ClipContext& context)>;
+    void iterateThroughSingleRunByStyles(const Run* run, SkScalar runOffset, TextRange textRange,
+                                         StyleType styleType, const RunStyleVisitor& visitor) const;
+
 
     using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost)>;
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
@@ -72,7 +78,7 @@ public:
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
 
     // For testing internal structures
-    void scanStyles(StyleType style, const StyleVisitor& visitor);
+    void scanStyles(StyleType style, const RunStyleVisitor& visitor);
     void scanRuns(const RunVisitor& visitor);
 
     TextAlign assumedTextAlign() const;
@@ -80,25 +86,17 @@ public:
     void setMaxRunMetrics(const LineMetrics& metrics) { fMaxRunMetrics = metrics; }
     LineMetrics getMaxRunMetrics() const { return fMaxRunMetrics; }
 
+    ClipContext measureTextInsideOneRun(TextRange textRange, const Run* run, SkScalar runOffset, bool includeGhostSpaces) const;
+
 private:
 
     Run* shapeEllipsis(const SkString& ellipsis, Run* run);
     void justify(SkScalar maxWidth);
 
-    SkRect measureTextInsideOneRun(TextRange textRange,
-                                   Run* run,
-                                   size_t& pos,
-                                   size_t& size,
-                                   bool includeGhostSpaces,
-                                   bool& clippingNeeded) const;
-
-    SkScalar paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, SkScalar offsetX) const;
-    SkScalar paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style,
-                             SkScalar offsetX) const;
-    SkScalar paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style,
-                         SkScalar offsetX) const;
-    SkScalar paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style,
-                              SkScalar offsetX) const;
+    void paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    void paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    void paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    void paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
 
     void computeDecorationPaint(SkPaint& paint, SkRect clip, const TextStyle& style,
                                 SkPath& path) const;
@@ -117,7 +115,7 @@ private:
     ClusterRange fClusterRange;
     ClusterRange fGhostClusterRange;
 
-    SkTArray<size_t, true> fLogical;
+    SkTArray<size_t, true> fRunsInVisualOrder;
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
     SkScalar fShift;                    // Left right
