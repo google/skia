@@ -9,12 +9,12 @@
 #define GrTextureContext_DEFINED
 
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrTextureOpList.h"
 #include "src/gpu/GrTextureProxy.h"
 
 class GrContext;
 class GrDrawingManager;
 class GrSurface;
-class GrTextureOpList;
 class GrTextureProxy;
 struct SkIPoint;
 struct SkIRect;
