@@ -60,8 +60,7 @@ struct GrDawnProgram : public SkRefCnt {
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
     int fFragmentProcessorCnt;
-    dawn::Buffer fGeometryUniformBuffer;
-    dawn::Buffer fFragmentUniformBuffer;
+    dawn::BindGroupLayout fBindGroupLayout;
     dawn::PipelineLayout fPipelineLayout;
     dawn::BindGroup fBindGroup;
     dawn::ColorStateDescriptor fColorState;
@@ -71,8 +70,9 @@ struct GrDawnProgram : public SkRefCnt {
     BuiltinUniformHandles fBuiltinUniformHandles;
 
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
-    void setData(const GrPrimitiveProcessor&, const GrRenderTarget*, GrSurfaceOrigin,
-                 const GrPipeline&);
+    dawn::BindGroup setData(GrDawnGpu* gpu, const GrRenderTarget*, GrSurfaceOrigin origin,
+                            const GrPrimitiveProcessor&, const GrPipeline&,
+                            const GrTextureProxy* const primProcTextures[]);
 };
 
 class GrDawnProgramBuilder : public GrGLSLProgramBuilder {

@@ -8,6 +8,7 @@
 #ifndef GrDawnProgramDataManager_DEFINED
 #define GrDawnProgramDataManager_DEFINED
 
+#include "src/gpu/dawn/GrDawnRingBuffer.h"
 #include "src/gpu/dawn/GrDawnUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "dawn/dawncpp.h"
@@ -57,8 +58,11 @@ public:
         SK_ABORT("Only supported in NVPR, which is not in Dawn");
     }
 
-    void uploadUniformBuffers(dawn::Buffer geometryBuffer, dawn::Buffer fragmentBuffer) const;
+    void uploadUniformBuffers(GrDawnRingBuffer::Slice geometryBuffer,
+                              GrDawnRingBuffer::Slice fragmentBuffer) const;
 
+    uint32_t geometryUniformSize() const { return fGeometryUniformSize; }
+    uint32_t fragmentUniformSize() const { return fFragmentUniformSize; }
 private:
     struct Uniform {
         uint32_t fBinding;

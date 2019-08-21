@@ -263,16 +263,17 @@ template<> struct set_uniform_matrix<4> {
     }
 };
 
-void GrDawnProgramDataManager::uploadUniformBuffers(dawn::Buffer geometryBuffer,
-                                                    dawn::Buffer fragmentBuffer) const {
-    if (geometryBuffer && fGeometryUniformsDirty) {
-        geometryBuffer.SetSubData(0, fGeometryUniformSize,
-                                  static_cast<const uint8_t*>(fGeometryUniformData.get()));
-        fGeometryUniformsDirty = false;
+void GrDawnProgramDataManager::uploadUniformBuffers(GrDawnRingBuffer::Slice geometryBuffer,
+                                                    GrDawnRingBuffer::Slice fragmentBuffer) const {
+
+    dawn::Buffer geom = geometryBuffer.fBuffer;
+    dawn::Buffer frag = fragmentBuffer.fBuffer;
+    if (geom && fGeometryUniformsDirty) {
+        geom.SetSubData(geometryBuffer.fOffset, fGeometryUniformSize,
+                        static_cast<const uint8_t*>(fGeometryUniformData.get()));
     }
-    if (fragmentBuffer && fFragmentUniformsDirty) {
-        fragmentBuffer.SetSubData(0, fFragmentUniformSize,
-                                  static_cast<const uint8_t*>(fFragmentUniformData.get()));
-        fFragmentUniformsDirty = false;
+    if (frag && fFragmentUniformsDirty) {
+        frag.SetSubData(fragmentBuffer.fOffset, fFragmentUniformSize,
+                        static_cast<const uint8_t*>(fFragmentUniformData.get()));
     }
 }
