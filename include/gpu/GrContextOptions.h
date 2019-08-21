@@ -242,6 +242,7 @@ struct SK_API GrContextOptions {
     /**
      * Include or exclude specific GPU path renderers.
      */
+#error
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
 #endif
 
