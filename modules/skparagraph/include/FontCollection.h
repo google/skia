@@ -67,7 +67,7 @@ private:
     sk_sp<SkFontMgr> fDynamicFontManager;
     sk_sp<SkFontMgr> fTestFontManager;
 
-    const char* fDefaultFamilyName;
+    SkString fDefaultFamilyName;
     ParagraphCache fParagraphCache;
 };
 }  // namespace textlayout

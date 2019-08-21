@@ -117,7 +117,7 @@ public:
                       ClusterRange clusters, ClusterRange clustersWithGhosts, SkScalar AddLineToParagraph,
                       LineMetrics sizes);
 
-    SkSpan<const char> text() const { return fTextSpan; }
+    SkSpan<const char> text() const { return SkSpan<const char>(fText.c_str(), fText.size()); }
     InternalState state() const { return fState; }
     SkSpan<Run> runs() { return SkSpan<Run>(fRuns.data(), fRuns.size()); }
     const SkTArray<FontDescr>& switches() const { return fFontResolver.switches(); }
@@ -221,7 +221,6 @@ private:
     SkTArray<Block, true> fTextStyles; // TODO: take out only the font stuff
     SkTArray<Placeholder, true> fPlaceholders;
     SkString fText;
-    SkSpan<const char> fTextSpan;
 
     // Internal structures
     InternalState fState;
