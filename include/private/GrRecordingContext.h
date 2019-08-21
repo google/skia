@@ -61,14 +61,14 @@ protected:
      */
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
-                                                      GrColorType,
-                                                      SkAlphaType,
-                                                      sk_sp<SkColorSpace> = nullptr,
-                                                      const SkSurfaceProps* = nullptr);
+    std::unique_ptr<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                                GrColorType,
+                                                                SkAlphaType,
+                                                                sk_sp<SkColorSpace> = nullptr,
+                                                                const SkSurfaceProps* = nullptr);
 
     /** Create a new texture context backed by a deferred-style GrTextureProxy. */
-    sk_sp<GrTextureContext> makeDeferredTextureContext(
+    std::unique_ptr<GrTextureContext> makeDeferredTextureContext(
             SkBackingFit,
             int width,
             int height,
@@ -85,7 +85,7 @@ protected:
      * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
      * renderTargetContexts created via this entry point.
      */
-    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
+    std::unique_ptr<GrRenderTargetContext> makeDeferredRenderTargetContext(
             SkBackingFit fit,
             int width,
             int height,
@@ -104,7 +104,7 @@ protected:
      * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
      * SRGB-ness will be preserved.
      */
-    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
+    std::unique_ptr<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
             SkBackingFit fit,
             int width,
             int height,

@@ -103,10 +103,8 @@ void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
 sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingContext* context,
                                                                     const SkMatrix& inMatrix,
                                                                     const SkIRect& bounds) const {
-    sk_sp<GrRenderTargetContext> rtContext(
-            context->priv().makeDeferredRenderTargetContextWithFallback(
-                    SkBackingFit::kApprox, bounds.width(), bounds.height(), GrColorType::kAlpha_8,
-                    nullptr));
+    auto rtContext = context->priv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, bounds.width(), bounds.height(), GrColorType::kAlpha_8, nullptr);
     if (!rtContext) {
         return nullptr;
     }

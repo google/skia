@@ -143,7 +143,7 @@ void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlu
     this->drawingManager()->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-sk_sp<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
+std::unique_ptr<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
         sk_sp<GrSurfaceProxy> proxy,
         GrColorType colorType,
         SkAlphaType alphaType,
@@ -165,7 +165,7 @@ sk_sp<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
     }
 }
 
-sk_sp<GrTextureContext> GrRecordingContext::makeDeferredTextureContext(
+std::unique_ptr<GrTextureContext> GrRecordingContext::makeDeferredTextureContext(
         SkBackingFit fit,
         int width,
         int height,
@@ -208,7 +208,7 @@ sk_sp<GrTextureContext> GrRecordingContext::makeDeferredTextureContext(
                                               std::move(colorSpace));
 }
 
-sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext(
+std::unique_ptr<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext(
         SkBackingFit fit,
         int width,
         int height,
@@ -253,7 +253,7 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
 
     auto drawingManager = this->drawingManager();
 
-    sk_sp<GrRenderTargetContext> renderTargetContext = drawingManager->makeRenderTargetContext(
+    auto renderTargetContext = drawingManager->makeRenderTargetContext(
             std::move(rtp), colorType, std::move(colorSpace), surfaceProps);
     if (!renderTargetContext) {
         return nullptr;
@@ -285,20 +285,20 @@ static inline GrColorType color_type_fallback(GrColorType ct) {
     }
 }
 
-sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContextWithFallback(
-        SkBackingFit fit,
-        int width,
-        int height,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        int sampleCnt,
-        GrMipMapped mipMapped,
-        GrSurfaceOrigin origin,
-        const SkSurfaceProps* surfaceProps,
-        SkBudgeted budgeted,
-        GrProtected isProtected) {
+std::unique_ptr<GrRenderTargetContext>
+GrRecordingContext::makeDeferredRenderTargetContextWithFallback(SkBackingFit fit,
+                                                                int width,
+                                                                int height,
+                                                                GrColorType colorType,
+                                                                sk_sp<SkColorSpace> colorSpace,
+                                                                int sampleCnt,
+                                                                GrMipMapped mipMapped,
+                                                                GrSurfaceOrigin origin,
+                                                                const SkSurfaceProps* surfaceProps,
+                                                                SkBudgeted budgeted,
+                                                                GrProtected isProtected) {
     SkASSERT(sampleCnt > 0);
-    sk_sp<GrRenderTargetContext> rtc;
+    std::unique_ptr<GrRenderTargetContext> rtc;
     do {
         rtc = this->makeDeferredRenderTargetContext(fit, width, height, colorType, colorSpace,
                                                     sampleCnt, mipMapped, origin, surfaceProps,
@@ -325,7 +325,7 @@ void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* o
     fContext->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-sk_sp<GrSurfaceContext> GrRecordingContextPriv::makeWrappedSurfaceContext(
+std::unique_ptr<GrSurfaceContext> GrRecordingContextPriv::makeWrappedSurfaceContext(
         sk_sp<GrSurfaceProxy> proxy,
         GrColorType colorType,
         SkAlphaType alphaType,
@@ -335,7 +335,7 @@ sk_sp<GrSurfaceContext> GrRecordingContextPriv::makeWrappedSurfaceContext(
                                                std::move(colorSpace), props);
 }
 
-sk_sp<GrTextureContext> GrRecordingContextPriv::makeDeferredTextureContext(
+std::unique_ptr<GrTextureContext> GrRecordingContextPriv::makeDeferredTextureContext(
         SkBackingFit fit,
         int width,
         int height,
@@ -351,7 +351,7 @@ sk_sp<GrTextureContext> GrRecordingContextPriv::makeDeferredTextureContext(
                                                 isProtected);
 }
 
-sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContext(
+std::unique_ptr<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContext(
         SkBackingFit fit,
         int width,
         int height,
@@ -368,7 +368,8 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
                                                      origin, surfaceProps, budgeted, isProtected);
 }
 
-sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContextWithFallback(
+std::unique_ptr<GrRenderTargetContext>
+GrRecordingContextPriv::makeDeferredRenderTargetContextWithFallback(
         SkBackingFit fit,
         int width,
         int height,

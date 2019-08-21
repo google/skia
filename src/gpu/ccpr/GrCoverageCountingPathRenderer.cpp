@@ -226,9 +226,11 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
     return skstd::make_unique<GrCCClipProcessor>(&clipPath, isCoverageCount, mustCheckBounds);
 }
 
-void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
-                                              const uint32_t* opListIDs, int numOpListIDs,
-                                              SkTArray<sk_sp<GrRenderTargetContext>>* out) {
+void GrCoverageCountingPathRenderer::preFlush(
+        GrOnFlushResourceProvider* onFlushRP,
+        const uint32_t* opListIDs,
+        int numOpListIDs,
+        SkTArray<std::unique_ptr<GrRenderTargetContext>>* out) {
     using DoCopiesToA8Coverage = GrCCDrawPathsOp::DoCopiesToA8Coverage;
     SkASSERT(!fFlushing);
     SkASSERT(fFlushingPaths.empty());
