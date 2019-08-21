@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "008c759d_97e27e68",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-21T16:06:30Z",
+      "side": 1,
+      "message": "The if-statements around these blocks seem a little redundant?",
+      "revId": "68baaec5ce1b04057b5b9a6cc1ccf746d98601d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8caf79c_752a086e",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-21T16:06:30Z",
+      "side": 1,
+      "message": "Now unused?\n\nI take it we\u0027re switching from some sort of value-based comparison to simple pointer comparison now?",
+      "revId": "68baaec5ce1b04057b5b9a6cc1ccf746d98601d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
