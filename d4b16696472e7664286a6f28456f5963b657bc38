@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cc27ef89_14f55888",
+        "filename": "src/gpu/GrCopyRenderTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-21T17:53:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01372567_3812f3e3",
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d7d963d4_24c9d7ca",
         "filename": "src/gpu/GrCopyRenderTask.cpp",
         "patchSetId": 4
@@ -30,6 +48,30 @@
       "writtenOn": "2019-08-21T16:22:39Z",
       "side": 1,
       "message": "It seems like it is time to make this a not-unusual use case that requires special commenting. Maybe that just entails a renaming of some of the methods on GrResourceAllocator away from \"op\"?",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 20
+      },
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8aa32f4f_c4c5abbe",
+        "filename": "src/gpu/GrCopyRenderTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-21T17:53:45Z",
+      "side": 1,
+      "message": "Rob has plans to fix that all op in a future CL.",
+      "parentUuid": "d7d963d4_24c9d7ca",
       "range": {
         "startLine": 55,
         "startChar": 0,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "d68ebd41_e9fa42b9",
+        "filename": "src/gpu/GrCopyRenderTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-21T17:53:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc8ba731_7c9d5be2",
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fffef48a_55aa7e86",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 4
@@ -73,6 +133,24 @@
       "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "432d7238_777b4acc",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-21T17:53:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fffef48a_55aa7e86",
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "1b6d7754_c1cceed8",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-21T17:53:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "060d7037_5ca95c6f",
+      "range": {
+        "startLine": 74,
+        "startChar": 47,
+        "endLine": 74,
+        "endChar": 52
+      },
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3157885b_88b4bf90",
         "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.h",
         "patchSetId": 4
@@ -119,6 +221,30 @@
       "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8c8f3eb_cf35b3f2",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-21T17:53:45Z",
+      "side": 1,
+      "message": "removed.",
+      "parentUuid": "3157885b_88b4bf90",
+      "range": {
+        "startLine": 25,
+        "startChar": 33,
+        "endLine": 25,
+        "endChar": 46
+      },
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
