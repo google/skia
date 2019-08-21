@@ -398,7 +398,6 @@ protected:
         canvas->translate(width, 0);
         drawText(canvas, width, height, very_word, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
         canvas->translate(width, 0);
-
         drawText(canvas, width, height / 2, text, SK_ColorBLACK, SK_ColorWHITE, "Roboto", 20, 100,
                  u"\u2026");
         canvas->translate(0, height / 2);
@@ -1345,4 +1344,4 @@ DEF_SAMPLE(return new ParagraphView8();)
 DEF_SAMPLE(return new ParagraphView9();)
 DEF_SAMPLE(return new ParagraphView10();)
 DEF_SAMPLE(return new ParagraphView11();)
-DEF_SAMPLE(return new ParagraphView12();)
+//DEF_SAMPLE(return new ParagraphView12();)
