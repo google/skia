@@ -862,6 +862,9 @@ void GrResourceCache::validate() const {
         void update(GrGpuResource* resource) {
             fBytes += resource->gpuMemorySize();
 
+            // No resource should ever have pendingIO any more
+            SkASSERT(!resource->internalHasPendingIO());
+
             if (!resource->resourcePriv().isPurgeable()) {
                 ++fLocked;
             }
