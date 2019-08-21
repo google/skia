@@ -355,11 +355,6 @@ GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrOpMemoryPool> opMemoryPool,
         : INHERITED(std::move(opMemoryPool), std::move(proxy), auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
-    if (GrTextureProxy* textureProxy = fTarget->asTextureProxy()) {
-        if (GrMipMapped::kYes == textureProxy->mipMapped()) {
-            textureProxy->markMipMapsDirty();
-        }
-    }
     fTarget->setLastRenderTask(this);
 }
 
@@ -377,8 +372,17 @@ GrRenderTargetOpList::~GrRenderTargetOpList() {
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
+static const char* load_op_to_name(GrLoadOp op) {
+    return GrLoadOp::kLoad == op ? "load" : GrLoadOp::kClear == op ? "clear" : "discard";
+}
+
 void GrRenderTargetOpList::dump(bool printDependencies) const {
     INHERITED::dump(printDependencies);
+
+    SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
+             load_op_to_name(fColorLoadOp),
+             GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor.toBytes_RGBA() : 0x0,
+             load_op_to_name(fStencilLoadOp));
 
     SkDebugf("ops (%d):\n", fOpChains.count());
     for (int i = 0; i < fOpChains.count(); ++i) {
@@ -466,23 +470,7 @@ static GrGpuRTCommandBuffer* create_command_buffer(GrGpu* gpu,
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
 bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
-    // TODO: Forcing the execution of the discard here isn't ideal since it will cause us to do a
-    // discard and then store the data back in memory so that the load op on future draws doesn't
-    // think the memory is unitialized. Ideally we would want a system where we are tracking whether
-    // the proxy itself has valid data or not, and then use that as a signal on whether we should be
-    // loading or discarding. In that world we wouldni;t need to worry about executing oplists with
-    // no ops just to do a discard.
-    if (fOpChains.empty() && GrLoadOp::kClear != fColorLoadOp &&
-        GrLoadOp::kDiscard != fColorLoadOp) {
-        // TEMPORARY: We are in the process of moving GrMipMapsStatus from the texture to the proxy.
-        // During this time we want to assert that the proxy resolves mipmaps at the exact same
-        // times the old code would have. A null opList is very exceptional, and the proxy will have
-        // assumed mipmaps are dirty in this scenario. We mark them dirty here on the texture as
-        // well, in order to keep the assert passing.
-        GrTexture* tex = fTarget->peekTexture();
-        if (tex && GrMipMapped::kYes == tex->texturePriv().mipMapped()) {
-            tex->texturePriv().markMipMapsDirty();
-        }
+    if (this->isNoOp()) {
         return false;
     }
 
