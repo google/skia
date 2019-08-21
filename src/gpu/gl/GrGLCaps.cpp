@@ -1456,6 +1456,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
         bool supportsBGRAColorType = GR_IS_GR_GL(standard) &&
                 (version >= GR_GL_VER(1, 2) || ctxInfo.hasExtension("GL_EXT_bgra"));
+
         info.fColorTypeInfoCount = supportsBGRAColorType ? 3 : 2;
         info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
         int ctIdx = 0;
@@ -3864,6 +3865,8 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
         case GrColorType::kRGBA_8888:
             if (format == GrGLFormat::kRGBA8) {
                 return kRGBA_8888_GrPixelConfig;
+            } else if (format == GrGLFormat::kBGRA8) {
+                return kRGBA_8888_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_8888_SRGB:
@@ -3959,7 +3962,8 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
             break;
     }
 
-    SkDebugf("Unknown pixel config 0x%x\n", format);
+    SkDebugf("GrColorType/GrGLFormat mismatch: %d not compatible with %d\n",
+             ct, format);
     return kUnknown_GrPixelConfig;
 }
 
