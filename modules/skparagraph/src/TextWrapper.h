@@ -96,7 +96,11 @@ class TextWrapper {
         }
 
         void trim() {
-            if (fEnd.cluster()->run()->placeholder() == nullptr) {
+
+            if (fEnd.cluster() != nullptr &&
+                fEnd.cluster()->master() != nullptr &&
+                fEnd.cluster()->run() != nullptr &&
+                fEnd.cluster()->run()->placeholder() == nullptr) {
                 fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
             }
         }

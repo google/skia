@@ -100,8 +100,12 @@ public:
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
     SkScalar positionX(size_t pos) const;
 
-    TextRange textRange() { return fTextRange; }
-    ClusterRange clusterRange() { return fClusterRange; }
+    TextRange textRange() const { return fTextRange; }
+    ClusterRange clusterRange() const { return fClusterRange; }
+
+    ParagraphImpl* master() const { return fMaster; }
+
+    bool isEllipsis() const { return fEllipsis; }
 
     void updateMetrics(LineMetrics* endlineMetrics);
 
@@ -132,7 +136,7 @@ public:
                                               SkScalar height)>;
     void iterateThroughClustersInTextOrder(const ClusterVisitor& visitor);
 
-    std::tuple<bool, ClusterIndex, ClusterIndex> findLimitingClusters(TextRange);
+    std::tuple<bool, ClusterIndex, ClusterIndex> findLimitingClusters(TextRange) const;
     SkSpan<const SkGlyphID> glyphs() const {
         return SkSpan<const SkGlyphID>(fGlyphs.begin(), fGlyphs.size());
     }
@@ -158,6 +162,7 @@ private:
     SkFontMetrics fFontMetrics;
     SkScalar fHeightMultiplier;
     PlaceholderStyle* fPlaceholder;
+    bool fEllipsis;
     size_t fIndex;
     uint8_t fBidiLevel;
     SkVector fAdvance;
@@ -251,6 +256,8 @@ public:
     TextRange textRange() const { return fTextRange; }
 
     RunIndex runIndex() const { return fRunIndex; }
+    ParagraphImpl* master() const { return fMaster; }
+
     Run* run() const;
     SkFont font() const;
 
@@ -343,7 +350,7 @@ public:
         metrics.fLeading = SkTMax(metrics.fLeading, fLeading);
     }
 
-    SkScalar runTop(Run* run) const {
+    SkScalar runTop(const Run* run) const {
         return fLeading / 2 - fAscent + run->ascent() + delta();
     }
     SkScalar height() const { return SkScalarRoundToInt(fDescent - fAscent + fLeading); }

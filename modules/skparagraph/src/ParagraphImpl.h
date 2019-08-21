@@ -177,6 +177,7 @@ public:
     SkSpan<Cluster> clusters(ClusterRange clusterRange);
     Cluster& cluster(ClusterIndex clusterIndex);
     Run& run(RunIndex runIndex);
+    Run& runByCluster(ClusterIndex clusterIndex);
     SkSpan<Block> blocks(BlockRange blockRange);
     Block& block(BlockIndex blockIndex);
 

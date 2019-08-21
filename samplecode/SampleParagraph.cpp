@@ -45,25 +45,6 @@ sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
-const char* gText =
-        "This is a very long sentence to test if the text will properly wrap "
-        "around and go to the next line. Sometimes, short sentence. Longer "
-        "sentences are okay too because they are nessecary. Very short. "
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod "
-        "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
-        "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
-        "commodo consequat. Duis aute irure dolor in reprehenderit in voluptate "
-        "velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint "
-        "occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
-        "mollit anim id est laborum. "
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod "
-        "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
-        "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
-        "commodo consequat. Duis aute irure dolor in reprehenderit in voluptate "
-        "velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint "
-        "occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
-        "mollit anim id est laborum.";
-
 }  // namespace
 
 class ParagraphView1 : public ParagraphView_Base {
@@ -398,7 +379,6 @@ protected:
         canvas->translate(width, 0);
         drawText(canvas, width, height, very_word, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
         canvas->translate(width, 0);
-
         drawText(canvas, width, height / 2, text, SK_ColorBLACK, SK_ColorWHITE, "Roboto", 20, 100,
                  u"\u2026");
         canvas->translate(0, height / 2);
@@ -1264,74 +1244,6 @@ private:
     typedef Sample INHERITED;
 };
 
-// Measure different stages of layout/paint
-class ParagraphView12 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph12"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        ParagraphStyle paragraph_style;
-        paragraph_style.setMaxLines(14);
-        paragraph_style.setTextAlign(TextAlign::kLeft);
-        paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
-
-        TextStyle text_style;
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(26);
-        text_style.setColor(SK_ColorBLACK);
-        text_style.setHeight(1);
-        text_style.setDecoration(TextDecoration::kUnderline);
-        text_style.setDecorationColor(SK_ColorBLACK);
-        builder.pushStyle(text_style);
-        builder.addText(gText);
-        builder.pop();
-
-        auto paragraph = builder.Build();
-        auto impl = reinterpret_cast<ParagraphImpl*>(paragraph.get());
-
-        for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kUnknown);
-            impl->shapeTextIntoEndlessLine();
-            impl->setState(kShaped);
-        }
-
-        for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kShaped);
-            impl->buildClusterTable();
-            impl->markLineBreaks();
-            impl->setState(kMarked);
-        }
-
-        for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kMarked);
-            impl->breakShapedTextIntoLines(1000);
-            impl->setState(kLineBroken);
-        }
-
-        for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kLineBroken);
-            impl->formatLines(1000);
-            impl->setState(kFormatted);
-        }
-
-        for (auto i = 0; i < 1000; ++i) {
-            impl->setState(kFormatted);
-            impl->paintLinesIntoPicture();
-            impl->setState(kDrawn);
-        }
-
-        auto picture = impl->getPicture();
-        SkMatrix matrix = SkMatrix::MakeTrans(0, 0);
-        for (auto i = 0; i < 1000; ++i) {
-            canvas->drawPicture(picture, &matrix, nullptr);
-        }
-
-    }
-
-private:
-    typedef Sample INHERITED;
-};
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -1345,4 +1257,4 @@ DEF_SAMPLE(return new ParagraphView8();)
 DEF_SAMPLE(return new ParagraphView9();)
 DEF_SAMPLE(return new ParagraphView10();)
 DEF_SAMPLE(return new ParagraphView11();)
-DEF_SAMPLE(return new ParagraphView12();)
+

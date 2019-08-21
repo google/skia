@@ -37,6 +37,15 @@ bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* heigh
     return false;
 }
 
+bool FontResolver::isEmpty() {
+    return fFontIterator == fFontSwitches.end();
+}
+
+void FontResolver::getFirstFont(SkFont* font, SkScalar* height) {
+    *font = fFirstResolvedFont.fFont;
+    *height = fFirstResolvedFont.fHeight;
+}
+
 void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange textRange) {
     fCodepoints.reset();
     fCharacters.reset();
@@ -51,11 +60,13 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
         fCodepoints.emplace_back(utf8_next(&current, end));
         fUnresolvedIndexes.emplace_back(fUnresolvedIndexes.size());
     }
+    fUnresolvedCodepoints.push_back_n(fUnresolvedIndexes.size());
     fUnresolved = fCodepoints.size();
 
     // Walk through all available fonts to resolve the block
+    auto wasUnresolved = fUnresolved;
     for (auto& fontFamily : style.getFontFamilies()) {
-        auto typeface = fFontCollection->matchTypeface(fontFamily.c_str(), style.getFontStyle());
+        auto typeface = fFontCollection->matchTypeface(fontFamily.c_str(), style.getFontStyle(), style.getLocale());
         if (typeface.get() == nullptr) {
             continue;
         }
@@ -68,53 +79,45 @@ void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange 
         }
     }
 
+    if (fUnresolved != wasUnresolved || allWhitespaces()) {
+        addResolvedWhitespacesToMapping();
+        wasUnresolved = fUnresolved;
+    }
+
     if (fUnresolved > 0) {
-        auto typeface = fFontCollection->matchDefaultTypeface(style.getFontStyle());
-        if (typeface.get() != nullptr) {
-            // Resolve all unresolved characters
+        // Check the default font
+        auto typeface =
+                fFontCollection->matchDefaultTypeface(style.getFontStyle(), style.getLocale());
+        if (typeface != nullptr) {
             auto font = makeFont(typeface, style.getFontSize(), style.getHeight());
             resolveAllCharactersByFont(font);
         }
+        if (fUnresolved != wasUnresolved || allWhitespaces()) {
+            addResolvedWhitespacesToMapping();
+            wasUnresolved = fUnresolved;
+        }
     }
 
-    addResolvedWhitespacesToMapping();
-
     if (fUnresolved > 0 && fFontCollection->fontFallbackEnabled()) {
-        while (fUnresolved > 0) {
+        while (fUnresolved > 0 && !allWhitespaces()) {
             auto unicode = firstUnresolved();
             auto typeface = fFontCollection->defaultFallback(unicode, style.getFontStyle(), style.getLocale());
             if (typeface == nullptr) {
                 break;
             }
+
+            SkString name;
+            typeface->getFamilyName(&name);
             auto font = makeFont(typeface, style.getFontSize(), style.getHeight());
-            if (!resolveAllCharactersByFont(font)) {
+            auto newResolved = resolveAllCharactersByFont(font);
+            if (newResolved == 0) {
                 // Not a single unicode character was resolved
                 break;
             }
-            SkString name;
-            typeface->getFamilyName(&name);
-            SkDebugf("Default font fallback resolution: %s\n", name.c_str());
         }
-    }
-
-    // In case something still unresolved
-    if (fResolvedFonts.count() == 0) {
-        auto result = fFontCollection->defaultFallback(firstUnresolved(), style.getFontStyle(), style.getLocale());
-        if (result == nullptr) {
-            if (fText.size() > 0) {
-                SkDebugf("No fallback!!!\n");
-            }
-            return;
-        }
-        makeFont(result, style.getFontSize(), style.getHeight());
-        if (fText.size() > 0) {
-            if (fFirstResolvedFont.fFont.getTypeface() != nullptr) {
-                SkString name;
-                fFirstResolvedFont.fFont.getTypeface()->getFamilyName(&name);
-                SkDebugf("Urgent font resolution: %s\n", name.c_str());
-            } else {
-                SkDebugf("No font!!!\n");
-            }
+        if (fUnresolved != wasUnresolved || allWhitespaces()) {
+            addResolvedWhitespacesToMapping();
+            wasUnresolved = fUnresolved;
         }
     }
 }
@@ -144,28 +147,34 @@ size_t FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
                 if (fWhitespaces.find(w) == nullptr) {
                     fWhitespaces.set(w, font);
                 }
-                fUnresolvedIndexes[stillUnresolved++] = w;
-                fUnresolvedCodepoints.emplace_back(fCodepoints[w]);
+                fUnresolvedIndexes[stillUnresolved] = w;
+                fUnresolvedCodepoints[stillUnresolved] = fCodepoints[w];
+                ++stillUnresolved;
             }
         } else {
-            //SkDebugf("Resolved %d @%d\n", font.fFont.getTypeface()->uniqueID(), resolved.start);
             fFontMapping.set(fCharacters[resolved.start] - fText.begin(), font);
         }
     };
 
     // Try to resolve all the unresolved unicode points
+    SkString name;
+    font.fFont.getTypeface()->getFamilyName(&name);
     for (size_t i = 0; i < glyphs.size(); ++i) {
         auto glyph = glyphs[i];
         auto index = fUnresolvedIndexes[i];
+        auto codepoint = fCodepoints[index];
 
-        if (glyph == 0) {
+        if (u_hasBinaryProperty(codepoint, UCHAR_BIDI_CONTROL)) {
+            // Skip control characters - they don't have to be resolved
+        } else if (glyph == 0) {
             processRuns();
 
             resolved = SkRange<size_t>(0, 0);
             whitespaces = SkRange<size_t>(0, 0);
 
-            fUnresolvedIndexes[stillUnresolved++] = index;
-            fUnresolvedCodepoints.emplace_back(fCodepoints[index]);
+            fUnresolvedIndexes[stillUnresolved] = index;
+            fUnresolvedCodepoints[stillUnresolved] = codepoint;
+            ++stillUnresolved;
             continue;
         }
 
@@ -175,7 +184,7 @@ size_t FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
             processRuns();
             resolved = SkRange<size_t>(index, index + 1);
         }
-        if (u_isUWhiteSpace(fCodepoints[index])) {
+        if (u_isUWhiteSpace(codepoint)) {
             if (index == whitespaces.end) {
                 ++whitespaces.end;
             } else {
@@ -191,7 +200,7 @@ size_t FontResolver::resolveAllCharactersByFont(const FontDescr& font) {
 
     size_t wasUnresolved = fUnresolved;
     fUnresolved = stillUnresolved;
-    return fUnresolved < wasUnresolved;
+    return wasUnresolved - stillUnresolved;
 }
 
 void FontResolver::addResolvedWhitespacesToMapping() {
@@ -226,16 +235,57 @@ FontDescr FontResolver::makeFont(sk_sp<SkTypeface> typeface, SkScalar size, SkSc
 
 SkUnichar FontResolver::firstUnresolved() {
     if (fUnresolved == 0) return 0;
+    return fUnresolvedCodepoints[0];
+}
 
-    bool firstTry = fUnresolved == fCodepoints.size();
-    auto index = firstTry ? 0 : fUnresolvedIndexes[0];
-    return fCodepoints[index];
+void FontResolver::setLastResortFont() {
+    TextStyle foundStyle;
+    sk_sp<SkTypeface> typeface = nullptr;
+    for (auto& style : fStyles) {
+        for (auto& fontFamily : style.fStyle.getFontFamilies()) {
+            typeface = fFontCollection->matchTypeface(fontFamily.c_str(), style.fStyle.getFontStyle(), style.fStyle.getLocale());
+            if (typeface.get() != nullptr) {
+                foundStyle = style.fStyle;
+                break;
+            }
+        }
+        if (typeface != nullptr) {
+          break;
+        }
+    }
+    if (typeface == nullptr) {
+        for (auto& fontFamily : fDefaultStyle.getFontFamilies()) {
+            typeface = fFontCollection->matchTypeface(fontFamily.c_str(), fDefaultStyle.getFontStyle(), fDefaultStyle.getLocale());
+            if (typeface.get() != nullptr) {
+                foundStyle = fDefaultStyle;
+                break;
+            }
+        }
+    }
+
+    if (typeface == nullptr) {
+        foundStyle = fStyles.empty() ? fDefaultStyle : fStyles.front().fStyle;
+        typeface = fFontCollection->defaultFallback(0, foundStyle.getFontStyle(), foundStyle.getLocale());
+    }
+
+    if (typeface == nullptr) {
+        typeface = fFontCollection->defaultFallback();
+    }
+
+    fFirstResolvedFont = makeFont(typeface, foundStyle.getFontSize(), foundStyle.getHeight());
+    fFirstResolvedFont.fStart = 0;
 }
 
 void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
     fFontCollection = master->fontCollection();
     fStyles = master->styles();
     fText = master->text();
+    fDefaultStyle = master->paragraphStyle().getTextStyle();
+
+    if (fText.empty()) {
+        setLastResortFont();
+        return;
+    }
 
     Block combinedBlock;
     for (auto& block : fStyles) {
@@ -283,17 +333,26 @@ void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
             continue;
         }
 
-        fFontSwitches.emplace_back(*prev);
-
+        if (prev->fFont.getTypeface() != nullptr) {
+            fFontSwitches.emplace_back(*prev);
+        }
         prev = found;
         prev->fStart = &ch - fText.begin();
     }
 
-    if (prev == nullptr) {
-        fFirstResolvedFont.fStart = 0;
-        prev = &fFirstResolvedFont;
+    if (prev != nullptr) {
+        if (prev->fFont.getTypeface() != nullptr) {
+            fFontSwitches.emplace_back(*prev);
+        }
     }
-    fFontSwitches.emplace_back(*prev);
+
+    if (fFontSwitches.empty()) {
+        setLastResortFont();
+        if (fFirstResolvedFont.fFont.getTypeface() != nullptr) {
+            fFontSwitches.emplace_back(fFirstResolvedFont);
+        }
+    }
+
     fFontIterator = fFontSwitches.begin();
 }
 }  // namespace textlayout

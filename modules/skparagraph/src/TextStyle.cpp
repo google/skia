@@ -31,11 +31,14 @@ TextStyle::TextStyle() : fFontStyle() {
 
 TextStyle:: TextStyle(const TextStyle& other, bool placeholder) {
     fColor = other.fColor;
+    fFontSize = other.fFontSize;
+    fFontFamilies = other.fFontFamilies;
     fDecoration = other.fDecoration;
     fHasBackground = other.fHasBackground;
     fHasForeground = other.fHasForeground;
     fBackground = other.fBackground;
     fForeground = other.fForeground;
+    fHeightOverride = other.fHeightOverride;
     fIsPlaceholder = placeholder;
 }
 

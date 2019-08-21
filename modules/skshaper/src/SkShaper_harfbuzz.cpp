@@ -343,6 +343,7 @@ public:
                 break;
             }
             u = utf8_next(&fEndOfCurrentRun, fEnd);
+
             fUTF16LogicalPosition += SkUTF::ToUTF16(u);
         }
     }
