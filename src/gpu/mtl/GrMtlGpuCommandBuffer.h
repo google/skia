@@ -29,9 +29,6 @@ public:
 
     ~GrMtlGpuTextureCommandBuffer() override {}
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
-        fGpu->copySurface(fTexture, src, srcRect, dstPoint);
-    }
     void insertEventMarker(const char* msg) override {}
 
 private:
@@ -60,8 +57,6 @@ public:
         // TODO: this could be more efficient
         state->doUpload(upload);
     }
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-
     void submit();
 
 private:

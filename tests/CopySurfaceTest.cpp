@@ -179,6 +179,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                                 ERRORF(reporter, "Expected dst %d,%d to contain "
                                                        "0x%08x copied from src location %d,%d. Got "
                                                        "0x%08x", x, y, s, sx, sy, r);
+                                                ERRORF(reporter, "dst origin: %d src origin: %d "
+                                                       "src renderable: %d, dst renderable: %d ",
+                                                       dOrigin, sOrigin, sRenderable, dRenderable);
                                                 abort = true;
                                                 break;
                                             }
@@ -188,6 +191,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                                 ERRORF(reporter, "Expected dst %d,%d to be "
                                                        "unmodified (0x%08x). Got 0x%08x",
                                                        x, y, d, r);
+                                                ERRORF(reporter, "dst origin: %d src origin: %d "
+                                                       "src renderable: %d, dst renderable: %d ",
+                                                       dOrigin, sOrigin, sRenderable, dRenderable);
                                                 abort = true;
                                                 break;
                                             }

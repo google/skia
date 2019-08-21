@@ -295,7 +295,7 @@ public:
     // already being transformed for origin if need be. If canDiscardOutsideDstRect is set to true
     // then we don't need to preserve any data on the dst surface outside of the copy.
     bool copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                     const SkIPoint& dstPoint, bool canDiscardOutsideDstRect = false);
+                     const SkIPoint& dstPoint);
 
     // Queries the per-pixel HW sample locations for the given render target, and then finds or
     // assigns a key that uniquely identifies the sample pattern. The actual sample locations can be
@@ -597,7 +597,7 @@ private:
 
     // overridden by backend specific derived class to perform the copy surface
     virtual bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                               const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) = 0;
+                               const SkIPoint& dstPoint) = 0;
 
     virtual void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                                const GrFlushInfo&, const GrPrepareForExternalIORequests&) = 0;
