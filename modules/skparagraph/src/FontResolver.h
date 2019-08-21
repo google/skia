@@ -35,6 +35,7 @@ public:
 
     void findAllFontsForAllStyledBlocks(ParagraphImpl* master);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
+    void getFirstFont(SkFont* font, SkScalar* height);
 
     const SkTArray<FontDescr>& switches() const { return fFontSwitches; }
 
@@ -57,6 +58,7 @@ private:
     sk_sp<FontCollection> fFontCollection;
     SkSpan<const char> fText;
     SkSpan<Block> fStyles;
+    TextStyle fDefaultStyle;
 
     SkTArray<FontDescr> fFontSwitches;
     FontDescr* fFontIterator;

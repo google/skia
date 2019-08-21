@@ -37,6 +37,15 @@ bool FontResolver::findNext(const char* codepoint, SkFont* font, SkScalar* heigh
     return false;
 }
 
+void FontResolver::getFirstFont(SkFont* font, SkScalar* height) {
+    if (fText.size() == 0) {
+        auto typeface = fFontCollection->defaultFallback(0, fDefaultStyle.getFontStyle(), fDefaultStyle.getLocale());
+        fFirstResolvedFont = makeFont(typeface, fDefaultStyle.getFontSize(), fDefaultStyle.getHeight());
+    }
+    *font = fFirstResolvedFont.fFont;
+    *height = fFirstResolvedFont.fHeight;
+}
+
 void FontResolver::findAllFontsForStyledBlock(const TextStyle& style, TextRange textRange) {
     fCodepoints.reset();
     fCharacters.reset();
@@ -236,6 +245,7 @@ void FontResolver::findAllFontsForAllStyledBlocks(ParagraphImpl* master) {
     fFontCollection = master->fontCollection();
     fStyles = master->styles();
     fText = master->text();
+    fDefaultStyle = master->paragraphStyle().getTextStyle();
 
     Block combinedBlock;
     for (auto& block : fStyles) {
