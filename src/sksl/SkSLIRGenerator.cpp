@@ -755,26 +755,25 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             case Program::kPipelineStage_Kind: {
                 bool valid;
                 switch (parameters.size()) {
-                    case 3:
+                    case 2:
                         valid = parameters[0]->fType == *fContext.fFloat_Type &&
                                 parameters[0]->fModifiers.fFlags == 0 &&
                                 parameters[1]->fType == *fContext.fFloat_Type &&
                                 parameters[1]->fModifiers.fFlags == 0 &&
-                                parameters[2]->fType == *fContext.fHalf4_Type &&
-                                parameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                     Modifiers::kOut_Flag);
+                                *returnType == *fContext.fHalf4_Type;
                         break;
                     case 1:
                         valid = parameters[0]->fType == *fContext.fHalf4_Type &&
                                 parameters[0]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                     Modifiers::kOut_Flag);
+                                                                     Modifiers::kOut_Flag) &&
+                                *returnType == *fContext.fVoid_Type;
                         break;
                     default:
                         valid = false;
                 }
                 if (!valid) {
-                    fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(float, "
-                                             "float, inout half4) or main(inout half4)");
+                    fErrors.error(f.fOffset, "pipeline stage 'main' must be declared "
+                                             "half4 main(float, float) or void main(inout half4)");
                     return;
                 }
                 break;
@@ -860,10 +859,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         std::shared_ptr<SymbolTable> old = fSymbolTable;
         AutoSymbolTable table(this);
         if (fd.fName == "main" && fKind == Program::kPipelineStage_Kind) {
-            if (parameters.size() == 3) {
+            if (parameters.size() == 2) {
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_X_BUILTIN;
                 parameters[1]->fModifiers.fLayout.fBuiltin = SK_MAIN_Y_BUILTIN;
-                parameters[2]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+//                parameters[2]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
             } else {
                 SkASSERT(parameters.size() == 1);
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;

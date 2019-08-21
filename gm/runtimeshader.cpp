@@ -25,8 +25,8 @@
 const char* gProg = R"(
     layout(ctype=SkRect) in uniform half4 gColor;
 
-    void main(float x, float y, inout half4 color) {
-        color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
+    half4 main(float x, float y) {
+        return half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
     }
 )";
 
