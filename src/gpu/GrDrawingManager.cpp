@@ -507,19 +507,24 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
     GrSemaphoresSubmitted result = this->flush(proxies, numProxies, access, info,
                                                GrPrepareForExternalIORequests());
     for (int i = 0; i < numProxies; ++i) {
-        if (!proxies[i]->isInstantiated()) {
+        GrSurfaceProxy* proxy = proxies[i];
+        if (!proxy->isInstantiated()) {
             return result;
         }
-        GrSurface* surface = proxies[i]->peekSurface();
-        if (auto* rt = surface->asRenderTarget()) {
-            gpu->resolveRenderTarget(rt);
+        if (auto* rtProxy = proxy->asRenderTargetProxy()) {
+            if (rtProxy->isMSAADirty()) {
+                SkASSERT(rtProxy->peekRenderTarget());
+                gpu->resolveRenderTarget(rtProxy->peekRenderTarget());
+                rtProxy->markMSAAResolved();
+            }
         }
         // If, after a flush, any of the proxies of interest have dirty mipmaps, regenerate them in
         // case their backend textures are being stolen.
         // (This special case is exercised by the ReimportImageTextureWithMipLevels test.)
         // FIXME: It may be more ideal to plumb down a "we're going to steal the backends" flag.
-        if (auto* textureProxy = proxies[i]->asTextureProxy()) {
+        if (auto* textureProxy = proxy->asTextureProxy()) {
             if (textureProxy->mipMapsAreDirty()) {
+                SkASSERT(textureProxy->peekTexture());
                 gpu->regenerateMipMapLevels(textureProxy->peekTexture());
                 textureProxy->markMipMapsClean();
             }
