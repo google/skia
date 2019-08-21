@@ -88,7 +88,7 @@ void TextWrapper::trimEndSpaces(TextAlign align) {
     for (auto cluster = fEndLine.endCluster();
          cluster >= fEndLine.startCluster() && cluster->isWhitespaces();
          --cluster) {
-        if ((/*left && */cluster->run()->leftToRight()) ||
+        if ((cluster->run()->leftToRight()) ||
             (right && !cluster->run()->leftToRight()) ||
              align == TextAlign::kJustify || align == TextAlign::kCenter) {
             fEndLine.trim(cluster);
@@ -97,7 +97,7 @@ void TextWrapper::trimEndSpaces(TextAlign align) {
             break;
         }
     }
-    if (!right) {
+    if (!right || true) {
         fEndLine.trim();
     }
 }
@@ -142,6 +142,9 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                                      SkScalar maxWidth,
                                      const AddLineToParagraph& addLine) {
     auto span = parent->clusters();
+    if (span.size() == 0) {
+      return;
+    }
     auto maxLines = parent->paragraphStyle().getMaxLines();
     auto& ellipsisStr = parent->paragraphStyle().getEllipsis();
     auto align = parent->paragraphStyle().getTextAlign();
@@ -199,7 +202,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
 
         fMaxIntrinsicWidth = SkMaxScalar(fMaxIntrinsicWidth, fEndLine.width());
         // TODO: keep start/end/break info for text and runs but in a better way that below
-        TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end + 1);
+        TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end);
         TextRange textWithSpaces(fEndLine.startCluster()->textRange().start, startLine->textRange().start);
         if (fEndLine.breakCluster()->isHardBreak()) {
             textWithSpaces.end = fEndLine.breakCluster()->textRange().start;
@@ -242,7 +245,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         }
         TextRange empty(fEndLine.breakCluster()->textRange().start, fEndLine.breakCluster()->textRange().start);
         TextRange hardBreak(fEndLine.breakCluster()->textRange().end, fEndLine.breakCluster()->textRange().end);
-        ClusterRange clusters(fEndLine.breakCluster() - start, fEndLine.breakCluster() - start);
+        ClusterRange clusters(fEndLine.breakCluster() - start, fEndLine.endCluster() - start);
         addLine(empty, hardBreak, clusters, clusters,
                 0,
                 0,

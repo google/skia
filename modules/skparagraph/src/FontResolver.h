@@ -35,14 +35,20 @@ public:
 
     void findAllFontsForAllStyledBlocks(ParagraphImpl* master);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
+    void getFirstFont(SkFont* font, SkScalar* height);
 
     const SkTArray<FontDescr>& switches() const { return fFontSwitches; }
+
+    bool isEmpty();
+
+    bool allWhitespaces() const { return fUnresolved == SkToU32(fWhitespaces.count()); }
 
 private:
     void findAllFontsForStyledBlock(const TextStyle& style, TextRange textRange);
     FontDescr makeFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar height);
     size_t resolveAllCharactersByFont(const FontDescr& fontDescr);
     void addResolvedWhitespacesToMapping();
+    void setLastResortFont();
 
     struct Hash {
         uint32_t operator()(const FontDescr& key) const {
@@ -57,6 +63,7 @@ private:
     sk_sp<FontCollection> fFontCollection;
     SkSpan<const char> fText;
     SkSpan<Block> fStyles;
+    TextStyle fDefaultStyle;
 
     SkTArray<FontDescr> fFontSwitches;
     FontDescr* fFontIterator;
