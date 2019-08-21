@@ -270,8 +270,8 @@ public:
         const int kDrawsPerLoop = 32;
 
         for (int i = 0; i < loops; ++i) {
-            sk_sp<GrRenderTargetContext> rtc(context->priv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kApprox, 100, 100, GrColorType::kRGBA_8888, p3));
+            auto rtc = context->priv().makeDeferredRenderTargetContext(
+                    SkBackingFit::kApprox, 100, 100, GrColorType::kRGBA_8888, p3);
             SkASSERT(rtc);
 
             for (int j = 0; j < kDrawsPerLoop; ++j) {

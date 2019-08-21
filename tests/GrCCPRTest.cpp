@@ -83,7 +83,6 @@ public:
     void clear() const { fRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                                      GrRenderTargetContext::CanClearFullscreen::kYes); }
     void destroyGrContext() {
-        SkASSERT(fRTC->unique());
         SkASSERT(fCtx->unique());
         fRTC.reset();
         fCCPR = nullptr;
@@ -134,7 +133,7 @@ public:
 private:
     sk_sp<GrContext> fCtx;
     GrCoverageCountingPathRenderer* fCCPR;
-    sk_sp<GrRenderTargetContext> fRTC;
+    std::unique_ptr<GrRenderTargetContext> fRTC;
     const bool fDoStroke;
 };
 
@@ -323,7 +322,7 @@ protected:
         int lastRenderedAtlasID() const { return fLastRenderedAtlasID; }
 
         void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
-                      SkTArray<sk_sp<GrRenderTargetContext>>* out) override {
+                      SkTArray<std::unique_ptr<GrRenderTargetContext>>* out) override {
             fLastRenderedAtlasID = fLastCopyAtlasID = 0;
 
             const GrCCPerFlushResources* resources = fCCPR->testingOnly_getCurrentFlushResources();

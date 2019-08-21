@@ -413,19 +413,18 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->priv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kApprox,
-                    bounds.width(),
-                    bounds.height(),
-                    SkColorTypeToGrColorType(colorType),
-                    sk_ref_sp(colorSpace),
-                    1,
-                    GrMipMapped::kNo,
-                    kBottomLeft_GrSurfaceOrigin,
-                    nullptr,
-                    SkBudgeted::kYes,
-                    isProtected));
+    auto renderTargetContext =
+            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                            bounds.width(),
+                                                            bounds.height(),
+                                                            SkColorTypeToGrColorType(colorType),
+                                                            sk_ref_sp(colorSpace),
+                                                            1,
+                                                            GrMipMapped::kNo,
+                                                            kBottomLeft_GrSurfaceOrigin,
+                                                            nullptr,
+                                                            SkBudgeted::kYes,
+                                                            isProtected);
     if (!renderTargetContext) {
         return nullptr;
     }
