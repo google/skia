@@ -220,8 +220,8 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
         };
 
         if (proxy->textureType() == GrTextureType::kRectangle) {
-            SkASSERT(values[0] >= 0.0f && values[0] <= proxy->height());
-            SkASSERT(values[1] >= 0.0f && values[1] <= proxy->height());
+            SkASSERT(values[0] >= 0.0f && values[0] <= proxy->width());
+            SkASSERT(values[1] >= 0.0f && values[1] <= proxy->width());
             SkASSERT(values[2] >= 0.0f && values[2] <= proxy->height());
             SkASSERT(values[3] >= 0.0f && values[3] <= proxy->height());
         } else {
