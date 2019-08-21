@@ -265,6 +265,8 @@ private:
     const SkTypeface* fTypeface{nullptr};
     SkScalerContextEffects fEffects;
 
+    bool fHaveSentFontMetrics{false};
+
     class GlyphMapHashTraits {
     public:
         static SkPackedGlyphID GetKey(const SkGlyph* glyph) {
@@ -573,11 +575,14 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     serializer->emplace<StrikeSpec>(fContext->getTypeface()->uniqueID(), fDiscardableHandleId);
     serializer->writeDescriptor(*fDescriptor.getDesc());
 
-    // Write FontMetrics.
-    // TODO(khushalsagar): Do we need to re-send each time?
-    SkFontMetrics fontMetrics;
-    fContext->getFontMetrics(&fontMetrics);
-    serializer->write<SkFontMetrics>(fontMetrics);
+    serializer->emplace<bool>(fHaveSentFontMetrics);
+    if (!fHaveSentFontMetrics) {
+        // Write FontMetrics if not sent before.
+        SkFontMetrics fontMetrics;
+        fContext->getFontMetrics(&fontMetrics);
+        serializer->write<SkFontMetrics>(fontMetrics);
+        fHaveSentFontMetrics = true;
+    }
 
     // Write glyphs images.
     serializer->emplace<uint64_t>(fPendingGlyphImages.size());
@@ -783,8 +788,13 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         SkAutoDescriptor sourceAd;
         if (!deserializer.readDescriptor(&sourceAd)) READ_FAILURE
 
-        SkFontMetrics fontMetrics;
-        if (!deserializer.read<SkFontMetrics>(&fontMetrics)) READ_FAILURE
+        bool fontMetricsInitialized;
+        if (!deserializer.read(&fontMetricsInitialized)) READ_FAILURE
+
+        SkFontMetrics fontMetrics{};
+        if (!fontMetricsInitialized) {
+            if (!deserializer.read<SkFontMetrics>(&fontMetrics)) READ_FAILURE
+        }
 
         // Get the local typeface from remote fontID.
         auto* tfPtr = fRemoteFontIdToTypeface.find(spec.typefaceID);
@@ -799,6 +809,9 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         auto* client_desc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
 
         auto strike = fStrikeCache->findStrikeExclusive(*client_desc);
+        // Metrics are only sent the first time. If the metrics are not initialized, there must
+        // be an existing strike.
+        if (fontMetricsInitialized && strike == nullptr) READ_FAILURE
         if (strike == nullptr) {
             // Note that we don't need to deserialize the effects since we won't be generating any
             // glyphs here anyway, and the desc is still correct since it includes the serialized
