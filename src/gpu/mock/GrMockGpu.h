@@ -114,7 +114,7 @@ private:
         return true;
     }
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override {
+                       const SkIPoint& dstPoint) override {
         return true;
     }
 

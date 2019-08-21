@@ -23,20 +23,14 @@ class GrMtlRenderTarget;
 class GrMtlGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
     GrMtlGpuTextureCommandBuffer(GrMtlGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
-            : INHERITED(texture, origin)
-            , fGpu(gpu) {
+            : INHERITED(texture, origin) {
     }
 
     ~GrMtlGpuTextureCommandBuffer() override {}
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
-        fGpu->copySurface(fTexture, src, srcRect, dstPoint);
-    }
     void insertEventMarker(const char* msg) override {}
 
 private:
-    GrMtlGpu* fGpu;
-
     typedef GrGpuTextureCommandBuffer INHERITED;
 };
 
@@ -60,8 +54,6 @@ public:
         // TODO: this could be more efficient
         state->doUpload(upload);
     }
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-
     void submit();
 
 private:

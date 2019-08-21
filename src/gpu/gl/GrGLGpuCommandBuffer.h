@@ -21,10 +21,6 @@ class GrGLGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
     GrGLGpuTextureCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
-        fGpu->copySurface(fTexture, src, srcRect, dstPoint);
-    }
-
     void insertEventMarker(const char* msg) override {
         fGpu->insertEventMarker(msg);
     }
@@ -57,10 +53,6 @@ public:
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
         state->doUpload(upload);
-    }
-
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
-        fGpu->copySurface(fRenderTarget, src,srcRect, dstPoint);
     }
 
     void set(GrRenderTarget*, GrSurfaceOrigin,
