@@ -425,7 +425,8 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
         return false;
     }
 
-    return this->getOpList()->copySurface(fContext, src, srcRect, dstPoint);
+    return this->drawingManager()->newCopyRenderTask(sk_ref_sp(src), srcRect,
+                                                     this->asSurfaceProxyRef(), dstPoint);
 }
 
 sk_sp<GrRenderTargetContext> GrSurfaceContext::rescale(const SkImageInfo& info,

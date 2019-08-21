@@ -57,42 +57,6 @@ void GrMtlGpuRTCommandBuffer::submit() {
     fGpu->submitIndirectCommandBuffer(fRenderTarget, fOrigin, &iBounds);
 }
 
-void GrMtlGpuRTCommandBuffer::copy(GrSurface* src, const SkIRect& srcRect,
-const SkIPoint& dstPoint) {
-    // We cannot have an active encoder when we call copy since it requires its own
-    // command encoder.
-    SkASSERT(nil == fActiveRenderCmdEncoder);
-    fGpu->copySurface(fRenderTarget, src, srcRect, dstPoint);
-}
-
-GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
-        const GrPrimitiveProcessor& primProc,
-        const GrPipeline& pipeline,
-        const GrPipeline::FixedDynamicState* fixedDynamicState,
-        GrPrimitiveType primType) {
-    // TODO: resolve textures and regenerate mipmaps as needed
-
-    const GrTextureProxy* const* primProcProxies = nullptr;
-    if (fixedDynamicState) {
-        primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
-    }
-    SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
-
-    GrMtlPipelineState* pipelineState =
-        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, fOrigin,
-                                                                     pipeline,
-                                                                     primProc,
-                                                                     primProcProxies,
-                                                                     primType);
-    if (!pipelineState) {
-        return nullptr;
-    }
-    pipelineState->setData(fRenderTarget, fOrigin, primProc, pipeline, primProcProxies);
-    fCurrentVertexStride = primProc.vertexStride();
-
-    return pipelineState;
-}
-
 void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
                                      const GrPipeline& pipeline,
                                      const GrPipeline::FixedDynamicState* fixedDynamicState,
