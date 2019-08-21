@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ed3d8a7_98ac9997",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-21T20:53:44Z",
+      "side": 1,
+      "message": "I\u0027m sure some fuzzer is going to trip on this. Could we handle it safely as a READ_FAILURE?",
+      "range": {
+        "startLine": 812,
+        "startChar": 8,
+        "endLine": 814,
+        "endChar": 52
+      },
+      "revId": "1b04c4eceb7021fd542fa2bed1abc32ccef0f37a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
