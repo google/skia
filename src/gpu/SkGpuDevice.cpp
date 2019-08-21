@@ -64,6 +64,10 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
                         const SkImageInfo* info, SkGpuDevice::InitContents init, unsigned* flags) {
     *flags = 0;
     if (info) {
+        if (info->colorType() == kRG_88_SkColorType) {
+            return false;
+        }
+
         switch (info->alphaType()) {
             case kPremul_SkAlphaType:
                 break;

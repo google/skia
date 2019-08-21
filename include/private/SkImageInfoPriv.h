@@ -16,6 +16,8 @@ enum SkColorTypeComponentFlag {
     kBlue_SkColorTypeComponentFlag   = 0x4,
     kAlpha_SkColorTypeComponentFlag  = 0x8,
     kGray_SkColorTypeComponentFlag   = 0x10,
+    kRG_SkColorTypeComponentFlags    = kRed_SkColorTypeComponentFlag |
+                                       kGreen_SkColorTypeComponentFlag,
     kRGB_SkColorTypeComponentFlags   = kRed_SkColorTypeComponentFlag |
                                        kGreen_SkColorTypeComponentFlag |
                                        kBlue_SkColorTypeComponentFlag,
@@ -38,8 +40,9 @@ static inline uint32_t SkColorTypeComponentFlags(SkColorType ct) {
         case kRGBA_F16Norm_SkColorType:     return kRGBA_SkColorTypeComponentFlags;
         case kRGBA_F16_SkColorType:         return kRGBA_SkColorTypeComponentFlags;
         case kRGBA_F32_SkColorType:         return kRGBA_SkColorTypeComponentFlags;
+        case kRG_88_SkColorType:            return kRG_SkColorTypeComponentFlags;
     }
-    return 0;
+    SkUNREACHABLE;
 }
 
 static inline bool SkColorTypeIsAlphaOnly(SkColorType ct) {
@@ -72,8 +75,9 @@ static int SkColorTypeShiftPerPixel(SkColorType ct) {
         case kRGBA_F16Norm_SkColorType:     return 3;
         case kRGBA_F16_SkColorType:         return 3;
         case kRGBA_F32_SkColorType:         return 4;
+        case kRG_88_SkColorType:            return 1;
     }
-    return 0;
+    SkUNREACHABLE;
 }
 
 static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {
