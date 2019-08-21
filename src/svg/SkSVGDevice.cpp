@@ -340,7 +340,7 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
         }
     } else {
         SkASSERT(style == SkPaint::kFill_Style);
-        this->addAttribute("stroke", "none");
+        // SVG default stroke value is "none".
     }
 }
 
