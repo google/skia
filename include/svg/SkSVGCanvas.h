@@ -15,7 +15,8 @@ class SkWStream;
 class SK_API SkSVGCanvas {
 public:
     enum {
-        kConvertTextToPaths_Flag = 0x01,
+        kConvertTextToPaths_Flag = 0x01, // emit text as <path>s
+        kNoPrettyXML_Flag        = 0x02, // suppress newlines and tabs in output
     };
 
     /**

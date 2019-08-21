@@ -13,10 +13,14 @@
 std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkWStream* writer,
                                             uint32_t flags) {
     // TODO: pass full bounds to the device
-    SkISize size = bounds.roundOut().size();
+    const auto size = bounds.roundOut().size();
+    const auto xml_flags = (flags & kNoPrettyXML_Flag) ? SkToU32(SkXMLStreamWriter::kNoPretty_Flag)
+                                                       : 0;
 
-    auto svgDevice = SkSVGDevice::Make(size, skstd::make_unique<SkXMLStreamWriter>(writer), flags);
+    auto svgDevice = SkSVGDevice::Make(size,
+                                       skstd::make_unique<SkXMLStreamWriter>(writer, xml_flags),
+                                       flags);
 
-    return svgDevice ? skstd::make_unique<SkCanvas>(svgDevice)
+    return svgDevice ? skstd::make_unique<SkCanvas>(std::move(svgDevice))
                      : nullptr;
 }
