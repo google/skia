@@ -82,12 +82,24 @@ TextLine::TextLine(ParagraphImpl* master,
         runLevels.emplace_back(run.fBidiLevel);
     }
 
+    SkDebugf("Runs: %d\n", numRuns);
     std::vector<int32_t> logicalOrder(numRuns);
     ubidi_reorderVisual(runLevels.data(), SkToU32(numRuns), logicalOrder.data());
 
     auto firstRunIndex = start.runIndex();
     for (auto index : logicalOrder) {
         fLogical.push_back(firstRunIndex + index);
+    }
+
+    for (size_t l = 0; l < fLogical.size(); ++l) {
+        auto p = fLogical[l];
+        auto run = fMaster->run(p);
+        if (run.placeholder() != nullptr) {
+            SkDebugf("run[%d/%d]: %d*d\n", p, l, run.placeholder()->fWidth, run.placeholder()->fHeight);
+        } else {
+            auto text = fMaster->text(run.textRange());
+            SkDebugf("run[%d/%d]: %s\n", p, l, SkString(text.begin(), text.size()).c_str());
+        }
     }
 }
 
@@ -557,7 +569,7 @@ SkRect TextLine::measureTextInsideOneRun(
         size = 1;
         clippingNeeded = false;
         return SkRect::MakeXYWH(
-                0, sizes().runTop(run), run->calculateWidth(0, 1, false), run->calculateHeight());
+                0, sizes().runTop(run), run->placeholder()->fWidth, run->calculateHeight());
     }
 
     // Find [start:end] clusters for the text
@@ -581,7 +593,7 @@ SkRect TextLine::measureTextInsideOneRun(
     // Anything else (when we want the cluster width contain all the spaces -
     // coming from letter spacing or word spacing or justification)
     auto range = includeGhostSpaces ? fGhostClusterRange : fClusterRange;
-    bool needsClipping = (run->leftToRight() ? endIndex == range.end  - 1 : startIndex == range.end - 1);
+    bool needsClipping = (run->leftToRight() ? endIndex == range.end  - 1 : startIndex == range.end);
     SkRect clip =
             SkRect::MakeXYWH(run->positionX(start->startPos()) - run->positionX(0),
                              sizes().runTop(run),
@@ -655,10 +667,10 @@ SkScalar TextLine::calculateLeftVisualOffset(TextRange textRange) const {
                 if (part.width() == 0) {
                     return false;
                 }
-                size_t pos;
-                size_t size;
-                bool clippingNeeded;
-                SkRect partClip = this->measureTextInsideOneRun(part, run, pos, size, true, clippingNeeded);
+                size_t pos0;
+                size_t size0;
+                bool clippingNeeded0;
+                SkRect partClip = this->measureTextInsideOneRun(part, run, pos0, size0, true, clippingNeeded0);
                 partOfTheCurrentRun = partClip.width();
                 return false;
             }
@@ -676,6 +688,8 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
     TRACE_EVENT0("skia", TRACE_FUNC);
 
     SkScalar width = 0;
+    SkScalar prevRunWidth = 0;
+    SkScalar prevClipWidth = 0;
     for (auto& runIndex : fLogical) {
         const auto run = &this->fMaster->run(runIndex);
         // Only skip the text if it does not even touch the run
@@ -688,6 +702,11 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
         if (run->textRange().empty() || intersect.empty()) {
             continue;
         }
+
+        // For all runs except the last one we move by the entire run width
+        // and the width of the text should be incremented by the same value
+        runOffset += width == 0 ? prevClipWidth : prevRunWidth;
+        width += width == 0 ? prevClipWidth : prevRunWidth;
 
         // Measure the text
         size_t pos;
@@ -714,6 +733,11 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
             return width;
         }
 
+        // For all runs except the last one we move by the entire run width
+        // and the width of the text should be incremented by the same value
+        prevRunWidth = run->advance().fX;
+        prevClipWidth = clip.width();
+        /*
         if (run->leftToRight() || &runIndex == &fLogical.back()) {
             width += clip.width();
             runOffset += clip.width();
@@ -721,8 +745,10 @@ SkScalar TextLine::iterateThroughRuns(TextRange textRange,
             width += run->advance().fX;
             runOffset += run->advance().fX;
         }
-
+        */
     }
+
+    width += prevClipWidth;
 
     if (this->ellipsis() != nullptr) {
         auto ellipsis = this->ellipsis();

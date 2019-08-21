@@ -136,7 +136,7 @@ struct ParagraphCache::Entry {
 ParagraphCache::ParagraphCache()
     : fChecker([](ParagraphImpl* impl, const char*, bool){ })
     , fLRUCacheMap(kMaxEntries)
-    , fCacheIsOn(true)
+    , fCacheIsOn(false)
 #ifdef PARAGRAPH_CACHE_STATS
     , fTotalRequests(0)
     , fCacheMisses(0)
