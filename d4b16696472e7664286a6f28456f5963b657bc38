@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7d963d4_24c9d7ca",
+        "filename": "src/gpu/GrCopyRenderTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-21T16:22:39Z",
+      "side": 1,
+      "message": "It seems like it is time to make this a not-unusual use case that requires special commenting. Maybe that just entails a renaming of some of the methods on GrResourceAllocator away from \"op\"?",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 20
+      },
+      "revId": "d4b16696472e7664286a6f28456f5963b657bc38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
