@@ -164,14 +164,14 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 	}
 
 	results := jsonio.GoldResults{
-		BuildBucketID: *buildBucketID,
-		Builder:       *builder,
-		GitHash:       *gitHash,
-		Issue:         *issue,
-		Key:           defaultKeys,
-		Patchset:      *patchset,
-		Results:       results,
-		TaskID:        *taskId,
+		BuildBucketID:      *buildBucketID,
+		Builder:            *builder,
+		GitHash:            *gitHash,
+		GerritChangeListID: *issue,
+		Key:                defaultKeys,
+		GerritPatchSet:     *patchset,
+		Results:            results,
+		TaskID:             *taskId,
 	}
 
 	enc := json.NewEncoder(outputFile)
