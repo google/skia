@@ -34,7 +34,7 @@ struct SkIRect;
 /**
  * A helper object to orchestrate commands for a particular surface
  */
-class SK_API GrSurfaceContext {
+class GrSurfaceContext {
 public:
     virtual ~GrSurfaceContext() = default;
 

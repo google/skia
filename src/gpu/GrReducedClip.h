@@ -21,7 +21,7 @@ class GrRenderTargetContext;
  * This class takes a clip stack and produces a reduced set of elements that are equivalent to
  * applying that full stack within a specified query rectangle.
  */
-class SK_API GrReducedClip {
+class GrReducedClip {
 public:
     using Element = SkClipStack::Element;
     using ElementList = SkTLList<SkClipStack::Element, 16>;

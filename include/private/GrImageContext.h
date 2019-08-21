@@ -14,7 +14,7 @@
 class GrImageContextPriv;
 class GrProxyProvider;
 
-class SK_API GrImageContext : public GrContext_Base {
+class GrImageContext : public GrContext_Base {
 public:
     ~GrImageContext() override;
 

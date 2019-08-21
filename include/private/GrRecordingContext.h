@@ -23,7 +23,7 @@ class GrSurfaceProxy;
 class GrTextBlobCache;
 class GrTextureContext;
 
-class SK_API GrRecordingContext : public GrImageContext {
+class GrRecordingContext : public GrImageContext {
 public:
     ~GrRecordingContext() override;
 
