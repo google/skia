@@ -34,7 +34,7 @@ public:
     // default retainOnFreeGpuResources implementation).
 
     void preFlush(GrOnFlushResourceProvider* onFlushResourceProvider, const uint32_t*, int,
-                  SkTArray<sk_sp<GrRenderTargetContext>>*) override {
+                  SkTArray<std::unique_ptr<GrRenderTargetContext>>*) override {
         if (fAtlas) {
             fAtlas->instantiate(onFlushResourceProvider);
         }

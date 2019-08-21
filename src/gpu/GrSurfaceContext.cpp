@@ -136,7 +136,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
         sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr
                                                   : this->colorSpaceInfo().refColorSpace();
 
-        sk_sp<GrRenderTargetContext> tempCtx = direct->priv().makeDeferredRenderTargetContext(
+        auto tempCtx = direct->priv().makeDeferredRenderTargetContext(
                 SkBackingFit::kApprox, dstInfo.width(), dstInfo.height(), colorType, std::move(cs),
                 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes);
         if (!tempCtx) {
@@ -428,10 +428,11 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     return this->getOpList()->copySurface(fContext, src, srcRect, dstPoint);
 }
 
-sk_sp<GrRenderTargetContext> GrSurfaceContext::rescale(const SkImageInfo& info,
-                                                       const SkIRect& srcRect,
-                                                       SkSurface::RescaleGamma rescaleGamma,
-                                                       SkFilterQuality rescaleQuality) {
+std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
+        const SkImageInfo& info,
+        const SkIRect& srcRect,
+        SkSurface::RescaleGamma rescaleGamma,
+        SkFilterQuality rescaleQuality) {
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
         return nullptr;
@@ -477,7 +478,11 @@ sk_sp<GrRenderTargetContext> GrSurfaceContext::rescale(const SkImageInfo& info,
         stepsY = sy != 1.f;
     }
     SkASSERT(stepsX || stepsY);
-    auto currCtx = sk_ref_sp(this);
+    // Within a rescaling pass A is the input (if not null) and B is the output. At the end of the
+    // pass B is moved to A. If 'this' is the input on the first pass then tempA is null.
+    std::unique_ptr<GrRenderTargetContext> tempA;
+    std::unique_ptr<GrRenderTargetContext> tempB;
+
     // Assume we should ignore the rescale linear request if the surface has no color space since
     // it's unclear how we'd linearize from an unknown color space.
     if (rescaleGamma == SkSurface::kLinear && this->colorSpaceInfo().colorSpace() &&
@@ -498,7 +503,7 @@ sk_sp<GrRenderTargetContext> GrSurfaceContext::rescale(const SkImageInfo& info,
                                SkRect::MakeWH(srcW, srcH), GrAA::kNo, GrQuadAAFlags::kNone,
                                constraint, SkMatrix::I(), std::move(xform));
         texProxy = linearRTC->asTextureProxyRef();
-        currCtx = std::move(linearRTC);
+        tempA = std::move(linearRTC);
         srcX = 0;
         srcY = 0;
         constraint = SkCanvas::kFast_SrcRectConstraint;
@@ -524,23 +529,23 @@ sk_sp<GrRenderTargetContext> GrSurfaceContext::rescale(const SkImageInfo& info,
             }
             --stepsY;
         }
-        GrColorType colorType = currCtx->colorSpaceInfo().colorType();
-        auto cs = currCtx->colorSpaceInfo().refColorSpace();
+        auto input = tempA ? tempA.get() : this;
+        GrColorType colorType = input->colorSpaceInfo().colorType();
+        auto cs = input->colorSpaceInfo().refColorSpace();
         sk_sp<GrColorSpaceXform> xform;
-        auto prevAlphaType = currCtx->colorSpaceInfo().alphaType();
+        auto prevAlphaType = input->colorSpaceInfo().alphaType();
         if (!stepsX && !stepsY) {
             // Might as well fold conversion to final info in the last step.
             cs = info.refColorSpace();
             colorType = SkColorTypeToGrColorType(info.colorType());
-            xform = GrColorSpaceXform::Make(currCtx->colorSpaceInfo().colorSpace(),
-                                            currCtx->colorSpaceInfo().alphaType(), cs.get(),
+            xform = GrColorSpaceXform::Make(input->colorSpaceInfo().colorSpace(),
+                                            input->colorSpaceInfo().alphaType(), cs.get(),
                                             info.alphaType());
         }
-        auto currRTC = fContext->priv().makeDeferredRenderTargetContextWithFallback(
+        tempB = fContext->priv().makeDeferredRenderTargetContextWithFallback(
                 SkBackingFit::kExact, nextW, nextH, colorType, std::move(cs), 1, GrMipMapped::kNo,
                 kTopLeft_GrSurfaceOrigin);
-        currCtx = currRTC;
-        if (!currCtx) {
+        if (!tempB) {
             return nullptr;
         }
         auto dstRect = SkRect::MakeWH(nextW, nextH);
@@ -567,24 +572,25 @@ sk_sp<GrRenderTargetContext> GrSurfaceContext::rescale(const SkImageInfo& info,
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            currRTC->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
+            tempB->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
                                     dstRect);
         } else {
             auto filter = rescaleQuality == kNone_SkFilterQuality ? GrSamplerState::Filter::kNearest
                                                                   : GrSamplerState::Filter::kBilerp;
             auto srcSubset = SkRect::MakeXYWH(srcX, srcY, srcW, srcH);
-            currRTC->drawTexture(GrNoClip(), texProxy, filter, SkBlendMode::kSrc, SK_PMColor4fWHITE,
+            tempB->drawTexture(GrNoClip(), texProxy, filter, SkBlendMode::kSrc, SK_PMColor4fWHITE,
                                  srcSubset, dstRect, GrAA::kNo, GrQuadAAFlags::kNone, constraint,
                                  SkMatrix::I(), std::move(xform));
         }
-        texProxy = currCtx->asTextureProxyRef();
+        texProxy = tempB->asTextureProxyRef();
+        tempA = std::move(tempB);
         srcX = srcY = 0;
         srcW = nextW;
         srcH = nextH;
         constraint = SkCanvas::kFast_SrcRectConstraint;
     }
-    SkASSERT(currCtx);
-    return sk_ref_sp(currCtx->asRenderTargetContext());
+    SkASSERT(tempA);
+    return tempA;
 }
 
 GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorType dstCT,

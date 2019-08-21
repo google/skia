@@ -89,7 +89,7 @@ public:
     // GrOnFlushCallbackObject overrides
 
     void preFlush(GrOnFlushResourceProvider* onFlushResourceProvider, const uint32_t*, int,
-                  SkTArray<sk_sp<GrRenderTargetContext>>*) override {
+                  SkTArray<std::unique_ptr<GrRenderTargetContext>>*) override {
         for (int i = 0; i < kMaskFormatCount; ++i) {
             if (fAtlases[i]) {
                 fAtlases[i]->instantiate(onFlushResourceProvider);

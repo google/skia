@@ -434,7 +434,7 @@ public:
         if (!rec) {
             return false;
         }
-        sk_sp<GrSurfaceContext> sContext = fContext->priv().makeWrappedSurfaceContext(
+        auto sContext = fContext->priv().makeWrappedSurfaceContext(
                 fTextureProxy, GrPixelConfigToColorType(fTextureProxy->config()), this->alphaType(),
                 fColorSpace);
         if (!sContext) {

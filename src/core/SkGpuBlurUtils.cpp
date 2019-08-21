@@ -105,24 +105,23 @@ static GrColorType get_blur_color_type(GrTextureProxy* proxy) {
     return GrPixelConfigToColorType(config);
 }
 
-static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* context,
-                                                         sk_sp<GrTextureProxy> proxy,
-                                                         const SkIRect& srcBounds,
-                                                         const SkIPoint& srcOffset,
-                                                         int radiusX,
-                                                         int radiusY,
-                                                         SkScalar sigmaX,
-                                                         SkScalar sigmaY,
-                                                         GrTextureDomain::Mode mode,
-                                                         int finalW,
-                                                         int finalH,
-                                                         sk_sp<SkColorSpace> finalCS,
-                                                         SkBackingFit dstFit) {
+static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* context,
+                                                                   sk_sp<GrTextureProxy> proxy,
+                                                                   const SkIRect& srcBounds,
+                                                                   const SkIPoint& srcOffset,
+                                                                   int radiusX,
+                                                                   int radiusY,
+                                                                   SkScalar sigmaX,
+                                                                   SkScalar sigmaY,
+                                                                   GrTextureDomain::Mode mode,
+                                                                   int finalW,
+                                                                   int finalH,
+                                                                   sk_sp<SkColorSpace> finalCS,
+                                                                   SkBackingFit dstFit) {
     // TODO: Once GrPixelConfig is gone, we need will need the source's color type.
     GrColorType colorType = get_blur_color_type(proxy.get());
 
-    sk_sp<GrRenderTargetContext> renderTargetContext;
-    renderTargetContext = context->priv().makeDeferredRenderTargetContext(
+    auto renderTargetContext = context->priv().makeDeferredRenderTargetContext(
             dstFit,
             finalW,
             finalH,
@@ -162,27 +161,26 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* con
 // (which do impact destination decisions). Both functions incorporate the proxy offset into the
 // geometry they submit or before calling convolve_gaussian_1d.
 
-static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* context,
-                                                      sk_sp<GrTextureProxy> proxy,
-                                                      const SkIPoint& proxyOffset,
-                                                      const SkIRect& srcRect,
-                                                      const SkIPoint& srcOffset,
-                                                      Direction direction,
-                                                      int radius,
-                                                      float sigma,
-                                                      SkIRect* contentRect,
-                                                      GrTextureDomain::Mode mode,
-                                                      int finalW,
-                                                      int finalH,
-                                                      sk_sp<SkColorSpace> finalCS,
-                                                      SkBackingFit fit) {
+static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* context,
+                                                                sk_sp<GrTextureProxy> proxy,
+                                                                const SkIPoint& proxyOffset,
+                                                                const SkIRect& srcRect,
+                                                                const SkIPoint& srcOffset,
+                                                                Direction direction,
+                                                                int radius,
+                                                                float sigma,
+                                                                SkIRect* contentRect,
+                                                                GrTextureDomain::Mode mode,
+                                                                int finalW,
+                                                                int finalH,
+                                                                sk_sp<SkColorSpace> finalCS,
+                                                                SkBackingFit fit) {
     SkASSERT(srcRect.width() <= finalW && srcRect.height() <= finalH);
 
     // TODO: Once GrPixelConfig is gone we'll need the source's color type here.
     GrColorType colorType = get_blur_color_type(proxy.get());
 
-    sk_sp<GrRenderTargetContext> dstRenderTargetContext;
-    dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
+    auto dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
             fit,
             srcRect.width(),
             srcRect.height(),
@@ -308,7 +306,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
 
     SkIRect dstRect(srcRect);
 
-    sk_sp<GrRenderTargetContext> dstRenderTargetContext;
+    std::unique_ptr<GrRenderTargetContext> dstRenderTargetContext;
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
@@ -404,15 +402,16 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
 // Expand the contents of 'srcRenderTargetContext' to fit in 'dstII'. At this point, we are
 // expanding an intermediate image, so there's no need to account for a proxy offset from the
 // original input.
-static sk_sp<GrRenderTargetContext> reexpand(GrRecordingContext* context,
-                                             sk_sp<GrRenderTargetContext> srcRenderTargetContext,
-                                             const SkIRect& localSrcBounds,
-                                             int scaleFactorX, int scaleFactorY,
-                                             GrTextureDomain::Mode mode,
-                                             int finalW,
-                                             int finalH,
-                                             sk_sp<SkColorSpace> finalCS,
-                                             SkBackingFit fit) {
+static std::unique_ptr<GrRenderTargetContext> reexpand(
+        GrRecordingContext* context,
+        std::unique_ptr<GrRenderTargetContext> srcRenderTargetContext,
+        const SkIRect& localSrcBounds,
+        int scaleFactorX, int scaleFactorY,
+        GrTextureDomain::Mode mode,
+        int finalW,
+        int finalH,
+        sk_sp<SkColorSpace> finalCS,
+        SkBackingFit fit) {
     const SkIRect srcRect = SkIRect::MakeWH(srcRenderTargetContext->width(),
                                             srcRenderTargetContext->height());
 
@@ -434,10 +433,9 @@ static sk_sp<GrRenderTargetContext> reexpand(GrRecordingContext* context,
     // TODO: Once GrPixelConfig is gone we'll need the source's color type here.
     GrColorType colorType = get_blur_color_type(srcProxy.get());
 
-    sk_sp<GrRenderTargetContext> dstRenderTargetContext =
-            context->priv().makeDeferredRenderTargetContext(fit, finalW, finalH, colorType,
-                                                            std::move(finalCS), 1, GrMipMapped::kNo,
-                                                            srcProxy->origin());
+    auto dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
+            fit, finalW, finalH, colorType, std::move(finalCS), 1, GrMipMapped::kNo,
+            srcProxy->origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -476,17 +474,17 @@ static sk_sp<GrRenderTargetContext> reexpand(GrRecordingContext* context,
 
 namespace SkGpuBlurUtils {
 
-sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
-                                          sk_sp<GrTextureProxy> srcProxy,
-                                          const SkIPoint& proxyOffset,
-                                          sk_sp<SkColorSpace> colorSpace,
-                                          const SkIRect& dstBounds,
-                                          const SkIRect& srcBounds,
-                                          float sigmaX,
-                                          float sigmaY,
-                                          GrTextureDomain::Mode mode,
-                                          SkAlphaType at,
-                                          SkBackingFit fit) {
+std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
+                                                    sk_sp<GrTextureProxy> srcProxy,
+                                                    const SkIPoint& proxyOffset,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    const SkIRect& dstBounds,
+                                                    const SkIRect& srcBounds,
+                                                    float sigmaX,
+                                                    float sigmaY,
+                                                    GrTextureDomain::Mode mode,
+                                                    SkAlphaType at,
+                                                    SkBackingFit fit) {
     SkASSERT(context);
 
     TRACE_EVENT2("skia.gpu", "GaussianBlur", "sigmaX", sigmaX, "sigmaY", sigmaY);
@@ -537,7 +535,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
         }
     }
 
-    sk_sp<GrRenderTargetContext> dstRenderTargetContext;
+    std::unique_ptr<GrRenderTargetContext> dstRenderTargetContext;
 
     auto srcRect = SkIRect::MakeWH(finalW, finalH);
     scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
@@ -598,7 +596,6 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     SkASSERT(!dstRenderTargetContext || dstRenderTargetContext->origin() == srcProxy->origin());
     return dstRenderTargetContext;
 }
-
 }
 
 #endif

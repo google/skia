@@ -216,7 +216,7 @@ sk_sp<GrCCCachedAtlas> GrCCAtlas::refOrMakeCachedAtlas(GrOnFlushResourceProvider
     return fCachedAtlas;
 }
 
-sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
+std::unique_ptr<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
         GrOnFlushResourceProvider* onFlushRP, sk_sp<GrTexture> backingTexture) {
     SkASSERT(!fTextureProxy->isInstantiated());  // This method should only be called once.
     // Caller should have cropped any paths to the destination render target instead of asking for
@@ -241,8 +241,7 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
     }
     auto colorType = (CoverageType::kFP16_CoverageCount == fCoverageType)
             ? GrColorType::kAlpha_F16 : GrColorType::kAlpha_8;
-    sk_sp<GrRenderTargetContext> rtc =
-            onFlushRP->makeRenderTargetContext(fTextureProxy, colorType, nullptr, nullptr);
+    auto rtc = onFlushRP->makeRenderTargetContext(fTextureProxy, colorType, nullptr, nullptr);
     if (!rtc) {
         SkDebugf("WARNING: failed to allocate a %ix%i atlas. Some paths will not be drawn.\n",
                  fWidth, fHeight);

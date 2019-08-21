@@ -55,10 +55,9 @@ public:
                 key, GrColorType::kAlpha_8, kBottomLeft_GrSurfaceOrigin));
         if (!mask) {
             // TODO: this could be approx but the texture coords will need to be updated
-            sk_sp<GrRenderTargetContext> rtc(
-                    context->priv().makeDeferredRenderTargetContextWithFallback(
-                            SkBackingFit::kExact, size.fWidth, size.fHeight, GrColorType::kAlpha_8,
-                            nullptr));
+            auto rtc = context->priv().makeDeferredRenderTargetContextWithFallback(
+                    SkBackingFit::kExact, size.fWidth, size.fHeight, GrColorType::kAlpha_8,
+                    nullptr);
             if (!rtc) {
                 return nullptr;
             }
@@ -74,18 +73,17 @@ public:
             if (!srcProxy) {
                 return nullptr;
             }
-            sk_sp<GrRenderTargetContext> rtc2(
-                    SkGpuBlurUtils::GaussianBlur(context,
-                                                 std::move(srcProxy),
-                                                 SkIPoint::Make(0, 0),
-                                                 nullptr,
-                                                 SkIRect::MakeWH(size.fWidth, size.fHeight),
-                                                 SkIRect::EmptyIRect(),
-                                                 xformedSigma,
-                                                 xformedSigma,
-                                                 GrTextureDomain::kIgnore_Mode,
-                                                 kPremul_SkAlphaType,
-                                                 SkBackingFit::kExact));
+            auto rtc2 = SkGpuBlurUtils::GaussianBlur(context,
+                                                     std::move(srcProxy),
+                                                     SkIPoint::Make(0, 0),
+                                                     nullptr,
+                                                     SkIRect::MakeWH(size.fWidth, size.fHeight),
+                                                     SkIRect::EmptyIRect(),
+                                                     xformedSigma,
+                                                     xformedSigma,
+                                                     GrTextureDomain::kIgnore_Mode,
+                                                     kPremul_SkAlphaType,
+                                                     SkBackingFit::kExact);
             if (!rtc2) {
                 return nullptr;
             }

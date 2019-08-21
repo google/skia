@@ -62,7 +62,7 @@ static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t
     return true;
 }
 
-sk_sp<GrRenderTargetContext> newRTC(GrContext* context, int w, int h) {
+std::unique_ptr<GrRenderTargetContext> newRTC(GrContext* context, int w, int h) {
     return context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact, w, h,
                                                            GrColorType::kRGBA_8888, nullptr);
 }
@@ -72,7 +72,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrContext* context) {
     static const int kH = 10;
 
     SkIRect fullRect = SkIRect::MakeWH(kW, kH);
-    sk_sp<GrRenderTargetContext> rtContext;
+    std::unique_ptr<GrRenderTargetContext> rtContext;
 
     // A rectangle that is inset by one on all sides and the 1-pixel wide rectangles that surround
     // it.

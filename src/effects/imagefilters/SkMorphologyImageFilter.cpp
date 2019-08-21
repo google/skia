@@ -559,7 +559,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
-        sk_sp<GrRenderTargetContext> dstRTContext(context->priv().makeDeferredRenderTargetContext(
+        auto dstRTContext = context->priv().makeDeferredRenderTargetContext(
                 SkBackingFit::kApprox,
                 rect.width(),
                 rect.height(),
@@ -570,7 +570,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                 kBottomLeft_GrSurfaceOrigin,
                 nullptr,
                 SkBudgeted::kYes,
-                srcTexture->isProtected() ? GrProtected::kYes : GrProtected::kNo));
+                srcTexture->isProtected() ? GrProtected::kYes : GrProtected::kNo);
         if (!dstRTContext) {
             return nullptr;
         }
@@ -587,7 +587,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        sk_sp<GrRenderTargetContext> dstRTContext(context->priv().makeDeferredRenderTargetContext(
+        auto dstRTContext = context->priv().makeDeferredRenderTargetContext(
                 SkBackingFit::kApprox,
                 rect.width(),
                 rect.height(),
@@ -598,7 +598,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                 kBottomLeft_GrSurfaceOrigin,
                 nullptr,
                 SkBudgeted::kYes,
-                srcTexture->isProtected() ? GrProtected::kYes : GrProtected::kNo));
+                srcTexture->isProtected() ? GrProtected::kYes : GrProtected::kNo);
         if (!dstRTContext) {
             return nullptr;
         }

@@ -48,10 +48,10 @@ public:
         const SkImageInfo ii =
                 SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-        sk_sp<GrRenderTargetContext> readRTC(context->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, kSize, kSize, kColorType, nullptr));
-        sk_sp<GrRenderTargetContext> tempRTC(context->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, kSize, kSize, kColorType, nullptr));
+        auto readRTC = context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact, kSize,
+                                                                       kSize, kColorType, nullptr);
+        auto tempRTC = context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact, kSize,
+                                                                       kSize, kColorType, nullptr);
         if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
             return false;
         }

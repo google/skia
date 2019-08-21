@@ -42,18 +42,17 @@ namespace SkGpuBlurUtils {
     * @param fit             backing fit for the returned render target context
     * @return                The renderTargetContext containing the blurred result.
     */
-    sk_sp<GrRenderTargetContext> GaussianBlur(
-            GrRecordingContext* context,
-            sk_sp<GrTextureProxy> src,
-            const SkIPoint& proxyOffset,
-            sk_sp<SkColorSpace> colorSpace,
-            const SkIRect& dstBounds,
-            const SkIRect& srcBounds,
-            float sigmaX,
-            float sigmaY,
-            GrTextureDomain::Mode mode,
-            SkAlphaType at,
-            SkBackingFit fit = SkBackingFit::kApprox);
+std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
+                                                    sk_sp<GrTextureProxy> src,
+                                                    const SkIPoint& proxyOffset,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    const SkIRect& dstBounds,
+                                                    const SkIRect& srcBounds,
+                                                    float sigmaX,
+                                                    float sigmaY,
+                                                    GrTextureDomain::Mode mode,
+                                                    SkAlphaType at,
+                                                    SkBackingFit fit = SkBackingFit::kApprox);
 };
 
 #endif

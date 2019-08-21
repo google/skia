@@ -500,7 +500,7 @@ void GrCCPerFlushResources::recordStencilResolveInstance(
 }
 
 bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
-                                     SkTArray<sk_sp<GrRenderTargetContext>>* out) {
+                                     SkTArray<std::unique_ptr<GrRenderTargetContext>>* out) {
     SkASSERT(this->isMapped());
     SkASSERT(fNextPathInstanceIdx == fEndPathInstance);
     SkASSERT(fNextCopyInstanceIdx == fEndCopyInstance);
@@ -541,7 +541,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
         int endCopyRange = atlas->getFillBatchID();
         SkASSERT(endCopyRange > copyRangeIdx);
 
-        sk_sp<GrRenderTargetContext> rtc = atlas->makeRenderTargetContext(onFlushRP);
+        auto rtc = atlas->makeRenderTargetContext(onFlushRP);
         for (; copyRangeIdx < endCopyRange; ++copyRangeIdx) {
             const CopyPathRange& copyRange = fCopyPathRanges[copyRangeIdx];
             int endCopyInstance = baseCopyInstance + copyRange.fCount;

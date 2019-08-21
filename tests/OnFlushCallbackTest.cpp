@@ -334,8 +334,9 @@ public:
      * This callback creates the atlas and updates the AtlasedRectOps to read from it
      */
     void preFlush(GrOnFlushResourceProvider* resourceProvider,
-                  const uint32_t* opListIDs, int numOpListIDs,
-                  SkTArray<sk_sp<GrRenderTargetContext>>* results) override {
+                  const uint32_t* opListIDs,
+                  int numOpListIDs,
+                  SkTArray<std::unique_ptr<GrRenderTargetContext>>* results) override {
         SkASSERT(!results->count());
 
         // Until MDB is landed we will most-likely only have one opList.
@@ -360,8 +361,8 @@ public:
         SkASSERT(10 == fAtlasProxy->priv().getProxyRefCnt());
         // The backing GrSurface should have only 1 though bc there is only one proxy
         SkASSERT(1 == fAtlasProxy->testingOnly_getBackingRefCnt());
-        sk_sp<GrRenderTargetContext> rtc = resourceProvider->makeRenderTargetContext(
-                fAtlasProxy, GrColorType::kRGBA_8888, nullptr, nullptr);
+        auto rtc = resourceProvider->makeRenderTargetContext(fAtlasProxy, GrColorType::kRGBA_8888,
+                                                             nullptr, nullptr);
 
         // clear the atlas
         rtc->clear(nullptr, SK_PMColor4fTRANSPARENT,
@@ -435,12 +436,11 @@ private:
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
 static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject* object, int start,
                                                  sk_sp<GrTextureProxy> atlasProxy) {
-    sk_sp<GrRenderTargetContext> rtc(
-            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
-                                                            3*kDrawnTileSize,
-                                                            kDrawnTileSize,
-                                                            GrColorType::kRGBA_8888,
-                                                            nullptr));
+    auto rtc = context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                               3* kDrawnTileSize,
+                                                               kDrawnTileSize,
+                                                               GrColorType::kRGBA_8888,
+                                                               nullptr);
 
     rtc->clear(nullptr, { 1, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
@@ -553,12 +553,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kFinalWidth = 6*kDrawnTileSize;
     static const int kFinalHeight = kDrawnTileSize;
 
-    sk_sp<GrRenderTargetContext> rtc(
-            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
-                                                            kFinalWidth,
-                                                            kFinalHeight,
-                                                            GrColorType::kRGBA_8888,
-                                                            nullptr));
+    auto rtc = context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kApprox, kFinalWidth, kFinalHeight, GrColorType::kRGBA_8888, nullptr);
 
     rtc->clear(nullptr, SK_PMColor4fWHITE, GrRenderTargetContext::CanClearFullscreen::kYes);
 

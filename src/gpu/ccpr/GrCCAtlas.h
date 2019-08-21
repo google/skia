@@ -100,8 +100,8 @@ public:
     // 'backingTexture', if provided, is a renderable texture with which to instantiate our proxy.
     // If null then we will create a texture using the resource provider. The purpose of this param
     // is to provide a guaranteed way to recycle a stashed atlas texture from a previous flush.
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(GrOnFlushResourceProvider*,
-                                                         sk_sp<GrTexture> backingTexture = nullptr);
+    std::unique_ptr<GrRenderTargetContext> makeRenderTargetContext(
+            GrOnFlushResourceProvider*, sk_sp<GrTexture> backingTexture = nullptr);
 
 private:
     class Node;

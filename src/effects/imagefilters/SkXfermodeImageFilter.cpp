@@ -305,10 +305,9 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->priv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kApprox, bounds.width(), bounds.height(), ctx.grColorType(),
-                    ctx.refColorSpace()));
+    auto renderTargetContext = context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kApprox, bounds.width(), bounds.height(), ctx.grColorType(),
+            ctx.refColorSpace());
     if (!renderTargetContext) {
         return nullptr;
     }

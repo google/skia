@@ -429,7 +429,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
 }
 
 static void test_readpixels_texture(skiatest::Reporter* reporter,
-                                    sk_sp<GrSurfaceContext> sContext,
+                                    std::unique_ptr<GrSurfaceContext> sContext,
                                     const SkImageInfo& surfaceInfo) {
     for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
         const SkIRect& srcRect = gReadPixelsTestRects[rect];
@@ -473,7 +473,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
             sk_sp<GrTextureProxy> proxy = sk_gpu_test::MakeTextureProxyFromData(
                     context, renderable, DEV_W, DEV_H, bmp.colorType(), bmp.alphaType(), origin,
                     bmp.getPixels(), bmp.rowBytes());
-            sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
+            auto sContext = context->priv().makeWrappedSurfaceContext(
                     std::move(proxy), SkColorTypeToGrColorType(bmp.colorType()),
                     kPremul_SkAlphaType);
             auto info = SkImageInfo::Make(DEV_W, DEV_H, kN32_SkColorType, kPremul_SkAlphaType);

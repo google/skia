@@ -194,7 +194,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     // care about is that it is not converted. So we use the same alpha type for the data
     // and the surface context.
     static constexpr auto kAlphaType = kUnpremul_SkAlphaType;
-    sk_sp<GrSurfaceContext> sContext =
+    auto sContext =
             context->priv().makeWrappedSurfaceContext(std::move(proxy), srcColorType, kAlphaType);
     if (!sContext) {
         return nullptr;

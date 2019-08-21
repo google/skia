@@ -30,15 +30,11 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ct
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetContext> rtc(
-            ctx->priv().makeVulkanSecondaryCBRenderTargetContext(imageInfo, vkInfo, props));
+    auto rtc = ctx->priv().makeVulkanSecondaryCBRenderTargetContext(imageInfo, vkInfo, props);
     SkASSERT(rtc->asSurfaceProxy()->isInstantiated());
 
-    int width = rtc->width();
-    int height = rtc->height();
-
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(ctx, std::move(rtc), width, height,
-                                                SkGpuDevice::kUninit_InitContents));
+    sk_sp<SkGpuDevice> device(
+            SkGpuDevice::Make(ctx, std::move(rtc), SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }

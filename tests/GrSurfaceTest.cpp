@@ -309,7 +309,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
 
                     // Try creating the texture as a deferred proxy.
                     {
-                        sk_sp<GrSurfaceContext> surfCtx;
+                        std::unique_ptr<GrSurfaceContext> surfCtx;
                         if (renderable == GrRenderable::kYes) {
                             surfCtx = context->priv().makeDeferredRenderTargetContext(
                                     fit, desc.fWidth, desc.fHeight, combo.fColorType, nullptr,
