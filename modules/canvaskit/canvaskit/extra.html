@@ -195,94 +195,44 @@ const snowfall = {
    "MaxCount": 4096,
    "Duration": 1,
    "Rate": 30,
-   "Life": {
-      "Input": {
-         "Source": "Age",
-         "TileMode": "Repeat",
-         "Left": 0,
-         "Right": 1
-      },
-      "XValues": [],
-      "Segments": [
-         {
-            "Type": "Constant",
-            "Ranged": false,
-            "Bidirectional": false,
-            "A0": 10
-         }
-      ]
-   },
    "Drawable": {
       "Type": "SkCircleDrawable",
       "Radius": 1
    },
-   "Spawn": [
-      {
-         "Type": "SkLinearVelocityAffector",
-         "Enabled": true,
-         "Force": false,
-         "Frame": "World",
-         "Angle": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 170,
-                  "A1": 190
-               }
-            ]
-         },
-         "Strength": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 10,
-                  "A1": 30
-               }
-            ]
-         }
-      },
-      {
-         "Type": "SkPositionOnPathAffector",
-         "Enabled": true,
-         "Input": {
-            "Source": "Random",
-            "TileMode": "Clamp",
-            "Left": 0,
-            "Right": 1
-         },
-         "SetHeading": false,
-         "Path": "h500"
-      }
+   "Code": [
+      "// float rand; Every read returns a random float [0 .. 1)",
+      "layout(ctype=float) in uniform float dt;",
+      "layout(ctype=float) in uniform float effectAge;",
+      "",
+      "struct Particle {",
+      "  float  age;",
+      "  float  lifetime;",
+      "  float2 pos;",
+      "  float2 dir;",
+      "  float  scale;",
+      "  float2 vel;",
+      "  float  spin;",
+      "  float4 color;",
+      "  float  frame;",
+      "};",
+      "",
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 10;",
+      "  p.vel.y = 10 + rand * 20;",
+      "  p.vel.x = -5 + 10 * rand;",
+      "  p.pos.x = rand * 500;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.scale = size(p.age);",
+      "}",
+      ""
    ],
-   "Update": [
+   "Bindings": [
       {
-         "Type": "SkSizeAffector",
-         "Enabled": true,
+         "Type": "SkCurveBinding",
+         "Name": "size",
          "Curve": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
             "XValues": [],
             "Segments": [
                {
