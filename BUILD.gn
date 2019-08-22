@@ -2481,6 +2481,13 @@ if (skia_enable_tools) {
     }
   }
 
+  test_app("sviewer") {
+    is_shared_library = is_android
+    deps = [
+      "experimental/sviewer",
+    ]
+  }
+
   if (!skia_use_angle && (is_linux || is_win || is_mac)) {
     test_app("HelloWorld") {
       sources = [
