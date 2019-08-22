@@ -4,6 +4,8 @@ This file includes a list of high level updates for each milestone release.
 
 -----
 
+  * Remove 4-parameter variant of SkRect::join() and intersect()
+
 Milestone 78
 
   * Added RELEASE_NOTES.txt file
