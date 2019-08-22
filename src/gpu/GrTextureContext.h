@@ -9,7 +9,6 @@
 #define GrTextureContext_DEFINED
 
 #include "src/gpu/GrSurfaceContext.h"
-#include "src/gpu/GrTextureOpList.h"
 #include "src/gpu/GrTextureProxy.h"
 
 class GrContext;
@@ -50,13 +49,7 @@ protected:
 private:
     friend class GrDrawingManager; // for ctor
 
-    GrOpList* getOpList() override;
-
     sk_sp<GrTextureProxy>  fTextureProxy;
-
-    // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
-    // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
-    sk_sp<GrTextureOpList> fOpList;
 
     typedef GrSurfaceContext INHERITED;
 };

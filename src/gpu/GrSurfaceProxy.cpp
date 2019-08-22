@@ -306,10 +306,6 @@ GrRenderTargetOpList* GrSurfaceProxy::getLastRenderTargetOpList() {
     return fLastRenderTask ? fLastRenderTask->asRenderTargetOpList() : nullptr;
 }
 
-GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
-    return fLastRenderTask ? fLastRenderTask->asTextureOpList() : nullptr;
-}
-
 int GrSurfaceProxy::worstCaseWidth() const {
     SkASSERT(LazyState::kFully != this->lazyInstantiationState());
     if (fTarget) {

@@ -25,7 +25,6 @@ class GrRenderTask;
 class GrResourceProvider;
 class GrSurfaceContext;
 class GrSurfaceProxyPriv;
-class GrTextureOpList;
 class GrTextureProxy;
 
 // This is basically SkRefCntBase except Ganesh uses internalGetProxyRefCnt for more than asserts.
@@ -283,7 +282,6 @@ public:
     GrRenderTask* getLastRenderTask() { return fLastRenderTask; }
 
     GrRenderTargetOpList* getLastRenderTargetOpList();
-    GrTextureOpList* getLastTextureOpList();
 
     /**
      * Retrieves the amount of GPU memory that will be or currently is used by this resource

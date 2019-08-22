@@ -622,7 +622,7 @@ private:
                          ReadPixelsContext context);
 
     GrRenderTargetOpList* getRTOpList();
-    GrOpList* getOpList() override;
+    GrOpList* getOpList();
 
     std::unique_ptr<GrTextTarget> fTextTarget;
     sk_sp<GrRenderTargetProxy> fRenderTargetProxy;

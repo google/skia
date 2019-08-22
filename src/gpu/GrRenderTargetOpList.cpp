@@ -639,7 +639,6 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
                            SkDEBUGCODE(, fTarget.get() == p));
     };
     for (const OpChain& recordedOp : fOpChains) {
-        // only diff from the GrTextureOpList version
         recordedOp.visitProxies(gather);
 
         // Even though the op may have been (re)moved we still need to increment the op count to

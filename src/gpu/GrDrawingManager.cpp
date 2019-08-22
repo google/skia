@@ -27,7 +27,6 @@
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureContext.h"
-#include "src/gpu/GrTextureOpList.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
@@ -654,27 +653,6 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetPr
         if (!fDAG.sortingRenderTasks() || !fReduceOpListSplitting) {
             fActiveOpList = opList.get();
         }
-    }
-
-    SkDEBUGCODE(this->validate());
-    return opList;
-}
-
-sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> textureProxy) {
-    SkDEBUGCODE(this->validate());
-    SkASSERT(fContext);
-
-    this->closeRenderTasksForNewRenderTask(textureProxy.get());
-
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->priv().refOpMemoryPool(),
-                                                      textureProxy,
-                                                      fContext->priv().auditTrail()));
-
-    SkASSERT(textureProxy->getLastRenderTask() == opList.get());
-
-    fDAG.add(opList);
-    if (!fDAG.sortingRenderTasks() || !fReduceOpListSplitting) {
-        fActiveOpList = opList.get();
     }
 
     SkDEBUGCODE(this->validate());

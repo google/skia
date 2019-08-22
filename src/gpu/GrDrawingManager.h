@@ -28,7 +28,6 @@ class GrRenderTargetProxy;
 class GrRenderTargetOpList;
 class GrSoftwarePathRenderer;
 class GrTextureContext;
-class GrTextureOpList;
 class SkDeferredDisplayList;
 
 class GrDrawingManager {
@@ -50,7 +49,6 @@ public:
     // A managed opList is controlled by the drawing manager (i.e., sorted & flushed with the
     // others). An unmanaged one is created and used by the onFlushCallback.
     sk_sp<GrRenderTargetOpList> newRTOpList(sk_sp<GrRenderTargetProxy>, bool managedOpList);
-    sk_sp<GrTextureOpList> newTextureOpList(sk_sp<GrTextureProxy>);
 
     // Create a new, specialized, render task that will regenerate mipmap levels and/or resolve
     // MSAA (depending on GrTextureResolveFlags). This method will add the new render task to the
