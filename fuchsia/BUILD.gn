@@ -1,0 +1,25 @@
+# Copyright 2019 The Fuchsia Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/package.gni")
+
+package("skqp") {
+  testonly = true
+  deps = [
+    "//third_party/skia:skqp",
+  ]
+  meta = [
+    {
+      path = rebase_path("meta/skqp.cmx")
+      dest = "skqp.cmx"
+    },
+  ]
+
+  binary = rebase_path("$root_build_dir/skqp", root_build_dir)
+  # extra = [ manifest_file ]
+
+  # public_deps =
+  # loadable_modules =
+  # resources =
+}
