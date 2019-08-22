@@ -37,6 +37,35 @@
 namespace {
 
 static SkString svg_color(SkColor color) {
+    // https://www.w3.org/TR/css-color-3/#html4
+    auto named_color = [](SkColor c) -> const char* {
+        switch (c & 0xffffff) {
+        case 0x000000: return "black";
+        case 0x000080: return "navy";
+        case 0x0000ff: return "blue";
+        case 0x008000: return "green";
+        case 0x008080: return "teal";
+        case 0x00ff00: return "lime";
+        case 0x00ffff: return "aqua";
+        case 0x800000: return "maroon";
+        case 0x800080: return "purple";
+        case 0x808000: return "olive";
+        case 0x808080: return "gray";
+        case 0xc0c0c0: return "silver";
+        case 0xff0000: return "red";
+        case 0xff00ff: return "fuchsia";
+        case 0xffff00: return "yellow";
+        case 0xffffff: return "white";
+        default: break;
+        }
+
+        return nullptr;
+    };
+
+    if (const auto* nc = named_color(color)) {
+        return SkString(nc);
+    }
+
     return SkStringPrintf("rgb(%u,%u,%u)",
                           SkColorGetR(color),
                           SkColorGetG(color),
@@ -298,7 +327,7 @@ private:
 void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& resources) {
     SkPaint::Style style = paint.getStyle();
     if (style == SkPaint::kFill_Style || style == SkPaint::kStrokeAndFill_Style) {
-        static constexpr char kDefaultFill[] = "rgb(0,0,0)";
+        static constexpr char kDefaultFill[] = "black";
         if (!resources.fPaintServer.equals(kDefaultFill)) {
             this->addAttribute("fill", resources.fPaintServer);
 
