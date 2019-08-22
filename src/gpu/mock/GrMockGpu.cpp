@@ -148,8 +148,8 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                             int renderTargetSampleCnt,
                                             SkBudgeted budgeted,
                                             GrProtected isProtected,
-                                            const GrMipLevel texels[],
-                                            int mipLevelCount) {
+                                            int mipLevelCount,
+                                            uint32_t levelClearMask) {
     if (fMockOptions.fFailTextureAllocations) {
         return nullptr;
     }
@@ -159,12 +159,6 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
 
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            mipMapsStatus = GrMipMapsStatus::kDirty;
-            break;
-        }
-    }
     GrMockTextureInfo texInfo(ct, NextInternalTextureID());
     if (renderable == GrRenderable::kYes) {
         GrMockRenderTargetInfo rtInfo(ct, NextInternalRenderTargetID());

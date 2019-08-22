@@ -197,8 +197,8 @@ private:
                                      int renderTargetSampleCnt,
                                      SkBudgeted,
                                      GrProtected,
-                                     const GrMipLevel[],
-                                     int mipLevelCount) override;
+                                     int mipLevelCount,
+                                     uint32_t levleClearMask) override;
     sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, const GrBackendFormat&,
                                                SkImage::CompressionType compression, SkBudgeted,
                                                const void* data) override;
@@ -230,11 +230,7 @@ private:
                              GrGLFormat format,
                              GrRenderable,
                              GrGLTextureParameters::SamplerOverriddenState* initialState,
-                             GrColorType textureColorType,
-                             GrColorType srcColorType,
-                             const GrMipLevel texels[],
-                             int mipLevelCount,
-                             GrMipMapsStatus* mipMapsStatus);
+                             int mipLevelCount);
 
     GrGLuint createCompressedTexture2D(const SkISize& size, GrGLFormat format,
                                        SkImage::CompressionType compression,
@@ -399,13 +395,8 @@ private:
 
     void flushFramebufferSRGB(bool enable);
 
-    // helper for onCreateTexture and writeTexturePixels
-    enum UploadType {
-        kNewTexture_UploadType,   // we are creating a new texture
-        kWrite_UploadType,        // we are using TexSubImage2D to copy data to an existing texture
-    };
     bool uploadTexData(GrGLFormat textureFormat, GrColorType textureColorType,
-                       int texWidth, int texHeight, GrGLenum target, UploadType uploadType,
+                       int texWidth, int texHeight, GrGLenum target,
                        int left, int top, int width, int height, GrColorType srcColorType,
                        const GrMipLevel texels[], int mipLevelCount,
                        GrMipMapsStatus* mipMapsStatus = nullptr);
@@ -430,11 +421,11 @@ private:
     // Binds a surface as a FBO for copying, reading, or clearing. If the surface already owns an
     // FBO ID then that ID is bound. If not the surface is temporarily bound to a FBO and that FBO
     // is bound. This must be paired with a call to unbindSurfaceFBOForPixelOps().
-    void bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget,
+    void bindSurfaceFBOForPixelOps(GrSurface* surface, int mipLevel, GrGLenum fboTarget,
                                    TempFBOTarget tempFBOTarget);
 
     // Must be called if bindSurfaceFBOForPixelOps was used to bind a surface for copying.
-    void unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface);
+    void unbindSurfaceFBOForPixelOps(GrSurface* surface, int mipLevel, GrGLenum fboTarget);
 
 #ifdef SK_ENABLE_DUMP_GPU
     void onDumpJSON(SkJSONWriter*) const override;
