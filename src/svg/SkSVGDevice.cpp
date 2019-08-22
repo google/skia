@@ -570,8 +570,6 @@ void SkSVGDevice::AutoElement::addClipResources(const MxCp& mc, Resources* resou
     (void) mc.fClipStack->asPath(&clipPath);
 
     SkString clipID = fResourceBucket->addClip();
-    const char* clipRule = clipPath.getFillType() == SkPath::kEvenOdd_FillType ?
-                           "evenodd" : "nonzero";
     {
         // clipPath is in device space, but since we're only pushing transform attributes
         // to the leaf nodes, so are all our elements => SVG userSpaceOnUse == device space.
@@ -582,11 +580,13 @@ void SkSVGDevice::AutoElement::addClipResources(const MxCp& mc, Resources* resou
         if (clipPath.isEmpty() || clipPath.isRect(&clipRect)) {
             AutoElement rectElement("rect", fWriter);
             rectElement.addRectAttributes(clipRect);
-            rectElement.addAttribute("clip-rule", clipRule);
         } else {
             AutoElement pathElement("path", fWriter);
             pathElement.addPathAttributes(clipPath);
-            pathElement.addAttribute("clip-rule", clipRule);
+
+            if (clipPath.getFillType() == SkPath::kEvenOdd_FillType) {
+                pathElement.addAttribute("clip-rule", "evenodd"); // Default: nonzero
+            }
         }
     }
 
