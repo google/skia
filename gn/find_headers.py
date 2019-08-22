@@ -28,7 +28,7 @@ include_dirs = [os.path.join(os.path.normpath(include_dir), '')
 include_dirs.sort(key=len, reverse=True)
 
 gn_desc_cmd = [gn, 'desc', '.', '--root=%s' % absolute_source, '--format=json',
-               '*']
+               '//third_party/skia/*']
 
 desc_json_txt = ''
 try:
@@ -40,7 +40,7 @@ except subprocess.CalledProcessError as e:
 desc_json = {}
 try:
   desc_json = json.loads(desc_json_txt)
-except ValueError:
+except ValueError: 
   print desc_json_txt
   raise
 

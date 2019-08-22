@@ -9,6 +9,27 @@
 #include "tools/ProcStats.h"
 
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS) || defined(SK_BUILD_FOR_ANDROID)
+    #if defined(__Fuchsia__)
+    #include <errno.h>
+    #include <zircon/process.h>
+    #include <zircon/processargs.h>
+    #include <zircon/status.h>
+    #include <zircon/syscalls.h>
+    #include <zircon/syscalls/object.h>
+    #include <zircon/types.h>
+    int sk_tools::getMaxResidentSetSizeMB() {
+      zx_info_task_stats_t task_stats;
+      zx_handle_t process = zx_process_self();
+      zx_status_t status = zx_object_get_info(
+          process, ZX_INFO_TASK_STATS, &task_stats, sizeof(task_stats), NULL, NULL);
+      if (status != ZX_OK) {
+        // TODO(zra): Translate this to a Unix errno.
+        errno = status;
+        return -1;
+      }
+      return (task_stats.mem_private_bytes + task_stats.mem_shared_bytes) >> 20;
+    }
+    #else
     #include <sys/resource.h>
     int sk_tools::getMaxResidentSetSizeMB() {
         struct rusage ru;
@@ -19,6 +40,7 @@
         return static_cast<int>(ru.ru_maxrss / 1024);  // Linux reports kilobytes.
     #endif
     }
+    #endif  // #if defined(__Fuchsia__)
 #elif defined(SK_BUILD_FOR_WIN)
     #include <windows.h>
     #include <psapi.h>

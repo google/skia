@@ -22,8 +22,12 @@
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tools/fonts/TestFontMgr.h"
+#if SK_OPENGL
 #include "tools/gpu/gl/GLTestContext.h"
+#endif
+#if SK_VULKAN
 #include "tools/gpu/vk/VkTestContext.h"
+#endif
 
 #include <limits.h>
 #include <algorithm>
@@ -135,10 +139,12 @@ static void get_render_tests(SkQPAssetManager* mgr,
 static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
     using U = std::unique_ptr<sk_gpu_test::TestContext>;
     switch (backend) {
+#if SK_OPENGL
         case SkQP::SkiaBackend::kGL:
             return U(sk_gpu_test::CreatePlatformGLTestContext(kGL_GrGLStandard, nullptr));
         case SkQP::SkiaBackend::kGLES:
             return U(sk_gpu_test::CreatePlatformGLTestContext(kGLES_GrGLStandard, nullptr));
+#endif
 #ifdef SK_VULKAN
         case SkQP::SkiaBackend::kVulkan:
             return U(sk_gpu_test::CreatePlatformVkTestContext(nullptr));
@@ -161,10 +167,12 @@ static GrContextOptions context_options(skiagm::GM* gm = nullptr) {
 static std::vector<SkQP::SkiaBackend> get_backends() {
     std::vector<SkQP::SkiaBackend> result;
     SkQP::SkiaBackend backends[] = {
-        #ifndef SK_BUILD_FOR_ANDROID
+        #if defined(SK_OPENGL)
+        #if !defined(SK_BUILD_FOR_ANDROID)
         SkQP::SkiaBackend::kGL,  // Used for testing on desktop machines.
         #endif
         SkQP::SkiaBackend::kGLES,
+        #endif  // defined(SK_OPENGL)
         #ifdef SK_VULKAN
         SkQP::SkiaBackend::kVulkan,
         #endif

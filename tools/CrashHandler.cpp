@@ -9,6 +9,7 @@
 
 #include "src/core/SkLeanWindows.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #if defined(SK_BUILD_FOR_GOOGLE3)
@@ -50,6 +51,11 @@
         }
 
     #elif defined(SK_BUILD_FOR_UNIX)
+        #if defined(__Fuchsia__)
+        static void handler(int sig) {
+          fprintf(stderr, "Fuchsia ERROR: backtrace handler not implemented.\n");
+        }
+        #else
         // We'd use libunwind here too, but it's a pain to get installed for
         // both 32 and 64 bit on bots.  Doesn't matter much: catchsegv is best anyway.
         #include <cxxabi.h>
@@ -82,6 +88,7 @@
             // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
             _Exit(sig);
         }
+        #endif
 
     #endif
 
