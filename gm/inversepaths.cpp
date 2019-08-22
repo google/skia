@@ -61,7 +61,9 @@ sk_sp<SkPathEffect> make_dash() {
 
 Style styles[] {
     {SkPaint::kStroke_Style},
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     {SkPaint::kStrokeAndFill_Style},
+#endif
     {SkPaint::kFill_Style},
     {SkPaint::kStroke_Style, make_dash()},
 };

@@ -277,7 +277,9 @@ class DegenerateSegmentsGM : public GM {
         constexpr StyleAndName gStyles[] = {
             {SkPaint::kFill_Style, "Fill"},
             {SkPaint::kStroke_Style, "Stroke 10"},
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
             {SkPaint::kStrokeAndFill_Style, "Stroke 10 And Fill"}
+#endif
         };
         struct CapAndName {
             SkPaint::Cap  fCap;

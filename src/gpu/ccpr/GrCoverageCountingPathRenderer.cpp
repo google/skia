@@ -159,8 +159,10 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
             return CanDrawPath::kYes;
         }
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         case SkStrokeRec::kStrokeAndFill_Style:
             return CanDrawPath::kNo;
+#endif
     }
 
     SK_ABORT("Invalid stroke style.");

@@ -1316,7 +1316,11 @@ SkStroke::SkStroke(const SkPaint& p) {
     fResScale   = 1;
     fCap        = (uint8_t)p.getStrokeCap();
     fJoin       = (uint8_t)p.getStrokeJoin();
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     fDoFill     = SkToU8(p.getStyle() == SkPaint::kStrokeAndFill_Style);
+#else
+    fDoFill     = false;
+#endif
 }
 
 SkStroke::SkStroke(const SkPaint& p, SkScalar width) {
@@ -1325,7 +1329,11 @@ SkStroke::SkStroke(const SkPaint& p, SkScalar width) {
     fResScale   = 1;
     fCap        = (uint8_t)p.getStrokeCap();
     fJoin       = (uint8_t)p.getStrokeJoin();
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     fDoFill     = SkToU8(p.getStyle() == SkPaint::kStrokeAndFill_Style);
+#else
+    fDoFill     = false;
+#endif
 }
 
 void SkStroke::setWidth(SkScalar width) {

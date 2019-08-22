@@ -75,7 +75,9 @@ static void iter_paint(skiatest::Reporter* reporter, const SkPath& path, bool sh
     static const SkPaint::Style gStyles[] = {
         SkPaint::kFill_Style,
         SkPaint::kStroke_Style,
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         SkPaint::kStrokeAndFill_Style
+#endif
     };
     for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
         for (size_t join = 0; join < SK_ARRAY_COUNT(gJoins); ++join) {

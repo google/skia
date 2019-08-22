@@ -251,6 +251,7 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
     SkScalar coverage = 1.0f;
     SkScalar scaleFactor = 0.0f;
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     if (SkStrokeRec::kStrokeAndFill_Style == fStyle) {
         SkASSERT(m.isSimilarity());
         scaleFactor = m.getMaxScale(); // x and y scale are the same
@@ -286,7 +287,7 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
         SkDEBUGCODE(this->validate();)
         return true;
     }
-
+#endif
     if (SkStrokeRec::kStroke_Style == fStyle) {
         SkASSERT(fStrokeWidth >= 0.0f);
         SkASSERT(m.isSimilarity());
