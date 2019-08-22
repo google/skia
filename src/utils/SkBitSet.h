@@ -12,12 +12,24 @@
 
 class SkBitSet {
 public:
-    explicit SkBitSet(int numberOfBits) {
+    explicit SkBitSet(int numberOfBits = 0) {
         SkASSERT(numberOfBits >= 0);
         fDwordCount = (numberOfBits + 31) / 32;  // Round up size to 32-bit boundary.
         if (fDwordCount > 0) {
             fBitData.reset((uint32_t*)sk_calloc_throw(fDwordCount * sizeof(uint32_t)));
         }
+    }
+
+    SkBitSet(SkBitSet&& that) : fBitData(std::move(that.fBitData)), fDwordCount(that.fDwordCount) {
+        that.fDwordCount = 0;
+    }
+
+    SkBitSet& operator=(SkBitSet&& that) {
+        if (this != &that) {
+            this->~SkBitSet();
+            new (this) SkBitSet(std::move(that));
+        }
+        return *this;
     }
 
     /** Set the value of the index-th bit to true.  */
@@ -61,6 +73,8 @@ private:
         }
         return fBitData.get() + internalIndex;
     }
+    SkBitSet(const SkBitSet&) = delete;
+    SkBitSet& operator=(const SkBitSet&) = delete;
 };
 
 

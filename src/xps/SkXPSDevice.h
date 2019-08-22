@@ -94,27 +94,22 @@ protected:
                         const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint,
                         SkCanvas::SrcRectConstraint) override;
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
-        SK_ABORT("Needs an implementation");
-    }
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 
 private:
-    class TypefaceUse : ::SkNoncopyable {
+    class TypefaceUse {
     public:
         SkFontID typefaceId;
         int ttcIndex;
-        SkStream* fontData;
-        IXpsOMFontResource* xpsFont;
-        SkBitSet* glyphsUsed;
-
-        explicit TypefaceUse();
-        ~TypefaceUse();
+        std::unique_ptr<SkStream> fontData;
+        SkTScopedComPtr<IXpsOMFontResource> xpsFont;
+        SkBitSet glyphsUsed;
     };
-    friend HRESULT subset_typeface(TypefaceUse* current);
+    friend HRESULT subset_typeface(const TypefaceUse& current);
 
     bool createCanvasForLayer();
 
@@ -207,13 +202,13 @@ private:
         IXpsOMGeometryFigure** xpsQuad);
 
     HRESULT CreateTypefaceUse(
-        const SkPaint& paint,
-        TypefaceUse** fontResource);
+        const SkFont& font,
+        const TypefaceUse** fontResource);
 
     HRESULT AddGlyphs(
         IXpsOMObjectFactory* xpsFactory,
         IXpsOMCanvas* canvas,
-        TypefaceUse* font,
+        const TypefaceUse* font,
         LPCWSTR text,
         XPS_GLYPH_INDEX* xpsGlyphs,
         UINT32 xpsGlyphsLen,
