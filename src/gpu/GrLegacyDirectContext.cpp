@@ -83,9 +83,9 @@ protected:
         }
 
         bool reduceOpsTaskSplitting = kDefaultReduceOpsTaskSplitting;
-        if (GrContextOptions::Enable::kNo == this->options().fReduceOpListSplitting) {
+        if (GrContextOptions::Enable::kNo == this->options().fReduceOpsTaskSplitting) {
             reduceOpsTaskSplitting = false;
-        } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpListSplitting) {
+        } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
             reduceOpsTaskSplitting = true;
         }
 
