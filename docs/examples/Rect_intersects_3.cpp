@@ -5,6 +5,6 @@
 REG_FIDDLE(Rect_intersects_3, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRect rect = { 10, 40, 50, 80 };
-    SkDebugf("%s intersection", rect.intersects(30, 60, 70, 90) ? "" : "no ");
+    SkDebugf("%s intersection", rect.intersects({30, 60, 70, 90}) ? "" : "no ");
 }
 }  // END FIDDLE

@@ -1231,22 +1231,11 @@ struct SK_API SkRect {
         @return   true if r and SkRect have area in common
     */
     bool intersect(const SkRect& r);
-
-    /** Constructs SkRect to intersect from (left, top, right, bottom). Does not sort
-        construction.
-
-        Returns true if SkRect intersects construction, and sets SkRect to intersection.
-        Returns false if SkRect does not intersect construction, and leaves SkRect unchanged.
-
-        Returns false if either construction or SkRect is empty, leaving SkRect unchanged.
-
-        @param left    x-axis minimum of constructed SkRect
-        @param top     y-axis minimum of constructed SkRect
-        @param right   x-axis maximum of constructed SkRect
-        @param bottom  y-axis maximum of constructed SkRect
-        @return        true if construction and SkRect have area in common
-    */
-    bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
+#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
+    bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
+        return this->intersect({left, top, right, bottom});
+    }
+#endif
 
     /** Returns true if a intersects b, and sets SkRect to intersection.
         Returns false if a does not intersect b, and leaves SkRect unchanged.
@@ -1272,32 +1261,22 @@ private:
 
 public:
 
-    /** Constructs SkRect to intersect from (left, top, right, bottom). Does not sort
-        construction.
-
-        Returns true if SkRect intersects construction.
-        Returns false if either construction or SkRect is empty, or do not intersect.
-
-        @param left    x-axis minimum of constructed SkRect
-        @param top     y-axis minimum of constructed SkRect
-        @param right   x-axis maximum of constructed SkRect
-        @param bottom  y-axis maximum of constructed SkRect
-        @return        true if construction and SkRect have area in common
-    */
-    bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const {
-        return Intersects(fLeft, fTop, fRight, fBottom, left, top, right, bottom);
-    }
-
     /** Returns true if SkRect intersects r.
-        Returns false if either r or SkRect is empty, or do not intersect.
+     Returns false if either r or SkRect is empty, or do not intersect.
 
-        @param r  SkRect to intersect
-        @return   true if r and SkRect have area in common
-    */
+     @param r  SkRect to intersect
+     @return   true if r and SkRect have area in common
+     */
     bool intersects(const SkRect& r) const {
         return Intersects(fLeft, fTop, fRight, fBottom,
                           r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
+#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
+    bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const {
+        return Intersects(fLeft, fTop, fRight, fBottom, left, top, right, bottom);
+    }
+#endif
+
 
     /** Returns true if a intersects b.
         Returns false if either a or b is empty, or do not intersect.
@@ -1311,21 +1290,6 @@ public:
                           b.fLeft, b.fTop, b.fRight, b.fBottom);
     }
 
-    /** Constructs SkRect to intersect from (left, top, right, bottom). Does not sort
-        construction.
-
-        Sets SkRect to the union of itself and the construction.
-
-        Has no effect if construction is empty. Otherwise, if SkRect is empty, sets
-        SkRect to construction.
-
-        @param left    x-axis minimum of constructed SkRect
-        @param top     y-axis minimum of constructed SkRect
-        @param right   x-axis maximum of constructed SkRect
-        @param bottom  y-axis maximum of constructed SkRect
-    */
-    void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
-
     /** Sets SkRect to the union of itself and r.
 
         Has no effect if r is empty. Otherwise, if SkRect is empty, sets
@@ -1333,9 +1297,12 @@ public:
 
         @param r  expansion SkRect
     */
-    void join(const SkRect& r) {
-        this->join(r.fLeft, r.fTop, r.fRight, r.fBottom);
+    void join(const SkRect& r);
+#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
+    void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
+        this->join({left, top, right, bottom});
     }
+#endif
 
     /** Sets SkRect to the union of itself and r.
 

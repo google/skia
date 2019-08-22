@@ -93,14 +93,10 @@ void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
     do { if (!(L < R && T < B)) return false; } while (0)
     // do the !(opposite) check so we return false if either arg is NaN
 
-bool SkRect::intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
-    CHECK_INTERSECT(left, top, right, bottom, fLeft, fTop, fRight, fBottom);
+bool SkRect::intersect(const SkRect& r) {
+    CHECK_INTERSECT(r.fLeft, r.fTop, r.fRight, r.fBottom, fLeft, fTop, fRight, fBottom);
     this->setLTRB(L, T, R, B);
     return true;
-}
-
-bool SkRect::intersect(const SkRect& r) {
-    return this->intersect(r.fLeft, r.fTop, r.fRight, r.fBottom);
 }
 
 bool SkRect::intersect(const SkRect& a, const SkRect& b) {
@@ -109,20 +105,18 @@ bool SkRect::intersect(const SkRect& a, const SkRect& b) {
     return true;
 }
 
-void SkRect::join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
-    // do nothing if the params are empty
-    if (left >= right || top >= bottom) {
+void SkRect::join(const SkRect& r) {
+    if (r.isEmpty()) {
         return;
     }
 
-    // if we are empty, just assign
-    if (fLeft >= fRight || fTop >= fBottom) {
-        this->set(left, top, right, bottom);
+    if (this->isEmpty()) {
+        *this = r;
     } else {
-        fLeft   = SkMinScalar(fLeft, left);
-        fTop    = SkMinScalar(fTop, top);
-        fRight  = SkMaxScalar(fRight, right);
-        fBottom = SkMaxScalar(fBottom, bottom);
+        fLeft   = SkMinScalar(fLeft, r.fLeft);
+        fTop    = SkMinScalar(fTop, r.fTop);
+        fRight  = SkMaxScalar(fRight, r.fRight);
+        fBottom = SkMaxScalar(fBottom, r.fBottom);
     }
 }
 

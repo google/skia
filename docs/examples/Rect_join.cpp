@@ -5,7 +5,7 @@
 REG_FIDDLE(Rect_join, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRect rect = { 10, 20, 15, 25};
-    rect.join(50, 60, 55, 65);
+    rect.join({50, 60, 55, 65});
     SkDebugf("join: %g, %g, %g, %g\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
 }
 }  // END FIDDLE

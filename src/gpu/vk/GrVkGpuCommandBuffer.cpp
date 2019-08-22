@@ -217,9 +217,8 @@ void GrVkGpuRTCommandBuffer::submit() {
             cbInfo.fBounds = SkRect::MakeWH(vkRT->width(), vkRT->height());
         }
 
-        if (cbInfo.fBounds.intersect(0, 0,
-                                     SkIntToScalar(fRenderTarget->width()),
-                                     SkIntToScalar(fRenderTarget->height()))) {
+        if (cbInfo.fBounds.intersect(SkRect::MakeIWH(fRenderTarget->width(),
+                                                     fRenderTarget->height()))) {
             // Make sure we do the following layout changes after all copies, uploads, or any other
             // pre-work is done since we may change the layouts in the pre-work. Also since the
             // draws will be submitted in different render passes, we need to guard againts write
