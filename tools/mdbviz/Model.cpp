@@ -21,7 +21,7 @@ Model::Model() : fCurOp(0) {
 }
 
 Model::~Model() {
-    this->resetOpList();
+    this->resetOpsTask();
 }
 
 Model::ErrorCode Model::load(const char* filename) {
@@ -42,7 +42,7 @@ Model::ErrorCode Model::load(const char* filename) {
         temp->setPicture(pic.get());
         pic->playback(temp.get());
         temp->setPicture(nullptr);
-        this->resetOpList();
+        this->resetOpsTask();
         temp->detachCommands(&fOps);
     }
 
@@ -105,7 +105,7 @@ void Model::drawTo(int index) {
     canvas.restoreToCount(saveCount);
 }
 
-void Model::resetOpList() {
+void Model::resetOpsTask() {
     for (int i = 0; i < fOps.count(); ++i) {
         delete fOps[i];
     }

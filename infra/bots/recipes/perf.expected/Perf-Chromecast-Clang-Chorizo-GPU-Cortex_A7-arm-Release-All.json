@@ -353,7 +353,7 @@
       "--skps",
       "/cache/skia/skps",
       "--pre_log",
-      "--dontReduceOpListSplitting",
+      "--dontReduceOpsTaskSplitting",
       "--match",
       "~matrixconvolution",
       "~blur_image_filter",

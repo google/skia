@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPerOpListPaths_DEFINED
-#define GrCCPerOpListPaths_DEFINED
+#ifndef GrCCPerOpsTaskPaths_DEFINED
+#define GrCCPerOpsTaskPaths_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkArenaAlloc.h"
@@ -19,10 +19,10 @@ class GrCCDrawPathsOp;
 class GrCCPerFlushResources;
 
 /**
- * Tracks all the CCPR paths in a given opList that will be drawn when it flushes.
+ * Tracks all the CCPR paths in a given opsTask that will be drawn when it flushes.
  */
 // DDL TODO: given the usage pattern in DDL mode, this could probably be non-atomic refcounting.
-struct GrCCPerOpListPaths : public SkRefCnt {
+struct GrCCPerOpsTaskPaths : public SkRefCnt {
     SkTInternalLList<GrCCDrawPathsOp> fDrawOps;  // This class does not own these ops.
     std::map<uint32_t, GrCCClipPath> fClipPaths;
     SkSTArenaAlloc<10 * 1024> fAllocator{10 * 1024 * 2};
