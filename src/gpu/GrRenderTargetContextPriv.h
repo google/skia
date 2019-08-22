@@ -8,9 +8,9 @@
 #ifndef GrRenderTargetContextPriv_DEFINED
 #define GrRenderTargetContextPriv_DEFINED
 
+#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetOpList.h"
 
 class GrFixedClip;
 class GrHardClip;
@@ -27,20 +27,20 @@ public:
     // TODO: remove after clipping overhaul.
     void setLastClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
                      int numClipAnalyticFPs) {
-        GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
-        opList->fLastClipStackGenID = clipStackGenID;
-        opList->fLastDevClipBounds = devClipBounds;
-        opList->fLastClipNumAnalyticFPs = numClipAnalyticFPs;
+        GrOpsTask* opsTask = fRenderTargetContext->getOpsTask();
+        opsTask->fLastClipStackGenID = clipStackGenID;
+        opsTask->fLastDevClipBounds = devClipBounds;
+        opsTask->fLastClipNumAnalyticFPs = numClipAnalyticFPs;
     }
 
     // called to determine if we have to render the clip into SB.
     // TODO: remove after clipping overhaul.
     bool mustRenderClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
                         int numClipAnalyticFPs) const {
-        GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
-        return opList->fLastClipStackGenID != clipStackGenID ||
-               !opList->fLastDevClipBounds.contains(devClipBounds) ||
-               opList->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
+        GrOpsTask* opsTask = fRenderTargetContext->getOpsTask();
+        return opsTask->fLastClipStackGenID != clipStackGenID ||
+               !opsTask->fLastDevClipBounds.contains(devClipBounds) ||
+               opsTask->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
     }
 
     using CanClearFullscreen = GrRenderTargetContext::CanClearFullscreen;
@@ -104,7 +104,7 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
-    uint32_t testingOnly_getOpListID();
+    uint32_t testingOnly_getOpsTaskID();
 
     using WillAddOpFn = GrRenderTargetContext::WillAddOpFn;
     void testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);

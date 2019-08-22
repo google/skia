@@ -10,10 +10,10 @@
 
 #include <map>
 #include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPathRenderer.h"
-#include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
-#include "src/gpu/ccpr/GrCCPerOpListPaths.h"
+#include "src/gpu/ccpr/GrCCPerOpsTaskPaths.h"
 
 class GrCCDrawPathsOp;
 class GrCCPathCache;
@@ -41,16 +41,16 @@ public:
 
     CoverageType coverageType() const { return fCoverageType; }
 
-    using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpListPaths>>;
+    using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpsTaskPaths>>;
 
-    // In DDL mode, Ganesh needs to be able to move the pending GrCCPerOpListPaths to the DDL object
-    // (detachPendingPaths) and then return them upon replay (mergePendingPaths).
+    // In DDL mode, Ganesh needs to be able to move the pending GrCCPerOpsTaskPaths to the DDL
+    // object (detachPendingPaths) and then return them upon replay (mergePendingPaths).
     PendingPathsMap detachPendingPaths() { return std::move(fPendingPaths); }
 
     void mergePendingPaths(const PendingPathsMap& paths) {
 #ifdef SK_DEBUG
-        // Ensure there are no duplicate opList IDs between the incoming path map and ours.
-        // This should always be true since opList IDs are globally unique and these are coming
+        // Ensure there are no duplicate opsTask IDs between the incoming path map and ours.
+        // This should always be true since opsTask IDs are globally unique and these are coming
         // from different DDL recordings.
         for (const auto& it : paths) {
             SkASSERT(!fPendingPaths.count(it.first));
@@ -65,9 +65,9 @@ public:
             const GrCaps&);
 
     // GrOnFlushCallbackObject overrides.
-    void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
+    void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs, int numOpsTaskIDs,
                   SkTArray<std::unique_ptr<GrRenderTargetContext>>* out) override;
-    void postFlush(GrDeferredUploadToken, const uint32_t* opListIDs, int numOpListIDs) override;
+    void postFlush(GrDeferredUploadToken, const uint32_t* opsTaskIDs, int numOpsTaskIDs) override;
 
     void purgeCacheEntriesOlderThan(GrProxyProvider*, const GrStdSteadyClock::time_point&);
 
@@ -94,19 +94,19 @@ private:
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
     bool onDrawPath(const DrawPathArgs&) override;
 
-    GrCCPerOpListPaths* lookupPendingPaths(uint32_t opListID);
+    GrCCPerOpsTaskPaths* lookupPendingPaths(uint32_t opsTaskID);
     void recordOp(std::unique_ptr<GrCCDrawPathsOp>, const DrawPathArgs&);
 
     const CoverageType fCoverageType;
 
-    // fPendingPaths holds the GrCCPerOpListPaths objects that have already been created, but not
-    // flushed, and those that are still being created. All GrCCPerOpListPaths objects will first
+    // fPendingPaths holds the GrCCPerOpsTaskPaths objects that have already been created, but not
+    // flushed, and those that are still being created. All GrCCPerOpsTaskPaths objects will first
     // reside in fPendingPaths, then be moved to fFlushingPaths during preFlush().
     PendingPathsMap fPendingPaths;
 
-    // fFlushingPaths holds the GrCCPerOpListPaths objects that are currently being flushed.
+    // fFlushingPaths holds the GrCCPerOpsTaskPaths objects that are currently being flushed.
     // (It will only contain elements when fFlushing is true.)
-    SkSTArray<4, sk_sp<GrCCPerOpListPaths>> fFlushingPaths;
+    SkSTArray<4, sk_sp<GrCCPerOpsTaskPaths>> fFlushingPaths;
 
     std::unique_ptr<GrCCPathCache> fPathCache;
 

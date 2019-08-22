@@ -71,11 +71,11 @@ GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(
     }
 }
 
-GrCCPerOpListPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t opListID) {
-    auto it = fPendingPaths.find(opListID);
+GrCCPerOpsTaskPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t opsTaskID) {
+    auto it = fPendingPaths.find(opsTaskID);
     if (fPendingPaths.end() == it) {
-        sk_sp<GrCCPerOpListPaths> paths = sk_make_sp<GrCCPerOpListPaths>();
-        it = fPendingPaths.insert(std::make_pair(opListID, std::move(paths))).first;
+        sk_sp<GrCCPerOpsTaskPaths> paths = sk_make_sp<GrCCPerOpsTaskPaths>();
+        it = fPendingPaths.insert(std::make_pair(opsTaskID, std::move(paths))).first;
     }
     return it->second.get();
 }
@@ -182,16 +182,17 @@ bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 void GrCoverageCountingPathRenderer::recordOp(std::unique_ptr<GrCCDrawPathsOp> op,
                                               const DrawPathArgs& args) {
     if (op) {
-        auto addToOwningPerOpListPaths = [this](GrOp* op, uint32_t opListID) {
-            op->cast<GrCCDrawPathsOp>()->addToOwningPerOpListPaths(
-                    sk_ref_sp(this->lookupPendingPaths(opListID)));
+        auto addToOwningPerOpsTaskPaths = [this](GrOp* op, uint32_t opsTaskID) {
+            op->cast<GrCCDrawPathsOp>()->addToOwningPerOpsTaskPaths(
+                    sk_ref_sp(this->lookupPendingPaths(opsTaskID)));
         };
-        args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op), addToOwningPerOpListPaths);
+        args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op),
+                                             addToOwningPerOpsTaskPaths);
     }
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
-        uint32_t opListID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
+        uint32_t opsTaskID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
         const GrCaps& caps) {
     SkASSERT(!fFlushing);
 
@@ -202,7 +203,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
         key = (key << 1) | (uint32_t)GrFillRuleForSkPath(deviceSpacePath);
     }
     GrCCClipPath& clipPath =
-            this->lookupPendingPaths(opListID)->fClipPaths[key];
+            this->lookupPendingPaths(opsTaskID)->fClipPaths[key];
     if (!clipPath.isInitialized()) {
         // This ClipPath was just created during lookup. Initialize it.
         const SkRect& pathDevBounds = deviceSpacePath.getBounds();
@@ -228,8 +229,8 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
 
 void GrCoverageCountingPathRenderer::preFlush(
         GrOnFlushResourceProvider* onFlushRP,
-        const uint32_t* opListIDs,
-        int numOpListIDs,
+        const uint32_t* opsTaskIDs,
+        int numOpsTaskIDs,
         SkTArray<std::unique_ptr<GrRenderTargetContext>>* out) {
     using DoCopiesToA8Coverage = GrCCDrawPathsOp::DoCopiesToA8Coverage;
     SkASSERT(!fFlushing);
@@ -251,13 +252,13 @@ void GrCoverageCountingPathRenderer::preFlush(
     specs.fRenderedAtlasSpecs.fMaxPreferredTextureSize = maxPreferredRTSize;
     specs.fRenderedAtlasSpecs.fMinTextureSize = SkTMin(512, maxPreferredRTSize);
 
-    // Move the per-opList paths that are about to be flushed from fPendingPaths to fFlushingPaths,
+    // Move the per-opsTask paths that are about to be flushed from fPendingPaths to fFlushingPaths,
     // and count them up so we can preallocate buffers.
-    fFlushingPaths.reserve(numOpListIDs);
-    for (int i = 0; i < numOpListIDs; ++i) {
-        auto iter = fPendingPaths.find(opListIDs[i]);
+    fFlushingPaths.reserve(numOpsTaskIDs);
+    for (int i = 0; i < numOpsTaskIDs; ++i) {
+        auto iter = fPendingPaths.find(opsTaskIDs[i]);
         if (fPendingPaths.end() == iter) {
-            continue;  // No paths on this opList.
+            continue;  // No paths on this opsTask.
         }
 
         fFlushingPaths.push_back(std::move(iter->second));
@@ -318,8 +319,8 @@ void GrCoverageCountingPathRenderer::preFlush(
     }
 }
 
-void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opListIDs,
-                                               int numOpListIDs) {
+void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opsTaskIDs,
+                                               int numOpsTaskIDs) {
     SkASSERT(fFlushing);
 
     if (!fFlushingPaths.empty()) {

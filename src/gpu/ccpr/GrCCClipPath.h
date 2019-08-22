@@ -19,7 +19,7 @@ class GrProxyProvider;
 
 /**
  * These are keyed by SkPath generation ID, and store which device-space paths are accessed and
- * where by clip FPs in a given opList. A single GrCCClipPath can be referenced by multiple FPs. At
+ * where by clip FPs in a given opsTask. A single GrCCClipPath can be referenced by multiple FPs. At
  * flush time their coverage count masks are packed into atlas(es) alongside normal DrawPathOps.
  */
 class GrCCClipPath {

@@ -60,8 +60,8 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
 
 
-uint32_t GrRenderTargetContextPriv::testingOnly_getOpListID() {
-    return fRenderTargetContext->getOpList()->uniqueID();
+uint32_t GrRenderTargetContextPriv::testingOnly_getOpsTaskID() {
+    return fRenderTargetContext->getOpsTask()->uniqueID();
 }
 
 void GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDrawOp> op) {
