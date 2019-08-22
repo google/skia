@@ -30,14 +30,14 @@ declare_args() {
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
-  skia_use_lua = is_skia_dev_build && !is_ios
+  skia_use_lua = is_skia_dev_build && !is_ios && !is_fuchsia
   skia_use_opencl = false
   skia_use_piex = !is_win
   skia_use_wuffs = false
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_dawn = false
-  skia_use_libheif = is_skia_dev_build
+  skia_use_libheif = is_skia_dev_build && !is_fuchsia
   skia_use_x11 = is_linux
   skia_use_xps = true
 }
@@ -59,7 +59,7 @@ declare_args() {
   skia_generate_workarounds = false
   skia_lex = false
 
-  skia_skqp_global_error_tolerance = 0
+  skia_skqp_global_error_tolerance = 8
 
   skia_llvm_path = ""
   skia_llvm_lib = "LLVM"
@@ -80,7 +80,9 @@ declare_args() {
   skia_enable_fontmgr_custom =
       is_linux && skia_use_freetype && !skia_use_fontconfig
   skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
-  skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
+
+  # skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
+  skia_enable_fontmgr_android = false
   skia_enable_fontmgr_fuchsia = is_fuchsia
   skia_enable_fontmgr_win = is_win
   skia_enable_fontmgr_win_gdi = is_win
@@ -1173,7 +1175,9 @@ group("modules") {
   ]
 }
 
-# Targets guarded by skia_enable_tools may use //third_party freely.
+#############################################################################
+# JDR Targets guarded by skia_enable_tools may use //third_party freely.
+#############################################################################
 if (skia_enable_tools) {
   skia_public_includes = [
     "include/android",
@@ -1248,26 +1252,30 @@ if (skia_enable_tools) {
   config("our_vulkan_headers") {
     # We add this directory to simulate the client already have
     # vulkan/vulkan_core.h on their path.
-    include_dirs = [ "include/third_party/vulkan" ]
-  }
-
-  source_set("public_headers_warnings_check") {
-    sources = [
-      "tools/public_headers_warnings_check.cpp",
-    ]
-    configs -= [ "//gn:warnings_except_public_headers" ]
-    configs += [ ":our_vulkan_headers" ]
-    deps = [
-      ":skia",
-      ":skia.h",
-      "modules/skottie",
-      "modules/skshaper",
-    ]
-
-    if (skia_use_dawn) {
-      deps += [ "//third_party/dawn:dawn_headers" ]
+    if (!is_fuchsia) {
+      include_dirs = [ "include/third_party/vulkan" ]
     }
   }
+
+  #  if (!is_fuchsia) {
+  #    source_set("public_headers_warnings_check") {
+  #      sources = [
+  #        "tools/public_headers_warnings_check.cpp",
+  #      ]
+  #      configs -= [ "//gn:warnings_except_public_headers" ]
+  #      configs += [ ":our_vulkan_headers" ]
+  #      deps = [
+  #        ":skia",
+  #        ":skia.h",
+  #        "modules/skottie",
+  #        "modules/skshaper",
+  #      ]
+  #
+  #      if (skia_use_dawn) {
+  #        deps += [ "//third_party/dawn:dawn_headers" ]
+  #      }
+  #    }
+  #  }
 
   template("test_lib") {
     config(target_name + "_config") {
@@ -1737,11 +1745,11 @@ if (skia_enable_tools) {
     if (skia_use_metal) {
       sources += metal_tests_sources
     }
-    if (!skia_enable_fontmgr_android) {
-      sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
+    if (is_android && !skia_enable_fontmgr_android) {
+       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
-    if (!(skia_use_freetype && skia_use_fontconfig)) {
-      sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
+    if (!is_fuchsia && !(skia_use_freetype && skia_use_fontconfig)) {
+       sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
     }
     deps = [
       ":experimental_svg_model",
@@ -1754,9 +1762,12 @@ if (skia_enable_tools) {
       "modules/sksg:tests",
       "modules/skshaper",
       "//third_party/libpng",
-      "//third_party/libwebp",
       "//third_party/zlib",
     ]
+    if (!is_fuchsia) {
+      deps += [ "//third_party/libwebp" ]
+    }
+
     public_deps = [
       ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
@@ -2114,8 +2125,10 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":tool_utils",
-        "//third_party/libmicrohttpd",
       ]
+      if (!is_fuchsia) {
+        deps += [ "//third_party/libmicrohttpd" ]
+      }
     }
   }
 
@@ -2473,8 +2486,10 @@ if (skia_enable_tools) {
       "modules/skottie:utils",
       "modules/sksg",
       "modules/sksg:samples",
-      "//third_party/imgui",
     ]
+    if (!is_fuchsia) {
+      deps += [ "//third_party/imgui" ]
+    }
     if (skia_use_experimental_xform) {
       deps += [ ":experimental_xform" ]
       sources += [ "gm/xform.cpp" ]
@@ -2640,4 +2655,4 @@ if (skia_enable_tools) {
       }
     }
   }
-}
+}  # end if(skia_enable_tools)
