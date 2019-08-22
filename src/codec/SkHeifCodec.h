@@ -43,14 +43,12 @@ protected:
         return SkEncodedImageFormat::kHEIF;
     }
 
-#ifndef SK_LEGACY_HEIF_API
     int onGetFrameCount() override;
     bool onGetFrameInfo(int, FrameInfo*) const override;
     int onGetRepetitionCount() override;
     const SkFrameHolder* getFrameHolder() const override {
         return &fFrameHolder;
     }
-#endif
 
     bool conversionSupported(const SkImageInfo&, bool, bool) override;
 
@@ -61,11 +59,7 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream
      */
-    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin
-#ifndef SK_LEGACY_HEIF_API
-                , bool animation
-#endif
-                );
+    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin, bool animation);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
     void allocateStorage(const SkImageInfo& dstInfo);
@@ -88,7 +82,6 @@ private:
     uint32_t*                          fColorXformSrcRow;
 
     std::unique_ptr<SkSwizzler>        fSwizzler;
-#ifndef SK_LEGACY_HEIF_API
     bool                               fUseAnimation;
 
     class Frame : public SkFrame {
@@ -128,7 +121,6 @@ private:
     };
 
     FrameHolder fFrameHolder;
-#endif // SK_LEGACY_HEIF_API
     typedef SkCodec INHERITED;
 };
 
