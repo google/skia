@@ -2,6 +2,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# TODO(rosasco): find a better way to set is_skia_standalone.
+if (is_fuchsia) {
+  is_skia_standalone = true
+}
+
 if (!defined(is_skia_standalone)) {
   is_skia_standalone = false
 }
