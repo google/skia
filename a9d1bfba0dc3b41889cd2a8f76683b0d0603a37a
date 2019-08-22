@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a728638_12fe5f59",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1780,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2019-08-22T23:43:22Z",
+      "side": 1,
+      "message": "Can\u0027t the fBitset be a direct member, not a unique_ptr?",
+      "revId": "a9d1bfba0dc3b41889cd2a8f76683b0d0603a37a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
