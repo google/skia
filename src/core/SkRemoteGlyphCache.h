@@ -47,6 +47,9 @@ template <typename T>
 using SkDescriptorMap = std::unordered_map<const SkDescriptor*, T, SkDescriptorMapOperators,
                                            SkDescriptorMapOperators>;
 
+using SkDescriptorSet =
+        std::unordered_set<const SkDescriptor*, SkDescriptorMapOperators, SkDescriptorMapOperators>;
+
 // A SkTextBlobCacheDiffCanvas is used to populate the SkStrikeServer with ops
 // which will be serialized and rendered using the SkStrikeClient.
 class SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
@@ -152,7 +155,7 @@ private:
     SkTHashMap<SkFontID, sk_sp<SkData>> fSerializedTypefaces;
 
     // State cached until the next serialization.
-    std::unordered_set<SkGlyphCacheState*> fStrikesToSend;
+    SkDescriptorSet fLockedDescs;
     std::vector<WireTypeface> fTypefacesToSend;
 };
 
