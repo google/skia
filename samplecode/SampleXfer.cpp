@@ -58,7 +58,7 @@ public:
     }
 
     bool hitTest(SkScalar x, SkScalar y) {
-        return fRect.intersects(x - 1, y - 1, x + 1, y + 1);
+        return fRect.intersects({x - 1, y - 1, x + 1, y + 1});
     }
 };
 
