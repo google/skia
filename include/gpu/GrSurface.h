@@ -115,9 +115,9 @@ protected:
     }
 
     // Methods made available via GrSurfacePriv
-    bool hasPendingRead() const;
-    bool hasPendingWrite() const;
-    bool hasPendingIO() const;
+//    bool hasPendingRead() const;
+//    bool hasPendingWrite() const;
+//    bool hasPendingIO() const;
 
     // Provides access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
