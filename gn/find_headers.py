@@ -20,6 +20,14 @@ gn              = sys.argv[1]
 absolute_source = sys.argv[2]
 skia_h          = sys.argv[3]
 include_dirs    = sys.argv[4:]
+print ("FH gn == ")
+print gn
+print ("FH abs src == ")
+print absolute_source
+print ("FH skia.h ==")
+print skia_h
+print ("FH include_dirs ==")
+print include_dirs
 
 absolute_source = os.path.normpath(absolute_source)
 
@@ -28,7 +36,7 @@ include_dirs = [os.path.join(os.path.normpath(include_dir), '')
 include_dirs.sort(key=len, reverse=True)
 
 gn_desc_cmd = [gn, 'desc', '.', '--root=%s' % absolute_source, '--format=json',
-               '*']
+               '//third_party/skia/*']
 
 desc_json_txt = ''
 try:
@@ -40,7 +48,7 @@ except subprocess.CalledProcessError as e:
 desc_json = {}
 try:
   desc_json = json.loads(desc_json_txt)
-except ValueError:
+except ValueError: 
   print desc_json_txt
   raise
 
