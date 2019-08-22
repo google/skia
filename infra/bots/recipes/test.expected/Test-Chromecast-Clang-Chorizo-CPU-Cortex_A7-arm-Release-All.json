@@ -441,7 +441,7 @@
       "--images",
       "/cache/skia/resources/images/color_wheel.jpg",
       "--nameByHash",
-      "--dontReduceOpListSplitting",
+      "--dontReduceOpsTaskSplitting",
       "--properties",
       "gitHash",
       "abc123",
