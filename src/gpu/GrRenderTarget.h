@@ -12,7 +12,6 @@
 #include "include/gpu/GrSurface.h"
 
 class GrCaps;
-class GrRenderTargetOpList;
 class GrRenderTargetPriv;
 class GrStencilAttachment;
 class GrBackendRenderTarget;

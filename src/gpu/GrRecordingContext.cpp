@@ -66,7 +66,7 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
     return true;
 }
 
-void GrRecordingContext::setupDrawingManager(bool sortOpLists, bool reduceOpListSplitting) {
+void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting) {
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
@@ -83,7 +83,7 @@ void GrRecordingContext::setupDrawingManager(bool sortOpLists, bool reduceOpList
     if (!this->proxyProvider()->renderingDirectly()) {
         // DDL TODO: remove this crippling of the path renderer chain
         // Disable the small path renderer bc of the proxies in the atlas. They need to be
-        // unified when the opLists are added back to the destination drawing manager.
+        // unified when the opsTasks are added back to the destination drawing manager.
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
 
@@ -100,8 +100,8 @@ void GrRecordingContext::setupDrawingManager(bool sortOpLists, bool reduceOpList
     fDrawingManager.reset(new GrDrawingManager(this,
                                                prcOptions,
                                                textContextOptions,
-                                               sortOpLists,
-                                               reduceOpListSplitting));
+                                               sortOpsTasks,
+                                               reduceOpsTaskSplitting));
 }
 
 void GrRecordingContext::abandonContext() {
