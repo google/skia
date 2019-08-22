@@ -231,7 +231,7 @@ private:
     static const GrColor kColors[kMaxIDs];
 
     int            fID;
-    // The Atlased ops have an internal singly-linked list of ops that land in the same opsTask
+    // The Atlased ops have an internal singly-linked list of ops that land in the same opList
     AtlasedRectOp* fNext;
 
     typedef NonAARectOp INHERITED;
@@ -274,17 +274,17 @@ public:
         fDone = true;
     }
 
-    // Insert the new op in an internal singly-linked list for 'opsTaskID'
-    void addOp(uint32_t opsTaskID, AtlasedRectOp* op) {
+    // Insert the new op in an internal singly-linked list for 'opListID'
+    void addOp(uint32_t opListID, AtlasedRectOp* op) {
         LinkedListHeader* header = nullptr;
         for (int i = 0; i < fOps.count(); ++i) {
-            if (opsTaskID == fOps[i].fID) {
+            if (opListID == fOps[i].fID) {
                 header = &(fOps[i]);
             }
         }
 
         if (!header) {
-            fOps.push_back({opsTaskID, nullptr});
+            fOps.push_back({opListID, nullptr});
             header = &(fOps[fOps.count()-1]);
         }
 
@@ -334,15 +334,15 @@ public:
      * This callback creates the atlas and updates the AtlasedRectOps to read from it
      */
     void preFlush(GrOnFlushResourceProvider* resourceProvider,
-                  const uint32_t* opsTaskIDs,
-                  int numOpsTaskIDs,
+                  const uint32_t* opListIDs,
+                  int numOpListIDs,
                   SkTArray<std::unique_ptr<GrRenderTargetContext>>* results) override {
         SkASSERT(!results->count());
 
-        // Until MDB is landed we will most-likely only have one opsTask.
+        // Until MDB is landed we will most-likely only have one opList.
         SkTDArray<LinkedListHeader*> lists;
-        for (int i = 0; i < numOpsTaskIDs; ++i) {
-            if (LinkedListHeader* list = this->getList(opsTaskIDs[i])) {
+        for (int i = 0; i < numOpListIDs; ++i) {
+            if (LinkedListHeader* list = this->getList(opListIDs[i])) {
                 lists.push_back(list);
             }
         }
@@ -407,9 +407,9 @@ private:
         AtlasedRectOp* fHead;
     } LinkedListHeader;
 
-    LinkedListHeader* getList(uint32_t opsTaskID) {
+    LinkedListHeader* getList(uint32_t opListID) {
         for (int i = 0; i < fOps.count(); ++i) {
-            if (opsTaskID == fOps[i].fID) {
+            if (opListID == fOps[i].fID) {
                 return &(fOps[i]);
             }
         }
@@ -420,10 +420,10 @@ private:
         // The AtlasedRectOps have yet to execute (and this class doesn't own them) so just
         // forget about them in the laziest way possible.
         header->fHead = nullptr;
-        header->fID = 0;            // invalid opsTask ID
+        header->fID = 0;            // invalid opList ID
     }
 
-    // Each opsTask containing AtlasedRectOps gets its own internal singly-linked list
+    // Each opList containing AtlasedRectOps gets its own internal singly-linked list
     SkTDArray<LinkedListHeader>  fOps;
 
     // The fully lazy proxy for the atlas
@@ -456,12 +456,12 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
 
         AtlasedRectOp* sparePtr = op.get();
 
-        uint32_t opsTaskID;
+        uint32_t opListID;
         rtc->priv().testingOnly_addDrawOp(GrNoClip(), std::move(op),
-                                          [&opsTaskID](GrOp* op, uint32_t id) { opsTaskID = id; });
-        SkASSERT(SK_InvalidUniqueID != opsTaskID);
+                                          [&opListID](GrOp* op, uint32_t id) { opListID = id; });
+        SkASSERT(SK_InvalidUniqueID != opListID);
 
-        object->addOp(opsTaskID, sparePtr);
+        object->addOp(opListID, sparePtr);
     }
 
     return rtc->asTextureProxyRef();

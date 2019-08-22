@@ -27,7 +27,7 @@ public:
 
     // Replace the list of draw ops by reading the provided skp filename and
     // reset the Skia draw state. It is up to the view portion to update itself
-    // after this call (i.e., rebuild the opsTask view).
+    // after this call (i.e., rebuild the opList view).
     ErrorCode load(const char* filename);
 
     // Update the rendering state to the provided op
@@ -48,7 +48,7 @@ public:
 protected:
     // draw the ops up to (and including) the index-th op
     void drawTo(int index);
-    void resetOpsTask();
+    void resetOpList();
 
 private:
     SkTDArray<DrawCommand*>   fOps;

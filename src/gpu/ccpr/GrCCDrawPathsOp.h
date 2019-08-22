@@ -17,7 +17,7 @@
 class GrCCAtlas;
 class GrCCPerFlushResources;
 struct GrCCPerFlushResourceSpecs;
-struct GrCCPerOpsTaskPaths;
+struct GrCCPerOpListPaths;
 class GrOnFlushResourceProvider;
 class GrRecordingContext;
 
@@ -46,7 +46,7 @@ public:
     }
     void onPrepare(GrOpFlushState*) override {}
 
-    void addToOwningPerOpsTaskPaths(sk_sp<GrCCPerOpsTaskPaths> owningPerOpsTaskPaths);
+    void addToOwningPerOpListPaths(sk_sp<GrCCPerOpListPaths> owningPerOpListPaths);
 
     // Makes decisions about how to draw each path (cached, copied, rendered, etc.), and
     // increments/fills out the corresponding GrCCPerFlushResourceSpecs.
@@ -125,9 +125,9 @@ private:
         friend class GrCCSTLList<SingleDraw>;  // To access fNext.
     };
 
-    // Declare fOwningPerOpsTaskPaths first, before fDraws. The draws use memory allocated by
-    // fOwningPerOpsTaskPaths, so it must not be unreffed until after fDraws is destroyed.
-    sk_sp<GrCCPerOpsTaskPaths> fOwningPerOpsTaskPaths;
+    // Declare fOwningPerOpListPaths first, before fDraws. The draws use memory allocated by
+    // fOwningPerOpListPaths, so it must not be unreffed until after fDraws is destroyed.
+    sk_sp<GrCCPerOpListPaths> fOwningPerOpListPaths;
 
     GrCCSTLList<SingleDraw> fDraws;
     SkDEBUGCODE(int fNumDraws = 1);

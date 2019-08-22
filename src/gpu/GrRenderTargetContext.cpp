@@ -29,6 +29,7 @@
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpList.h"
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -135,21 +136,21 @@ private:
     GrDrawingManager* fDrawingManager;
 };
 
-// In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
-// GrOpsTask to be picked up and added to by renderTargetContexts lower in the call
-// stack. When this occurs with a closed GrOpsTask, a new one will be allocated
-// when the renderTargetContext attempts to use it (via getOpsTask).
+// In MDB mode the reffing of the 'getLastOpList' call's result allows in-progress
+// GrOpLists to be picked up and added to by renderTargetContexts lower in the call
+// stack. When this occurs with a closed GrOpList, a new one will be allocated
+// when the renderTargetContext attempts to use it (via getOpList).
 GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              sk_sp<GrRenderTargetProxy> rtp,
                                              GrColorType colorType,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
-                                             bool managedOpsTask)
+                                             bool managedOpList)
         : GrSurfaceContext(context, colorType, kPremul_SkAlphaType, std::move(colorSpace))
         , fRenderTargetProxy(std::move(rtp))
-        , fOpsTask(sk_ref_sp(fRenderTargetProxy->getLastOpsTask()))
+        , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-        , fManagedOpsTask(managedOpsTask) {
+        , fManagedOpList(managedOpList) {
     fTextTarget.reset(new TextTarget(this));
     SkDEBUGCODE(this->validate();)
 }
@@ -159,8 +160,8 @@ void GrRenderTargetContext::validate() const {
     SkASSERT(fRenderTargetProxy);
     fRenderTargetProxy->validate(fContext);
 
-    if (fOpsTask && !fOpsTask->isClosed()) {
-        SkASSERT(fRenderTargetProxy->getLastRenderTask() == fOpsTask.get());
+    if (fOpList && !fOpList->isClosed()) {
+        SkASSERT(fRenderTargetProxy->getLastRenderTask() == fOpList.get());
     }
 }
 #endif
@@ -200,15 +201,19 @@ GrMipMapped GrRenderTargetContext::mipMapped() const {
     return GrMipMapped::kNo;
 }
 
-GrOpsTask* GrRenderTargetContext::getOpsTask() {
+GrRenderTargetOpList* GrRenderTargetContext::getRTOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
-    if (!fOpsTask || fOpsTask->isClosed()) {
-        fOpsTask = this->drawingManager()->newOpsTask(fRenderTargetProxy, fManagedOpsTask);
+    if (!fOpList || fOpList->isClosed()) {
+        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy, fManagedOpList);
     }
 
-    return fOpsTask.get();
+    return fOpList.get();
+}
+
+GrOpList* GrRenderTargetContext::getOpList() {
+    return this->getRTOpList();
 }
 
 void GrRenderTargetContext::drawGlyphRunList(
@@ -239,7 +244,7 @@ void GrRenderTargetContext::discard() {
 
     AutoCheckFlush acf(this->drawingManager());
 
-    this->getOpsTask()->discard();
+    this->getRTOpList()->discard();
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
@@ -295,16 +300,16 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     }
 
     if (isFull) {
-        GrOpsTask* opsTask = this->getOpsTask();
-        if (opsTask->resetForFullscreenClear(this->canDiscardPreviousOpsOnFullClear()) &&
+        GrRenderTargetOpList* opList = this->getRTOpList();
+        if (opList->resetForFullscreenClear(this->canDiscardPreviousOpsOnFullClear()) &&
             !this->caps()->performColorClearsAsDraws()) {
             // The op list was emptied and native clears are allowed, so just use the load op
-            opsTask->setColorLoadOp(GrLoadOp::kClear, color);
+            opList->setColorLoadOp(GrLoadOp::kClear, color);
             return;
         } else {
             // Will use an op for the clear, reset the load op to discard since the op will
             // blow away the color buffer contents
-            opsTask->setColorLoadOp(GrLoadOp::kDiscard);
+            opList->setColorLoadOp(GrLoadOp::kDiscard);
         }
 
         // Must add an op to the list (either because we couldn't use a load op, or because the
@@ -364,7 +369,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
         }
     }
 
-    // TODO: in a post-MDB world this should be handled at the OpsTask level.
+    // TODO: in a post-MDB world this should be handled at the OpList level.
     // This makes sure to always add an op to the list, instead of marking the clear as a load op.
     // This code follows very similar logic to internalClear() below, but critical differences are
     // highlighted in line related to absClear()'s unique behavior.
@@ -389,9 +394,9 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
         }
     } else {
         // Reset the oplist like in internalClear(), but do not rely on a load op for the clear
-        fRenderTargetContext->getOpsTask()->resetForFullscreenClear(
+        fRenderTargetContext->getRTOpList()->resetForFullscreenClear(
                 fRenderTargetContext->canDiscardPreviousOpsOnFullClear());
-        fRenderTargetContext->getOpsTask()->setColorLoadOp(GrLoadOp::kDiscard);
+        fRenderTargetContext->getRTOpList()->setColorLoadOp(GrLoadOp::kDiscard);
 
         if (fRenderTargetContext->caps()->performColorClearsAsDraws()) {
             // This draws a quad covering the worst case dimensions instead of just the logical
@@ -784,11 +789,11 @@ int GrRenderTargetContextPriv::maxWindowRectangles() const {
             *fRenderTargetContext->caps());
 }
 
-GrOpsTask::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPreviousOpsOnFullClear(
+GrRenderTargetOpList::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPreviousOpsOnFullClear(
         ) const {
 #if GR_TEST_UTILS
     if (fPreserveOpsOnFullClear_TestingOnly) {
-        return GrOpsTask::CanDiscardPreviousOps::kNo;
+        return GrRenderTargetOpList::CanDiscardPreviousOps::kNo;
     }
 #endif
     // Regardless of how the clear is implemented (native clear or a fullscreen quad), all prior ops
@@ -797,7 +802,7 @@ GrOpsTask::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPreviousOpsOnF
     // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
     // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
     // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
-    return GrOpsTask::CanDiscardPreviousOps(!fNumStencilSamples);
+    return GrRenderTargetOpList::CanDiscardPreviousOps(!fNumStencilSamples);
 }
 
 void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
@@ -830,7 +835,7 @@ void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
             // code note when the instantiated stencil buffer is already clear and skip the clear
             // altogether. And on tilers, loading the stencil buffer cleared is even faster than
             // preserving the previous contents.
-            this->getOpsTask()->setStencilLoadOp(GrLoadOp::kClear);
+            this->getRTOpList()->setStencilLoadOp(GrLoadOp::kClear);
         }
     }
 }
@@ -2002,7 +2007,7 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
                 kAdopt_GrWrapOwnership);
         std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(fContext, std::move(sema),
                                                              fRenderTargetProxy.get()));
-        this->getOpsTask()->addWaitOp(
+        this->getRTOpList()->addWaitOp(
                 std::move(waitOp), GrTextureResolveManager(this->drawingManager()), *this->caps());
     }
     return true;
@@ -2279,7 +2284,7 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
 }
 
 void GrRenderTargetContext::addOp(std::unique_ptr<GrOp> op) {
-    this->getOpsTask()->addOp(
+    this->getRTOpList()->addOp(
             std::move(op), GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
@@ -2335,12 +2340,12 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     }
 
     op->setClippedBounds(bounds);
-    auto opsTask = this->getOpsTask();
+    auto opList = this->getRTOpList();
     if (willAddFn) {
-        willAddFn(op.get(), opsTask->uniqueID());
+        willAddFn(op.get(), opList->uniqueID());
     }
-    opsTask->addDrawOp(std::move(op), analysis, std::move(appliedClip), dstProxy,
-                       GrTextureResolveManager(this->drawingManager()), *this->caps());
+    opList->addDrawOp(std::move(op), analysis, std::move(appliedClip), dstProxy,
+                      GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
 bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,

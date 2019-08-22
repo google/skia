@@ -19,6 +19,7 @@
 
 class GrAuditTrail;
 class GrDrawingManager;
+class GrOpList;
 class GrRecordingContext;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;

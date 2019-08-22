@@ -51,7 +51,7 @@ struct Request {
     sk_sp<SkData> getJsonOps(int n);
 
     // Returns a json list of ops as an SkData
-    sk_sp<SkData> getJsonOpsTask(int n);
+    sk_sp<SkData> getJsonOpList(int n);
 
     // Returns json with the viewMatrix and clipRect
     sk_sp<SkData> getJsonInfo(int n);

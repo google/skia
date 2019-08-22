@@ -16,6 +16,7 @@
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpList.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"

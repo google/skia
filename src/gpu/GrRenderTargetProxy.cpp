@@ -12,7 +12,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrOpsTask.h"
+#include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfacePriv.h"

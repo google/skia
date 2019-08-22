@@ -9,7 +9,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrOpsTask.h"
+#include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/ops/GrOp.h"
 #include "tests/Test.h"
 
@@ -205,7 +205,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                 GrOpFlushState flushState(context->priv().getGpu(),
                                           context->priv().resourceProvider(),
                                           &tracker);
-                GrOpsTask opsTask(sk_ref_sp(context->priv().opMemoryPool()),
+                GrRenderTargetOpList opList(sk_ref_sp(context->priv().opMemoryPool()),
                                             sk_ref_sp(proxy->asRenderTargetProxy()),
                                             context->priv().auditTrail());
                 // This assumes the particular values of kRanges.
@@ -221,14 +221,14 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                     range.fOffset += pos;
                     auto op = TestOp::Make(context.get(), value, range, result, &combinable);
                     op->writeResult(validResult);
-                    opsTask.addOp(std::move(op),
-                                  GrTextureResolveManager(context->priv().drawingManager()),
-                                  *context->priv().caps());
+                    opList.addOp(std::move(op),
+                                 GrTextureResolveManager(context->priv().drawingManager()),
+                                 *context->priv().caps());
                 }
-                opsTask.makeClosed(*context->priv().caps());
-                opsTask.prepare(&flushState);
-                opsTask.execute(&flushState);
-                opsTask.endFlush();
+                opList.makeClosed(*context->priv().caps());
+                opList.prepare(&flushState);
+                opList.execute(&flushState);
+                opList.endFlush();
 #if 0  // Useful to repeat a random configuration that fails the test while debugger attached.
                 if (!std::equal(result, result + result_width(), validResult)) {
                     repeat = true;

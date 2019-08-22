@@ -88,16 +88,16 @@ public:
     int numAnalyticFPs() const { return fAnalyticFPs.count() + fCCPRClipPaths.count(); }
 
     /**
-     * Called once the client knows the ID of the opsTask that the clip FPs will operate in. This
-     * method finishes any outstanding work that was waiting for the opsTask ID, then detaches and
+     * Called once the client knows the ID of the opList that the clip FPs will operate in. This
+     * method finishes any outstanding work that was waiting for the opList ID, then detaches and
      * returns this class's list of FPs that complete the clip.
      *
      * NOTE: this must be called AFTER producing the clip mask (if any) because draw calls on
      * the render target context, surface allocations, and even switching render targets (pre MDB)
-     * may cause flushes or otherwise change which opsTask the actual draw is going into.
+     * may cause flushes or otherwise change which opList the actual draw is going into.
      */
     std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticFPs(
-            GrCoverageCountingPathRenderer*, uint32_t opsTaskID);
+            GrCoverageCountingPathRenderer*, uint32_t opListID);
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);
@@ -145,7 +145,7 @@ private:
     uint32_t fMaskGenID;
     bool fMaskRequiresAA;
     SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fAnalyticFPs;
-    SkSTArray<4, SkPath> fCCPRClipPaths; // Will convert to FPs once we have an opsTask ID for CCPR.
+    SkSTArray<4, SkPath> fCCPRClipPaths; // Will convert to FPs once we have an opList ID for CCPR.
 };
 
 #endif

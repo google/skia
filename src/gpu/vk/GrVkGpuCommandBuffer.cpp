@@ -637,7 +637,7 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         if (texRT && texRT->needsResolve()) {
             fGpu->resolveRenderTargetNoFlush(texRT);
             // TEMPORARY: MSAA resolve will have dirtied mipmaps. This goes away once we switch
-            // to resolving MSAA from the opsTask as well.
+            // to resolving MSAA from the opList as well.
             if (GrSamplerState::Filter::kMipMap == filter &&
                 (vkTexture->width() != 1 || vkTexture->height() != 1)) {
                 SkASSERT(vkTexture->texturePriv().mipMapped() == GrMipMapped::kYes);
@@ -646,7 +646,7 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
             }
         }
 
-        // Ensure mip maps were all resolved ahead of time by the opsTask.
+        // Ensure mip maps were all resolved ahead of time by the opList.
         if (GrSamplerState::Filter::kMipMap == filter &&
             (vkTexture->width() != 1 || vkTexture->height() != 1)) {
             SkASSERT(vkTexture->texturePriv().mipMapped() == GrMipMapped::kYes);

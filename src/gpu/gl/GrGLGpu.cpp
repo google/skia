@@ -1879,7 +1879,7 @@ void GrGLGpu::resolveAndGenerateMipMapsForProcessorTextures(
         if (rt && rt->needsResolve()) {
             this->resolveRenderTarget(rt);
             // TEMPORARY: MSAA resolve will have dirtied mipmaps. This goes away once we switch
-            // to resolving MSAA from the opsTask as well.
+            // to resolving MSAA from the opList as well.
             if (GrSamplerState::Filter::kMipMap == sampler.filter() &&
                 (tex->width() != 1 || tex->height() != 1)) {
                 SkASSERT(tex->texturePriv().mipMapped() == GrMipMapped::kYes);
@@ -1887,7 +1887,7 @@ void GrGLGpu::resolveAndGenerateMipMapsForProcessorTextures(
                 this->regenerateMipMapLevels(tex);
             }
         }
-        // Ensure mipmaps were all resolved ahead of time by the opsTask.
+        // Ensure mipmaps were all resolved ahead of time by the opList.
         if (GrSamplerState::Filter::kMipMap == sampler.filter() &&
             (tex->width() != 1 || tex->height() != 1)) {
             // There are some cases where we might be given a non-mipmapped texture with a mipmap
@@ -2165,7 +2165,7 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
 #else
     // we could just clear the clip bit but when we go through
     // ANGLE a partial stencil mask will cause clears to be
-    // turned into draws. Our contract on GrOpsTask says that
+    // turned into draws. Our contract on GrOpList says that
     // changing the clip between stencil passes may or may not
     // zero the client's clip bits. So we just clear the whole thing.
     static const GrGLint clipStencilMask  = ~0;

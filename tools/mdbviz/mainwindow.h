@@ -32,7 +32,7 @@ private slots:
 
 private:
     void loadFile(const QString &fileName);
-    void setupOpsTaskWidget();
+    void setupOpListWidget();
     void presentCurrentRenderState();
 
 
@@ -46,7 +46,7 @@ private:
     QImage  fImage;
     QLabel* fImageLabel;
 
-    QTreeWidget* fOpsTaskWidget;
+    QTreeWidget* fOpListWidget;
 
     QMenu* fViewMenu;
 

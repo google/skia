@@ -13,12 +13,12 @@
 
 /**
  * Gr uses the stencil buffer to implement complex clipping inside the
- * GrOpsTask class. The GrOpsTask makes a subset of the stencil buffer
+ * GrOpList class. The GrOpList makes a subset of the stencil buffer
  * bits available for other uses by external code (user bits). Client code can
- * modify these bits. GrOpsTask will ignore ref, mask, and writemask bits
+ * modify these bits. GrOpList will ignore ref, mask, and writemask bits
  * provided by clients that fall outside the user range.
  *
- * When code outside the GrOpsTask class uses the stencil buffer the contract
+ * When code outside the GrOpList class uses the stencil buffer the contract
  * is as follows:
  *
  * > Normal stencil funcs allow the client to pass / fail regardless of the

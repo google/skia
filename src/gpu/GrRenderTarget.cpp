@@ -13,6 +13,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrSamplePatternDictionary.h"
 #include "src/gpu/GrStencilAttachment.h"

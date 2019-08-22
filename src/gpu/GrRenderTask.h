@@ -15,12 +15,13 @@
 #include "src/gpu/GrTextureResolveManager.h"
 
 class GrOpFlushState;
-class GrOpsTask;
+class GrOpList;
+class GrRenderTargetOpList;
 class GrResourceAllocator;
 
 // This class abstracts a task that targets a single GrSurfaceProxy, participates in the
 // GrDrawingManager's DAG, and implements the onExecute method to modify its target proxy's
-// contents. (e.g., an opsTask that executes a command buffer, a task to regenerate mipmaps, etc.)
+// contents. (e.g., an opList that executes a command buffer, a task to regenerate mipmaps, etc.)
 class GrRenderTask : public SkRefCnt {
 public:
     GrRenderTask(sk_sp<GrSurfaceProxy> target);
@@ -53,9 +54,9 @@ public:
     uint32_t uniqueID() const { return fUniqueID; }
 
     /*
-     * Safely cast this GrRenderTask to a GrOpsTask (if possible).
+     * Safely cast this GrRenderTask to a GrRenderTargetOpList (if possible).
      */
-    virtual GrOpsTask* asOpsTask() { return nullptr; }
+    virtual GrRenderTargetOpList* asRenderTargetOpList() { return nullptr; }
 
     /*
      * Dump out the GrRenderTask dependency DAG
@@ -164,9 +165,9 @@ private:
     const uint32_t         fUniqueID;
     uint32_t               fFlags;
 
-    // 'this' GrRenderTask relies on the output of the GrRenderTasks in 'fDependencies'
+    // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkSTArray<1, GrRenderTask*, true> fDependencies;
-    // 'this' GrRenderTask's output is relied on by the GrRenderTasks in 'fDependents'
+    // 'this' GrOpList's output is relied on by the GrOpLists in 'fDependents'
     SkSTArray<1, GrRenderTask*, true> fDependents;
 };
 

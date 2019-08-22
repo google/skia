@@ -14,8 +14,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
+#include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrXferProcessor.h"
@@ -502,12 +502,12 @@ public:
 #if GR_TEST_UTILS
     bool testingOnly_IsInstantiated() const { return fRenderTargetProxy->isInstantiated(); }
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
-    GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
+    GrRenderTargetOpList* testingOnly_PeekLastOpList() { return fOpList.get(); }
 #endif
 
 protected:
     GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>, GrColorType,
-                          sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpsTask = true);
+                          sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpList = true);
 
     SkDEBUGCODE(void validate() const override;)
 
@@ -518,7 +518,7 @@ private:
     GrAAType chooseAAType(GrAA);
 
     friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
-    friend class GrClipStackClip;               // for access to getOpsTask
+    friend class GrClipStackClip;               // for access to getOpList
 
     friend class GrDrawingManager; // for ctor
     friend class GrRenderTargetContextPriv;
@@ -541,7 +541,7 @@ private:
                              std::unique_ptr<GrFragmentProcessor>,
                              sk_sp<GrTextureProxy>);
 
-    GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
+    GrRenderTargetOpList::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
     void setNeedsStencil(bool multisampled);
 
     void internalClear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
@@ -603,7 +603,7 @@ private:
     void addOp(std::unique_ptr<GrOp>);
 
     // Allows caller of addDrawOp to know which op list an op will be added to.
-    using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
+    using WillAddOpFn = void(GrOp*, uint32_t opListID);
     // These perform processing specific to GrDrawOp-derived ops before recording them into an
     // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
     // will not be called in the event that the op is discarded. Moreover, the op may merge into
@@ -621,17 +621,18 @@ private:
     void asyncReadPixels(const SkIRect& rect, SkColorType colorType, ReadPixelsCallback callback,
                          ReadPixelsContext context);
 
-    GrOpsTask* getOpsTask();
+    GrRenderTargetOpList* getRTOpList();
+    GrOpList* getOpList();
 
     std::unique_ptr<GrTextTarget> fTextTarget;
     sk_sp<GrRenderTargetProxy> fRenderTargetProxy;
 
-    // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked
-    // it up. For this reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
-    sk_sp<GrOpsTask> fOpsTask;
+    // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
+    // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
+    sk_sp<GrRenderTargetOpList> fOpList;
 
     SkSurfaceProps fSurfaceProps;
-    bool fManagedOpsTask;
+    bool fManagedOpList;
 
     int fNumStencilSamples = 0;
 #if GR_TEST_UTILS

@@ -9,7 +9,7 @@
 
 #include "src/gpu/GrDeinstantiateProxyTracker.h"
 #include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrOpsTask.h"
+#include "src/gpu/GrOpList.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -53,17 +53,16 @@ void GrResourceAllocator::determineRecyclability() {
     }
 }
 
-void GrResourceAllocator::markEndOfOpsTask(int opsTaskIndex) {
-    SkASSERT(!fAssigned);      // We shouldn't be adding any opsTasks after (or during) assignment
+void GrResourceAllocator::markEndOfOpList(int opListIndex) {
+    SkASSERT(!fAssigned);      // We shouldn't be adding any opLists after (or during) assignment
 
-    SkASSERT(fEndOfOpsTaskOpIndices.count() == opsTaskIndex);
-    if (!fEndOfOpsTaskOpIndices.empty()) {
-        SkASSERT(fEndOfOpsTaskOpIndices.back() < this->curOp());
+    SkASSERT(fEndOfOpListOpIndices.count() == opListIndex);
+    if (!fEndOfOpListOpIndices.empty()) {
+        SkASSERT(fEndOfOpListOpIndices.back() < this->curOp());
     }
 
-    // This is the first op index of the next opsTask
-    fEndOfOpsTaskOpIndices.push_back(this->curOp());
-    SkASSERT(fEndOfOpsTaskOpIndices.count() <= fNumOpsTasks);
+    fEndOfOpListOpIndices.push_back(this->curOp()); // This is the first op index of the next opList
+    SkASSERT(fEndOfOpListOpIndices.count() <= fNumOpLists);
 }
 
 GrResourceAllocator::~GrResourceAllocator() {
@@ -114,7 +113,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
             if (0 == start && 0 == end) {
                 // This interval is for the initial upload to a deferred proxy. Due to the vagaries
                 // of how deferred proxies are collected they can appear as uploads multiple times
-                // in a single opsTasks' list and as uploads in several opsTasks.
+                // in a single opLists' list and as uploads in several opLists.
                 SkASSERT(0 == intvl->start());
             } else if (isDirectDstRead) {
                 // Direct reads from the render target itself should occur w/in the existing
@@ -353,30 +352,30 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-bool GrResourceAllocator::onOpsTaskBoundary() const {
+bool GrResourceAllocator::onOpListBoundary() const {
     if (fIntvlList.empty()) {
-        SkASSERT(fCurOpsTaskIndex+1 <= fNumOpsTasks);
-        // Although technically on an opsTask boundary there is no need to force an
+        SkASSERT(fCurOpListIndex+1 <= fNumOpLists);
+        // Although technically on an opList boundary there is no need to force an
         // intermediate flush here
         return false;
     }
 
     const Interval* tmp = fIntvlList.peekHead();
-    return fEndOfOpsTaskOpIndices[fCurOpsTaskIndex] <= tmp->start();
+    return fEndOfOpListOpIndices[fCurOpListIndex] <= tmp->start();
 }
 
 void GrResourceAllocator::forceIntermediateFlush(int* stopIndex) {
-    *stopIndex = fCurOpsTaskIndex+1;
+    *stopIndex = fCurOpListIndex+1;
 
     // This is interrupting the allocation of resources for this flush. We need to
     // proactively clear the active interval list of any intervals that aren't
     // guaranteed to survive the partial flush lest they become zombies (i.e.,
     // holding a deleted surface proxy).
     const Interval* tmp = fIntvlList.peekHead();
-    SkASSERT(fEndOfOpsTaskOpIndices[fCurOpsTaskIndex] <= tmp->start());
+    SkASSERT(fEndOfOpListOpIndices[fCurOpListIndex] <= tmp->start());
 
-    fCurOpsTaskIndex++;
-    SkASSERT(fCurOpsTaskIndex < fNumOpsTasks);
+    fCurOpListIndex++;
+    SkASSERT(fCurOpListIndex < fNumOpLists);
 
     this->expire(tmp->start());
 }
@@ -386,28 +385,28 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     *outError = fLazyInstantiationError ? AssignError::kFailedProxyInstantiation
                                         : AssignError::kNoError;
 
-    SkASSERT(fNumOpsTasks == fEndOfOpsTaskOpIndices.count());
+    SkASSERT(fNumOpLists == fEndOfOpListOpIndices.count());
 
     fIntvlHash.reset(); // we don't need the interval hash anymore
 
-    if (fCurOpsTaskIndex >= fEndOfOpsTaskOpIndices.count()) {
+    if (fCurOpListIndex >= fEndOfOpListOpIndices.count()) {
         return false; // nothing to render
     }
 
-    *startIndex = fCurOpsTaskIndex;
-    *stopIndex = fEndOfOpsTaskOpIndices.count();
+    *startIndex = fCurOpListIndex;
+    *stopIndex = fEndOfOpListOpIndices.count();
 
     if (fIntvlList.empty()) {
-        fCurOpsTaskIndex = fEndOfOpsTaskOpIndices.count();
+        fCurOpListIndex = fEndOfOpListOpIndices.count();
         return true;          // no resources to assign
     }
 
 #if GR_ALLOCATION_SPEW
-    SkDebugf("assigning opsTasks %d through %d out of %d numOpsTasks\n",
-             *startIndex, *stopIndex, fNumOpsTasks);
-    SkDebugf("EndOfOpsTaskIndices: ");
-    for (int i = 0; i < fEndOfOpsTaskOpIndices.count(); ++i) {
-        SkDebugf("%d ", fEndOfOpsTaskOpIndices[i]);
+    SkDebugf("assigning opLists %d through %d out of %d numOpLists\n",
+             *startIndex, *stopIndex, fNumOpLists);
+    SkDebugf("EndOfOpListIndices: ");
+    for (int i = 0; i < fEndOfOpListOpIndices.count(); ++i) {
+        SkDebugf("%d ", fEndOfOpListOpIndices[i]);
     }
     SkDebugf("\n");
 #endif
@@ -418,9 +417,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     this->dumpIntervals();
 #endif
     while (Interval* cur = fIntvlList.popHead()) {
-        if (fEndOfOpsTaskOpIndices[fCurOpsTaskIndex] <= cur->start()) {
-            fCurOpsTaskIndex++;
-            SkASSERT(fCurOpsTaskIndex < fNumOpsTasks);
+        if (fEndOfOpListOpIndices[fCurOpListIndex] <= cur->start()) {
+            fCurOpListIndex++;
+            SkASSERT(fCurOpListIndex < fNumOpLists);
         }
 
         this->expire(cur->start());
@@ -438,8 +437,8 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
             fActiveIntvls.insertByIncreasingEnd(cur);
 
             if (fResourceProvider->overBudget()) {
-                // Only force intermediate draws on opsTask boundaries
-                if (this->onOpsTaskBoundary()) {
+                // Only force intermediate draws on opList boundaries
+                if (this->onOpListBoundary()) {
                     this->forceIntermediateFlush(stopIndex);
                     return true;
                 }
@@ -485,8 +484,8 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
         fActiveIntvls.insertByIncreasingEnd(cur);
 
         if (fResourceProvider->overBudget()) {
-            // Only force intermediate draws on opsTask boundaries
-            if (this->onOpsTaskBoundary()) {
+            // Only force intermediate draws on opList boundaries
+            if (this->onOpListBoundary()) {
                 this->forceIntermediateFlush(stopIndex);
                 return true;
             }
