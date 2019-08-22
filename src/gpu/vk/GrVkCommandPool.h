@@ -8,7 +8,6 @@
 #ifndef GrVkCommandPool_DEFINED
 #define GrVkCommandPool_DEFINED
 
-#include "src/gpu/vk/GrVkGpuCommandBuffer.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/gpu/vk/GrVkResource.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"

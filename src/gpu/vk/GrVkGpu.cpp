@@ -27,11 +27,11 @@
 #include "src/gpu/vk/GrVkAMDMemoryAllocator.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
-#include "src/gpu/vk/GrVkGpuCommandBuffer.h"
 #include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkIndexBuffer.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/gpu/vk/GrVkMemory.h"
+#include "src/gpu/vk/GrVkOpsRenderPass.h"
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkPipelineState.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
@@ -318,33 +318,23 @@ void GrVkGpu::disconnect(DisconnectType type) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGpuRTCommandBuffer* GrVkGpu::getCommandBuffer(
+GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
             GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    if (!fCachedRTCommandBuffer) {
-        fCachedRTCommandBuffer.reset(new GrVkGpuRTCommandBuffer(this));
+            const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
+    if (!fCachedOpsRenderPass) {
+        fCachedOpsRenderPass.reset(new GrVkOpsRenderPass(this));
     }
 
-    fCachedRTCommandBuffer->set(rt, origin, colorInfo, stencilInfo);
-    return fCachedRTCommandBuffer.get();
-}
-
-GrGpuTextureCommandBuffer* GrVkGpu::getCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin) {
-    if (!fCachedTexCommandBuffer) {
-        fCachedTexCommandBuffer.reset(new GrVkGpuTextureCommandBuffer(this));
-    }
-
-    fCachedTexCommandBuffer->set(texture, origin);
-    return fCachedTexCommandBuffer.get();
+    fCachedOpsRenderPass->set(rt, origin, colorInfo, stencilInfo);
+    return fCachedOpsRenderPass.get();
 }
 
 void GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc,
                                   GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fCurrentCmdBuffer);
-    SkASSERT(!fCachedRTCommandBuffer || !fCachedRTCommandBuffer->isActive());
-    SkASSERT(!fCachedTexCommandBuffer || !fCachedTexCommandBuffer->isActive());
+    SkASSERT(!fCachedOpsRenderPass || !fCachedOpsRenderPass->isActive());
 
     if (!fCurrentCmdBuffer->hasWork() && kForce_SyncQueue != sync &&
         !fSemaphoresToSignal.count() && !fSemaphoresToWaitOn.count()) {
@@ -2528,18 +2518,11 @@ void GrVkGpu::submitSecondaryCommandBuffer(
     this->didWriteToSurface(target, origin, &bounds);
 }
 
-void GrVkGpu::submit(GrGpuCommandBuffer* buffer) {
-    if (buffer->asRTCommandBuffer()) {
-        SkASSERT(fCachedRTCommandBuffer.get() == buffer);
+void GrVkGpu::submit(GrOpsRenderPass* renderPass) {
+        SkASSERT(fCachedOpsRenderPass.get() == renderPass);
 
-        fCachedRTCommandBuffer->submit();
-        fCachedRTCommandBuffer->reset();
-    } else {
-        SkASSERT(fCachedTexCommandBuffer.get() == buffer);
-
-        fCachedTexCommandBuffer->submit();
-        fCachedTexCommandBuffer->reset();
-    }
+        fCachedOpsRenderPass->submit();
+        fCachedOpsRenderPass->reset();
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {

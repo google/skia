@@ -26,10 +26,10 @@
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
@@ -237,7 +237,7 @@ private:
 
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setInstanced(nullptr, 200*200, 0, 4);
-        flushState->rtCommandBuffer()->draw(
+        flushState->opsRenderPass()->draw(
                 SampleLocationsTestProcessor(fGradType), pipeline, nullptr, nullptr, &mesh, 1,
                 SkRect::MakeIWH(200, 200));
     }
