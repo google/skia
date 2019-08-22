@@ -15,9 +15,7 @@
 #include "src/gpu/GrResourceProvider.h"
 
 class GrDrawingManager;
-class GrOpList;
 class GrOnFlushResourceProvider;
-class GrRenderTargetOpList;
 class GrRenderTargetContext;
 class GrSurfaceProxy;
 class SkColorSpace;
@@ -33,11 +31,11 @@ public:
 
     /*
      * The onFlush callback allows subsystems (e.g., text, path renderers) to create atlases
-     * for a specific flush. All the GrOpList IDs required for the flush are passed into the
+     * for a specific flush. All the GrOpsTask IDs required for the flush are passed into the
      * callback. The callback should return the render target contexts used to render the atlases
      * in 'results'.
      */
-    virtual void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
+    virtual void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs, int numOpsTaskIDs,
                           SkTArray<std::unique_ptr<GrRenderTargetContext>>* results) = 0;
 
     /**
@@ -45,7 +43,7 @@ public:
      * released. startTokenForNextFlush can be used to track resources used in the current flush.
      */
     virtual void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                           const uint32_t* opListIDs, int numOpListIDs) {}
+                           const uint32_t* opsTaskIDs, int numOpsTaskIDs) {}
 
     /**
      * Tells the callback owner to hold onto this object when freeing GPU resources

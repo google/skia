@@ -24,7 +24,7 @@ class SkTraceMemoryDump;
  *
  * Gpu resources can have three types of refs:
  *   1) Normal ref (+ by ref(), - by unref()): These are used by code that is issuing draw calls
- *      that read and write the resource via GrOpList and by any object that must own a
+ *      that read and write the resource via GrOpsTask and by any object that must own a
  *      GrGpuResource and is itself owned (directly or indirectly) by Skia-client code.
  *   2) Pending read (+ by addPendingRead(), - by completedRead()): GrContext has scheduled a read
  *      of the resource by the GPU as a result of a skia API call but hasn't executed it yet.

@@ -145,7 +145,7 @@ private:
 
     // This tracks the mipmap status at the proxy level and is thus somewhat distinct from the
     // backing GrTexture's mipmap status. In particular, this status is used to determine when
-    // mipmap levels need to be explicitly regenerated during the execution of a DAG of opLists.
+    // mipmap levels need to be explicitly regenerated during the execution of a DAG of opsTasks.
     GrMipMapsStatus  fMipMapsStatus;
     // TEMPORARY: We are in the process of moving GrMipMapsStatus from the texture to the proxy.
     // We track the fInitialMipMapsStatus here so we can assert that the proxy did indeed expect

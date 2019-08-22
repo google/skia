@@ -42,7 +42,7 @@ public:
 private:
     bool apply(GrRecordingContext* context, GrRenderTargetContext* rtc, bool useHWAA,
                bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
-        out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpListID(), fPath,
+        out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpsTaskID(), fPath,
                                                     SkIRect::MakeWH(rtc->width(), rtc->height()),
                                                     *context->priv().caps()));
         return true;
@@ -321,7 +321,7 @@ protected:
         int lastCopyAtlasID() const { return fLastCopyAtlasID; }
         int lastRenderedAtlasID() const { return fLastRenderedAtlasID; }
 
-        void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
+        void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs, int numOpsTaskIDs,
                       SkTArray<std::unique_ptr<GrRenderTargetContext>>* out) override {
             fLastRenderedAtlasID = fLastCopyAtlasID = 0;
 
@@ -839,7 +839,7 @@ class CCPR_cache_partialInvalidate : public CCPRCacheTest {
 };
 DEF_CCPR_TEST(CCPR_cache_partialInvalidate)
 
-class CCPR_unrefPerOpListPathsBeforeOps : public CCPRTest {
+class CCPR_unrefPerOpsTaskPathsBeforeOps : public CCPRTest {
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
         for (int i = 0; i < 10000; ++i) {
@@ -847,9 +847,9 @@ class CCPR_unrefPerOpListPathsBeforeOps : public CCPRTest {
             ccpr.drawPath(fPath);
         }
 
-        // Unref the GrCCPerOpListPaths object.
-        auto perOpListPathsMap = ccpr.ccpr()->detachPendingPaths();
-        perOpListPathsMap.clear();
+        // Unref the GrCCPerOpsTaskPaths object.
+        auto perOpsTaskPathsMap = ccpr.ccpr()->detachPendingPaths();
+        perOpsTaskPathsMap.clear();
 
         // Now delete the Op and all its draws.
         REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
@@ -857,7 +857,7 @@ class CCPR_unrefPerOpListPathsBeforeOps : public CCPRTest {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
     }
 };
-DEF_CCPR_TEST(CCPR_unrefPerOpListPathsBeforeOps)
+DEF_CCPR_TEST(CCPR_unrefPerOpsTaskPathsBeforeOps)
 
 class CCPRRenderingTest {
 public:

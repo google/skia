@@ -62,8 +62,8 @@ struct GrCCPerFlushResourceSpecs {
 
 /**
  * This class wraps all the GPU resources that CCPR builds at flush time. It is allocated in CCPR's
- * preFlush() method, and referenced by all the GrCCPerOpListPaths objects that are being flushed.
- * It is deleted in postFlush() once all the flushing GrCCPerOpListPaths objects are deleted.
+ * preFlush() method, and referenced by all the GrCCPerOpsTaskPaths objects that are being flushed.
+ * It is deleted in postFlush() once all the flushing GrCCPerOpsTaskPaths objects are deleted.
  */
 class GrCCPerFlushResources : public GrNonAtomicRef<GrCCPerFlushResources> {
 public:

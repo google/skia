@@ -155,7 +155,7 @@ def nanobench_flags(api, bot):
 
   # skia:9036
   if 'NVIDIA_Shield' in bot or 'Chorizo' in bot:
-    args.extend(['--dontReduceOpListSplitting'])
+    args.extend(['--dontReduceOpsTaskSplitting'])
 
   # Some people don't like verbose output.
   verbose = False
@@ -301,7 +301,7 @@ def perf_steps(api):
           api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
       '--skps',  api.flavor.device_dirs.skp_dir,
       '--pre_log',
-      '--dontReduceOpListSplitting',
+      '--dontReduceOpsTaskSplitting',
       '--match', # skia:6687
       '~matrixconvolution',
       '~blur_image_filter',

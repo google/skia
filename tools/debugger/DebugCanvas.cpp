@@ -172,7 +172,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             at->getBoundsByClientID(&childrenBounds, index);
         } else {
             // the client wants us to draw the mth op
-            at->getBoundsByOpListID(&childrenBounds.push_back(), m);
+            at->getBoundsByOpsTaskID(&childrenBounds.push_back(), m);
         }
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
@@ -270,12 +270,12 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
     this->cleanupAuditTrail(canvas);
 }
 
-void DebugCanvas::toJSONOpList(SkJSONWriter& writer, int n, SkCanvas* canvas) {
+void DebugCanvas::toJSONOpsTask(SkJSONWriter& writer, int n, SkCanvas* canvas) {
     this->drawAndCollectOps(n, canvas);
 
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
-        GrAuditTrail::AutoManageOpList enable(at);
+        GrAuditTrail::AutoManageOpsTask enable(at);
         at->toJson(writer);
     } else {
         writer.beginObject();

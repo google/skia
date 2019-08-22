@@ -28,7 +28,7 @@ class SkMatrix;
 class SkPath;
 
 /**
- *  Base class for drawing paths into a GrOpList.
+ *  Base class for drawing paths into a GrOpsTask.
  */
 class GrPathRenderer : public SkRefCnt {
 public:

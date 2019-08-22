@@ -18,8 +18,8 @@
 
 class GrCaps;
 class GrContext_Base;
+class GrOpsTask;
 class GrRecordingContext;
-class GrRenderTargetOpList;
 class GrRenderTargetProxy;
 class GrRenderTask;
 class GrResourceProvider;
@@ -281,7 +281,7 @@ public:
     void setLastRenderTask(GrRenderTask*);
     GrRenderTask* getLastRenderTask() { return fLastRenderTask; }
 
-    GrRenderTargetOpList* getLastRenderTargetOpList();
+    GrOpsTask* getLastOpsTask();
 
     /**
      * Retrieves the amount of GPU memory that will be or currently is used by this resource
@@ -439,12 +439,12 @@ private:
     // the instantiation method.
     mutable size_t         fGpuMemorySize;
 
-    // The last opList that wrote to or is currently going to write to this surface
-    // The opList can be closed (e.g., no surface context is currently bound
+    // The last GrRenderTask that wrote to or is currently going to write to this surface
+    // The GrRenderTask can be closed (e.g., no surface context is currently bound
     // to this proxy).
     // This back-pointer is required so that we can add a dependancy between
-    // the opList used to create the current contents of this surface
-    // and the opList of a destination surface to which this one is being drawn or copied.
+    // the GrRenderTask used to create the current contents of this surface
+    // and the GrRenderTask of a destination surface to which this one is being drawn or copied.
     // This pointer is unreffed. GrRenderTasks own a ref on their surface proxies.
     GrRenderTask*          fLastRenderTask;
 

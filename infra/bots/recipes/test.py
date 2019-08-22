@@ -70,7 +70,7 @@ def dm_flags(api, bot):
     args.append('--randomProcessorTest')
 
   if 'Pixel3' in bot and 'Vulkan' in bot:
-    args.extend(['--dontReduceOpListSplitting'])
+    args.extend(['--dontReduceOpsTaskSplitting'])
 
   thread_limit = None
   MAIN_THREAD_ONLY = 0
@@ -924,7 +924,7 @@ def test_steps(api):
       '--images', api.flavor.device_path_join(
           api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
       '--nameByHash',
-      '--dontReduceOpListSplitting',
+      '--dontReduceOpsTaskSplitting',
       '--properties'
     ] + properties
   else:

@@ -100,7 +100,7 @@ public:
      */
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager, int n, SkCanvas*);
 
-    void toJSONOpList(SkJSONWriter& writer, int n, SkCanvas*);
+    void toJSONOpsTask(SkJSONWriter& writer, int n, SkCanvas*);
 
     void detachCommands(SkTDArray<DrawCommand*>* dst) { fCommandVector.swap(*dst); }
 
