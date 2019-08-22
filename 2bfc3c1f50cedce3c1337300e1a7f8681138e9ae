@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8f8c8d2_10b16b1e",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-22T01:02:35Z",
+      "side": 1,
+      "message": "it\u0027s left, top, right, bottom... so 0 and 2 should compare against width(), 1 and 3 against height. Otherwise this lgtm.",
+      "revId": "2bfc3c1f50cedce3c1337300e1a7f8681138e9ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
