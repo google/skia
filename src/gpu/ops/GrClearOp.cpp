@@ -8,9 +8,9 @@
 #include "src/gpu/ops/GrClearOp.h"
 
 #include "include/private/GrRecordingContext.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
@@ -60,6 +60,6 @@ GrClearOp::GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfac
 }
 
 void GrClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
-    SkASSERT(state->rtCommandBuffer());
-    state->rtCommandBuffer()->clear(fClip, fColor);
+    SkASSERT(state->opsRenderPass());
+    state->opsRenderPass()->clear(fClip, fColor);
 }
