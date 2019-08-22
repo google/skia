@@ -1,47 +1,41 @@
 /*
- * Copyright 2019 Google Inc.
+ * Copyright 2010 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef GrOpsTask_DEFINED
-#define GrOpsTask_DEFINED
+#ifndef GrRenderTargetOpList_DEFINED
+#define GrRenderTargetOpList_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrOpList.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
-#include "src/gpu/GrRenderTask.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrAuditTrail;
-class GrCaps;
 class GrClearOp;
-class GrGpuBuffer;
-class GrOpMemoryPool;
+class GrCaps;
 class GrRenderTargetProxy;
 
-class GrOpsTask : public GrRenderTask {
+class GrRenderTargetOpList final : public GrOpList {
 private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrOpsTask(sk_sp<GrOpMemoryPool>, sk_sp<GrRenderTargetProxy>, GrAuditTrail*);
-    ~GrOpsTask() override;
+    GrRenderTargetOpList(sk_sp<GrOpMemoryPool>, sk_sp<GrRenderTargetProxy>, GrAuditTrail*);
 
-    GrOpsTask* asOpsTask() override { return this; }
+    ~GrRenderTargetOpList() override;
 
     bool isEmpty() const { return fOpChains.empty(); }
 
@@ -95,13 +89,23 @@ public:
 
     void discard();
 
+    GrRenderTargetOpList* asRenderTargetOpList() override { return this; }
+
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
     SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const;)
 
 private:
+    friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
+
+    // The RTC and RTOpList have to work together to handle buffer clears. In most cases, buffer
+    // clearing can be done natively, in which case the op list's load ops are sufficient. In other
+    // cases, draw ops must be used, which makes the RTC the best place for those decisions. This,
+    // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
+    friend class GrRenderTargetContext;
+
     bool isNoOp() const {
-        // TODO: GrLoadOp::kDiscard -> [empty OpsTask] -> GrStoreOp::kStore should also be a no-op.
+        // TODO: GrLoadOp::kDiscard -> [empty opList] -> GrStoreOp::kStore should also be a no-op.
         // We don't count it as a no-op right now because of Vulkan. There are real cases where we
         // store a discard, and if we skip that render pass, then the next time we load the render
         // target, Vulkan detects loading of uninitialized memory and complains. If we don't skip
@@ -114,7 +118,7 @@ private:
                GrLoadOp::kDiscard != fColorLoadOp;
     }
 
-    void deleteOps();
+    bool onIsUsed(GrSurfaceProxy*) const override;
 
     // Must only be called if native stencil buffer clearing is enabled
     void setStencilLoadOp(GrLoadOp op) { fStencilLoadOp = op; }
@@ -135,6 +139,8 @@ private:
     // (i.e. setColorLoadOp(), adding a ClearOp, or adding a GrFillRectOp that covers the device).
     // Returns true if the clear can be converted into a load op (barring device caps).
     bool resetForFullscreenClear(CanDiscardPreviousOps);
+
+    void deleteOps();
 
     class OpChain {
     public:
@@ -207,9 +213,6 @@ private:
         SkRect fBounds;
     };
 
-
-    bool onIsUsed(GrSurfaceProxy*) const override;
-
     void handleInternalAllocationFailure() override;
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
@@ -224,39 +227,26 @@ private:
         return (this->isNoOp()) ? ExpectedOutcome::kTargetUnchanged : ExpectedOutcome::kTargetDirty;
     }
 
-    friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
+    GrLoadOp                       fColorLoadOp    = GrLoadOp::kLoad;
+    SkPMColor4f                    fLoadClearColor = SK_PMColor4fTRANSPARENT;
+    GrLoadOp                       fStencilLoadOp  = GrLoadOp::kLoad;
 
-    // The RTC and OpsTask have to work together to handle buffer clears. In most cases, buffer
-    // clearing can be done natively, in which case the op list's load ops are sufficient. In other
-    // cases, draw ops must be used, which makes the RTC the best place for those decisions. This,
-    // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
-    friend class GrRenderTargetContext;
-
-    // This is a backpointer to the GrOpMemoryPool that holds the memory for this GrOpsTask's ops.
-    // In the DDL case, these back pointers keep the DDL's GrOpMemoryPool alive as long as its
-    // constituent GrOpsTask survives.
-    sk_sp<GrOpMemoryPool> fOpMemoryPool;
-    GrAuditTrail* fAuditTrail;
-
-    GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
-    SkPMColor4f fLoadClearColor = SK_PMColor4fTRANSPARENT;
-    GrLoadOp fStencilLoadOp = GrLoadOp::kLoad;
-
-    uint32_t fLastClipStackGenID;
-    SkIRect fLastDevClipBounds;
-    int fLastClipNumAnalyticFPs;
+    uint32_t                       fLastClipStackGenID;
+    SkIRect                        fLastDevClipBounds;
+    int                            fLastClipNumAnalyticFPs;
 
     // We must track if we have a wait op so that we don't delete the op when we have a full clear.
     bool fHasWaitOp = false;;
 
-    // For ops/opsTask we have mean: 5 stdDev: 28
-    SkSTArray<25, OpChain, true> fOpChains;
+    // For ops/opList we have mean: 5 stdDev: 28
+    SkSTArray<25, OpChain, true>   fOpChains;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
-    SkArenaAlloc fClipAllocator{4096};
-    SkDEBUGCODE(int fNumClips;)
+    SkArenaAlloc                   fClipAllocator{4096};
+    SkDEBUGCODE(int                fNumClips;)
 
+    typedef GrOpList INHERITED;
 };
 
 #endif

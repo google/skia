@@ -23,7 +23,7 @@ class GrGpuCommandBuffer;
 class GrGpuRTCommandBuffer;
 class GrResourceProvider;
 
-/** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpsTask flush. */
+/** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpList flush. */
 class GrOpFlushState final : public GrDeferredUploadTarget, public GrMeshDrawOp::Target {
 public:
     // vertexSpace and indexSpace may either be null or an alloation of size
@@ -47,7 +47,7 @@ public:
             const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
     GrGpuCommandBuffer* commandBuffer() { return fCommandBuffer; }
-    // Helper function used by Ops that are only called via OpsTasks
+    // Helper function used by Ops that are only called via RenderTargetOpLists
     GrGpuRTCommandBuffer* rtCommandBuffer();
     void setCommandBuffer(GrGpuCommandBuffer* buffer) { fCommandBuffer = buffer; }
 

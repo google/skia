@@ -83,7 +83,7 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
     alloc.incOps();
     alloc.addInterval(p2.get(), 1, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
-    alloc.markEndOfOpsTask(0);
+    alloc.markEndOfOpList(0);
 
     alloc.determineRecyclability();
 
@@ -115,7 +115,7 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
 
     alloc.addInterval(p1.get(), 0, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.addInterval(p2.get(), 3, 5, GrResourceAllocator::ActualUse::kYes);
-    alloc.markEndOfOpsTask(0);
+    alloc.markEndOfOpList(0);
 
     alloc.determineRecyclability();
 
@@ -329,7 +329,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
         alloc.addInterval(p2.get(), 0, 1, GrResourceAllocator::ActualUse::kNo);
         alloc.addInterval(p3.get(), 0, 1, GrResourceAllocator::ActualUse::kNo);
         alloc.incOps();
-        alloc.markEndOfOpsTask(0);
+        alloc.markEndOfOpList(0);
 
         alloc.determineRecyclability();
 
@@ -344,8 +344,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, p3->isInstantiated());
 }
 
-// Set up so there are two opsTasks that need to be flushed but the resource allocator thinks
-// it is over budget. The two opsTasks should be flushed separately and the opsTask indices
+// Set up so there are two opLists that need to be flushed but the resource allocator thinks
+// it is over budget. The two opLists should be flushed separately and the opList indices
 // returned from assign should be correct.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -377,13 +377,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
         alloc.incOps();
         alloc.addInterval(p2.get(), 1, 1, GrResourceAllocator::ActualUse::kYes);
         alloc.incOps();
-        alloc.markEndOfOpsTask(0);
+        alloc.markEndOfOpList(0);
 
         alloc.addInterval(p3.get(), 2, 2, GrResourceAllocator::ActualUse::kYes);
         alloc.incOps();
         alloc.addInterval(p4.get(), 3, 3, GrResourceAllocator::ActualUse::kYes);
         alloc.incOps();
-        alloc.markEndOfOpsTask(1);
+        alloc.markEndOfOpList(1);
 
         int startIndex, stopIndex;
         GrResourceAllocator::AssignError error;

@@ -13,7 +13,7 @@
 
 void GrTransferFromRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // This renderTask doesn't have "normal" ops. In this case we still need to add an interval (so
-    // fEndOfOpsTaskOpIndices will remain in sync), so we create a fake op# to capture the fact that
+    // fEndOfOpListOpIndices will remain in sync), so we create a fake op# to capture the fact that
     // we read fSrcProxy.
     alloc->addInterval(fSrcProxy.get(), alloc->curOp(), alloc->curOp(),
                        GrResourceAllocator::ActualUse::kYes);

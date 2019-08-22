@@ -28,9 +28,9 @@
 #endif
 
 #ifdef SK_DISABLE_REDUCE_OPLIST_SPLITTING
-static const bool kDefaultReduceOpsTaskSplitting = false;
+static const bool kDefaultReduceOpListSplitting = false;
 #else
-static const bool kDefaultReduceOpsTaskSplitting = false;
+static const bool kDefaultReduceOpListSplitting = false;
 #endif
 
 class GrLegacyDirectContext : public GrContext {
@@ -82,14 +82,14 @@ protected:
             return false;
         }
 
-        bool reduceOpsTaskSplitting = kDefaultReduceOpsTaskSplitting;
+        bool reduceOpListSplitting = kDefaultReduceOpListSplitting;
         if (GrContextOptions::Enable::kNo == this->options().fReduceOpListSplitting) {
-            reduceOpsTaskSplitting = false;
+            reduceOpListSplitting = false;
         } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpListSplitting) {
-            reduceOpsTaskSplitting = true;
+            reduceOpListSplitting = true;
         }
 
-        this->setupDrawingManager(true, reduceOpsTaskSplitting);
+        this->setupDrawingManager(true, reduceOpListSplitting);
 
         SkASSERT(this->caps());
 

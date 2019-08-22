@@ -45,7 +45,7 @@ public:
         kNone            = 0x0,
 
         /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
-         *  set when accessing resources during a GrOpsTask flush. This includes the execution of
+         *  set when accessing resources during a GrOpList flush. This includes the execution of
          *  GrOp objects. The reason is that these memory operations are done immediately and
          *  will occur out of order WRT the operations being flushed.
          *  Make this automatic: https://bug.skia.org/4156

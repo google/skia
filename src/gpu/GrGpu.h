@@ -289,7 +289,7 @@ public:
                             GrGpuBuffer* transferBuffer, size_t offset);
 
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
-    // take place at higher levels and this function implement faster copy paths. The rect
+    // take place at the GrOpList level and this function implement faster copy paths. The rect
     // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the
     // src/dst bounds and non-empty. They must also be in their exact device space coords, including
     // already being transformed for origin if need be. If canDiscardOutsideDstRect is set to true
@@ -310,14 +310,14 @@ public:
         return fSamplePatternDictionary.retrieveSampleLocations(samplePatternKey);
     }
 
-    // Returns a GrGpuRTCommandBuffer which GrOpsTasks send draw commands to instead of directly
+    // Returns a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
     // to the Gpu object. The 'bounds' rect is the content rect of the destination.
     virtual GrGpuRTCommandBuffer* getCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) = 0;
 
-    // Returns a GrGpuTextureCommandBuffer which GrOpsTasks send texture commands to instead of
+    // Returns a GrGpuTextureCommandBuffer which GrOpLists send texture commands to instead of
     // directly to the Gpu object.
     virtual GrGpuTextureCommandBuffer* getCommandBuffer(GrTexture*, GrSurfaceOrigin) = 0;
 

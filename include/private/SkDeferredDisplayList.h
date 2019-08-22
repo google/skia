@@ -19,7 +19,7 @@ class SkDeferredDisplayListPriv;
 #include <map>
 class GrRenderTask;
 class GrRenderTargetProxy;
-struct GrCCPerOpsTaskPaths;
+struct GrCCPerOpListPaths;
 #endif
 
 /*
@@ -67,7 +67,7 @@ private:
 
 #if SK_SUPPORT_GPU
     // This needs to match the same type in GrCoverageCountingPathRenderer.h
-    using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpsTaskPaths>>;
+    using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpListPaths>>;
 
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
     PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.

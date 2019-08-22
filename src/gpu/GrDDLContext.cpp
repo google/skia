@@ -52,7 +52,7 @@ protected:
             return false;
         }
 
-        // DDL contexts/drawing managers always sort the oplists and attempt to reduce opsTask
+        // DDL contexts/drawing managers always sort the oplists and attempt to reduce opList
         // splitting.
         this->setupDrawingManager(true, true);
 

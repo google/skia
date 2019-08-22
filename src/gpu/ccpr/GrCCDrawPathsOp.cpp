@@ -111,7 +111,7 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
     // If the path is clipped, CCPR will only draw the visible portion. This helps improve batching,
     // since it eliminates the need for scissor when drawing to the main canvas.
     // FIXME: We should parse the path right here. It will provide a tighter bounding box for us to
-    // give the opsTask, as well as enabling threaded parsing when using DDL.
+    // give the opList, as well as enabling threaded parsing when using DDL.
     SkRect clippedDrawBounds;
     if (!clippedDrawBounds.intersect(conservativeDevBounds, SkRect::Make(maskDevIBounds))) {
         clippedDrawBounds.setEmpty();
@@ -122,9 +122,9 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
 }
 
 GrCCDrawPathsOp::~GrCCDrawPathsOp() {
-    if (fOwningPerOpsTaskPaths) {
+    if (fOwningPerOpListPaths) {
         // Remove the list's dangling pointer to this Op before deleting it.
-        fOwningPerOpsTaskPaths->fDrawOps.remove(this);
+        fOwningPerOpListPaths->fDrawOps.remove(this);
     }
 }
 
@@ -195,10 +195,9 @@ GrProcessorSet::Analysis GrCCDrawPathsOp::SingleDraw::finalize(
 
 GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
     GrCCDrawPathsOp* that = op->cast<GrCCDrawPathsOp>();
-    SkASSERT(fOwningPerOpsTaskPaths);
+    SkASSERT(fOwningPerOpListPaths);
     SkASSERT(fNumDraws);
-    SkASSERT(!that->fOwningPerOpsTaskPaths ||
-             that->fOwningPerOpsTaskPaths == fOwningPerOpsTaskPaths);
+    SkASSERT(!that->fOwningPerOpListPaths || that->fOwningPerOpListPaths == fOwningPerOpListPaths);
     SkASSERT(that->fNumDraws);
 
     if (fProcessors != that->fProcessors ||
@@ -206,18 +205,18 @@ GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&
         return CombineResult::kCannotCombine;
     }
 
-    fDraws.append(std::move(that->fDraws), &fOwningPerOpsTaskPaths->fAllocator);
+    fDraws.append(std::move(that->fDraws), &fOwningPerOpListPaths->fAllocator);
 
     SkDEBUGCODE(fNumDraws += that->fNumDraws);
     SkDEBUGCODE(that->fNumDraws = 0);
     return CombineResult::kMerged;
 }
 
-void GrCCDrawPathsOp::addToOwningPerOpsTaskPaths(sk_sp<GrCCPerOpsTaskPaths> owningPerOpsTaskPaths) {
+void GrCCDrawPathsOp::addToOwningPerOpListPaths(sk_sp<GrCCPerOpListPaths> owningPerOpListPaths) {
     SkASSERT(1 == fNumDraws);
-    SkASSERT(!fOwningPerOpsTaskPaths);
-    fOwningPerOpsTaskPaths = std::move(owningPerOpsTaskPaths);
-    fOwningPerOpsTaskPaths->fDrawOps.addToTail(this);
+    SkASSERT(!fOwningPerOpListPaths);
+    fOwningPerOpListPaths = std::move(owningPerOpListPaths);
+    fOwningPerOpListPaths->fDrawOps.addToTail(this);
 }
 
 void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,
@@ -415,9 +414,9 @@ inline void GrCCDrawPathsOp::recordInstance(
 }
 
 void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    SkASSERT(fOwningPerOpsTaskPaths);
+    SkASSERT(fOwningPerOpListPaths);
 
-    const GrCCPerFlushResources* resources = fOwningPerOpsTaskPaths->fFlushResources.get();
+    const GrCCPerFlushResources* resources = fOwningPerOpListPaths->fFlushResources.get();
     if (!resources) {
         return;  // Setup failed.
     }

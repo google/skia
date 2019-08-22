@@ -51,12 +51,12 @@ public:
         GrAuditTrail* fAuditTrail;
     };
 
-    class AutoManageOpsTask {
+    class AutoManageOpList {
     public:
-        AutoManageOpsTask(GrAuditTrail* auditTrail)
+        AutoManageOpList(GrAuditTrail* auditTrail)
                 : fAutoEnable(auditTrail), fAuditTrail(auditTrail) {}
 
-        ~AutoManageOpsTask() { fAuditTrail->fullReset(); }
+        ~AutoManageOpList() { fAuditTrail->fullReset(); }
 
     private:
         AutoEnable fAutoEnable;
@@ -116,7 +116,7 @@ public:
     };
 
     void getBoundsByClientID(SkTArray<OpInfo>* outInfo, int clientID);
-    void getBoundsByOpsTaskID(OpInfo* outInfo, int opsTaskID);
+    void getBoundsByOpListID(OpInfo* outInfo, int opListID);
 
     void fullReset();
 
@@ -130,7 +130,7 @@ private:
         SkTArray<SkString> fStackTrace;
         SkRect fBounds;
         int fClientID;
-        int fOpsTaskID;
+        int fOpListID;
         int fChildID;
     };
     typedef SkTArray<std::unique_ptr<Op>, true> OpPool;
@@ -145,9 +145,9 @@ private:
         Ops                            fChildren;
         const GrSurfaceProxy::UniqueID fProxyUniqueID;
     };
-    typedef SkTArray<std::unique_ptr<OpNode>, true> OpsTask;
+    typedef SkTArray<std::unique_ptr<OpNode>, true> OpList;
 
-    void copyOutFromOpsTask(OpInfo* outOpInfo, int opsTask);
+    void copyOutFromOpList(OpInfo* outOpInfo, int opListID);
 
     template <typename T>
     static void JsonifyTArray(SkJSONWriter& writer, const char* name, const T& array);
@@ -155,7 +155,7 @@ private:
     OpPool fOpPool;
     SkTHashMap<uint32_t, int> fIDLookup;
     SkTHashMap<int, Ops*> fClientIDLookup;
-    OpsTask fOpsTask;
+    OpList fOpList;
     SkTArray<SkString> fCurrentStackTrace;
 
     // The client can pass in an optional client ID which we will use to mark the ops

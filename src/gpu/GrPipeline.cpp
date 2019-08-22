@@ -11,6 +11,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/GrXferProcessor.h"
 
 #include "src/gpu/ops/GrOp.h"
