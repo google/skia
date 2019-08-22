@@ -14,8 +14,8 @@
 
 /**
  * A singly-linked list whose head element is a local class member. This is required by
- * GrCCDrawPathsOp because the owning opList is unknown at the time of creation, so we can't use its
- * associated allocator to create the first element.
+ * GrCCDrawPathsOp because the owning opsTask is unknown at the time of creation, so we can't use
+ * its associated allocator to create the first element.
  */
 template<typename T> class GrCCSTLList : SkNoncopyable {
 public:
