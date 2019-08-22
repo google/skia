@@ -3614,7 +3614,8 @@ bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
                 return false;
             }
         }
-    }    if (auto rt = surface->asRenderTarget()) {
+    }
+    if (auto rt = surface->asRenderTarget()) {
         if (fUseDrawInsteadOfAllRenderTargetWrites) {
             return false;
         }
@@ -4025,7 +4026,10 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
     SK_ABORT("Invalid compression type");
 }
 
-bool GrGLCaps::canClearTextureOnCreation() const { return fClearTextureSupport; }
+bool GrGLCaps::canClearTextureOnCreation(const GrBackendFormat& format) const {
+    return fClearTextureSupport || (this->canFormatBeFBOColorAttachment(format.asGLFormat()) &&
+                                    !this->performColorClearsAsDraws());
+}
 
 GrSwizzle GrGLCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     const auto& info = this->getFormatInfo(format.asGLFormat());

@@ -175,9 +175,7 @@ GrSwizzle GrDawnCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorTy
     return get_swizzle(format, colorType, false);
 }
 
-bool GrDawnCaps::canClearTextureOnCreation() const {
-    return true;
-}
+bool GrDawnCaps::canClearTextureOnCreation(const GrBackendFormat&) const { return true; }
 
 GrSwizzle GrDawnCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const
 {
