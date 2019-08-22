@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b6cdaa4_468d82eb",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-08-22T16:52:06Z",
+      "side": 0,
+      "message": "With patch set 9, we\u0027ll need to first move the dummy file to src/codec/SkParseEncodedOrigin.cpp, then start compiling it in Chromium, and then we can land this CL.",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 55
+      },
+      "revId": "7e16b58b5aa7a1959bbd06168d13f8d4554ca3d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
