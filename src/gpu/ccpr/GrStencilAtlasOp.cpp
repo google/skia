@@ -8,8 +8,8 @@
 #include "src/gpu/ccpr/GrStencilAtlasOp.h"
 
 #include "include/private/GrRecordingContext.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 #include "src/gpu/ccpr/GrSampleMaskProcessor.h"
@@ -129,7 +129,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
             fResources->refStencilResolveBuffer(),
             fEndStencilResolveInstance - fBaseStencilResolveInstance, fBaseStencilResolveInstance,
             4);
-    flushState->rtCommandBuffer()->draw(
+    flushState->opsRenderPass()->draw(
             StencilResolveProcessor(), resolvePipeline, &scissorRectState, nullptr, &mesh, 1,
             SkRect::Make(drawBoundsRect));
 }
