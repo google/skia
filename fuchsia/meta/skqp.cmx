@@ -1,0 +1,18 @@
+{
+    "program": {
+        "binary": "bin/app"
+    },
+    "sandbox": {
+        "dev": [
+            "class/display-controller"
+        ],
+        "features": [
+            "vulkan",
+            "isolated-persistent-storage"
+        ],
+        "services": [
+            "fuchsia.sysmem.Allocator",
+            "fuchsia.vulkan.loader.Loader"
+        ]
+    }
+}
