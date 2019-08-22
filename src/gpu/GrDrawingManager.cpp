@@ -439,6 +439,19 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
         if (!onFlushOpList->execute(flushState)) {
             SkDebugf("WARNING: onFlushOpList failed to execute.\n");
         }
+        // Auto resolve MSAA for onFlush render targets.
+        GrSurfaceProxy* target = onFlushOpList->fTarget.get();
+        if (target->requiresManualMSAAResolve()) {
+            GrRenderTargetProxy* rtProxy = target->asRenderTargetProxy();
+            SkASSERT(rtProxy);
+            if (rtProxy->isMSAADirty()) {
+                flushState->gpu()->resolveRenderTarget(rtProxy->peekRenderTarget());
+                rtProxy->markMSAAResolved();
+            }
+        }
+        // We currently don't have any machinery to resolve mipmaps for onFlush render targets.
+        SkASSERT(!target->asTextureProxy() ||
+                 GrMipMapped::kNo == target->asTextureProxy()->mipMapped());
         SkASSERT(onFlushOpList->unique());
         onFlushOpList = nullptr;
         (*numRenderTasksExecuted)++;
@@ -506,19 +519,26 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
     GrSemaphoresSubmitted result = this->flush(proxies, numProxies, access, info,
                                                GrPrepareForExternalIORequests());
     for (int i = 0; i < numProxies; ++i) {
-        if (!proxies[i]->isInstantiated()) {
+        GrSurfaceProxy* proxy = proxies[i];
+        if (!proxy->isInstantiated()) {
             return result;
         }
-        GrSurface* surface = proxies[i]->peekSurface();
-        if (auto* rt = surface->asRenderTarget()) {
-            gpu->resolveRenderTarget(rt);
+        if (proxy->requiresManualMSAAResolve()) {
+            auto* rtProxy = proxy->asRenderTargetProxy();
+            SkASSERT(rtProxy);
+            if (rtProxy->isMSAADirty()) {
+                SkASSERT(rtProxy->peekRenderTarget());
+                gpu->resolveRenderTarget(rtProxy->peekRenderTarget());
+                rtProxy->markMSAAResolved();
+            }
         }
         // If, after a flush, any of the proxies of interest have dirty mipmaps, regenerate them in
         // case their backend textures are being stolen.
         // (This special case is exercised by the ReimportImageTextureWithMipLevels test.)
         // FIXME: It may be more ideal to plumb down a "we're going to steal the backends" flag.
-        if (auto* textureProxy = proxies[i]->asTextureProxy()) {
+        if (auto* textureProxy = proxy->asTextureProxy()) {
             if (textureProxy->mipMapsAreDirty()) {
+                SkASSERT(textureProxy->peekTexture());
                 gpu->regenerateMipMapLevels(textureProxy->peekTexture());
                 textureProxy->markMipMapsClean();
             }
