@@ -1,266 +1,430 @@
 import("../third_party.gni")
+spirv_tools = "../externals/spirv-tools"
+spirv_headers = "../externals/spirv-headers"
 
-template("spirv_core_tables") {
-  version = invoker.version
-  action("spirv_core_tables_" + target_name) {
-    script = "../externals/spirv-tools/utils/generate_grammar_tables.py"
+template("spvtools_core_tables") {
+  assert(defined(invoker.version), "Need version in $target_name generation.")
+
+  action("spvtools_core_tables_" + target_name) {
+    script = "${spirv_tools}/utils/generate_grammar_tables.py"
+
+    version = invoker.version
+
+    core_json_file =
+        "${spirv_headers}/include/spirv/$version/spirv.core.grammar.json"
+    core_insts_file = "${target_gen_dir}/core.insts-$version.inc"
+    operand_kinds_file = "${target_gen_dir}/operand.kinds-$version.inc"
+    extinst_file = "${spirv_tools}/source/extinst.debuginfo.grammar.json"
+
     sources = [
-      "../externals/spirv-headers/include/spirv/$version/spirv.core.grammar.json",
+      core_json_file,
     ]
     outputs = [
-      "$root_out_dir/spirv-tools/core.insts-$version.inc",
-      "$root_out_dir/spirv-tools/operand.kinds-$version.inc",
+      core_insts_file,
+      operand_kinds_file,
     ]
     args = [
-      "--spirv-core-grammar=" + rebase_path(
-              "../externals/spirv-headers/include/spirv/$version/spirv.core.grammar.json",
-              root_build_dir),
-      "--core-insts-output=" +
-          rebase_path("$root_out_dir/spirv-tools/core.insts-$version.inc",
-                      root_build_dir),
-      "--operand-kinds-output=" +
-          rebase_path("$root_out_dir/spirv-tools/operand.kinds-$version.inc",
-                      root_build_dir),
+      "--spirv-core-grammar",
+      rebase_path(core_json_file, root_build_dir),
+      "--core-insts-output",
+      rebase_path(core_insts_file, root_build_dir),
+      "--extinst-debuginfo-grammar",
+      rebase_path(extinst_file, root_build_dir),
+      "--operand-kinds-output",
+      rebase_path(operand_kinds_file, root_build_dir),
     ]
   }
 }
 
-spirv_core_tables("1.0") {
+template("spvtools_core_enums") {
+  assert(defined(invoker.version), "Need version in $target_name generation.")
+
+  action("spvtools_core_enums_" + target_name) {
+    script = "${spirv_tools}/utils/generate_grammar_tables.py"
+
+    version = invoker.version
+
+    core_json_file =
+        "${spirv_headers}/include/spirv/$version/spirv.core.grammar.json"
+    debug_insts_file = "${spirv_tools}/source/extinst.debuginfo.grammar.json"
+    extension_enum_file = "${target_gen_dir}/extension_enum.inc"
+    extension_map_file = "${target_gen_dir}/enum_string_mapping.inc"
+
+    args = [
+      "--spirv-core-grammar",
+      rebase_path(core_json_file, root_build_dir),
+      "--extinst-debuginfo-grammar",
+      rebase_path(debug_insts_file, root_build_dir),
+      "--extension-enum-output",
+      rebase_path(extension_enum_file, root_build_dir),
+      "--enum-string-mapping-output",
+      rebase_path(extension_map_file, root_build_dir),
+    ]
+    inputs = [
+      core_json_file,
+    ]
+    outputs = [
+      extension_enum_file,
+      extension_map_file,
+    ]
+  }
+}
+
+template("spvtools_glsl_tables") {
+  assert(defined(invoker.version), "Need version in $target_name generation.")
+
+  action("spvtools_glsl_tables_" + target_name) {
+    script = "${spirv_tools}/utils/generate_grammar_tables.py"
+
+    version = invoker.version
+
+    core_json_file =
+        "${spirv_headers}/include/spirv/$version/spirv.core.grammar.json"
+    glsl_json_file = "${spirv_headers}/include/spirv/${version}/extinst.glsl.std.450.grammar.json"
+    glsl_insts_file = "${target_gen_dir}/glsl.std.450.insts.inc"
+    debug_insts_file = "${spirv_tools}/source/extinst.debuginfo.grammar.json"
+
+    args = [
+      "--spirv-core-grammar",
+      rebase_path(core_json_file, root_build_dir),
+      "--extinst-glsl-grammar",
+      rebase_path(glsl_json_file, root_build_dir),
+      "--glsl-insts-output",
+      rebase_path(glsl_insts_file, root_build_dir),
+      "--extinst-debuginfo-grammar",
+      rebase_path(debug_insts_file, root_build_dir),
+    ]
+    inputs = [
+      core_json_file,
+      glsl_json_file,
+    ]
+    outputs = [
+      glsl_insts_file,
+    ]
+  }
+}
+
+template("spvtools_opencl_tables") {
+  assert(defined(invoker.version), "Need version in $target_name generation.")
+
+  action("spvtools_opencl_tables_" + target_name) {
+    script = "${spirv_tools}/utils/generate_grammar_tables.py"
+
+    version = invoker.version
+
+    core_json_file =
+        "${spirv_headers}/include/spirv/$version/spirv.core.grammar.json"
+    opengl_json_file = "${spirv_headers}/include/spirv/${version}/extinst.opencl.std.100.grammar.json"
+    opencl_insts_file = "${target_gen_dir}/opencl.std.insts.inc"
+    debug_insts_file = "${spirv_tools}/source/extinst.debuginfo.grammar.json"
+
+    args = [
+      "--spirv-core-grammar",
+      rebase_path(core_json_file, root_build_dir),
+      "--extinst-opencl-grammar",
+      rebase_path(opengl_json_file, root_build_dir),
+      "--opencl-insts-output",
+      rebase_path(opencl_insts_file, root_build_dir),
+      "--extinst-debuginfo-grammar",
+      rebase_path(debug_insts_file, root_build_dir),
+    ]
+    inputs = [
+      core_json_file,
+      opengl_json_file,
+    ]
+    outputs = [
+      opencl_insts_file,
+    ]
+  }
+}
+
+template("spvtools_language_header") {
+  assert(defined(invoker.name), "Need name in $target_name generation.")
+
+  action("spvtools_language_header_" + target_name) {
+    script = "${spirv_tools}/utils/generate_language_headers.py"
+
+    name = invoker.name
+    extinst_output_base = "${target_gen_dir}/${name}"
+    debug_insts_file = "${spirv_tools}/source/extinst.debuginfo.grammar.json"
+
+    args = [
+      "--extinst-name",
+      "${name}",
+      "--extinst-grammar",
+      rebase_path(debug_insts_file, root_build_dir),
+      "--extinst-output-base",
+      rebase_path(extinst_output_base, root_build_dir),
+    ]
+    inputs = [
+      debug_insts_file,
+    ]
+    outputs = [
+      "${extinst_output_base}.h",
+    ]
+  }
+}
+
+template("spvtools_vendor_table") {
+  assert(defined(invoker.name), "Need name in $target_name generation.")
+
+  action("spvtools_vendor_tables_" + target_name) {
+    script = "${spirv_tools}/utils/generate_grammar_tables.py"
+
+    name = invoker.name
+    extinst_vendor_grammar =
+        "${spirv_tools}/source/extinst.${name}.grammar.json"
+    extinst_file = "${target_gen_dir}/${name}.insts.inc"
+
+    args = [
+      "--extinst-vendor-grammar",
+      rebase_path(extinst_vendor_grammar, root_build_dir),
+      "--vendor-insts-output",
+      rebase_path(extinst_file, root_build_dir),
+    ]
+    inputs = [
+      extinst_vendor_grammar,
+    ]
+    outputs = [
+      extinst_file,
+    ]
+  }
+}
+
+action("spvtools_generators_inc") {
+  script = "${spirv_tools}/utils/generate_registry_tables.py"
+
+  # TODO(dsinclair): Make work for chrome
+  xml_file = "${spirv_headers}/include/spirv/spir-v.xml"
+  inc_file = "${target_gen_dir}/generators.inc"
+
+  sources = [
+    xml_file,
+  ]
+  outputs = [
+    inc_file,
+  ]
+  args = [
+    "--xml",
+    rebase_path(xml_file, root_build_dir),
+    "--generator",
+    rebase_path(inc_file, root_build_dir),
+  ]
+}
+
+action("spvtools_build_version") {
+  script = "${spirv_tools}/utils/update_build_version.py"
+
+  src_dir = "${spirv_tools}"
+  inc_file = "${target_gen_dir}/build-version.inc"
+
+  outputs = [
+    inc_file,
+  ]
+  args = [
+    rebase_path(src_dir, root_build_dir),
+    rebase_path(inc_file, root_build_dir),
+  ]
+}
+
+spvtools_core_tables("unified1") {
+  version = "unified1"
+}
+spvtools_core_enums("unified1") {
+  version = "unified1"
+}
+spvtools_glsl_tables("glsl1-0") {
   version = "1.0"
 }
-
-spirv_core_tables("1.1") {
-  version = "1.1"
+spvtools_opencl_tables("opencl1-0") {
+  version = "1.0"
+}
+spvtools_language_header("unified1") {
+  name = "DebugInfo"
 }
 
-spirv_core_tables("1.2") {
-  version = "1.2"
+spvtools_vendor_tables = [
+  "spv-amd-shader-explicit-vertex-parameter",
+  "spv-amd-shader-trinary-minmax",
+  "spv-amd-gcn-shader",
+  "spv-amd-shader-ballot",
+  "debuginfo",
+]
+
+foreach(table, spvtools_vendor_tables) {
+  spvtools_vendor_table(table) {
+    name = table
+  }
 }
 
-action("spirv_glsl_tables") {
-  script = "../externals/spirv-tools/utils/generate_grammar_tables.py"
-  sources = [
-    "../externals/spirv-headers/include/spirv/1.0/extinst.glsl.std.450.grammar.json",
-    "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
-  ]
-  outputs = [
-    "$root_out_dir/spirv-tools/glsl.std.450.insts-1.0.inc",
-  ]
-  args = [
-    "--spirv-core-grammar=" + rebase_path(
-            "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
-            root_build_dir),
-    "--extinst-glsl-grammar=" +
-        rebase_path("../externals/spirv-headers/include/spirv/1.0/" +
-                        "extinst.glsl.std.450.grammar.json",
-                    root_build_dir),
-    "--glsl-insts-output=" +
-        rebase_path("$root_out_dir/spirv-tools/glsl.std.450.insts-1.0.inc",
-                    root_build_dir),
-  ]
+config("spvtools_public_config") {
+  include_dirs = [ "${spirv_tools}/include" ]
 }
 
-action("spirv_extension_enum") {
-  script = "../externals/spirv-tools/utils/generate_grammar_tables.py"
-  sources = [
-    "../externals/spirv-headers/include/spirv/1.0/extinst.glsl.std.450.grammar.json",
-    "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
+config("spvtools_internal_config") {
+  include_dirs = [
+    "${spirv_tools}",
+    "$target_gen_dir",
+    "${spirv_headers}/include",
   ]
-  outputs = [
-    "$root_out_dir/spirv-tools/extension_enum.inc",
-  ]
-  args = [
-    "--spirv-core-grammar=" + rebase_path(
-            "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
-            root_build_dir),
-    "--extension-enum-output=" +
-        rebase_path("$root_out_dir/spirv-tools/extension_enum.inc",
-                    root_build_dir),
-    "--enum-string-mapping-output=" +
-        rebase_path("$root_out_dir/spirv-tools/enum_string_mapping.inc",
-                    root_build_dir),
-  ]
-}
 
-action("spirv_opencl_tables") {
-  script = "../externals/spirv-tools/utils/generate_grammar_tables.py"
-  sources = [
-    "../externals/spirv-headers/include/spirv/1.0/extinst.opencl.std.100.grammar.json",
-    "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
-  ]
-  outputs = [
-    "$root_out_dir/spirv-tools/opencl.std.insts-1.0.inc",
-  ]
-  args = [
-    "--spirv-core-grammar=" + rebase_path(
-            "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
-            root_build_dir),
-    "--extinst-opencl-grammar=" +
-        rebase_path("../externals/spirv-headers/include/spirv/1.0/" +
-                        "extinst.glsl.std.450.grammar.json",
-                    root_build_dir),
-    "--opencl-insts-output=" +
-        rebase_path("$root_out_dir/spirv-tools/opencl.std.insts-1.0.inc",
-                    root_build_dir),
-  ]
-}
+  configs = [ ":spvtools_public_config" ]
 
-template("spirv_vendor_tables") {
-  vendor_table = invoker.vendor_table
-  action("spirv_vendor_tables_" + target_name) {
-    script = "../externals/spirv-tools/utils/generate_grammar_tables.py"
-    sources = [
-      "../externals/spirv-tools/source/extinst.$vendor_table.grammar.json",
-    ]
-    outputs = [
-      "$root_out_dir/spirv-tools/$vendor_table.insts.inc",
-    ]
-    args = [
-      "--extinst-vendor-grammar=" + rebase_path(
-              "../externals/spirv-tools/source/extinst.$vendor_table.grammar.json",
-              root_build_dir),
-      "--vendor-insts-output=" +
-          rebase_path("$root_out_dir/spirv-tools/$vendor_table.insts.inc",
-                      root_build_dir),
+  if (is_clang) {
+    cflags = [
+      "-Wno-implicit-fallthrough",
+      "-Wno-extra-semi",
+      "-Wno-range-loop-analysis",
+      "-Wno-conditional-uninitialized",
     ]
   }
 }
 
-spirv_vendor_tables("amd_shader_explicit_vertex_parameter") {
-  vendor_table = "spv-amd-shader-explicit-vertex-parameter"
-}
-
-spirv_vendor_tables("amd_shader_trinary_minmax") {
-  vendor_table = "spv-amd-shader-trinary-minmax"
-}
-
-spirv_vendor_tables("amd_shader_gcn_shader") {
-  vendor_table = "spv-amd-gcn-shader"
-}
-
-spirv_vendor_tables("amd_shader_ballot") {
-  vendor_table = "spv-amd-shader-ballot"
-}
-
-action("spirv_build_version") {
-  script = "../externals/spirv-tools/utils/update_build_version.py"
+source_set("spvtools_headers") {
   sources = [
-    "../externals/spirv-tools/CHANGES",
+    "include/SPIRV-Tools/libspirv.h",
+    "include/SPIRV-Tools/libspirv.hpp",
+    "include/SPIRV-Tools/linker.hpp",
+    "include/SPIRV-Tools/optimizer.hpp",
   ]
-  outputs = [
-    "$root_out_dir/spirv-tools/build-version.inc",
-  ]
-  args = [
-    rebase_path("../externals/spirv-tools", root_build_dir),
-    rebase_path("$root_out_dir/spirv-tools/build-version.inc", root_build_dir),
-  ]
+
+  public_configs = [ ":spvtools_public_config" ]
 }
 
-action("spirv_generators") {
-  script = "../externals/spirv-tools/utils/generate_registry_tables.py"
-  sources = [
-    "../externals/spirv-headers/include/spirv/spir-v.xml",
-  ]
-  outputs = [
-    "$root_out_dir/spirv-tools/generators.inc",
-  ]
-  args = [
-    "--xml=" +
-        rebase_path("../externals/spirv-headers/include/spirv/spir-v.xml",
-                    root_build_dir),
-    "--generator-output=" +
-        rebase_path("$root_out_dir/spirv-tools/generators.inc",
-                    root_build_dir,
-                    root_build_dir),
-  ]
-}
-
-third_party("spirv-tools") {
-  public_include_dirs = [
-    "../externals/spirv-tools/include",
-    "../externals/spirv-tools/source",
-    "$root_out_dir/spirv-tools",
-  ]
+third_party("spvtools") {
+  public_include_dirs = []
   deps = [
-    ":spirv_build_version",
-    ":spirv_core_tables_1.0",
-    ":spirv_core_tables_1.1",
-    ":spirv_core_tables_1.2",
-    ":spirv_extension_enum",
-    ":spirv_generators",
-    ":spirv_glsl_tables",
-    ":spirv_opencl_tables",
-    ":spirv_vendor_tables_amd_shader_ballot",
-    ":spirv_vendor_tables_amd_shader_explicit_vertex_parameter",
-    ":spirv_vendor_tables_amd_shader_gcn_shader",
-    ":spirv_vendor_tables_amd_shader_trinary_minmax",
-    "//third_party/spirv-headers",
+    ":spvtools_core_enums_unified1",
+    ":spvtools_core_tables_unified1",
+    ":spvtools_generators_inc",
+    ":spvtools_glsl_tables_glsl1-0",
+    ":spvtools_language_header_unified1",
+    ":spvtools_opencl_tables_opencl1-0",
   ]
-  sources = [
-    "../externals/spirv-tools/source/assembly_grammar.cpp",
-    "../externals/spirv-tools/source/binary.cpp",
-    "../externals/spirv-tools/source/diagnostic.cpp",
-    "../externals/spirv-tools/source/disassemble.cpp",
-    "../externals/spirv-tools/source/enum_string_mapping.cpp",
-    "../externals/spirv-tools/source/ext_inst.cpp",
-    "../externals/spirv-tools/source/extensions.cpp",
-    "../externals/spirv-tools/source/libspirv.cpp",
-    "../externals/spirv-tools/source/message.cpp",
-    "../externals/spirv-tools/source/name_mapper.cpp",
-    "../externals/spirv-tools/source/opcode.cpp",
-    "../externals/spirv-tools/source/operand.cpp",
-    "../externals/spirv-tools/source/opt/aggressive_dead_code_elim_pass.cpp",
-    "../externals/spirv-tools/source/opt/basic_block.cpp",
-    "../externals/spirv-tools/source/opt/block_merge_pass.cpp",
-    "../externals/spirv-tools/source/opt/build_module.cpp",
-    "../externals/spirv-tools/source/opt/compact_ids_pass.cpp",
-    "../externals/spirv-tools/source/opt/dead_branch_elim_pass.cpp",
-    "../externals/spirv-tools/source/opt/def_use_manager.cpp",
-    "../externals/spirv-tools/source/opt/eliminate_dead_constant_pass.cpp",
-    "../externals/spirv-tools/source/opt/flatten_decoration_pass.cpp",
-    "../externals/spirv-tools/source/opt/fold_spec_constant_op_and_composite_pass.cpp",
-    "../externals/spirv-tools/source/opt/freeze_spec_constant_value_pass.cpp",
-    "../externals/spirv-tools/source/opt/function.cpp",
-    "../externals/spirv-tools/source/opt/inline_pass.cpp",
-    "../externals/spirv-tools/source/opt/insert_extract_elim.cpp",
-    "../externals/spirv-tools/source/opt/instruction.cpp",
-    "../externals/spirv-tools/source/opt/ir_loader.cpp",
-    "../externals/spirv-tools/source/opt/local_access_chain_convert_pass.cpp",
-    "../externals/spirv-tools/source/opt/local_single_block_elim_pass.cpp",
-    "../externals/spirv-tools/source/opt/local_single_store_elim_pass.cpp",
-    "../externals/spirv-tools/source/opt/local_ssa_elim_pass.cpp",
-    "../externals/spirv-tools/source/opt/module.cpp",
-    "../externals/spirv-tools/source/opt/optimizer.cpp",
-    "../externals/spirv-tools/source/opt/pass_manager.cpp",
-    "../externals/spirv-tools/source/opt/set_spec_constant_default_value_pass.cpp",
-    "../externals/spirv-tools/source/opt/strip_debug_info_pass.cpp",
-    "../externals/spirv-tools/source/opt/type_manager.cpp",
-    "../externals/spirv-tools/source/opt/types.cpp",
-    "../externals/spirv-tools/source/opt/unify_const_pass.cpp",
-    "../externals/spirv-tools/source/parsed_operand.cpp",
-    "../externals/spirv-tools/source/print.cpp",
-    "../externals/spirv-tools/source/software_version.cpp",
-    "../externals/spirv-tools/source/spirv_endian.cpp",
-    "../externals/spirv-tools/source/spirv_target_env.cpp",
-    "../externals/spirv-tools/source/spirv_validator_options.cpp",
-    "../externals/spirv-tools/source/table.cpp",
-    "../externals/spirv-tools/source/text.cpp",
-    "../externals/spirv-tools/source/text_handler.cpp",
-    "../externals/spirv-tools/source/util/parse_number.cpp",
-    "../externals/spirv-tools/source/util/string_utils.cpp",
-    "../externals/spirv-tools/source/val/basic_block.cpp",
-    "../externals/spirv-tools/source/val/construct.cpp",
-    "../externals/spirv-tools/source/val/function.cpp",
-    "../externals/spirv-tools/source/val/instruction.cpp",
-    "../externals/spirv-tools/source/val/validation_state.cpp",
-    "../externals/spirv-tools/source/validate.cpp",
-    "../externals/spirv-tools/source/validate_capability.cpp",
-    "../externals/spirv-tools/source/validate_cfg.cpp",
-    "../externals/spirv-tools/source/validate_datarules.cpp",
-    "../externals/spirv-tools/source/validate_decorations.cpp",
-    "../externals/spirv-tools/source/validate_id.cpp",
-    "../externals/spirv-tools/source/validate_instruction.cpp",
-    "../externals/spirv-tools/source/validate_layout.cpp",
-    "../externals/spirv-tools/source/validate_type_unique.cpp",
+  foreach(target_name, spvtools_vendor_tables) {
+    deps += [ ":spvtools_vendor_tables_$target_name" ]
+  }
+
+  sources = rebase_path([
+                          "source/assembly_grammar.cpp",
+                          "source/assembly_grammar.h",
+                          "source/binary.cpp",
+                          "source/binary.h",
+                          "source/diagnostic.cpp",
+                          "source/diagnostic.h",
+                          "source/disassemble.cpp",
+                          "source/enum_set.h",
+                          "source/enum_string_mapping.cpp",
+                          "source/ext_inst.cpp",
+                          "source/ext_inst.h",
+                          "source/extensions.cpp",
+                          "source/extensions.h",
+                          "source/instruction.h",
+                          "source/libspirv.cpp",
+                          "source/macro.h",
+                          "source/name_mapper.cpp",
+                          "source/name_mapper.h",
+                          "source/opcode.cpp",
+                          "source/opcode.h",
+                          "source/operand.cpp",
+                          "source/operand.h",
+                          "source/parsed_operand.cpp",
+                          "source/parsed_operand.h",
+                          "source/print.cpp",
+                          "source/print.h",
+                          "source/spirv_constant.h",
+                          "source/spirv_definition.h",
+                          "source/spirv_endian.cpp",
+                          "source/spirv_endian.h",
+                          "source/spirv_target_env.cpp",
+                          "source/spirv_target_env.h",
+                          "source/spirv_validator_options.cpp",
+                          "source/spirv_validator_options.h",
+                          "source/table.cpp",
+                          "source/table.h",
+                          "source/text.cpp",
+                          "source/text.h",
+                          "source/text_handler.cpp",
+                          "source/text_handler.h",
+                          "source/util/bit_vector.cpp",
+                          "source/util/bit_vector.h",
+                          "source/util/bitutils.h",
+                          "source/util/hex_float.h",
+                          "source/util/ilist.h",
+                          "source/util/ilist_node.h",
+                          "source/util/make_unique.h",
+                          "source/util/parse_number.cpp",
+                          "source/util/parse_number.h",
+                          "source/util/small_vector.h",
+                          "source/util/string_utils.cpp",
+                          "source/util/string_utils.h",
+                          "source/util/timer.cpp",
+                          "source/util/timer.h",
+                        ],
+                        ".",
+                        spirv_tools)
+
+  public_deps = [
+    ":spvtools_headers",
   ]
+
+  configs += [ ":spvtools_internal_config" ]
+}
+
+third_party("spvtools_val") {
+  public_include_dirs = []
+  sources = rebase_path([
+                          "source/val/basic_block.cpp",
+                          "source/val/construct.cpp",
+                          "source/val/function.cpp",
+                          "source/val/instruction.cpp",
+                          "source/val/validate.cpp",
+                          "source/val/validate.h",
+                          "source/val/validate_adjacency.cpp",
+                          "source/val/validate_annotation.cpp",
+                          "source/val/validate_arithmetics.cpp",
+                          "source/val/validate_atomics.cpp",
+                          "source/val/validate_barriers.cpp",
+                          "source/val/validate_bitwise.cpp",
+                          "source/val/validate_builtins.cpp",
+                          "source/val/validate_capability.cpp",
+                          "source/val/validate_cfg.cpp",
+                          "source/val/validate_composites.cpp",
+                          "source/val/validate_constants.cpp",
+                          "source/val/validate_conversion.cpp",
+                          "source/val/validate_datarules.cpp",
+                          "source/val/validate_debug.cpp",
+                          "source/val/validate_decorations.cpp",
+                          "source/val/validate_derivatives.cpp",
+                          "source/val/validate_execution_limitations.cpp",
+                          "source/val/validate_extensions.cpp",
+                          "source/val/validate_function.cpp",
+                          "source/val/validate_id.cpp",
+                          "source/val/validate_image.cpp",
+                          "source/val/validate_instruction.cpp",
+                          "source/val/validate_interfaces.cpp",
+                          "source/val/validate_layout.cpp",
+                          "source/val/validate_literals.cpp",
+                          "source/val/validate_logicals.cpp",
+                          "source/val/validate_memory.cpp",
+                          "source/val/validate_memory_semantics.cpp",
+                          "source/val/validate_misc.cpp",
+                          "source/val/validate_mode_setting.cpp",
+                          "source/val/validate_non_uniform.cpp",
+                          "source/val/validate_primitives.cpp",
+                          "source/val/validate_scopes.cpp",
+                          "source/val/validate_type.cpp",
+                          "source/val/validation_state.cpp",
+                        ],
+                        ".",
+                        spirv_tools)
+
+  deps = [
+    ":spvtools",
+  ]
+  public_deps = [
+    ":spvtools_headers",
+  ]
+
+  configs += [ ":spvtools_internal_config" ]
 }
