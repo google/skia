@@ -375,7 +375,7 @@ DEF_TEST(SVGDevice_ColorFilters, reporter) {
     REPORTER_ASSERT(reporter, strcmp(dom.findAttr(filterElement, "height"), "100%") == 0);
 
     REPORTER_ASSERT(reporter,
-                    strcmp(dom.findAttr(floodElement, "flood-color"), "rgb(255,0,0)") == 0);
+                    strcmp(dom.findAttr(floodElement, "flood-color"), "red") == 0);
     REPORTER_ASSERT(reporter, atoi(dom.findAttr(floodElement, "flood-opacity")) == 1);
 
     REPORTER_ASSERT(reporter, strcmp(dom.findAttr(compositeElement, "in"), "flood") == 0);
@@ -419,10 +419,10 @@ DEF_TEST(SVGDevice_fill_stroke, reporter) {
         const char*    expected_fill;
         const char*    expected_stroke;
     } gTests[] = {
-        { SK_ColorBLACK, SkPaint::kFill_Style  , nullptr       , nullptr        },
-        { SK_ColorBLACK, SkPaint::kStroke_Style, "none"        , "rgb(0,0,0)"   },
-        { SK_ColorRED  , SkPaint::kFill_Style  , "rgb(255,0,0)", nullptr        },
-        { SK_ColorRED  , SkPaint::kStroke_Style, "none"        , "rgb(255,0,0)" },
+        { SK_ColorBLACK, SkPaint::kFill_Style  , nullptr, nullptr },
+        { SK_ColorBLACK, SkPaint::kStroke_Style, "none" , "black" },
+        { SK_ColorRED  , SkPaint::kFill_Style  , "red"  , nullptr },
+        { SK_ColorRED  , SkPaint::kStroke_Style, "none" , "red"   },
     };
 
     for (const auto& tst : gTests) {
