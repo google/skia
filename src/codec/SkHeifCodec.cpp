@@ -118,11 +118,9 @@ private:
     std::unique_ptr<SkStream> fStream;
 };
 
-#ifndef SK_LEGACY_HEIF_API
 static void releaseProc(const void* ptr, void* context) {
     delete reinterpret_cast<std::vector<uint8_t>*>(context);
 }
-#endif
 
 std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
         SkCodec::SelectionPolicy selectionPolicy, Result* result) {
@@ -138,7 +136,6 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> s
         return nullptr;
     }
 
-#ifndef SK_LEGACY_HEIF_API
     size_t frameCount = 1;
     if (selectionPolicy == SkCodec::SelectionPolicy::kPreferAnimation) {
         HeifFrameInfo sequenceInfo;
@@ -147,22 +144,13 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> s
             heifInfo = std::move(sequenceInfo);
         }
     }
-#endif
 
     std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
-#ifdef SK_LEGACY_HEIF_API
-    if ((heifInfo.mIccSize > 0) && (heifInfo.mIccData != nullptr)) {
-        // FIXME: Would it be possible to use MakeWithoutCopy?
-        auto icc = SkData::MakeWithCopy(heifInfo.mIccData.get(), heifInfo.mIccSize);
-        profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
-    }
-#else
     if (heifInfo.mIccData.size() > 0) {
         auto iccData = new std::vector<uint8_t>(std::move(heifInfo.mIccData));
         auto icc = SkData::MakeWithProc(iccData->data(), iccData->size(), releaseProc, iccData);
         profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
     }
-#endif
     if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
         // This will result in sRGB.
         profile = nullptr;
@@ -174,28 +162,19 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
     *result = kSuccess;
     return std::unique_ptr<SkCodec>(new SkHeifCodec(
-            std::move(info), heifDecoder.release(), orientation
-#ifndef SK_LEGACY_HEIF_API
-            , frameCount > 1
-#endif
-            ));
+            std::move(info), heifDecoder.release(), orientation, frameCount > 1));
 }
 
 SkHeifCodec::SkHeifCodec(
         SkEncodedInfo&& info,
         HeifDecoder* heifDecoder,
-        SkEncodedOrigin origin
-#ifndef SK_LEGACY_HEIF_API
-        , bool useAnimation
-#endif
-        )
+        SkEncodedOrigin origin,
+        bool useAnimation)
     : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, nullptr, origin)
     , fHeifDecoder(heifDecoder)
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
-#ifndef SK_LEGACY_HEIF_API
     , fUseAnimation(useAnimation)
-#endif
 {}
 
 bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaque,
@@ -286,7 +265,6 @@ int SkHeifCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     return count;
 }
 
-#ifndef SK_LEGACY_HEIF_API
 int SkHeifCodec::onGetFrameCount() {
     if (!fUseAnimation) {
         return 1;
@@ -357,7 +335,6 @@ bool SkHeifCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
 int SkHeifCodec::onGetRepetitionCount() {
     return kRepetitionCountInfinite;
 }
-#endif // SK_LEGACY_HEIF_API
 
 /*
  * Performs the heif decode
@@ -373,11 +350,6 @@ SkCodec::Result SkHeifCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-#ifdef SK_LEGACY_HEIF_API
-    if (!fHeifDecoder->decode(&fFrameInfo)) {
-        return kInvalidInput;
-    }
-#else
     bool success;
     if (fUseAnimation) {
         success = fHeifDecoder->decodeSequence(options.fFrameIndex, &fFrameInfo);
@@ -388,7 +360,6 @@ SkCodec::Result SkHeifCodec::onGetPixels(const SkImageInfo& dstInfo,
     if (!success) {
         return kInvalidInput;
     }
-#endif // SK_LEGACY_HEIF_API
 
     fSwizzler.reset(nullptr);
     this->allocateStorage(dstInfo);
