@@ -9,9 +9,9 @@
 
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
 std::unique_ptr<GrOp> GrDebugMarkerOp::Make(GrRecordingContext* context,
@@ -25,6 +25,6 @@ std::unique_ptr<GrOp> GrDebugMarkerOp::Make(GrRecordingContext* context,
 void GrDebugMarkerOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     //SkDebugf("%s\n", fStr.c_str());
     if (state->caps().gpuTracingSupport()) {
-        state->commandBuffer()->insertEventMarker(fStr.c_str());
+        state->opsRenderPass()->insertEventMarker(fStr.c_str());
     }
 }

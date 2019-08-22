@@ -121,7 +121,7 @@ public:
         kCanMap_MapFlag     = 0x1,   //<! The resource can be mapped. Must be set for any of
                                      //   the other flags to have meaning.
         kSubset_MapFlag     = 0x2,   //<! The resource can be partially mapped.
-        kAsyncRead_MapFlag  = 0x4,   //<! Are maps for reading asynchronous WRT GrGpuCommandBuffers
+        kAsyncRead_MapFlag  = 0x4,   //<! Are maps for reading asynchronous WRT GrOpsRenderPass
                                      //   submitted to GrGpu.
     };
 
