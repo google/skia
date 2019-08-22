@@ -4025,7 +4025,9 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
     SK_ABORT("Invalid compression type");
 }
 
-bool GrGLCaps::canClearTextureOnCreation() const { return fClearTextureSupport; }
+bool GrGLCaps::canClearTextureOnCreation(const GrBackendFormat& format) const {
+    return fClearTextureSupport || this->canFormatBeFBOColorAttachment(format.asGLFormat());
+}
 
 GrSwizzle GrGLCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     const auto& info = this->getFormatInfo(format.asGLFormat());

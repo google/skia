@@ -171,7 +171,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(renderTargetSampleCnt > 0 && renderTargetSampleCnt <= 64);
 
-    bool mustHaveDataForAllLevels = this->caps()->createTextureMustSpecifyAllLevels();
+    bool mustHaveDataForAllLevels = this->caps()->createTextureMustSpecifyAllLevels(format);
     if (mipLevelCount) {
         int bpp = GrBytesPerPixel(desc.fConfig);
         if (!validate_levels(desc.fWidth, desc.fHeight, texels, mipLevelCount, bpp, this->caps(),

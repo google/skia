@@ -1610,7 +1610,7 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
     SK_ABORT("Invalid compression type");
 }
 
-bool GrVkCaps::canClearTextureOnCreation() const { return true; }
+bool GrVkCaps::canClearTextureOnCreation(const GrBackendFormat&) const { return true; }
 
 GrSwizzle GrVkCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     VkFormat vkFormat;
