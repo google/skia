@@ -17,7 +17,7 @@ sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSu
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
-        uint32_t opListID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
+        uint32_t opsTaskID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
         const GrCaps& caps) {
     return nullptr;
 }

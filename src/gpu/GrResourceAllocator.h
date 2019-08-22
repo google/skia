@@ -38,24 +38,24 @@ class GrResourceProvider;
  *     adds the new interval to the active list (that is sorted by increasing end index)
  *
  * Note: the op indices (used in the usage intervals) come from the order of the ops in
- * their opLists after the opList DAG has been linearized.
+ * their opsTasks after the opsTask DAG has been linearized.
  *
  *************************************************************************************************
  * How does instantiation failure handling work when explicitly allocating?
  *
  * In the gather usage intervals pass all the GrSurfaceProxies used in the flush should be
- * gathered (i.e., in GrOpList::gatherProxyIntervals).
+ * gathered (i.e., in GrOpsTask::gatherProxyIntervals).
  *
  * The allocator will churn through this list but could fail anywhere.
  *
  * Allocation failure handling occurs at two levels:
  *
- * 1) If the GrSurface backing an opList fails to allocate then the entire opList is dropped.
+ * 1) If the GrSurface backing an opsTask fails to allocate then the entire opsTask is dropped.
  *
  * 2) If an individual GrSurfaceProxy fails to allocate then any ops that use it are dropped
- * (via GrOpList::purgeOpsWithUninstantiatedProxies)
+ * (via GrOpsTask::purgeOpsWithUninstantiatedProxies)
  *
- * The pass to determine which ops to drop is a bit laborious so we only check the opLists and
+ * The pass to determine which ops to drop is a bit laborious so we only check the opsTasks and
  * individual ops when something goes wrong in allocation (i.e., when the return code from
  * GrResourceAllocator::assign is bad)
  *
@@ -70,10 +70,10 @@ class GrResourceAllocator {
 public:
     GrResourceAllocator(GrResourceProvider* resourceProvider,
                         GrDeinstantiateProxyTracker* tracker
-                        SkDEBUGCODE(, int numOpLists))
+                        SkDEBUGCODE(, int numOpsTasks))
             : fResourceProvider(resourceProvider)
             , fDeinstantiateTracker(tracker)
-            SkDEBUGCODE(, fNumOpLists(numOpLists)) {
+            SkDEBUGCODE(, fNumOpsTasks(numOpsTasks)) {
     }
 
     ~GrResourceAllocator();
@@ -82,7 +82,7 @@ public:
     void incOps() { fNumOps++; }
 
     /** Indicates whether a given call to addInterval represents an actual usage of the
-     *  provided proxy. This is mainly here to accomodate deferred proxies attached to opLists.
+     *  provided proxy. This is mainly here to accomodate deferred proxies attached to opsTasks.
      *  In that case we need to create an extra long interval for them (due to the upload) but
      *  don't want to count that usage/reference towards the proxy's recyclability.
      */
@@ -101,16 +101,16 @@ public:
         kFailedProxyInstantiation
     };
 
-    // Returns true when the opLists from 'startIndex' to 'stopIndex' should be executed;
+    // Returns true when the opsTasks from 'startIndex' to 'stopIndex' should be executed;
     // false when nothing remains to be executed.
     // If any proxy fails to instantiate, the AssignError will be set to kFailedProxyInstantiation.
     // If this happens, the caller should remove all ops which reference an uninstantiated proxy.
-    // This is used to execute a portion of the queued opLists in order to reduce the total
+    // This is used to execute a portion of the queued opsTasks in order to reduce the total
     // amount of GPU resources required.
     bool assign(int* startIndex, int* stopIndex, AssignError* outError);
 
     void determineRecyclability();
-    void markEndOfOpList(int opListIndex);
+    void markEndOfOpsTask(int opsTaskIndex);
 
 #if GR_ALLOCATION_SPEW
     void dumpIntervals();
@@ -122,7 +122,7 @@ private:
     // Remove dead intervals from the active list
     void expire(unsigned int curIndex);
 
-    bool onOpListBoundary() const;
+    bool onOpsTaskBoundary() const;
     void forceIntermediateFlush(int* stopIndex);
 
     // These two methods wrap the interactions with the free pool
@@ -269,9 +269,9 @@ private:
     IntervalList                 fActiveIntvls;      // List of live intervals during assignment
                                                      // (sorted by increasing end)
     unsigned int                 fNumOps = 0;
-    SkTArray<unsigned int>       fEndOfOpListOpIndices;
-    int                          fCurOpListIndex = 0;
-    SkDEBUGCODE(const int        fNumOpLists = -1;)
+    SkTArray<unsigned int>       fEndOfOpsTaskOpIndices;
+    int                          fCurOpsTaskIndex = 0;
+    SkDEBUGCODE(const int        fNumOpsTasks = -1;)
 
     SkDEBUGCODE(bool             fAssigned = false;)
 
