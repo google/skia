@@ -91,8 +91,8 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
 
     if (FLAGS_reduceOpsTaskSplitting) {
         SkASSERT(!FLAGS_dontReduceOpsTaskSplitting);
-        ctxOptions->fReduceOpListSplitting = GrContextOptions::Enable::kYes;
+        ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kYes;
     } else if (FLAGS_dontReduceOpsTaskSplitting) {
-        ctxOptions->fReduceOpListSplitting = GrContextOptions::Enable::kNo;
+        ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
     }
 }

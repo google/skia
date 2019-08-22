@@ -366,7 +366,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         GrMockOptions mockOptions;
         mockOptions.fMipMapSupport = true;
         GrContextOptions ctxOptions;
-        ctxOptions.fReduceOpListSplitting = enableSortingAndReduction;
+        ctxOptions.fReduceOpsTaskSplitting = enableSortingAndReduction;
         sk_sp<GrContext> context = GrContext::MakeMock(&mockOptions, ctxOptions);
         if (!context) {
             ERRORF(reporter, "could not create mock context with fReduceOpsTaskSplitting %s.",
