@@ -18,7 +18,7 @@
 
 class GrTexturePriv;
 
-class SK_API GrTexture : virtual public GrSurface {
+class GrTexture : virtual public GrSurface {
 public:
     GrTexture* asTexture() override { return this; }
     const GrTexture* asTexture() const override { return this; }
@@ -29,7 +29,7 @@ public:
      * This function indicates that the texture parameters (wrap mode, filtering, ...) have been
      * changed externally to Skia.
      */
-    virtual void textureParamsModified() = 0;
+    SK_API virtual void textureParamsModified() = 0;
 
     /**
      * This function steals the backend texture from a uniquely owned GrTexture with no pending
