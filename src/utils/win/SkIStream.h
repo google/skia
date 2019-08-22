@@ -62,7 +62,7 @@ private:
  */
 class SkIStream : public SkBaseIStream {
 public:
-    HRESULT static CreateFromSkStream(SkStream* stream, bool fDeleteOnRelease, IStream** ppStream);
+    HRESULT static CreateFromSkStream(std::unique_ptr<SkStreamAsset>, IStream** ppStream);
 
     SK_STDMETHODIMP Read(void* pv, ULONG cb, ULONG* pcbRead) override;
     SK_STDMETHODIMP Write(void const* pv, ULONG cb, ULONG* pcbWritten) override;
@@ -72,11 +72,10 @@ public:
     SK_STDMETHODIMP Stat(STATSTG* pStatstg, DWORD grfStatFlag) override;
 
 private:
-    SkStream *fSkStream;
-    const bool fDeleteOnRelease;
+    const std::unique_ptr<SkStream> fSkStream;
     ULARGE_INTEGER fLocation;
 
-    SkIStream(SkStream* stream, bool fDeleteOnRelease);
+    explicit SkIStream(std::unique_ptr<SkStreamAsset>);
     ~SkIStream() override;
 };
 

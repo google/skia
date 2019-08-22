@@ -87,26 +87,21 @@ SK_STDMETHODIMP SkBaseIStream::Stat(STATSTG* pStatstg, DWORD grfStatFlag)
 /**
  * SkIStream
  */
-SkIStream::SkIStream(SkStream* stream, bool deleteOnRelease)
+SkIStream::SkIStream(std::unique_ptr<SkStreamAsset> stream)
     : SkBaseIStream()
-    , fSkStream(stream)
-    , fDeleteOnRelease(deleteOnRelease)
+    , fSkStream(std::move(stream))
     , fLocation()
 {
     this->fSkStream->rewind();
 }
 
-SkIStream::~SkIStream() {
-    if (fDeleteOnRelease) {
-        delete this->fSkStream;
-    }
-}
+SkIStream::~SkIStream() {}
 
-HRESULT SkIStream::CreateFromSkStream(SkStream* stream, bool deleteOnRelease, IStream ** ppStream) {
+HRESULT SkIStream::CreateFromSkStream(std::unique_ptr<SkStreamAsset> stream, IStream** ppStream) {
     if (nullptr == stream) {
         return E_INVALIDARG;
     }
-    *ppStream = new SkIStream(stream, deleteOnRelease);
+    *ppStream = new SkIStream(std::move(stream));
     return S_OK;
 }
 
@@ -155,8 +150,6 @@ SK_STDMETHODIMP SkIStream::Seek(LARGE_INTEGER liDistanceToMove,
         if (!this->fSkStream->rewind()) {
             hr = E_FAIL;
         } else {
-            // FIXME: Should not depend on getLength.
-            // See https://code.google.com/p/skia/issues/detail?id=1570
             size_t skip = static_cast<size_t>(this->fSkStream->getLength() +
                                               liDistanceToMove.QuadPart);
             size_t skipped = this->fSkStream->skip(skip);
@@ -183,8 +176,6 @@ SK_STDMETHODIMP SkIStream::Stat(STATSTG* pStatstg, DWORD grfStatFlag) {
         return STG_E_INVALIDFLAG;
     }
     pStatstg->pwcsName = nullptr;
-    // FIXME: Should not depend on getLength
-    // See https://code.google.com/p/skia/issues/detail?id=1570
     pStatstg->cbSize.QuadPart = this->fSkStream->getLength();
     pStatstg->clsid = CLSID_NULL;
     pStatstg->type = STGTY_STREAM;
