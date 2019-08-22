@@ -94,27 +94,26 @@ protected:
                         const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint,
                         SkCanvas::SrcRectConstraint) override;
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
-        SK_ABORT("Needs an implementation");
-    }
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 
 private:
-    class TypefaceUse : ::SkNoncopyable {
+    class TypefaceUse {
     public:
-        SkFontID typefaceId;
-        int ttcIndex;
-        SkStream* fontData;
-        IXpsOMFontResource* xpsFont;
-        SkBitSet* glyphsUsed;
-
-        explicit TypefaceUse();
-        ~TypefaceUse();
+        TypefaceUse(SkFontID id, int index, std::unique_ptr<SkStream> data,
+                    SkTScopedComPtr<IXpsOMFontResource> xps, size_t numGlyphs)
+            : typefaceId(id), ttcIndex(index), fontData(std::move(data))
+            , xpsFont(std::move(xps)), glyphsUsed(numGlyphs) {}
+        const SkFontID typefaceId;
+        const int ttcIndex;
+        const std::unique_ptr<SkStream> fontData;
+        const SkTScopedComPtr<IXpsOMFontResource> xpsFont;
+        SkBitSet glyphsUsed;
     };
-    friend HRESULT subset_typeface(TypefaceUse* current);
+    friend HRESULT subset_typeface(const TypefaceUse& current);
 
     bool createCanvasForLayer();
 
@@ -207,13 +206,13 @@ private:
         IXpsOMGeometryFigure** xpsQuad);
 
     HRESULT CreateTypefaceUse(
-        const SkPaint& paint,
+        const SkFont& font,
         TypefaceUse** fontResource);
 
     HRESULT AddGlyphs(
         IXpsOMObjectFactory* xpsFactory,
         IXpsOMCanvas* canvas,
-        TypefaceUse* font,
+        const TypefaceUse* font,
         LPCWSTR text,
         XPS_GLYPH_INDEX* xpsGlyphs,
         UINT32 xpsGlyphsLen,

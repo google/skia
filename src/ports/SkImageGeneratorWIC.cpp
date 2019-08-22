@@ -8,6 +8,7 @@
 #include "include/core/SkStream.h"
 #include "include/ports/SkImageGeneratorWIC.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkMakeUnique.h"
 #include "src/utils/win/SkIStream.h"
 #include "src/utils/win/SkTScopedComPtr.h"
 
@@ -59,7 +60,7 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorWIC::MakeFromEncodedWIC(sk_sp<
     SkTScopedComPtr<IStream> iStream;
     // Note that iStream will take ownership of the new memory stream because
     // we set |deleteOnRelease| to true.
-    hr = SkIStream::CreateFromSkStream(new SkMemoryStream(data), true, &iStream);
+    hr = SkIStream::CreateFromSkStream(skstd::make_unique<SkMemoryStream>(data), &iStream);
     if (FAILED(hr)) {
         return nullptr;
     }
