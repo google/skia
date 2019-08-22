@@ -18,7 +18,6 @@ class GrOpFlushState;
 class GrOpList;
 class GrRenderTargetOpList;
 class GrResourceAllocator;
-class GrTextureOpList;
 
 // This class abstracts a task that targets a single GrSurfaceProxy, participates in the
 // GrDrawingManager's DAG, and implements the onExecute method to modify its target proxy's
@@ -53,11 +52,6 @@ public:
     bool dependsOn(const GrRenderTask* dependedOn) const;
 
     uint32_t uniqueID() const { return fUniqueID; }
-
-    /*
-     * Safely cast this GrRenderTask to a GrTextureOpList (if possible).
-     */
-    virtual GrTextureOpList* asTextureOpList() { return nullptr; }
 
     /*
      * Safely cast this GrRenderTask to a GrRenderTargetOpList (if possible).

@@ -15,7 +15,6 @@ class GrCaps;
 class GrDeferredProxyUploader;
 class GrProxyProvider;
 class GrResourceProvider;
-class GrTextureOpList;
 class GrTextureProxyPriv;
 
 // This class delays the acquisition of textures until they are actually required

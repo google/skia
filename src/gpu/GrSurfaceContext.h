@@ -110,7 +110,6 @@ protected:
     GrDrawingManager* drawingManager();
     const GrDrawingManager* drawingManager() const;
 
-    virtual GrOpList* getOpList() = 0;
     SkDEBUGCODE(virtual void validate() const = 0;)
 
     SkDEBUGCODE(GrSingleOwner* singleOwner();)
