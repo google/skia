@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81208bb6_41f3dd02",
+        "filename": "src/core/SkTTopoSort.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-22T18:38:02Z",
+      "side": 1,
+      "message": "Isn\u0027t it really a GrRenderTask DAG?",
+      "range": {
+        "startLine": 80,
+        "startChar": 11,
+        "endLine": 80,
+        "endChar": 20
+      },
+      "revId": "1efe0d39babb5a0df73c75d54227f391ba6f973c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3714ef7_5e2f5d29",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-22T18:38:02Z",
+      "side": 1,
+      "message": "rm?",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 16
+      },
+      "revId": "1efe0d39babb5a0df73c75d54227f391ba6f973c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d715307_421b2535",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-22T18:38:02Z",
+      "side": 1,
+      "message": "wrap?",
+      "revId": "1efe0d39babb5a0df73c75d54227f391ba6f973c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1092133_44204f7a",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-22T18:38:02Z",
+      "side": 1,
+      "message": "wrap?",
+      "revId": "1efe0d39babb5a0df73c75d54227f391ba6f973c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
