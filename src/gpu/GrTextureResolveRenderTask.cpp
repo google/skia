@@ -27,7 +27,7 @@ sk_sp<GrRenderTask> GrTextureResolveRenderTask::Make(
             textureProxyPtr, GrMipMapped::kNo, GrTextureResolveManager(nullptr), caps);
     textureProxyPtr->setLastRenderTask(resolveTask.get());
 
-    // We only resolve the texture; nobody should try to do anything else with this opList.
+    // We only resolve the texture; nobody should try to do anything else with this opsTask.
     resolveTask->makeClosed(caps);
 
     if (GrTextureResolveFlags::kMipMaps & flags) {
@@ -41,7 +41,7 @@ sk_sp<GrRenderTask> GrTextureResolveRenderTask::Make(
 
 void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // This renderTask doesn't have "normal" ops. In this case we still need to add an interval (so
-    // fEndOfOpListOpIndices will remain in sync), so we create a fake op# to capture the fact that
+    // fEndOfOpsTaskOpIndices will remain in sync), so we create a fake op# to capture the fact that
     // we manipulate fTarget.
     alloc->addInterval(fTarget.get(), alloc->curOp(), alloc->curOp(),
                        GrResourceAllocator::ActualUse::kYes);

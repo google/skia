@@ -119,7 +119,7 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
 
     // Does this proxy have mipmaps that need to be regenerated?
     if (GrMipMapped::kYes == mipMapped && textureProxy->mipMapsAreDirty()) {
-        // Create an opList that resolves the texture's mipmap data.
+        // Create a renderTask that resolves the texture's mipmap data.
         GrRenderTask* textureResolveTask = textureResolveManager.newTextureResolveRenderTask(
                 sk_ref_sp(textureProxy), GrTextureResolveFlags::kMipMaps, caps);
 
@@ -130,7 +130,7 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
                  textureResolveTask->fDeferredProxies.back() == textureProxy);
 
         // The GrTextureResolveRenderTask factory should have also marked the mipmaps clean, set the
-        // last opList on the textureProxy to textureResolveTask, and closed textureResolveTask.
+        // last renderTask on the textureProxy to textureResolveTask, and closed textureResolveTask.
         SkASSERT(!textureProxy->mipMapsAreDirty());
         SkASSERT(textureProxy->getLastRenderTask() == textureResolveTask);
         SkASSERT(textureResolveTask->isClosed());

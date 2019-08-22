@@ -41,7 +41,7 @@ public:
     }
 
     void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                   const uint32_t* /*opListIDs*/, int /*numOpListIDs*/) override {
+                   const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
         if (fAtlas) {
             fAtlas->compact(startTokenForNextFlush);
         }
