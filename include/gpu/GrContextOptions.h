@@ -160,7 +160,7 @@ struct SK_API GrContextOptions {
      * Allow Ganesh to more aggressively reorder operations.
      * Eventually this will just be what is done and will not be optional.
      */
-    Enable fReduceOpListSplitting = Enable::kDefault;
+    Enable fReduceOpsTaskSplitting = Enable::kDefault;
 
     /**
      * Some ES3 contexts report the ES2 external image extension, but not the ES3 version.
