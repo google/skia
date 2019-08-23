@@ -216,7 +216,7 @@ sk_sp<SkPicture> SkPicturePriv::MakeFromBuffer(SkReadBuffer& buffer) {
 
 SkPictureData* SkPicture::backport() const {
     SkPictInfo info = this->createHeader();
-    SkPictureRecord rec(SkISize::Make(info.fCullRect.width(), info.fCullRect.height()), 0/*flags*/);
+    SkPictureRecord rec(info.fCullRect.roundOut(), 0/*flags*/);
     rec.beginRecording();
         this->playback(&rec);
     rec.endRecording();
