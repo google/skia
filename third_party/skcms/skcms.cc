@@ -1487,6 +1487,12 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
         inv.b = -inv.a * inv.d;
     }
 
+    // That should usually make tf_is_valid(&inv) true, but there are a couple situations
+    // where we might still fail here, like non-finite parameter values.
+    if (!tf_is_valid(&inv)) {
+        return false;
+    }
+
     assert (inv.a >= 0);
     assert (inv.a * inv.d + inv.b >= 0);
 
@@ -1494,6 +1500,10 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // But to preserve the valuable invariant inv(src(1.0f)) == 1.0f, we'll tweak
     // e or f of the inverse, depending on which segment contains src(1.0f).
     float s = skcms_TransferFunction_eval(src, 1.0f);
+    if (!isfinitef_(s)) {
+        return false;
+    }
+
     float sign = s < 0 ? -1.0f : 1.0f;
     s *= sign;
     if (s < inv.d) {
