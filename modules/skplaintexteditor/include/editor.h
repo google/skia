@@ -3,8 +3,8 @@
 #ifndef editor_DEFINED
 #define editor_DEFINED
 
-#include "experimental/editor/stringslice.h"
-#include "experimental/editor/stringview.h"
+#include "modules/skplaintexteditor/include/stringslice.h"
+#include "modules/skplaintexteditor/include/stringview.h"
 
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
@@ -19,9 +19,7 @@
 class SkCanvas;
 class SkShaper;
 
-// TODO: modulize this; editor::Editor becomes SkEditor ?
-
-namespace editor {
+namespace SkPlainTextEditor {
 
 class Editor {
     struct TextLine;
@@ -49,7 +47,7 @@ public:
     };
     // Loop over all the lines of text.  The lines are not '\0'- or '\n'-terminated.
     // For example, to dump the entire file to standard output:
-    //     for (editor::StringView str : editor.text()) {
+    //     for (SkPlainTextEditor::StringView str : editor.text()) {
     //         std::cout.write(str.data, str.size) << '\n';
     //     }
     Text text() const { return Text{fLines}; }
@@ -125,17 +123,17 @@ private:
     void markDirty(TextLine*);
     void reshapeAll();
 };
-}  // namespace editor
+}  // namespace SkPlainTextEditor
 
-static inline bool operator==(const editor::Editor::TextPosition& u,
-                              const editor::Editor::TextPosition& v) {
+static inline bool operator==(const SkPlainTextEditor::Editor::TextPosition& u,
+                              const SkPlainTextEditor::Editor::TextPosition& v) {
     return u.fParagraphIndex == v.fParagraphIndex && u.fTextByteIndex == v.fTextByteIndex;
 }
-static inline bool operator!=(const editor::Editor::TextPosition& u,
-                              const editor::Editor::TextPosition& v) { return !(u == v); }
+static inline bool operator!=(const SkPlainTextEditor::Editor::TextPosition& u,
+                              const SkPlainTextEditor::Editor::TextPosition& v) { return !(u == v); }
 
-static inline bool operator<(const editor::Editor::TextPosition& u,
-                             const editor::Editor::TextPosition& v) {
+static inline bool operator<(const SkPlainTextEditor::Editor::TextPosition& u,
+                             const SkPlainTextEditor::Editor::TextPosition& v) {
     return u.fParagraphIndex < v.fParagraphIndex ||
            (u.fParagraphIndex == v.fParagraphIndex && u.fTextByteIndex < v.fTextByteIndex);
 }
