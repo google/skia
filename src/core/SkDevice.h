@@ -380,11 +380,14 @@ public:
     {
         // this fails if we enable this assert: DiscardableImageMapTest.GetDiscardableImagesInRectMaxImage
         //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
+
+        this->setOrigin(SkMatrix::I(), bounds.left(), bounds.top());
     }
 
     void resetForNextPicture(const SkIRect& bounds) {
         //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
         this->privateResize(bounds.width(), bounds.height());
+        this->setOrigin(SkMatrix::I(), bounds.left(), bounds.top());
     }
 
 protected:

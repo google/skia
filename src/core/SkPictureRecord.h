@@ -33,6 +33,8 @@ class SkPictureRecord : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
     SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
 
+    SkPictureRecord(const SkIRect& dimensions, uint32_t recordFlags);
+
     const SkTArray<sk_sp<const SkPicture>>& getPictures() const {
         return fPictures;
     }

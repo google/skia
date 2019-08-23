@@ -29,11 +29,14 @@ enum {
 // A lot of basic types get stored as a uint32_t: bools, ints, paint indices, etc.
 static int const kUInt32Size = 4;
 
-SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
-    : INHERITED(dimensions.width(), dimensions.height())
+SkPictureRecord::SkPictureRecord(const SkIRect& dimensions, uint32_t flags)
+    : INHERITED(dimensions)
     , fRecordFlags(flags)
     , fInitialSaveCount(kNoInitialSave) {
 }
+
+SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
+    : SkPictureRecord(SkIRect::MakeSize(dimensions), flags) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 

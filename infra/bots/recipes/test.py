@@ -484,7 +484,7 @@ def dm_flags(api, bot):
     # http://b/118312149#comment9
     blacklist('_ test _ SRGBReadWritePixels')
 
-  # skia:4095, skia:9334
+  # skia:4095
   bad_serialize_gms = ['bleed_image',
                        'c_gms',
                        'colortype',
@@ -500,8 +500,7 @@ def dm_flags(api, bot):
                        'imagemakewithfilter',
                        'imagemakewithfilter_crop',
                        'imagemakewithfilter_crop_ref',
-                       'imagemakewithfilter_ref',
-                       'picture_cull_rect']
+                       'imagemakewithfilter_ref']
 
   # skia:5589
   bad_serialize_gms.extend(['bitmapfilters',
