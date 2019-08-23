@@ -11,6 +11,7 @@
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRefCnt.h"
+#include <memory>  // std::unique_ptr
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 namespace android {

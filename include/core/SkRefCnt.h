@@ -12,7 +12,6 @@
 
 #include <atomic>       // std::atomic, std::memory_order_*
 #include <cstddef>      // std::nullptr_t
-#include <memory>       // TODO: unused
 #include <type_traits>  // std::enable_if, std::is_convertible
 #include <utility>      // std::forward, std::swap
 
