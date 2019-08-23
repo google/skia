@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b8c699c_3e8c7265",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T19:02:12Z",
+      "side": 1,
+      "message": "get_dawn_texture_from_surface for static methods",
+      "range": {
+        "startLine": 413,
+        "startChar": 21,
+        "endLine": 413,
+        "endChar": 46
+      },
+      "revId": "fb7aaad4e311d060a2df65161fea4dc43a3d33e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
