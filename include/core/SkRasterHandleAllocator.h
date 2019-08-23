@@ -9,6 +9,7 @@
 #define SkRasterHandleAllocator_DEFINED
 
 #include "include/core/SkImageInfo.h"
+#include <memory>  // std::unique_ptr
 
 class SkBitmap;
 class SkCanvas;

@@ -11,6 +11,7 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkScalar.h"
+#include <memory>  // std::unique_ptr
 
 class GrBackendDrawableInfo;
 class SkCanvas;

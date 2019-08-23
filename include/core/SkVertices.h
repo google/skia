@@ -13,6 +13,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include <memory>  // std::unique_ptr
 
 /**
  * An immutable set of vertex data that can be used with SkCanvas::drawVertices.

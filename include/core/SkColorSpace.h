@@ -13,7 +13,6 @@
 #include "include/private/SkFixed.h"
 #include "include/private/SkOnce.h"
 #include "include/third_party/skcms/skcms.h"
-#include <memory>
 
 class SkData;
 
