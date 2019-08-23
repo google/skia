@@ -11,6 +11,7 @@
 #include "include/private/SkVx.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkVM.h"
+#include <stdio.h>
 #include <string.h>
 #if defined(SKVM_JIT)
     #include <sys/mman.h>
