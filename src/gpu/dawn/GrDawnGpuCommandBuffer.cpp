@@ -102,8 +102,6 @@ dawn::RenderPassEncoder GrDawnGpuRTCommandBuffer::beginRenderPass(dawn::LoadOp c
         depthStencilAttachment.depthStoreOp = dawn::StoreOp::Store;
         depthStencilAttachment.stencilStoreOp = dawn::StoreOp::Store;
         renderPassDescriptor.depthStencilAttachment = &depthStencilAttachment;
-    } else {
-        renderPassDescriptor.depthStencilAttachment = nullptr;
     }
     return fEncoder.BeginRenderPass(&renderPassDescriptor);
 }
