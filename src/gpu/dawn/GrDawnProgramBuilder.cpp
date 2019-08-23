@@ -180,6 +180,51 @@ static dawn::AddressMode to_dawn_address_mode(GrSamplerState::WrapMode wrapMode)
     return dawn::AddressMode::ClampToEdge;
 }
 
+static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primitiveType) {
+    switch (primitiveType) {
+        case GrPrimitiveType::kTriangles:
+            return dawn::PrimitiveTopology::TriangleList;
+        case GrPrimitiveType::kTriangleStrip:
+            return dawn::PrimitiveTopology::TriangleStrip;
+        case GrPrimitiveType::kPoints:
+            return dawn::PrimitiveTopology::PointList;
+        case GrPrimitiveType::kLines:
+            return dawn::PrimitiveTopology::LineList;
+        case GrPrimitiveType::kLineStrip:
+            return dawn::PrimitiveTopology::LineStrip;
+        case GrPrimitiveType::kLinesAdjacency:
+        default:
+            SkASSERT(!"unsupported primitive topology");
+            return dawn::PrimitiveTopology::TriangleList;
+    }
+}
+
+static dawn::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {
+    switch (type) {
+    case kFloat_GrVertexAttribType:
+    case kHalf_GrVertexAttribType:
+        return dawn::VertexFormat::Float;
+    case kFloat2_GrVertexAttribType:
+    case kHalf2_GrVertexAttribType:
+        return dawn::VertexFormat::Float2;
+    case kFloat3_GrVertexAttribType:
+    case kHalf3_GrVertexAttribType:
+        return dawn::VertexFormat::Float3;
+    case kFloat4_GrVertexAttribType:
+    case kHalf4_GrVertexAttribType:
+        return dawn::VertexFormat::Float4;
+    case kUShort2_GrVertexAttribType:
+        return dawn::VertexFormat::UShort2;
+    case kInt_GrVertexAttribType:
+        return dawn::VertexFormat::Int;
+    case kUByte4_norm_GrVertexAttribType:
+        return dawn::VertexFormat::UChar4Norm;
+    default:
+        SkASSERT(!"unsupported vertex format");
+        return dawn::VertexFormat::Float4;
+    }
+}
+
 static dawn::ColorStateDescriptor create_color_state(const GrDawnGpu* gpu,
                                                      const GrPipeline& pipeline,
                                                      dawn::TextureFormat colorFormat) {
@@ -222,17 +267,7 @@ static dawn::DepthStencilStateDescriptor create_depth_stencil_state(
         GrSurfaceOrigin origin) {
     dawn::DepthStencilStateDescriptor state;
     state.format = depthStencilFormat;
-    state.depthWriteEnabled = false;
-    state.depthCompare = dawn::CompareFunction::Always;
-    if (stencilSettings.isDisabled()) {
-        dawn::StencilStateFaceDescriptor stencilFace;
-        stencilFace.compare = dawn::CompareFunction::Always;
-        stencilFace.failOp = dawn::StencilOperation::Keep;
-        stencilFace.depthFailOp = dawn::StencilOperation::Keep;
-        stencilFace.passOp = dawn::StencilOperation::Keep;
-        state.stencilReadMask = state.stencilWriteMask = 0x0;
-        state.stencilBack = state.stencilFront = stencilFace;
-    } else {
+    if (!stencilSettings.isDisabled()) {
         const GrStencilSettings::Face& front = stencilSettings.front(origin);
         state.stencilReadMask = front.fTestMask;
         state.stencilWriteMask = front.fWriteMask;
@@ -294,6 +329,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                                                  const GrPipeline& pipeline,
                                                  const GrPrimitiveProcessor& primProc,
                                                  const GrTextureProxy* const primProcProxies[],
+                                                 GrPrimitiveType primitiveType,
                                                  dawn::TextureFormat colorFormat,
                                                  bool hasDepthStencil,
                                                  dawn::TextureFormat depthStencilFormat,
@@ -317,16 +353,15 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     uint32_t fragmentUniformSize = builder.fUniformHandler.fCurrentFragmentUBOOffset;
     sk_sp<GrDawnProgram> result(
         new GrDawnProgram(uniforms, geometryUniformSize, fragmentUniformSize));
-    result->fVSModule = builder.createShaderModule(builder.fVS, SkSL::Program::kVertex_Kind,
-                                                   &vertInputs);
-    result->fFSModule = builder.createShaderModule(builder.fFS, SkSL::Program::kFragment_Kind,
-                                                   &fragInputs);
+    auto vsModule = builder.createShaderModule(builder.fVS, SkSL::Program::kVertex_Kind,
+                                               &vertInputs);
+    auto fsModule = builder.createShaderModule(builder.fFS, SkSL::Program::kFragment_Kind,
+                                               &fragInputs);
     result->fGeometryProcessor = std::move(builder.fGeometryProcessor);
     result->fXferProcessor = std::move(builder.fXferProcessor);
     result->fFragmentProcessors = std::move(builder.fFragmentProcessors);
     result->fFragmentProcessorCnt = builder.fFragmentProcessorCnt;
     std::vector<dawn::BindGroupLayoutBinding> layoutBindings;
-    std::vector<dawn::BindGroupBinding> bindings;
     if (0 != geometryUniformSize) {
         layoutBindings.push_back({ GrDawnUniformHandler::kGeometryBinding,
                                    dawn::ShaderStageBit::Vertex,
@@ -351,15 +386,85 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     dawn::PipelineLayoutDescriptor pipelineLayoutDesc;
     pipelineLayoutDesc.bindGroupLayoutCount = 1;
     pipelineLayoutDesc.bindGroupLayouts = &result->fBindGroupLayout;
-    result->fPipelineLayout = gpu->device().CreatePipelineLayout(&pipelineLayoutDesc);
+    auto pipelineLayout = gpu->device().CreatePipelineLayout(&pipelineLayoutDesc);
     result->fBuiltinUniformHandles = builder.fUniformHandles;
-    result->fColorState = create_color_state(gpu, pipeline, colorFormat);
+    auto colorState = create_color_state(gpu, pipeline, colorFormat);
+    dawn::DepthStencilStateDescriptor depthStencilState;
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {
         int numStencilBits = renderTarget->renderTargetPriv().numStencilBits();
         stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(), numStencilBits);
     }
-    result->fDepthStencilState = create_depth_stencil_state(stencil, depthStencilFormat, origin);
+    depthStencilState = create_depth_stencil_state(stencil, depthStencilFormat, origin);
+
+    std::vector<dawn::VertexBufferDescriptor> inputs;
+
+    std::vector<dawn::VertexAttributeDescriptor> vertexAttributes;
+    if (primProc.numVertexAttributes() > 0) {
+        size_t offset = 0;
+        int i = 0;
+        for (const auto& attrib : primProc.vertexAttributes()) {
+            dawn::VertexAttributeDescriptor attribute;
+            attribute.shaderLocation = i;
+            attribute.offset = offset;
+            attribute.format = to_dawn_vertex_format(attrib.cpuType());
+            vertexAttributes.push_back(attribute);
+            offset += attrib.sizeAlign4();
+            i++;
+        }
+        dawn::VertexBufferDescriptor input;
+        input.stride = offset;
+        input.stepMode = dawn::InputStepMode::Vertex;
+        input.attributeCount = vertexAttributes.size();
+        input.attributes = &vertexAttributes.front();
+        inputs.push_back(input);
+    }
+    std::vector<dawn::VertexAttributeDescriptor> instanceAttributes;
+    if (primProc.numInstanceAttributes() > 0) {
+        size_t offset = 0;
+        int i = 0;
+        for (const auto& attrib : primProc.instanceAttributes()) {
+            dawn::VertexAttributeDescriptor attribute;
+            attribute.shaderLocation = i;
+            attribute.offset = offset;
+            attribute.format = to_dawn_vertex_format(attrib.cpuType());
+            instanceAttributes.push_back(attribute);
+            offset += attrib.sizeAlign4();
+            i++;
+        }
+        dawn::VertexBufferDescriptor input;
+        input.stride = offset;
+        input.stepMode = dawn::InputStepMode::Instance;
+        input.attributeCount = instanceAttributes.size();
+        input.attributes = &instanceAttributes.front();
+        inputs.push_back(input);
+    }
+    dawn::VertexInputDescriptor vertexInput;
+    vertexInput.indexFormat = dawn::IndexFormat::Uint16;
+    vertexInput.bufferCount = inputs.size();
+    vertexInput.buffers = &inputs.front();
+
+    dawn::PipelineStageDescriptor vsDesc;
+    vsDesc.module = vsModule;
+    vsDesc.entryPoint = "main";
+
+    dawn::PipelineStageDescriptor fsDesc;
+    fsDesc.module = fsModule;
+    fsDesc.entryPoint = "main";
+
+    dawn::RenderPipelineDescriptor rpDesc;
+    rpDesc.layout = pipelineLayout;
+    rpDesc.vertexStage = &vsDesc;
+    rpDesc.fragmentStage = &fsDesc;
+    rpDesc.vertexInput = &vertexInput;
+    rpDesc.primitiveTopology = to_dawn_primitive_topology(primitiveType);
+    if (hasDepthStencil) {
+        rpDesc.depthStencilState = &depthStencilState;
+    }
+    rpDesc.colorStateCount = 1;
+    dawn::ColorStateDescriptor* colorStatesPtr[] = { &colorState };
+    rpDesc.colorStates = colorStatesPtr;
+    result->fRenderPipeline = gpu->device().CreateRenderPipeline(&rpDesc);
     return result;
 }
 

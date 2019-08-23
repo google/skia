@@ -16,10 +16,12 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/dawn/GrDawnBuffer.h"
 #include "src/gpu/dawn/GrDawnCaps.h"
 #include "src/gpu/dawn/GrDawnGpuCommandBuffer.h"
+#include "src/gpu/dawn/GrDawnProgramBuilder.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
 #include "src/gpu/dawn/GrDawnStencilAttachment.h"
 #include "src/gpu/dawn/GrDawnTexture.h"
@@ -32,6 +34,55 @@
 #if !defined(SK_BUILD_FOR_WIN)
 #include <unistd.h>
 #endif // !defined(SK_BUILD_FOR_WIN)
+
+const int kMaxRenderPipelineEntries = 1024;
+
+namespace {
+
+// FIXME: taken from GrVkPipelineState; refactor.
+uint32_t get_blend_info_key(const GrPipeline& pipeline) {
+    GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
+
+    static const uint32_t kBlendWriteShift = 1;
+    static const uint32_t kBlendCoeffShift = 5;
+    GR_STATIC_ASSERT(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
+    GR_STATIC_ASSERT(kFirstAdvancedGrBlendEquation - 1 < 4);
+
+    uint32_t key = blendInfo.fWriteColor;
+    key |= (blendInfo.fSrcBlend << kBlendWriteShift);
+    key |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
+    key |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
+
+    return key;
+}
+
+class Desc : public GrProgramDesc {
+public:
+    static bool Build(Desc* desc,
+                      GrRenderTarget* rt,
+                      const GrPipeline& pipeline,
+                      const GrPrimitiveProcessor& primProc,
+                      GrPrimitiveType primitiveType,
+                      bool hasPoints,
+                      GrGpu* gpu) {
+        if (!GrProgramDesc::Build(desc, rt, primProc, hasPoints, pipeline, gpu)) {
+            return false;
+        }
+        GrProcessorKeyBuilder b(&desc->key());
+
+        bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
+        GrStencilSettings stencil;
+        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(), 8);
+        stencil.genKey(&b);
+        b.add32(rt->config());
+        b.add32(static_cast<int32_t>(hasDepthStencil));
+        b.add32(get_blend_info_key(pipeline));
+        b.add32(static_cast<uint32_t>(primitiveType));
+        return true;
+    }
+};
+
+};
 
 sk_sp<GrGpu> GrDawnGpu::Make(const dawn::Device& device,
                              const GrContextOptions& options, GrContext* context) {
@@ -51,7 +102,8 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
         , fQueue(device.CreateQueue())
         , fCompiler(new SkSL::Compiler())
         , fUniformRingBuffer(this, dawn::BufferUsageBit::Uniform)
-        , fCopyEncoder(fDevice.CreateCommandEncoder()) {
+        , fCopyEncoder(fDevice.CreateCommandEncoder())
+        , fRenderPipelineCache(kMaxRenderPipelineEntries) {
     fCaps.reset(new GrDawnCaps(options));
     // This will be filled by the copy command buffer.
     fCommandBuffers.push_back(nullptr);
@@ -572,6 +624,34 @@ void GrDawnGpu::checkFinishProcs() {
 sk_sp<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
     SkASSERT(!"unimplemented");
     return nullptr;
+}
+
+sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
+        GrRenderTarget* rt,
+        GrSurfaceOrigin origin,
+        const GrPipeline& pipeline,
+        const GrPrimitiveProcessor& primProc,
+        const GrTextureProxy* const* primProcProxies,
+        bool hasPoints,
+        GrPrimitiveType primitiveType) {
+    bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
+    Desc desc;
+    if (!Desc::Build(&desc, rt, pipeline, primProc, primitiveType, hasPoints, this)) {
+        return nullptr;
+    }
+
+    if (sk_sp<GrDawnProgram>* program = fRenderPipelineCache.find(desc)) {
+        return *program;
+    }
+
+    dawn::TextureFormat colorFormat;
+    SkAssertResult(GrPixelConfigToDawnFormat(rt->config(), &colorFormat));
+    dawn::TextureFormat stencilFormat = dawn::TextureFormat::Depth24PlusStencil8;
+
+    sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(
+        this, rt, origin, pipeline, primProc, primProcProxies, primitiveType, colorFormat, hasDepthStencil, stencilFormat, &desc);
+    fRenderPipelineCache.insert(desc, program);
+    return program;
 }
 
 GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
