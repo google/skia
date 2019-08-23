@@ -36,6 +36,11 @@ private:
 
     bool onExecute(GrOpFlushState*) override;
 
+#ifdef SK_DEBUG
+    // No non-dst proxies.
+    void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {}
+#endif
+
     const GrTextureResolveFlags fResolveFlags;
 };
 

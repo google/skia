@@ -63,6 +63,7 @@ public:
     SkDEBUGCODE(virtual void dump(bool printDependencies) const;)
 
     SkDEBUGCODE(virtual int numClips() const { return 0; })
+    SkDEBUGCODE(virtual void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const = 0;)
 
 protected:
     // In addition to just the GrSurface being allocated, has the stencil buffer been allocated (if
