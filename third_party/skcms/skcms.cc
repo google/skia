@@ -1672,7 +1672,8 @@ static bool fit_nonlinear(const skcms_Curve* curve, int L, int N, skcms_Transfer
     // No matter where we start, dx should always represent N even steps from 0 to 1.
     const float dx = 1.0f / (N-1);
 
-    for (int j = 0; j < 3/*TODO: tune*/; j++) {
+    // As far as we can tell, 1 Gauss-Newton step won't converge, and 3 steps is no better than 2.
+    for (int j = 0; j < 2; j++) {
         // These extra constraints a >= 0 and ad+b >= 0 are not modeled in the optimization.
         // We don't really know how to fix up a if it goes negative.
         if (P[1] < 0) {
