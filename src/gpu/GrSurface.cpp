@@ -85,42 +85,6 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool GrSurface::hasPendingRead() const {
-    const GrTexture* thisTex = this->asTexture();
-    if (thisTex && thisTex->internalHasPendingRead()) {
-        return true;
-    }
-    const GrRenderTarget* thisRT = this->asRenderTarget();
-    if (thisRT && thisRT->internalHasPendingRead()) {
-        return true;
-    }
-    return false;
-}
-
-bool GrSurface::hasPendingWrite() const {
-    const GrTexture* thisTex = this->asTexture();
-    if (thisTex && thisTex->internalHasPendingWrite()) {
-        return true;
-    }
-    const GrRenderTarget* thisRT = this->asRenderTarget();
-    if (thisRT && thisRT->internalHasPendingWrite()) {
-        return true;
-    }
-    return false;
-}
-
-bool GrSurface::hasPendingIO() const {
-    const GrTexture* thisTex = this->asTexture();
-    if (thisTex && thisTex->internalHasPendingIO()) {
-        return true;
-    }
-    const GrRenderTarget* thisRT = this->asRenderTarget();
-    if (thisRT && thisRT->internalHasPendingIO()) {
-        return true;
-    }
-    return false;
-}
-
 void GrSurface::onRelease() {
     this->invokeReleaseProc();
     this->INHERITED::onRelease();
