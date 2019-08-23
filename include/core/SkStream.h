@@ -13,7 +13,8 @@
 #include "include/core/SkScalar.h"
 #include "include/private/SkTo.h"
 
-#include <memory.h>
+#include <memory>  // std::unique_ptr
+#include <string.h>
 
 class SkStream;
 class SkStreamRewindable;

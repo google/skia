@@ -9,6 +9,7 @@
 #define SkAtlasTextContext_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include <memory>  // std::unique_ptr
 
 class SkAtlasTextRenderer;
 class SkInternalAtlasTextContext;

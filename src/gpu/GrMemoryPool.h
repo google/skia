@@ -11,6 +11,7 @@
 #include "include/gpu/GrTypes.h"
 
 #include "include/core/SkRefCnt.h"
+#include <memory>  // std::unique_ptr
 
 #ifdef SK_DEBUG
 #include "include/private/SkTHash.h"
