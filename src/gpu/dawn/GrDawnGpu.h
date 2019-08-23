@@ -139,8 +139,7 @@ private:
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
     bool onCopySurface(GrSurface* dst, GrSurface* src,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint,
-                       bool canDiscardOutsideDstRect) override;
+                       const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
     void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override;
