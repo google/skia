@@ -11,9 +11,13 @@
 #include "include/private/SkVx.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkVM.h"
-#include <string.h>
+#include <stdio.h>
 #if defined(SKVM_JIT)
     #include <sys/mman.h>
+#endif
+#if defined(SKVM_PERF_DUMPS)
+    #include <string.h>
+    #include <time.h>
 #endif
 
 namespace skvm {
