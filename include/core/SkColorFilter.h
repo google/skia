@@ -12,6 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
+#include <memory>  // std::unique_ptr
 
 class GrColorSpaceInfo;
 class GrFragmentProcessor;

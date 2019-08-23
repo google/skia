@@ -11,6 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/third_party/skcms/skcms.h"
+#include <memory>  // std::unique_ptr
 
 struct SkEncodedInfo {
 public:
