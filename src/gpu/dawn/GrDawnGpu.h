@@ -12,6 +12,9 @@
 #include "dawn/dawncpp.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
+#include "src/gpu/dawn/GrDawnStagingManager.h"
+
+#include <unordered_map>
 
 class GrPipeline;
 struct GrDawnProgram;
@@ -94,7 +97,11 @@ public:
                                                    bool hasPoints,
                                                    GrPrimitiveType primitiveType);
 
+    dawn::Sampler getOrCreateSampler(const GrSamplerState& samplerState);
+
     GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
+    GrDawnStagingBuffer* getStagingBuffer(size_t size);
+    GrDawnStagingManager* getStagingManager() { return &fStagingManager; }
     dawn::CommandEncoder getCopyEncoder() { return fCopyEncoder; }
     void appendCommandBuffer(dawn::CommandBuffer commandBuffer);
 
@@ -172,7 +179,15 @@ private:
         }
     };
 
+    struct SamplerHash {
+        size_t operator()(const GrSamplerState& samplerState) const {
+            return SkOpts::hash_fn(&samplerState, sizeof(samplerState), 0);
+        }
+    };
+
     SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
+    std::unordered_map<GrSamplerState, dawn::Sampler, SamplerHash> fSamplers;
+    GrDawnStagingManager fStagingManager;
 
     typedef GrGpu INHERITED;
 };
