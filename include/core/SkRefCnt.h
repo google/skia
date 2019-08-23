@@ -14,7 +14,6 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
-#include <ostream>
 #include <type_traits>
 #include <utility>
 
@@ -385,11 +384,6 @@ template <typename T> inline bool operator>=(const sk_sp<T>& a, std::nullptr_t) 
 }
 template <typename T> inline bool operator>=(std::nullptr_t, const sk_sp<T>& b) {
     return !(nullptr < b);
-}
-
-template <typename C, typename CT, typename T>
-auto operator<<(std::basic_ostream<C, CT>& os, const sk_sp<T>& sp) -> decltype(os << sp.get()) {
-    return os << sp.get();
 }
 
 template <typename T, typename... Args>
