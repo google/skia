@@ -12,6 +12,7 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include <memory>  // std::unique_ptr
 
 class SkData;
 class SkFontData;

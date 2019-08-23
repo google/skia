@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include <memory>  // std::unique_ptr
 
 class GrBackendSemaphore;
 class GrContext;
