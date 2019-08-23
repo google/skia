@@ -2616,7 +2616,7 @@ if (skia_enable_tools) {
     test_app("editor") {
       is_shared_library = is_android
       deps = [
-        "experimental/editor:editor_app",
+        "modules/skplaintexteditor:editor_app",
       ]
     }
   }

@@ -1,7 +1,7 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "experimental/editor/word_boundaries.h"
+#include "modules/skplaintexteditor/src/word_boundaries.h"
 
 #include <unicode/brkiter.h>
 #include <unicode/unistr.h>

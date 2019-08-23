@@ -3,12 +3,12 @@
 #ifndef stringslice_DEFINED
 #define stringslice_DEFINED
 
-#include "experimental/editor/stringview.h"
+#include "modules/skplaintexteditor/include/stringview.h"
 
 #include <memory>
 #include <cstddef>
 
-namespace editor {
+namespace SkPlainTextEditor {
 // A lightweight modifiable string class.
 class StringSlice {
 public:
@@ -25,7 +25,7 @@ public:
     const char* begin() const { return fPtr.get(); }
     const char* end() const { return fPtr ? fPtr.get() + fLength : nullptr; }
     std::size_t size() const { return fLength; }
-    editor::StringView view() const { return {fPtr.get(), fLength}; }
+    SkPlainTextEditor::StringView view() const { return {fPtr.get(), fLength}; }
 
     // mutation:
     void insert(std::size_t offset, const char* text, std::size_t length);
@@ -42,5 +42,5 @@ private:
     std::size_t fCapacity = 0;
     void realloc(std::size_t);
 };
-}  // namespace editor;
+}  // namespace SkPlainTextEditor;
 #endif  // stringslice_DEFINED

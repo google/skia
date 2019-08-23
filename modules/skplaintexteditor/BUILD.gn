@@ -8,13 +8,13 @@ if (skia_use_icu && skia_use_harfbuzz) {
   source_set("editor_lib") {
     include_dirs = [ "../.." ]
     public = [
-      "editor.h",
-      "stringslice.h",
-      "stringview.h",
+      "include/editor.h",
+      "include/stringslice.h",
+      "include/stringview.h",
     ]
     sources = [
-      "editor.cpp",
-      "stringslice.cpp",
+      "src/editor.cpp",
+      "src/stringslice.cpp",
     ]
     public_deps = [
       "../..:skia",
@@ -27,10 +27,10 @@ if (skia_use_icu && skia_use_harfbuzz) {
   source_set("shape") {
     include_dirs = [ "../.." ]
     public = [
-      "shape.h",
+      "src/shape.h",
     ]
     sources = [
-      "shape.cpp",
+      "src/shape.cpp",
     ]
     public_deps = [
       "../..:skia",
@@ -44,10 +44,10 @@ if (skia_use_icu && skia_use_harfbuzz) {
   source_set("word_boundaries") {
     include_dirs = [ "../.." ]
     public = [
-      "word_boundaries.h",
+      "src/word_boundaries.h",
     ]
     sources = [
-      "word_boundaries.cpp",
+      "src/word_boundaries.cpp",
     ]
     deps = [
       "../../third_party/icu",
@@ -57,7 +57,7 @@ if (skia_use_icu && skia_use_harfbuzz) {
   source_set("editor_app") {
     testonly = true
     sources = [
-      "editor_application.cpp",
+      "app/editor_application.cpp",
     ]
     public_deps = [
       "../..:sk_app",

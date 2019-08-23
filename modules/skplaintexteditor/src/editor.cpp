@@ -1,18 +1,18 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "experimental/editor/editor.h"
+#include "modules/skplaintexteditor/include/editor.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkPath.h"
 #include "src/utils/SkUTF.h"
 
-#include "experimental/editor/shape.h"
+#include "modules/skplaintexteditor/src/shape.h"
 
 #include <algorithm>
 
-using namespace editor;
+using namespace SkPlainTextEditor;
 
 static inline SkRect offset(SkRect r, SkIPoint p) {
     return r.makeOffset((float)p.x(), (float)p.y());
