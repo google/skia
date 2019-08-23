@@ -6,6 +6,8 @@
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextStyle.h"
 
+#include <string>
+
 namespace skia {
 namespace textlayout {
 
