@@ -14,6 +14,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkPoint.h"
+#include <functional>  // std::function
 
 class  SkArenaAlloc;
 class  SkCanvas;
