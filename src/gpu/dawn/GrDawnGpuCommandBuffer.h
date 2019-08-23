@@ -23,11 +23,6 @@ public:
     GrDawnGpuTextureCommandBuffer(GrDawnGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin);
     ~GrDawnGpuTextureCommandBuffer() override;
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-
-    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
-                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                      size_t offset) override;
     void insertEventMarker(const char*) override {}
     void submit();
 
@@ -50,14 +45,9 @@ public:
     void end() override;
 
     dawn::RenderPassEncoder beginRenderPass(dawn::LoadOp colorOp, dawn::LoadOp stencilOp);
-    void transferFrom(const SkIRect& srcRect, GrColorType surfaceColorType,
-                      GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                      size_t offset) override;
     void insertEventMarker(const char*) override;
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
-
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
     void submit();
 

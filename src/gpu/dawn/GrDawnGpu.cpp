@@ -410,13 +410,40 @@ void GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfac
     SkASSERT(!"unimplemented");
 }
 
+static dawn::Texture get_dawn_texture_from_surface(GrSurface* src) {
+    if (auto rt = static_cast<GrDawnRenderTarget*>(src->asRenderTarget())) {
+        return rt->texture();
+    } else if (auto t = static_cast<GrDawnTexture*>(src->asTexture())) {
+        return t->texture();
+    } else {
+        return nullptr;
+    }
+}
+
 bool GrDawnGpu::onCopySurface(GrSurface* dst,
                               GrSurface* src,
                               const SkIRect& srcRect,
-                              const SkIPoint& dstPoint,
-                              bool canDiscardOutsideDstRect) {
-    SkASSERT(!"unimplemented");
-    return false;
+                              const SkIPoint& dstPoint) {
+    dawn::Texture srcTexture = get_dawn_texture_from_surface(src);
+    dawn::Texture dstTexture = get_dawn_texture_from_surface(dst);
+    if (!srcTexture || !dstTexture) {
+        return false;
+    }
+
+    uint32_t width = srcRect.width(), height = srcRect.height();
+
+    dawn::TextureCopyView srcTextureView, dstTextureView;
+    srcTextureView.texture = srcTexture;
+    srcTextureView.origin = {(uint32_t) srcRect.x(), (uint32_t) srcRect.y(), 0};
+    dstTextureView.texture = dstTexture;
+    dstTextureView.origin = {(uint32_t) dstPoint.x(), (uint32_t) dstPoint.y(), 0};
+
+    dawn::Extent3D copySize = {width, height, 1};
+    auto encoder = device().CreateCommandEncoder();
+    encoder.CopyTextureToTexture(&srcTextureView, &dstTextureView, &copySize);
+    auto commandBuffer = encoder.Finish();
+    this->queue().Submit(1, &commandBuffer);
+    return true;
 }
 
 static void callback(DawnBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
@@ -427,14 +454,7 @@ static void callback(DawnBufferMapAsyncStatus status, const void* data, uint64_t
 bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
                              GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
                              size_t rowBytes) {
-    dawn::Texture tex;
-    if (auto rt = static_cast<GrDawnRenderTarget*>(surface->asRenderTarget())) {
-        tex = rt->texture();
-    } else if (auto t = static_cast<GrDawnTexture*>(surface->asTexture())) {
-        tex = t->texture();
-    } else {
-        return false;
-    }
+    dawn::Texture tex = get_dawn_texture_from_surface(surface);
 
     if (0 == rowBytes) {
         return false;
