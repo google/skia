@@ -42,8 +42,7 @@ public:
         REPORTER_ASSERT(fReporter, fHasClipTexture);
     }
 
-    void preFlush(GrOnFlushResourceProvider*, const uint32_t*, int,
-                  SkTArray<std::unique_ptr<GrRenderTargetContext>>*) override {
+    void preFlush(GrOnFlushResourceProvider*, const uint32_t*, int) override {
         REPORTER_ASSERT(fReporter, !fHasOpTexture);
         REPORTER_ASSERT(fReporter, !fHasClipTexture);
     }

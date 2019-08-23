@@ -107,8 +107,7 @@ public:
     }
 
     // Finishes off the GPU buffers and renders the atlas(es).
-    bool finalize(GrOnFlushResourceProvider*,
-                  SkTArray<std::unique_ptr<GrRenderTargetContext>>* out);
+    bool finalize(GrOnFlushResourceProvider*);
 
     // Accessors used by draw calls, once the resources have been finalized.
     const GrCCFiller& filler() const { SkASSERT(!this->isMapped()); return fFiller; }

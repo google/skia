@@ -36,6 +36,12 @@ private:
     }
     bool onExecute(GrOpFlushState*) override;
 
+#ifdef SK_DEBUG
+    void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {
+        fn(fSrcProxy.get(), GrMipMapped::kNo);
+    }
+#endif
+
     sk_sp<GrSurfaceProxy> fSrcProxy;
     SkIRect fSrcRect;
     SkIPoint fDstPoint;
