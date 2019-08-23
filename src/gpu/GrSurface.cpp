@@ -85,6 +85,7 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
 
 //////////////////////////////////////////////////////////////////////////////
 
+#if 0
 bool GrSurface::hasPendingRead() const {
     const GrTexture* thisTex = this->asTexture();
     if (thisTex && thisTex->internalHasPendingRead()) {
@@ -120,6 +121,7 @@ bool GrSurface::hasPendingIO() const {
     }
     return false;
 }
+#endif
 
 void GrSurface::onRelease() {
     this->invokeReleaseProc();

@@ -22,19 +22,14 @@ class SkTraceMemoryDump;
  * class to isolate the ref-cnting behavior and provide friendship without exposing all of
  * GrGpuResource.
  *
- * Gpu resources can have three types of refs:
- *   1) Normal ref (+ by ref(), - by unref()): These are used by code that is issuing draw calls
- *      that read and write the resource via GrOpsTask and by any object that must own a
- *      GrGpuResource and is itself owned (directly or indirectly) by Skia-client code.
- *   2) Pending read (+ by addPendingRead(), - by completedRead()): GrContext has scheduled a read
- *      of the resource by the GPU as a result of a skia API call but hasn't executed it yet.
- *   3) Pending write (+ by addPendingWrite(), - by completedWrite()): GrContext has scheduled a
- *      write to the resource by the GPU as a result of a skia API call but hasn't executed it yet.
+ * Gpu resources have a single ref. It is used by code that is issuing draw calls
+ * that read and write the resource via GrOpsTasks and by any object that must own a
+ * GrGpuResource and is itself owned (directly or indirectly) by Skia-client code.
  *
- * The latter two ref types are private and intended only for Gr core code.
- *
- * PRIOR to the last ref/IO count being removed DERIVED::notifyAllCntsWillBeZero() will be called
- * (static poly morphism using CRTP). It is legal for additional ref's or pending IOs to be added
+ * PRIOR to the last ref being removed DERIVED::notifyRefCntWillBeZero() will be called
+ * (static poly morphism using CRTP). It is legal for additional ref's to be added
+
+
  * during this time. AFTER all the ref/io counts reach zero DERIVED::notifyAllCntsAreZero() will be
  * called. Similarly when the ref (but not necessarily pending read/write) count reaches 0
  * DERIVED::notifyRefCountIsZero() will be called. In the case when an unref() causes both
@@ -49,9 +44,8 @@ class SkTraceMemoryDump;
 template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
     // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
-    // templated helper classes (e.g. sk_sp). However, we have different categories of
-    // refs (e.g. pending reads). We also don't require thread safety as GrCacheable objects are
-    // not intended to cross thread boundaries.
+    // templated helper classes (e.g. sk_sp). However, we don't require thread safety as
+    // GrCacheable objects are not intended to cross thread boundaries.
     void ref() const {
         // Only the cache should be able to add the first ref to a resource.
         SkASSERT(fRefCnt > 0);
@@ -63,9 +57,7 @@ public:
         this->validate();
 
         if (fRefCnt == 1) {
-            if (!this->internalHasPendingIO()) {
-                static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
-            }
+            static_cast<const DERIVED*>(this)->notifyRefCntWillBeZero();
             SkASSERT(fRefCnt > 0);
         }
         if (--fRefCnt == 0) {
@@ -74,36 +66,21 @@ public:
             }
         }
 
-        this->didRemoveRefOrPendingIO(kRef_CntType);
+        this->didRemoveRef();
     }
 
     void validate() const {
-#ifdef SK_DEBUG
         SkASSERT(fRefCnt >= 0);
-        SkASSERT(fPendingReads >= 0);
-        SkASSERT(fPendingWrites >= 0);
-        SkASSERT(fRefCnt + fPendingReads + fPendingWrites >= 0);
-#endif
     }
 
 #if GR_TEST_UTILS
     int32_t testingOnly_getRefCnt() const { return fRefCnt; }
-    int32_t testingOnly_getPendingReads() const { return fPendingReads; }
-    int32_t testingOnly_getPendingWrites() const { return fPendingWrites; }
 #endif
 
 protected:
-    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
+    friend class GrResourceCache; // for internalHasRef
 
-    enum CntType {
-        kRef_CntType,
-        kPendingRead_CntType,
-        kPendingWrite_CntType,
-    };
-
-    bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
-    bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
-    bool internalHasPendingIO() const { return SkToBool(fPendingWrites | fPendingReads); }
+    GrIORef() : fRefCnt(1) {}
 
     bool internalHasRef() const { return SkToBool(fRefCnt); }
     bool internalHasUniqueRef() const { return fRefCnt == 1; }
@@ -115,47 +92,13 @@ protected:
     }
 
 private:
-    void addPendingRead() const {
-        this->validate();
-        ++fPendingReads;
-    }
-
-    void completedRead() const {
-        this->validate();
-        if (fPendingReads == 1 && !fPendingWrites && !fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
-        }
-        --fPendingReads;
-        this->didRemoveRefOrPendingIO(kPendingRead_CntType);
-    }
-
-    void addPendingWrite() const {
-        this->validate();
-        ++fPendingWrites;
-    }
-
-    void completedWrite() const {
-        this->validate();
-        if (fPendingWrites == 1 && !fPendingReads && !fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
-        }
-        --fPendingWrites;
-        this->didRemoveRefOrPendingIO(kPendingWrite_CntType);
-    }
-
-    void didRemoveRefOrPendingIO(CntType cntTypeRemoved) const {
-        if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyAllCntsAreZero(cntTypeRemoved);
+    void didRemoveRef() const {
+        if (0 == fRefCnt) {
+            static_cast<const DERIVED*>(this)->notifyAllCntsAreZero();
         }
     }
 
     mutable int32_t fRefCnt;
-    mutable int32_t fPendingReads;
-    mutable int32_t fPendingWrites;
-
-    friend class GrResourceCache; // to check IO ref counts.
-
-    template <typename, GrIOType> friend class GrPendingIOResource;
 };
 
 /**
@@ -310,7 +253,6 @@ protected:
 private:
     bool isPurgeable() const;
     bool hasRef() const;
-    bool hasRefOrPendingIO() const;
 
     /**
      * Called by the registerWithCache if the resource is available to be used as scratch.
@@ -336,13 +278,13 @@ private:
     /**
      * Called by GrResourceCache when a resource loses its last ref or pending IO.
      */
-    virtual void willRemoveLastRefOrPendingIO() {}
+    virtual void willRemoveLastRef() {}
 
     // See comments in CacheAccess and ResourcePriv.
     void setUniqueKey(const GrUniqueKey&);
     void removeUniqueKey();
-    void notifyAllCntsWillBeZero() const;
-    void notifyAllCntsAreZero(CntType) const;
+    void notifyRefCntWillBeZero() const;
+    void notifyAllCntsAreZero() const;  // just call notifyRefCountIsZero
     bool notifyRefCountIsZero() const;
     void removeScratchKey();
     void makeBudgeted();

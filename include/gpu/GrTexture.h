@@ -86,7 +86,7 @@ protected:
 
     SkTArray<sk_sp<GrRefCntedCallback>> fIdleProcs;
 
-    void willRemoveLastRefOrPendingIO() override {
+    void willRemoveLastRef() override {
         // We're about to be idle in the resource cache. Do our part to trigger the idle callbacks.
         fIdleProcs.reset();
     }
