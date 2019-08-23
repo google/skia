@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08b01152_d69ddd59",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 1469,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T18:58:49Z",
+      "side": 1,
+      "message": "// If both types of resolve are requested the MSAA resolve will happen first\n\n? Is that too obvious a comment?",
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00df7ff1_6219b5cf",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T18:58:49Z",
+      "side": 1,
+      "message": "// Comment on why we have to do this here\n\n?",
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cb444d1_f153677f",
+        "filename": "src/gpu/GrGpuCommandBuffer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T18:58:49Z",
+      "side": 1,
+      "message": "textureResolveTask ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 57,
+        "endLine": 45,
+        "endChar": 64
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a082fed_4bae821d",
+        "filename": "src/gpu/GrGpuCommandBuffer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T18:58:49Z",
+      "side": 1,
+      "message": "textureResolveTask ?",
+      "range": {
+        "startLine": 48,
+        "startChar": 65,
+        "endLine": 48,
+        "endChar": 72
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e77c6f1d_1fa1d14c",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T18:58:49Z",
+      "side": 1,
+      "message": "maybe addTextureResolveTask or addFlushTimeTextureResolveTask ?\n\ndunno",
+      "range": {
+        "startLine": 69,
+        "startChar": 9,
+        "endLine": 69,
+        "endChar": 23
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0f46abf_93f765d2",
+        "filename": "src/gpu/GrRenderTargetProxy.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T18:58:49Z",
+      "side": 1,
+      "message": "some ?",
+      "range": {
+        "startLine": 144,
+        "startChar": 25,
+        "endLine": 144,
+        "endChar": 28
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "218c8602_aadf5ead",
+        "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T18:58:49Z",
+      "side": 1,
+      "message": "Do we still need this explicit std::move ?",
+      "range": {
+        "startLine": 52,
+        "startChar": 11,
+        "endLine": 52,
+        "endChar": 20
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
