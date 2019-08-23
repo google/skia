@@ -97,7 +97,7 @@ public:
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
-    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const;)
+    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;)
 
 private:
     bool isNoOp() const {

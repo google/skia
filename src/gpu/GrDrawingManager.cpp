@@ -281,28 +281,27 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
     if (!fOnFlushCBObjects.empty()) {
         fDAG.gatherIDs(&fFlushingRenderTaskIDs);
 
-        SkSTArray<4, std::unique_ptr<GrRenderTargetContext>> renderTargetContexts;
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
             onFlushCBObject->preFlush(&onFlushProvider, fFlushingRenderTaskIDs.begin(),
-                                      fFlushingRenderTaskIDs.count(), &renderTargetContexts);
-            for (const auto& rtc : renderTargetContexts) {
-                sk_sp<GrOpsTask> onFlushOpsTask = sk_ref_sp(rtc->getOpsTask());
-                if (!onFlushOpsTask) {
-                    continue;   // Odd - but not a big deal
-                }
+                                      fFlushingRenderTaskIDs.count());
+        }
+        for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
+            onFlushRenderTask->makeClosed(*fContext->priv().caps());
 #ifdef SK_DEBUG
-                // OnFlush callbacks are already invoked during flush, and are therefore expected to
-                // handle resource allocation & usage on their own. (No deferred or lazy proxies!)
-                onFlushOpsTask->visitProxies_debugOnly([](GrSurfaceProxy* p, GrMipMapped) {
-                    SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
-                    SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
-                });
+            // OnFlush callbacks are already invoked during flush, and are therefore expected to
+            // handle resource allocation & usage on their own. (No deferred or lazy proxies!)
+            auto checkOnFlushProxy = [](GrSurfaceProxy* p, GrMipMapped mipMapped) {
+                SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
+                SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
+                if (GrMipMapped::kYes == mipMapped) {
+                    // The onFlush callback is responsible for regenerating mips if needed.
+                    SkASSERT(p->asTextureProxy() && !p->asTextureProxy()->mipMapsAreDirty());
+                }
+            };
+            onFlushRenderTask->visitProxies_debugOnly(checkOnFlushProxy);
+            checkOnFlushProxy(onFlushRenderTask->fTarget.get(), GrMipMapped::kNo);
 #endif
-                onFlushOpsTask->makeClosed(*fContext->priv().caps());
-                onFlushOpsTask->prepare(&flushState);
-                fOnFlushCBOpsTasks.push_back(std::move(onFlushOpsTask));
-            }
-            renderTargetContexts.reset();
+            onFlushRenderTask->prepare(&flushState);
         }
     }
 
@@ -435,12 +434,12 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     static constexpr int kMaxRenderTasksBeforeFlush = 100;
 
     // Execute the onFlush op lists first, if any.
-    for (sk_sp<GrOpsTask>& onFlushOpsTask : fOnFlushCBOpsTasks) {
-        if (!onFlushOpsTask->execute(flushState)) {
-            SkDebugf("WARNING: onFlushOpsTask failed to execute.\n");
+    for (sk_sp<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
+        if (!onFlushRenderTask->execute(flushState)) {
+            SkDebugf("WARNING: onFlushRenderTask failed to execute.\n");
         }
-        SkASSERT(onFlushOpsTask->unique());
-        onFlushOpsTask = nullptr;
+        SkASSERT(onFlushRenderTask->unique());
+        onFlushRenderTask = nullptr;
         (*numRenderTasksExecuted)++;
         if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
             flushState->gpu()->finishFlush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
@@ -448,7 +447,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
             *numRenderTasksExecuted = 0;
         }
     }
-    fOnFlushCBOpsTasks.reset();
+    fOnFlushRenderTasks.reset();
 
     // Execute the normal op lists.
     for (int i = startIndex; i < stopIndex; ++i) {

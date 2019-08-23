@@ -321,8 +321,8 @@ protected:
         int lastCopyAtlasID() const { return fLastCopyAtlasID; }
         int lastRenderedAtlasID() const { return fLastRenderedAtlasID; }
 
-        void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs, int numOpsTaskIDs,
-                      SkTArray<std::unique_ptr<GrRenderTargetContext>>* out) override {
+        void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
+                      int numOpsTaskIDs) override {
             fLastRenderedAtlasID = fLastCopyAtlasID = 0;
 
             const GrCCPerFlushResources* resources = fCCPR->testingOnly_getCurrentFlushResources();
