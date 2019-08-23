@@ -9,7 +9,7 @@
 #define SkColorMatrix_DEFINED
 
 #include "include/core/SkTypes.h"
-#include <memory.h>
+#include <string.h>
 
 class SK_API SkColorMatrix {
 public:
