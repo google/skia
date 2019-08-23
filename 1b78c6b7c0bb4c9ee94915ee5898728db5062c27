@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a49630f1_2dba8aad",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-08-23T12:41:46Z",
+      "side": 1,
+      "message": "nit: you could inline the updater declaration/initialization here to reduce scope.",
+      "range": {
+        "startLine": 324,
+        "startChar": 8,
+        "endLine": 324,
+        "endChar": 15
+      },
+      "revId": "1b78c6b7c0bb4c9ee94915ee5898728db5062c27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
