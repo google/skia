@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3a1f68f_e485e162",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T13:45:36Z",
+      "side": 1,
+      "message": "being ?",
+      "range": {
+        "startLine": 291,
+        "startChar": 37,
+        "endLine": 291,
+        "endChar": 44
+      },
+      "revId": "464ed77cc5ec0a159cb9b531ddcbb6defea088a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d5e991a_1b0858d3",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T13:45:36Z",
+      "side": 1,
+      "message": "Could you add a parallel loop over the fOnFlushRenderTasks here ?",
+      "revId": "464ed77cc5ec0a159cb9b531ddcbb6defea088a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73cd7170_e9b472c4",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T13:45:36Z",
+      "side": 1,
+      "message": "renderTasks ?",
+      "range": {
+        "startLine": 436,
+        "startChar": 27,
+        "endLine": 436,
+        "endChar": 35
+      },
+      "revId": "464ed77cc5ec0a159cb9b531ddcbb6defea088a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "100777b0_5e6115fc",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T13:45:36Z",
+      "side": 1,
+      "message": "How does this block of code sync up with CCPR ? IIUC it seems like we may not want it here but just have an assert that the # of tasks executed at this point is always less than kMaxRenderTasksBeforeFlush.",
+      "range": {
+        "startLine": 444,
+        "startChar": 0,
+        "endLine": 448,
+        "endChar": 9
+      },
+      "revId": "464ed77cc5ec0a159cb9b531ddcbb6defea088a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f386d91_59278ba8",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T13:45:36Z",
+      "side": 1,
+      "message": "renderTasks ?",
+      "range": {
+        "startLine": 214,
+        "startChar": 25,
+        "endLine": 214,
+        "endChar": 32
+      },
+      "revId": "464ed77cc5ec0a159cb9b531ddcbb6defea088a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a6cb860_cfbb3033",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T13:45:36Z",
+      "side": 1,
+      "message": "Is 8 still the correct # ? That seems high.",
+      "range": {
+        "startLine": 215,
+        "startChar": 14,
+        "endLine": 215,
+        "endChar": 15
+      },
+      "revId": "464ed77cc5ec0a159cb9b531ddcbb6defea088a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a91b9d4_e6ce1f7a",
+        "filename": "src/gpu/GrOnFlushResourceProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T13:45:36Z",
+      "side": 1,
+      "message": "Maybe add this bug # in the commit message ?",
+      "range": {
+        "startLine": 37,
+        "startChar": 31,
+        "endLine": 37,
+        "endChar": 35
+      },
+      "revId": "464ed77cc5ec0a159cb9b531ddcbb6defea088a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b4a3e88_17fe82fd",
+        "filename": "src/gpu/GrTextureResolveRenderTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-23T13:45:36Z",
+      "side": 1,
+      "message": "wdyt about making this entry point visit the dest proxies ?",
+      "revId": "464ed77cc5ec0a159cb9b531ddcbb6defea088a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
