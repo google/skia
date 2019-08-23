@@ -71,10 +71,8 @@ class SkTriColorShader : public SkShaderBase {
 public:
     SkTriColorShader(bool isOpaque) : fIsOpaque(isOpaque) {}
 
-    Matrix43* getMatrix43() { return &fM43; }
-
-    bool isOpaque() const override { return fIsOpaque; }
-
+    bool update(const SkMatrix& ctmInv, const SkPoint pts[], const SkPMColor4f colors[],
+                int index0, int index1, int index2);
 
 protected:
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -89,19 +87,19 @@ protected:
     }
 
 private:
+    bool isOpaque() const override { return fIsOpaque; }
     // For serialization.  This will never be called.
     Factory getFactory() const override { return nullptr; }
     const char* getTypeName() const override { return nullptr; }
 
-    Matrix43 fM43;
+    Matrix43 fM43;  // we overwrite this for each triangle
     const bool fIsOpaque;
 
     typedef SkShaderBase INHERITED;
 };
 
-static bool SK_WARN_UNUSED_RESULT
-update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPMColor4f colors[],
-                       int index0, int index1, int index2, Matrix43* result) {
+bool SkTriColorShader::update(const SkMatrix& ctmInv, const SkPoint pts[],
+                              const SkPMColor4f colors[], int index0, int index1, int index2) {
     SkMatrix m, im;
     m.reset();
     m.set(0, pts[index1].fX - pts[index0].fX);
@@ -125,7 +123,7 @@ update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPMCo
     (c1 - c0).store(&colorm.fMat[0]);
     (c2 - c0).store(&colorm.fMat[4]);
     c0.store(&colorm.fMat[8]);
-    result->setConcat(colorm, dstToUnit);
+    fM43.setConcat(colorm, dstToUnit);
     return true;
 }
 
@@ -265,73 +263,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     VertState       state(vertexCount, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(vmode);
 
-    if (colors || textures) {
-        SkPMColor4f*  dstColors = nullptr;
-        Matrix43*   matrix43 = nullptr;
-
-        if (colors) {
-            dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), &outerAlloc);
-
-            SkTriColorShader* triShader = outerAlloc.make<SkTriColorShader>(
-                                                                compute_is_opaque(colors,
-                                                                                  vertexCount));
-            matrix43 = triShader->getMatrix43();
-            if (shader) {
-                shader = outerAlloc.make<SkShader_Blend>(bmode,
-                                                         sk_ref_sp(triShader), sk_ref_sp(shader),
-                                                         nullptr);
-            } else {
-                shader = triShader;
-            }
-        }
-
-        SkPaint p(paint);
-        p.setShader(sk_ref_sp(shader));
-
-        if (!textures) {    // only tricolor shader
-            SkASSERT(matrix43);
-            auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, &outerAlloc);
-            while (vertProc(&state)) {
-                if (!update_tricolor_matrix(ctmInv, vertices, dstColors,
-                                            state.f0, state.f1, state.f2,
-                                            matrix43)) {
-                    continue;
-                }
-
-                SkPoint tmp[] = {
-                    devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
-                };
-                SkScan::FillTriangle(tmp, *fRC, blitter);
-            }
-        } else {
-            while (vertProc(&state)) {
-                SkSTArenaAlloc<2048> innerAlloc;
-
-                const SkMatrix* ctm = fMatrix;
-                SkMatrix tmpCtm;
-                if (textures) {
-                    SkMatrix localM;
-                    if (!texture_to_matrix(state, vertices, textures, &localM)) {
-                        continue;
-                    }
-                    tmpCtm = SkMatrix::Concat(*fMatrix, localM);
-                    ctm = &tmpCtm;
-                }
-
-                if (matrix43 && !update_tricolor_matrix(ctmInv, vertices, dstColors,
-                                                        state.f0, state.f1, state.f2,
-                                                        matrix43)) {
-                    continue;
-                }
-
-                SkPoint tmp[] = {
-                    devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
-                };
-                auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *ctm, &innerAlloc);
-                SkScan::FillTriangle(tmp, *fRC, blitter);
-            }
-        }
-    } else {
+    if (!(colors || textures)) {
         // no colors[] and no texture, stroke hairlines with paint's color.
         SkPaint p;
         p.setStyle(SkPaint::kStroke_Style);
@@ -347,6 +279,98 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                 devVerts[state.f0], devVerts[state.f1], devVerts[state.f2], devVerts[state.f0]
             };
             hairProc(array, 4, clip, blitter.get());
+        }
+        return;
+    }
+
+    SkTriColorShader* triShader = nullptr;
+    SkPMColor4f*  dstColors = nullptr;
+
+    if (colors) {
+        dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), &outerAlloc);
+        triShader = outerAlloc.make<SkTriColorShader>(compute_is_opaque(colors, vertexCount));
+        if (shader) {
+            shader = outerAlloc.make<SkShader_Blend>(bmode,
+                                                     sk_ref_sp(triShader), sk_ref_sp(shader),
+                                                     nullptr);
+        } else {
+            shader = triShader;
+        }
+    }
+
+    SkPaint p(paint);
+    p.setShader(sk_ref_sp(shader));
+
+    if (!textures) {    // only tricolor shader
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, &outerAlloc);
+        while (vertProc(&state)) {
+            if (!triShader->update(ctmInv, vertices, dstColors, state.f0, state.f1, state.f2)) {
+                continue;
+            }
+
+            SkPoint tmp[] = {
+                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+            };
+            SkScan::FillTriangle(tmp, *fRC, blitter);
+        }
+        return;
+    }
+
+    SkRasterPipeline pipeline(&outerAlloc);
+    SkStageRec rec = {
+        &pipeline, &outerAlloc, fDst.colorType(), fDst.colorSpace(), p, nullptr, *fMatrix
+    };
+    if (auto updater = as_SB(shader)->appendUpdatableStages(rec)) {
+        bool isOpaque = shader->isOpaque();
+        if (triShader) {
+            isOpaque = false;   // unless we want to walk all the colors, and see if they are
+                                // all opaque (and the blendmode will keep them that way
+        }
+
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, &outerAlloc);
+        while (vertProc(&state)) {
+            if (triShader && !triShader->update(ctmInv, vertices, dstColors,
+                                                state.f0, state.f1, state.f2)) {
+                continue;
+            }
+
+            SkMatrix localM;
+            if (!texture_to_matrix(state, vertices, textures, &localM) ||
+                !updater->update(*fMatrix, &localM)) {
+                continue;
+            }
+
+            SkPoint tmp[] = {
+                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+            };
+            SkScan::FillTriangle(tmp, *fRC, blitter);
+        }
+    } else {
+        // must rebuild pipeline for each triangle, to pass in the computed ctm
+        while (vertProc(&state)) {
+            if (triShader && !triShader->update(ctmInv, vertices, dstColors,
+                                                state.f0, state.f1, state.f2)) {
+                continue;
+            }
+
+            SkSTArenaAlloc<2048> innerAlloc;
+
+            const SkMatrix* ctm = fMatrix;
+            SkMatrix tmpCtm;
+            if (textures) {
+                SkMatrix localM;
+                if (!texture_to_matrix(state, vertices, textures, &localM)) {
+                    continue;
+                }
+                tmpCtm = SkMatrix::Concat(*fMatrix, localM);
+                ctm = &tmpCtm;
+            }
+
+            SkPoint tmp[] = {
+                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+            };
+            auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *ctm, &innerAlloc);
+            SkScan::FillTriangle(tmp, *fRC, blitter);
         }
     }
 }
