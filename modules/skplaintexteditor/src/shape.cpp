@@ -1,9 +1,8 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "experimental/editor/shape.h"
+#include "modules/skplaintexteditor/src/shape.h"
 
-#include "experimental/editor/word_boundaries.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPoint.h"
@@ -13,6 +12,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
+#include "modules/skplaintexteditor/src/word_boundaries.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
@@ -21,7 +21,7 @@
 #include <string.h>
 
 
-using namespace editor;
+using namespace SkPlainTextEditor;
 
 namespace {
 class RunHandler final : public SkShaper::RunHandler {
@@ -257,7 +257,7 @@ static void set_character_bounds(void* context,
     }
 }
 
-ShapeResult editor::Shape(const char* utf8Text,
+ShapeResult SkPlainTextEditor::Shape(const char* utf8Text,
                           size_t textByteLen,
                           const SkFont& font,
                           const char* locale,
