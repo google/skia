@@ -16,6 +16,24 @@
       "revId": "a9d1bfba0dc3b41889cd2a8f76683b0d0603a37a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8e432b5_e125c128",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1780,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-23T14:10:41Z",
+      "side": 1,
+      "message": "and of course I mean glyphUse.",
+      "parentUuid": "1a728638_12fe5f59",
+      "revId": "a9d1bfba0dc3b41889cd2a8f76683b0d0603a37a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
