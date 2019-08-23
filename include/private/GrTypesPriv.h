@@ -1469,8 +1469,8 @@ private:
  */
 enum class GrTextureResolveFlags {
     kNone = 0,
-    kMipMaps = 1 << 0,  // Regenerate all mipmap levels.
-    // TODO: kMSAA = 1 << 1  // Blit the MSAA render buffer into a standard texture.
+    kMSAA = 1 << 0,  // Blit and resolve an internal MSAA render buffer into the texture.
+    kMipMaps = 1 << 1,  // Regenerate all mipmap levels.
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrTextureResolveFlags)
