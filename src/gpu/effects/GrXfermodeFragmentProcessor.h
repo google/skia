@@ -10,6 +10,7 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
+#include <memory>  // std::unique_ptr
 
 class GrFragmentProcessor;
 

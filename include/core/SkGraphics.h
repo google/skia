@@ -9,6 +9,7 @@
 #define SkGraphics_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include <memory>  // std::unique_ptr
 
 class SkData;
 class SkImageGenerator;
