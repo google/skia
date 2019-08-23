@@ -65,8 +65,8 @@ public:
             const GrCaps&);
 
     // GrOnFlushCallbackObject overrides.
-    void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs, int numOpsTaskIDs,
-                  SkTArray<std::unique_ptr<GrRenderTargetContext>>* out) override;
+    void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
+                  int numOpsTaskIDs) override;
     void postFlush(GrDeferredUploadToken, const uint32_t* opsTaskIDs, int numOpsTaskIDs) override;
 
     void purgeCacheEntriesOlderThan(GrProxyProvider*, const GrStdSteadyClock::time_point&);
