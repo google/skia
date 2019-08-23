@@ -37,7 +37,7 @@ private:
     }
 
     GrVkGpu* getVkGpu() const {
-        SkASSERT(!this->wasDestroyed());
+        SkASSERT(!this->wasDestroyed1());
         return reinterpret_cast<GrVkGpu*>(this->getGpu());
     }
 

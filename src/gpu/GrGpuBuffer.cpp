@@ -18,7 +18,7 @@ GrGpuBuffer::GrGpuBuffer(GrGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
         , fIntendedType(type) {}
 
 void* GrGpuBuffer::map() {
-    if (this->wasDestroyed()) {
+    if (this->wasDestroyed1()) {
         return nullptr;
     }
     if (!fMapPtr) {
@@ -28,7 +28,7 @@ void* GrGpuBuffer::map() {
 }
 
 void GrGpuBuffer::unmap() {
-    if (this->wasDestroyed()) {
+    if (this->wasDestroyed1()) {
         return;
     }
     SkASSERT(fMapPtr);

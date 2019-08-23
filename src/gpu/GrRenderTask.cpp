@@ -215,7 +215,7 @@ bool GrRenderTask::isInstantiated() const {
     }
 
     GrSurface* surface = fTarget->peekSurface();
-    if (surface->wasDestroyed()) {
+    if (surface->wasDestroyed1()) {
         return false;
     }
 

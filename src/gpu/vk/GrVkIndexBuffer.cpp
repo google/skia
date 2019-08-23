@@ -36,7 +36,7 @@ sk_sp<GrVkIndexBuffer> GrVkIndexBuffer::Make(GrVkGpu* gpu, size_t size, bool dyn
 }
 
 void GrVkIndexBuffer::onRelease() {
-    if (!this->wasDestroyed()) {
+    if (!this->wasDestroyed1()) {
         this->vkRelease(this->getVkGpu());
     }
 
@@ -57,6 +57,6 @@ bool GrVkIndexBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
 }
 
 GrVkGpu* GrVkIndexBuffer::getVkGpu() const {
-    SkASSERT(!this->wasDestroyed());
+    SkASSERT(!this->wasDestroyed1());
     return static_cast<GrVkGpu*>(this->getGpu());
 }

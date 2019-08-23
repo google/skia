@@ -442,7 +442,6 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrGpuBufferT
         // We shouldn't bin and/or cache static buffers.
         SkASSERT(buffer->size() == size);
         SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
-        SkASSERT(!buffer->resourcePriv().hasPendingIO_debugOnly());
         buffer->resourcePriv().setUniqueKey(key);
         return sk_sp<const GrGpuBuffer>(buffer);
     }
@@ -545,7 +544,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int minSten
         return true;
     }
 
-    if (!rt->wasDestroyed() && rt->canAttemptStencilAttachment()) {
+    if (!rt->wasDestroyed1() && rt->canAttemptStencilAttachment()) {
         GrUniqueKey sbKey;
 
         int width = rt->width();

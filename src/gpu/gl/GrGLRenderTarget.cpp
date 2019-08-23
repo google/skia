@@ -188,7 +188,7 @@ void GrGLRenderTarget::onAbandon() {
 }
 
 GrGLGpu* GrGLRenderTarget::getGLGpu() const {
-    SkASSERT(!this->wasDestroyed());
+    SkASSERT(!this->wasDestroyed1());
     return static_cast<GrGLGpu*>(this->getGpu());
 }
 

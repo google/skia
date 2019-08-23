@@ -1473,13 +1473,13 @@ static void test_abandoned(skiatest::Reporter* reporter) {
     sk_sp<GrGpuResource> resource(new TestResource(gpu));
     context->abandonContext();
 
-    REPORTER_ASSERT(reporter, resource->wasDestroyed());
+    REPORTER_ASSERT(reporter, resource->wasDestroyed1());
 
     // Call all the public methods on resource in the abandoned state. They shouldn't crash.
 
     resource->uniqueID();
     resource->getUniqueKey();
-    resource->wasDestroyed();
+    resource->wasDestroyed1();
     resource->gpuMemorySize();
     resource->getContext();
 
