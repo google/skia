@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace editor {
+namespace SkPlainTextEditor {
 
 struct ShapeResult {
     sk_sp<SkTextBlob> blob;
