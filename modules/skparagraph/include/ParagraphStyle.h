@@ -5,6 +5,7 @@
 #include "include/core/SkFontStyle.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include <string>  // std::u16string
 
 namespace skia {
 namespace textlayout {
