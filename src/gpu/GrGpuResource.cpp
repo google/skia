@@ -96,12 +96,8 @@ void GrGpuResource::dumpMemoryStatisticsPriv(SkTraceMemoryDump* traceMemoryDump,
 bool GrGpuResource::isPurgeable() const {
     // Resources in the kUnbudgetedCacheable state are never purgeable when they have a unique
     // key. The key must be removed/invalidated to make them purgeable.
-    return !this->hasRefOrPendingIO() &&
+    return !this->hasRef() &&
            !(fBudgetedType == GrBudgetedType::kUnbudgetedCacheable && fUniqueKey.isValid());
-}
-
-bool GrGpuResource::hasRefOrPendingIO() const {
-    return this->internalHasRef() || this->internalHasPendingIO();
 }
 
 bool GrGpuResource::hasRef() const { return this->internalHasRef(); }
@@ -162,7 +158,7 @@ void GrGpuResource::notifyAllCntsWillBeZero() const {
     mutableThis->willRemoveLastRefOrPendingIO();
 }
 
-void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
+void GrGpuResource::notifyAllCntsAreZero() const {
     if (this->wasDestroyed()) {
         // We've already been removed from the cache. Goodbye cruel world!
         delete this;
@@ -170,7 +166,7 @@ void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
     }
 
     // We should have already handled this fully in notifyRefCntIsZero().
-    SkASSERT(kRef_CntType != lastCntTypeToReachZero);
+    SkASSERT(false);
 
     static const uint32_t kFlag =
         GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
@@ -186,9 +182,8 @@ bool GrGpuResource::notifyRefCountIsZero() const {
 
     GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
     uint32_t flags = GrResourceCache::ResourceAccess::kRefCntReachedZero_RefNotificationFlag;
-    if (!this->internalHasPendingIO()) {
-        flags |= GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
-    }
+    flags |= GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
+
     get_resource_cache(fGpu)->resourceAccess().notifyCntReachedZero(mutableThis, flags);
 
     // There is no need to call our notifyAllCntsAreZero function at this point since we already

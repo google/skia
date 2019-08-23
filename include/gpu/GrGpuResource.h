@@ -63,9 +63,7 @@ public:
         this->validate();
 
         if (fRefCnt == 1) {
-            if (!this->internalHasPendingIO()) {
-                static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
-            }
+            static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
             SkASSERT(fRefCnt > 0);
         }
         if (--fRefCnt == 0) {
@@ -74,36 +72,19 @@ public:
             }
         }
 
-        this->didRemoveRefOrPendingIO(kRef_CntType);
+        this->didRemoveRef();
     }
 
     void validate() const {
-#ifdef SK_DEBUG
         SkASSERT(fRefCnt >= 0);
-        SkASSERT(fPendingReads >= 0);
-        SkASSERT(fPendingWrites >= 0);
-        SkASSERT(fRefCnt + fPendingReads + fPendingWrites >= 0);
-#endif
     }
 
 #if GR_TEST_UTILS
     int32_t testingOnly_getRefCnt() const { return fRefCnt; }
-    int32_t testingOnly_getPendingReads() const { return fPendingReads; }
-    int32_t testingOnly_getPendingWrites() const { return fPendingWrites; }
 #endif
 
 protected:
-    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
-
-    enum CntType {
-        kRef_CntType,
-        kPendingRead_CntType,
-        kPendingWrite_CntType,
-    };
-
-    bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
-    bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
-    bool internalHasPendingIO() const { return SkToBool(fPendingWrites | fPendingReads); }
+    GrIORef() : fRefCnt(1) {}
 
     bool internalHasRef() const { return SkToBool(fRefCnt); }
     bool internalHasUniqueRef() const { return fRefCnt == 1; }
@@ -115,47 +96,15 @@ protected:
     }
 
 private:
-    void addPendingRead() const {
-        this->validate();
-        ++fPendingReads;
-    }
-
-    void completedRead() const {
-        this->validate();
-        if (fPendingReads == 1 && !fPendingWrites && !fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
-        }
-        --fPendingReads;
-        this->didRemoveRefOrPendingIO(kPendingRead_CntType);
-    }
-
-    void addPendingWrite() const {
-        this->validate();
-        ++fPendingWrites;
-    }
-
-    void completedWrite() const {
-        this->validate();
-        if (fPendingWrites == 1 && !fPendingReads && !fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
-        }
-        --fPendingWrites;
-        this->didRemoveRefOrPendingIO(kPendingWrite_CntType);
-    }
-
-    void didRemoveRefOrPendingIO(CntType cntTypeRemoved) const {
-        if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyAllCntsAreZero(cntTypeRemoved);
+    void didRemoveRef() const {
+        if (0 == fRefCnt) {
+            static_cast<const DERIVED*>(this)->notifyAllCntsAreZero();
         }
     }
 
     mutable int32_t fRefCnt;
-    mutable int32_t fPendingReads;
-    mutable int32_t fPendingWrites;
 
     friend class GrResourceCache; // to check IO ref counts.
-
-    template <typename, GrIOType> friend class GrPendingIOResource;
 };
 
 /**
@@ -310,7 +259,6 @@ protected:
 private:
     bool isPurgeable() const;
     bool hasRef() const;
-    bool hasRefOrPendingIO() const;
 
     /**
      * Called by the registerWithCache if the resource is available to be used as scratch.
@@ -341,8 +289,8 @@ private:
     // See comments in CacheAccess and ResourcePriv.
     void setUniqueKey(const GrUniqueKey&);
     void removeUniqueKey();
-    void notifyAllCntsWillBeZero() const;
-    void notifyAllCntsAreZero(CntType) const;
+    void notifyAllCntsWillBeZero() const; // rename to notifyRefCntWillBeZero
+    void notifyAllCntsAreZero() const;  // just call notifyRefCountIsZero
     bool notifyRefCountIsZero() const;
     void removeScratchKey();
     void makeBudgeted();
