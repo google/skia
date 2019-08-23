@@ -35,8 +35,8 @@ public:
      * callback. The callback should return the render target contexts used to render the atlases
      * in 'results'.
      */
-    virtual void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs, int numOpsTaskIDs,
-                          SkTArray<std::unique_ptr<GrRenderTargetContext>>* results) = 0;
+    virtual void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
+                          int numOpsTaskIDs) = 0;
 
     /**
      * Called once flushing is complete and all ops indicated by preFlush have been executed and

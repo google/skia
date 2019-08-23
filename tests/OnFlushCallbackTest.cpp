@@ -335,10 +335,7 @@ public:
      */
     void preFlush(GrOnFlushResourceProvider* resourceProvider,
                   const uint32_t* opsTaskIDs,
-                  int numOpsTaskIDs,
-                  SkTArray<std::unique_ptr<GrRenderTargetContext>>* results) override {
-        SkASSERT(!results->count());
-
+                  int numOpsTaskIDs) override {
         // Until MDB is landed we will most-likely only have one opsTask.
         SkTDArray<LinkedListHeader*> lists;
         for (int i = 0; i < numOpsTaskIDs; ++i) {
@@ -397,8 +394,6 @@ public:
             // We've updated all these ops and we certainly don't want to process them again
             this->clearOpsFor(lists[i]);
         }
-
-        results->push_back(std::move(rtc));
     }
 
 private:

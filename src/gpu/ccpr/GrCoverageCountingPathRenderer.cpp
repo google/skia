@@ -228,10 +228,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
 }
 
 void GrCoverageCountingPathRenderer::preFlush(
-        GrOnFlushResourceProvider* onFlushRP,
-        const uint32_t* opsTaskIDs,
-        int numOpsTaskIDs,
-        SkTArray<std::unique_ptr<GrRenderTargetContext>>* out) {
+        GrOnFlushResourceProvider* onFlushRP, const uint32_t* opsTaskIDs, int numOpsTaskIDs) {
     using DoCopiesToA8Coverage = GrCCDrawPathsOp::DoCopiesToA8Coverage;
     SkASSERT(!fFlushing);
     SkASSERT(fFlushingPaths.empty());
@@ -308,7 +305,7 @@ void GrCoverageCountingPathRenderer::preFlush(
     }
 
     // Allocate resources and then render the atlas(es).
-    if (!resources->finalize(onFlushRP, out)) {
+    if (!resources->finalize(onFlushRP)) {
         return;
     }
 

@@ -16,9 +16,7 @@
 #include "src/gpu/GrSurfaceProxy.h"
 
 std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
-        sk_sp<GrSurfaceProxy> proxy,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
+        sk_sp<GrSurfaceProxy> proxy, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
         const SkSurfaceProps* props) {
     // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
     // we have to manually ensure it is allocated here. The proxy had best have been created
@@ -35,6 +33,9 @@ std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTarg
     }
 
     renderTargetContext->discard();
+
+    // FIXME: http://skbug.com/9357: This breaks if the renderTargetContext splits its opsTask.
+    fDrawingMgr->fOnFlushRenderTasks.push_back(sk_ref_sp(renderTargetContext->getOpsTask()));
 
     return renderTargetContext;
 }

@@ -519,6 +519,7 @@ private:
 
     friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
     friend class GrClipStackClip;               // for access to getOpsTask
+    friend class GrOnFlushResourceProvider;     // for access to getOpsTask (http://skbug.com/9357)
 
     friend class GrDrawingManager; // for ctor
     friend class GrRenderTargetContextPriv;
