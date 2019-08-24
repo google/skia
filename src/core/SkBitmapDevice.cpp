@@ -427,7 +427,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
     SkRect      bitmapBounds, tmpSrc, tmpDst;
     SkBitmap    tmpBitmap;
 
-    bitmapBounds.isetWH(bitmap.width(), bitmap.height());
+    bitmapBounds.setIWH(bitmap.width(), bitmap.height());
 
     // Compute matrix from the two rectangles
     if (src) {
@@ -494,7 +494,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
                                                         SkIntToScalar(bitmapPtr->height()));
 #else
         SkRect extractedBitmapBounds;
-        extractedBitmapBounds.isetWH(bitmapPtr->width(), bitmapPtr->height());
+        extractedBitmapBounds.setIWH(bitmapPtr->width(), bitmapPtr->height());
 #endif
         if (extractedBitmapBounds == tmpSrc) {
             // no fractional part in src, we can just call drawBitmap

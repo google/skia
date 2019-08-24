@@ -686,7 +686,7 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     }
     SkPath pathOut, scaledPathOut;
     SkRegion rgnA, rgnB, openClip, rgnOut;
-    openClip.setRect(-16000, -16000, 16000, 16000);
+    openClip.setRect({-16000, -16000, 16000, 16000});
     rgnA.setPath(a, openClip);
     rgnB.setPath(b, openClip);
     rgnOut.op(rgnA, rgnB, (SkRegion::Op) shapeOp);

@@ -94,8 +94,7 @@ private:
                     SkPaint p;
                     p.setAntiAlias(true);
                     SkRect r;
-                    r.set(x - SkIntToScalar(3), SkIntToScalar(15),
-                          x - SkIntToScalar(1), SkIntToScalar(280));
+                    r.setLTRB(x - 3, 15, x - 1, 280);
                     canvas->drawRect(r, p);
                 }
 

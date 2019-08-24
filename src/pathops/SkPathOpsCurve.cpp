@@ -65,8 +65,8 @@ void SkDCurve::setConicBounds(const SkPoint curve[3], SkScalar curveWeight,
     dCurve.set(curve, curveWeight);
     SkDRect dRect;
     dRect.setBounds(dCurve, fConic, tStart, tEnd);
-    bounds->set(SkDoubleToScalar(dRect.fLeft), SkDoubleToScalar(dRect.fTop),
-            SkDoubleToScalar(dRect.fRight), SkDoubleToScalar(dRect.fBottom));
+    bounds->setLTRB(SkDoubleToScalar(dRect.fLeft), SkDoubleToScalar(dRect.fTop),
+                    SkDoubleToScalar(dRect.fRight), SkDoubleToScalar(dRect.fBottom));
 }
 
 void SkDCurve::setCubicBounds(const SkPoint curve[4], SkScalar ,
@@ -75,8 +75,8 @@ void SkDCurve::setCubicBounds(const SkPoint curve[4], SkScalar ,
     dCurve.set(curve);
     SkDRect dRect;
     dRect.setBounds(dCurve, fCubic, tStart, tEnd);
-    bounds->set(SkDoubleToScalar(dRect.fLeft), SkDoubleToScalar(dRect.fTop),
-            SkDoubleToScalar(dRect.fRight), SkDoubleToScalar(dRect.fBottom));
+    bounds->setLTRB(SkDoubleToScalar(dRect.fLeft), SkDoubleToScalar(dRect.fTop),
+                    SkDoubleToScalar(dRect.fRight), SkDoubleToScalar(dRect.fBottom));
 }
 
 void SkDCurve::setQuadBounds(const SkPoint curve[3], SkScalar ,
@@ -85,8 +85,8 @@ void SkDCurve::setQuadBounds(const SkPoint curve[3], SkScalar ,
     dCurve.set(curve);
     SkDRect dRect;
     dRect.setBounds(dCurve, fQuad, tStart, tEnd);
-    bounds->set(SkDoubleToScalar(dRect.fLeft), SkDoubleToScalar(dRect.fTop),
-            SkDoubleToScalar(dRect.fRight), SkDoubleToScalar(dRect.fBottom));
+    bounds->setLTRB(SkDoubleToScalar(dRect.fLeft), SkDoubleToScalar(dRect.fTop),
+                    SkDoubleToScalar(dRect.fRight), SkDoubleToScalar(dRect.fBottom));
 }
 
 void SkDCurveSweep::setCurveHullSweep(SkPath::Verb verb) {

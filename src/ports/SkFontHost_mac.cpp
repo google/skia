@@ -1789,10 +1789,10 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
     CGRect bbox = CTFontGetBoundingBox(ctFont.get());
 
     SkRect r;
-    r.set( CGToScalar(CGRectGetMinX_inline(bbox)),   // Left
-           CGToScalar(CGRectGetMaxY_inline(bbox)),   // Top
-           CGToScalar(CGRectGetMaxX_inline(bbox)),   // Right
-           CGToScalar(CGRectGetMinY_inline(bbox)));  // Bottom
+    r.setLTRB(CGToScalar(CGRectGetMinX_inline(bbox)),   // Left
+              CGToScalar(CGRectGetMaxY_inline(bbox)),   // Top
+              CGToScalar(CGRectGetMaxX_inline(bbox)),   // Right
+              CGToScalar(CGRectGetMinY_inline(bbox)));  // Bottom
 
     r.roundOut(&(info->fBBox));
 

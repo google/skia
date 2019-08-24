@@ -112,7 +112,7 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
     int x = fX;
     int y = fY;
     SkIRect srcR = SkIRect::MakeXYWH(x, y, fInfo.width(), fInfo.height());
-    if (!srcR.intersect(0, 0, srcWidth, srcHeight)) {
+    if (!srcR.intersect({0, 0, srcWidth, srcHeight})) {
         return false;
     }
 
@@ -149,7 +149,7 @@ bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
     int x = fX;
     int y = fY;
     SkIRect dstR = SkIRect::MakeXYWH(x, y, fInfo.width(), fInfo.height());
-    if (!dstR.intersect(0, 0, dstWidth, dstHeight)) {
+    if (!dstR.intersect({0, 0, dstWidth, dstHeight})) {
         return false;
     }
 

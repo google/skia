@@ -34,7 +34,7 @@ void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {
     if (kCanResolve_ResolveType == getResolveType()) {
         if (rect) {
             fResolveRect.join(*rect);
-            if (!fResolveRect.intersect(0, 0, this->width(), this->height())) {
+            if (!fResolveRect.intersect({0, 0, this->width(), this->height()})) {
                 fResolveRect.setEmpty();
             }
         } else {

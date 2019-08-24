@@ -37,8 +37,8 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fRegion.op( 50,  50, 100, 100, SkRegion::kUnion_Op);
-        fRegion.op( 50, 100, 150, 150, SkRegion::kUnion_Op);
+        fRegion.op({50,  50, 100, 100}, SkRegion::kUnion_Op);
+        fRegion.op({50, 100, 150, 150}, SkRegion::kUnion_Op);
     }
 
     void onDraw(SkCanvas* canvas) override {

@@ -182,7 +182,7 @@ public:
         bool quickContains(const SkRect&) const final { return false; }
         bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const final { return false; }
         void getConservativeBounds(int width, int height, SkIRect* rect, bool* iior) const final {
-            rect->set(0, 0, width, height);
+            rect->setLTRB(0, 0, width, height);
             if (iior) {
                 *iior = false;
             }

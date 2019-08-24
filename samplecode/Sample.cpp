@@ -32,7 +32,7 @@ void Sample::setSize(SkScalar width, SkScalar height) {
 void Sample::draw(SkCanvas* canvas) {
     if (fWidth && fHeight) {
         SkRect    r;
-        r.set(0, 0, fWidth, fHeight);
+        r.setLTRB(0, 0, fWidth, fHeight);
         if (canvas->quickReject(r)) {
             return;
         }

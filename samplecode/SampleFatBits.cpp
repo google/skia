@@ -59,7 +59,7 @@ public:
         fUseTriangle = false;
         fStrokeCap = SkPaint::kButt_Cap;
 
-        fClipRect.set(2, 2, 11, 8 );
+        fClipRect.setLTRB(2, 2, 11, 8 );
     }
 
     int getZoom() const { return fZoom; }
@@ -102,7 +102,7 @@ public:
         fW = width;
         fH = height;
         fZoom = zoom;
-        fBounds.set(0, 0, SkIntToScalar(width * zoom), SkIntToScalar(height * zoom));
+        fBounds.setIWH(width * zoom, height * zoom);
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
         fShader0 = ToolUtils::create_checkerboard_shader(0xFFDDDDDD, 0xFFFFFFFF, zoom);
@@ -297,7 +297,7 @@ void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
     }
 
     SkRect r;
-    r.set(pts, 2);
+    r.setBounds(pts, 2);
 
     erase(fMinSurface.get());
     this->setupPaint(&paint);
@@ -311,7 +311,7 @@ void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
     SkCanvas* max = fMaxSurface->getCanvas();
 
     fMatrix.mapPoints(pts, 2);
-    r.set(pts, 2);
+    r.setBounds(pts, 2);
     this->drawRectSkeleton(max, r);
 
     fMaxSurface->draw(canvas, 0, 0, nullptr);

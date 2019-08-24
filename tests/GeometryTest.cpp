@@ -186,9 +186,6 @@ static void test_conic_to_quads(skiatest::Reporter* reporter) {
     for (int i = 0; i < N; i += 3) {
         const SkPoint* pts = &triples[i];
 
-        SkRect bounds;
-        bounds.set(pts, 3);
-
         SkScalar w = 1e30f;
         do {
             w *= 2;

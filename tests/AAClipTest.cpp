@@ -307,7 +307,7 @@ static void test_path_with_hole(skiatest::Reporter* reporter) {
         0xFF, 0xFF, 0xFF, 0xFF,
     };
     SkMask expected;
-    expected.fBounds.set(0, 0, 4, 6);
+    expected.fBounds.setWH(4, 6);
     expected.fRowBytes = 4;
     expected.fFormat = SkMask::kA8_Format;
     expected.fImage = (uint8_t*)gExpectedImage;

@@ -72,8 +72,8 @@ protected:
             h >>= fShift;
             x -= w/2;
             y -= h/2;
-            fRects[i].set(SkIntToScalar(x), SkIntToScalar(y),
-                          SkIntToScalar(x+w), SkIntToScalar(y+h));
+            fRects[i].setXYWH(SkIntToScalar(x), SkIntToScalar(y),
+                              SkIntToScalar(w), SkIntToScalar(h));
             fRects[i].offset(offset, offset);
             fColors[i] = rand.nextU() | 0xFF808080;
         }

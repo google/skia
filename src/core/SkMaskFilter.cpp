@@ -125,10 +125,10 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     }
 
     SkIRect innerR;
-    innerR.set(outerR.left() + cx - mask.fBounds.left(),
-               outerR.top() + cy - mask.fBounds.top(),
-               outerR.right() + (cx + 1 - mask.fBounds.right()),
-               outerR.bottom() + (cy + 1 - mask.fBounds.bottom()));
+    innerR.setLTRB(outerR.left() + cx - mask.fBounds.left(),
+                   outerR.top() + cy - mask.fBounds.top(),
+                   outerR.right() + (cx + 1 - mask.fBounds.right()),
+                   outerR.bottom() + (cy + 1 - mask.fBounds.bottom()));
     if (fillCenter) {
         blitClippedRect(blitter, innerR, clipR);
     }
@@ -141,7 +141,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
 
     SkIRect r;
     // top
-    r.set(innerR.left(), outerR.top(), innerR.right(), innerR.top());
+    r.setLTRB(innerR.left(), outerR.top(), innerR.right(), innerR.top());
     if (r.intersect(clipR)) {
         int startY = SkMax32(0, r.top() - outerR.top());
         int stopY = startY + r.height();
@@ -154,7 +154,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
         }
     }
     // bottom
-    r.set(innerR.left(), innerR.bottom(), innerR.right(), outerR.bottom());
+    r.setLTRB(innerR.left(), innerR.bottom(), innerR.right(), outerR.bottom());
     if (r.intersect(clipR)) {
         int startY = outerR.bottom() - r.bottom();
         int stopY = startY + r.height();
@@ -167,7 +167,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
         }
     }
     // left
-    r.set(outerR.left(), innerR.top(), innerR.left(), innerR.bottom());
+    r.setLTRB(outerR.left(), innerR.top(), innerR.left(), innerR.bottom());
     if (r.intersect(clipR)) {
         SkMask m;
         m.fImage = mask.getAddr8(mask.fBounds.left() + r.left() - outerR.left(),
@@ -178,7 +178,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
         blitter->blitMask(m, r);
     }
     // right
-    r.set(innerR.right(), innerR.top(), outerR.right(), innerR.bottom());
+    r.setLTRB(innerR.right(), innerR.top(), outerR.right(), innerR.bottom());
     if (r.intersect(clipR)) {
         SkMask m;
         m.fImage = mask.getAddr8(mask.fBounds.right() - outerR.right() + r.left(),

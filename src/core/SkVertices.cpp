@@ -138,7 +138,7 @@ void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
 
 sk_sp<SkVertices> SkVertices::Builder::detach() {
     if (fVertices) {
-        fVertices->fBounds.set(fVertices->fPositions, fVertices->fVertexCnt);
+        fVertices->fBounds.setBounds(fVertices->fPositions, fVertices->fVertexCnt);
         if (fVertices->fMode == kTriangleFan_VertexMode) {
             if (fIntermediateFanIndices.get()) {
                 SkASSERT(fVertices->fIndexCnt);
@@ -266,7 +266,7 @@ sk_sp<SkVertices> SkVertices::applyBones(const SkVertices::Bone bones[], int bon
     }
 
     // Recalculate the bounds.
-    copy->fBounds.set(copy->fPositions, copy->fVertexCnt);
+    copy->fBounds.setBounds(copy->fPositions, copy->fVertexCnt);
 
     return copy;
 }

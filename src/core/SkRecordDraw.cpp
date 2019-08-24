@@ -400,7 +400,7 @@ private:
     }
     Bounds bounds(const DrawPoints& op) const {
         SkRect dst;
-        dst.set(op.pts, op.count);
+        dst.setBounds(op.pts, op.count);
 
         // Pad the bounding box a little to make sure hairline points' bounds aren't empty.
         SkScalar stroke = SkMaxScalar(op.paint.getStrokeWidth(), 0.01f);
@@ -410,7 +410,7 @@ private:
     }
     Bounds bounds(const DrawPatch& op) const {
         SkRect dst;
-        dst.set(op.cubics, SkPatchUtils::kNumCtrlPts);
+        dst.setBounds(op.cubics, SkPatchUtils::kNumCtrlPts);
         return this->adjustAndMap(dst, &op.paint);
     }
     Bounds bounds(const DrawVertices& op) const {

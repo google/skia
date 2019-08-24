@@ -69,10 +69,10 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         // offset the rects a bit so we get anti-aliasing in the rect case
-        fBase.set(100.65f,
-                  100.65f,
-                  150.65f,
-                  150.65f);
+        fBase.setLTRB(100.65f,
+                      100.65f,
+                      150.65f,
+                      150.65f);
         fRect = fBase;
         fRect.inset(5, 5);
         fRect.offset(25, 25);

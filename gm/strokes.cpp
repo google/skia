@@ -40,7 +40,7 @@ static void rnd_rect(SkRect* r, SkPaint* paint, SkRandom& rand) {
     SkScalar hoffset = rand.nextSScalar1();
     SkScalar woffset = rand.nextSScalar1();
 
-    r->set(x, y, x + w, y + h);
+    r->setXYWH(x, y, w, h);
     r->offset(-w/2 + woffset, -h/2 + hoffset);
 
     paint->setColor(rand.nextU());

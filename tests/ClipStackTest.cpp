@@ -263,8 +263,8 @@ static void test_bounds(skiatest::Reporter* reporter,
 
     SkRect rectA, rectB;
 
-    rectA.iset(10, 10, 50, 50);
-    rectB.iset(40, 40, 80, 80);
+    rectA.setLTRB(10, 10, 50, 50);
+    rectB.setLTRB(40, 40, 80, 80);
 
     SkRRect rrectA, rrectB;
     rrectA.setOval(rectA);
@@ -344,8 +344,8 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
 
     SkRect rectA, rectB;
 
-    rectA.iset(10, 10, 40, 40);
-    rectB.iset(50, 50, 80, 80);
+    rectA.setLTRB(10, 10, 40, 40);
+    rectB.setLTRB(50, 50, 80, 80);
 
     // Stack should initially be wide open
     {
@@ -1482,7 +1482,7 @@ DEF_TEST(ClipStack, reporter) {
     SkClipStack::B2TIter iter(stack);
     const SkClipStack::Element* element = iter.next();
     SkRect answer;
-    answer.iset(25, 25, 75, 75);
+    answer.setLTRB(25, 25, 75, 75);
 
     REPORTER_ASSERT(reporter, element);
     REPORTER_ASSERT(reporter,

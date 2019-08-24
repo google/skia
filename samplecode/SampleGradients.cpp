@@ -16,8 +16,7 @@ static sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
 
 static void test_alphagradients(SkCanvas* canvas) {
     SkRect r;
-    r.set(SkIntToScalar(10), SkIntToScalar(10),
-          SkIntToScalar(410), SkIntToScalar(30));
+    r.setLTRB(10, 10, 410, 30);
     SkPaint p, p2;
     p2.setStyle(SkPaint::kStroke_Style);
 

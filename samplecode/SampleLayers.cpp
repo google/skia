@@ -44,7 +44,7 @@ static void test_fade(SkCanvas* canvas) {
 
     // create the layers
 
-    r.set(0, 0, SkIntToScalar(100), SkIntToScalar(100));
+    r.setWH(100, 100);
     canvas->clipRect(r);
 
     r.fBottom = SkIntToScalar(20);
@@ -57,7 +57,7 @@ static void test_fade(SkCanvas* canvas) {
     // now draw the "content"
 
     if (true) {
-        r.set(0, 0, SkIntToScalar(100), SkIntToScalar(100));
+        r.setWH(100, 100);
 
         canvas->saveLayerAlpha(&r, 0x80);
 
@@ -68,7 +68,7 @@ static void test_fade(SkCanvas* canvas) {
 
         canvas->restore();
     } else {
-        r.set(0, 0, SkIntToScalar(100), SkIntToScalar(100));
+        r.setWH(100, 100);
 
         SkPaint p;
         p.setColor(SK_ColorRED);
@@ -85,7 +85,7 @@ static void test_fade(SkCanvas* canvas) {
 
     SkPaint paint;
     make_paint(&paint, m);
-    r.set(0, 0, SkIntToScalar(100), SkIntToScalar(20));
+    r.setWH(100, 20);
 //    SkDebugf("--------- draw top grad\n");
     canvas->drawRect(r, paint);
 
@@ -111,8 +111,7 @@ protected:
 
         if (true) {
             SkRect r;
-            r.set(SkIntToScalar(0), SkIntToScalar(0),
-                  SkIntToScalar(220), SkIntToScalar(120));
+            r.setWH(220, 120);
             SkPaint p;
             canvas->saveLayer(&r, &p);
             canvas->drawColor(0xFFFF0000);
@@ -125,8 +124,7 @@ protected:
 
         if (false) {
             SkRect r;
-            r.set(SkIntToScalar(0), SkIntToScalar(0),
-                  SkIntToScalar(220), SkIntToScalar(120));
+            r.setWH(220, 120);
             SkPaint p;
             p.setAlpha(0x88);
             p.setAntiAlias(true);
@@ -151,13 +149,11 @@ protected:
             canvas->translate(SkIntToScalar(300), 0);
 
             SkRect r;
-            r.set(SkIntToScalar(0), SkIntToScalar(0),
-                  SkIntToScalar(220), SkIntToScalar(60));
+            r.setWH(220, 60);
 
             canvas->saveLayer(&r, &p);
 
-            r.set(SkIntToScalar(0), SkIntToScalar(0),
-                  SkIntToScalar(220), SkIntToScalar(120));
+            r.setWH(220, 120);
             p.setColor(SK_ColorBLUE);
             canvas->drawOval(r, p);
             canvas->restore();

@@ -61,7 +61,8 @@ static void drawFadingText(SkCanvas* canvas,
     SkFontMetrics fm;
 
     font.getMetrics(&fm);
-    bounds.set(x, y + fm.fTop, x + font.measureText(text, len, SkTextEncoding::kUTF8), y + fm.fBottom);
+    bounds.setLTRB(x, y + fm.fTop,
+                   x + font.measureText(text, len, SkTextEncoding::kUTF8), y + fm.fBottom);
 
     // may need to outset bounds a little, to account for hinting and/or
     // antialiasing
@@ -155,7 +156,7 @@ static void paint_rgn(SkCanvas* canvas, const SkRegion& rgn,
 class RegionView : public Sample {
 public:
     RegionView() {
-        fBase.set(100, 100, 150, 150);
+        fBase.setLTRB(100, 100, 150, 150);
         fRect = fBase;
         fRect.inset(5, 5);
         fRect.offset(25, 25);

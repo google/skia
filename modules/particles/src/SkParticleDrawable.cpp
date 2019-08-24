@@ -83,7 +83,7 @@ public:
         SkPoint center = { SkIntToScalar(fRadius), SkIntToScalar(fRadius) };
         DrawAtlasArrays arrays(particles, count, center);
         for (int i = 0; i < count; ++i) {
-            arrays.fRects[i].set(0.0f, 0.0f, fImage->width(), fImage->height());
+            arrays.fRects[i].setIWH(fImage->width(), fImage->height());
         }
         canvas->drawAtlas(fImage, arrays.fXforms.get(), arrays.fRects.get(), arrays.fColors.get(),
                           count, SkBlendMode::kModulate, nullptr, paint);

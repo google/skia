@@ -150,10 +150,10 @@ public:
             // We want to be consistent with how we snap non-aa lines. To match what we do in
             // GrGLSLVertexShaderBuilder, we first floor all the vertex values and then add half a
             // pixel to force us to pixel centers.
-            bounds.set(SkScalarFloorToScalar(bounds.fLeft),
-                       SkScalarFloorToScalar(bounds.fTop),
-                       SkScalarFloorToScalar(bounds.fRight),
-                       SkScalarFloorToScalar(bounds.fBottom));
+            bounds.setLTRB(SkScalarFloorToScalar(bounds.fLeft),
+                           SkScalarFloorToScalar(bounds.fTop),
+                           SkScalarFloorToScalar(bounds.fRight),
+                           SkScalarFloorToScalar(bounds.fBottom));
             bounds.offset(0.5f, 0.5f);
             this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
         } else {

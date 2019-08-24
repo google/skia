@@ -182,7 +182,7 @@ static void ground_truth_2d(int width, int height,
                             int* result, int resultCount) {
     SkMask src, dst;
 
-    src.fBounds.set(0, 0, width, height);
+    src.fBounds.setWH(width, height);
     src.fFormat = SkMask::kA8_Format;
     src.fRowBytes = src.fBounds.width();
     src.fImage = SkMask::AllocImage(src.computeTotalImageSize());

@@ -61,7 +61,7 @@ void SkPixmap::setColorSpace(sk_sp<SkColorSpace> cs) {
 
 bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     SkIRect srcRect, r;
-    srcRect.set(0, 0, this->width(), this->height());
+    srcRect.setWH(this->width(), this->height());
     if (!r.intersect(srcRect, subset)) {
         return false;   // r is empty (i.e. no intersection)
     }

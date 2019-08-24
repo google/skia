@@ -1366,11 +1366,11 @@ void SkConic::computeTightBounds(SkRect* bounds) const {
     if (this->findYExtrema(&t)) {
         this->evalAt(t, &pts[count++]);
     }
-    bounds->set(pts, count);
+    bounds->setBounds(pts, count);
 }
 
 void SkConic::computeFastBounds(SkRect* bounds) const {
-    bounds->set(fPts, 3);
+    bounds->setBounds(fPts, 3);
 }
 
 #if 0  // unimplemented

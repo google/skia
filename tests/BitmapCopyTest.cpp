@@ -90,7 +90,7 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
         SkIRect r;
         // Extract a subset which has the same width as the original. This
         // catches a bug where we cloned the genID incorrectly.
-        r.set(0, 1, W, 3);
+        r.setLTRB(0, 1, W, 3);
         bitmap.setIsVolatile(true);
         // Relies on old behavior of extractSubset failing if colortype is unknown
         if (kUnknown_SkColorType != bitmap.colorType() && bitmap.extractSubset(&subset, r)) {

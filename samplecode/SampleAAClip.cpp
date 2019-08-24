@@ -65,7 +65,7 @@ class AAClipView : public Sample {
         SkPath path;
         SkRect bounds;
 
-        bounds.set(0, 0, 20, 20);
+        bounds.setLTRB(0, 0, 20, 20);
         bounds.inset(SK_ScalarHalf, SK_ScalarHalf);
 
 //        path.addRect(bounds);

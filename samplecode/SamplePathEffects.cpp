@@ -97,8 +97,7 @@ protected:
 
         {
             SkRect  oval;
-            oval.set(SkIntToScalar(20), SkIntToScalar(30),
-                     SkIntToScalar(100), SkIntToScalar(60));
+            oval.setLTRB(20, 30, 100, 60);
             oval.offset(x, 0);
             fPath.addRoundRect(oval, SkIntToScalar(8), SkIntToScalar(8));
         }

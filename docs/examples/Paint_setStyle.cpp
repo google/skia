@@ -7,8 +7,8 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStrokeWidth(5);
     SkRegion region;
-    region.op(140, 10, 160, 30, SkRegion::kUnion_Op);
-    region.op(170, 40, 190, 60, SkRegion::kUnion_Op);
+    region.op({140, 10, 160, 30}, SkRegion::kUnion_Op);
+    region.op({170, 40, 190, 60}, SkRegion::kUnion_Op);
     SkBitmap bitmap;
     bitmap.setInfo(SkImageInfo::MakeA8(50, 50), 50);
     uint8_t pixels[50][50];

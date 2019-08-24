@@ -103,7 +103,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
     {
         SkCanvas c(*src);
         p.setColor(ToolUtils::color_to_565(0xFFFFCC44));
-        r.set(0, 0, ww*3/4, hh*3/4);
+        r.setWH(ww*3/4, hh*3/4);
         c.drawOval(r, p);
     }
 
@@ -113,7 +113,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
     {
         SkCanvas c(*dst);
         p.setColor(ToolUtils::color_to_565(0xFF66AAFF));
-        r.set(ww/3, hh/3, ww*19/20, hh*19/20);
+        r.setLTRB(ww/3, hh/3, ww*19/20, hh*19/20);
         c.drawRect(r, p);
     }
 

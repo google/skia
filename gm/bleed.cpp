@@ -113,7 +113,7 @@ bool make_ringed_bitmap(TestPixels* result, int width, int height,
         scanline[x] = outerRingColor;
     }
     result->fBitmap.setImmutable();
-    result->fRect.set(2, 2, width - 2, height - 2);
+    result->fRect.setLTRB(2, 2, width - 2, height - 2);
     return true;
 }
 

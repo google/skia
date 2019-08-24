@@ -1442,8 +1442,8 @@ static void compute_triangle_bounds(const SkPoint& p0, const SkPoint& p1, const 
     Sk4s xy(p1.fX, p1.fY, p2.fX, p2.fY);
     min = Sk4s::Min(min, xy);
     max = Sk4s::Max(max, xy);
-    bounds->set(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
-                SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
+    bounds->setLTRB(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
+                    SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
 }
 
 // test to see if point p is in triangle p0p1p2.

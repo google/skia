@@ -233,15 +233,15 @@ static void setup_canvas_from_MC_state(const SkMCState& state, SkCanvas* canvas)
     // of what they sent.
     SkIRect bounds = SkIRect::MakeEmpty();
     if (state.clipRectCount > 0) {
-        bounds.set(state.clipRects[0].left,
-                   state.clipRects[0].top,
-                   state.clipRects[0].right,
-                   state.clipRects[0].bottom);
+        bounds.setLTRB(state.clipRects[0].left,
+                       state.clipRects[0].top,
+                       state.clipRects[0].right,
+                       state.clipRects[0].bottom);
         for (int i = 1; i < state.clipRectCount; ++i) {
-            bounds.join(state.clipRects[i].left,
-                        state.clipRects[i].top,
-                        state.clipRects[i].right,
-                        state.clipRects[i].bottom);
+            bounds.join({state.clipRects[i].left,
+                         state.clipRects[i].top,
+                         state.clipRects[i].right,
+                         state.clipRects[i].bottom});
         }
     }
 

@@ -827,7 +827,7 @@ bool SkAAClip::quickContains(int left, int top, int right, int bottom) const {
     if (this->isEmpty()) {
         return false;
     }
-    if (!fBounds.contains(left, top, right, bottom)) {
+    if (!fBounds.contains(SkIRect{left, top, right, bottom})) {
         return false;
     }
 #if 0

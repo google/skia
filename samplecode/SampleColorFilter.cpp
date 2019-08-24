@@ -89,7 +89,7 @@ static SkBitmap createBitmap(int n) {
 
     SkCanvas canvas(bitmap);
     SkRect r;
-    r.set(0, 0, SkIntToScalar(n), SkIntToScalar(n));
+    r.setWH(SkIntToScalar(n), SkIntToScalar(n));
     r.inset(SK_Scalar1, SK_Scalar1);
 
     SkPaint paint;
@@ -136,7 +136,7 @@ class ColorFilterView : public Sample {
             p.setAntiAlias(true);
             SkRect r = { 20.4f, 10, 20.6f, 20 };
             canvas->drawRect(r, p);
-            r.set(30.9f, 10, 31.1f, 20);
+            r.setLTRB(30.9f, 10, 31.1f, 20);
             canvas->drawRect(r, p);
             return;
         }

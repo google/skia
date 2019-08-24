@@ -54,7 +54,7 @@ DEF_TEST(ParsePath, reporter) {
     }
 
     SkRect r;
-    r.set(0, 0, 10, 10.5f);
+    r.setLTRB(0, 0, 10, 10.5f);
     SkPath p;
     p.addRect(r);
     test_to_from(reporter, p);

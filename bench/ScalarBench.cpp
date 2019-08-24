@@ -152,7 +152,7 @@ protected:
         SkRect r;
         for (int i = 0; i < loops; ++i) {
             for (int i = 0; i < 1000; ++i) {
-                r.set(fPts, PTS);
+                r.setBounds(fPts, PTS);
             }
         }
     }

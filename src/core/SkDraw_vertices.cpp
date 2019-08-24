@@ -254,7 +254,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     {
         SkRect bounds;
         // this also sets bounds to empty if we see a non-finite value
-        bounds.set(devVerts, vertexCount);
+        bounds.setBounds(devVerts, vertexCount);
         if (bounds.isEmpty()) {
             return;
         }

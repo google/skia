@@ -26,7 +26,7 @@ static void draw_into_bitmap(const SkBitmap& bm) {
                       SkIntToScalar(SkMin32(w, h))*3/8, p);
 
     SkRect r;
-    r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
+    r.setWH(SkIntToScalar(w), SkIntToScalar(h));
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SkIntToScalar(4));
     p.setColor(SK_ColorBLUE);
@@ -74,8 +74,8 @@ protected:
         fBitmap.eraseColor(SK_ColorBLACK);
         draw_into_bitmap(fBitmap);
 
-        fSrcR.iset(0, 0, kWidth, kHeight);
-        fDstR.iset(0, 0, kWidth, kHeight);
+        fSrcR.setWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
+        fDstR.setWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
 
         if (fSlightMatrix) {
             // want fractional translate

@@ -846,10 +846,8 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
     for (int x = 0; x <= nx; x++) {
         for (int y = 0; y <= ny; y++) {
             SkRect tileR;
-            tileR.set(SkIntToScalar(x * tileSize),
-                      SkIntToScalar(y * tileSize),
-                      SkIntToScalar((x + 1) * tileSize),
-                      SkIntToScalar((y + 1) * tileSize));
+            tileR.setLTRB(SkIntToScalar(x * tileSize),       SkIntToScalar(y * tileSize),
+                          SkIntToScalar((x + 1) * tileSize), SkIntToScalar((y + 1) * tileSize));
 
             if (!SkRect::Intersects(tileR, clippedSrcRect)) {
                 continue;

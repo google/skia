@@ -476,8 +476,8 @@ protected:
     virtual SkIPoint onGetSize() { return SkIPoint::Make(W, H); }
 
     void setRectangle(SkRect& current, int i) {
-        current.set(0, 0,
-                    SkIntToScalar(gmailScrollingRectSpec[i*3+1]), SkIntToScalar(gmailScrollingRectSpec[i*3+2]));
+        current.setWH(SkIntToScalar(gmailScrollingRectSpec[i*3+1]),
+                      SkIntToScalar(gmailScrollingRectSpec[i*3+2]));
     }
     void validateBounds(SkCanvas* canvas) {
 #ifdef SK_DEBUG

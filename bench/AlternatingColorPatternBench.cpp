@@ -121,8 +121,8 @@ protected:
                 int x = (w + offset) * i;
                 int y = (h * offset) * j;
                 if (kRect_DrawType == fDrawType) {
-                    fRects[count].set(SkIntToScalar(x), SkIntToScalar(y),
-                                      SkIntToScalar(x + w), SkIntToScalar(y + h));
+                    fRects[count].setXYWH(SkIntToScalar(x), SkIntToScalar(y),
+                                          SkIntToScalar(w), SkIntToScalar(h));
                 } else {
                     fPaths[count].moveTo(SkIntToScalar(x), SkIntToScalar(y));
                     fPaths[count].rLineTo(SkIntToScalar(w), 0);

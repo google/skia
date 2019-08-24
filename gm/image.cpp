@@ -88,16 +88,16 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
     surf->draw(canvas, 0, 160, usePaint ? &paint : nullptr);
 
     SkRect src1, src2, src3;
-    src1.iset(0, 0, surf->width(), surf->height());
-    src2.iset(-surf->width() / 2, -surf->height() / 2,
-             surf->width(), surf->height());
-    src3.iset(0, 0, surf->width() / 2, surf->height() / 2);
+    src1.setIWH(surf->width(), surf->height());
+    src2.setLTRB(SkIntToScalar(-surf->width() / 2), SkIntToScalar(-surf->height() / 2),
+                 SkIntToScalar(surf->width()),       SkIntToScalar(surf->height()));
+    src3.setIWH(surf->width() / 2, surf->height() / 2);
 
     SkRect dst1, dst2, dst3, dst4;
-    dst1.set(0, 240, 65, 305);
-    dst2.set(0, 320, 65, 385);
-    dst3.set(0, 400, 65, 465);
-    dst4.set(0, 480, 65, 545);
+    dst1.setLTRB(0, 240, 65, 305);
+    dst2.setLTRB(0, 320, 65, 385);
+    dst3.setLTRB(0, 400, 65, 465);
+    dst4.setLTRB(0, 480, 65, 545);
 
     canvas->drawImageRect(imgR, src1, dst1, usePaint ? &paint : nullptr);
     canvas->drawImageRect(imgG, src2, dst2, usePaint ? &paint : nullptr);

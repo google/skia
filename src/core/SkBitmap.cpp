@@ -440,7 +440,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     }
 
     SkIRect srcRect, r;
-    srcRect.set(0, 0, this->width(), this->height());
+    srcRect.setWH(this->width(), this->height());
     if (!r.intersect(srcRect, subset)) {
         return false;   // r is empty (i.e. no intersection)
     }
@@ -532,7 +532,7 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
     if (this->width() == 0 || this->height() == 0) {
         return false;
     }
-    srcM.fBounds.set(0, 0, this->width(), this->height());
+    srcM.fBounds.setWH(this->width(), this->height());
     srcM.fRowBytes = SkAlign4(this->width());
     srcM.fFormat = SkMask::kA8_Format;
 

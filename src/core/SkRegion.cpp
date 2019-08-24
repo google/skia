@@ -105,7 +105,7 @@ bool SkRegion::RunsAreARect(const SkRegion::RunType runs[], int count,
         SkASSERT(runs[0] < runs[1]);    // valid height
         SkASSERT(runs[3] < runs[4]);    // valid width
 
-        bounds->set(runs[3], runs[0], runs[4], runs[1]);
+        bounds->setLTRB(runs[3], runs[0], runs[4], runs[1]);
         return true;
     }
     return false;
@@ -114,7 +114,7 @@ bool SkRegion::RunsAreARect(const SkRegion::RunType runs[], int count,
 //////////////////////////////////////////////////////////////////////////
 
 SkRegion::SkRegion() {
-    fBounds.set(0, 0, 0, 0);
+    fBounds.setEmpty();
     fRunHead = SkRegion_gEmptyRunHeadPtr;
 }
 
@@ -177,7 +177,7 @@ int SkRegion::computeRegionComplexity() const {
 
 bool SkRegion::setEmpty() {
     this->freeRuns();
-    fBounds.set(0, 0, 0, 0);
+    fBounds.setEmpty();
     fRunHead = SkRegion_gEmptyRunHeadPtr;
     return false;
 }
@@ -1373,7 +1373,7 @@ void SkRegion::Iterator::reset(const SkRegion& rgn) {
             fRuns = nullptr;
         } else {
             fRuns = rgn.fRunHead->readonly_runs();
-            fRect.set(fRuns[3], fRuns[0], fRuns[4], fRuns[1]);
+            fRect.setLTRB(fRuns[3], fRuns[0], fRuns[4], fRuns[1]);
             fRuns += 5;
             // Now fRuns points to the 2nd interval (or x-sentinel)
         }

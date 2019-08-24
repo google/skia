@@ -172,8 +172,8 @@ static void setup_dashed_rect(const SkRect& rect, GrVertexWriter& vertices, cons
         SkScalar halfOffLen = SkScalarHalf(endInterval);
         SkScalar halfStroke = SkScalarHalf(strokeWidth);
         SkRect rectParam;
-        rectParam.set(halfOffLen                 + 0.5f, -halfStroke + 0.5f,
-                      halfOffLen + startInterval - 0.5f,  halfStroke - 0.5f);
+        rectParam.setLTRB(halfOffLen                 + 0.5f, -halfStroke + 0.5f,
+                          halfOffLen + startInterval - 0.5f,  halfStroke - 0.5f);
 
         vertices.writeQuad(GrQuad::MakeFromRect(rect, matrix),
                            GrVertexWriter::TriStripFromRect(dashRect),
@@ -404,7 +404,7 @@ private:
                     startPts[1].fY = startPts[0].fY;
                     startPts[1].fX = SkMinScalar(startPts[0].fX + draw.fIntervals[0] - draw.fPhase,
                                                  draw.fPtsRot[1].fX);
-                    startRect.set(startPts, 2);
+                    startRect.setBounds(startPts, 2);
                     startRect.outset(strokeAdj, halfSrcStroke);
 
                     hasStartRect = true;
@@ -440,7 +440,7 @@ private:
                     endPts[0].fY = endPts[1].fY;
                     endPts[0].fX = endPts[1].fX - endingInterval;
 
-                    endRect.set(endPts, 2);
+                    endRect.setBounds(endPts, 2);
                     endRect.outset(strokeAdj, halfSrcStroke);
 
                     hasEndRect = true;
@@ -510,7 +510,7 @@ private:
                 // one giant dash
                 draw.fPtsRot[0].fX -= hasStartRect ? startAdj : 0;
                 draw.fPtsRot[1].fX += hasEndRect ? endAdj : 0;
-                startRect.set(draw.fPtsRot, 2);
+                startRect.setBounds(draw.fPtsRot, 2);
                 startRect.outset(strokeAdj, halfSrcStroke);
                 hasStartRect = true;
                 hasEndRect = false;
@@ -543,8 +543,8 @@ private:
                     draw.fLineLength += 2.f * halfDevStroke;
                 }
 
-                bounds.set(draw.fPtsRot[0].fX, draw.fPtsRot[0].fY,
-                           draw.fPtsRot[1].fX, draw.fPtsRot[1].fY);
+                bounds.setLTRB(draw.fPtsRot[0].fX, draw.fPtsRot[0].fY,
+                               draw.fPtsRot[1].fX, draw.fPtsRot[1].fY);
                 bounds.outset(bloatX + strokeAdj, bloatY + halfSrcStroke);
             }
 
