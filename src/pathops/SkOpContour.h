@@ -281,7 +281,7 @@ public:
         fNext = nullptr;
         fCount = 0;
         fDone = false;
-        SkDEBUGCODE(fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin));
+        SkDEBUGCODE(fBounds.setLTRB(SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin));
         SkDEBUGCODE(fFirstSorted = -1);
         SkDEBUGCODE(fDebugIndent = 0);
     }

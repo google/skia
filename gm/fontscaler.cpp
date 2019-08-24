@@ -48,8 +48,8 @@ protected:
         for (int j = 0; j < 2; ++j) {
             // This used to do 6 iterations but it causes the N4 to crash in the MSAA4 config.
             for (int i = 0; i < 5; ++i) {
-                SkScalar x = SkIntToScalar(10);
-                SkScalar y = SkIntToScalar(20);
+                SkScalar x = 10;
+                SkScalar y = 20;
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(50 + i * 230),
@@ -60,8 +60,7 @@ protected:
                     SkPaint p;
                     p.setAntiAlias(true);
                     SkRect r;
-                    r.set(x - SkIntToScalar(3), SkIntToScalar(15),
-                          x - SkIntToScalar(1), SkIntToScalar(280));
+                    r.setLTRB(x - 3, 15, x - 1, 280);
                     canvas->drawRect(r, p);
                 }
 

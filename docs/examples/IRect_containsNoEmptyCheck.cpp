@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     SkIRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };
     for (auto contained : tests) {
         bool success = rect.containsNoEmptyCheck(
-                 contained.left(), contained.top(), contained.right(), contained.bottom());
+             {contained.left(), contained.top(), contained.right(), contained.bottom()});
         SkDebugf("rect: (%d, %d, %d, %d) %s (%d, %d, %d, %d)\n",
                  rect.left(), rect.top(), rect.right(), rect.bottom(),
                  success ? "contains" : "does not contain",
