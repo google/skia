@@ -146,12 +146,14 @@ static void drawTestCase(SkCanvas* canvas,
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
 DEF_SIMPLE_GM(glyph_pos_h_b, c, 800, 600) {
     draw_gm(c, 0.0f, SkPaint::kStrokeAndFill_Style);
 }
 DEF_SIMPLE_GM(glyph_pos_n_b, c, 800, 600) {
     draw_gm(c, 1.2f, SkPaint::kStrokeAndFill_Style);
 }
+#endif
 DEF_SIMPLE_GM(glyph_pos_h_s, c, 800, 600) {
     draw_gm(c, 0.0f, SkPaint::kStroke_Style);
 }
