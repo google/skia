@@ -9,20 +9,34 @@
 
 #include "include/private/SkMalloc.h"
 
-void SkIRect::join(int32_t left, int32_t top, int32_t right, int32_t bottom) {
+bool SkIRect::intersect(const SkIRect& r) {
+    SkIRect tmp = {
+        SkMax32(fLeft,   r.fLeft),
+        SkMax32(fTop,    r.fTop),
+        SkMin32(fRight,  r.fRight),
+        SkMin32(fBottom, r.fBottom)
+    };
+    if (tmp.isEmpty()) {
+        return false;
+    }
+    *this = tmp;
+    return true;
+}
+
+void SkIRect::join(const SkIRect& r) {
     // do nothing if the params are empty
-    if (left >= right || top >= bottom) {
+    if (r.fLeft >= r.fRight || r.fTop >= r.fBottom) {
         return;
     }
 
     // if we are empty, just assign
     if (fLeft >= fRight || fTop >= fBottom) {
-        this->set(left, top, right, bottom);
+        *this = r;
     } else {
-        if (left < fLeft) fLeft = left;
-        if (top < fTop) fTop = top;
-        if (right > fRight) fRight = right;
-        if (bottom > fBottom) fBottom = bottom;
+        if (r.fLeft < fLeft)     fLeft = r.fLeft;
+        if (r.fTop < fTop)       fTop = r.fTop;
+        if (r.fRight > fRight)   fRight = r.fRight;
+        if (r.fBottom > fBottom) fBottom = r.fBottom;
     }
 }
 
@@ -71,8 +85,8 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
 
     bool all_finite = (accum * 0 == 0).allTrue();
     if (all_finite) {
-        this->set(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
-                  SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
+        this->setLTRB(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
+                      SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
     } else {
         this->setEmpty();
     }
@@ -81,7 +95,7 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
 
 void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
     if (!this->setBoundsCheck(pts, count)) {
-        this->set(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
+        this->setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
     }
 }
 

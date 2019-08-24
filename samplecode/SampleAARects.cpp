@@ -17,7 +17,7 @@ static SkBitmap createBitmap(int n) {
 
     SkCanvas canvas(bitmap);
     SkRect r;
-    r.set(0, 0, SkIntToScalar(n), SkIntToScalar(n));
+    r.setWH(SkIntToScalar(n), SkIntToScalar(n));
     SkPaint paint;
     paint.setAntiAlias(true);
 

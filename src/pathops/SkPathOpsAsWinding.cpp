@@ -45,7 +45,7 @@ static Contour::Direction to_direction(SkScalar dy) {
 
 static int contains_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight, const SkPoint& edge) {
     SkRect bounds;
-    bounds.set(pts, kPtCount[verb] + 1);
+    bounds.setBounds(pts, kPtCount[verb] + 1);
     if (bounds.fTop > edge.fY) {
         return 0;
     }

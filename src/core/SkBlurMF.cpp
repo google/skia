@@ -645,13 +645,14 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
         return kUnimplemented_FilterReturn;
     }
 
-    smallR[0].set(rects[0].left(), rects[0].top(), rects[0].right() - dx, rects[0].bottom() - dy);
+    smallR[0].setLTRB(rects[0].left(),       rects[0].top(),
+                      rects[0].right() - dx, rects[0].bottom() - dy);
     if (smallR[0].width() < 2 || smallR[0].height() < 2) {
         return kUnimplemented_FilterReturn;
     }
     if (2 == count) {
-        smallR[1].set(rects[1].left(), rects[1].top(),
-                      rects[1].right() - dx, rects[1].bottom() - dy);
+        smallR[1].setLTRB(rects[1].left(), rects[1].top(),
+                          rects[1].right() - dx, rects[1].bottom() - dy);
         SkASSERT(!smallR[1].isEmpty());
     }
 
@@ -688,8 +689,8 @@ void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
                                              SkRect* dst) const {
     SkScalar pad = 3.0f * fSigma;
 
-    dst->set(src.fLeft  - pad, src.fTop    - pad,
-             src.fRight + pad, src.fBottom + pad);
+    dst->setLTRB(src.fLeft  - pad, src.fTop    - pad,
+                 src.fRight + pad, src.fBottom + pad);
 }
 
 sk_sp<SkFlattenable> SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {

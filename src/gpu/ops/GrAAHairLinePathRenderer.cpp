@@ -759,7 +759,7 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
         }
         viewMatrix.mapPoints(&pos, 1);
         if (first) {
-            actualBounds.set(pos.fX, pos.fY, pos.fX, pos.fY);
+            actualBounds.setLTRB(pos.fX, pos.fY, pos.fX, pos.fY);
             first = false;
         } else {
             SkRectPriv::GrowToInclude(&actualBounds, pos);

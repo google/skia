@@ -1183,15 +1183,15 @@ static void rRect1(skiatest::Reporter* reporter, const char* filename) {
     SkScalar yF = 50.65f;
     SkPath paths[5];
     SkRect rects[5];
-    rects[0].set(xB, yB, xE, yE);
+    rects[0].setLTRB(xB, yB, xE, yE);
     paths[0].addRoundRect(rects[0], SkIntToScalar(5), SkIntToScalar(5));  // red
-    rects[1].set(xA, yA, xD, yD);
+    rects[1].setLTRB(xA, yA, xD, yD);
     paths[1].addRoundRect(rects[1], SkIntToScalar(5), SkIntToScalar(5));  // green
-    rects[2].set(xC, yA, xF, yD);
+    rects[2].setLTRB(xC, yA, xF, yD);
     paths[2].addRoundRect(rects[2], SkIntToScalar(5), SkIntToScalar(5));  // blue
-    rects[3].set(xA, yC, xD, yF);
+    rects[3].setLTRB(xA, yC, xD, yF);
     paths[3].addRoundRect(rects[3], SkIntToScalar(5), SkIntToScalar(5));  // yellow
-    rects[4].set(xC, yC, xF, yF);
+    rects[4].setLTRB(xC, yC, xF, yF);
     paths[4].addRoundRect(rects[4], SkIntToScalar(5), SkIntToScalar(5));  // cyan
     SkPath path;
     path.setFillType(SkPath::kInverseEvenOdd_FillType);

@@ -177,20 +177,11 @@ public:
         @return      true if rect is not empty
     */
     bool setRect(const SkIRect& rect);
-
-    /** Constructs SkRegion with bounds (left, top, right, bottom).
-        Returns true if left is less than right and top is less than bottom; otherwise,
-        constructs empty SkRegion and returns false.
-
-        @param left    edge of bounds on x-axis
-        @param top     edge of bounds on y-axis
-        @param right   edge of bounds on x-axis
-        @param bottom  edge of bounds on y-axis
-        @return        rectangular SkRegion
-    */
+#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
     bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         return this->setRect({ left, top, right, bottom });
     }
+#endif
 
     /** Constructs SkRegion as the union of SkIRect in rects array. If count is
         zero, constructs empty SkRegion. Returns false if constructed SkRegion is empty.
@@ -277,22 +268,16 @@ public:
         @return   true quickly if r points are equal or inside
     */
     bool quickContains(const SkIRect& r) const {
-        return this->quickContains(r.fLeft, r.fTop, r.fRight, r.fBottom);
+        SkASSERT(this->isEmpty() == fBounds.isEmpty()); // valid region
+
+        return  r.fLeft < r.fRight && r.fTop < r.fBottom &&
+                fRunHead == kRectRunHeadPtr &&  // this->isRect()
+                /* fBounds.contains(left, top, right, bottom); */
+                fBounds.fLeft <= r.fLeft   && fBounds.fTop <= r.fTop &&
+                fBounds.fRight >= r.fRight && fBounds.fBottom >= r.fBottom;
     }
-
-    /** Returns true if SkRegion is a single rectangle and contains SkIRect
-        (left, top, right, bottom).
-        Returns false if SkRegion is empty or SkIRect (left, top, right, bottom) is empty.
-        May return false even though SkRegion contains (left, top, right, bottom).
-
-        @param left    edge of bounds on x-axis
-        @param top     edge of bounds on y-axis
-        @param right   edge of bounds on x-axis
-        @param bottom  edge of bounds on y-axis
-        @return        true quickly if SkIRect are equal or inside
-    */
-    bool quickContains(int32_t left, int32_t top, int32_t right,
-                       int32_t bottom) const {
+#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
+    bool quickContains(int32_t left, int32_t top, int32_t right, int32_t bottom) const {
         SkASSERT(this->isEmpty() == fBounds.isEmpty()); // valid region
 
         return left < right && top < bottom &&
@@ -301,6 +286,7 @@ public:
                fBounds.fLeft <= left && fBounds.fTop <= top &&
                fBounds.fRight >= right && fBounds.fBottom >= bottom;
     }
+#endif
 
     /** Returns true if SkRegion does not intersect rect.
         Returns true if rect is empty or SkRegion is empty.
@@ -377,23 +363,11 @@ public:
         return this->op(*this, rect, op);
     }
 
-    /** Replaces SkRegion with the result of SkRegion op SkIRect (left, top, right, bottom).
-        Returns true if replaced SkRegion is not empty.
-
-        @param left    edge of bounds on x-axis
-        @param top     edge of bounds on y-axis
-        @param right   edge of bounds on x-axis
-        @param bottom  edge of bounds on y-axis
-        @param op      operator, one of:
-                       kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
-                       kReplace_Op
-        @return        false if result is empty
-    */
+#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
     bool op(int left, int top, int right, int bottom, Op op) {
-        SkIRect rect;
-        rect.set(left, top, right, bottom);
-        return this->op(*this, rect, op);
+        return this->op(*this, {left, top, right, bottom}, op);
     }
+#endif
 
     /** Replaces SkRegion with the result of SkRegion op rgn.
         Returns true if replaced SkRegion is not empty.
