@@ -129,7 +129,7 @@ bool GrDrawOpAtlas::Plot::addSubImage(int width, int height, const void* image, 
         }
     }
 
-    fDirtyRect.join(loc->fX, loc->fY, loc->fX + width, loc->fY + height);
+    fDirtyRect.join({loc->fX, loc->fY, loc->fX + width, loc->fY + height});
 
     loc->fX += fOffset.fX;
     loc->fY += fOffset.fY;

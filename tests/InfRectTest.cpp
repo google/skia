@@ -13,7 +13,7 @@
 static void check_invalid(skiatest::Reporter* reporter,
                           SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
     SkRect rect;
-    rect.set(l, t, r, b);
+    rect.setLTRB(l, t, r, b);
     REPORTER_ASSERT(reporter, !rect.isFinite());
 }
 

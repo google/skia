@@ -65,27 +65,27 @@ protected:
         SkScalar yE = 40.65f;
         SkScalar yF = 50.65f;
 
-        fRects[0].set(xB, yB, xE, yE);
+        fRects[0].setLTRB(xB, yB, xE, yE);
         fRRects[0].setRectXY(fRects[0], 7, 7);
         fPaths[0].addRoundRect(fRects[0], 5, 5);
         fRectColors[0] = SK_ColorRED;
 
-        fRects[1].set(xA, yA, xD, yD);
+        fRects[1].setLTRB(xA, yA, xD, yD);
         fRRects[1].setRectXY(fRects[1], 7, 7);
         fPaths[1].addRoundRect(fRects[1], 5, 5);
         fRectColors[1] = SK_ColorGREEN;
 
-        fRects[2].set(xC, yA, xF, yD);
+        fRects[2].setLTRB(xC, yA, xF, yD);
         fRRects[2].setRectXY(fRects[2], 7, 7);
         fPaths[2].addRoundRect(fRects[2], 5, 5);
         fRectColors[2] = SK_ColorBLUE;
 
-        fRects[3].set(xA, yC, xD, yF);
+        fRects[3].setLTRB(xA, yC, xD, yF);
         fRRects[3].setRectXY(fRects[3], 7, 7);
         fPaths[3].addRoundRect(fRects[3], 5, 5);
         fRectColors[3] = SK_ColorYELLOW;
 
-        fRects[4].set(xC, yC, xF, yF);
+        fRects[4].setLTRB(xC, yC, xF, yF);
         fRRects[4].setRectXY(fRects[4], 7, 7);
         fPaths[4].addRoundRect(fRects[4], 5, 5);
         fRectColors[4] = SK_ColorCYAN;

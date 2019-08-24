@@ -68,7 +68,7 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gSets); ++i) {
         SkRect r;
-        r.set(gSets[i].fPts, gSets[i].fCount);
+        r.setBounds(gSets[i].fPts, gSets[i].fCount);
         bool rectIsFinite = !r.isEmpty();
         REPORTER_ASSERT(reporter, gSets[i].fIsFinite == rectIsFinite);
     }

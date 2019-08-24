@@ -217,7 +217,7 @@ void SkRgnBuilder::copyToRect(SkIRect* r) const {
     const Scanline* line = (const Scanline*)fStorage;
     SkASSERT(line->fXCount == 2);
 
-    r->set(line->firstX()[0], fTop, line->firstX()[1], line->fLastY + 1);
+    r->setLTRB(line->firstX()[0], fTop, line->firstX()[1], line->fLastY + 1);
 }
 
 void SkRgnBuilder::copyToRgn(SkRegion::RunType runs[]) const {

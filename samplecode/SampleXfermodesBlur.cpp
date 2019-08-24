@@ -50,7 +50,7 @@ class XfermodesBlurView : public Sample {
         // left three quarters of the canvas
         p.setColor(0xFFCC44FF);
         SkRect r;
-        r.set(0, 0, ww*3/4, hh*3/4);
+        r.setLTRB(0, 0, ww*3/4, hh*3/4);
         r.offset(x, y);
         canvas->drawOval(r, p);
 
@@ -59,7 +59,7 @@ class XfermodesBlurView : public Sample {
         // draw a square overlapping the circle
         // in the lower right of the canvas
         p.setColor(0x00AA6633 | alpha << 24);
-        r.set(ww/3, hh/3, ww*19/20, hh*19/20);
+        r.setLTRB(ww/3, hh/3, ww*19/20, hh*19/20);
         r.offset(x, y);
         canvas->drawRect(r, p);
     }
@@ -111,7 +111,7 @@ protected:
             SkScalar x = x0, y = 0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
                 SkRect r;
-                r.set(x, y, x+w, y+h);
+                r.setLTRB(x, y, x+w, y+h);
 
                 SkPaint p;
                 p.setStyle(SkPaint::kFill_Style);

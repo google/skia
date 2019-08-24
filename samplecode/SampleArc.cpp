@@ -26,7 +26,7 @@
 #include "include/utils/SkParsePath.h"
 static void testparse() {
     SkRect r;
-    r.set(0, 0, 10, 10.5f);
+    r.setLTRB(0, 0, 10, 10.5f);
     SkPath p, p2;
     SkString str, str2;
 
@@ -109,7 +109,7 @@ class ArcsView : public Sample {
         SkScalar w = 75;
         SkScalar h = 50;
 
-        r.set(0, 0, w, h);
+        r.setWH(w, h);
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
 
