@@ -736,7 +736,7 @@ protected:
         SkScalar ry = SkMinScalar(rect.height(), yIn);
 
         SkRect arcRect;
-        arcRect.set(-rx, -ry, rx, ry);
+        arcRect.setLTRB(-rx, -ry, rx, ry);
         switch (startAngle) {
         case 0:
             arcRect.offset(rect.fRight - arcRect.fRight, rect.fBottom - arcRect.fBottom);

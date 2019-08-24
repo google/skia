@@ -83,8 +83,8 @@ bool GrSDFMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
 
 void GrSDFMaskFilterImpl::computeFastBounds(const SkRect& src,
                                             SkRect* dst) const {
-    dst->set(src.fLeft  - SK_DistanceFieldPad, src.fTop    - SK_DistanceFieldPad,
-             src.fRight + SK_DistanceFieldPad, src.fBottom + SK_DistanceFieldPad);
+    dst->setLTRB(src.fLeft  - SK_DistanceFieldPad, src.fTop    - SK_DistanceFieldPad,
+                 src.fRight + SK_DistanceFieldPad, src.fBottom + SK_DistanceFieldPad);
 }
 
 sk_sp<SkFlattenable> GrSDFMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {

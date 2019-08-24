@@ -121,7 +121,7 @@ static void test_matrix_recttorect(skiatest::Reporter* reporter) {
     SkRect src, dst;
     SkMatrix matrix;
 
-    src.set(0, 0, 10, 10);
+    src.setLTRB(0, 0, 10, 10);
     dst = src;
     matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     REPORTER_ASSERT(reporter, SkMatrix::kIdentity_Mask == matrix.getType());

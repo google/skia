@@ -10,8 +10,8 @@ void draw(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(2);
     SkRegion region;
-    region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);
-    region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);
+    region.op({10, 10, 50, 50}, SkRegion::kUnion_Op);
+    region.op({10, 50, 90, 90}, SkRegion::kUnion_Op);
     paint.setImageFilter(SkImageFilters::Blur(5.0f, 5.0f, nullptr));
     canvas->drawRegion(region, paint);
     paint.setImageFilter(nullptr);

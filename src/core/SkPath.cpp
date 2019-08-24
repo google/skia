@@ -100,7 +100,7 @@ public:
 
     SkAutoPathBoundsUpdate(SkPath* path, SkScalar left, SkScalar top,
                            SkScalar right, SkScalar bottom) {
-        fRect.set(left, top, right, bottom);
+        fRect.setLTRB(left, top, right, bottom);
         this->init(path);
     }
 
@@ -3644,22 +3644,22 @@ bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Di
             ((rectPts[0].fY < rectPts[2].fY) ? 0b00 : 0b10);
     switch (sortFlags) {
         case 0b00:
-            rect->set(rectPts[0].fX, rectPts[0].fY, rectPts[2].fX, rectPts[2].fY);
+            rect->setLTRB(rectPts[0].fX, rectPts[0].fY, rectPts[2].fX, rectPts[2].fY);
             *direction = vec03IsVertical ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
             *start = 0;
             break;
         case 0b01:
-            rect->set(rectPts[2].fX, rectPts[0].fY, rectPts[0].fX, rectPts[2].fY);
+            rect->setLTRB(rectPts[2].fX, rectPts[0].fY, rectPts[0].fX, rectPts[2].fY);
             *direction = vec03IsVertical ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
             *start = 1;
             break;
         case 0b10:
-            rect->set(rectPts[0].fX, rectPts[2].fY, rectPts[2].fX, rectPts[0].fY);
+            rect->setLTRB(rectPts[0].fX, rectPts[2].fY, rectPts[2].fX, rectPts[0].fY);
             *direction = vec03IsVertical ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
             *start = 3;
             break;
         case 0b11:
-            rect->set(rectPts[2].fX, rectPts[2].fY, rectPts[0].fX, rectPts[0].fY);
+            rect->setLTRB(rectPts[2].fX, rectPts[2].fY, rectPts[0].fX, rectPts[0].fY);
             *direction = vec03IsVertical ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
             *start = 2;
             break;

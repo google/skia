@@ -36,7 +36,7 @@ protected:
     void onOnceBeforeDraw() override {
         for (int x = 50; x < 250; x+=2) {
             for (int y = 50; y < 250; y+=2) {
-                fRegion.op(x, y, x + 1, y + 1, SkRegion::kUnion_Op);
+                fRegion.op({x, y, x + 1, y + 1}, SkRegion::kUnion_Op);
             }
         }
     }
