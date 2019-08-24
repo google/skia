@@ -19,7 +19,7 @@ SkMask SkGlyph::mask() const {
 
     SkMask mask;
     mask.fImage = (uint8_t*)fImage;
-    mask.fBounds.set(fLeft, fTop, fLeft + fWidth, fTop + fHeight);
+    mask.fBounds.setXYWH(fLeft, fTop, fWidth, fHeight);
     mask.fRowBytes = this->rowBytes();
     mask.fFormat = static_cast<SkMask::Format>(fMaskFormat);
     return mask;

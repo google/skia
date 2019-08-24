@@ -5,8 +5,8 @@
 REG_FIDDLE(Canvas_drawRegion, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region;
-    region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);
-    region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);
+    region.op({10, 10, 50, 50}, SkRegion::kUnion_Op);
+    region.op({10, 50, 90, 90}, SkRegion::kUnion_Op);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);

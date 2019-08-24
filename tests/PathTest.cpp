@@ -290,7 +290,7 @@ static void test_path_to_region(skiatest::Reporter* reporter) {
     };
 
     SkRegion clip;
-    clip.setRect(0, 0, 1255, 1925);
+    clip.setRect({0, 0, 1255, 1925});
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(procs); ++i) {
         SkPath path;
@@ -796,7 +796,7 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
     SkScalar ry = SkMinScalar(rect.height(), yIn);
 
     SkRect arcRect;
-    arcRect.set(-rx, -ry, rx, ry);
+    arcRect.setLTRB(-rx, -ry, rx, ry);
     switch (startAngle) {
     case 0:
         arcRect.offset(rect.fRight - arcRect.fRight, rect.fBottom - arcRect.fBottom);
@@ -891,9 +891,9 @@ static void test_rect_isfinite(skiatest::Reporter* reporter) {
     SkRect r;
     r.setEmpty();
     REPORTER_ASSERT(reporter, r.isFinite());
-    r.set(0, 0, inf, negInf);
+    r.setLTRB(0, 0, inf, negInf);
     REPORTER_ASSERT(reporter, !r.isFinite());
-    r.set(0, 0, nan, 0);
+    r.setLTRB(0, 0, nan, 0);
     REPORTER_ASSERT(reporter, !r.isFinite());
 
     SkPoint pts[] = {
@@ -2160,7 +2160,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
             SkPath::Direction direction;
             SkPathPriv::FirstDirection cheapDirection;
             int pointCount = tests[testIndex].fPointCount - (d2 == tests[testIndex].fPoints);
-            expected.set(tests[testIndex].fPoints, pointCount);
+            expected.setBounds(tests[testIndex].fPoints, pointCount);
             REPORTER_ASSERT(reporter, SkPathPriv::CheapComputeFirstDirection(path, &cheapDirection));
             REPORTER_ASSERT(reporter, path.isRect(&computed, &isClosed, &direction));
             REPORTER_ASSERT(reporter, expected == computed);
@@ -2168,7 +2168,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, SkPathPriv::AsFirstDirection(direction) == cheapDirection);
         } else {
             SkRect computed;
-            computed.set(123, 456, 789, 1011);
+            computed.setLTRB(123, 456, 789, 1011);
             for (auto c : {true, false})
             for (auto d : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
               bool isClosed = c;
@@ -2463,7 +2463,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
                 SkPathPriv::FirstDirection expectedDirs[2];
                 SkPath::Direction computedDirs[2];
                 SkRect testBounds;
-                testBounds.set(tests[testIndex].fPoints, tests[testIndex].fPointCount);
+                testBounds.setBounds(tests[testIndex].fPoints, tests[testIndex].fPointCount);
                 expected[0] = SkRect::MakeLTRB(-1, -1, 2, 2);
                 expected[1] = testBounds;
                 if (rectFirst) {
@@ -4800,7 +4800,7 @@ DEF_TEST(Paths, reporter) {
     // this triggers a code path in SkPath::swap which is otherwise unexercised
     p.swap(self);
 
-    bounds.set(0, 0, SK_Scalar1, SK_Scalar1);
+    bounds.setLTRB(0, 0, SK_Scalar1, SK_Scalar1);
 
     p.addRoundRect(bounds, SK_Scalar1, SK_Scalar1);
     check_convex_bounds(reporter, p, bounds);
@@ -4843,7 +4843,7 @@ DEF_TEST(Paths, reporter) {
     REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[3]);
     REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[4]);
     REPORTER_ASSERT(reporter, 0xff == verbs[5]);
-    bounds2.set(pts, 4);
+    bounds2.setBounds(pts, 4);
     REPORTER_ASSERT(reporter, bounds == bounds2);
 
     bounds.offset(SK_Scalar1*3, SK_Scalar1*4);
@@ -4856,7 +4856,7 @@ DEF_TEST(Paths, reporter) {
     REPORTER_ASSERT(reporter, bounds == bounds2);
 
     // now force p to not be a rect
-    bounds.set(0, 0, SK_Scalar1/2, SK_Scalar1/2);
+    bounds.setWH(SK_Scalar1/2, SK_Scalar1/2);
     p.addRect(bounds);
     REPORTER_ASSERT(reporter, !p.isRect(nullptr));
 

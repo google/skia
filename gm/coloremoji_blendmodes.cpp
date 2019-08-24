@@ -128,7 +128,7 @@ protected:
         SkScalar x = x0, y = y0;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
             SkRect r;
-            r.set(x, y, x+w, y+h);
+            r.setLTRB(x, y, x+w, y+h);
 
             SkPaint p;
             p.setStyle(SkPaint::kFill_Style);
