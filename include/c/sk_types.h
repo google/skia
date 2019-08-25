@@ -156,7 +156,7 @@ typedef struct sk_canvas_t sk_canvas_t;
 */
 typedef struct sk_data_t sk_data_t;
 /**
-    A sk_image_t is an abstraction for drawing a rectagle of pixels.
+    A sk_image_t is an abstraction for drawing a rectangle of pixels.
     The content of the image is always immutable, though the actual
     storage may change, if for example that image can be re-created via
     encoded data or other means.
