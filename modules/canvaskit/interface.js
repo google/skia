@@ -291,6 +291,13 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  CanvasKit.SkPath.prototype.offset = function(dx, dy) {
+    this._transform(1, 0, dx,
+                    0, 1, dy,
+                    0, 0, 1);
+    return this;
+  };
+
   CanvasKit.SkPath.prototype.op = function(otherPath, op) {
     if (this._op(otherPath, op)) {
       return this;
