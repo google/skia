@@ -497,36 +497,20 @@ struct SK_API SkIRect {
         @param r  limit of result
         @return   true if r and SkIRect have area in common
     */
-    bool intersect(const SkIRect& r);
+    bool intersect(const SkIRect& r) {
+        return this->intersect(*this, r);
+    }
 #ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
     bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         return this->intersect(*this, {left, top, right, bottom});
     }
-#endif
-
-    /** Returns true if a intersects b, and sets SkIRect to intersection.
-        Returns false if a does not intersect b, and leaves SkIRect unchanged.
-
-        Asserts if either a or b is empty, and if SK_DEBUG is defined.
-
-        @param a  SkIRect to intersect
-        @param b  SkIRect to intersect
-        @return   true if a and b have area in common
-    */
     bool SK_WARN_UNUSED_RESULT intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
-        SkASSERT(!a.isEmpty64() && !b.isEmpty64());
-        SkIRect r = {
-            SkMax32(a.fLeft,   b.fLeft),
-            SkMax32(a.fTop,    b.fTop),
-            SkMin32(a.fRight,  b.fRight),
-            SkMin32(a.fBottom, b.fBottom)
-        };
-        if (r.isEmpty()) {
-            return false;
-        }
-        *this = r;
-        return true;
+        return this->intersect(a, b);
     }
+    static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
+        return SkIRect().intersectNoEmptyCheck(a, b);
+    }
+#endif
 
     /** Returns true if a intersects b, and sets SkIRect to intersection.
         Returns false if a does not intersect b, and leaves SkIRect unchanged.
@@ -537,12 +521,7 @@ struct SK_API SkIRect {
         @param b  SkIRect to intersect
         @return   true if a and b have area in common
     */
-    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& a, const SkIRect& b) {
-        if (a.isEmpty64() || b.isEmpty64()) {
-            return false;
-        }
-        return this->intersectNoEmptyCheck(a, b);
-    }
+    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& a, const SkIRect& b);
 
     /** Returns true if a intersects b.
         Returns false if either a or b is empty, or do not intersect.
@@ -554,18 +533,6 @@ struct SK_API SkIRect {
     static bool Intersects(const SkIRect& a, const SkIRect& b) {
         SkIRect dummy;
         return dummy.intersect(a, b);
-    }
-
-    /** Returns true if a intersects b.
-        Asserts if either a or b is empty, and if SK_DEBUG is defined.
-
-        @param a  SkIRect to intersect
-        @param b  SkIRect to intersect
-        @return   true if a and b have area in common
-    */
-    static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
-        SkIRect dummy;
-        return dummy.intersectNoEmptyCheck(a, b);
     }
 
     /** Sets SkIRect to the union of itself and r.
