@@ -16,7 +16,6 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTargetPriv.h"
-#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkGpu.h"
@@ -616,42 +615,16 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
 
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
 
-    auto prepareSampledImage = [&](GrTexture* texture, GrSamplerState::Filter filter) {
-        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(texture);
-        // We may need to resolve the texture first if it is also a render target
-        GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
-        if (texRT && texRT->needsResolve()) {
-            fGpu->resolveRenderTargetNoFlush(texRT);
-            // TEMPORARY: MSAA resolve will have dirtied mipmaps. This goes away once we switch
-            // to resolving MSAA from the opsTask as well.
-            if (GrSamplerState::Filter::kMipMap == filter &&
-                (vkTexture->width() != 1 || vkTexture->height() != 1)) {
-                SkASSERT(vkTexture->texturePriv().mipMapped() == GrMipMapped::kYes);
-                SkASSERT(vkTexture->texturePriv().mipMapsAreDirty());
-                fGpu->regenerateMipMapLevels(vkTexture);
-            }
-        }
-
-        // Ensure mip maps were all resolved ahead of time by the opsTask.
-        if (GrSamplerState::Filter::kMipMap == filter &&
-            (vkTexture->width() != 1 || vkTexture->height() != 1)) {
-            SkASSERT(vkTexture->texturePriv().mipMapped() == GrMipMapped::kYes);
-            SkASSERT(!vkTexture->texturePriv().mipMapsAreDirty());
-        }
-    };
-
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
         for (int m = 0, i = 0; m < meshCount; ++m) {
             for (int s = 0; s < primProc.numTextureSamplers(); ++s, ++i) {
                 auto texture = dynamicStateArrays->fPrimitiveProcessorTextures[i]->peekTexture();
-                prepareSampledImage(texture, primProc.textureSampler(s).samplerState().filter());
                 this->appendSampledTexture(texture);
             }
         }
     } else {
         for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
             auto texture = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
-            prepareSampledImage(texture, primProc.textureSampler(i).samplerState().filter());
             this->appendSampledTexture(texture);
         }
     }
@@ -659,7 +632,6 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
     while (const GrFragmentProcessor* fp = iter.next()) {
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const GrFragmentProcessor::TextureSampler& sampler = fp->textureSampler(i);
-            prepareSampledImage(sampler.peekTexture(), sampler.samplerState().filter());
             this->appendSampledTexture(sampler.peekTexture());
         }
     }

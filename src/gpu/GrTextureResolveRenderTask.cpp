@@ -10,6 +10,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrTexturePriv.h"
 
@@ -18,6 +19,24 @@ sk_sp<GrRenderTask> GrTextureResolveRenderTask::Make(
     GrTextureProxy* textureProxyPtr = textureProxy.get();
     sk_sp<GrTextureResolveRenderTask> resolveTask(
             new GrTextureResolveRenderTask(std::move(textureProxy), flags));
+
+    // Ensure the last render task that operated on the textureProxy is closed. That's where msaa
+    // and mipmaps should have been marked dirty.
+    SkASSERT(!textureProxyPtr->getLastRenderTask() ||
+             textureProxyPtr->getLastRenderTask()->isClosed());
+
+    if (GrTextureResolveFlags::kMSAA & flags) {
+        GrRenderTargetProxy* renderTargetProxy = textureProxyPtr->asRenderTargetProxy();
+        SkASSERT(renderTargetProxy);
+        SkASSERT(renderTargetProxy->isMSAADirty());
+        renderTargetProxy->markMSAAResolved();
+    }
+
+    if (GrTextureResolveFlags::kMipMaps & flags) {
+        SkASSERT(GrMipMapped::kYes == textureProxyPtr->mipMapped());
+        SkASSERT(textureProxyPtr->mipMapsAreDirty());
+        textureProxyPtr->markMipMapsClean();
+    }
 
     // Add the target as a dependency: We will read the existing contents of this texture while
     // generating mipmap levels and/or resolving MSAA.
@@ -30,13 +49,7 @@ sk_sp<GrRenderTask> GrTextureResolveRenderTask::Make(
     // We only resolve the texture; nobody should try to do anything else with this opsTask.
     resolveTask->makeClosed(caps);
 
-    if (GrTextureResolveFlags::kMipMaps & flags) {
-        SkASSERT(GrMipMapped::kYes == textureProxyPtr->mipMapped());
-        SkASSERT(textureProxyPtr->mipMapsAreDirty());
-        textureProxyPtr->markMipMapsClean();
-    }
-
-    return resolveTask;
+    return std::move(resolveTask);
 }
 
 void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
@@ -49,10 +62,17 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
 }
 
 bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
-    GrTexture* texture = fTarget->peekTexture();
-    SkASSERT(texture);
+    // Resolve msaa before regenerating mipmaps.
+    if (GrTextureResolveFlags::kMSAA & fResolveFlags) {
+        GrRenderTarget* renderTarget = fTarget->peekRenderTarget();
+        SkASSERT(renderTarget);
+        SkASSERT(renderTarget->needsResolve());
+        flushState->gpu()->resolveRenderTarget(renderTarget);
+    }
 
     if (GrTextureResolveFlags::kMipMaps & fResolveFlags) {
+        GrTexture* texture = fTarget->peekTexture();
+        SkASSERT(texture);
         SkASSERT(texture->texturePriv().mipMapsAreDirty());
         flushState->gpu()->regenerateMipMapLevels(texture);
     }
