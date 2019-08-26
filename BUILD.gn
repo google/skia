@@ -1515,6 +1515,7 @@ if (skia_enable_tools) {
       ":tool_utils",
       "modules/skottie",
       "modules/skottie:gm",
+      "modules/skplaintexteditor:gm",
       "modules/sksg",
       "modules/skshaper",
     ]
