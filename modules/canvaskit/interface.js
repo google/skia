@@ -130,6 +130,14 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  CanvasKit.SkPath.prototype.addOval = function(oval, isCCW, startIndex) {
+    if (startIndex === undefined) {
+      startIndex = 1;
+    }
+    this._addOval(oval, !!isCCW, startIndex);
+    return this;
+  };
+
   CanvasKit.SkPath.prototype.addPath = function() {
     // Takes 1, 2, 7, or 10 required args, where the first arg is always the path.
     // The last arg is optional and chooses between add or extend mode.
@@ -243,15 +251,14 @@ CanvasKit.onRuntimeInitialized = function() {
     // takes 4, 5 or 7 args
     // - 5 x1, y1, x2, y2, radius
     // - 4 oval (as Rect), startAngle, sweepAngle, forceMoveTo
-    // - 7 x1, y1, x2, y2, startAngle, sweepAngle, forceMoveTo
+    // - 7 rx, ry, xAxisRotate, useSmallArc, isCCW, x, y
     var args = arguments;
     if (args.length === 5) {
       this._arcTo(args[0], args[1], args[2], args[3], args[4]);
     } else if (args.length === 4) {
       this._arcTo(args[0], args[1], args[2], args[3]);
     } else if (args.length === 7) {
-      this._arcTo(CanvasKit.LTRBRect(args[0], args[1], args[2], args[3]),
-                  args[4], args[5], args[6]);
+      this._arcTo(args[0], args[1], args[2], !!args[3], !!args[4], args[5], args[6]);
     } else {
       throw 'Invalid args for arcTo. Expected 4, 5, or 7, got '+ args.length;
     }
@@ -288,6 +295,13 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkPath.prototype.moveTo = function(x, y) {
     this._moveTo(x, y);
+    return this;
+  };
+
+  CanvasKit.SkPath.prototype.offset = function(dx, dy) {
+    this._transform(1, 0, dx,
+                    0, 1, dy,
+                    0, 0, 1);
     return this;
   };
 
