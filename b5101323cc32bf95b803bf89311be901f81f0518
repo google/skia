@@ -70,6 +70,30 @@
       "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c6609f1_16bf785c",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-26T20:06:11Z",
+      "side": 1,
+      "message": "Yes, the copy CB has to be first, otherwise I\u0027m pretty sure the draws will be invalid (they\u0027ll be drawing with stale data).\n\nAll of the CBs are submitted in a single submit call, which I found was a sizeable win on Metal, for example.",
+      "parentUuid": "9146407a_08c26e4e",
+      "range": {
+        "startLine": 57,
+        "startChar": 5,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
