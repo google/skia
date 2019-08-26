@@ -116,6 +116,7 @@ var CanvasKit = {
 		drawRoundRect: function() {},
 		drawShadow: function() {},
 		drawText: function() {},
+		getSaveCount: function() {},
 		drawTextBlob: function() {},
 		drawVertices: function() {},
 		flush: function() {},
@@ -520,6 +521,7 @@ CanvasKit.SkPath.prototype.cubicTo = function() {};
 CanvasKit.SkPath.prototype.dash = function() {};
 CanvasKit.SkPath.prototype.lineTo = function() {};
 CanvasKit.SkPath.prototype.moveTo = function() {};
+CanvasKit.SkPath.prototype.offset = function() {};
 CanvasKit.SkPath.prototype.op = function() {};
 CanvasKit.SkPath.prototype.quadTo = function() {};
 CanvasKit.SkPath.prototype.rect = function() {};
