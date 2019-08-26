@@ -467,6 +467,13 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Co
             return nullptr;
         }
 
+        // FIXME (michaelludwig) - Clean this up as part of the imagefilter refactor, some filters
+        // instead require a coord transform on the FP. At very least, be consistent, at best make
+        // it so that filter impls don't need to worry about the subset origin.
+
+        // Must also map the dstBounds since it is used as the src rect in DrawWithFP when
+        // evaluating the FP, and the dst rect just uses the size of dstBounds.
+        dstBounds.offset(input->subset().x(), input->subset().y());
         return DrawWithFP(context, std::move(fp), dstBounds, ctx.colorType(), ctx.colorSpace(),
                           isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
