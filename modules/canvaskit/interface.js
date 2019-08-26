@@ -130,6 +130,14 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  CanvasKit.SkPath.prototype.addOval = function(oval, isCCW, startIndex) {
+    if (startIndex === undefined) {
+      startIndex = 1;
+    }
+    this._addOval(oval, !!isCCW, startIndex);
+    return this;
+  };
+
   CanvasKit.SkPath.prototype.addPath = function() {
     // Takes 1, 2, 7, or 10 required args, where the first arg is always the path.
     // The last arg is optional and chooses between add or extend mode.
@@ -288,6 +296,13 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkPath.prototype.moveTo = function(x, y) {
     this._moveTo(x, y);
+    return this;
+  };
+
+  CanvasKit.SkPath.prototype.offset = function(dx, dy) {
+    this._transform(1, 0, dx,
+                    0, 1, dy,
+                    0, 0, 1);
     return this;
   };
 
