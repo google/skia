@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ac9879c_0832ef76",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-26T15:17:15Z",
+      "side": 1,
+      "message": "what is being gain by this? Why can\u0027t you just push back the copyEncoder (either here or in flush)?",
+      "range": {
+        "startLine": 57,
+        "startChar": 5,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
