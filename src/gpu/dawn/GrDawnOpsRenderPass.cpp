@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/dawn/GrDawnGpuCommandBuffer.h"
+#include "src/gpu/dawn/GrDawnOpsRenderPass.h"
 
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrMesh.h"
@@ -21,23 +21,6 @@
 #include "src/gpu/dawn/GrDawnTexture.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
 #include "src/sksl/SkSLCompiler.h"
-
-GrDawnGpuTextureCommandBuffer::GrDawnGpuTextureCommandBuffer(GrDawnGpu* gpu,
-                                                             GrTexture* texture,
-                                                             GrSurfaceOrigin origin)
-    : INHERITED(texture, origin)
-    , fGpu(gpu) {
-    fEncoder = fGpu->device().CreateCommandEncoder();
-}
-
-void GrDawnGpuTextureCommandBuffer::submit() {
-    dawn::CommandBuffer commandBuffer = fEncoder.Finish();
-    if (commandBuffer) {
-        fGpu->queue().Submit(1, &commandBuffer);
-    }
-}
-
-GrDawnGpuTextureCommandBuffer::~GrDawnGpuTextureCommandBuffer() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -59,10 +42,9 @@ static dawn::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
     }
 }
 
-GrDawnGpuRTCommandBuffer::GrDawnGpuRTCommandBuffer(GrDawnGpu* gpu,
-                                                   GrRenderTarget* rt, GrSurfaceOrigin origin,
-                                                   const LoadAndStoreInfo& colorInfo,
-                                                   const StencilLoadAndStoreInfo& stencilInfo)
+GrDawnOpsRenderPass::GrDawnOpsRenderPass(GrDawnGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                                         const LoadAndStoreInfo& colorInfo,
+                                         const StencilLoadAndStoreInfo& stencilInfo)
         : INHERITED(rt, origin)
         , fGpu(gpu)
         , fColorInfo(colorInfo) {
@@ -72,8 +54,8 @@ GrDawnGpuRTCommandBuffer::GrDawnGpuRTCommandBuffer(GrDawnGpu* gpu,
     fPassEncoder = beginRenderPass(colorOp, stencilOp);
 }
 
-dawn::RenderPassEncoder GrDawnGpuRTCommandBuffer::beginRenderPass(dawn::LoadOp colorOp,
-                                                                  dawn::LoadOp stencilOp) {
+dawn::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(dawn::LoadOp colorOp,
+                                                             dawn::LoadOp stencilOp) {
     dawn::Texture texture = static_cast<GrDawnRenderTarget*>(fRenderTarget)->texture();
     auto stencilAttachment = static_cast<GrDawnStencilAttachment*>(
         fRenderTarget->renderTargetPriv().getStencilAttachment());
@@ -106,40 +88,40 @@ dawn::RenderPassEncoder GrDawnGpuRTCommandBuffer::beginRenderPass(dawn::LoadOp c
     return fEncoder.BeginRenderPass(&renderPassDescriptor);
 }
 
-GrDawnGpuRTCommandBuffer::~GrDawnGpuRTCommandBuffer() {
+GrDawnOpsRenderPass::~GrDawnOpsRenderPass() {
 }
 
-GrGpu* GrDawnGpuRTCommandBuffer::gpu() { return fGpu; }
+GrGpu* GrDawnOpsRenderPass::gpu() { return fGpu; }
 
-void GrDawnGpuRTCommandBuffer::end() {
+void GrDawnOpsRenderPass::end() {
     fPassEncoder.EndPass();
 }
 
-void GrDawnGpuRTCommandBuffer::submit() {
+void GrDawnOpsRenderPass::submit() {
     dawn::CommandBuffer commandBuffer = fEncoder.Finish();
     if (commandBuffer) {
         fGpu->queue().Submit(1, &commandBuffer);
     }
 }
 
-void GrDawnGpuRTCommandBuffer::insertEventMarker(const char* msg) {
+void GrDawnOpsRenderPass::insertEventMarker(const char* msg) {
     SkASSERT(!"unimplemented");
 }
 
-void GrDawnGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+void GrDawnOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     fPassEncoder.EndPass();
     fPassEncoder = beginRenderPass(dawn::LoadOp::Load, dawn::LoadOp::Clear);
 }
 
-void GrDawnGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
+void GrDawnOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
     fPassEncoder.EndPass();
     fPassEncoder = beginRenderPass(dawn::LoadOp::Clear, dawn::LoadOp::Load);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDawnGpuRTCommandBuffer::inlineUpload(GrOpFlushState* state,
-                                            GrDeferredTextureUploadFn& upload) {
+void GrDawnOpsRenderPass::inlineUpload(GrOpFlushState* state,
+                                       GrDeferredTextureUploadFn& upload) {
     SkASSERT(!"unimplemented");
 }
 
@@ -190,7 +172,7 @@ static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primit
     }
 }
 
-void GrDawnGpuRTCommandBuffer::setScissorState(
+void GrDawnOpsRenderPass::setScissorState(
         const GrPipeline& pipeline,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays) {
@@ -208,7 +190,7 @@ void GrDawnGpuRTCommandBuffer::setScissorState(
     fPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
-void GrDawnGpuRTCommandBuffer::applyState(const GrPipeline& pipeline,
+void GrDawnOpsRenderPass::applyState(const GrPipeline& pipeline,
                                           const GrPrimitiveProcessor& primProc,
                                           const GrTextureProxy* const primProcProxies[],
                                           const GrPipeline::FixedDynamicState* fixedDynamicState,
@@ -316,13 +298,13 @@ void GrDawnGpuRTCommandBuffer::applyState(const GrPipeline& pipeline,
     this->setScissorState(pipeline, fixedDynamicState, dynamicStateArrays);
 }
 
-void GrDawnGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
-                                      const GrPipeline& pipeline,
-                                      const GrPipeline::FixedDynamicState* fixedDynamicState,
-                                      const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                                      const GrMesh meshes[],
-                                      int meshCount,
-                                      const SkRect& bounds) {
+void GrDawnOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
+                                 const GrPipeline& pipeline,
+                                 const GrPipeline::FixedDynamicState* fixedDynamicState,
+                                 const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                                 const GrMesh meshes[],
+                                 int meshCount,
+                                 const SkRect& bounds) {
     if (!meshCount) {
         return;
     }
@@ -345,13 +327,13 @@ void GrDawnGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     }
 }
 
-void GrDawnGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType,
-                                                      const GrBuffer* vertexBuffer,
-                                                      int vertexCount,
-                                                      int baseVertex,
-                                                      const GrBuffer* instanceBuffer,
-                                                      int instanceCount,
-                                                      int baseInstance) {
+void GrDawnOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType,
+                                                 const GrBuffer* vertexBuffer,
+                                                 int vertexCount,
+                                                 int baseVertex,
+                                                 const GrBuffer* instanceBuffer,
+                                                 int instanceCount,
+                                                 int baseInstance) {
     static const uint64_t vertexBufferOffsets[1] = {0};
     dawn::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
     fPassEncoder.SetVertexBuffers(0, 1, &vb, vertexBufferOffsets);
@@ -359,16 +341,16 @@ void GrDawnGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType,
     fGpu->stats()->incNumDraws();
 }
 
-void GrDawnGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
-                                                             const GrBuffer* indexBuffer,
-                                                             int indexCount,
-                                                             int baseIndex,
-                                                             const GrBuffer* vertexBuffer,
-                                                             int baseVertex,
-                                                             const GrBuffer* instanceBuffer,
-                                                             int instanceCount,
-                                                             int baseInstance,
-                                                             GrPrimitiveRestart restart) {
+void GrDawnOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
+                                                        const GrBuffer* indexBuffer,
+                                                        int indexCount,
+                                                        int baseIndex,
+                                                        const GrBuffer* vertexBuffer,
+                                                        int baseVertex,
+                                                        const GrBuffer* instanceBuffer,
+                                                        int instanceCount,
+                                                        int baseInstance,
+                                                        GrPrimitiveRestart restart) {
     uint64_t vertexBufferOffsets[1];
     vertexBufferOffsets[0] = 0;
     dawn::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
