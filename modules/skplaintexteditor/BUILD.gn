@@ -5,7 +5,7 @@
 import("../../gn/skia.gni")
 
 if (skia_use_icu && skia_use_harfbuzz) {
-  source_set("editor_lib") {
+  source_set("skplaintexteditor") {
     include_dirs = [ "../.." ]
     public = [
       "include/editor.h",
@@ -63,7 +63,21 @@ if (skia_use_icu && skia_use_harfbuzz) {
       "../..:sk_app",
     ]
     deps = [
-      ":editor_lib",
+      ":skplaintexteditor",
+    ]
+  }
+  source_set("gm") {
+    check_includes = false
+    testonly = true
+    include_dirs = [ "../../gm" ]
+    configs += [ "../..:skia_private" ]
+    sources = [
+      "gm/editor_gm.cpp",
+    ]
+    deps = [
+      ":skplaintexteditor",
+      "../..:skia",
+      "../..:tool_utils",
     ]
   }
 }
