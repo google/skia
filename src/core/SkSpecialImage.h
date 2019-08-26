@@ -60,7 +60,7 @@ public:
      *  If no transformation is required, the returned image may be the same as this special image.
      *  If this special image is from a different GrRecordingContext, this will fail.
      */
-    sk_sp<SkSpecialImage> makeTextureImage(GrRecordingContext*);
+    sk_sp<SkSpecialImage> makeTextureImage(GrRecordingContext*) const;
 
     /**
      *  Draw this SpecialImage into the canvas, automatically taking into account the image's subset

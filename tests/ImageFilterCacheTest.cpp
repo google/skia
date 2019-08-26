@@ -16,6 +16,8 @@
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkSpecialImage.h"
 
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
+
 static const int kSmallerSize = 10;
 static const int kPad = 3;
 static const int kFullSize = kSmallerSize + 2 * kPad;
@@ -28,8 +30,7 @@ static SkBitmap create_bm() {
 }
 
 static sk_sp<SkImageFilter> make_filter() {
-    sk_sp<SkColorFilter> filter(SkColorFilters::Blend(SK_ColorBLUE,
-                                                              SkBlendMode::kSrcIn));
+    sk_sp<SkColorFilter> filter(SkColorFilters::Blend(SK_ColorBLUE, SkBlendMode::kSrcIn));
     return SkImageFilters::ColorFilter(std::move(filter), nullptr, nullptr);
 }
 
@@ -46,15 +47,13 @@ static void test_find_existing(skiatest::Reporter* reporter,
 
     SkIPoint offset = SkIPoint::Make(3, 4);
     auto filter = make_filter();
-    cache->set(key1, image.get(), offset, filter.get());
+    cache->set(key1, filter.get(), skif::FilterResult<For::kOutput>(image, offset));
 
-    SkIPoint foundOffset;
+    skif::FilterResult<For::kOutput> foundImage;
+    REPORTER_ASSERT(reporter, cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, offset == foundImage.origin());
 
-    sk_sp<SkSpecialImage> foundImage = cache->get(key1, &foundOffset);
-    REPORTER_ASSERT(reporter, foundImage);
-    REPORTER_ASSERT(reporter, offset == foundOffset);
-
-    REPORTER_ASSERT(reporter, !cache->get(key2, &foundOffset));
+    REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
 }
 
 // If either id is different or the clip or the matrix are different the
@@ -76,13 +75,13 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
 
     SkIPoint offset = SkIPoint::Make(3, 4);
     auto filter = make_filter();
-    cache->set(key0, image.get(), offset, filter.get());
+    cache->set(key0, filter.get(), skif::FilterResult<For::kOutput>(image, offset));
 
-    SkIPoint foundOffset;
-    REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key2, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key3, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key4, &foundOffset));
+    skif::FilterResult<For::kOutput> foundImage;
+    REPORTER_ASSERT(reporter, !cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key3, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key4, &foundImage));
 }
 
 // Test purging when the max cache size is exceeded
@@ -97,18 +96,17 @@ static void test_internal_purge(skiatest::Reporter* reporter, const sk_sp<SkSpec
 
     SkIPoint offset = SkIPoint::Make(3, 4);
     auto filter1 = make_filter();
-    cache->set(key1, image.get(), offset, filter1.get());
+    cache->set(key1, filter1.get(), skif::FilterResult<For::kOutput>(image, offset));
 
-    SkIPoint foundOffset;
-
-    REPORTER_ASSERT(reporter, cache->get(key1, &foundOffset));
+    skif::FilterResult<For::kOutput> foundImage;
+    REPORTER_ASSERT(reporter, cache->get(key1, &foundImage));
 
     // This should knock the first one out of the cache
     auto filter2 = make_filter();
-    cache->set(key2, image.get(), offset, filter2.get());
+    cache->set(key2, filter2.get(), skif::FilterResult<For::kOutput>(image, offset));
 
-    REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
+    REPORTER_ASSERT(reporter, cache->get(key2, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key1, &foundImage));
 }
 
 // Exercise the purgeByKey and purge methods
@@ -125,26 +123,25 @@ static void test_explicit_purging(skiatest::Reporter* reporter,
     SkIPoint offset = SkIPoint::Make(3, 4);
     auto filter1 = make_filter();
     auto filter2 = make_filter();
-    cache->set(key1, image.get(), offset, filter1.get());
-    cache->set(key2, image.get(), offset, filter2.get());
+    cache->set(key1, filter1.get(), skif::FilterResult<For::kOutput>(image, offset));
+    cache->set(key2, filter2.get(), skif::FilterResult<For::kOutput>(image, offset));
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->count());)
 
-    SkIPoint foundOffset;
-
-    REPORTER_ASSERT(reporter, cache->get(key1, &foundOffset));
-    REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
+    skif::FilterResult<For::kOutput> foundImage;
+    REPORTER_ASSERT(reporter, cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, cache->get(key2, &foundImage));
 
     cache->purgeByImageFilter(filter1.get());
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 1 == cache->count());)
 
-    REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
-    REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
+    REPORTER_ASSERT(reporter, !cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, cache->get(key2, &foundImage));
 
     cache->purge();
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 0 == cache->count());)
 
-    REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key2, &foundOffset));
+    REPORTER_ASSERT(reporter, !cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
 }
 
 DEF_TEST(ImageFilterCache_RasterBacked, reporter) {

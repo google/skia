@@ -169,7 +169,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
     SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), colorType,
                                     fRenderTargetContext->colorSpaceInfo().colorSpace(), srcImg);
 
-    return as_IFB(filter)->filterImage(ctx, offset);
+    return as_IFB(filter)->filterImage(ctx).imageAndOffset(offset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
