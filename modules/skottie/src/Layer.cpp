@@ -496,7 +496,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
                                                                    layer_info.fOutPoint);
 
     // Optional motion blur.
-    if (has_animators && layerCtx->hasMotionBlur(*jlayer)) {
+    if (layer && has_animators && layerCtx->hasMotionBlur(*jlayer)) {
         SkASSERT(layerCtx->fMotionBlurAngle >= 0);
 
         // Wrap both the layer node and the controller.
