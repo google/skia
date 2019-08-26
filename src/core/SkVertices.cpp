@@ -220,7 +220,7 @@ sk_sp<SkVertices> SkVertices::applyBones(const SkVertices::Bone bones[], int bon
     // We don't check if the SkVertices object has bone indices/weights because there is the case
     // where the object can have no indices/weights but still have a world transform applied.
     if (!bones || !boneCount) {
-        return sk_ref_sp(this);
+        return sk_ref_sp(const_cast<SkVertices*>(this));
     }
     SkASSERT(boneCount >= 1);
 

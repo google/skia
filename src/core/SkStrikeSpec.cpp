@@ -151,12 +151,12 @@ bool SkStrikeSpec::ShouldDrawAsPath(
         || distance(SkMatrix::kMSkewX,  SkMatrix::kMScaleY) > maxSizeSquared;
 }
 
-SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) {
+SkStrikeSpec SkStrikeSpec::MakePDFVector(sk_sp<SkTypeface> typeface, int* size) {
     SkFont font;
     font.setHinting(SkFontHinting::kNone);
     font.setEdging(SkFont::Edging::kAlias);
-    font.setTypeface(sk_ref_sp(&typeface));
-    int unitsPerEm = typeface.getUnitsPerEm();
+    font.setTypeface(std::move(typeface));
+    int unitsPerEm = font.getTypeface()->getUnitsPerEm();
     if (unitsPerEm <= 0) {
         unitsPerEm = 1024;
     }

@@ -96,10 +96,10 @@ public:
      *  @param typeface can not be nullptr.
      *  @return nullptr only when typeface is bad.
      */
-    static const SkAdvancedTypefaceMetrics* GetMetrics(const SkTypeface* typeface,
+    static const SkAdvancedTypefaceMetrics* GetMetrics(SkTypeface* typeface,
                                                        SkPDFDocument* canon);
 
-    static const std::vector<SkUnichar>& GetUnicodeMap(const SkTypeface* typeface,
+    static const std::vector<SkUnichar>& GetUnicodeMap(SkTypeface* typeface,
                                                        SkPDFDocument* canon);
 
     static void PopulateCommonFontDescriptor(SkPDFDict* descriptor,

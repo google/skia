@@ -144,7 +144,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.colorSpace(),
+        return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.refColorSpace(),
                           isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif
