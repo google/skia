@@ -1340,7 +1340,7 @@ bool Compiler::optimize(Program& program) {
                     VarDeclarations& vars = (VarDeclarations&) **iter;
                     for (auto varIter = vars.fVars.begin(); varIter != vars.fVars.end();) {
                         const Variable& var = *((VarDeclaration&) **varIter).fVar;
-                        if (var.dead()) {
+                        if (var.dead() && false) {
                             varIter = vars.fVars.erase(varIter);
                         } else {
                             ++varIter;
