@@ -19,7 +19,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/dawn/GrDawnBuffer.h"
 #include "src/gpu/dawn/GrDawnCaps.h"
-#include "src/gpu/dawn/GrDawnGpuCommandBuffer.h"
+#include "src/gpu/dawn/GrDawnOpsRenderPass.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
 #include "src/gpu/dawn/GrDawnStencilAttachment.h"
 #include "src/gpu/dawn/GrDawnTexture.h"
@@ -64,18 +64,12 @@ void GrDawnGpu::disconnect(DisconnectType type) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGpuRTCommandBuffer* GrDawnGpu::getCommandBuffer(
+GrOpsRenderPass* GrDawnGpu::getOpsRenderPass(
             GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    fRTCommandBuffer.reset(new GrDawnGpuRTCommandBuffer(this, rt, origin, colorInfo, stencilInfo));
-    return fRTCommandBuffer.get();
-}
-
-GrGpuTextureCommandBuffer* GrDawnGpu::getCommandBuffer(GrTexture* texture,
-                                                       GrSurfaceOrigin origin) {
-    fTextureCommandBuffer.reset(new GrDawnGpuTextureCommandBuffer(this, texture, origin));
-    return fTextureCommandBuffer.get();
+            const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
+    fOpsRenderPass.reset(new GrDawnOpsRenderPass(this, rt, origin, colorInfo, stencilInfo));
+    return fOpsRenderPass.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -512,14 +506,8 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture*) {
     return false;
 }
 
-void GrDawnGpu::submit(GrGpuCommandBuffer* buffer) {
-    if (buffer->asRTCommandBuffer()) {
-        SkASSERT(fRTCommandBuffer.get() == buffer);
-        fRTCommandBuffer->submit();
-    } else {
-        SkASSERT(fTextureCommandBuffer.get() == buffer);
-        fTextureCommandBuffer->submit();
-    }
+void GrDawnGpu::submit(GrOpsRenderPass* renderPass) {
+    static_cast<GrDawnOpsRenderPass*>(renderPass)->submit();
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrDawnGpu::insertFence() {

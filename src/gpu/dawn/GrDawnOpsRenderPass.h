@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDawnGpuCommandBuffer_DEFINED
-#define GrDawnGpuCommandBuffer_DEFINED
+#ifndef GrDawnOpsRenderPass_DEFINED
+#define GrDawnOpsRenderPass_DEFINED
 
-#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOpsRenderPass.h"
 
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/GrColor.h"
@@ -18,28 +18,12 @@
 class GrDawnGpu;
 class GrDawnRenderTarget;
 
-class GrDawnGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
+class GrDawnOpsRenderPass : public GrOpsRenderPass, private GrMesh::SendToGpuImpl {
 public:
-    GrDawnGpuTextureCommandBuffer(GrDawnGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin);
-    ~GrDawnGpuTextureCommandBuffer() override;
+    GrDawnOpsRenderPass(GrDawnGpu*, GrRenderTarget*, GrSurfaceOrigin,
+                        const LoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
 
-    void insertEventMarker(const char*) override {}
-    void submit();
-
-private:
-    GrDawnGpu*                        fGpu;
-    dawn::CommandEncoder              fEncoder;
-
-    typedef GrGpuTextureCommandBuffer INHERITED;
-};
-
-class GrDawnGpuRTCommandBuffer : public GrGpuRTCommandBuffer, private GrMesh::SendToGpuImpl {
-public:
-    GrDawnGpuRTCommandBuffer(GrDawnGpu*, GrRenderTarget*, GrSurfaceOrigin,
-                             const LoadAndStoreInfo&,
-                             const StencilLoadAndStoreInfo&);
-
-    ~GrDawnGpuRTCommandBuffer() override;
+    ~GrDawnOpsRenderPass() override;
 
     void begin() override { }
     void end() override;
@@ -116,7 +100,7 @@ private:
     dawn::RenderPassEncoder     fPassEncoder;
     LoadAndStoreInfo            fColorInfo;
 
-    typedef GrGpuRTCommandBuffer INHERITED;
+    typedef GrOpsRenderPass     INHERITED;
 };
 
 #endif

@@ -12,9 +12,8 @@
 #include "dawn/dawncpp.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 
+class GrDawnOpsRenderPass;
 class GrPipeline;
-class GrDawnGpuRTCommandBuffer;
-class GrDawnGpuTextureCommandBuffer;
 
 namespace SkSL {
     class Compiler;
@@ -57,18 +56,17 @@ public:
                                                                 int height,
                                                                 int numStencilSamples) override;
 
-    GrGpuRTCommandBuffer* getCommandBuffer(
+    GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* getCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+            const GrOpsRenderPass::LoadAndStoreInfo&,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&) override;
 
     SkSL::Compiler* shaderCompiler() const {
         return fCompiler.get();
     }
 
-    void submit(GrGpuCommandBuffer* cb) override;
+    void submit(GrOpsRenderPass*) override;
+
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
@@ -147,8 +145,7 @@ private:
     dawn::Device                                    fDevice;
     dawn::Queue                                     fQueue;
     std::unique_ptr<SkSL::Compiler>                 fCompiler;
-    std::unique_ptr<GrDawnGpuRTCommandBuffer>       fRTCommandBuffer;
-    std::unique_ptr<GrDawnGpuTextureCommandBuffer>  fTextureCommandBuffer;
+    std::unique_ptr<GrDawnOpsRenderPass>            fOpsRenderPass;
     GrDawnRingBuffer                                fUniformRingBuffer;
 
     typedef GrGpu INHERITED;
