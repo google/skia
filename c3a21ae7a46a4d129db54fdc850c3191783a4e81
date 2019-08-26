@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bad0cfb4_6aec6498",
+        "filename": "bench/CTConvertBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-08-26T14:32:41Z",
+      "side": 1,
+      "message": "can we move this to predraw, so we don\u0027t measure it at all?",
+      "range": {
+        "startLine": 49,
+        "startChar": 35,
+        "endLine": 49,
+        "endChar": 51
+      },
+      "revId": "c3a21ae7a46a4d129db54fdc850c3191783a4e81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
