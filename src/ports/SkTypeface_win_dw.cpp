@@ -268,7 +268,7 @@ sk_sp<SkData> DWriteFontTypeface::onCopyTableData(SkFontTableTag tag) const {
 sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) const {
     // Skip if the current face index does not match the ttcIndex
     if (fDWriteFontFace->GetIndex() != SkTo<UINT32>(args.getCollectionIndex())) {
-        return sk_ref_sp(this);
+        return sk_ref_sp(const_cast<DWriteFontTypeface*>(this));
     }
 
 #if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
@@ -310,7 +310,7 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
 
 #endif
 
-    return sk_ref_sp(this);
+    return sk_ref_sp(const_cast<DWriteFontTypeface*>(this));
 }
 
 std::unique_ptr<SkStreamAsset> DWriteFontTypeface::onOpenStream(int* ttcIndex) const {

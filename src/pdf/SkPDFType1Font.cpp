@@ -268,7 +268,7 @@ static const std::vector<SkString>& type_1_glyphnames(SkPDFDocument* canon,
 }
 
 static SkPDFIndirectReference type1_font_descriptor(SkPDFDocument* doc,
-                                                    const SkTypeface* typeface) {
+                                                    SkTypeface* typeface) {
     SkFontID fontID = typeface->uniqueID();
     if (SkPDFIndirectReference* ptr = doc->fFontDescriptors.find(fontID)) {
         return *ptr;
@@ -308,7 +308,7 @@ void SkPDFEmitType1Font(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
         for (unsigned gId = firstGlyphID; gId <= lastGlyphID; gId++) {
             glyphIDs[gId - firstGlyphID + 1] = gId;
         }
-        SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*typeface, &emSize);
+        SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(sk_ref_sp(typeface), &emSize);
         SkBulkGlyphMetrics metrics{strikeSpec};
         auto glyphs = metrics.glyphs(SkMakeSpan(glyphIDs.get(), glyphRangeSize));
         for (int i = 0; i < glyphRangeSize; ++i) {

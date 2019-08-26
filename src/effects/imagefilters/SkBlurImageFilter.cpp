@@ -615,7 +615,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(const Context& ctx,
     if (ctx.gpuBacked()) {
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
+        input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.refColorSpace());
         result = this->gpuFilter(ctx, sigma, input, inputBounds, dstBounds, inputOffset,
                                  &resultOffset);
     } else

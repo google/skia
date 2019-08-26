@@ -774,7 +774,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& 
         // called pad_image to account for our dilation of bounds, so the result will already be
         // moved to the destination color space. If a filter DAG avoids that, then we use this
         // fall-back, which saves us from having to do the xform during the filter itself.
-        input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
+        input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.refColorSpace());
 
         sk_sp<SkSpecialImage> result(apply_morphology(context, input.get(), srcBounds, fType,
                                                       SkISize::Make(width, height), ctx));

@@ -363,8 +363,4 @@ template <typename T> sk_sp<T> sk_ref_sp(T* obj) {
     return sk_sp<T>(SkSafeRef(obj));
 }
 
-template <typename T> sk_sp<T> sk_ref_sp(const T* obj) {
-    return sk_sp<T>(const_cast<T*>(SkSafeRef(obj)));
-}
-
 #endif

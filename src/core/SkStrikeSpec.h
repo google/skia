@@ -57,7 +57,7 @@ public:
     static SkStrikeSpec MakeDefault();
 
     // Make a strike spec for PDF Vector strikes
-    static SkStrikeSpec MakePDFVector(const SkTypeface& typeface, int* size);
+    static SkStrikeSpec MakePDFVector(sk_sp<SkTypeface>, int* size);
 
 #if SK_SUPPORT_GPU
     // Create a strike spec for scaled distance field text.

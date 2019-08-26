@@ -475,7 +475,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
 }
 
 sk_sp<SkTextBlob> make_blob_causing_fallback(
-        sk_sp<SkTypeface> targetTf, const SkTypeface* glyphTf, skiatest::Reporter* reporter) {
+        sk_sp<SkTypeface> targetTf, SkTypeface* glyphTf, skiatest::Reporter* reporter) {
     SkFont font;
     font.setSubpixel(true);
     font.setSize(96);

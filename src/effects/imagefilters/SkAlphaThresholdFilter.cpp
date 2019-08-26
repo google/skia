@@ -187,7 +187,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
                                                             std::move(thresholdFP) };
         auto fp = GrFragmentProcessor::RunInSeries(fpSeries, 2);
 
-        return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.colorSpace(),
+        return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.refColorSpace(),
                           isProtected ? GrProtected::kYes : GrProtected::kNo);
     }
 #endif

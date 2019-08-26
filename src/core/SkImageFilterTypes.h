@@ -106,7 +106,7 @@ public:
                       "Can only copy to specific input from the generic kInput usage.");
     }
 
-    const SkSpecialImage* image() const { return fImage.get(); }
+    SkSpecialImage* image() const { return fImage.get(); }
     sk_sp<SkSpecialImage> refImage() const { return fImage; }
 
     // TODO (michaelludwig) - the geometry types will be updated to tag the coordinate system
@@ -161,7 +161,7 @@ public:
     // Creates a context with the given layer matrix and destination clip, reading from 'source'
     // with an origin of (0,0).
     Context(const SkMatrix& layerMatrix, const SkIRect& clipBounds, SkImageFilterCache* cache,
-            SkColorType colorType, SkColorSpace* colorSpace, const SkSpecialImage* source)
+            SkColorType colorType, SkColorSpace* colorSpace, SkSpecialImage* source)
         : fLayerMatrix(layerMatrix)
         , fClipBounds(clipBounds)
         , fCache(cache)
@@ -215,7 +215,7 @@ public:
     // the output of the inner DAG as the "source" for the outer DAG.
     const FilterResult<For::kInput>& source() const { return fSource; }
     // DEPRECATED: Use source() instead to get both the image and its origin.
-    const SkSpecialImage* sourceImage() const { return fSource.image(); }
+    SkSpecialImage* sourceImage() const { return fSource.image(); }
 
     // True if image filtering should occur on the GPU if possible.
     bool gpuBacked() const { return fSource.image()->isTextureBacked(); }
@@ -237,7 +237,7 @@ public:
     // image.
     sk_sp<SkSpecialSurface> makeSurface(const SkISize& size,
                                         const SkSurfaceProps* props = nullptr) const {
-        return fSource.image()->makeSurface(fColorType, fColorSpace, size,
+        return fSource.image()->makeSurface(fColorType, sk_ref_sp(fColorSpace), size,
                                             kPremul_SkAlphaType, props);
     }
 

@@ -113,7 +113,7 @@ public:
      *  Returns the input filter at a given index, or NULL if no input is connected.  The indices
      *  used are filter-specific.
      */
-    const SkImageFilter* getInput(int i) const;
+    SkImageFilter* getInput(int i) const;
 
     // Default impl returns union of all input bounds.
     virtual SkRect computeFastBounds(const SkRect& bounds) const;

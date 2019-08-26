@@ -51,7 +51,7 @@ SkTypeface_Empty::SkTypeface_Empty() : INHERITED(SkFontStyle(), false, true, SkS
 std::unique_ptr<SkStreamAsset> SkTypeface_Empty::onOpenStream(int*) const { return nullptr; }
 
 sk_sp<SkTypeface> SkTypeface_Empty::onMakeClone(const SkFontArguments& args) const {
-    return sk_ref_sp(this);
+    return sk_ref_sp(const_cast<SkTypeface_Empty*>(this));
 }
 
 SkTypeface_Stream::SkTypeface_Stream(std::unique_ptr<SkFontData> fontData,
