@@ -13,8 +13,8 @@
 #include <atomic>
 #include <cstddef>
 #include <functional>
+#include <iosfwd>
 #include <memory>
-#include <ostream>
 #include <type_traits>
 #include <utility>
 
