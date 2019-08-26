@@ -460,15 +460,6 @@ config("NDEBUG") {
   defines = [ "NDEBUG" ]
 }
 
-config("msvc_rtc") {
-  defines = [ "_ALLOW_RTCc_IN_STL" ]
-  cflags = [
-    "/RTCcsu",
-    "/guard:cf",
-  ]
-  ldflags = [ "/guard:cf" ]
-}
-
 config("executable") {
   if (is_android) {
     ldflags = [

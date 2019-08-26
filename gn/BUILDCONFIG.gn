@@ -176,9 +176,6 @@ default_configs += [
   "//gn:warnings_except_public_headers",
   "//gn:extra_flags",
 ]
-if (sanitize == "MSVC") {
-  default_configs += [ "//gn:msvc_rtc" ]
-}
 
 set_defaults("executable") {
   configs = [ "//gn:executable" ] + default_configs
