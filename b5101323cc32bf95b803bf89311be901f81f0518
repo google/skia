@@ -22,6 +22,30 @@
       "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf2fc0d6_293e03df",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-26T19:22:56Z",
+      "side": 1,
+      "message": "It\u0027s not the copy encoder that goes in here. It\u0027s the CommandBuffer that the copy encoder\nproduces when done. The idea is to reserve a spot for it before we append the drawing CBs \nthat will use the copied resources.",
+      "parentUuid": "5ac9879c_0832ef76",
+      "range": {
+        "startLine": 57,
+        "startChar": 5,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
