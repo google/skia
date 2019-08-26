@@ -283,7 +283,6 @@ int SkHeifCodec::onGetFrameCount() {
             Frame* frame = fFrameHolder.appendNewFrame();
             frame->setXYWH(0, 0, frameInfo.mWidth, frameInfo.mHeight);
             frame->setDisposalMethod(SkCodecAnimation::DisposalMethod::kKeep);
-            // TODO: fill in per-frame durations
             // Currently we don't know the duration until the frame is actually
             // decoded (onGetFrameInfo is also called before frame is decoded).
             // For now, fill it base on the value reported for the sequence.
@@ -307,6 +306,11 @@ SkHeifCodec::Frame* SkHeifCodec::FrameHolder::appendNewFrame() {
 }
 
 const SkHeifCodec::Frame* SkHeifCodec::FrameHolder::frame(int i) const {
+    SkASSERT(i >= 0 && i < this->size());
+    return &fFrames[i];
+}
+
+SkHeifCodec::Frame* SkHeifCodec::FrameHolder::editFrameAt(int i) {
     SkASSERT(i >= 0 && i < this->size());
     return &fFrames[i];
 }
@@ -353,6 +357,8 @@ SkCodec::Result SkHeifCodec::onGetPixels(const SkImageInfo& dstInfo,
     bool success;
     if (fUseAnimation) {
         success = fHeifDecoder->decodeSequence(options.fFrameIndex, &fFrameInfo);
+        fFrameHolder.editFrameAt(options.fFrameIndex)->setDuration(
+                fFrameInfo.mDurationUs / 1000);
     } else {
         success = fHeifDecoder->decode(&fFrameInfo);
     }

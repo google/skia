@@ -106,6 +106,7 @@ private:
         }
         Frame* appendNewFrame();
         const Frame* frame(int i) const;
+        Frame* editFrameAt(int i);
         int size() const {
             return static_cast<int>(fFrames.size());
         }
