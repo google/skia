@@ -515,7 +515,7 @@ if (skia_compile_processors) {
     include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
-      "//third_party/spirv-tools:spvtools",
+      "//third_party/spirv-tools",
     ]
   }
 
@@ -1069,7 +1069,7 @@ component("skia") {
   }
 
   if (skia_enable_spirv_validation) {
-    deps += [ "//third_party/spirv-tools:spvtools_val" ]
+    deps += [ "//third_party/spirv-tools" ]
     defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 
