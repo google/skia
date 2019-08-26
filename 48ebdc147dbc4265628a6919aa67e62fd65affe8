@@ -22,6 +22,30 @@
       "revId": "48ebdc147dbc4265628a6919aa67e62fd65affe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f795ae5_2eea70a8",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-08-26T20:47:51Z",
+      "side": 1,
+      "message": "Hummm. We did it before when it was already locked. I will clean this up in a follow up CL.",
+      "parentUuid": "a421a905_70d9e175",
+      "range": {
+        "startLine": 508,
+        "startChar": 8,
+        "endLine": 508,
+        "endChar": 58
+      },
+      "revId": "48ebdc147dbc4265628a6919aa67e62fd65affe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
