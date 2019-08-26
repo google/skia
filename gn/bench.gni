@@ -22,6 +22,7 @@ bench_sources = [
   "$_bench/BlurImageFilterBench.cpp",
   "$_bench/BlurRectBench.cpp",
   "$_bench/BlurRectsBench.cpp",
+  "$_bench/CTConvertBench.cpp",
   "$_bench/ChartBench.cpp",
   "$_bench/ChecksumBench.cpp",
   "$_bench/ChromeBench.cpp",
