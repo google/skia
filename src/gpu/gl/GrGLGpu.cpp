@@ -3576,7 +3576,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     if (dst == src) {
-        if (SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect)) {
+        if (SkIRect::Intersects(dstRect, srcRect)) {
             return false;
         }
     }

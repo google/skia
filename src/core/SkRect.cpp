@@ -9,12 +9,12 @@
 
 #include "include/private/SkMalloc.h"
 
-bool SkIRect::intersect(const SkIRect& r) {
+bool SkIRect::intersect(const SkIRect& a, const SkIRect& b) {
     SkIRect tmp = {
-        SkMax32(fLeft,   r.fLeft),
-        SkMax32(fTop,    r.fTop),
-        SkMin32(fRight,  r.fRight),
-        SkMin32(fBottom, r.fBottom)
+        SkMax32(a.fLeft,   b.fLeft),
+        SkMax32(a.fTop,    b.fTop),
+        SkMin32(a.fRight,  b.fRight),
+        SkMin32(a.fBottom, b.fBottom)
     };
     if (tmp.isEmpty()) {
         return false;

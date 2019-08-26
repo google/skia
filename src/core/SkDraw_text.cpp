@@ -67,7 +67,7 @@ void SkDraw::paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const 
             // this extra test is worth it, assuming that most of the time it succeeds
             // since we can avoid writing to storage
             if (!clipBounds.containsNoEmptyCheck(mask.fBounds)) {
-                if (!storage.intersectNoEmptyCheck(mask.fBounds, clipBounds)) {
+                if (!storage.intersect(mask.fBounds, clipBounds)) {
                     continue;
                 }
                 bounds = &storage;
