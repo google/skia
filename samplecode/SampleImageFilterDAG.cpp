@@ -210,9 +210,9 @@ private:
 } // anonymous namespace
 
 static FilterNode build_dag(const SkMatrix& local, const SkMatrix& remainder, const SkRect& rect,
-                            const SkImageFilter* filter, int depth) {
+                            sk_sp<SkImageFilter> filter, int depth) {
     FilterNode node;
-    node.fFilter = sk_ref_sp(filter);
+    node.fFilter = std::move(filter);
     node.fDepth = depth;
     node.fContent = rect;
 
@@ -227,7 +227,7 @@ static FilterNode build_dag(const SkMatrix& local, const SkMatrix& remainder, co
             node.fInputNodes.reserve(node.fFilter->countInputs());
             for (int i = 0; i < node.fFilter->countInputs(); ++i) {
                 node.fInputNodes.push_back() =
-                        build_dag(local, remainder, rect, node.fFilter->getInput(i), depth + 1);
+                        build_dag(local, remainder, rect, sk_ref_sp(node.fFilter->getInput(i)), depth + 1);
             }
         }
     }
@@ -236,7 +236,7 @@ static FilterNode build_dag(const SkMatrix& local, const SkMatrix& remainder, co
 }
 
 static FilterNode build_dag(const SkMatrix& ctm, const SkRect& rect,
-                            const SkImageFilter* rootFilter) {
+                            sk_sp<SkImageFilter> rootFilter) {
     // Emulate SkCanvas::internalSaveLayer's decomposition of the CTM.
     SkMatrix local;
     sk_sp<SkImageFilter> finalFilter = as_IFB(rootFilter)->applyCTM(ctm, &local);
@@ -253,10 +253,10 @@ static FilterNode build_dag(const SkMatrix& ctm, const SkRect& rect,
     }
 
     // Create a root node that represents the full result
-    FilterNode rootNode = build_dag(ctm, SkMatrix::I(), rect, rootFilter, 0);
+    FilterNode rootNode = build_dag(ctm, SkMatrix::I(), rect, std::move(rootFilter), 0);
     // Set its only child as the modified DAG that handles the CTM decomposition
     rootNode.fInputNodes.push_back() =
-            build_dag(local, remaining, rect, finalFilter.get(), 1);
+            build_dag(local, remaining, rect, std::move(finalFilter), 1);
     // Fill in bounds information that requires the entire node DAG to have been extracted first.
     rootNode.fInputNodes[0].computeBounds();
     return rootNode;
@@ -463,7 +463,7 @@ static void draw_dag(SkCanvas* canvas, sk_sp<SkImageFilter> filter,
 
     // Process the image filter DAG to display intermediate results later on, which will apply the
     // provided CTM during draw_node calls.
-    FilterNode dag = build_dag(ctm, rect, filter.get());
+    FilterNode dag = build_dag(ctm, rect, std::move(filter));
 
     sk_sp<SkSurface> nodeSurface = canvas->makeSurface(
             canvas->imageInfo().makeWH(surfaceSize.width(), surfaceSize.height()));

@@ -583,7 +583,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
 
     class StyleSet : public SkFontStyleSet {
     public:
-        StyleSet(sk_sp<SkFontMgr_fontconfig> parent, SkAutoFcFontSet fontSet)
+        StyleSet(sk_sp<const SkFontMgr_fontconfig> parent, SkAutoFcFontSet fontSet)
             : fFontMgr(std::move(parent)), fFontSet(std::move(fontSet))
         { }
 
@@ -637,7 +637,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
         }
 
     private:
-        sk_sp<SkFontMgr_fontconfig> fFontMgr;
+        sk_sp<const SkFontMgr_fontconfig> fFontMgr;
         SkAutoFcFontSet fFontSet;
     };
 

@@ -820,7 +820,7 @@ void SkPDFDevice::internalDrawGlyphRun(
     SkClusterator clusterator(glyphRun);
 
     int emSize;
-    SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*typeface, &emSize);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(sk_ref_sp(typeface), &emSize);
 
     SkScalar textSize = glyphRunFont.getSize();
     SkScalar advanceScale = textSize * glyphRunFont.getScaleX() / emSize;

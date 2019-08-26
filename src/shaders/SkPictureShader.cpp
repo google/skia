@@ -33,7 +33,7 @@ sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, const SkMa
     if (localMatrix && !localMatrix->invert(nullptr)) {
         return nullptr;
     }
-    return SkPictureShader::Make(sk_ref_sp(this), tmx, tmy, localMatrix, tile);
+    return SkPictureShader::Make(sk_ref_sp(const_cast<SkPicture*>(this)), tmx, tmy, localMatrix, tile);
 }
 
 sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy,

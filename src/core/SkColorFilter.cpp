@@ -153,14 +153,15 @@ sk_sp<SkFlattenable> SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
 
 sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) const {
     if (!inner) {
-        return sk_ref_sp(this);
+        return sk_ref_sp(const_cast<SkColorFilter*>(this));
     }
 
     int count = inner->privateComposedFilterCount() + this->privateComposedFilterCount();
     if (count > SK_MAX_COMPOSE_COLORFILTER_COUNT) {
         return nullptr;
     }
-    return sk_sp<SkColorFilter>(new SkComposeColorFilter(sk_ref_sp(this), std::move(inner), count));
+    return sk_sp<SkColorFilter>(new SkComposeColorFilter(
+        sk_ref_sp(const_cast<SkColorFilter*>(this)), std::move(inner), count));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

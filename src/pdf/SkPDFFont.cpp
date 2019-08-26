@@ -104,7 +104,7 @@ static bool can_embed(const SkAdvancedTypefaceMetrics& metrics) {
     return !SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
 }
 
-const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typeface,
+const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
                                                        SkPDFDocument* canon) {
     SkASSERT(typeface);
     SkFontID id = typeface->uniqueID();
@@ -154,7 +154,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typefac
     return canon->fTypefaceMetrics.set(id, std::move(metrics))->get();
 }
 
-const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface* typeface,
+const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(SkTypeface* typeface,
                                                        SkPDFDocument* canon) {
     SkASSERT(typeface);
     SkASSERT(canon);
@@ -369,7 +369,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     SkScalar defaultWidth = 0;
     {
         std::unique_ptr<SkPDFArray> widths = SkPDFMakeCIDGlyphWidthsArray(
-                *face, &font.glyphUsage(), &defaultWidth);
+                sk_ref_sp(face), &font.glyphUsage(), &defaultWidth);
         if (widths && widths->size() > 0) {
             newCIDFont->insertObject("W", std::move(widths));
         }
@@ -479,7 +479,7 @@ static ImageAndOffset to_image(SkGlyphID gid, SkStrike* cache) {
 }
 
 static SkPDFIndirectReference type3_descriptor(SkPDFDocument* doc,
-                                               const SkTypeface* typeface,
+                                               SkTypeface* typeface,
                                                SkStrike* cache) {
     if (SkPDFIndirectReference* ptr = doc->fType3FontDescriptors.find(typeface->uniqueID())) {
         return *ptr;
@@ -520,7 +520,7 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
         --lastGlyphID;
     }
     int unitsPerEm;
-    SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*typeface, &unitsPerEm);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(sk_ref_sp(typeface), &unitsPerEm);
     auto cache = strikeSpec.findOrCreateExclusiveStrike();
     SkASSERT(cache);
     SkScalar emSize = (SkScalar)unitsPerEm;

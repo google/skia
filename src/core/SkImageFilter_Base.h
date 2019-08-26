@@ -248,7 +248,7 @@ protected:
                                             std::unique_ptr<GrFragmentProcessor> fp,
                                             const SkIRect& bounds,
                                             SkColorType colorType,
-                                            const SkColorSpace* colorSpace,
+                                            sk_sp<SkColorSpace> colorSpace,
                                             GrProtected isProtected = GrProtected::kNo);
 
     /**
@@ -258,7 +258,7 @@ protected:
      */
     static sk_sp<SkSpecialImage> ImageToColorSpace(SkSpecialImage* src,
                                                    SkColorType colorType,
-                                                   SkColorSpace* colorSpace);
+                                                   sk_sp<SkColorSpace> colorSpace);
 #endif
 
     // If 'srcBounds' will sample outside the border of 'originalSrcBounds' (i.e., the sample

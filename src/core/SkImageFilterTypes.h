@@ -33,7 +33,7 @@ public:
     // Creates a context with the given layer matrix and destination clip, reading from 'source'
     // with an origin of (0,0).
     Context(const SkMatrix& layerMatrix, const SkIRect& clipBounds, SkImageFilterCache* cache,
-            SkColorType colorType, SkColorSpace* colorSpace, const SkSpecialImage* source)
+            SkColorType colorType, SkColorSpace* colorSpace, SkSpecialImage* source)
         : fLayerMatrix(layerMatrix)
         , fClipBounds(clipBounds)
         , fCache(cache)
@@ -75,7 +75,7 @@ public:
     // from the SkDevice that holds either the saveLayer or the temporary rendered result. The
     // exception is composing two image filters (via SkImageFilters::Compose), which must use
     // the output of the inner DAG as the "source" for the outer DAG.
-    const SkSpecialImage* sourceImage() const { return fSource; }
+    SkSpecialImage* sourceImage() const { return fSource; }
 
     // True if image filtering should occur on the GPU if possible.
     bool gpuBacked() const { return fSource->isTextureBacked(); }
@@ -97,7 +97,7 @@ public:
     // image.
     sk_sp<SkSpecialSurface> makeSurface(const SkISize& size,
                                         const SkSurfaceProps* props = nullptr) const {
-        return fSource->makeSurface(fColorType, fColorSpace, size, kPremul_SkAlphaType, props);
+        return fSource->makeSurface(fColorType, sk_ref_sp(fColorSpace), size, kPremul_SkAlphaType, props);
     }
 
     // Create a new context that matches this context, but with an overridden layer CTM matrix.
@@ -117,7 +117,7 @@ private:
     // These pointers are owned by the device controlling the filter process, and our
     // lifetime is bounded by the device, so they can be bare pointers.
     SkColorSpace*          fColorSpace;
-    const SkSpecialImage*  fSource;
+    SkSpecialImage*  fSource;
 };
 
 } // end namespace skif
