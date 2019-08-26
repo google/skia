@@ -124,51 +124,6 @@ void GrDawnOpsRenderPass::inlineUpload(GrOpFlushState* state,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static dawn::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {
-    switch (type) {
-    case kFloat_GrVertexAttribType:
-    case kHalf_GrVertexAttribType:
-        return dawn::VertexFormat::Float;
-    case kFloat2_GrVertexAttribType:
-    case kHalf2_GrVertexAttribType:
-        return dawn::VertexFormat::Float2;
-    case kFloat3_GrVertexAttribType:
-    case kHalf3_GrVertexAttribType:
-        return dawn::VertexFormat::Float3;
-    case kFloat4_GrVertexAttribType:
-    case kHalf4_GrVertexAttribType:
-        return dawn::VertexFormat::Float4;
-    case kUShort2_GrVertexAttribType:
-        return dawn::VertexFormat::UShort2;
-    case kInt_GrVertexAttribType:
-        return dawn::VertexFormat::Int;
-    case kUByte4_norm_GrVertexAttribType:
-        return dawn::VertexFormat::UChar4Norm;
-    default:
-        SkASSERT(!"unsupported vertex format");
-        return dawn::VertexFormat::Float4;
-    }
-}
-
-static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primitiveType) {
-    switch (primitiveType) {
-        case GrPrimitiveType::kTriangles:
-            return dawn::PrimitiveTopology::TriangleList;
-        case GrPrimitiveType::kTriangleStrip:
-            return dawn::PrimitiveTopology::TriangleStrip;
-        case GrPrimitiveType::kPoints:
-            return dawn::PrimitiveTopology::PointList;
-        case GrPrimitiveType::kLines:
-            return dawn::PrimitiveTopology::LineList;
-        case GrPrimitiveType::kLineStrip:
-            return dawn::PrimitiveTopology::LineStrip;
-        case GrPrimitiveType::kLinesAdjacency:
-        default:
-            SkASSERT(!"unsupported primitive topology");
-            return dawn::PrimitiveTopology::TriangleList;
-    }
-}
-
 void GrDawnOpsRenderPass::setScissorState(
         const GrPipeline& pipeline,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
@@ -194,96 +149,16 @@ void GrDawnOpsRenderPass::applyState(const GrPipeline& pipeline,
                                           const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                                           const GrPrimitiveType primitiveType,
                                           bool hasPoints) {
-    GrProgramDesc desc;
-    GrProgramDesc::Build(&desc, fRenderTarget, primProc, hasPoints, pipeline, fGpu);
-    dawn::TextureFormat colorFormat;
-    SkAssertResult(GrPixelConfigToDawnFormat(fRenderTarget->config(), &colorFormat));
-    dawn::TextureFormat stencilFormat = dawn::TextureFormat::Depth24PlusStencil8;
-    bool hasDepthStencil = fRenderTarget->renderTargetPriv().getStencilAttachment() != nullptr;
-    sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(fGpu, fRenderTarget, fOrigin,
-                                                               pipeline, primProc, primProcProxies,
-                                                               colorFormat, hasDepthStencil,
-                                                               stencilFormat, &desc);
-    SkASSERT(program);
+    sk_sp<GrDawnProgram> program = fGpu->getOrCreateRenderPipeline(fRenderTarget,
+                                                                  fOrigin,
+                                                                  pipeline,
+                                                                  primProc,
+                                                                  primProcProxies,
+                                                                  hasPoints,
+                                                                  primitiveType);
     auto bindGroup = program->setData(fGpu, fRenderTarget, fOrigin, primProc, pipeline,
                                       primProcProxies);
-
-    std::vector<dawn::VertexBufferDescriptor> inputs;
-    std::vector<dawn::VertexAttributeDescriptor> vertexAttributes;
-    if (primProc.numVertexAttributes() > 0) {
-        size_t offset = 0;
-        int i = 0;
-        for (const auto& attrib : primProc.vertexAttributes()) {
-            dawn::VertexAttributeDescriptor attribute;
-            attribute.shaderLocation = i;
-            attribute.offset = offset;
-            attribute.format = to_dawn_vertex_format(attrib.cpuType());
-            vertexAttributes.push_back(attribute);
-            offset += attrib.sizeAlign4();
-            i++;
-        }
-        dawn::VertexBufferDescriptor input;
-        input.stride = offset;
-        input.stepMode = dawn::InputStepMode::Vertex;
-        input.attributes = &vertexAttributes.front();
-        input.attributeCount = vertexAttributes.size();
-        inputs.push_back(input);
-    }
-    std::vector<dawn::VertexAttributeDescriptor> instanceAttributes;
-    if (primProc.numInstanceAttributes() > 0) {
-        size_t offset = 0;
-        int i = 0;
-        for (const auto& attrib : primProc.instanceAttributes()) {
-            dawn::VertexAttributeDescriptor attribute;
-            attribute.shaderLocation = i;
-            attribute.offset = offset;
-            attribute.format = to_dawn_vertex_format(attrib.cpuType());
-            instanceAttributes.push_back(attribute);
-            offset += attrib.sizeAlign4();
-            i++;
-        }
-        dawn::VertexBufferDescriptor input;
-        input.stride = offset;
-        input.stepMode = dawn::InputStepMode::Instance;
-        input.attributes = &instanceAttributes.front();
-        input.attributeCount = instanceAttributes.size();
-        inputs.push_back(input);
-    }
-    dawn::VertexInputDescriptor vertexInput;
-    vertexInput.bufferCount = inputs.size();
-    vertexInput.buffers = &inputs.front();
-    vertexInput.indexFormat = dawn::IndexFormat::Uint16;
-
-    dawn::PipelineStageDescriptor vsDesc;
-    vsDesc.module = program->fVSModule;
-    vsDesc.entryPoint = "main";
-
-    dawn::PipelineStageDescriptor fsDesc;
-    fsDesc.module = program->fFSModule;
-    fsDesc.entryPoint = "main";
-
-    dawn::RasterizationStateDescriptor rastDesc;
-
-    rastDesc.frontFace = dawn::FrontFace::CW;
-    rastDesc.cullMode = dawn::CullMode::None;
-    rastDesc.depthBias = 0;
-    rastDesc.depthBiasSlopeScale = 0.0f;
-    rastDesc.depthBiasClamp = 0.0f;
-
-    dawn::RenderPipelineDescriptor rpDesc;
-    rpDesc.layout = program->fPipelineLayout;
-    rpDesc.vertexStage = &vsDesc;
-    rpDesc.fragmentStage = &fsDesc;
-    rpDesc.vertexInput = &vertexInput;
-    rpDesc.rasterizationState = &rastDesc;
-    rpDesc.primitiveTopology = to_dawn_primitive_topology(primitiveType);
-    rpDesc.sampleCount = 1;
-    rpDesc.depthStencilState = hasDepthStencil ? &program->fDepthStencilState : nullptr;
-    rpDesc.colorStateCount = 1;
-    dawn::ColorStateDescriptor* colorStates[] = { &program->fColorState };
-    rpDesc.colorStates = colorStates;
-    dawn::RenderPipeline renderPipeline = fGpu->device().CreateRenderPipeline(&rpDesc);
-    fPassEncoder.SetPipeline(renderPipeline);
+    fPassEncoder.SetPipeline(program->fRenderPipeline);
     fPassEncoder.SetBindGroup(0, bindGroup, 0, nullptr);
     if (pipeline.isStencilEnabled()) {
         fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fFront.fRef);
