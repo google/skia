@@ -17,3 +17,14 @@ function reportSurface(surface, testname, done) {
         done();
     }).catch(reportError(done));
 }
+
+
+function starPath(CanvasKit, X=128, Y=128, R=116) {
+    let p = new CanvasKit.SkPath();
+    p.moveTo(X + R, Y);
+    for (let i = 1; i < 8; i++) {
+      let a = 2.6927937 * i;
+      p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
+    }
+    return p;
+  }
