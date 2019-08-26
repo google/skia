@@ -555,7 +555,8 @@ static sk_sp<SkSpecialImage> apply_morphology(
 
     const SkIRect dstRect = SkIRect::MakeWH(rect.width(), rect.height());
     SkIRect srcRect = rect;
-
+    // Map into proxy space
+    srcRect.offset(input->subset().x(), input->subset().y());
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
