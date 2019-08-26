@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "070005f5_8de50200",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-26T20:27:18Z",
+      "side": 0,
+      "message": "nit: Could we retain this assert?",
+      "range": {
+        "startLine": 443,
+        "startChar": 8,
+        "endLine": 443,
+        "endChar": 51
+      },
+      "revId": "ac2a11f040abe6093edf4fcdc4860af5a8b16fe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

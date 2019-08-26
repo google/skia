@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a421a905_70d9e175",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-26T20:27:18Z",
+      "side": 1,
+      "message": "nit: We shouldn\u0027t need to call each time if the strike was already locked.",
+      "range": {
+        "startLine": 508,
+        "startChar": 8,
+        "endLine": 508,
+        "endChar": 58
+      },
+      "revId": "48ebdc147dbc4265628a6919aa67e62fd65affe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
