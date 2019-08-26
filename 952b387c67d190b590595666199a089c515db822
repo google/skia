@@ -22,6 +22,30 @@
       "revId": "952b387c67d190b590595666199a089c515db822",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "983113ba_fad43ef9",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 0,
+      "message": "Ack",
+      "parentUuid": "b4b214de_6ec64a95",
+      "range": {
+        "startLine": 95,
+        "startChar": 53,
+        "endLine": 95,
+        "endChar": 87
+      },
+      "revId": "952b387c67d190b590595666199a089c515db822",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f7b84228_1e813f45",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Went with skif::FilterResult.",
+      "parentUuid": "52e79162_4962ac77",
+      "range": {
+        "startLine": 204,
+        "startChar": 6,
+        "endLine": 204,
+        "endChar": 11
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d12aca59_207bfb8d",
         "filename": "src/core/SkImageFilter.cpp",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f0c4fe1_d8b48172",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d12aca59_207bfb8d",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "c0fe87e5_cc95b9eb",
+        "filename": "src/core/SkImageFilterCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Good catch!",
+      "parentUuid": "46e9dd1e_a4b5830f",
+      "range": {
+        "startLine": 44,
+        "startChar": 30,
+        "endLine": 44,
+        "endChar": 35
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1787fcec_354bc482",
         "filename": "src/core/SkImageFilterCache.cpp",
         "patchSetId": 4
@@ -79,6 +145,24 @@
       "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b35df190_4621ddf5",
+        "filename": "src/core/SkImageFilterCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Folded into https://bugs.chromium.org/p/skia/issues/detail?id\u003d9297 to investigate later when simplifying image filter cache usage.",
+      "parentUuid": "1787fcec_354bc482",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "252c635c_4c25d61f",
+        "filename": "src/core/SkImageFilterCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ac76cbfd_b6da55c7",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca2c054e_c6e43ceb",
         "filename": "src/core/SkImageFilterCache.h",
         "patchSetId": 4
@@ -113,6 +215,24 @@
       "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fb7ec79_ef927597",
+        "filename": "src/core/SkImageFilterCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca2c054e_c6e43ceb",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +259,30 @@
     },
     {
       "key": {
+        "uuid": "dc6901d0_a21d1b2f",
+        "filename": "src/core/SkImageFilterCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a76ffed_648184d6",
+      "range": {
+        "startLine": 60,
+        "startChar": 45,
+        "endLine": 60,
+        "endChar": 51
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e77ce059_7f48531d",
         "filename": "src/core/SkImageFilterCache.h",
         "patchSetId": 4
@@ -153,6 +297,24 @@
       "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c95cd995_b4b7feeb",
+        "filename": "src/core/SkImageFilterCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Updated comment. Folded into the image filter cache tracking bug: https://bugs.chromium.org/p/skia/issues/detail?id\u003d9297",
+      "parentUuid": "e77ce059_7f48531d",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -179,6 +341,30 @@
     },
     {
       "key": {
+        "uuid": "272c1805_5428f862",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbd6ca24_4381f862",
+      "range": {
+        "startLine": 26,
+        "startChar": 84,
+        "endLine": 26,
+        "endChar": 93
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3bbdd12_7458c183",
         "filename": "src/core/SkImageFilterTypes.h",
         "patchSetId": 4
@@ -193,6 +379,24 @@
       "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ddffee7_81212ad2",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3bbdd12_7458c183",
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -216,6 +420,30 @@
       "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c565bbf3_3ac01ad6",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-26T14:56:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "924ade06_1a6ae578",
+      "range": {
+        "startLine": 253,
+        "startChar": 11,
+        "endLine": 253,
+        "endChar": 19
+      },
+      "revId": "1569cce18a23668169b5a9ac07a9c8c48bc1c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
