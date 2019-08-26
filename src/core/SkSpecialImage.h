@@ -91,7 +91,7 @@ public:
      *  Create a new special surface with a backend that is compatible with this special image.
      */
     sk_sp<SkSpecialSurface> makeSurface(SkColorType colorType,
-                                        const SkColorSpace* colorSpace,
+                                        sk_sp<SkColorSpace> colorSpace,
                                         const SkISize& size,
                                         SkAlphaType at = kPremul_SkAlphaType,
                                         const SkSurfaceProps* props = nullptr) const;
@@ -103,7 +103,7 @@ public:
      * updated to work correctly with subsets and then makeTightSurface() can go away entirely.
      */
     sk_sp<SkSurface> makeTightSurface(SkColorType colorType,
-                                      const SkColorSpace* colorSpace,
+                                      sk_sp<SkColorSpace> colorSpace,
                                       const SkISize& size,
                                       SkAlphaType at = kPremul_SkAlphaType) const;
 

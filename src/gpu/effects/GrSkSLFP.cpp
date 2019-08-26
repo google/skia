@@ -285,7 +285,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, con
                                          size_t inputSize, SkSL::Program::Kind kind,
                                          const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
-                                                  context->priv().caps()->shaderCaps(),
+                                                  sk_ref_sp(context->priv().caps()->shaderCaps()),
                                                   kind, index, name, sksl, SkString(),
                                                   inputs, inputSize, matrix));
 }
@@ -294,18 +294,18 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, con
                                          SkString sksl, const void* inputs, size_t inputSize,
                                          SkSL::Program::Kind kind, const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
-                                                  context->priv().caps()->shaderCaps(),
+                                                  sk_ref_sp(context->priv().caps()->shaderCaps()),
                                                   kind, index, name, nullptr, std::move(sksl),
                                                   inputs, inputSize, matrix));
 }
 
-GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps,
+GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, sk_sp<GrShaderCaps> shaderCaps,
                    SkSL::Program::Kind kind, int index, const char* name, const char* sksl,
                    SkString skslString, const void* inputs, size_t inputSize,
                    const SkMatrix* matrix)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(factoryCache)
-        , fShaderCaps(sk_ref_sp(shaderCaps))
+        , fShaderCaps(std::move(shaderCaps))
         , fKind(kind)
         , fIndex(index)
         , fName(name)

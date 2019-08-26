@@ -467,6 +467,7 @@ public:
 
     void insertEventMarker(const SkString&);
 
+    GrRenderTargetProxy* proxy() { return fRenderTargetProxy.get(); }
     const GrRenderTargetProxy* proxy() const { return fRenderTargetProxy.get(); }
     int width() const { return fRenderTargetProxy->width(); }
     int height() const { return fRenderTargetProxy->height(); }

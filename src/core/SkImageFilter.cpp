@@ -49,7 +49,7 @@ int SkImageFilter::countInputs() const { return as_IFB(this)->fInputs.count(); }
  *  Returns the input filter at a given index, or NULL if no input is
  *  connected.  The indices used are filter-specific.
  */
-const SkImageFilter* SkImageFilter::getInput(int i) const {
+SkImageFilter* SkImageFilter::getInput(int i) const {
     SkASSERT(i < this->countInputs());
     return as_IFB(this)->fInputs[i].get();
 }
@@ -431,7 +431,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
                                                      std::unique_ptr<GrFragmentProcessor> fp,
                                                      const SkIRect& bounds,
                                                      SkColorType colorType,
-                                                     const SkColorSpace* colorSpace,
+                                                     sk_sp<SkColorSpace> colorSpace,
                                                      GrProtected isProtected) {
     GrPaint paint;
     paint.addColorFragmentProcessor(std::move(fp));
@@ -442,7 +442,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
                                                             bounds.width(),
                                                             bounds.height(),
                                                             SkColorTypeToGrColorType(colorType),
-                                                            sk_ref_sp(colorSpace),
+                                                            std::move(colorSpace),
                                                             1,
                                                             GrMipMapped::kNo,
                                                             kBottomLeft_GrSurfaceOrigin,
@@ -468,21 +468,21 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
 
 sk_sp<SkSpecialImage> SkImageFilter_Base::ImageToColorSpace(SkSpecialImage* src,
                                                             SkColorType colorType,
-                                                            SkColorSpace* colorSpace) {
+                                                            sk_sp<SkColorSpace> colorSpace) {
     // There are several conditions that determine if we actually need to convert the source to the
     // destination's color space. Rather than duplicate that logic here, just try to make an xform
     // object. If that produces something, then both are tagged, and the source is in a different
     // gamut than the dest. There is some overhead to making the xform, but those are cached, and
     // if we get one back, that means we're about to use it during the conversion anyway.
     auto colorSpaceXform = GrColorSpaceXform::Make(src->getColorSpace(),  src->alphaType(),
-                                                   colorSpace, kPremul_SkAlphaType);
+                                                   colorSpace.get(), kPremul_SkAlphaType);
 
     if (!colorSpaceXform) {
         // No xform needed, just return the original image
         return sk_ref_sp(src);
     }
 
-    sk_sp<SkSpecialSurface> surf(src->makeSurface(colorType, colorSpace,
+    sk_sp<SkSpecialSurface> surf(src->makeSurface(colorType, std::move(colorSpace),
                                                   SkISize::Make(src->width(), src->height())));
     if (!surf) {
         return sk_ref_sp(src);

@@ -142,7 +142,7 @@ static void compose_advance_data(const AdvanceMetric& range,
 /** Retrieve advance data for glyphs. Used by the PDF backend. */
 // TODO(halcanary): this function is complex enough to need its logic
 // tested with unit tests.
-std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typeface,
+std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(sk_sp<SkTypeface> typeface,
                                                          const SkPDFGlyphUse* subset,
                                                          SkScalar* defaultAdvance) {
     // Assuming that on average, the ASCII representation of an advance plus
@@ -161,11 +161,11 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
     //  e. Removing 2 repeating advances is a win
 
     int emSize;
-    SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(typeface, &emSize);
+    int num_glyphs = SkToInt(typeface->countGlyphs());
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(std::move(typeface), &emSize);
     SkBulkGlyphMetricsAndPaths paths{strikeSpec};
 
     auto result = SkPDFMakeArray();
-    int num_glyphs = SkToInt(typeface.countGlyphs());
 
     bool prevRange = false;
 

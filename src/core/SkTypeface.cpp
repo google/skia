@@ -46,7 +46,7 @@ protected:
 
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        return sk_ref_sp(this);
+        return sk_ref_sp(const_cast<SkEmptyTypeface*>(this));
     }
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor*) const override {

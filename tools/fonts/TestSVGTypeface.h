@@ -89,7 +89,7 @@ protected:
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
 
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        return sk_ref_sp(this);
+        return sk_ref_sp(const_cast<TestSVGTypeface*>(this));
     }
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override;

@@ -1800,7 +1800,7 @@ std::unique_ptr<SkStreamAsset> LogFontTypeface::onOpenStream(int* ttcIndex) cons
 }
 
 sk_sp<SkTypeface> LogFontTypeface::onMakeClone(const SkFontArguments& args) const {
-    return sk_ref_sp(this);
+    return sk_ref_sp(const_cast<LogFontTypeface*>(this));
 }
 
 static void bmpCharsToGlyphs(HDC hdc, const WCHAR* bmpChars, int count, uint16_t* glyphs,
