@@ -156,8 +156,12 @@ describe('CanvasKit\'s Path Behavior', function() {
             canvas.drawPath(path, paint);
             canvas.drawText('This is text', 10, 280, textPaint, textFont);
             surface.flush();
+
             dpe.delete();
             path.delete();
+            paint.delete();
+            textFont.delete();
+            textPaint.delete();
 
             reportSurface(surface, 'effect_and_text_example', done);
         }));
@@ -185,7 +189,7 @@ describe('CanvasKit\'s Path Behavior', function() {
         }));
     });
 
-     it('can create an SVG string from a path', function(done) {
+    it('can create an SVG string from a path', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             let cmds = [[CanvasKit.MOVE_VERB, 205, 5],
                        [CanvasKit.LINE_VERB, 795, 5],
@@ -199,6 +203,68 @@ describe('CanvasKit\'s Path Behavior', function() {
             // We output it in terse form, which is different than Wikipedia's version
             expect(svgStr).toEqual('M205 5L795 5L595 295L5 295L205 5Z');
             path.delete();
+            done();
+        }));
+    });
+
+    it('uses offset to transform the path with dx,dy', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const path = starPath(CanvasKit);
+
+            const paint = new CanvasKit.SkPaint();
+
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+            paint.setStrokeWidth(5.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.BLACK);
+
+            canvas.clear(CanvasKit.WHITE);
+
+            canvas.drawPath(path, paint);
+            path.offset(80, 40);
+            canvas.drawPath(path, paint);
+            surface.flush();
+            path.delete();
+            paint.delete();
+
+            reportSurface(surface, 'offset_example', done);
+        }));
+    });
+
+    it('returns the depth of the save state stack', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            expect(canvas.getSaveCount()).toEqual(1);
+            canvas.save();
+            canvas.save();
+            canvas.restore();
+            canvas.save();
+            canvas.save();
+            expect(canvas.getSaveCount()).toEqual(4);
+            // does nothing, by the SkCanvas API
+            canvas.restoreToCount(500);
+            expect(canvas.getSaveCount()).toEqual(4);
+            canvas.restore();
+            expect(canvas.getSaveCount()).toEqual(3);
+            canvas.save();
+            canvas.restoreToCount(2);
+            expect(canvas.getSaveCount()).toEqual(2);
+
+            surface.delete();
+
             done();
         }));
     });

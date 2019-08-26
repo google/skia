@@ -791,6 +791,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("flush", &SkCanvas::flush)
+        .function("getSaveCount", &SkCanvas::getSaveCount)
         .function("getTotalMatrix", optional_override([](const SkCanvas& self)->SimpleMatrix {
             SkMatrix m = self.getTotalMatrix();
             return toSimpleSkMatrix(m);
