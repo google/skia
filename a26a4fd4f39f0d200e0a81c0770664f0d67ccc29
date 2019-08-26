@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "225bea2d_1889a6f1",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 1469,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-26T18:10:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08b01152_d69ddd59",
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00df7ff1_6219b5cf",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 10
@@ -33,6 +51,24 @@
       "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6655a8da_6fef12a4",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-26T18:10:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00df7ff1_6219b5cf",
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "05445cce_bf6c21ed",
+        "filename": "src/gpu/GrGpuCommandBuffer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-26T18:10:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cb444d1_f153677f",
+      "range": {
+        "startLine": 45,
+        "startChar": 57,
+        "endLine": 45,
+        "endChar": 64
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a082fed_4bae821d",
         "filename": "src/gpu/GrGpuCommandBuffer.cpp",
         "patchSetId": 10
@@ -79,6 +139,30 @@
       "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d41a964_2733d86b",
+        "filename": "src/gpu/GrGpuCommandBuffer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-26T18:10:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a082fed_4bae821d",
+      "range": {
+        "startLine": 48,
+        "startChar": 65,
+        "endLine": 48,
+        "endChar": 72
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "37f489d8_545b277e",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-26T18:10:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e77c6f1d_1fa1d14c",
+      "range": {
+        "startLine": 69,
+        "startChar": 9,
+        "endLine": 69,
+        "endChar": 23
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0f46abf_93f765d2",
         "filename": "src/gpu/GrRenderTargetProxy.h",
         "patchSetId": 10
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "bed42c86_7a8e2c03",
+        "filename": "src/gpu/GrRenderTargetProxy.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-26T18:10:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0f46abf_93f765d2",
+      "range": {
+        "startLine": 144,
+        "startChar": 25,
+        "endLine": 144,
+        "endChar": 28
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "218c8602_aadf5ead",
         "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
         "patchSetId": 10
@@ -148,6 +280,30 @@
       "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e419ac34_3be732b0",
+        "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-26T18:10:54Z",
+      "side": 1,
+      "message": "Yes, because the type differs from the return type so we will get a warning about early C++11 standards still doing a copy.",
+      "parentUuid": "218c8602_aadf5ead",
+      "range": {
+        "startLine": 52,
+        "startChar": 11,
+        "endLine": 52,
+        "endChar": 20
+      },
+      "revId": "a26a4fd4f39f0d200e0a81c0770664f0d67ccc29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
