@@ -306,6 +306,9 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
 
     SkIRect dstRect(srcRect);
 
+    // Map the src rect into proxy space, this only has to happen once since subsequent loops
+    // to decimate will have created a new proxy that has its origin at (0, 0).
+    srcRect.offset(proxyOffset.x(), proxyOffset.y());
     std::unique_ptr<GrRenderTargetContext> dstRenderTargetContext;
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
@@ -364,8 +367,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
 
         dstRenderTargetContext->fillRectToRect(GrFixedClip::Disabled(), std::move(paint), GrAA::kNo,
                                                SkMatrix::I(), SkRect::Make(dstRect),
-                                               SkRect::Make(srcRect.makeOffset(proxyOffset.x(),
-                                                                               proxyOffset.y())));
+                                               SkRect::Make(srcRect));
 
         src = dstRenderTargetContext->asTextureProxyRef();
         if (!src) {
