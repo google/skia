@@ -84,7 +84,10 @@ bool GrDrawingManager::RenderTaskDAG::isUsed(GrSurfaceProxy* proxy) const {
 }
 
 GrRenderTask* GrDrawingManager::RenderTaskDAG::add(sk_sp<GrRenderTask> renderTask) {
-    return fRenderTasks.emplace_back(std::move(renderTask)).get();
+    if (renderTask) {
+        return fRenderTasks.emplace_back(std::move(renderTask)).get();
+    }
+    return nullptr;
 }
 
 GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask> renderTask) {
@@ -717,7 +720,7 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     SkASSERT(fContext);
     this->closeRenderTasksForNewRenderTask(dstProxy.get());
 
-    sk_sp<GrRenderTask> task = GrCopyRenderTask::Make(srcProxy, srcRect, dstProxy, dstPoint);
+    GrRenderTask* task = fDAG.add(GrCopyRenderTask::Make(srcProxy, srcRect, dstProxy, dstPoint));
     if (!task) {
         return false;
     }
@@ -729,7 +732,6 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     task->addDependency(srcProxy.get(), GrMipMapped::kNo, GrTextureResolveManager(this), caps);
     task->makeClosed(caps);
 
-    fDAG.add(std::move(task));
     // We have closed the previous active oplist but since a new oplist isn't being added there
     // shouldn't be an active one.
     SkASSERT(!fActiveOpsTask);
