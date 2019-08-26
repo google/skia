@@ -428,22 +428,23 @@ sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
 }
 
 void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
-    if (fLockedDescs.empty() && fTypefacesToSend.empty()) {
+    if (fRemoteStrikesToSend.empty() && fTypefacesToSend.empty()) {
         return;
     }
 
     Serializer serializer(memory);
     serializer.emplace<uint64_t>(fTypefacesToSend.size());
-    for (const auto& tf : fTypefacesToSend) serializer.write<WireTypeface>(tf);
+    for (const auto& tf : fTypefacesToSend) {
+        serializer.write<WireTypeface>(tf);
+    }
     fTypefacesToSend.clear();
 
-    serializer.emplace<uint64_t>(fLockedDescs.size());
-    for (const auto* desc : fLockedDescs) {
-        auto it = fRemoteGlyphStateMap.find(desc);
-        SkASSERT(it != fRemoteGlyphStateMap.end());
-        it->second->writePendingGlyphs(&serializer);
-    }
-    fLockedDescs.clear();
+    serializer.emplace<uint64_t>(SkTo<uint64_t>(fRemoteStrikesToSend.count()));
+    fRemoteStrikesToSend.foreach(
+            [&serializer](RemoteStrike* strike){
+                strike->writePendingGlyphs(&serializer);
+            });
+    fRemoteStrikesToSend.reset();
 }
 
 SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
@@ -457,7 +458,6 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
     auto desc = create_descriptor(paint, font, matrix, props, flags, &descStorage, effects);
 
     return this->getOrCreateCache(*desc, *font.getTypefaceOrDefault(), *effects);
-
 }
 
 SkScopedStrike SkStrikeServer::findOrCreateScopedStrike(const SkDescriptor& desc,
@@ -476,6 +476,8 @@ void SkStrikeServer::checkForDeletedEntries() {
     while (fRemoteGlyphStateMap.size() > fMaxEntriesInDescriptorMap &&
            it != fRemoteGlyphStateMap.end()) {
         if (fDiscardableHandleManager->isHandleDeleted(it->second->discardableHandleId())) {
+            // If we are removing the strike, we better not be trying to send it at the same time.
+            SkASSERT(!fRemoteStrikesToSend.contains(it->second.get()));
             it = fRemoteGlyphStateMap.erase(it);
         } else {
             ++it;
@@ -499,31 +501,27 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
             )
     );
 
-    // Already locked.
-    if (fLockedDescs.find(&desc) != fLockedDescs.end()) {
-        auto it = fRemoteGlyphStateMap.find(&desc);
-        SkASSERT(it != fRemoteGlyphStateMap.end());
-        RemoteStrike* cache = it->second.get();
-        cache->setTypefaceAndEffects(&typeface, effects);
-        return cache;
-    }
-
-    // Try to lock.
     auto it = fRemoteGlyphStateMap.find(&desc);
     if (it != fRemoteGlyphStateMap.end()) {
-        RemoteStrike* cache = it->second.get();
-        bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
-        if (locked) {
-            fLockedDescs.insert(it->first);
-            cache->setTypefaceAndEffects(&typeface, effects);
-            return cache;
+        // We have processed the RemoteStrike before. Reuse it.
+        RemoteStrike* strike = it->second.get();
+        strike->setTypefaceAndEffects(&typeface, effects);
+        if (fRemoteStrikesToSend.contains(strike)) {
+            // Already tracking
+            return strike;
         }
 
-        // If the lock failed, the entry was deleted on the client. Remove our
-        // tracking.
+        // Strike is in unknown state on GPU. Start tracking strike on GPU by locking it.
+        bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
+        if (locked) {
+            fRemoteStrikesToSend.add(strike);
+            return strike;
+        }
+
         fRemoteGlyphStateMap.erase(it);
     }
 
+    // Create a new RemoteStrike. Start by processing the typeface.
     const SkFontID typefaceId = typeface.uniqueID();
     if (!fCachedTypefaces.contains(typefaceId)) {
         fCachedTypefaces.add(typefaceId);
@@ -533,20 +531,19 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
     }
 
     auto context = typeface.createScalerContext(effects, &desc);
-
-    // Create a new cache state and insert it into the map.
-    auto newHandle = fDiscardableHandleManager->createHandle();
-    auto cacheState = skstd::make_unique<RemoteStrike>(desc, std::move(context), newHandle);
-
-    auto* cacheStatePtr = cacheState.get();
-
-    fLockedDescs.insert(&cacheStatePtr->getDescriptor());
-    fRemoteGlyphStateMap[&cacheStatePtr->getDescriptor()] = std::move(cacheState);
+    auto newHandle = fDiscardableHandleManager->createHandle();  // Locked on creation
+    auto remoteStrike = skstd::make_unique<RemoteStrike>(desc, std::move(context), newHandle);
+    remoteStrike->setTypefaceAndEffects(&typeface, effects);
+    auto remoteStrikePtr = remoteStrike.get();
+    fRemoteStrikesToSend.add(remoteStrikePtr);
+    auto d = &remoteStrike->getDescriptor();
+    fRemoteGlyphStateMap[d] = std::move(remoteStrike);
 
     checkForDeletedEntries();
 
-    cacheStatePtr->setTypefaceAndEffects(&typeface, effects);
-    return cacheStatePtr;
+    // Be sure we can build glyphs with this RemoteStrike.
+    remoteStrikePtr->setTypefaceAndEffects(&typeface, effects);
+    return remoteStrikePtr;
 }
 
 // No need to write fForceBW because it is a flag private to SkScalerContext_DW, which will never
