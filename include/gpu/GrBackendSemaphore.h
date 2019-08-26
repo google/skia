@@ -11,6 +11,7 @@
 #include "include/gpu/GrTypes.h"
 
 #include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/mtl/GrMtlTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
 
 /**
@@ -38,6 +39,17 @@ public:
 #endif
     }
 
+    void initMetal(GrMTLHandle event, uint64_t value) {
+        fBackend = GrBackendApi::kMetal;
+        fMtlEvent = event;
+        fMtlValue = value;
+#ifdef SK_METAL
+        fIsInitialized = true;
+#else
+        fIsInitialized = false;
+#endif
+    }
+
     bool isInitialized() const { return fIsInitialized; }
 
     GrGLsync glSync() const {
@@ -54,12 +66,28 @@ public:
         return fVkSemaphore;
     }
 
+    GrMTLHandle mtlSemaphore() const {
+        if (!fIsInitialized || GrBackendApi::kMetal != fBackend) {
+            return nullptr;
+        }
+        return fMtlEvent;
+    }
+
+    uint64_t mtlValue() const {
+        if (!fIsInitialized || GrBackendApi::kMetal != fBackend) {
+            return 0;
+        }
+        return fMtlValue;
+    }
+
 private:
     GrBackendApi fBackend;
     union {
         GrGLsync    fGLSync;
         VkSemaphore fVkSemaphore;
+        GrMTLHandle fMtlEvent;
     };
+    uint64_t fMtlValue;
     bool fIsInitialized;
 };
 
