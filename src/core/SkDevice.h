@@ -248,12 +248,17 @@ protected:
                              SkImage* clipImage, const SkMatrix& clipMatrix);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
-    virtual sk_sp<SkSpecialImage> snapSpecial();
+    // Get a view of the entire device's current contents as an image.
+    sk_sp<SkSpecialImage> snapSpecial();
+    // Snap the 'subset' contents from this device, possibly as a read-only view. If 'explicitCopy'
+    // is true then the returned image's pixels cannot be affected by subsequent draws into the
+    // device. When 'explicitCopy' is false, the image can be a view into the device's pixels
+    // (avoiding a copy for performance, at the expense of safety). Default returns null.
+    virtual sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool explicitCopy = false);
+
     virtual void setImmutable() {}
 
     bool readPixels(const SkPixmap&, int x, int y);
-
-    virtual sk_sp<SkSpecialImage> snapBackImage(const SkIRect&);    // default returns null
 
     ///////////////////////////////////////////////////////////////////////////
 
