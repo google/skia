@@ -455,7 +455,8 @@ public:
         return fColorSpace.get();
     }
 
-    sk_sp<SkSpecialSurface> onMakeSurface(SkColorType colorType, const SkColorSpace* colorSpace,                                          const SkISize& size, SkAlphaType at,
+    sk_sp<SkSpecialSurface> onMakeSurface(SkColorType colorType, const SkColorSpace* colorSpace,
+                                          const SkISize& size, SkAlphaType at,
                                           const SkSurfaceProps* props) const override {
         if (!fContext) {
             return nullptr;
