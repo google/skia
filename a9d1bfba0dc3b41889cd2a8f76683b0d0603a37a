@@ -34,6 +34,24 @@
       "revId": "a9d1bfba0dc3b41889cd2a8f76683b0d0603a37a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adbeeb5b_e16f9d5d",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1780,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-26T16:15:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8e432b5_e125c128",
+      "revId": "a9d1bfba0dc3b41889cd2a8f76683b0d0603a37a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
