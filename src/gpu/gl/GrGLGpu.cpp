@@ -32,7 +32,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/gl/GrGLBuffer.h"
 #include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLGpuCommandBuffer.h"
+#include "src/gpu/gl/GrGLOpsRenderPass.h"
 #include "src/gpu/gl/GrGLSemaphore.h"
 #include "src/gpu/gl/GrGLStencilAttachment.h"
 #include "src/gpu/gl/GrGLTextureRenderTarget.h"
@@ -2294,25 +2294,16 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
                                           dstColorType, buffer, rowPixelWidth);
 }
 
-GrGpuRTCommandBuffer* GrGLGpu::getCommandBuffer(
+GrOpsRenderPass* GrGLGpu::getOpsRenderPass(
         GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
-        const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-        const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    if (!fCachedRTCommandBuffer) {
-        fCachedRTCommandBuffer.reset(new GrGLGpuRTCommandBuffer(this));
+        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
+    if (!fCachedOpsRenderPass) {
+        fCachedOpsRenderPass.reset(new GrGLOpsRenderPass(this));
     }
 
-    fCachedRTCommandBuffer->set(rt, origin, colorInfo, stencilInfo);
-    return fCachedRTCommandBuffer.get();
-}
-
-GrGpuTextureCommandBuffer* GrGLGpu::getCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin) {
-    if (!fCachedTexCommandBuffer) {
-        fCachedTexCommandBuffer.reset(new GrGLGpuTextureCommandBuffer(this));
-    }
-
-    fCachedTexCommandBuffer->set(texture, origin);
-    return fCachedTexCommandBuffer.get();
+    fCachedOpsRenderPass->set(rt, origin, colorInfo, stencilInfo);
+    return fCachedOpsRenderPass.get();
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, GrSurfaceOrigin origin,
@@ -4145,14 +4136,10 @@ void GrGLGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAcc
     }
 }
 
-void GrGLGpu::submit(GrGpuCommandBuffer* buffer) {
-    if (buffer->asRTCommandBuffer()) {
-        SkASSERT(fCachedRTCommandBuffer.get() == buffer);
-        fCachedRTCommandBuffer->reset();
-    } else {
-        SkASSERT(fCachedTexCommandBuffer.get() == buffer);
-        fCachedTexCommandBuffer->reset();
-    }
+void GrGLGpu::submit(GrOpsRenderPass* renderPass) {
+    // The GrGLOpsRenderPass doesn't buffer ops so there is nothing to do here
+    SkASSERT(fCachedOpsRenderPass.get() == renderPass);
+    fCachedOpsRenderPass->reset();
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() {

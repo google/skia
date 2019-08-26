@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "src/gpu/vk/GrVkGpuCommandBuffer.h"
+#include "src/gpu/vk/GrVkOpsRenderPass.h"
 
 #include "include/core/SkDrawable.h"
 #include "include/core/SkRect.h"
@@ -48,19 +48,6 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpuTextureCommandBuffer::insertEventMarker(const char* msg) {
-    // TODO: does Vulkan have a correlate?
-}
-
-void GrVkGpuTextureCommandBuffer::submit() {
-    GrVkPrimaryCommandBufferTask::Args taskArgs{fGpu, fTexture};
-    for (auto& task : fTasks) {
-        task.execute(taskArgs);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
                            VkAttachmentLoadOp* loadOp, VkAttachmentStoreOp* storeOp) {
     switch (loadOpIn) {
@@ -91,9 +78,9 @@ void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
     }
 }
 
-GrVkGpuRTCommandBuffer::GrVkGpuRTCommandBuffer(GrVkGpu* gpu) : fGpu(gpu) {}
+GrVkOpsRenderPass::GrVkOpsRenderPass(GrVkGpu* gpu) : fGpu(gpu) {}
 
-void GrVkGpuRTCommandBuffer::init() {
+void GrVkOpsRenderPass::init() {
     GrVkRenderPass::LoadStoreOps vkColorOps(fVkColorLoadOp, fVkColorStoreOp);
     GrVkRenderPass::LoadStoreOps vkStencilOps(fVkStencilLoadOp, fVkStencilStoreOp);
 
@@ -137,7 +124,7 @@ void GrVkGpuRTCommandBuffer::init() {
     cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
 }
 
-void GrVkGpuRTCommandBuffer::initWrapped() {
+void GrVkOpsRenderPass::initWrapped() {
     CommandBufferInfo& cbInfo = fCommandBufferInfos.push_back();
     SkASSERT(fCommandBufferInfos.count() == 1);
     fCurrentCmdInfo = 0;
@@ -153,19 +140,19 @@ void GrVkGpuRTCommandBuffer::initWrapped() {
     cbInfo.currentCmdBuf()->begin(fGpu, nullptr, cbInfo.fRenderPass);
 }
 
-GrVkGpuRTCommandBuffer::~GrVkGpuRTCommandBuffer() {
+GrVkOpsRenderPass::~GrVkOpsRenderPass() {
     this->reset();
 }
 
-GrGpu* GrVkGpuRTCommandBuffer::gpu() { return fGpu; }
+GrGpu* GrVkOpsRenderPass::gpu() { return fGpu; }
 
-void GrVkGpuRTCommandBuffer::end() {
+void GrVkOpsRenderPass::end() {
     if (fCurrentCmdInfo >= 0) {
         fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf()->end(fGpu);
     }
 }
 
-void GrVkGpuRTCommandBuffer::submit() {
+void GrVkOpsRenderPass::submit() {
     if (!fRenderTarget) {
         return;
     }
@@ -265,9 +252,9 @@ void GrVkGpuRTCommandBuffer::submit() {
     SkASSERT(currPreCmd == fPreCommandBufferTasks.end());
 }
 
-void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
-                                 const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-                                 const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
+                            const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+                            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
     SkASSERT(!fRenderTarget);
     SkASSERT(fCommandBufferInfos.empty());
     SkASSERT(-1 == fCurrentCmdInfo);
@@ -296,7 +283,7 @@ void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
     this->init();
 }
 
-void GrVkGpuRTCommandBuffer::reset() {
+void GrVkOpsRenderPass::reset() {
     for (int i = 0; i < fCommandBufferInfos.count(); ++i) {
         CommandBufferInfo& cbInfo = fCommandBufferInfos[i];
         if (cbInfo.fCommandBuffer) {
@@ -317,18 +304,18 @@ void GrVkGpuRTCommandBuffer::reset() {
 #endif
 }
 
-bool GrVkGpuRTCommandBuffer::wrapsSecondaryCommandBuffer() const {
+bool GrVkOpsRenderPass::wrapsSecondaryCommandBuffer() const {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
     return vkRT->wrapsSecondaryCommandBuffer();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpuRTCommandBuffer::insertEventMarker(const char* msg) {
+void GrVkOpsRenderPass::insertEventMarker(const char* msg) {
     // TODO: does Vulkan have a correlate?
 }
 
-void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     SkASSERT(!clip.hasWindowRectangles());
 
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
@@ -388,7 +375,7 @@ void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool in
     }
 }
 
-void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
+void GrVkOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
     // parent class should never let us get here with no RT
@@ -469,7 +456,7 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f&
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpuRTCommandBuffer::addAdditionalRenderPass() {
+void GrVkOpsRenderPass::addAdditionalRenderPass() {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
     fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf()->end(fGpu);
@@ -504,7 +491,7 @@ void GrVkGpuRTCommandBuffer::addAdditionalRenderPass() {
     cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
 }
 
-void GrVkGpuRTCommandBuffer::inlineUpload(GrOpFlushState* state,
+void GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state,
                                           GrDeferredTextureUploadFn& upload) {
     if (!fCommandBufferInfos[fCurrentCmdInfo].fIsEmpty) {
         this->addAdditionalRenderPass();
@@ -516,7 +503,7 @@ void GrVkGpuRTCommandBuffer::inlineUpload(GrOpFlushState* state,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpuRTCommandBuffer::bindGeometry(const GrGpuBuffer* indexBuffer,
+void GrVkOpsRenderPass::bindGeometry(const GrGpuBuffer* indexBuffer,
                                           const GrGpuBuffer* vertexBuffer,
                                           const GrGpuBuffer* instanceBuffer) {
     GrVkSecondaryCommandBuffer* currCmdBuf = fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf();
@@ -552,7 +539,7 @@ void GrVkGpuRTCommandBuffer::bindGeometry(const GrGpuBuffer* indexBuffer,
     }
 }
 
-GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
+GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
         const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
@@ -616,7 +603,7 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     return pipelineState;
 }
 
-void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
+void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
                                     const GrPipeline& pipeline,
                                     const GrPipeline::FixedDynamicState* fixedDynamicState,
                                     const GrPipeline::DynamicStateArrays* dynamicStateArrays,
@@ -722,20 +709,20 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     cbInfo.fIsEmpty = false;
 }
 
-void GrVkGpuRTCommandBuffer::appendSampledTexture(GrTexture* tex) {
+void GrVkOpsRenderPass::appendSampledTexture(GrTexture* tex) {
     SkASSERT(!tex->isProtected() || (fRenderTarget->isProtected() && fGpu->protectedContext()));
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(tex);
 
     fCommandBufferInfos[fCurrentCmdInfo].fSampledTextures.push_back(sk_ref_sp(vkTex));
 }
 
-void GrVkGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType,
-                                                    const GrBuffer* vertexBuffer,
-                                                    int vertexCount,
-                                                    int baseVertex,
-                                                    const GrBuffer* instanceBuffer,
-                                                    int instanceCount,
-                                                    int baseInstance) {
+void GrVkOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType,
+                                               const GrBuffer* vertexBuffer,
+                                               int vertexCount,
+                                               int baseVertex,
+                                               const GrBuffer* instanceBuffer,
+                                               int instanceCount,
+                                               int baseInstance) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     SkASSERT(!vertexBuffer || !vertexBuffer->isCpuBuffer());
     SkASSERT(!instanceBuffer || !instanceBuffer->isCpuBuffer());
@@ -746,16 +733,16 @@ void GrVkGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType,
     fGpu->stats()->incNumDraws();
 }
 
-void GrVkGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
-                                                           const GrBuffer* indexBuffer,
-                                                           int indexCount,
-                                                           int baseIndex,
-                                                           const GrBuffer* vertexBuffer,
-                                                           int baseVertex,
-                                                           const GrBuffer* instanceBuffer,
-                                                           int instanceCount,
-                                                           int baseInstance,
-                                                           GrPrimitiveRestart restart) {
+void GrVkOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
+                                                      const GrBuffer* indexBuffer,
+                                                      int indexCount,
+                                                      int baseIndex,
+                                                      const GrBuffer* vertexBuffer,
+                                                      int baseVertex,
+                                                      const GrBuffer* instanceBuffer,
+                                                      int instanceCount,
+                                                      int baseInstance,
+                                                      GrPrimitiveRestart restart) {
     SkASSERT(restart == GrPrimitiveRestart::kNo);
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     SkASSERT(!vertexBuffer || !vertexBuffer->isCpuBuffer());
@@ -772,7 +759,7 @@ void GrVkGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpuRTCommandBuffer::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
+void GrVkOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
     GrVkImage* targetImage = target->msaaImage() ? target->msaaImage() : target;

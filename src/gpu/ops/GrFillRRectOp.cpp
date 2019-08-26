@@ -10,9 +10,9 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -760,7 +760,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
             std::move(indexBuffer), indexCount, fInstanceBuffer, fInstanceCount, fBaseInstance,
             GrPrimitiveRestart::kNo);
     mesh->setVertexData(std::move(vertexBuffer));
-    flushState->rtCommandBuffer()->draw(
+    flushState->opsRenderPass()->draw(
             *proc, *pipeline, fixedDynamicState, nullptr, mesh, 1, this->bounds());
 }
 

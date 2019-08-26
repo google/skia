@@ -14,7 +14,7 @@
 #include "include/private/SkTArray.h"
 #include "src/gpu/GrAllocator.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrSamplePatternDictionary.h"
 #include "src/gpu/GrSwizzle.h"
@@ -310,16 +310,12 @@ public:
         return fSamplePatternDictionary.retrieveSampleLocations(samplePatternKey);
     }
 
-    // Returns a GrGpuRTCommandBuffer which GrOpsTasks send draw commands to instead of directly
-    // to the Gpu object. The 'bounds' rect is the content rect of the destination.
-    virtual GrGpuRTCommandBuffer* getCommandBuffer(
-            GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) = 0;
-
-    // Returns a GrGpuTextureCommandBuffer which GrOpsTasks send texture commands to instead of
-    // directly to the Gpu object.
-    virtual GrGpuTextureCommandBuffer* getCommandBuffer(GrTexture*, GrSurfaceOrigin) = 0;
+    // Returns a GrOpsRenderPass which GrOpsTasks send draw commands to instead of directly
+    // to the Gpu object. The 'bounds' rect is the content rect of the renderTarget.
+    virtual GrOpsRenderPass* getOpsRenderPass(
+            GrRenderTarget* renderTarget, GrSurfaceOrigin, const SkRect& bounds,
+            const GrOpsRenderPass::LoadAndStoreInfo&,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&) = 0;
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
@@ -329,7 +325,7 @@ public:
                                       SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
                                       const GrPrepareForExternalIORequests&);
 
-    virtual void submit(GrGpuCommandBuffer*) = 0;
+    virtual void submit(GrOpsRenderPass*) = 0;
 
     virtual GrFence SK_WARN_UNUSED_RESULT insertFence() = 0;
     virtual bool waitFence(GrFence, uint64_t timeout = 1000) = 0;

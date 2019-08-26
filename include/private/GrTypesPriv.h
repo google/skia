@@ -219,7 +219,7 @@ struct GrMipLevel {
 };
 
 /**
- * This enum is used to specify the load operation to be used when an opsTask/GrGpuCommandBuffer
+ * This enum is used to specify the load operation to be used when an GrOpsTask/GrOpsRenderPass
  * begins execution.
  */
 enum class GrLoadOp {
@@ -229,7 +229,7 @@ enum class GrLoadOp {
 };
 
 /**
- * This enum is used to specify the store operation to be used when an opsTask/GrGpuCommandBuffer
+ * This enum is used to specify the store operation to be used when an GrOpsTask/GrOpsRenderPass
  * ends execution.
  */
 enum class GrStoreOp {

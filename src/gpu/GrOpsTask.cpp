@@ -14,9 +14,9 @@
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceAllocator.h"
@@ -414,14 +414,14 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
-static GrGpuRTCommandBuffer* create_command_buffer(GrGpu* gpu,
-                                                   GrRenderTarget* rt,
-                                                   GrSurfaceOrigin origin,
-                                                   const SkRect& bounds,
-                                                   GrLoadOp colorLoadOp,
-                                                   const SkPMColor4f& loadClearColor,
-                                                   GrLoadOp stencilLoadOp) {
-    const GrGpuRTCommandBuffer::LoadAndStoreInfo kColorLoadStoreInfo {
+static GrOpsRenderPass* create_command_buffer(GrGpu* gpu,
+                                              GrRenderTarget* rt,
+                                              GrSurfaceOrigin origin,
+                                              const SkRect& bounds,
+                                              GrLoadOp colorLoadOp,
+                                              const SkPMColor4f& loadClearColor,
+                                              GrLoadOp stencilLoadOp) {
+    const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
         loadClearColor
@@ -432,12 +432,12 @@ static GrGpuRTCommandBuffer* create_command_buffer(GrGpu* gpu,
     // to stop splitting up higher level OpsTasks for copyOps to achieve that.
     // Note: we would still need SB loads and stores but they would happen at a
     // lower level (inside the VK command buffer).
-    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
+    const GrOpsRenderPass::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
         stencilLoadOp,
         GrStoreOp::kStore,
     };
 
-    return gpu->getCommandBuffer(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo);
+    return gpu->getOpsRenderPass(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo);
 }
 
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
@@ -459,7 +459,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
              !flushState->gpu()->caps()->performColorClearsAsDraws());
     SkASSERT(fStencilLoadOp != GrLoadOp::kClear ||
              !flushState->gpu()->caps()->performStencilClearsAsDraws());
-    GrGpuRTCommandBuffer* commandBuffer = create_command_buffer(
+    GrOpsRenderPass* renderPass = create_command_buffer(
                                                     flushState->gpu(),
                                                     fTarget->peekRenderTarget(),
                                                     fTarget->origin(),
@@ -467,8 +467,8 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
                                                     fColorLoadOp,
                                                     fLoadClearColor,
                                                     fStencilLoadOp);
-    flushState->setCommandBuffer(commandBuffer);
-    commandBuffer->begin();
+    flushState->setOpsRenderPass(renderPass);
+    renderPass->begin();
 
     // Draw all the generated geometry.
     for (const auto& chain : fOpChains) {
@@ -492,9 +492,9 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         flushState->setOpArgs(nullptr);
     }
 
-    commandBuffer->end();
-    flushState->gpu()->submit(commandBuffer);
-    flushState->setCommandBuffer(nullptr);
+    renderPass->end();
+    flushState->gpu()->submit(renderPass);
+    flushState->setOpsRenderPass(nullptr);
 
     return true;
 }

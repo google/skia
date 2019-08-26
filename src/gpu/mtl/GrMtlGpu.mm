@@ -14,7 +14,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
-#include "src/gpu/mtl/GrMtlGpuCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
 #include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
@@ -140,25 +140,17 @@ void GrMtlGpu::destroyResources() {
     fDevice = nil;
 }
 
-GrGpuRTCommandBuffer* GrMtlGpu::getCommandBuffer(
+GrOpsRenderPass* GrMtlGpu::getOpsRenderPass(
             GrRenderTarget* renderTarget, GrSurfaceOrigin origin, const SkRect& bounds,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrMtlGpuRTCommandBuffer(this, renderTarget, origin, bounds, colorInfo, stencilInfo);
+            const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
+    return new GrMtlOpsRenderPass(this, renderTarget, origin, bounds, colorInfo, stencilInfo);
 }
 
-GrGpuTextureCommandBuffer* GrMtlGpu::getCommandBuffer(GrTexture* texture,
-                                                      GrSurfaceOrigin origin) {
-    return new GrMtlGpuTextureCommandBuffer(texture, origin);
-}
-
-void GrMtlGpu::submit(GrGpuCommandBuffer* buffer) {
-    GrMtlGpuRTCommandBuffer* mtlRTCmdBuffer =
-            reinterpret_cast<GrMtlGpuRTCommandBuffer*>(buffer->asRTCommandBuffer());
-    if (mtlRTCmdBuffer) {
-        mtlRTCmdBuffer->submit();
-    }
-    delete buffer;
+void GrMtlGpu::submit(GrOpsRenderPass* renderPass) {
+    GrMtlOpsRenderPass* mtlRenderPass = reinterpret_cast<GrMtlOpsRenderPass*>(renderPass);
+    mtlRenderPass->submit();
+    delete renderPass;
 }
 
 GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
