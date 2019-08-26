@@ -1732,7 +1732,7 @@ void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPain
         SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), kN32_SkColorType,
                                         srcImg->getColorSpace(), srcImg);
 
-        sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx, &offset));
+        sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
         if (resultImg) {
             SkPaint tmpUnfiltered(paint);
             tmpUnfiltered.setImageFilter(nullptr);
