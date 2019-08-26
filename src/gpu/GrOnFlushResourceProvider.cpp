@@ -14,7 +14,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
-#include "src/gpu/GrTextureResolveRenderTask.h"
 
 std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
         sk_sp<GrSurfaceProxy> proxy, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
@@ -39,18 +38,6 @@ std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTarg
     fDrawingMgr->fOnFlushRenderTasks.push_back(sk_ref_sp(renderTargetContext->getOpsTask()));
 
     return renderTargetContext;
-}
-
-void GrOnFlushResourceProvider::addTextureResolveTask(sk_sp<GrTextureProxy> textureProxy,
-                                                      GrTextureResolveFlags resolveFlags) {
-    // Since we are bypassing normal DAG operation, we need to ensure the textureProxy's last render
-    // task gets closed before making a texture resolve task. makeClosed is what will mark msaa and
-    // mipmaps dirty.
-    if (GrRenderTask* renderTask = textureProxy->getLastRenderTask()) {
-        renderTask->makeClosed(*this->caps());
-    }
-    fDrawingMgr->fOnFlushRenderTasks.push_back(GrTextureResolveRenderTask::Make(
-            std::move(textureProxy), resolveFlags, *this->caps()));
 }
 
 bool GrOnFlushResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key,

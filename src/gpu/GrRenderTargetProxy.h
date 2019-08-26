@@ -63,19 +63,6 @@ public:
 
     bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB == WrapsVkSecondaryCB::kYes; }
 
-    void markMSAADirty() {
-        SkASSERT(this->requiresManualMSAAResolve());
-        fIsMSAADirty = true;
-    }
-    void markMSAAResolved() {
-        SkASSERT(this->requiresManualMSAAResolve());
-        fIsMSAADirty = false;
-    }
-    bool isMSAADirty() const {
-        SkASSERT(!fIsMSAADirty || this->requiresManualMSAAResolve());
-        return fIsMSAADirty;
-    }
-
     // TODO: move this to a priv class!
     bool refsWrappedObjects() const;
 
@@ -141,10 +128,6 @@ private:
     int8_t             fNumStencilSamples = 0;
     WrapsVkSecondaryCB fWrapsVkSecondaryCB;
     GrSwizzle          fOutputSwizzle;
-    // Indicates whether some sub-rectangle of the render target requires MSAA resolve. We currently
-    // rely on the GrRenderTarget itself to track the actual dirty rect.
-    // TODO: In the future, convert the flag to a dirty rect and quit tracking it in GrRenderTarget.
-    bool               fIsMSAADirty = false;
     // This is to fix issue in large comment above. Without the padding we end 6 bytes into a 16
     // byte range, so the GrTextureProxy ends up starting 8 byte aligned by not 16. We add the
     // padding here to get us right up to the 16 byte alignment (technically any padding of 3-10

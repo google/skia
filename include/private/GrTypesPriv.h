@@ -1466,12 +1466,11 @@ private:
 
 /**
  * Indicates "resolutions" that need to be done on a texture before it can be sampled from.
- * If both types of resolve are requested, the MSAA resolve will happen first.
  */
 enum class GrTextureResolveFlags {
     kNone = 0,
-    kMSAA = 1 << 0,  // Blit and resolve an internal MSAA render buffer into the texture.
-    kMipMaps = 1 << 1,  // Regenerate all mipmap levels.
+    kMipMaps = 1 << 0,  // Regenerate all mipmap levels.
+    // TODO: kMSAA = 1 << 1  // Blit the MSAA render buffer into a standard texture.
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrTextureResolveFlags)

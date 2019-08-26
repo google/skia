@@ -270,6 +270,15 @@ private:
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 
+    /**
+     * primitiveProcessorTextures must contain GrPrimitiveProcessor::numTextureSamplers() *
+     * numPrimitiveProcessorTextureSets entries.
+     */
+    void resolveAndGenerateMipMapsForProcessorTextures(
+            const GrPrimitiveProcessor&, const GrPipeline&,
+            const GrTextureProxy* const primitiveProcessorTextures[],
+            int numPrimitiveProcessorTextureSets);
+
     // Flushes state from GrPipeline to GL. Returns false if the state couldn't be set.
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
     // If DynamicStateArrays is not null then dynamicStateArraysLength is the number of dynamic
