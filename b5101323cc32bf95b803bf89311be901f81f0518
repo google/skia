@@ -46,6 +46,30 @@
       "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9146407a_08c26e4e",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-26T19:42:11Z",
+      "side": 1,
+      "message": "I guess then my question is why not just push back the copyEconders CommandBuffer in flush? Is there some benefit to making sure the copy command buffer is always first? You are always doing a push_back of nullptr at the end of flush anyways.",
+      "parentUuid": "cf2fc0d6_293e03df",
+      "range": {
+        "startLine": 57,
+        "startChar": 5,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
