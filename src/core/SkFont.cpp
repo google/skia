@@ -22,7 +22,7 @@
 #include "src/utils/SkUTF.h"
 
 #define kDefault_Size       SkPaintDefaults_TextSize
-#define kDefault_Flags      0
+#define kDefault_Flags      SkFont::kBaselineSnap_PrivFlag
 #define kDefault_Edging     SkFont::Edging::kAntiAlias
 #define kDefault_Hinting    SkPaintDefaults_Hinting
 
@@ -87,7 +87,9 @@ void SkFont::setLinearMetrics(bool predicate) {
 void SkFont::setEmbolden(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kEmbolden_PrivFlag);
 }
-
+void SkFont::setBaselineSnap(bool predicate) {
+    fFlags = set_clear_mask(fFlags, predicate, kBaselineSnap_PrivFlag);
+}
 void SkFont::setEdging(Edging e) {
     fEdging = SkToU8(e);
 }
