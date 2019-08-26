@@ -19,6 +19,7 @@
 #include "tools/ToolUtils.h"
 
 #include <cmath>
+#include <string>
 #include <tuple>
 #include <vector>
 
