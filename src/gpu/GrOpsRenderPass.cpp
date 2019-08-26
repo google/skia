@@ -17,7 +17,6 @@
 #include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
-#include "src/gpu/GrTexturePriv.h"
 
 void GrOpsRenderPass::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
     SkASSERT(fRenderTarget);
@@ -34,51 +33,6 @@ void GrOpsRenderPass::clearStencilClip(const GrFixedClip& clip, bool insideStenc
     this->onClearStencilClip(clip, insideStencilMask);
 }
 
-#ifdef SK_DEBUG
-static void assert_msaa_and_mips_are_resolved(
-        const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-        const GrPipeline::FixedDynamicState* fixedDynamicState,
-        const GrPipeline::DynamicStateArrays* dynamicStateArrays, int meshCount) {
-    auto assertResolved = [](GrTexture* tex, const GrSamplerState& sampler) {
-        SkASSERT(tex);
-
-        // Ensure msaa was resolved ahead of time by the DAG.
-        SkASSERT(!tex->asRenderTarget() || !tex->asRenderTarget()->needsResolve());
-
-        // Ensure mipmaps were all resolved ahead of time by the DAG.
-        if (GrSamplerState::Filter::kMipMap == sampler.filter() &&
-            (tex->width() != 1 || tex->height() != 1)) {
-            // There are some cases where we might be given a non-mipmapped texture with a mipmap
-            // filter. See skbug.com/7094.
-            SkASSERT(tex->texturePriv().mipMapped() != GrMipMapped::kYes ||
-                     !tex->texturePriv().mipMapsAreDirty());
-        }
-    };
-
-    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
-        for (int m = 0, i = 0; m < meshCount; ++m) {
-            for (int s = 0; s < primProc.numTextureSamplers(); ++s, ++i) {
-                auto* tex = dynamicStateArrays->fPrimitiveProcessorTextures[i]->peekTexture();
-                assertResolved(tex, primProc.textureSampler(s).samplerState());
-            }
-        }
-    } else {
-        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            auto* tex = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
-            assertResolved(tex, primProc.textureSampler(i).samplerState());
-        }
-    }
-
-    GrFragmentProcessor::Iter iter(pipeline);
-    while (const GrFragmentProcessor* fp = iter.next()) {
-        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
-            const auto& textureSampler = fp->textureSampler(i);
-            assertResolved(textureSampler.peekTexture(), textureSampler.samplerState());
-        }
-    }
-}
-#endif
-
 bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
                            const GrPipeline::FixedDynamicState* fixedDynamicState,
                            const GrPipeline::DynamicStateArrays* dynamicStateArrays,
@@ -91,12 +45,13 @@ bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipelin
         SkASSERT(primProc.hasVertexAttributes() == meshes[i].hasVertexData());
         SkASSERT(primProc.hasInstanceAttributes() == meshes[i].hasInstanceData());
     }
-
+#endif
     SkASSERT(!pipeline.isScissorEnabled() || fixedDynamicState ||
              (dynamicStateArrays && dynamicStateArrays->fScissorRects));
 
     SkASSERT(!pipeline.isBad());
 
+#ifdef SK_DEBUG
     if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
         GrTextureProxy** processorProxies = fixedDynamicState->fPrimitiveProcessorTextures;
         for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
@@ -125,9 +80,6 @@ bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipelin
             }
         }
     }
-
-    assert_msaa_and_mips_are_resolved(
-            primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshCount);
 #endif
 
     if (primProc.numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
