@@ -1398,11 +1398,16 @@ static float exp2f_(float x) {
     float fbits = (1.0f * (1<<23)) * (x + 121.274057500f
                                         -   1.490129070f*fract
                                         +  27.728023300f/(4.84252568f - fract));
-    if (fbits > INT_MAX) {
+
+    // Before we cast fbits to int32_t, check for out of range values to pacify UBSAN.
+    // INT_MAX is not exactly representable as a float, so exclude it as effectively infinite.
+    // INT_MIN is a power of 2 and exactly representable as a float, so it's fine.
+    if (fbits >= (float)INT_MAX) {
         return INFINITY_;
-    } else if (fbits < INT_MIN) {
+    } else if (fbits < (float)INT_MIN) {
         return -INFINITY_;
     }
+
     int32_t bits = (int32_t)fbits;
     small_memcpy(&x, &bits, sizeof(x));
     return x;
