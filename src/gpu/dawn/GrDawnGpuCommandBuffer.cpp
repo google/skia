@@ -31,10 +31,7 @@ GrDawnGpuTextureCommandBuffer::GrDawnGpuTextureCommandBuffer(GrDawnGpu* gpu,
 }
 
 void GrDawnGpuTextureCommandBuffer::submit() {
-    dawn::CommandBuffer commandBuffer = fEncoder.Finish();
-    if (commandBuffer) {
-        fGpu->queue().Submit(1, &commandBuffer);
-    }
+    fGpu->appendCommandBuffer(fEncoder.Finish());
 }
 
 GrDawnGpuTextureCommandBuffer::~GrDawnGpuTextureCommandBuffer() {}
@@ -116,10 +113,7 @@ void GrDawnGpuRTCommandBuffer::end() {
 }
 
 void GrDawnGpuRTCommandBuffer::submit() {
-    dawn::CommandBuffer commandBuffer = fEncoder.Finish();
-    if (commandBuffer) {
-        fGpu->queue().Submit(1, &commandBuffer);
-    }
+    fGpu->appendCommandBuffer(fEncoder.Finish());
 }
 
 void GrDawnGpuRTCommandBuffer::insertEventMarker(const char* msg) {
