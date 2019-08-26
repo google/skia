@@ -196,7 +196,8 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
         }
     }
 
-    const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
+    const GrGLSLPrimitiveProcessor::TransformVar* coordVars = fTransformedCoordVars.begin() +
+                                                              transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
     GrGLSLFragmentProcessor::TextureSamplers textureSamplers(&fp, texSamplers.begin());
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
@@ -206,6 +207,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            output.c_str(),
                                            input.c_str(),
                                            coords,
+                                           false,
                                            textureSamplers);
 
     fragProc->emitCode(args);
