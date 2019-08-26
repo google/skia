@@ -56,6 +56,7 @@ public:
         bool fEmbeddedBitmaps = false;
         bool fLinearMetrics = false;
         bool fEmbolden = false;
+        bool fBaselineSnap = false;
     };
     struct SkPaintFields {
         bool fPathEffect = false;
