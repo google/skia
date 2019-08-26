@@ -282,9 +282,6 @@ def compile_fn(api, checkout_root, out_dir):
   if 'SafeStack' in extra_tokens:
     assert sanitize == ''
     sanitize = 'safe-stack'
-  if 'MSRTC' in extra_tokens:
-    assert sanitize == ''
-    sanitize = 'MSVC'
 
   if 'Wuffs' in extra_tokens:
     args['skia_use_wuffs'] = 'true'
