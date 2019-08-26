@@ -113,6 +113,13 @@ public:
     */
     bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_PrivFlag); }
 
+    /** Returns true if baselines will be snapped to pixel positions when the current transformation
+        matrix is axis aligned.
+
+        @return  baselines may be snapped to pixels
+     */
+    bool isBaselineSnap() const { return SkToBool(fFlags & kBaselineSnap_PrivFlag); }
+
     /** Sets whether to always hint glyphs.
         If forceAutoHinting is set, instructs the font manager to always hint glyphs.
 
@@ -148,6 +155,13 @@ public:
         @param embolden  setting for bold approximation
     */
     void setEmbolden(bool embolden);
+
+    /** Requests that baselines be snapped to pixels when the current transformation matrix is axis
+        aligned.
+
+        @param baselineSnap  setting for baseline snapping to pixels
+    */
+    void setBaselineSnap(bool baselineSnap);
 
     /** Whether edge pixels draw opaque or with partial transparency.
 
@@ -493,9 +507,15 @@ private:
         kSubpixel_PrivFlag              = 1 << 2,
         kLinearMetrics_PrivFlag         = 1 << 3,
         kEmbolden_PrivFlag              = 1 << 4,
+        kBaselineSnap_PrivFlag          = 1 << 5,
     };
 
-    static constexpr unsigned kAllFlags = 0x1F;
+    static constexpr unsigned kAllFlags = kForceAutoHinting_PrivFlag
+                                        | kEmbeddedBitmaps_PrivFlag
+                                        | kSubpixel_PrivFlag
+                                        | kLinearMetrics_PrivFlag
+                                        | kEmbolden_PrivFlag
+                                        | kBaselineSnap_PrivFlag;
 
     sk_sp<SkTypeface> fTypeface;
     SkScalar    fSize;

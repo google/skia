@@ -818,6 +818,7 @@ void Viewer::updateTitle() {
     fontFlag(&SkFontFields::fForceAutoHinting, &SkFont::isForceAutoHinting,
              "Force Autohint", "No Force Autohint");
     fontFlag(&SkFontFields::fEmbolden, &SkFont::isEmbolden, "Fake Bold", "No Fake Bold");
+    fontFlag(&SkFontFields::fBaselineSnap, &SkFont::isBaselineSnap, "BaseSnap", "No BaseSnap");
     fontFlag(&SkFontFields::fLinearMetrics, &SkFont::isLinearMetrics,
              "Linear Metrics", "Non-Linear Metrics");
     fontFlag(&SkFontFields::fEmbeddedBitmaps, &SkFont::isEmbeddedBitmaps,
@@ -1181,6 +1182,9 @@ public:
         }
         if (fFontOverrides->fEmbolden) {
             font->writable()->setEmbolden(fFont->isEmbolden());
+        }
+        if (fFontOverrides->fBaselineSnap) {
+            font->writable()->setBaselineSnap(fFont->isBaselineSnap());
         }
         if (fFontOverrides->fLinearMetrics) {
             font->writable()->setLinearMetrics(fFont->isLinearMetrics());
@@ -1794,6 +1798,11 @@ void Viewer::drawImGui() {
                          "Default\0No Fake Bold\0Fake Bold\0\0",
                          &SkFontFields::fEmbolden,
                          &SkFont::isEmbolden, &SkFont::setEmbolden);
+
+                fontFlag("Baseline Snapping",
+                         "Default\0No Baseline Snapping\0Baseline Snapping\0\0",
+                         &SkFontFields::fBaselineSnap,
+                         &SkFont::isBaselineSnap, &SkFont::setBaselineSnap);
 
                 fontFlag("Linear Text",
                          "Default\0No Linear Text\0Linear Text\0\0",

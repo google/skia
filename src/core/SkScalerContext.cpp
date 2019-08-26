@@ -844,6 +844,9 @@ SkAxisAlignment SkScalerContextRec::computeAxisAlignmentForHText() const {
     // * fPreSkewX (has no effect, but would on vertical text alignment).
     // In other words, making the text bigger, stretching it along the
     // horizontal axis, or fake italicizing it does not move the baseline.
+    if (!SkToBool(fFlags & SkScalerContext::kBaselineSnap_Flag)) {
+        return kNone_SkAxisAlignment;
+    }
 
     if (0 == fPost2x2[1][0]) {
         // The x axis is mapped onto the x axis.
@@ -1072,6 +1075,9 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     }
     if (font.isLinearMetrics()) {
         flags |= SkScalerContext::kLinearMetrics_Flag;
+    }
+    if (font.isBaselineSnap()) {
+        flags |= SkScalerContext::kBaselineSnap_Flag;
     }
     rec->fFlags = SkToU16(flags);
 
