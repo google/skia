@@ -6,8 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `SkCanvas.drawCircle()`, `SkCanvas.getSaveCount()`
+ - `SkPath.offset()`, `SkPath.drawOval`
+
 ### Changed
  - `MakeSkVertices` uses a builder to save a copy.
+
+### Breaking
+ - When `SkPath.arcTo` is given seven arguments, it no longer turns the first four into
+   a `SkRect` automatically, and instead uses them as
+   `arcTo(rx, ry, xAxisRotate, useSmallArc, isCCW, x, y)` (see SkPath.h for more).
 
 ## [0.6.0] - 2019-05-06
 
