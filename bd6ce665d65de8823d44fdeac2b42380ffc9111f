@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22c77bb5_37900bb3",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-26T19:26:47Z",
+      "side": 1,
+      "message": "How does this case happen?  Isn\u0027t it already checked two if-statements up?",
+      "range": {
+        "startLine": 523,
+        "startChar": 12,
+        "endLine": 523,
+        "endChar": 49
+      },
+      "revId": "bd6ce665d65de8823d44fdeac2b42380ffc9111f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
