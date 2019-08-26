@@ -320,6 +320,9 @@ public:
     // How many items are in the set?
     int count() const { return fTable.count(); }
 
+    // Is empty?
+    bool empty() const { return fTable.count() == 0; }
+
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
 
