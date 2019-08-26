@@ -8,7 +8,7 @@
 #include "src/gpu/mock/GrMockBuffer.h"
 #include "src/gpu/mock/GrMockCaps.h"
 #include "src/gpu/mock/GrMockGpu.h"
-#include "src/gpu/mock/GrMockGpuCommandBuffer.h"
+#include "src/gpu/mock/GrMockOpsRenderPass.h"
 #include "src/gpu/mock/GrMockStencilAttachment.h"
 #include "src/gpu/mock/GrMockTexture.h"
 #include <atomic>
@@ -52,30 +52,18 @@ sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
     return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, contextOptions));
 }
 
-GrGpuRTCommandBuffer* GrMockGpu::getCommandBuffer(
+GrOpsRenderPass* GrMockGpu::getOpsRenderPass(
                                 GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
-                                const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-                                const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) {
-    return new GrMockGpuRTCommandBuffer(this, rt, origin, colorInfo);
+                                const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+                                const GrOpsRenderPass::StencilLoadAndStoreInfo&) {
+    return new GrMockOpsRenderPass(this, rt, origin, colorInfo);
 }
 
-GrGpuTextureCommandBuffer* GrMockGpu::getCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin) {
-    return new GrMockGpuTextureCommandBuffer(texture, origin);
-}
-
-void GrMockGpu::submit(GrGpuCommandBuffer* buffer) {
-    if (buffer->asRTCommandBuffer()) {
-        this->submitCommandBuffer(
-                        static_cast<GrMockGpuRTCommandBuffer*>(buffer->asRTCommandBuffer()));
-    }
-
-    delete buffer;
-}
-
-void GrMockGpu::submitCommandBuffer(const GrMockGpuRTCommandBuffer* cmdBuffer) {
-    for (int i = 0; i < cmdBuffer->numDraws(); ++i) {
+void GrMockGpu::submit(GrOpsRenderPass* renderPass) {
+    for (int i = 0; i < static_cast<GrMockOpsRenderPass*>(renderPass)->numDraws(); ++i) {
         fStats.incNumDraws();
     }
+    delete renderPass;
 }
 
 GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,

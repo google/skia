@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrMtlGpuCommandBuffer_DEFINED
-#define GrMtlGpuCommandBuffer_DEFINED
+#ifndef GrMtlOpsRenderPass_DEFINED
+#define GrMtlOpsRenderPass_DEFINED
 
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 
 #import <Metal/Metal.h>
@@ -20,28 +20,14 @@ class GrMtlBuffer;
 class GrMtlPipelineState;
 class GrMtlRenderTarget;
 
-class GrMtlGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
+class GrMtlOpsRenderPass : public GrOpsRenderPass, private GrMesh::SendToGpuImpl {
 public:
-    GrMtlGpuTextureCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin)
-            : INHERITED(texture, origin) {
-    }
+    GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                       const SkRect& bounds,
+                       const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+                       const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo);
 
-    ~GrMtlGpuTextureCommandBuffer() override {}
-
-    void insertEventMarker(const char* msg) override {}
-
-private:
-    typedef GrGpuTextureCommandBuffer INHERITED;
-};
-
-class GrMtlGpuRTCommandBuffer : public GrGpuRTCommandBuffer, private GrMesh::SendToGpuImpl {
-public:
-    GrMtlGpuRTCommandBuffer(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
-                            const SkRect& bounds,
-                            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-                            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo);
-
-    ~GrMtlGpuRTCommandBuffer() override;
+    ~GrMtlOpsRenderPass() override;
 
     void begin() override {}
     void end() override {}
@@ -77,8 +63,8 @@ private:
 
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override;
 
-    void setupRenderPass(const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-                         const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo);
+    void setupRenderPass(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+                         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo);
 
     void bindGeometry(const GrBuffer* vertexBuffer, size_t vertexOffset,
                       const GrBuffer* instanceBuffer);
@@ -124,7 +110,7 @@ private:
         size_t fOffset;
     } fBufferBindings[kNumBindings];
 
-    typedef GrGpuRTCommandBuffer INHERITED;
+    typedef GrOpsRenderPass INHERITED;
 };
 
 #endif

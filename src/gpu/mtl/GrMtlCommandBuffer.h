@@ -14,7 +14,7 @@
 
 class GrMtlGpu;
 class GrMtlPipelineState;
-class GrMtlGpuRTCommandBuffer;
+class GrMtlOpsRenderPass;
 
 class GrMtlCommandBuffer {
 public:
@@ -26,7 +26,7 @@ public:
     id<MTLBlitCommandEncoder> getBlitCommandEncoder();
     id<MTLRenderCommandEncoder> getRenderCommandEncoder(MTLRenderPassDescriptor*,
                                                         const GrMtlPipelineState*,
-                                                        GrMtlGpuRTCommandBuffer* gpuCommandBuffer);
+                                                        GrMtlOpsRenderPass* opsRenderPass);
 
     void addCompletedHandler(MTLCommandBufferHandler block) {
         [fCmdBuffer addCompletedHandler:block];

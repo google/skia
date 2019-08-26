@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/mtl/GrMtlGpuCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrFixedClip.h"
@@ -21,10 +21,10 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
+GrMtlOpsRenderPass::GrMtlOpsRenderPass(
         GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
-        const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-        const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
+        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo)
         : INHERITED(rt, origin)
         , fGpu(gpu)
 #ifdef SK_DEBUG
@@ -34,11 +34,11 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
     this->setupRenderPass(colorInfo, stencilInfo);
 }
 
-GrMtlGpuRTCommandBuffer::~GrMtlGpuRTCommandBuffer() {
+GrMtlOpsRenderPass::~GrMtlOpsRenderPass() {
     SkASSERT(nil == fActiveRenderCmdEncoder);
 }
 
-void GrMtlGpuRTCommandBuffer::precreateCmdEncoder() {
+void GrMtlOpsRenderPass::precreateCmdEncoder() {
     // For clears, we may not have an associated draw. So we prepare a cmdEncoder that
     // will be submitted whether there's a draw or not.
     SkASSERT(nil == fActiveRenderCmdEncoder);
@@ -48,7 +48,7 @@ void GrMtlGpuRTCommandBuffer::precreateCmdEncoder() {
     SkASSERT(nil != cmdEncoder);
 }
 
-void GrMtlGpuRTCommandBuffer::submit() {
+void GrMtlOpsRenderPass::submit() {
     if (!fRenderTarget) {
         return;
     }
@@ -57,7 +57,7 @@ void GrMtlGpuRTCommandBuffer::submit() {
     fGpu->submitIndirectCommandBuffer(fRenderTarget, fOrigin, &iBounds);
 }
 
-GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
+GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(
         const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
@@ -85,7 +85,7 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
     return pipelineState;
 }
 
-void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
+void GrMtlOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
                                      const GrPipeline& pipeline,
                                      const GrPipeline::FixedDynamicState* fixedDynamicState,
                                      const GrPipeline::DynamicStateArrays* dynamicStateArrays,
@@ -195,7 +195,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     fBounds.join(bounds);
 }
 
-void GrMtlGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
+void GrMtlOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
     // if we end up here from absClear, the clear bounds may be bigger than the RT proxy bounds -
     // but in that case, scissor should be enabled, so this check should still succeed
     SkASSERT(!clip.scissorEnabled() || clip.scissorRect().contains(fRTBounds));
@@ -206,7 +206,7 @@ void GrMtlGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f
     fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
 }
 
-void GrMtlGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+void GrMtlOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     SkASSERT(!clip.hasWindowRectangles());
 
     GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
@@ -228,7 +228,7 @@ void GrMtlGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool i
     fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
 }
 
-void GrMtlGpuRTCommandBuffer::initRenderState(id<MTLRenderCommandEncoder> encoder) {
+void GrMtlOpsRenderPass::initRenderState(id<MTLRenderCommandEncoder> encoder) {
     [encoder pushDebugGroup:@"initRenderState"];
     [encoder setFrontFacingWinding:MTLWindingCounterClockwise];
     // Strictly speaking we shouldn't have to set this, as the default viewport is the size of
@@ -241,9 +241,9 @@ void GrMtlGpuRTCommandBuffer::initRenderState(id<MTLRenderCommandEncoder> encode
     [encoder popDebugGroup];
 }
 
-void GrMtlGpuRTCommandBuffer::setupRenderPass(
-        const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-        const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+void GrMtlOpsRenderPass::setupRenderPass(
+        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
     const static MTLLoadAction mtlLoadAction[] {
         MTLLoadActionLoad,
         MTLLoadActionClear,
@@ -324,9 +324,9 @@ static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
     return mtlPrimitiveType[static_cast<int>(primitiveType)];
 }
 
-void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
-                                           size_t vertexOffset,
-                                           const GrBuffer* instanceBuffer) {
+void GrMtlOpsRenderPass::bindGeometry(const GrBuffer* vertexBuffer,
+                                      size_t vertexOffset,
+                                      const GrBuffer* instanceBuffer) {
     size_t bufferIndex = GrMtlUniformHandler::kLastUniformBinding + 1;
     if (vertexBuffer) {
         SkASSERT(!vertexBuffer->isCpuBuffer());
@@ -344,10 +344,10 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
     }
 }
 
-void GrMtlGpuRTCommandBuffer::sendMeshToGpu(GrPrimitiveType primitiveType,
-                                            const GrBuffer* vertexBuffer,
-                                            int vertexCount,
-                                            int baseVertex) {
+void GrMtlOpsRenderPass::sendMeshToGpu(GrPrimitiveType primitiveType,
+                                       const GrBuffer* vertexBuffer,
+                                       int vertexCount,
+                                       int baseVertex) {
     this->bindGeometry(vertexBuffer, 0, nullptr);
 
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
@@ -356,15 +356,15 @@ void GrMtlGpuRTCommandBuffer::sendMeshToGpu(GrPrimitiveType primitiveType,
                                 vertexCount:vertexCount];
 }
 
-void GrMtlGpuRTCommandBuffer::sendIndexedMeshToGpu(GrPrimitiveType primitiveType,
-                                                   const GrBuffer* indexBuffer,
-                                                   int indexCount,
-                                                   int baseIndex,
-                                                   uint16_t /*minIndexValue*/,
-                                                   uint16_t /*maxIndexValue*/,
-                                                   const GrBuffer* vertexBuffer,
-                                                   int baseVertex,
-                                                   GrPrimitiveRestart restart) {
+void GrMtlOpsRenderPass::sendIndexedMeshToGpu(GrPrimitiveType primitiveType,
+                                              const GrBuffer* indexBuffer,
+                                              int indexCount,
+                                              int baseIndex,
+                                              uint16_t /*minIndexValue*/,
+                                              uint16_t /*maxIndexValue*/,
+                                              const GrBuffer* vertexBuffer,
+                                              int baseVertex,
+                                              GrPrimitiveRestart restart) {
     this->bindGeometry(vertexBuffer, fCurrentVertexStride*baseVertex, nullptr);
 
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
@@ -388,13 +388,13 @@ void GrMtlGpuRTCommandBuffer::sendIndexedMeshToGpu(GrPrimitiveType primitiveType
     fGpu->stats()->incNumDraws();
 }
 
-void GrMtlGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType primitiveType,
-                                                     const GrBuffer* vertexBuffer,
-                                                     int vertexCount,
-                                                     int baseVertex,
-                                                     const GrBuffer* instanceBuffer,
-                                                     int instanceCount,
-                                                     int baseInstance) {
+void GrMtlOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType primitiveType,
+                                                const GrBuffer* vertexBuffer,
+                                                int vertexCount,
+                                                int baseVertex,
+                                                const GrBuffer* instanceBuffer,
+                                                int instanceCount,
+                                                int baseInstance) {
     this->bindGeometry(vertexBuffer, 0, instanceBuffer);
 
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
@@ -405,15 +405,15 @@ void GrMtlGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType primitiveTy
                                baseInstance:baseInstance];
 }
 
-void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
-                                                            const GrBuffer* indexBuffer,
-                                                            int indexCount,
-                                                            int baseIndex,
-                                                            const GrBuffer* vertexBuffer,
-                                                            int baseVertex,
-                                                            const GrBuffer* instanceBuffer,
-                                                            int instanceCount,
-                                                            int baseInstance,
+void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
+                                                       const GrBuffer* indexBuffer,
+                                                       int indexCount,
+                                                       int baseIndex,
+                                                       const GrBuffer* vertexBuffer,
+                                                       int baseVertex,
+                                                       const GrBuffer* instanceBuffer,
+                                                       int instanceCount,
+                                                       int baseInstance,
                                                             GrPrimitiveRestart restart) {
     this->bindGeometry(vertexBuffer, 0, instanceBuffer);
 
@@ -441,10 +441,10 @@ void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType prim
     fGpu->stats()->incNumDraws();
 }
 
-void GrMtlGpuRTCommandBuffer::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
-                                              const GrMtlBuffer* buffer,
-                                              size_t vertexOffset,
-                                              size_t index) {
+void GrMtlOpsRenderPass::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
+                                         const GrMtlBuffer* buffer,
+                                         size_t vertexOffset,
+                                         size_t index) {
     SkASSERT(index < 4);
     id<MTLBuffer> mtlVertexBuffer = buffer->mtlBuffer();
     SkASSERT(mtlVertexBuffer);
@@ -464,7 +464,7 @@ void GrMtlGpuRTCommandBuffer::setVertexBuffer(id<MTLRenderCommandEncoder> encode
     }
 }
 
-void GrMtlGpuRTCommandBuffer::resetBufferBindings() {
+void GrMtlOpsRenderPass::resetBufferBindings() {
     for (size_t i = 0; i < kNumBindings; ++i) {
         fBufferBindings[i].fBuffer = nil;
     }

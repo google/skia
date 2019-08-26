@@ -8,8 +8,8 @@
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
 #include "src/core/SkMakeUnique.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/ccpr/GrCCConicShader.h"
 #include "src/gpu/ccpr/GrCCCubicShader.h"
 #include "src/gpu/ccpr/GrCCQuadraticShader.h"
@@ -200,6 +200,6 @@ void GrCCCoverageProcessor::draw(
         const GrMesh meshes[], int meshCount, const SkRect& drawBounds) const {
     GrPipeline::DynamicStateArrays dynamicStateArrays;
     dynamicStateArrays.fScissorRects = scissorRects;
-    GrGpuRTCommandBuffer* cmdBuff = flushState->rtCommandBuffer();
-    cmdBuff->draw(*this, pipeline, nullptr, &dynamicStateArrays, meshes, meshCount, drawBounds);
+    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
+    renderPass->draw(*this, pipeline, nullptr, &dynamicStateArrays, meshes, meshCount, drawBounds);
 }

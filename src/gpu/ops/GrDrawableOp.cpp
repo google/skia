@@ -9,9 +9,9 @@
 
 #include "include/core/SkDrawable.h"
 #include "include/private/GrRecordingContext.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
 std::unique_ptr<GrDrawableOp> GrDrawableOp::Make(
@@ -29,6 +29,6 @@ GrDrawableOp::GrDrawableOp(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
 }
 
 void GrDrawableOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
-    SkASSERT(state->commandBuffer());
-    state->rtCommandBuffer()->executeDrawable(std::move(fDrawable));
+    SkASSERT(state->opsRenderPass());
+    state->opsRenderPass()->executeDrawable(std::move(fDrawable));
 }

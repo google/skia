@@ -26,8 +26,7 @@
 #include "src/gpu/gl/GrGLVertexArray.h"
 
 class GrGLBuffer;
-class GrGLGpuRTCommandBuffer;
-class GrGLGpuTextureCommandBuffer;
+class GrGLOpsRenderPass;
 class GrPipeline;
 class GrSwizzle;
 
@@ -77,9 +76,9 @@ public:
     // If the caller wishes to bind an index buffer to a specific VAO, it can call glBind directly.
     GrGLenum bindBuffer(GrGpuBufferType type, const GrBuffer*);
 
-    // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the draw call for the corresponding passthrough function
-    // on GrGLRTGpuCommandBuffer.
+    // on GrGLOpsRenderPass.
     void draw(GrRenderTarget*, GrSurfaceOrigin,
               const GrPrimitiveProcessor&,
               const GrPipeline&,
@@ -107,14 +106,14 @@ public:
                                        const GrBuffer* instanceBuffer, int instanceCount,
                                        int baseInstance, GrPrimitiveRestart) final;
 
-    // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
-    // on GrGLGpuRTCommandBuffer.
+    // on GrGLOpsRenderPass.
     void clear(const GrFixedClip&, const SkPMColor4f&, GrRenderTarget*, GrSurfaceOrigin);
 
-    // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough
-    // function on GrGLGpuRTCommandBuffer.
+    // function on GrGLOpsrenderPass.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask,
                           GrRenderTarget*, GrSurfaceOrigin);
 
@@ -122,12 +121,10 @@ public:
     // stencil buffer as not dirty?
     void clearStencil(GrRenderTarget*, int clearValue);
 
-    GrGpuRTCommandBuffer* getCommandBuffer(
+    GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* getCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+            const GrOpsRenderPass::LoadAndStoreInfo&,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&) override;
 
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -155,7 +152,7 @@ public:
     void testingOnly_flushGpuAndSync() override;
 #endif
 
-    void submit(GrGpuCommandBuffer* buffer) override;
+    void submit(GrOpsRenderPass* renderPass) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
@@ -681,8 +678,7 @@ private:
     class SamplerObjectCache;
     std::unique_ptr<SamplerObjectCache> fSamplerObjectCache;
 
-    std::unique_ptr<GrGLGpuRTCommandBuffer>      fCachedRTCommandBuffer;
-    std::unique_ptr<GrGLGpuTextureCommandBuffer> fCachedTexCommandBuffer;
+    std::unique_ptr<GrGLOpsRenderPass> fCachedOpsRenderPass;
 
     struct FinishCallback {
         GrGpuFinishedProc fCallback;

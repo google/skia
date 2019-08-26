@@ -30,14 +30,10 @@ const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
 }
 
-GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {
-    return fCommandBuffer->asRTCommandBuffer();
-}
-
 void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
         const GrOp* op, const SkRect& chainBounds, GrProcessorSet&& processorSet,
         GrPipeline::InputFlags pipelineFlags, const GrUserStencilSettings* stencilSettings) {
-    SkASSERT(this->rtCommandBuffer());
+    SkASSERT(this->opsRenderPass());
 
     GrPipeline::InitArgs pipelineArgs;
     pipelineArgs.fInputFlags = pipelineFlags;
@@ -53,10 +49,10 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
         GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();
         while (fCurrUpload != fInlineUploads.end() &&
                fCurrUpload->fUploadBeforeToken == drawToken) {
-            this->rtCommandBuffer()->inlineUpload(this, fCurrUpload->fUpload);
+            this->opsRenderPass()->inlineUpload(this, fCurrUpload->fUpload);
             ++fCurrUpload;
         }
-        this->rtCommandBuffer()->draw(
+        this->opsRenderPass()->draw(
                 *fCurrDraw->fGeometryProcessor, *pipeline, fCurrDraw->fFixedDynamicState,
                 fCurrDraw->fDynamicStateArrays, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt,
                 chainBounds);

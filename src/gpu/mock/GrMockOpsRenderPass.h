@@ -5,32 +5,18 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrMockGpuCommandBuffer_DEFINED
-#define GrMockGpuCommandBuffer_DEFINED
+#ifndef GrMockOpsRenderPass_DEFINED
+#define GrMockOpsRenderPass_DEFINED
 
-#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOpsRenderPass.h"
 
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/mock/GrMockGpu.h"
 
-class GrMockGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
+class GrMockOpsRenderPass : public GrOpsRenderPass {
 public:
-    GrMockGpuTextureCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin)
-        : INHERITED(texture, origin) {
-    }
-
-    ~GrMockGpuTextureCommandBuffer() override {}
-
-    void insertEventMarker(const char*) override {}
-
-private:
-    typedef GrGpuTextureCommandBuffer INHERITED;
-};
-
-class GrMockGpuRTCommandBuffer : public GrGpuRTCommandBuffer {
-public:
-    GrMockGpuRTCommandBuffer(GrMockGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
-                             LoadAndStoreInfo colorInfo)
+    GrMockOpsRenderPass(GrMockGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                        LoadAndStoreInfo colorInfo)
             : INHERITED(rt, origin)
             , fGpu(gpu)
             , fColorLoadOp(colorInfo.fLoadOp) {
@@ -71,7 +57,7 @@ private:
     GrLoadOp fColorLoadOp;
     int fNumDraws = 0;
 
-    typedef GrGpuRTCommandBuffer INHERITED;
+    typedef GrOpsRenderPass INHERITED;
 };
 
 #endif

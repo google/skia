@@ -6,8 +6,9 @@
  */
 
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
+
 #include "src/gpu/mtl/GrMtlGpu.h"
-#include "src/gpu/mtl/GrMtlGpuCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 
 #if !__has_feature(objc_arc)
@@ -70,7 +71,7 @@ static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
 
 id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
         MTLRenderPassDescriptor* descriptor, const GrMtlPipelineState* pipelineState,
-        GrMtlGpuRTCommandBuffer* gpuCommandBuffer) {
+        GrMtlOpsRenderPass* opsRenderPass) {
     if (nil != fPreviousRenderPassDescriptor) {
         if (compatible(fPreviousRenderPassDescriptor.colorAttachments[0],
                        descriptor.colorAttachments[0], pipelineState) &&
@@ -82,8 +83,8 @@ id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
 
     this->endAllEncoding();
     fActiveRenderCommandEncoder = [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor];
-    if (gpuCommandBuffer) {
-        gpuCommandBuffer->initRenderState(fActiveRenderCommandEncoder);
+    if (opsRenderPass) {
+        opsRenderPass->initRenderState(fActiveRenderCommandEncoder);
     }
     fPreviousRenderPassDescriptor = descriptor;
 

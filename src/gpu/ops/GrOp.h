@@ -19,8 +19,8 @@
 #include <new>
 
 class GrCaps;
-class GrGpuCommandBuffer;
 class GrOpFlushState;
+class GrOpsRenderPass;
 
 /**
  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to

@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrGpuCommandBuffer.h"
-#include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
+
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
+#include "src/gpu/GrResourceProvider.h"
 
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
 

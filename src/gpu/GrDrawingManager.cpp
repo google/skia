@@ -470,7 +470,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
         }
     }
 
-    SkASSERT(!flushState->commandBuffer());
+    SkASSERT(!flushState->opsRenderPass());
     SkASSERT(fTokenTracker.nextDrawToken() == fTokenTracker.nextTokenToFlush());
 
     // We reset the flush state before the RenderTasks so that the last resources to be freed are

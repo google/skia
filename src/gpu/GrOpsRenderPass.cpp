@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOpsRenderPass.h"
 
 #include "include/core/SkRect.h"
 #include "include/gpu/GrContext.h"
@@ -18,7 +18,7 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 
-void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
+void GrOpsRenderPass::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
     SkASSERT(fRenderTarget);
     // A clear at this level will always be a true clear, so make sure clears were not supposed to
     // be redirected to draws instead
@@ -27,16 +27,16 @@ void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, const SkPMColor4f& col
     this->onClear(clip, color);
 }
 
-void GrGpuRTCommandBuffer::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+void GrOpsRenderPass::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     // As above, make sure the stencil clear wasn't supposed to be a draw rect with stencil settings
     SkASSERT(!this->gpu()->caps()->performStencilClearsAsDraws());
     this->onClearStencilClip(clip, insideStencilMask);
 }
 
-bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-                                const GrPipeline::FixedDynamicState* fixedDynamicState,
-                                const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                                const GrMesh meshes[], int meshCount, const SkRect& bounds) {
+bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+                           const GrPipeline::FixedDynamicState* fixedDynamicState,
+                           const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                           const GrMesh meshes[], int meshCount, const SkRect& bounds) {
 #ifdef SK_DEBUG
     SkASSERT(!primProc.hasInstanceAttributes() || this->gpu()->caps()->instanceAttribSupport());
     for (int i = 0; i < meshCount; ++i) {

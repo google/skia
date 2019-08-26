@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLGpuCommandBuffer_DEFINED
-#define GrGLGpuCommandBuffer_DEFINED
+#ifndef GrGLOpsRenderPass_DEFINED
+#define GrGLOpsRenderPass_DEFINED
 
-#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOpsRenderPass.h"
 
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -17,32 +17,14 @@
 class GrGLGpu;
 class GrGLRenderTarget;
 
-class GrGLGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
-public:
-    GrGLGpuTextureCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
-
-    void insertEventMarker(const char* msg) override {
-        fGpu->insertEventMarker(msg);
-    }
-
-    void reset() {
-        fTexture = nullptr;
-    }
-
-private:
-    GrGLGpu* fGpu;
-
-    typedef GrGpuTextureCommandBuffer INHERITED;
-};
-
-class GrGLGpuRTCommandBuffer : public GrGpuRTCommandBuffer {
+class GrGLOpsRenderPass : public GrOpsRenderPass {
 /**
  * We do not actually buffer up draws or do any work in the this class for GL. Instead commands
  * are immediately sent to the gpu to execute. Thus all the commands in this class are simply
  * pass through functions to corresponding calls in the GrGLGpu class.
  */
 public:
-    GrGLGpuRTCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
+    GrGLOpsRenderPass(GrGLGpu* gpu) : fGpu(gpu) {}
 
     void begin() override;
     void end() override {}
@@ -56,8 +38,8 @@ public:
     }
 
     void set(GrRenderTarget*, GrSurfaceOrigin,
-             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&);
+             const GrOpsRenderPass::LoadAndStoreInfo&,
+             const GrOpsRenderPass::StencilLoadAndStoreInfo&);
 
     void reset() {
         fRenderTarget = nullptr;
@@ -85,11 +67,11 @@ private:
         fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, fOrigin);
     }
 
-    GrGLGpu*                                      fGpu;
-    GrGpuRTCommandBuffer::LoadAndStoreInfo        fColorLoadAndStoreInfo;
-    GrGpuRTCommandBuffer::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
+    GrGLGpu*                                 fGpu;
+    GrOpsRenderPass::LoadAndStoreInfo        fColorLoadAndStoreInfo;
+    GrOpsRenderPass::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
-    typedef GrGpuRTCommandBuffer INHERITED;
+    typedef GrOpsRenderPass INHERITED;
 };
 
 #endif

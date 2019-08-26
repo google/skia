@@ -12,7 +12,6 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpFlushState.h"
 #include <stdlib.h>

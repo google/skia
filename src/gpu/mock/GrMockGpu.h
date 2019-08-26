@@ -14,7 +14,7 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
 
-class GrMockGpuRTCommandBuffer;
+class GrMockOpsRenderPass;
 struct GrMockOptions;
 class GrPipeline;
 
@@ -24,12 +24,9 @@ public:
 
     ~GrMockGpu() override {}
 
-    GrGpuRTCommandBuffer* getCommandBuffer(
-                                    GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
-                                    const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-                                    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* getCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+    GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
+                                      const GrOpsRenderPass::LoadAndStoreInfo&,
+                                      const GrOpsRenderPass::StencilLoadAndStoreInfo&) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
@@ -45,14 +42,12 @@ public:
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
-    void submit(GrGpuCommandBuffer* buffer) override;
+    void submit(GrOpsRenderPass* renderPass) override;
 
     void checkFinishProcs() override {}
 
 private:
     GrMockGpu(GrContext* context, const GrMockOptions&, const GrContextOptions&);
-
-    void submitCommandBuffer(const GrMockGpuRTCommandBuffer*);
 
     void onResetContext(uint32_t resetBits) override {}
 

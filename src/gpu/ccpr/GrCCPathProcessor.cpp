@@ -8,8 +8,8 @@
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
 
 #include "include/gpu/GrTexture.h"
-#include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -141,8 +141,8 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                              baseInstance, enablePrimitiveRestart);
     mesh.setVertexData(resources.refVertexBuffer());
 
-    flushState->rtCommandBuffer()->draw(*this, pipeline, fixedDynamicState, nullptr, &mesh, 1,
-                                        bounds);
+    flushState->opsRenderPass()->draw(*this, pipeline, fixedDynamicState, nullptr, &mesh, 1,
+                                      bounds);
 }
 
 void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {

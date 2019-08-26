@@ -19,7 +19,7 @@
 
 #import <Metal/Metal.h>
 
-class GrMtlGpuRTCommandBuffer;
+class GrMtlOpsRenderPass;
 class GrMtlTexture;
 class GrSemaphore;
 struct GrMtlBackendContext;
@@ -80,16 +80,13 @@ public:
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
-    GrGpuRTCommandBuffer* getCommandBuffer(
-                                    GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
-                                    const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-                                    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* getCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+    GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
+                                      const GrOpsRenderPass::LoadAndStoreInfo&,
+                                      const GrOpsRenderPass::StencilLoadAndStoreInfo&) override;
 
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
 
-    void submit(GrGpuCommandBuffer* buffer) override;
+    void submit(GrOpsRenderPass* renderPass) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
