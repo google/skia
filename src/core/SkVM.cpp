@@ -15,6 +15,10 @@
 #if defined(SKVM_JIT)
     #include <sys/mman.h>
 #endif
+#if defined(SKVM_PERF_DUMPS)
+    #include <stdio.h>
+    #include <time.h>
+#endif
 
 namespace skvm {
 
