@@ -116,21 +116,21 @@ public:
     SK_API void writeStrikeData(std::vector<uint8_t>* memory);
 
     // Methods used internally in Skia ------------------------------------------
-    class SkGlyphCacheState;
+    class RemoteStrike;
 
-    SkGlyphCacheState* getOrCreateCache(const SkPaint&,
-                                        const SkFont& font,
-                                        const SkSurfaceProps&,
-                                        const SkMatrix&,
-                                        SkScalerContextFlags flags,
-                                        SkScalerContextEffects* effects);
+    RemoteStrike* getOrCreateCache(const SkPaint&,
+                                   const SkFont& font,
+                                   const SkSurfaceProps&,
+                                   const SkMatrix&,
+                                   SkScalerContextFlags flags,
+                                   SkScalerContextEffects* effects);
 
     SkScopedStrike findOrCreateScopedStrike(const SkDescriptor& desc,
                                             const SkScalerContextEffects& effects,
                                             const SkTypeface& typeface) override;
 
     static void AddGlyphForTesting(
-            SkGlyphCacheState* cache, SkPackedGlyphID glyphID, bool asPath);
+            RemoteStrike* cache, SkPackedGlyphID glyphID, bool asPath);
 
     void setMaxEntriesInDescriptorMapForTesting(size_t count) {
         fMaxEntriesInDescriptorMap = count;
@@ -142,11 +142,11 @@ private:
 
     void checkForDeletedEntries();
 
-    SkGlyphCacheState* getOrCreateCache(const SkDescriptor& desc,
-                                        const SkTypeface& typeface,
-                                        SkScalerContextEffects effects);
+    RemoteStrike* getOrCreateCache(const SkDescriptor& desc,
+                                   const SkTypeface& typeface,
+                                   SkScalerContextEffects effects);
 
-    SkDescriptorMap<std::unique_ptr<SkGlyphCacheState>> fRemoteGlyphStateMap;
+    SkDescriptorMap<std::unique_ptr<RemoteStrike>> fRemoteGlyphStateMap;
     DiscardableHandleManager* const fDiscardableHandleManager;
     SkTHashSet<SkFontID> fCachedTypefaces;
     size_t fMaxEntriesInDescriptorMap = kMaxEntriesInDescriptorMap;
