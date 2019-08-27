@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "814ff00b_f5c6c76e",
+        "filename": "third_party/dawn/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-27T20:29:02Z",
+      "side": 1,
+      "message": "The housekeeper bot is complaining that you didn\u0027t run \u0027gn format\u0027 on this and make it all on one line.",
+      "range": {
+        "startLine": 443,
+        "startChar": 0,
+        "endLine": 445,
+        "endChar": 5
+      },
+      "revId": "d36dc302b90884ff3493e5875cd25d3536460f3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
