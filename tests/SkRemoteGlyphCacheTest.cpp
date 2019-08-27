@@ -404,9 +404,9 @@ DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
         const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
         SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, props, &server);
         SkPaint paint;
-        REPORTER_ASSERT(reporter, server.remoteGlyphStateMapSizeForTesting() == 0u);
+        REPORTER_ASSERT(reporter, server.remoteStrikeMapSizeForTesting() == 0u);
         cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
-        REPORTER_ASSERT(reporter, server.remoteGlyphStateMapSizeForTesting() == 1u);
+        REPORTER_ASSERT(reporter, server.remoteStrikeMapSizeForTesting() == 1u);
     }
 
     // Serialize to release the lock from the strike server and delete all current
@@ -425,9 +425,9 @@ DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
         const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
         SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, props, &server);
         SkPaint paint;
-        REPORTER_ASSERT(reporter, server.remoteGlyphStateMapSizeForTesting() == 1u);
+        REPORTER_ASSERT(reporter, server.remoteStrikeMapSizeForTesting() == 1u);
         cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
-        REPORTER_ASSERT(reporter, server.remoteGlyphStateMapSizeForTesting() == 1u);
+        REPORTER_ASSERT(reporter, server.remoteStrikeMapSizeForTesting() == 1u);
     }
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
