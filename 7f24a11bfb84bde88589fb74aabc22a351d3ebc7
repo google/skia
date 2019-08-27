@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01d2f2f0_4d5b385e",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-08-27T17:14:21Z",
+      "side": 1,
+      "message": "This could still just be dev-\u003esnapSpecial(), right?",
+      "revId": "7f24a11bfb84bde88589fb74aabc22a351d3ebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
