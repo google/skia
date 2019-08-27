@@ -65,9 +65,11 @@ public:
 
     virtual int numClips() const { return 0; }
 
-    virtual void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const = 0;
+    using VisitSurfaceProxyFunc = std::function<void(GrSurfaceProxy*, GrMipMapped)>;
 
-    void visitTargetAndSrcProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
+    virtual void visitProxies_debugOnly(const VisitSurfaceProxyFunc&) const = 0;
+
+    void visitTargetAndSrcProxies_debugOnly(const VisitSurfaceProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
         fn(fTarget.get(), GrMipMapped::kNo);
     }

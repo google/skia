@@ -362,7 +362,7 @@ private:
     }
 
     int* fTestExecuteValue;
-    sk_sp<GrSurfaceProxy> fLazyProxy;
+    sk_sp<GrTextureProxy> fLazyProxy;
 
     typedef GrDrawOp INHERITED;
 };
@@ -425,7 +425,7 @@ private:
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {}
 
-    sk_sp<GrSurfaceProxy> fLazyProxy;
+    sk_sp<GrTextureProxy> fLazyProxy;
 
     typedef GrDrawOp INHERITED;
 };

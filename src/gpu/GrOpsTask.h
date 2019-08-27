@@ -60,7 +60,7 @@ public:
     void addOp(std::unique_ptr<GrOp> op, GrTextureResolveManager textureResolveManager,
                const GrCaps& caps) {
         auto addDependency = [ textureResolveManager, &caps, this ] (
-                GrSurfaceProxy* p, GrMipMapped mipmapped) {
+                GrTextureProxy* p, GrMipMapped mipmapped) {
             this->addDependency(p, mipmapped, textureResolveManager, caps);
         };
 
@@ -79,7 +79,7 @@ public:
                    GrAppliedClip&& clip, const DstProxy& dstProxy,
                    GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
         auto addDependency = [ textureResolveManager, &caps, this ] (
-                GrSurfaceProxy* p, GrMipMapped mipmapped) {
+                GrTextureProxy* p, GrMipMapped mipmapped) {
             this->addDependency(p, mipmapped, textureResolveManager, caps);
         };
 
@@ -97,7 +97,7 @@ public:
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
-    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;)
+    SkDEBUGCODE(void visitProxies_debugOnly(const VisitSurfaceProxyFunc&) const override;)
 
 private:
     bool isNoOp() const {
