@@ -441,9 +441,20 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
 
     serializer.emplace<uint64_t>(SkTo<uint64_t>(fRemoteStrikesToSend.count()));
     fRemoteStrikesToSend.foreach(
-            [&serializer](RemoteStrike* strike){
+#ifdef SK_DEBUG
+            [&serializer, this](RemoteStrike* strike) {
                 strike->writePendingGlyphs(&serializer);
-            });
+                auto it = fRemoteGlyphStateMap.find(&strike->getDescriptor());
+                SkASSERT(it != fRemoteGlyphStateMap.end());
+                SkASSERT(it->second.get() == strike);
+            }
+
+#else
+            [&serializer](RemoteStrike* strike) {
+                strike->writePendingGlyphs(&serializer);
+            }
+#endif
+    );
     fRemoteStrikesToSend.reset();
 }
 
