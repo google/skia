@@ -76,6 +76,9 @@ public:
         return fFlags == that.fFlags && fPixelGeometry == that.fPixelGeometry;
     }
 
+    bool operator!=(const SkSurfaceProps& that) const {
+        return !(*this == that);
+    }
 private:
     SkSurfaceProps();
 
