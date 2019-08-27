@@ -118,6 +118,7 @@ protected:
                      SkImage*, const SkMatrix&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
+    sk_sp<SkSpecialImage> snapSpecial() override;
     SkImageFilterCache* getImageFilterCache() override;
 
 private:
