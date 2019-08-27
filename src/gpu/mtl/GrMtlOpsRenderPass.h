@@ -23,7 +23,6 @@ class GrMtlRenderTarget;
 class GrMtlOpsRenderPass : public GrOpsRenderPass, private GrMesh::SendToGpuImpl {
 public:
     GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
-                       const SkRect& bounds,
                        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo);
 
@@ -94,10 +93,6 @@ private:
     void precreateCmdEncoder();
 
     GrMtlGpu*                   fGpu;
-    // GrRenderTargetProxy bounds
-#ifdef SK_DEBUG
-    SkRect                      fRTBounds;
-#endif
 
     id<MTLRenderCommandEncoder> fActiveRenderCmdEncoder;
     MTLRenderPassDescriptor*    fRenderPassDesc;

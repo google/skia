@@ -144,7 +144,7 @@ GrOpsRenderPass* GrMtlGpu::getOpsRenderPass(
             GrRenderTarget* renderTarget, GrSurfaceOrigin origin, const SkRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrMtlOpsRenderPass(this, renderTarget, origin, bounds, colorInfo, stencilInfo);
+    return new GrMtlOpsRenderPass(this, renderTarget, origin, colorInfo, stencilInfo);
 }
 
 void GrMtlGpu::submit(GrOpsRenderPass* renderPass) {

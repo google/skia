@@ -342,7 +342,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     }
 }
 
-void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMColor4f& color) {
+void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
@@ -364,6 +364,8 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
         }
     }
 
+    static const SkPMColor4f kColor = SK_PMColor4fTRANSPARENT;
+
     // TODO: in a post-MDB world this should be handled at the OpsTask level.
     // This makes sure to always add an op to the list, instead of marking the clear as a load op.
     // This code follows very similar logic to internalClear() below, but critical differences are
@@ -371,7 +373,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
     if (clearRect) {
         if (fRenderTargetContext->caps()->performPartialClearsAsDraws()) {
             GrPaint paint;
-            clear_to_grpaint(color, &paint);
+            clear_to_grpaint(kColor, &paint);
 
             // Use the disabled clip; the rect geometry already matches the clear rectangle and
             // if it were added to a scissor, that would be intersected with the logical surface
@@ -385,28 +387,32 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
             // proxy. The surface proxy variant would intersect the clip rect with its logical
             // bounds, which is not desired in this special case.
             fRenderTargetContext->addOp(GrClearOp::Make(
-                    fRenderTargetContext->fContext, rtRect, color, /* fullscreen */ false));
+                    fRenderTargetContext->fContext, rtRect, kColor, /* fullscreen */ false));
         }
     } else {
-        // Reset the oplist like in internalClear(), but do not rely on a load op for the clear
-        fRenderTargetContext->getOpsTask()->resetForFullscreenClear(
-                fRenderTargetContext->canDiscardPreviousOpsOnFullClear());
-        fRenderTargetContext->getOpsTask()->setColorLoadOp(GrLoadOp::kDiscard);
-
-        if (fRenderTargetContext->caps()->performColorClearsAsDraws()) {
-            // This draws a quad covering the worst case dimensions instead of just the logical
-            // width and height like in internalClear().
-            GrPaint paint;
-            clear_to_grpaint(color, &paint);
-            fRenderTargetContext->addDrawOp(
-                    GrFixedClip::Disabled(),
-                    GrFillRectOp::MakeNonAARect(fRenderTargetContext->fContext, std::move(paint),
-                                                SkMatrix::I(), SkRect::Make(rtRect)));
+        if (fRenderTargetContext->getOpsTask()->resetForFullscreenClear(
+                fRenderTargetContext->canDiscardPreviousOpsOnFullClear()) &&
+            !fRenderTargetContext->caps()->performColorClearsAsDraws()) {
+            fRenderTargetContext->getOpsTask()->setColorLoadOp(GrLoadOp::kClear, kColor);
         } else {
-            // Nothing special about this path in absClear compared to internalClear()
-            fRenderTargetContext->addOp(GrClearOp::Make(
-                    fRenderTargetContext->fContext, SkIRect::MakeEmpty(), color,
-                    /* fullscreen */ true));
+            fRenderTargetContext->getOpsTask()->setColorLoadOp(GrLoadOp::kDiscard);
+
+            if (fRenderTargetContext->caps()->performColorClearsAsDraws()) {
+                // This draws a quad covering the worst case dimensions instead of just the logical
+                // width and height like in internalClear().
+                GrPaint paint;
+                clear_to_grpaint(kColor, &paint);
+                fRenderTargetContext->addDrawOp(
+                        GrFixedClip::Disabled(),
+                        GrFillRectOp::MakeNonAARect(fRenderTargetContext->fContext,
+                                                    std::move(paint), SkMatrix::I(),
+                                                    SkRect::Make(rtRect)));
+            } else {
+                // Nothing special about this path in absClear compared to internalClear()
+                fRenderTargetContext->addOp(GrClearOp::Make(
+                        fRenderTargetContext->fContext, SkIRect::MakeEmpty(), kColor,
+                        /* fullscreen */ true));
+            }
         }
     }
 }
