@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8853e3a2_d039a2b0",
+        "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-27T14:37:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03731866_4db93c04",
+      "range": {
+        "startLine": 474,
+        "startChar": 91,
+        "endLine": 474,
+        "endChar": 100
+      },
+      "revId": "3a565ca4b74b3a9fd6ff0acffe1b043893e6573a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
