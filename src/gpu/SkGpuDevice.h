@@ -111,8 +111,8 @@ public:
     void drawSpecial(SkSpecialImage*, int left, int top, const SkPaint& paint,
                      SkImage*, const SkMatrix&) override;
 
-    void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                        SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) override;
+    void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], SkCanvas::QuadAAFlags aaFlags,
+                        const SkColor4f& color, SkBlendMode mode) override;
     void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count, const SkPoint dstClips[],
                             const SkMatrix[], const SkPaint&, SkCanvas::SrcRectConstraint) override;
 

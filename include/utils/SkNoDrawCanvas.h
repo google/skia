@@ -74,7 +74,7 @@ protected:
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override {}
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override {}
 
-    void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], QuadAAFlags, SkColor,
+    void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], QuadAAFlags, const SkColor4f&,
                           SkBlendMode) override {}
     void onDrawEdgeAAImageSet(const ImageSetEntry[], int, const SkPoint[],
                               const SkMatrix[], const SkPaint*, SrcRectConstraint) override {}
