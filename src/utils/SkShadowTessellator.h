@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
+#include <functional>  // std::function
 
 class SkMatrix;
 class SkPath;

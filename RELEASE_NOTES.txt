@@ -65,3 +65,6 @@ Milestone 78
 
   * SkMallocPixelRef: remove MakeDirect and MakeWithProc from API.
     https://review.skia.org/234660
+
+  * Remove unused sk_sp comparison operators.
+    https://review.skia.org/236942

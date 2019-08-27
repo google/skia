@@ -10,7 +10,8 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
-#include <vector>
+#include <functional>  // std::hash
+#include <vector>      // std::vector
 
 namespace skvm {
 
@@ -430,6 +431,7 @@ namespace skvm {
             static size_t Hash(T val) {
                 return std::hash<T>{}(val);
             }
+            // TODO: replace with SkOpts::hash()?
             size_t operator()(const Instruction& inst) const {
                 return Hash((uint8_t)inst.op)
                      ^ Hash(inst.x)

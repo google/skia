@@ -10,13 +10,12 @@
 
 #include "include/core/SkTypes.h"
 
-#include <atomic>
-#include <cstddef>
-#include <functional>
-#include <iosfwd>
-#include <memory>
-#include <type_traits>
-#include <utility>
+#include <atomic>       // std::atomic, std::memory_order_*
+#include <cstddef>      // std::nullptr_t
+#include <iosfwd>       // std::basic_ostream
+#include <memory>       // TODO: unused
+#include <type_traits>  // std::enable_if, std::is_convertible
+#include <utility>      // std::forward, std::swap
 
 /** \class SkRefCntBase
 
@@ -342,49 +341,6 @@ template <typename T> inline bool operator!=(const sk_sp<T>& a, std::nullptr_t) 
 }
 template <typename T> inline bool operator!=(std::nullptr_t, const sk_sp<T>& b) /*noexcept*/ {
     return static_cast<bool>(b);
-}
-
-template <typename T, typename U> inline bool operator<(const sk_sp<T>& a, const sk_sp<U>& b) {
-    // Provide defined total order on sk_sp.
-    // http://wg21.cmeerw.net/lwg/issue1297
-    // http://wg21.cmeerw.net/lwg/issue1401 .
-    return std::less<typename std::common_type<T*, U*>::type>()(a.get(), b.get());
-}
-template <typename T> inline bool operator<(const sk_sp<T>& a, std::nullptr_t) {
-    return std::less<T*>()(a.get(), nullptr);
-}
-template <typename T> inline bool operator<(std::nullptr_t, const sk_sp<T>& b) {
-    return std::less<T*>()(nullptr, b.get());
-}
-
-template <typename T, typename U> inline bool operator<=(const sk_sp<T>& a, const sk_sp<U>& b) {
-    return !(b < a);
-}
-template <typename T> inline bool operator<=(const sk_sp<T>& a, std::nullptr_t) {
-    return !(nullptr < a);
-}
-template <typename T> inline bool operator<=(std::nullptr_t, const sk_sp<T>& b) {
-    return !(b < nullptr);
-}
-
-template <typename T, typename U> inline bool operator>(const sk_sp<T>& a, const sk_sp<U>& b) {
-    return b < a;
-}
-template <typename T> inline bool operator>(const sk_sp<T>& a, std::nullptr_t) {
-    return nullptr < a;
-}
-template <typename T> inline bool operator>(std::nullptr_t, const sk_sp<T>& b) {
-    return b < nullptr;
-}
-
-template <typename T, typename U> inline bool operator>=(const sk_sp<T>& a, const sk_sp<U>& b) {
-    return !(a < b);
-}
-template <typename T> inline bool operator>=(const sk_sp<T>& a, std::nullptr_t) {
-    return !(a < nullptr);
-}
-template <typename T> inline bool operator>=(std::nullptr_t, const sk_sp<T>& b) {
-    return !(nullptr < b);
 }
 
 template <typename C, typename CT, typename T>

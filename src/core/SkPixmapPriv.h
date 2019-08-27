@@ -32,8 +32,9 @@ public:
      *  @param decode Function for decoding into a pixmap without
      *      applying the origin.
      */
-    static bool Orient(const SkPixmap& dst, SkEncodedOrigin origin,
-            std::function<bool(const SkPixmap&)> decode) {
+
+    template <typename Fn>
+    static bool Orient(const SkPixmap& dst, SkEncodedOrigin origin, Fn&& decode) {
         SkAutoPixmapStorage storage;
         const SkPixmap* tmp = &dst;
         if (origin != kTopLeft_SkEncodedOrigin) {
