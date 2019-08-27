@@ -189,7 +189,7 @@ if (dawn_enable_opengl) {
     script = "${dawn_root}/generator/opengl_loader_generator.py"
     args = [
       "--gl-xml",
-      rebase_path("${dawn_root}/third_party/khronos/gl.xml", root_build_dir),
+      rebase_path("../externals/opengl-registry/xml/gl.xml", root_build_dir),
     ]
     outputs = [
       "dawn_native/opengl/OpenGLFunctionsBase_autogen.cpp",
@@ -442,7 +442,6 @@ source_set("libdawn_native_sources") {
   if (dawn_enable_opengl) {
     deps += [
       ":libdawn_native_opengl_loader_gen",
-      "third_party:khronos_platform",
     ]
     sources += get_target_outputs(":libdawn_native_opengl_loader_gen")
     sources +=
@@ -491,7 +490,8 @@ source_set("libdawn_native_sources") {
 
   configs -= [ "//gn:warnings" ]
   if (dawn_enable_vulkan) {
-    deps += [ "third_party:vulkan_headers" ]
+    configs += [ "//:our_vulkan_headers" ]
+    include_dirs = [ "../.." ]  # for "include/third_party/vulkan/vulkan/vk_platform.h" in vulkan.h
     sources += rebase_path([
                              "src/dawn_native/vulkan/AdapterVk.cpp",
                              "src/dawn_native/vulkan/AdapterVk.h",
