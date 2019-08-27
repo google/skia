@@ -228,7 +228,7 @@ source_set("libdawn_native_sources") {
   deps = [
     ":dawn_common",
     ":libdawn_native_utils_gen",
-    "third_party:spirv_cross",
+    "//third_party/spirv-cross:spirv_cross",
     "//third_party/spirv-tools:spvtools_val",
   ]
 
