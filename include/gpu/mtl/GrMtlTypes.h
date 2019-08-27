@@ -15,6 +15,7 @@
  * Declares typedefs for Metal types used in Ganesh cpp code
  */
 typedef unsigned int GrMTLPixelFormat;
+typedef const void*  GrMTLHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 

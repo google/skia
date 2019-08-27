@@ -61,6 +61,9 @@ Milestone 78
   * Removed SkImage::MakeCrossContextFromEncoded.
     https://review.skia.org/234912
 
+  * Add Metal support for GrFence, GrSemaphore, and GrBackendSemaphore
+    https://review.skia.org/233416
+
   * SkMallocPixelRef: remove MakeDirect and MakeWithProc from API.
     https://review.skia.org/234660
 
