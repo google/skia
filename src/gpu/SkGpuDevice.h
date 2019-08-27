@@ -118,7 +118,8 @@ public:
 
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
-    sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool = false) override;
+    sk_sp<SkSpecialImage> snapSpecial() override;
+    sk_sp<SkSpecialImage> snapBackImage(const SkIRect&) override;
 
     void flush() override;
     GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access, const GrFlushInfo&);
