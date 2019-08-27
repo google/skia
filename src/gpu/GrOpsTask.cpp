@@ -576,9 +576,13 @@ void GrOpsTask::dump(bool printDependencies) const {
     }
 }
 
-void GrOpsTask::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
+void GrOpsTask::visitProxies_debugOnly(const VisitSurfaceProxyFunc& func) const {
+    auto textureFunc = [ func ] (GrTextureProxy* tex, GrMipMapped mipmapped) {
+        func(tex, mipmapped);
+    };
+
     for (const OpChain& chain : fOpChains) {
-        chain.visitProxies(func);
+        chain.visitProxies(textureFunc);
     }
 }
 
