@@ -167,14 +167,14 @@ void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRe
         size_t rowBytes = GrDawnRoundRowBytes(origRowBytes);
         size_t size = rowBytes * height;
 
-        dawn::BufferDescriptor desc;
-        desc.usage = dawn::BufferUsageBit::CopyDst | dawn::BufferUsageBit::CopySrc;
-        desc.size = size;
-
-        dawn::Buffer stagingBuffer = device.CreateBuffer(&desc);
-
+        if (!fStagingBuffer) {
+            dawn::BufferDescriptor desc;
+            desc.usage = dawn::BufferUsageBit::CopyDst | dawn::BufferUsageBit::CopySrc;
+            desc.size = size;
+            fStagingBuffer = device.CreateBuffer(&desc);
+        }
         if (rowBytes == origRowBytes) {
-            stagingBuffer.SetSubData(0, size,
+            fStagingBuffer.SetSubData(0, size,
                 static_cast<const uint8_t*>(static_cast<const void *>(src)));
         } else {
             char* buf = new char[size];
@@ -184,13 +184,13 @@ void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRe
                 dst += rowBytes;
                 src += texels[i].fRowBytes;
             }
-            stagingBuffer.SetSubData(0, size,
+            fStagingBuffer.SetSubData(0, size,
                 static_cast<const uint8_t*>(static_cast<const void*>(buf)));
             delete[] buf;
         }
 
         dawn::BufferCopyView srcBuffer;
-        srcBuffer.buffer = stagingBuffer;
+        srcBuffer.buffer = fStagingBuffer;
         srcBuffer.offset = 0;
         srcBuffer.rowPitch = rowBytes;
         srcBuffer.imageHeight = height;
