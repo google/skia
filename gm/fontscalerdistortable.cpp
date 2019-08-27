@@ -107,6 +107,7 @@ private:
             canvas->translate(0, SkIntToScalar(360));
             font.setSubpixel(true);
             font.setLinearMetrics(true);
+            font.setBaselineSnap(false);
         }
         return DrawResult::kOk;
     }
