@@ -330,7 +330,7 @@ RECORD(DrawEdgeAAQuad, kDraw_Tag,
        SkRect rect;
        PODArray<SkPoint> clip;
        SkCanvas::QuadAAFlags aa;
-       SkColor color;
+       SkColor4f color;
        SkBlendMode mode);
 RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
        Optional<SkPaint> paint;

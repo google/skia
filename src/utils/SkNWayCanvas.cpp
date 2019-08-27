@@ -340,7 +340,7 @@ void SkNWayCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData
 }
 
 void SkNWayCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                                    QuadAAFlags aa, SkColor color, SkBlendMode mode) {
+                                    QuadAAFlags aa, const SkColor4f& color, SkBlendMode mode) {
     Iter iter(fList);
     while (iter.next()) {
         iter->experimental_DrawEdgeAAQuad(rect, clip, aa, color, mode);
