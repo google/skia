@@ -1755,10 +1755,6 @@ sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkImage* image) {
     return SkSpecialImage::MakeFromImage(nullptr, image->bounds(), image->makeNonTextureImage());
 }
 
-sk_sp<SkSpecialImage> SkPDFDevice::snapSpecial() {
-    return nullptr;
-}
-
 SkImageFilterCache* SkPDFDevice::getImageFilterCache() {
     // We always return a transient cache, so it is freed after each
     // filter traversal.

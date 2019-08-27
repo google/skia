@@ -320,7 +320,10 @@ void SkBaseDevice::drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
                                SkImage*, const SkMatrix&) {}
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
-sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() { return nullptr; }
+sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial(const SkIRect&, bool) { return nullptr; }
+sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() {
+    return this->snapSpecial(SkIRect::MakeWH(this->width(), this->height()));
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -412,10 +415,6 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
 //////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkSurface> SkBaseDevice::makeSurface(SkImageInfo const&, SkSurfaceProps const&) {
-    return nullptr;
-}
-
-sk_sp<SkSpecialImage> SkBaseDevice::snapBackImage(const SkIRect&) {
     return nullptr;
 }
 
