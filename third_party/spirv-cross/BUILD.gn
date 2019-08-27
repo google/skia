@@ -1,0 +1,46 @@
+spirv_cross = "//third_party/externals/spirv-cross"
+
+config("spirv_cross_config") {
+  include_dirs = [ "//third_party/externals" ]
+  defines = [ "SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS" ]
+}
+
+static_library("spirv_cross") {
+  public_configs = [ ":spirv_cross_config" ]
+  configs -= [ "//gn:warnings" ]
+
+  cflags = []
+  if (is_win) {
+    cflags += [
+      "/wd5850",
+      "/wd4245",
+      "/wd4702",
+      "/wd4706",
+      "/wd4715",
+    ]
+  }
+
+  sources = rebase_path([
+                          "GLSL.std.450.h",
+                          "spirv.hpp",
+                          "spirv_cfg.cpp",
+                          "spirv_cfg.hpp",
+                          "spirv_common.hpp",
+                          "spirv_cpp.cpp",
+                          "spirv_cpp.hpp",
+                          "spirv_cross.cpp",
+                          "spirv_cross.hpp",
+                          "spirv_cross_parsed_ir.cpp",
+                          "spirv_cross_parsed_ir.hpp",
+                          "spirv_glsl.cpp",
+                          "spirv_glsl.hpp",
+                          "spirv_hlsl.cpp",
+                          "spirv_hlsl.hpp",
+                          "spirv_msl.cpp",
+                          "spirv_msl.hpp",
+                          "spirv_parser.cpp",
+                          "spirv_parser.hpp",
+                        ],
+                        ".",
+                        "${spirv_cross}")
+}
