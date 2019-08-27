@@ -440,9 +440,7 @@ source_set("libdawn_native_sources") {
   }
 
   if (dawn_enable_opengl) {
-    deps += [
-      ":libdawn_native_opengl_loader_gen",
-    ]
+    deps += [ ":libdawn_native_opengl_loader_gen" ]
     sources += get_target_outputs(":libdawn_native_opengl_loader_gen")
     sources +=
         rebase_path([
