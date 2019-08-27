@@ -57,10 +57,11 @@ public:
      * upsampling. The "absClear" entry point ignores the content bounds but does use the
      * worst case (instantiated) bounds.
      *
+     * This call will always clear to transparent black.
+     *
      * @param rect      if (!null) the rect to clear, otherwise it is a full screen clear
-     * @param color     the color to clear to
      */
-    void absClear(const SkIRect* rect, const SkPMColor4f& color);
+    void absClear(const SkIRect* rect);
 
     // While this can take a general clip, since GrReducedClip relies on this function, it must take
     // care to only provide hard clips or we could get stuck in a loop. The general clip is needed
