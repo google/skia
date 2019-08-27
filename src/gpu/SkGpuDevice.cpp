@@ -1225,42 +1225,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
     }
 }
 
-sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
-    // If we are wrapping a vulkan secondary command buffer, then we can't snap off a special image
-    // since it would require us to make a copy of the underlying VkImage which we don't have access
-    // to. Additionaly we can't stop and start the render pass that is used with the secondary
-    // command buffer.
-    if (this->accessRenderTargetContext()->wrapsVkSecondaryCB()) {
-        return nullptr;
-    }
-
-    sk_sp<GrTextureProxy> proxy(this->accessRenderTargetContext()->asTextureProxyRef());
-    if (!proxy) {
-        // When the device doesn't have a texture, we create a temporary texture.
-        // TODO: we should actually only copy the portion of the source needed to apply the image
-        // filter
-        proxy = GrSurfaceProxy::Copy(fContext.get(),
-                                     this->accessRenderTargetContext()->asSurfaceProxy(),
-                                     GrMipMapped::kNo,
-                                     SkBackingFit::kApprox,
-                                     SkBudgeted::kYes);
-        if (!proxy) {
-            return nullptr;
-        }
-    }
-
-    const SkImageInfo ii = this->imageInfo();
-    const SkIRect srcRect = SkIRect::MakeWH(ii.width(), ii.height());
-
-    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
-                                               srcRect,
-                                               kNeedNewImageUniqueID_SpecialImage,
-                                               std::move(proxy),
-                                               ii.refColorSpace(),
-                                               &this->surfaceProps());
-}
-
-sk_sp<SkSpecialImage> SkGpuDevice::snapBackImage(const SkIRect& subset) {
+sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool forceCopy) {
     GrRenderTargetContext* rtc = this->accessRenderTargetContext();
 
     // If we are wrapping a vulkan secondary command buffer, then we can't snap off a special image
@@ -1271,22 +1236,32 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapBackImage(const SkIRect& subset) {
         return nullptr;
     }
 
-
-    GrContext* ctx = this->context();
     SkASSERT(rtc->asSurfaceProxy());
 
-    auto srcProxy =
-            GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->mipMapped(), subset,
-                                 SkBackingFit::kApprox, rtc->asSurfaceProxy()->isBudgeted());
-    if (!srcProxy) {
-        return nullptr;
+    SkIRect finalSubset = subset;
+    sk_sp<GrTextureProxy> proxy(rtc->asTextureProxyRef());
+    if (forceCopy || !proxy) {
+        // When the device doesn't have a texture, or a copy is requested, we create a temporary
+        // texture that matches the device contents
+        proxy = GrSurfaceProxy::Copy(fContext.get(),
+                                     rtc->asSurfaceProxy(),
+                                     GrMipMapped::kNo,      // Don't auto generate mips
+                                     subset,
+                                     SkBackingFit::kApprox,
+                                     SkBudgeted::kYes);     // Always budgeted
+        if (!proxy) {
+            return nullptr;
+        }
+
+        // Since this copied only the requested subset, the special image wrapping the proxy no
+        // longer needs the original subset.
+        finalSubset = SkIRect::MakeSize(proxy->isize());
     }
 
-    // Note, can't move srcProxy since we also refer to this in the 2nd parameter
     return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
-                                               SkIRect::MakeSize(srcProxy->isize()),
+                                               finalSubset,
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               srcProxy,
+                                               std::move(proxy),
                                                this->imageInfo().refColorSpace(),
                                                &this->surfaceProps());
 }
@@ -1301,7 +1276,7 @@ void SkGpuDevice::drawDevice(SkBaseDevice* device,
 
     // drawDevice is defined to be in device coords.
     SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
-    sk_sp<SkSpecialImage> srcImg(dev->snapSpecial());
+    sk_sp<SkSpecialImage> srcImg(dev->snapSpecial(SkIRect::MakeWH(dev->width(), dev->height())));
     if (!srcImg) {
         return;
     }
