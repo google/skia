@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d52c5242_4a85617a",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-27T15:55:55Z",
+      "side": 1,
+      "message": "Nit: I think most places in Skia write this like, return !(*this \u003d\u003d that)",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 33
+      },
+      "revId": "d0c0f4f9bd69b2d9f82eb94c33de6c08b96ea438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
