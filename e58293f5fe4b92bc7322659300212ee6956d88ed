@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c21af10b_3a0cc616",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-27T13:37:24Z",
+      "side": 1,
+      "message": "Technically we could change this call to be checking if the clearRect contains just the proxy bounds and this should still be valid (I can\u0027t think of a reason we\u0027d ever want to clear part of the extra padding but not all). However, today that use case never actually comes up. There are only a few uses of this function (all related to blur). In the decimate/reexpand functions we specifically just clear the padding areas to the right or below the proxy bounds. And in create_mask_GPU helper we call abs with clearRect as null.",
+      "range": {
+        "startLine": 358,
+        "startChar": 12,
+        "endLine": 358,
+        "endChar": 38
+      },
+      "revId": "e58293f5fe4b92bc7322659300212ee6956d88ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
