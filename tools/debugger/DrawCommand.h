@@ -690,7 +690,7 @@ public:
     DrawEdgeAAQuadCommand(const SkRect&         rect,
                           const SkPoint         clip[4],
                           SkCanvas::QuadAAFlags aa,
-                          SkColor               color,
+                          const SkColor4f&      color,
                           SkBlendMode           mode);
     void execute(SkCanvas* canvas) const override;
 
@@ -699,7 +699,7 @@ private:
     SkPoint               fClip[4];
     int                   fHasClip;
     SkCanvas::QuadAAFlags fAA;
-    SkColor               fColor;
+    SkColor4f             fColor;
     SkBlendMode           fMode;
 
     typedef DrawCommand INHERITED;

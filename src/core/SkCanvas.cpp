@@ -1983,7 +1983,8 @@ void SkCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
 }
 
 void SkCanvas::experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                                           QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) {
+                                           QuadAAFlags aaFlags, const SkColor4f& color,
+                                           SkBlendMode mode) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     // Make sure the rect is sorted before passing it along
     this->onDrawEdgeAAQuad(rect.makeSorted(), clip, aaFlags, color, mode);
@@ -2684,8 +2685,8 @@ void SkCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* va
     DRAW_END
 }
 
-void SkCanvas::onDrawEdgeAAQuad(const SkRect& r, const SkPoint clip[4],  QuadAAFlags edgeAA,
-                                SkColor color, SkBlendMode mode) {
+void SkCanvas::onDrawEdgeAAQuad(const SkRect& r, const SkPoint clip[4], QuadAAFlags edgeAA,
+                                const SkColor4f& color, SkBlendMode mode) {
     SkASSERT(r.isSorted());
 
     // If this used a paint, it would be a filled color with blend mode, which does not

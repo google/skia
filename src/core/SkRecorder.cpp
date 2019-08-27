@@ -315,7 +315,7 @@ void SkRecorder::onDrawAnnotation(const SkRect& rect, const char key[], SkData* 
 }
 
 void SkRecorder::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                                  QuadAAFlags aa, SkColor color, SkBlendMode mode) {
+                                  QuadAAFlags aa, const SkColor4f& color, SkBlendMode mode) {
     this->append<SkRecords::DrawEdgeAAQuad>(
             rect, this->copy(clip, 4), aa, color, mode);
 }

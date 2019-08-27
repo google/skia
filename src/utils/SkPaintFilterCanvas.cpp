@@ -242,13 +242,13 @@ void SkPaintFilterCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadow
 }
 
 void SkPaintFilterCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                                           QuadAAFlags aa, SkColor color, SkBlendMode mode) {
+                                           QuadAAFlags aa, const SkColor4f& color, SkBlendMode mode) {
     SkPaint paint;
     paint.setColor(color);
     paint.setBlendMode(mode);
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawEdgeAAQuad(rect, clip, aa, apf.paint().getColor(),
+        this->SkNWayCanvas::onDrawEdgeAAQuad(rect, clip, aa, apf.paint().getColor4f(),
                                              apf.paint().getBlendMode());
     }
 }

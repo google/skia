@@ -473,11 +473,11 @@ void DebugCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     this->addDrawCommand(new DrawDrawableCommand(drawable, matrix));
 }
 
-void DebugCanvas::onDrawEdgeAAQuad(const SkRect& rect,
-                                   const SkPoint clip[4],
-                                   QuadAAFlags   aa,
-                                   SkColor       color,
-                                   SkBlendMode   mode) {
+void DebugCanvas::onDrawEdgeAAQuad(const SkRect&    rect,
+                                   const SkPoint    clip[4],
+                                   QuadAAFlags      aa,
+                                   const SkColor4f& color,
+                                   SkBlendMode      mode) {
     this->addDrawCommand(new DrawEdgeAAQuadCommand(rect, clip, aa, color, mode));
 }
 

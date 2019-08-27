@@ -378,13 +378,13 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
 }
 
 void SkGpuDevice::drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                                 SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) {
+                                 SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color,
+                                 SkBlendMode mode) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawEdgeAAQuad", fContext.get());
 
-    SkPMColor4f dstColor = SkColor4fPrepForDst(SkColor4f::FromColor(color),
-                                              fRenderTargetContext->colorSpaceInfo())
-                           .premul();
+    SkPMColor4f dstColor =
+            SkColor4fPrepForDst(color, fRenderTargetContext->colorSpaceInfo()).premul();
 
     GrPaint grPaint;
     grPaint.setColor4f(dstColor);

@@ -245,10 +245,10 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 }
 
 
-void SkBaseDevice::drawEdgeAAQuad(const SkRect& r, const SkPoint clip[4],
-                                  SkCanvas::QuadAAFlags aa, SkColor color, SkBlendMode mode) {
+void SkBaseDevice::drawEdgeAAQuad(const SkRect& r, const SkPoint clip[4], SkCanvas::QuadAAFlags aa,
+                                  const SkColor4f& color, SkBlendMode mode) {
     SkPaint paint;
-    paint.setColor(color);
+    paint.setColor4f(color);
     paint.setBlendMode(mode);
     paint.setAntiAlias(aa == SkCanvas::kAll_QuadAAFlags);
 

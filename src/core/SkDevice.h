@@ -227,7 +227,8 @@ protected:
     // only when all edge flags are set. If there's a clip region, it draws that using drawPath,
     // or uses clipPath().
     virtual void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                                SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode);
+                                SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color,
+                                SkBlendMode mode);
     // Default impl uses drawImageRect per entry, being anti-aliased only when an entry's edge flags
     // are all set. If there's a clip region, it will be applied using clipPath().
     virtual void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count,

@@ -1967,7 +1967,7 @@ void DrawShadowCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMana
 DrawEdgeAAQuadCommand::DrawEdgeAAQuadCommand(const SkRect&         rect,
                                              const SkPoint         clip[],
                                              SkCanvas::QuadAAFlags aa,
-                                             SkColor               color,
+                                             const SkColor4f&      color,
                                              SkBlendMode           mode)
         : INHERITED(kDrawEdgeAAQuad_OpType)
         , fRect(rect)

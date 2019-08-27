@@ -55,13 +55,13 @@ protected:
     // This is under active development for Chrome and not used in Android. Hold off on adding
     // implementations in Android's SkCanvas subclasses until this stabilizes.
     void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-            SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) override {}
+            SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color, SkBlendMode mode) override {}
     void onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry imageSet[], int count,
             const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
             SkCanvas::SrcRectConstraint constraint) override {}
 #else
     void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-            SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) override = 0;
+            SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color, SkBlendMode mode) override = 0;
     void onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry imageSet[], int count,
             const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
             SkCanvas::SrcRectConstraint constraint) override = 0;
