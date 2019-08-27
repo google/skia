@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53ab8acd_c3566442",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-27T21:02:04Z",
+      "side": 1,
+      "message": "move this down to where its used above the GrDawnProgramBuilder::Build call. Or pass this into Desc::Build which does the same call again.",
+      "range": {
+        "startLine": 625,
+        "startChar": 4,
+        "endLine": 625,
+        "endChar": 61
+      },
+      "revId": "33dd3666d0ab59ef806215b99e1f4c115763a7f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2184828e_1cdcfde3",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-27T21:02:04Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 640,
+        "startChar": 94,
+        "endLine": 640,
+        "endChar": 122
+      },
+      "revId": "33dd3666d0ab59ef806215b99e1f4c115763a7f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
