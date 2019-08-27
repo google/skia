@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "53ef6c43_94377e6a",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-27T21:22:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53ab8acd_c3566442",
+      "range": {
+        "startLine": 625,
+        "startChar": 4,
+        "endLine": 625,
+        "endChar": 61
+      },
+      "revId": "33dd3666d0ab59ef806215b99e1f4c115763a7f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2184828e_1cdcfde3",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "33dd3666d0ab59ef806215b99e1f4c115763a7f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5363b80d_5cd15fda",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-27T21:22:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2184828e_1cdcfde3",
+      "range": {
+        "startLine": 640,
+        "startChar": 94,
+        "endLine": 640,
+        "endChar": 122
+      },
+      "revId": "33dd3666d0ab59ef806215b99e1f4c115763a7f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
