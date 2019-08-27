@@ -123,8 +123,8 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
         GrRenderTask* textureResolveTask = textureResolveManager.newTextureResolveRenderTask(
                 sk_ref_sp(textureProxy), GrTextureResolveFlags::kMipMaps, caps);
 
-        // The GrTextureResolveRenderTask factory should have called addDependency (in this
-        // instance, recursively) on the textureProxy.
+        // GrTextureResolveRenderTask::init should have called addDependency (in this instance,
+        // recursively) on the textureProxy.
         SkASSERT(!dependedOnTask || textureResolveTask->dependsOn(dependedOnTask));
         SkASSERT(!textureProxy->texPriv().isDeferred() ||
                  textureResolveTask->fDeferredProxies.back() == textureProxy);
