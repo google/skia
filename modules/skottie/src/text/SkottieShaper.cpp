@@ -58,6 +58,7 @@ public:
         fFont.setHinting(SkFontHinting::kNone);
         fFont.setSubpixel(true);
         fFont.setLinearMetrics(true);
+        fFont.setBaselineSnap(false);
         fFont.setEdging(SkFont::Edging::kAntiAlias);
     }
 
