@@ -1,8 +1,7 @@
-dawn_thirdparty_root = "../../externals/dawn/third_party"
-spirv_cross = "${dawn_thirdparty_root}/spirv-cross"
+spirv_cross = "//third_party/externals/spirv-cross"
 
 config("spirv_cross_config") {
-  include_dirs = [ "$dawn_thirdparty_root" ]
+  include_dirs = [ "//third_party/externals" ]
   defines = [ "SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS" ]
 }
 
@@ -44,25 +43,4 @@ static_library("spirv_cross") {
                         ],
                         ".",
                         "${spirv_cross}")
-}
-
-# Empty targets to add the include dirs and list the sources of Khronos headers for header inclusion check.
-config("khronos_headers_public") {
-  include_dirs = [ "../../externals/dawn/third_party/khronos" ]
-}
-
-source_set("vulkan_headers") {
-  sources = [
-    "khronos/vulkan/vk_platform.h",
-    "khronos/vulkan/vulkan.h",
-  ]
-
-  public_configs = [ ":khronos_headers_public" ]
-}
-
-source_set("khronos_platform") {
-  sources = [
-    "khronos/KHR/khrplatform.h",
-  ]
-  public_configs = [ ":khronos_headers_public" ]
 }
