@@ -376,8 +376,6 @@ void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideS
 }
 
 void GrVkOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
-
     // parent class should never let us get here with no RT
     SkASSERT(!clip.hasWindowRectangles());
 
@@ -385,36 +383,11 @@ void GrVkOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& colo
 
     VkClearColorValue vkColor = {{color.fR, color.fG, color.fB, color.fA}};
 
-    if (cbInfo.fIsEmpty && !clip.scissorEnabled()) {
-        // Change the render pass to do a clear load
-        GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_CLEAR,
-                                                VK_ATTACHMENT_STORE_OP_STORE);
-        // Preserve the stencil buffer's load & store settings
-        GrVkRenderPass::LoadStoreOps vkStencilOps(fVkStencilLoadOp, fVkStencilStoreOp);
-
-        const GrVkRenderPass* oldRP = cbInfo.fRenderPass;
-
-        const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle();
-        if (rpHandle.isValid()) {
-            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
-                                                                         vkColorOps,
-                                                                         vkStencilOps);
-        } else {
-            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
-                                                                         vkColorOps,
-                                                                         vkStencilOps);
-        }
-
-        SkASSERT(cbInfo.fRenderPass->isCompatible(*oldRP));
-        oldRP->unref(fGpu);
-
-        cbInfo.fColorClearValue.color = {{color.fR, color.fG, color.fB, color.fA}};
-        cbInfo.fLoadStoreState = LoadStoreState::kStartsWithClear;
-        // Update command buffer bounds
-        cbInfo.fBounds.join(fRenderTarget->getBoundsRect());
-        return;
-    }
+    // If we end up in a situation where we are calling clear without a scissior then in general it
+    // means we missed an opportunity higher up the stack to set the load op to be a clear. However,
+    // there are situations where higher up we couldn't discard the previous ops and set a clear
+    // load op (e.g. if we needed to execute a wait op). Thus we also have the empty check here.
+    SkASSERT(!cbInfo.fIsEmpty || clip.scissorEnabled());
 
     // We always do a sub rect clear with clearAttachments since we are inside a render pass
     VkClearRect clearRect;

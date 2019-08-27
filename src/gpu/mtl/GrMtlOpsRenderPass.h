@@ -94,10 +94,6 @@ private:
     void precreateCmdEncoder();
 
     GrMtlGpu*                   fGpu;
-    // GrRenderTargetProxy bounds
-#ifdef SK_DEBUG
-    SkRect                      fRTBounds;
-#endif
 
     id<MTLRenderCommandEncoder> fActiveRenderCmdEncoder;
     MTLRenderPassDescriptor*    fRenderPassDesc;
