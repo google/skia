@@ -22,6 +22,30 @@
       "revId": "d0c0f4f9bd69b2d9f82eb94c33de6c08b96ea438",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "986a6d0f_612694c4",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 7953
+      },
+      "writtenOn": "2019-08-27T15:57:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d52c5242_4a85617a",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 33
+      },
+      "revId": "d0c0f4f9bd69b2d9f82eb94c33de6c08b96ea438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
