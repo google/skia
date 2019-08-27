@@ -229,7 +229,7 @@ source_set("libdawn_native_sources") {
     ":dawn_common",
     ":libdawn_native_utils_gen",
     "third_party:spirv_cross",
-    "third_party:spvtools_val",
+    "//third_party/spirv-tools:spvtools_val",
   ]
 
   # Put the internal config public so that unittests can see internal headers
