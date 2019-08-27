@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "844e49b9_7ab1fc0f",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-27T18:31:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5676f10b_762b976b",
+      "range": {
+        "startLine": 261,
+        "startChar": 0,
+        "endLine": 261,
+        "endChar": 31
+      },
+      "revId": "8dbb8cb00c1671a239eb63ab1bae449fa31d5997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7257e0e_d8e19d56",
         "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "8dbb8cb00c1671a239eb63ab1bae449fa31d5997",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b380e62_eb8d6f65",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-27T18:31:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7257e0e_d8e19d56",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 35,
+        "endChar": 46
+      },
+      "revId": "8dbb8cb00c1671a239eb63ab1bae449fa31d5997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
