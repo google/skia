@@ -189,7 +189,7 @@ protected:
     void onDrawEdgeAAQuad(const SkRect&,
                           const SkPoint[4],
                           QuadAAFlags,
-                          SkColor,
+                          const SkColor4f&,
                           SkBlendMode) override;
     void onDrawEdgeAAImageSet(const ImageSetEntry[],
                               int count,

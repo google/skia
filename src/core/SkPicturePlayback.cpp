@@ -278,7 +278,13 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRect rect;
             reader->readRect(&rect);
             SkCanvas::QuadAAFlags aaFlags = static_cast<SkCanvas::QuadAAFlags>(reader->read32());
-            SkColor color = reader->read32();
+            SkColor4f color;
+            if (reader->isVersionLT(SkPicturePriv::kEdgeAAQuadColor4f_Version)) {
+                // Old version stored color as 8888
+                color = SkColor4f::FromColor(reader->read32());
+            } else {
+                reader->readColor4f(&color);
+            }
             SkBlendMode blend = static_cast<SkBlendMode>(reader->read32());
             bool hasClip = reader->readInt();
             SkPoint* clip = nullptr;

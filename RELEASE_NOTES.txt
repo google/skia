@@ -4,8 +4,6 @@ This file includes a list of high level updates for each milestone release.
 
 -----
 
-  * Remove 4-parameter variant of SkRect::join() and intersect(), and noemptycheck variants of intersect()
-
 Milestone 78
 
   * Added RELEASE_NOTES.txt file
@@ -66,5 +64,13 @@ Milestone 78
   * SkMallocPixelRef: remove MakeDirect and MakeWithProc from API.
     https://review.skia.org/234660
 
+  * Remove 4-parameter variant of SkRect::join() and intersect(), and
+    noemptycheck variants of intersect().
+    https://review.skia.org/235832
+    https://review.skia.org/237142
+
   * Remove unused sk_sp comparison operators.
     https://review.skia.org/236942
+
+  * Add SkColor4f variant to experimental_DrawEdgeAAQuad for SkiaRenderer.
+    https://review.skia.org/237492
