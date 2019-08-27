@@ -16,6 +16,24 @@
       "revId": "7f24a11bfb84bde88589fb74aabc22a351d3ebc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95d96633_608d7e12",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-27T17:19:39Z",
+      "side": 1,
+      "message": "I wish, but the snapSpecial() functions are protected. SkCanvas et al have access to the no-arg version because they are friends. It turns out we could call this function only because we\u0027re an SkGpuDevice calling the protected overload of snapSpecial. Now that the no-arg is just a non-virtual around the snapSpecial(SkIRect), access control complains that this SkGpuDevice doesn\u0027t have access to dev\u0027s snapSpecial().\n\nI could also provide a snapSpecial() on SkGpuDevice, but that ended up being more annoying than just calculating the dev\u0027s size here.",
+      "parentUuid": "01d2f2f0_4d5b385e",
+      "revId": "7f24a11bfb84bde88589fb74aabc22a351d3ebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
