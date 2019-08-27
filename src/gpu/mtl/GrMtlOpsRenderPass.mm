@@ -22,14 +22,11 @@
 #endif
 
 GrMtlOpsRenderPass::GrMtlOpsRenderPass(
-        GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
+        GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo)
         : INHERITED(rt, origin)
         , fGpu(gpu)
-#ifdef SK_DEBUG
-        , fRTBounds(bounds)
-#endif
         {
     this->setupRenderPass(colorInfo, stencilInfo);
 }
@@ -196,14 +193,10 @@ void GrMtlOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
 }
 
 void GrMtlOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
-    // if we end up here from absClear, the clear bounds may be bigger than the RT proxy bounds -
-    // but in that case, scissor should be enabled, so this check should still succeed
-    SkASSERT(!clip.scissorEnabled() || clip.scissorRect().contains(fRTBounds));
-    fRenderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(color.fR, color.fG, color.fB,
-                                                                       color.fA);
-    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
-    this->precreateCmdEncoder();
-    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
+    // We should never end up here since all clears should either be done as draws or load ops in
+    // metal. If we hit this assert then we missed a chance to set a load op on the
+    // GrRenderTargetContext level.
+    SkASSERT(false);
 }
 
 void GrMtlOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {

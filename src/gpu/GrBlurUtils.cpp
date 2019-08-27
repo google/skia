@@ -181,7 +181,7 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrRecordingContext* context,
         return nullptr;
     }
 
-    rtContext->priv().absClear(nullptr, SK_PMColor4fTRANSPARENT);
+    rtContext->priv().absClear(nullptr);
 
     GrPaint maskPaint;
     maskPaint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
