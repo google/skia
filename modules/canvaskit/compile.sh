@@ -19,6 +19,7 @@ pushd $BASE_DIR/../..
 source $EMSDK/emsdk_env.sh
 EMCC=`which emcc`
 EMCXX=`which em++`
+EMAR=`which emar`
 
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
@@ -148,6 +149,7 @@ echo "Compiling bitcode"
 ./bin/gn gen ${BUILD_DIR} \
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
+  ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_READBUFFER\",
