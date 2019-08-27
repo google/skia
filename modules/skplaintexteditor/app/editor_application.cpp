@@ -78,6 +78,14 @@ struct Timer {
     ~Timer() { SkDebugf("%s: %5d μs\n", fDesc, (int)((SkTime::GetNSecs() - fTime) * 1e-3)); }
 };
 
+static constexpr float kFontSize = 18;
+static const char* kTypefaces[3] = {"sans-serif", "serif", "monospace"};
+static constexpr size_t kTypefaceCount = SK_ARRAY_COUNT(kTypefaces);
+
+static constexpr SkFontStyle::Weight kFontWeight = SkFontStyle::kNormal_Weight;
+static constexpr SkFontStyle::Width  kFontWidth  = SkFontStyle::kNormal_Width;
+static constexpr SkFontStyle::Slant  kFontSlant  = SkFontStyle::kUpright_Slant;
+
 struct EditorLayer : public sk_app::Window::Layer {
     SkString fPath;
     sk_app::Window* fParent = nullptr;
@@ -90,9 +98,17 @@ struct EditorLayer : public sk_app::Window::Layer {
     int fWidth = 0;  // window width
     int fHeight = 0;  // window height
     int fMargin = 10;
+    size_t fTypefaceIndex = 0;
+    float fFontSize = kFontSize;
     bool fShiftDown = false;
     bool fBlink = false;
     bool fMouseDown = false;
+
+    void setFont() {
+        fEditor.setFont(SkFont(SkTypeface::MakeFromName(kTypefaces[fTypefaceIndex],
+                               SkFontStyle(kFontWeight, kFontWidth, kFontSlant)), fFontSize));
+    }
+
 
     void loadFile(const char* path) {
         if (sk_sp<SkData> data = SkData::MakeFromFileName(path)) {
@@ -232,20 +248,20 @@ struct EditorLayer : public sk_app::Window::Layer {
                         return true;
                     }
                     return false;
+                case '0':
+                    fTypefaceIndex = (fTypefaceIndex + 1) % kTypefaceCount;
+                    this->setFont();
+                    return true;
                 case '=':
                 case '+':
-                    {
-                        float s = fEditor.font().getSize() + 1;
-                        fEditor.setFont(fEditor.font().makeWithSize(s));
-                    }
+                    fFontSize = fFontSize + 1;
+                    this->setFont();
                     return true;
                 case '-':
                 case '_':
-                    {
-                        float s = fEditor.font().getSize() - 1;
-                        if (s > 0) {
-                            fEditor.setFont(fEditor.font().makeWithSize(s));
-                        }
+                    if (fFontSize > 1) {
+                        fFontSize = fFontSize - 1;
+                        this->setFont();
                     }
             }
         }
@@ -349,13 +365,6 @@ struct EditorLayer : public sk_app::Window::Layer {
     }
 };
 
-static constexpr float kFontSize = 18;
-// static constexpr char kTypefaceName[] = "monospace";
-static constexpr char kTypefaceName[] = "sans-serif";
-static constexpr SkFontStyle::Weight kFontWeight = SkFontStyle::kNormal_Weight;
-static constexpr SkFontStyle::Width  kFontWidth  = SkFontStyle::kNormal_Width;
-static constexpr SkFontStyle::Slant  kFontSlant  = SkFontStyle::kUpright_Slant;
-
 //static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kRaster_BackendType;
 static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kNativeGL_BackendType;
 
@@ -369,9 +378,8 @@ struct EditorApplication : public sk_app::Application {
     bool init(const char* path) {
         fWindow->attach(kBackendType);
 
-        fLayer.fEditor.setFont(SkFont(SkTypeface::MakeFromName(kTypefaceName,
-                               SkFontStyle(kFontWeight, kFontWidth, kFontSlant)), kFontSize));
         fLayer.loadFile(path);
+        fLayer.setFont();
 
         fWindow->pushLayer(&fLayer);
         fWindow->setTitle(SkStringPrintf("Editor: \"%s\"", fLayer.fPath.c_str()).c_str());
