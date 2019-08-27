@@ -173,14 +173,6 @@ private:
 // Paths use a SkWriter32 which requires 4 byte alignment.
 static const size_t kPathAlignment  = 4u;
 
-size_t SkDescriptorMapOperators::operator()(const SkDescriptor* key) const {
-    return key->getChecksum();
-}
-
-bool SkDescriptorMapOperators::operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
-    return *lhs == *rhs;
-}
-
 // -- StrikeSpec -----------------------------------------------------------------------------------
 struct StrikeSpec {
     StrikeSpec() = default;
@@ -316,6 +308,14 @@ void SkStrikeServer::RemoteStrike::addGlyph(SkPackedGlyphID glyph, bool asPath) 
     pending->push_back(glyph);
 }
 
+size_t SkStrikeServer::MapOps::operator()(const SkDescriptor* key) const {
+    return key->getChecksum();
+}
+
+bool SkStrikeServer::MapOps::operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
+    return *lhs == *rhs;
+}
+
 
 // -- TrackLayerDevice -----------------------------------------------------------------------------
 class SkTextBlobCacheDiffCanvas::TrackLayerDevice final : public SkNoPixelsDevice {
@@ -358,9 +358,6 @@ private:
 };
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
-// DEPRECATED
-// TODO(herb): remove uses in Chrome
-
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkSurfaceProps& props,
                                                      SkStrikeServer* strikeServer,
@@ -472,13 +469,14 @@ void SkStrikeServer::AddGlyphForTesting(
 }
 
 void SkStrikeServer::checkForDeletedEntries() {
-    auto it = fRemoteGlyphStateMap.begin();
-    while (fRemoteGlyphStateMap.size() > fMaxEntriesInDescriptorMap &&
-           it != fRemoteGlyphStateMap.end()) {
-        if (fDiscardableHandleManager->isHandleDeleted(it->second->discardableHandleId())) {
+    auto it = fDescToRemoteStrike.begin();
+    while (fDescToRemoteStrike.size() > fMaxEntriesInDescriptorMap &&
+           it != fDescToRemoteStrike.end()) {
+        RemoteStrike* strike = it->second.get();
+        if (fDiscardableHandleManager->isHandleDeleted(strike->discardableHandleId())) {
             // If we are removing the strike, we better not be trying to send it at the same time.
-            SkASSERT(!fRemoteStrikesToSend.contains(it->second.get()));
-            it = fRemoteGlyphStateMap.erase(it);
+            SkASSERT(!fRemoteStrikesToSend.contains(strike));
+            it = fDescToRemoteStrike.erase(it);
         } else {
             ++it;
         }
@@ -501,8 +499,8 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
             )
     );
 
-    auto it = fRemoteGlyphStateMap.find(&desc);
-    if (it != fRemoteGlyphStateMap.end()) {
+    auto it = fDescToRemoteStrike.find(&desc);
+    if (it != fDescToRemoteStrike.end()) {
         // We have processed the RemoteStrike before. Reuse it.
         RemoteStrike* strike = it->second.get();
         strike->setTypefaceAndEffects(&typeface, effects);
@@ -518,7 +516,7 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
             return strike;
         }
 
-        fRemoteGlyphStateMap.erase(it);
+        fDescToRemoteStrike.erase(it);
     }
 
     // Create a new RemoteStrike. Start by processing the typeface.
@@ -537,7 +535,7 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
     auto remoteStrikePtr = remoteStrike.get();
     fRemoteStrikesToSend.add(remoteStrikePtr);
     auto d = &remoteStrike->getDescriptor();
-    fRemoteGlyphStateMap[d] = std::move(remoteStrike);
+    fDescToRemoteStrike[d] = std::move(remoteStrike);
 
     checkForDeletedEntries();
 
