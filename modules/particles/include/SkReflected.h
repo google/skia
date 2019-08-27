@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTArray.h"
 
+#include <functional>   // std::function
 #include <string.h>
 
 struct SkCurve;
