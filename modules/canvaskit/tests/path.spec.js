@@ -213,7 +213,7 @@ describe('CanvasKit\'s Path Behavior', function() {
             path.delete();
             paint.delete();
 
-            reportSurface(surface, 'oval_path', done);
+            reportSurface(surface, 'arcto_path', done);
         }));
     });
 });
