@@ -32,7 +32,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMaxFragmentUniformVectors = 0;
     fPackFlipYSupport = false;
     fTextureUsageSupport = false;
-    fAlpha8IsRenderable = false;
     fImagingSupport = false;
     fVertexArrayObjectSupport = false;
     fDebugSupport = false;
@@ -982,24 +981,11 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
             fMSFBOType = kStandard_MSFBOType;
-            if (!fIsCoreProfile && ctxInfo.renderer() != kOSMesa_GrGLRenderer) {
-                // Core profile removes ALPHA8 support.
-                // OpenGL 3.0+ (and GL_ARB_framebuffer_object) supports ALPHA8 as renderable.
-                // However, osmesa fails if it is used even when GL_ARB_framebuffer_object is
-                // present.
-                fAlpha8IsRenderable = true;
-            }
         } else if (ctxInfo.hasExtension("GL_EXT_framebuffer_multisample") &&
                    ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
             fMSFBOType = kStandard_MSFBOType;
         }
     } else if (GR_IS_GR_GL_ES(ctxInfo.standard())) {
-        if (ctxInfo.version() >= GR_GL_VER(3,0) &&
-            ctxInfo.renderer() != kGalliumLLVM_GrGLRenderer) {
-            // The gallium llvmpipe renderer for es3.0 does not have textureRed support even though
-            // it is part of the spec. Thus alpha8 will not be renderable for those devices.
-            fAlpha8IsRenderable = true;
-        }
         // We prefer multisampled-render-to-texture extensions over ES3 MSAA because we've observed
         // ES3 driver bugs on at least one device with a tiled GPU (N10).
         if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
@@ -1182,7 +1168,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Pack Flip Y support", fPackFlipYSupport);
 
     writer->appendBool("Texture Usage support", fTextureUsageSupport);
-    writer->appendBool("Alpha8 is renderable", fAlpha8IsRenderable);
     writer->appendBool("GL_ARB_imaging support", fImagingSupport);
     writer->appendBool("Vertex array object support", fVertexArrayObjectSupport);
     writer->appendBool("Debug support", fDebugSupport);
@@ -1629,18 +1614,37 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     {
         bool alpha8IsValidForGL = GR_IS_GR_GL(standard) &&
                 (!fIsCoreProfile || version <= GR_GL_VER(3, 0));
-        bool alpha8IsValidForGLES = GR_IS_GR_GL_ES(standard) && version < GR_GL_VER(3, 0);
+        bool alpha8IsValidForGLES = GR_IS_GR_GL_ES(standard);
         bool alpha8IsValidForWebGL = GR_IS_GR_WEBGL(standard);
 
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kALPHA8);
         info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fBaseInternalFormat = GR_GL_ALPHA;
         info.fSizedInternalFormat = GR_GL_ALPHA8;
-        if (GR_IS_GR_GL_ES(standard) || !texImageSupportsSizedInternalFormat) {
-            // ES does not have sized internal format GL_ALPHA8.
-            info.fInternalFormatForTexImage = GR_GL_ALPHA;
-        } else {
+        // GL_EXT_texture_storage adds GL_ALPHA8 for texture storage. However, ES3 has glTexStorage
+        // but does not have GL_ALPHA8 (and requires a sized internal format for glTexStorage).
+        // WebGL never has GL_ALPHA8.
+        bool alpha8SizedEnumSupported =
+                alpha8IsValidForGL ||
+                (alpha8IsValidForGLES && ctxInfo.hasExtension("GL_EXT_texture_storage"));
+        bool alpha8TexStorageSupported = alpha8SizedEnumSupported && texStorageSupported;
+        // Even if GL_ALPHA8 is added by GL_EXT_texture_storage it doesn't become legal for
+        // glTexImage2D.
+        if (!GR_IS_GR_GL_ES(standard) && texImageSupportsSizedInternalFormat &&
+            alpha8SizedEnumSupported) {
             info.fInternalFormatForTexImage = GR_GL_ALPHA8;
+        } else {
+            info.fInternalFormatForTexImage = GR_GL_ALPHA;
+        }
+
+        bool alpha8IsRenderable = false;
+        if (!formatWorkarounds.fDisableAlpha8Renderable) {
+            if (alpha8IsValidForGL) {
+                // Core profile removes ALPHA8 support.
+                // OpenGL 3.0+ (and GL_ARB_framebuffer_object) supports ALPHA8 as renderable.
+                alpha8IsRenderable = ctxInfo.version() >= GR_GL_VER(3, 0) ||
+                                     ctxInfo.hasExtension("GL_ARB_framebuffer_object");
+            }
         }
         info.fInternalFormatForRenderbuffer = GR_GL_ALPHA8;
 
@@ -1648,12 +1652,12 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
             info.fFlags = FormatInfo::kTexturable_Flag;
         }
-        if (fAlpha8IsRenderable && alpha8IsValidForGL) {
+        if (alpha8IsRenderable && alpha8IsValidForGL) {
+            // We will use ALPHA8 to create MSAA renderbuffers.
+            SkASSERT(alpha8SizedEnumSupported);
             info.fFlags |= msaaRenderFlags;
         }
-        if (texStorageSupported &&
-            !formatWorkarounds.fDisablePerFormatTextureStorageForCommandBufferES2 &&
-            !formatWorkarounds.fDisableNonRedSingleChannelTexStorageForANGLEGL) {
+        if (alpha8TexStorageSupported) {
             info.fFlags |= FormatInfo::kCanUseTexStorage_Flag;
         }
 
@@ -3538,6 +3542,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
     // and GL_RG on FBO textures.
     formatWorkarounds->fDisableTextureRedForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
+
+    // Osmesa fails if it is used even when GL_ARB_framebuffer_object is present.
+    formatWorkarounds->fDisableAlpha8Renderable = kOSMesa_GrGLRenderer == ctxInfo.renderer();
 
     // MacPro devices with AMD cards fail to create MSAA sRGB render buffers.
 #if defined(SK_BUILD_FOR_MAC)
