@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "798336be_d2f3586b",
+        "filename": "include/gpu/GrBackendSemaphore.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-28T18:44:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd4a1e56_66d8812f",
+      "range": {
+        "startLine": 42,
+        "startChar": 19,
+        "endLine": 42,
+        "endChar": 36
+      },
+      "revId": "5969c02e0ada456cab9a65ec3e20cc8cec47fee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bcebc9f6_1d3f45f0",
         "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "5969c02e0ada456cab9a65ec3e20cc8cec47fee5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c1e9561_58da4958",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-28T18:44:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bcebc9f6_1d3f45f0",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 31
+      },
+      "revId": "5969c02e0ada456cab9a65ec3e20cc8cec47fee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2531b6c7_dac3dee3",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 13
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-28T18:44:50Z",
+      "side": 1,
+      "message": "This isn\u0027t submitting anything, it just closes out the current BlitCommandEncoder or RenderCommandEncoder. So as I understand it, it\u0027s doing the same thing as Vulkan.",
+      "parentUuid": "643d69a0_c92e077a",
+      "range": {
+        "startLine": 131,
+        "startChar": 4,
+        "endLine": 132,
+        "endChar": 68
+      },
+      "revId": "5969c02e0ada456cab9a65ec3e20cc8cec47fee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "190949f6_03842603",
         "filename": "src/gpu/mtl/GrMtlSemaphore.mm",
         "patchSetId": 13
@@ -82,6 +154,30 @@
       "writtenOn": "2019-08-28T14:02:11Z",
       "side": 1,
       "message": "The general public API is that if you call flush with signal semaphores, the client now owns the semaphore in the GrBackendSemaphore and is responsible for deleting. When you call wait, Skia takes ownership of the GrBAckendSemaphore and will delete it. So as long as a client can\u0027t delete a semaphore Skia has to wait on behind its back or Skia can\u0027t delete a semaphore its signaling that the client will wait on, I\u0027m fine with any approach.",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 38
+      },
+      "revId": "5969c02e0ada456cab9a65ec3e20cc8cec47fee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bce72e90_70068f89",
+        "filename": "src/gpu/mtl/GrMtlSemaphore.mm",
+        "patchSetId": 13
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-28T18:44:50Z",
+      "side": 1,
+      "message": "After outside discussion, this appears to be the correct semantics.",
+      "parentUuid": "190949f6_03842603",
       "range": {
         "startLine": 50,
         "startChar": 4,
