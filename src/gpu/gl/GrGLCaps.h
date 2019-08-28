@@ -142,13 +142,31 @@ public:
         return fColorTypeToFormatTable[idx];
     }
 
-    GrGLenum formatSizedInternalFormat(GrGLFormat format) const {
-        return this->getFormatInfo(format).fSizedInternalFormat;
+    /**
+     * Gets the internal format to use with glTexImage...() and glTexStorage...(). May be sized or
+     * base depending upon the GL. Not applicable to compressed textures.
+     */
+    GrGLenum getTexImageOrStorageInternalFormat(GrGLFormat format) const {
+        return this->getFormatInfo(format).fInternalFormatForTexImageOrStorage;
     }
 
-    void getTexImageFormats(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
-                            GrColorType memoryColorType, GrGLenum* internalFormat,
-                            GrGLenum* externalFormat, GrGLenum* externalType) const;
+    /**
+     * Gets the external format and type to pass to glTexImage2D with nullptr to create an
+     * uninitialized texture. See getTexImageOrStorageInternalFormat() for the internal format.
+     */
+    void getTexImageExternalFormatAndType(GrGLFormat surfaceFormat, GrGLenum* externalFormat,
+                                          GrGLenum* externalType) const;
+
+    void getTexSubImageFormatAndType(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
+                                     GrColorType memoryColorType, GrGLenum* externalFormat,
+                                     GrGLenum* externalType) const;
+
+    /**
+     * Gets the external format, type, and bytes per pixel to use when uploading zeros vis
+     * glTexSubImage...() to clear the texture at creation.
+     */
+    void getTexSubImageZeroFormatTypeAndBpp(GrGLFormat format, GrGLenum* externalFormat,
+                                            GrGLenum* externalType, size_t* bpp) const;
 
     void getReadPixelsFormat(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
                              GrColorType memoryColorType, GrGLenum* externalFormat,
@@ -166,27 +184,11 @@ public:
     bool formatSupportsTexStorage(GrGLFormat) const;
 
     /**
-     * Gets the internal format to use with glTexImage...() and glTexStorage...(). May be sized or
-     * base depending upon the GL. Not applicable to compressed textures.
-     */
-    GrGLenum getTexImageInternalFormat(GrGLFormat format) const {
-        return this->getFormatInfo(format).fInternalFormatForTexImage;
-    }
-
-    /**
      * Gets the internal format to use with glRenderbufferStorageMultisample...(). May be sized or
      * base depending upon the GL. Not applicable to compressed textures.
      */
     GrGLenum getRenderbufferInternalFormat(GrGLFormat format) const {
         return this->getFormatInfo(format).fInternalFormatForRenderbuffer;
-    }
-
-    GrGLenum getSizedInternalFormat(GrGLFormat format) const {
-        return this->getFormatInfo(format).fSizedInternalFormat;
-    }
-
-    GrGLenum getBaseInternalFormat(GrGLFormat format) const {
-        return this->getFormatInfo(format).fBaseInternalFormat;
     }
 
     /**
@@ -419,8 +421,6 @@ public:
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
-    bool canClearTextureOnCreation() const override;
-
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
@@ -639,28 +639,25 @@ private:
 
         FormatType fFormatType = FormatType::kUnknown;
 
-        // Both compressed and uncompressed formats have base internal formats.
-        GrGLenum fBaseInternalFormat = 0;
-
-        // Not defined for compressed formats.
-        GrGLenum fSizedInternalFormat = 0;
-
         // Not defined for uncompressed formats. Passed to glCompressedTexImage...
         GrGLenum fCompressedInternalFormat = 0;
 
-        // Value to uses as the "internalformat" argument to glTexImage and glCompressedTexImage...
+        // Value to uses as the "internalformat" argument to glTexImage or glTexStorage.
         // Usually one of fBaseInternalFormat or fSizedInternalFormat but may vary depending on the
         // particular format, GL version, extensions.
-        GrGLenum fInternalFormatForTexImage = 0;
+        GrGLenum fInternalFormatForTexImageOrStorage = 0;
 
         // Value to uses as the "internalformat" argument to glRenderbufferStorageMultisample...
         // Usually one of fBaseInternalFormat or fSizedInternalFormat but may vary depending on the
         // particular format, GL version, extensions.
         GrGLenum fInternalFormatForRenderbuffer = 0;
 
-        // Default value to use along with fBaseInternalFormat for functions such as glTexImage2D
-        // when not input providing data (passing nullptr). Not defined for compressed formats.
+        // Default values to use along with fInternalFormatForTexImageOrStorage for function
+        // glTexImage2D when not input providing data (passing nullptr). Not defined for compressed
+        // formats. Also used to upload zeros to initially clear a texture.
+        GrGLenum fDefaultExternalFormat = 0;
         GrGLenum fDefaultExternalType = 0;
+        GrGLenum fTexSubImageZeroDataBpp = 0;
 
         enum {
             // This indicates that a stencil format has not yet been determined for the config.
