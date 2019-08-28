@@ -74,10 +74,18 @@ protected:
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override {}
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override {}
 
-    void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], QuadAAFlags, const SkColor4f&,
-                          SkBlendMode) override {}
+    void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], QuadAAFlags aaFlags,
+                          const SkColor4f& color, SkBlendMode mode) override {
+        // TODO (michaelludwig) - notify the old SkColor version until flutter has been updated
+        this->onDrawEdgeAAQuad(rect, clip, aaFlags, color.toSkColor(), mode);
+    }
     void onDrawEdgeAAImageSet(const ImageSetEntry[], int, const SkPoint[],
                               const SkMatrix[], const SkPaint*, SrcRectConstraint) override {}
+
+    // DEPRECATED: This is around until Flutter can be updated to use the const SkColor4f& variant.
+    // Subclasses that extend the SkColor4f function should not extend this.
+    virtual void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], QuadAAFlags aaFlags,
+                                  SkColor color, SkBlendMode mode) {}
 
 private:
     typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
