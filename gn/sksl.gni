@@ -16,10 +16,11 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLJIT.cpp",
   "$_src/sksl/SkSLLexer.cpp",
   "$_src/sksl/SkSLParser.cpp",
+  "$_src/sksl/SkSLSectionAndParameterHelper.cpp",
   "$_src/sksl/SkSLString.cpp",
   "$_src/sksl/SkSLUtil.cpp",
-  "$_src/sksl/ir/SkSLSymbolTable.cpp",
   "$_src/sksl/ir/SkSLSetting.cpp",
+  "$_src/sksl/ir/SkSLSymbolTable.cpp",
   "$_src/sksl/ir/SkSLType.cpp",
   "$_src/sksl/ir/SkSLVariableReference.cpp",
 ]
