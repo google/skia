@@ -1173,6 +1173,29 @@ group("modules") {
   ]
 }
 
+if ((is_mac || is_ios) && skia_enable_gpu && skia_use_metal) {
+  shared_library("skia_mtkviewdelegate") {
+    public = [
+      "tools/gpu/mtl/SkMTKViewDelegate.h",
+    ]
+    sources = [
+      "tools/gpu/mtl/SkMTKViewDelegate.mm",
+    ]
+    cflags_objcc = [
+      "-std=c++14",
+      "-w",
+    ]
+    include_dirs = [ "." ]
+    libs = [
+      "Foundation.framework",
+      "MetalKit.framework",
+    ]
+    public_deps = [
+      ":skia",
+    ]
+  }
+}
+
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
   skia_public_includes = [
