@@ -1173,6 +1173,35 @@ group("modules") {
   ]
 }
 
+if ((is_mac || is_ios) && skia_enable_gpu && skia_use_metal) {
+  shared_library("skmtkviewconfig") {
+    public = [
+      "tools/gpu/mtl/SkMTKViewConfig.h",
+    ]
+    sources = [
+      "tools/gpu/mtl/SkMTKViewConfig.mm",
+    ]
+    cflags_objcc = [
+      "-std=c++14",
+      "-w",
+    ]
+    include_dirs = [ "." ]
+    libs = [
+      "Foundation.framework",
+      "Metal.framework",
+      "MetalKit.framework",
+    ]
+    if (is_ios) {
+      libs += [ "UIKit.framework" ]
+    } else {
+      libs += [ "IOKit.framework" ]
+    }
+    public_deps = [
+      ":skia",
+    ]
+  }
+}
+
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
   skia_public_includes = [
