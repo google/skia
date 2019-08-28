@@ -166,6 +166,30 @@
       "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44912b8c_eaafea07",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-28T16:36:06Z",
+      "side": 1,
+      "message": "Thanks for the tip (re: GrOpsRenderPass function). Actually, I found that all of the\nWritePixels tests were broken, partly because of onSupportedRead* refactoring, and partly\nbecause of the copy encoder stuff.\n\nSo I rewrote the copy encoder to coalesce adjacent copies into a single command buffer, but to \nflush the copy encoder each time a (draw) command buffer is submitted. LMK if this looks right\nto you, and I\u0027ll also check the function you mentioned.",
+      "parentUuid": "e221beed_c709ecbc",
+      "range": {
+        "startLine": 57,
+        "startChar": 5,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
