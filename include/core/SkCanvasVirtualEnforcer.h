@@ -60,8 +60,9 @@ protected:
             const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
             SkCanvas::SrcRectConstraint constraint) override {}
 #else
-    void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-            SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color, SkBlendMode mode) override = 0;
+    // TODO (michaelludwig) - Make this = 0 once Flutter's canvas has been updated.
+    void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4],
+            SkCanvas::QuadAAFlags, const SkColor4f&, SkBlendMode) override {}
     void onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry imageSet[], int count,
             const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
             SkCanvas::SrcRectConstraint constraint) override = 0;
