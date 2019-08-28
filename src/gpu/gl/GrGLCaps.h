@@ -280,9 +280,6 @@ public:
     /// Is there support for texture parameter GL_TEXTURE_USAGE
     bool textureUsageSupport() const { return fTextureUsageSupport; }
 
-    /// Is GL_ALPHA8 renderable
-    bool alpha8IsRenderable() const { return fAlpha8IsRenderable; }
-
     /// Is GL_ARB_IMAGING supported
     bool imagingSupport() const { return fImagingSupport; }
 
@@ -454,6 +451,7 @@ private:
         bool fDisableBGRATextureStorageForIntelWindowsES = false;
         bool fDisableRGB8ForMali400 = false;
         bool fDisableLuminance16F = false;
+        bool fDisableAlpha8Renderable = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
@@ -493,7 +491,6 @@ private:
 
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
-    bool fAlpha8IsRenderable: 1;
     bool fImagingSupport  : 1;
     bool fVertexArrayObjectSupport : 1;
     bool fDebugSupport : 1;
