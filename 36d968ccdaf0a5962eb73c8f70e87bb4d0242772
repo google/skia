@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "212fb4b9_9132bc06",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 7719
+      },
+      "writtenOn": "2019-08-28T15:48:21Z",
+      "side": 1,
+      "message": "when does it return this?\nThe first time it\u0027s called, it returns the frame average number we filled in, but we didn\u0027t fail it or error out..",
+      "range": {
+        "startLine": 319,
+        "startChar": 18,
+        "endLine": 319,
+        "endChar": 27
+      },
+      "revId": "36d968ccdaf0a5962eb73c8f70e87bb4d0242772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
