@@ -165,6 +165,7 @@ void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrRenderTargetProxy version
     SkASSERT(surface->asRenderTarget());
     SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples());
+    SkASSERT(!surface->asRenderTarget()->needsResolve());
 
     SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
 

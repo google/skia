@@ -133,6 +133,7 @@ void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // Anything that is checked here should be duplicated in GrTextureRenderTargetProxy's version
     SkASSERT(surface->asRenderTarget());
     SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples());
+    SkASSERT(!surface->asRenderTarget()->needsResolve());
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
