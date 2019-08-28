@@ -157,8 +157,10 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
 void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrTextureProxy version
     SkASSERT(surface->asTexture());
-    SkASSERT(GrMipMapped::kNo == this->proxyMipMapped() ||
-             GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
+    if (GrMipMapped::kYes == this->proxyMipMapped()) {
+        SkASSERT(GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
+        SkASSERT(fInitialMipMapsStatus == surface->asTexture()->texturePriv().mipMapsStatus());
+    }
 
     // Anything checked here should also be checking the GrRenderTargetProxy version
     SkASSERT(surface->asRenderTarget());
