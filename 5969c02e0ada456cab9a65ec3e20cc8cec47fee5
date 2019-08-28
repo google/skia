@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4a1e56_66d8812f",
+        "filename": "include/gpu/GrBackendSemaphore.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:02:11Z",
+      "side": 1,
+      "message": "Should we have a comment saying what type of GrMtlHandle this is, i.e. a MTLEvent?",
+      "range": {
+        "startLine": 42,
+        "startChar": 19,
+        "endLine": 42,
+        "endChar": 36
+      },
+      "revId": "5969c02e0ada456cab9a65ec3e20cc8cec47fee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcebc9f6_1d3f45f0",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:02:11Z",
+      "side": 1,
+      "message": "would t make sense to have another define that is like GR_METAL_SUPPORTS_EVENTS which we set once with GR_METAL_SDK_VERSION \u003e\u003d 200 instead of having to copy around the \u003e\u003d 200 check.",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 31
+      },
+      "revId": "5969c02e0ada456cab9a65ec3e20cc8cec47fee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "643d69a0_c92e077a",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 13
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:02:11Z",
+      "side": 1,
+      "message": "I\u0027m not sure which is better in terms of performance, I imagine it would depend a lot on the program, but for Vulkan we don\u0027t submit any current command buffers we are building up when we see a wait. Instead that wait just get applied to the front of the next set of work going to the GPU. This does mean that more commands will be blocked by the wait but it also means we have less command buffers submitted to the GPU. I\u0027m not sure which is better.",
+      "range": {
+        "startLine": 131,
+        "startChar": 4,
+        "endLine": 132,
+        "endChar": 68
+      },
+      "revId": "5969c02e0ada456cab9a65ec3e20cc8cec47fee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "190949f6_03842603",
+        "filename": "src/gpu/mtl/GrMtlSemaphore.mm",
+        "patchSetId": 13
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:02:11Z",
+      "side": 1,
+      "message": "The general public API is that if you call flush with signal semaphores, the client now owns the semaphore in the GrBackendSemaphore and is responsible for deleting. When you call wait, Skia takes ownership of the GrBAckendSemaphore and will delete it. So as long as a client can\u0027t delete a semaphore Skia has to wait on behind its back or Skia can\u0027t delete a semaphore its signaling that the client will wait on, I\u0027m fine with any approach.",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 38
+      },
+      "revId": "5969c02e0ada456cab9a65ec3e20cc8cec47fee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
