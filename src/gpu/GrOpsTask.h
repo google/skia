@@ -100,20 +100,6 @@ public:
     SkDEBUGCODE(void visitProxies_debugOnly(const VisitSurfaceProxyFunc&) const override;)
 
 private:
-    bool isNoOp() const {
-        // TODO: GrLoadOp::kDiscard -> [empty OpsTask] -> GrStoreOp::kStore should also be a no-op.
-        // We don't count it as a no-op right now because of Vulkan. There are real cases where we
-        // store a discard, and if we skip that render pass, then the next time we load the render
-        // target, Vulkan detects loading of uninitialized memory and complains. If we don't skip
-        // storing the discard, then we trick Vulkan and it doesn't notice us doing anything wrong.
-        // We should definitely address this issue properly.
-        //
-        // TODO: We should also consider stencil load/store here. We get away with it for now
-        // because we never discard stencil buffers.
-        return fOpChains.empty() && GrLoadOp::kClear != fColorLoadOp &&
-               GrLoadOp::kDiscard != fColorLoadOp;
-    }
-
     void deleteOps();
 
     // Must only be called if native stencil buffer clearing is enabled
@@ -221,7 +207,8 @@ private:
 
     ExpectedOutcome onMakeClosed(const GrCaps& caps) override {
         this->forwardCombine(caps);
-        return (this->isNoOp()) ? ExpectedOutcome::kTargetUnchanged : ExpectedOutcome::kTargetDirty;
+        return (GrLoadOp::kClear == fColorLoadOp || !fOpChains.empty()) ?
+                ExpectedOutcome::kTargetDirty : ExpectedOutcome::kTargetUnchanged;
     }
 
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive

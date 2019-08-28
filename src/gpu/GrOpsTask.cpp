@@ -444,7 +444,12 @@ static GrOpsRenderPass* create_command_buffer(GrGpu* gpu,
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
 bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
-    if (this->isNoOp()) {
+    if (fOpChains.empty() && GrLoadOp::kLoad == fColorLoadOp) {
+        // TODO: GrLoadOp::kDiscard (i.e., storing a discard) should also be grounds for skipping
+        // execution. We currently don't because of Vulkan. See http://skbug.com/9373.
+        //
+        // TODO: We should also consider stencil load/store here. We get away with it for now
+        // because we never discard stencil buffers.
         return false;
     }
 
