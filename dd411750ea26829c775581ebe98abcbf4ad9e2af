@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f93961e3_b1566a92",
+        "filename": "modules/skplaintexteditor/app/editor_application.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-08-28T14:02:10Z",
+      "side": 1,
+      "message": "Just want to note that there is nothing magical about these names, except that Android typically tries to give them meaning and FontConfig\u0027s default config creates aliases with these names. I don\u0027t think this does what one might want Mac and Windows. I imagine you\u0027ll eventually want a fontmgr and maybe cycle through families?",
+      "range": {
+        "startLine": 82,
+        "startChar": 36,
+        "endLine": 82,
+        "endChar": 70
+      },
+      "revId": "dd411750ea26829c775581ebe98abcbf4ad9e2af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
