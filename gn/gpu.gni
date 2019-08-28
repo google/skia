@@ -766,6 +766,8 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlResourceProvider.mm",
   "$_src/gpu/mtl/GrMtlSampler.h",
   "$_src/gpu/mtl/GrMtlSampler.mm",
+  "$_src/gpu/mtl/GrMtlSemaphore.h",
+  "$_src/gpu/mtl/GrMtlSemaphore.mm",
   "$_src/gpu/mtl/GrMtlStencilAttachment.h",
   "$_src/gpu/mtl/GrMtlStencilAttachment.mm",
   "$_src/gpu/mtl/GrMtlTexture.h",

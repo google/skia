@@ -15,9 +15,11 @@
  * Declares typedefs for Metal types used in Ganesh cpp code
  */
 typedef unsigned int GrMTLPixelFormat;
+typedef const void*  GrMTLHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_METAL
 /**
  * Types for interacting with Metal resources created externally to Skia.
  * This is used by GrBackendObjects.
@@ -32,5 +34,6 @@ public:
         return fTexture == that.fTexture;
     }
 };
+#endif
 
 #endif
