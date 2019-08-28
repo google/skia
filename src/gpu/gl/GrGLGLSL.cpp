@@ -14,6 +14,14 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
     if (GR_GLSL_INVALID_VER == ver) {
         return false;
     }
+
+    // Workaround for a bug on some Adreno 308 devices with Android 9. The driver reports a GL
+    // version of 3.0, and a GLSL version of 3.1. If we use version 310 shaders, the driver reports
+    // that it's not supported. To keep things simple, we pin the GLSL version to the GL version.
+    // https://github.com/flutter/flutter/issues/36130
+    GrGLVersion glVer = GrGLGetVersion(gl);
+    ver = SkTMin(ver, glVer);
+
     if (GR_IS_GR_GL(gl->fStandard)) {
         SkASSERT(ver >= GR_GLSL_VER(1,10));
         if (ver >= GR_GLSL_VER(4,20)) {
