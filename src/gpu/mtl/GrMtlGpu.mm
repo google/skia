@@ -15,6 +15,7 @@
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
+#include "src/gpu/mtl/GrMtlSemaphore.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
 #include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
@@ -105,6 +106,14 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
+#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
+    if (fMtlCaps->fenceSyncSupport()) {
+        fSharedEvent = [fDevice newSharedEvent];
+        dispatch_queue_t dispatchQueue = dispatch_queue_create("MTLFenceSync", NULL);
+        fSharedEventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:dispatchQueue];
+        fLatestEvent = 0;
+    }
+#endif
 }
 
 GrMtlGpu::~GrMtlGpu() {
@@ -1033,6 +1042,81 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
 
     return true;
+}
+
+GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
+#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
+    if (this->caps()->fenceSyncSupport()) {
+        GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
+        ++fLatestEvent;
+        cmdBuffer->encodeSignalEvent(fSharedEvent, fLatestEvent);
+
+        return fLatestEvent;
+    }
+#endif
+    return 0;
+}
+
+bool GrMtlGpu::waitFence(GrFence value, uint64_t timeout) {
+#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
+    if (this->caps()->fenceSyncSupport()) {
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+        // Add listener for this particular value or greater
+        __block dispatch_semaphore_t block_sema = semaphore;
+        [fSharedEvent notifyListener: fSharedEventListener
+                             atValue: value
+                               block: ^(id<MTLSharedEvent> sharedEvent, uint64_t value) {
+                                   dispatch_semaphore_signal(block_sema);
+                               }];
+
+        long result = dispatch_semaphore_wait(semaphore, timeout);
+
+        return !result;
+    }
+#endif
+    return true;
+}
+
+void GrMtlGpu::deleteFence(GrFence) const {
+    // nothing to delete
+}
+
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool isOwned) {
+    SkASSERT(this->caps()->semaphoreSupport());
+#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
+    return GrMtlSemaphore::Make(this, isOwned);
+#else
+    return nullptr;
+#endif
+}
+
+sk_sp<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                  GrResourceProvider::SemaphoreWrapType wrapType,
+                                                  GrWrapOwnership ownership) {
+    SkASSERT(this->caps()->semaphoreSupport());
+#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
+    return GrMtlSemaphore::MakeWrapped(this, semaphore.mtlSemaphore(), semaphore.mtlValue(),
+                                       ownership);
+#else
+    return nullptr;
+#endif
+}
+
+void GrMtlGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
+#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
+    GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
+
+    this->commandBuffer()->encodeSignalEvent(mtlSem->event(), mtlSem->value());
+#endif
+}
+
+void GrMtlGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
+#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
+    GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
+
+    this->commandBuffer()->encodeWaitForEvent(mtlSem->event(), mtlSem->value());
+#endif
 }
 
 void GrMtlGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit) {

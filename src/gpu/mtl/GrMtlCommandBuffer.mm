@@ -111,9 +111,25 @@ void GrMtlCommandBuffer::endAllEncoding() {
     if (nil != fActiveRenderCommandEncoder) {
         [fActiveRenderCommandEncoder endEncoding];
         fActiveRenderCommandEncoder = nil;
+        fPreviousRenderPassDescriptor = nil;
     }
     if (nil != fActiveBlitCommandEncoder) {
         [fActiveBlitCommandEncoder endEncoding];
         fActiveBlitCommandEncoder = nil;
     }
 }
+
+#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
+void GrMtlCommandBuffer::encodeSignalEvent(id<MTLEvent> event, uint64_t eventValue) {
+    SkASSERT(fCmdBuffer);
+    this->endAllEncoding(); // ensure we don't have any active command encoders
+    [fCmdBuffer encodeSignalEvent:event value:eventValue];
+}
+
+void GrMtlCommandBuffer::encodeWaitForEvent(id<MTLEvent> event, uint64_t eventValue) {
+    SkASSERT(fCmdBuffer);
+    this->endAllEncoding(); // ensure we don't have any active command encoders
+                            // TODO: not sure if needed but probably
+    [fCmdBuffer encodeWaitForEvent:event value:eventValue];
+}
+#endif

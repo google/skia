@@ -21,18 +21,33 @@
 class GrMtlGpu;
 class GrSurface;
 
+// Apple doesn't define specific versions per se -- these are for convenience's sake
+// * Metal 1.0: iOS only
+// * Metal 1.1: Adds MacOS support, new memory model, MetalKit
+// * Metal 1.2: MTLHeap and MTLFence, tessellation
+// * Metal 2.0: MTLEvent, argument buffers, raster order groups
 #if defined(SK_BUILD_FOR_MAC)
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400
 #define GR_METAL_SDK_VERSION 200
+#elif __MAC_OS_X_VERSION_MAX_ALLOWED >= 101300
+#define GR_METAL_SDK_VERSION 120
 #else
-#define GR_METAL_SDK_VERSION 100
+#define GR_METAL_SDK_VERSION 110
 #endif
 #else
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __TV_OS_VERSION_MAX_ALLOWED >= 120000
 #define GR_METAL_SDK_VERSION 200
+#elif __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 || __TV_OS_VERSION_MAX_ALLOWED >= 110000
+#define GR_METAL_SDK_VERSION 120
+#elif __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000 || __TV_OS_VERSION_MAX_ALLOWED >= 100000
+#define GR_METAL_SDK_VERSION 110
 #else
 #define GR_METAL_SDK_VERSION 100
 #endif
+#endif
+
+#if GR_METAL_SDK_VERSION >= 200
+#define GR_METAL_SDK_SUPPORTS_EVENTS
 #endif
 
 /**
