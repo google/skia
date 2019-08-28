@@ -190,7 +190,7 @@ int SkAnimatedImage::decodeNextFrame() {
     }
 
     bool animationEnded = false;
-    int frameToDecode = this->computeNextFrame(fDisplayFrame.fIndex, &animationEnded);
+    const int frameToDecode = this->computeNextFrame(fDisplayFrame.fIndex, &animationEnded);
 
     SkCodec::FrameInfo frameInfo;
     if (fCodec->codec()->getFrameInfo(frameToDecode, &frameInfo)) {
@@ -313,6 +313,17 @@ int SkAnimatedImage::decodeNextFrame() {
 
     if (animationEnded) {
         return this->finish();
+    } else if (fCodec->getEncodedFormat() == SkEncodedImageFormat::kHEIF) {
+        // HEIF doesn't know the frame duration until after decoding. Update to
+        // the correct value. Note that earlier returns in this method either
+        // return kFinished, or fCurrentFrameDuration. If they return the
+        // latter, it is a frame that was previously decoded, so it has the
+        // updated value.
+        if (fCodec->codec()->getFrameInfo(frameToDecode, &frameInfo)) {
+            fCurrentFrameDuration = frameInfo.fDuration;
+        } else {
+            SkCodecPrintf("Failed to getFrameInfo on second attempt (HEIF)");
+        }
     }
     return fCurrentFrameDuration;
 }
