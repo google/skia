@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2d63af88_4f6917d8",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-28T15:04:43Z",
+      "side": 1,
+      "message": "No, it doesn\u0027t block. I suppose I could use a GrDawnFence for that.\n\nOut of curiosity, does Skia ever use blocking calls for things other than testing? If so,\nwhat for?\n\n(As a side note, Dawn actually doesn\u0027t have native fences. The only way to block on GPU work \ncompletion is to use asynchronous Buffer reads or writes, and block on their completion\ncallback, which is what GrDawnFence does.)\n\n\u003e nit: this-\u003e\n\nDone.",
+      "parentUuid": "278786cc_00b19029",
+      "range": {
+        "startLine": 401,
+        "startChar": 4,
+        "endLine": 401,
+        "endChar": 12
+      },
+      "revId": "39dd05f48d36fb15be66e2fcc9911043a8a08fb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f435a1c_05dc742c",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 11
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "bf1b77f7_4bfad795",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-28T15:04:43Z",
+      "side": 1,
+      "message": "Nope, removed.",
+      "parentUuid": "34099417_fc03fe17",
+      "range": {
+        "startLine": 86,
+        "startChar": 4,
+        "endLine": 86,
+        "endChar": 66
+      },
+      "revId": "39dd05f48d36fb15be66e2fcc9911043a8a08fb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a2c3dbd4_69575ec6",
         "filename": "src/gpu/dawn/GrDawnTexture.cpp",
         "patchSetId": 11
@@ -91,6 +139,30 @@
       "revId": "39dd05f48d36fb15be66e2fcc9911043a8a08fb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90e08463_354df297",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-28T15:04:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2c3dbd4_69575ec6",
+      "range": {
+        "startLine": 129,
+        "startChar": 3,
+        "endLine": 129,
+        "endChar": 11
+      },
+      "revId": "39dd05f48d36fb15be66e2fcc9911043a8a08fb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

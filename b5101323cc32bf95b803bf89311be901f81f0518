@@ -118,6 +118,30 @@
       "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2db4d0c_e43421b1",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-28T15:04:43Z",
+      "side": 1,
+      "message": "That\u0027s an interesting point. I assumed that callers would be explicitly doing a flush() in \norder to ensure that previously-queued work was completed.\n\nDo you know if there\u0027s a test that exercises that call sequence?\n\nIf not, could I write one with just Skia calls, or would I have to make Ganesh calls to do it?",
+      "parentUuid": "2c5e192e_6a59a8ce",
+      "range": {
+        "startLine": 57,
+        "startChar": 5,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
