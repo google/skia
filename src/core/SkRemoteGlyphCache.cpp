@@ -587,7 +587,6 @@ static void writeGlyph(SkGlyph* glyph, Serializer* serializer) {
 }
 
 void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
-    serializer->emplace<bool>(this->hasPendingGlyphs());
     SkASSERT(this->hasPendingGlyphs());
 
     // Write the desc.
@@ -800,11 +799,6 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
     if (!deserializer.read<uint64_t>(&strikeCount)) READ_FAILURE
 
     for (size_t i = 0; i < strikeCount; ++i) {
-        bool has_glyphs = false;
-        if (!deserializer.read<bool>(&has_glyphs)) READ_FAILURE
-
-        if (!has_glyphs) continue;
-
         StrikeSpec spec;
         if (!deserializer.read<StrikeSpec>(&spec)) READ_FAILURE
 
