@@ -1984,9 +1984,6 @@ void SkCanvas::experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint cli
     TRACE_EVENT0("skia", TRACE_FUNC);
     // Make sure the rect is sorted before passing it along
     this->onDrawEdgeAAQuad(rect.makeSorted(), clip, aaFlags, color, mode);
-    // Notify old virtual as well, although this should just be a no-op
-    // TODO (michaelludwig) - remove once flutter is updated
-    this->onDrawEdgeAAQuad(rect.makeSorted(), clip, aaFlags, color.toSkColor(), mode);
 }
 
 void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
