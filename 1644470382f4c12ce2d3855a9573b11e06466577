@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35c66829_05106f2c",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 1710,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-08-28T14:19:57Z",
+      "side": 1,
+      "message": "why do you need both?  doesn\u0027t the :gm variant include this one as a dependency?",
+      "revId": "1644470382f4c12ce2d3855a9573b11e06466577",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
