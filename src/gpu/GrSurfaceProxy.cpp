@@ -199,7 +199,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
 
 bool GrSurfaceProxy::canSkipResourceAllocator() const {
     if (this->ignoredByResourceAllocator()) {
-        // Usually an atlas or onFlush proxy
+        // Usually an atlas or lazy proxy.
         return true;
     }
 

@@ -497,8 +497,15 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     // We pass kReadOnly here since we should treat content of the client's texture as immutable.
     // The promise API provides no way for the client to indicated that the texture is protected.
-    return proxyProvider->createLazyProxy(
+    auto proxy = proxyProvider->createLazyProxy(
             std::move(callback), backendFormat, desc, GrRenderable::kNo, 1, origin, mipMapped,
             mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
             GrProtected::kNo, GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
+    if (!proxy) {
+        return nullptr;
+    }
+    // These are always fulfilled by a wrapped texture and never need to be considered by the
+    // resource allocator.
+    proxy->priv().setIgnoredByResourceAllocator();
+    return proxy;
 }
