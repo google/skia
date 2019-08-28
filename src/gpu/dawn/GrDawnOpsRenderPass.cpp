@@ -98,10 +98,7 @@ void GrDawnOpsRenderPass::end() {
 }
 
 void GrDawnOpsRenderPass::submit() {
-    dawn::CommandBuffer commandBuffer = fEncoder.Finish();
-    if (commandBuffer) {
-        fGpu->queue().Submit(1, &commandBuffer);
-    }
+    fGpu->appendCommandBuffer(fEncoder.Finish());
 }
 
 void GrDawnOpsRenderPass::insertEventMarker(const char* msg) {

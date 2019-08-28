@@ -91,7 +91,8 @@ bool GrDawnGpu::onWritePixels(GrSurface* surface, int left, int top, int width, 
         SkASSERT(!"uploading to non-texture unimplemented");
         return false;
     }
-    texture->upload(texels, mipLevelCount, SkIRect::MakeXYWH(left, top, width, height));
+    texture->upload(texels, mipLevelCount, SkIRect::MakeXYWH(left, top, width, height),
+                    this->getCopyEncoder());
     return true;
 }
 
@@ -142,7 +143,7 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc,
     if (!tex) {
         return nullptr;
     }
-    tex->upload(texels, mipLevelCount);
+    tex->upload(texels, mipLevelCount, this->getCopyEncoder());
     return tex;
 }
 
@@ -394,14 +395,20 @@ void GrDawnGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget
 }
 
 void GrDawnGpu::testingOnly_flushGpuAndSync() {
-    SkASSERT(!"unimplemented");
+    this->flush();
 }
 
 #endif
 
+void GrDawnGpu::flush() {
+    this->flushCopyEncoder();
+    fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
+    fCommandBuffers.clear();
+}
+
 void GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                               const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
-    SkASSERT(!"unimplemented");
+    this->flush();
 }
 
 static dawn::Texture get_dawn_texture_from_surface(GrSurface* src) {
@@ -433,10 +440,7 @@ bool GrDawnGpu::onCopySurface(GrSurface* dst,
     dstTextureView.origin = {(uint32_t) dstPoint.x(), (uint32_t) dstPoint.y(), 0};
 
     dawn::Extent3D copySize = {width, height, 1};
-    auto encoder = device().CreateCommandEncoder();
-    encoder.CopyTextureToTexture(&srcTextureView, &dstTextureView, &copySize);
-    auto commandBuffer = encoder.Finish();
-    this->queue().Submit(1, &commandBuffer);
+    this->getCopyEncoder().CopyTextureToTexture(&srcTextureView, &dstTextureView, &copySize);
     return true;
 }
 
@@ -475,10 +479,8 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
     dstBuffer.imageHeight = height;
 
     dawn::Extent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
-    auto encoder = device().CreateCommandEncoder();
-    encoder.CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
-    auto commandBuffer = encoder.Finish();
-    queue().Submit(1, &commandBuffer);
+    this->getCopyEncoder().CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
+    flush();
 
     const void *readPixelsPtr = nullptr;
     buf.MapReadAsync(callback, &readPixelsPtr);
@@ -507,6 +509,7 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture*) {
 }
 
 void GrDawnGpu::submit(GrOpsRenderPass* renderPass) {
+    this->flushCopyEncoder();
     static_cast<GrDawnOpsRenderPass*>(renderPass)->submit();
 }
 
@@ -555,4 +558,24 @@ sk_sp<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* text
 
 GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
     return fUniformRingBuffer.allocate(size);
+}
+
+void GrDawnGpu::appendCommandBuffer(dawn::CommandBuffer commandBuffer) {
+    if (commandBuffer) {
+        fCommandBuffers.push_back(commandBuffer);
+    }
+}
+
+dawn::CommandEncoder GrDawnGpu::getCopyEncoder() {
+    if (!fCopyEncoder) {
+        fCopyEncoder = fDevice.CreateCommandEncoder();
+    }
+    return fCopyEncoder;
+}
+
+void GrDawnGpu::flushCopyEncoder() {
+    if (fCopyEncoder) {
+        fCommandBuffers.push_back(fCopyEncoder.Finish());
+        fCopyEncoder = nullptr;
+    }
 }

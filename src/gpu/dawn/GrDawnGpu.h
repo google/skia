@@ -50,6 +50,7 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
+    void flush();
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -82,6 +83,9 @@ public:
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
+    dawn::CommandEncoder getCopyEncoder();
+    void flushCopyEncoder();
+    void appendCommandBuffer(dawn::CommandBuffer commandBuffer);
 
 private:
     void onResetContext(uint32_t resetBits) override {}
@@ -147,6 +151,8 @@ private:
     std::unique_ptr<SkSL::Compiler>                 fCompiler;
     std::unique_ptr<GrDawnOpsRenderPass>            fOpsRenderPass;
     GrDawnRingBuffer                                fUniformRingBuffer;
+    dawn::CommandEncoder                            fCopyEncoder;
+    std::vector<dawn::CommandBuffer>                fCommandBuffers;
 
     typedef GrGpu INHERITED;
 };

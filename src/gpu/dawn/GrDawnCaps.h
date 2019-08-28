@@ -78,7 +78,7 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType,
                                                  const GrBackendFormat& backendFormat,
                                                  GrColorType dstColorType) const override {
-        return { GrColorType::kUnknown, 0 };
+        return { srcColorType, GrColorTypeBytesPerPixel(srcColorType) };
     }
 
     typedef GrCaps INHERITED;
