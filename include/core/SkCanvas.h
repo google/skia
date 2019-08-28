@@ -2484,10 +2484,6 @@ protected:
 
     virtual void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], QuadAAFlags aaFlags,
                                   const SkColor4f& color, SkBlendMode mode);
-    // DEPRECATED: This is around until Flutter can be updated to use the const SkColor4f& variant.
-    // Subclasses that extend the SkColor4f function should not extend this.
-    virtual void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], QuadAAFlags,
-                                  SkColor, SkBlendMode) {}
     virtual void onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
                                       const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                                       const SkPaint* paint, SrcRectConstraint constraint);
