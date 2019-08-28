@@ -920,7 +920,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         p.setImageFilter(modifiedFilter->makeWithLocalMatrix(localCTM));
     }
 
-    auto special = src->snapBackImage(snapBounds);
+    auto special = src->snapSpecial(snapBounds);
     if (special) {
         dst->drawSpecial(special.get(), x, y, p, nullptr, SkMatrix::I());
     }
@@ -1111,7 +1111,11 @@ void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
     // need the bounds relative to the device itself
     devBounds.offset(-device->fOrigin.fX, -device->fOrigin.fY);
 
-    auto backImage = device->snapBackImage(devBounds);
+    // This is getting the special image from the current device, which is then drawn into (both by
+    // a client, and the drawClippedToSaveBehind below). Since this is not saving a layer, with its
+    // own device, we need to explicitly copy the back image contents so that its original content
+    // is available when we splat it back later during restore.
+    auto backImage = device->snapSpecial(devBounds, /* copy */ true);
     if (!backImage) {
         return;
     }
