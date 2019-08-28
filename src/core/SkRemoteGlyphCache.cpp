@@ -221,14 +221,16 @@ public:
 
     void onAboutToExitScope() override {}
 
-private:
     bool hasPendingGlyphs() const {
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
     }
+
+    void resetScalerContext();
+
+private:
     void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
 
     void ensureScalerContext();
-    void resetScalerContext();
 
     // The set of glyphs cached on the remote client.
     SkTHashSet<SkPackedGlyphID> fCachedGlyphImages;
@@ -436,19 +438,34 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
     }
     fTypefacesToSend.clear();
 
-    serializer.emplace<uint64_t>(SkTo<uint64_t>(fRemoteStrikesToSend.count()));
+    size_t strikesToSend = 0;
+    fRemoteStrikesToSend.foreach(
+        [&strikesToSend](RemoteStrike* strike) {
+            if (strike->hasPendingGlyphs()) {
+                strikesToSend++;
+            }
+        }
+    );
+
+    serializer.emplace<uint64_t>(SkTo<uint64_t>(strikesToSend));
     fRemoteStrikesToSend.foreach(
 #ifdef SK_DEBUG
             [&serializer, this](RemoteStrike* strike) {
-                strike->writePendingGlyphs(&serializer);
+                if (strike->hasPendingGlyphs()) {
+                    strike->writePendingGlyphs(&serializer);
+                }
                 auto it = fDescToRemoteStrike.find(&strike->getDescriptor());
                 SkASSERT(it != fDescToRemoteStrike.end());
                 SkASSERT(it->second.get() == strike);
+                strike->resetScalerContext();
             }
 
 #else
             [&serializer](RemoteStrike* strike) {
-                strike->writePendingGlyphs(&serializer);
+                if (strike->hasPendingGlyphs()) {
+                    strike->writePendingGlyphs(&serializer);
+                }
+                strike->resetScalerContext();
             }
 #endif
     );
