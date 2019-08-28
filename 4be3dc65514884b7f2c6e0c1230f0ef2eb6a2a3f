@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "726ff607_23e93233",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:11:36Z",
+      "side": 1,
+      "message": "How synchronous/asynchronous is this call? For example, if I have the pattern:\n1) SetSubData on staging buffer\n2) Copy staging buffer to tex\n3) Sample Tex in Draw\n4) SetSubData on staging buffer\n5) Copy staging buffer to tex\n6) sample tex in draw\n\nWhen I do step 4) is it guaranteed that the GPU has finished with step 2?",
+      "range": {
+        "startLine": 177,
+        "startChar": 12,
+        "endLine": 177,
+        "endChar": 45
+      },
+      "revId": "4be3dc65514884b7f2c6e0c1230f0ef2eb6a2a3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
