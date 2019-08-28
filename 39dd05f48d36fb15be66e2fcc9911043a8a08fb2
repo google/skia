@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "278786cc_00b19029",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:24:44Z",
+      "side": 1,
+      "message": "Does flush() do a cpu wait? It doesn\u0027t seem so. This is a helper function that is meant to flush all work to GPU and then CPU wait until all that work is done. Though this function is slowly going away as we transition all the users to just calling flush with kSyncCPU_FlushFlag.\n\nnit: this-\u003e",
+      "range": {
+        "startLine": 401,
+        "startChar": 4,
+        "endLine": 401,
+        "endChar": 12
+      },
+      "revId": "39dd05f48d36fb15be66e2fcc9911043a8a08fb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f435a1c_05dc742c",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:24:44Z",
+      "side": 1,
+      "message": "nit: this-\u003e",
+      "range": {
+        "startLine": 416,
+        "startChar": 4,
+        "endLine": 416,
+        "endChar": 12
+      },
+      "revId": "39dd05f48d36fb15be66e2fcc9911043a8a08fb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34099417_fc03fe17",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:24:44Z",
+      "side": 1,
+      "message": "is this used anywhere?",
+      "range": {
+        "startLine": 86,
+        "startChar": 4,
+        "endLine": 86,
+        "endChar": 66
+      },
+      "revId": "39dd05f48d36fb15be66e2fcc9911043a8a08fb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2c3dbd4_69575ec6",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:24:44Z",
+      "side": 1,
+      "message": "nit: this-\u003eupload",
+      "range": {
+        "startLine": 129,
+        "startChar": 3,
+        "endLine": 129,
+        "endChar": 11
+      },
+      "revId": "39dd05f48d36fb15be66e2fcc9911043a8a08fb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

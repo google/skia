@@ -94,6 +94,30 @@
       "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c5e192e_6a59a8ce",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T14:24:44Z",
+      "side": 1,
+      "message": "I guess what seems a little dangerous to me is that there is no code in the GrDawn* backend that seems to be enforcing that copies have to occur before all draws. Like theoretically I can send to the GrDawnGpu the series of commands:\n\n1) appendCommandBuffer from GrDawnOpsRenderPass that includes a draw that samples Tex1\n2) onWritePixels which uploads data to Tex1\n3) appendCommandBuffer from GrDawnOpsRenderPass that includes a draw that samples Tex1\n\nIf the copy that will happen in onWritePixels is moved before command buffer submitted in 1) then you are going to draw wrong there. This is a situation that can happen when we have draws that have inline uploads to textures.\n\nAlso another example is:\n\n1) Draw to RT1\n2) Do dst copy of RT1 to tex1\n3) Draw to RT1 sampling tex1 for blend.\n\nHow do you make sure the writes from 1) happen before the copy in 2)",
+      "parentUuid": "8c6609f1_16bf785c",
+      "range": {
+        "startLine": 57,
+        "startChar": 5,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
