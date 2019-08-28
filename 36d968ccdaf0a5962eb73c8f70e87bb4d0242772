@@ -46,6 +46,30 @@
       "revId": "36d968ccdaf0a5962eb73c8f70e87bb4d0242772",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46d2f3b5_a36e1e13",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-08-28T17:24:00Z",
+      "side": 1,
+      "message": "\u003e when does it return this?\n\nIndirectly, wherever it calls \"this-\u003efinish()\" (lines 315, 304, 297, 286, ...). Directly on line 189.\n\n\u003e The first time it\u0027s called, it returns the frame average number we filled in, but we didn\u0027t fail it or error out..\n\nRight. I think when you say \"the first it\u0027s called\", \"it\" means getFrameInfo()? Yes, that\u0027s why I special-cased HEIF and call getFrameInfo() again.\n\n\u003e should the SkHeifCodec initialize the duration with some different value?\n\nI\u0027m not sure. I understand why you chose the average number to start with, and I see how it could be useful. It would just be nice to have a way to indicate that it\u0027s a guess, but I haven\u0027t settled on what that API should look like.\n\n\u003e If so could you help fix that?\n\nYes! I\u0027m just not sure the best way to expose it yet, which may depend on how the NDK API evolves. As is, this is enough to fix AnimatedImageDrawable, which is the only existing client I\u0027m aware of, so this works for me for now.",
+      "parentUuid": "1d02e4dc_78234ae6",
+      "range": {
+        "startLine": 319,
+        "startChar": 18,
+        "endLine": 319,
+        "endChar": 27
+      },
+      "revId": "36d968ccdaf0a5962eb73c8f70e87bb4d0242772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
