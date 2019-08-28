@@ -282,10 +282,10 @@ config("spvtools_internal_config") {
 
 source_set("spvtools_headers") {
   sources = rebase_path([
-                          "include/SPIRV-Tools/libspirv.h",
-                          "include/SPIRV-Tools/libspirv.hpp",
-                          "include/SPIRV-Tools/linker.hpp",
-                          "include/SPIRV-Tools/optimizer.hpp",
+                          "include/spirv-tools/libspirv.h",
+                          "include/spirv-tools/libspirv.hpp",
+                          "include/spirv-tools/linker.hpp",
+                          "include/spirv-tools/optimizer.hpp",
                         ],
                         ".",
                         spirv_tools)
