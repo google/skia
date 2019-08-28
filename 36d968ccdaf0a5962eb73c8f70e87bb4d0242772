@@ -22,6 +22,30 @@
       "revId": "36d968ccdaf0a5962eb73c8f70e87bb4d0242772",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d02e4dc_78234ae6",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 7719
+      },
+      "writtenOn": "2019-08-28T15:52:34Z",
+      "side": 1,
+      "message": "should the SkHeifCodec initialize the duration with some different value? If so could you help fix that?",
+      "parentUuid": "212fb4b9_9132bc06",
+      "range": {
+        "startLine": 319,
+        "startChar": 18,
+        "endLine": 319,
+        "endChar": 27
+      },
+      "revId": "36d968ccdaf0a5962eb73c8f70e87bb4d0242772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
