@@ -22,6 +22,30 @@
       "revId": "dd411750ea26829c775581ebe98abcbf4ad9e2af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88e6569f_475dc35f",
+        "filename": "modules/skplaintexteditor/app/editor_application.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-28T15:30:39Z",
+      "side": 1,
+      "message": "noted.",
+      "parentUuid": "f93961e3_b1566a92",
+      "range": {
+        "startLine": 82,
+        "startChar": 36,
+        "endLine": 82,
+        "endChar": 70
+      },
+      "revId": "dd411750ea26829c775581ebe98abcbf4ad9e2af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
