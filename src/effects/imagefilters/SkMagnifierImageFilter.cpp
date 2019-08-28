@@ -131,9 +131,15 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
         offset->fY = bounds.top();
         bounds.offset(-inputOffset);
 
+        // Map bounds and srcRect into the proxy space. Due to the zoom effect,
+        // it's not just an offset for fSrcRect.
+        bounds.offset(input->subset().x(), input->subset().y());
+        SkRect srcRect = fSrcRect.makeOffset((1.f - invXZoom) * input->subset().x(),
+                                             (1.f - invYZoom) * input->subset().y());
+
         auto fp = GrMagnifierEffect::Make(std::move(inputProxy),
                                           bounds,
-                                          fSrcRect,
+                                          srcRect,
                                           invXZoom,
                                           invYZoom,
                                           bounds.width() * invInset,
