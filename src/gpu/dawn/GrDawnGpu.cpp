@@ -37,10 +37,37 @@
 
 const int kMaxRenderPipelineEntries = 1024;
 
-namespace {
+static dawn::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
+    switch (filter) {
+        case GrSamplerState::Filter::kNearest:
+            return dawn::FilterMode::Nearest;
+        case GrSamplerState::Filter::kBilerp:
+        case GrSamplerState::Filter::kMipMap:
+            return dawn::FilterMode::Linear;
+        default:
+            SkASSERT(!"unsupported filter mode");
+            return dawn::FilterMode::Nearest;
+    }
+}
+
+static dawn::AddressMode to_dawn_address_mode(GrSamplerState::WrapMode wrapMode) {
+    switch (wrapMode) {
+        case GrSamplerState::WrapMode::kClamp:
+            return dawn::AddressMode::ClampToEdge;
+        case GrSamplerState::WrapMode::kRepeat:
+            return dawn::AddressMode::Repeat;
+        case GrSamplerState::WrapMode::kMirrorRepeat:
+            return dawn::AddressMode::MirrorRepeat;
+        case GrSamplerState::WrapMode::kClampToBorder:
+            SkASSERT(!"unsupported address mode");
+    }
+    SkASSERT(!"unsupported address mode");
+    return dawn::AddressMode::ClampToEdge;
+
+}
 
 // FIXME: taken from GrVkPipelineState; refactor.
-uint32_t get_blend_info_key(const GrPipeline& pipeline) {
+static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
     GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
 
     static const uint32_t kBlendWriteShift = 1;
@@ -82,8 +109,6 @@ public:
     }
 };
 
-};
-
 sk_sp<GrGpu> GrDawnGpu::Make(const dawn::Device& device,
                              const GrContextOptions& options, GrContext* context) {
     if (!device) {
@@ -103,7 +128,8 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
         , fCompiler(new SkSL::Compiler())
         , fUniformRingBuffer(this, dawn::BufferUsageBit::Uniform)
         , fCopyEncoder(fDevice.CreateCommandEncoder())
-        , fRenderPipelineCache(kMaxRenderPipelineEntries) {
+        , fRenderPipelineCache(kMaxRenderPipelineEntries)
+        , fStagingManager(fDevice) {
     fCaps.reset(new GrDawnCaps(options));
     // This will be filled by the copy command buffer.
     fCommandBuffers.push_back(nullptr);
@@ -355,21 +381,21 @@ GrBackendTexture GrDawnGpu::createBackendTexture(int width, int height,
         size_t origRowBytes = bpp * w;
         size_t rowBytes = GrDawnRoundRowBytes(origRowBytes);
         size_t size = rowBytes * h;
-        dawn::BufferDescriptor bufferDesc;
-        bufferDesc.size = size;
-        bufferDesc.usage = dawn::BufferUsageBit::CopySrc | dawn::BufferUsageBit::CopyDst;
-        dawn::Buffer buffer = this->device().CreateBuffer(&bufferDesc);
-        const uint8_t* src = static_cast<const uint8_t*>(pixels);
+        GrDawnStagingBuffer* stagingBuffer = this->getStagingBuffer(size);
         if (rowBytes == origRowBytes) {
-            buffer.SetSubData(0, size, src);
+            memcpy(stagingBuffer->fData, pixels, size);
         } else {
-            uint32_t offset = 0;
+            const char* src = static_cast<const char*>(pixels);
+            char* dst = static_cast<char*>(stagingBuffer->fData);
             for (int row = 0; row < h; row++) {
-                buffer.SetSubData(offset, origRowBytes, src);
-                offset += rowBytes;
+                memcpy(dst, src, origRowBytes);
+                dst += rowBytes;
                 src += origRowBytes;
             }
         }
+        dawn::Buffer buffer = stagingBuffer->fBuffer;
+        buffer.Unmap();
+        stagingBuffer->fData = nullptr;
         dawn::BufferCopyView srcBuffer;
         srcBuffer.buffer = buffer;
         srcBuffer.offset = 0;
@@ -461,6 +487,8 @@ void GrDawnGpu::flush() {
     fCopyEncoder = fDevice.CreateCommandEncoder();
     fCommandBuffers.clear();
     fCommandBuffers.push_back(nullptr);
+    fStagingManager.mapBusyList();
+    fDevice.Tick();
 }
 
 void GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
@@ -644,8 +672,31 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
     return program;
 }
 
+dawn::Sampler GrDawnGpu::getOrCreateSampler(const GrSamplerState& samplerState) {
+    auto i = fSamplers.find(samplerState);
+    if (i != fSamplers.end()) {
+        return i->second;
+    }
+    dawn::SamplerDescriptor desc;
+    desc.addressModeU = to_dawn_address_mode(samplerState.wrapModeX());
+    desc.addressModeV = to_dawn_address_mode(samplerState.wrapModeY());
+    desc.addressModeW = dawn::AddressMode::ClampToEdge;
+    desc.magFilter = desc.minFilter = to_dawn_filter_mode(samplerState.filter());
+    desc.mipmapFilter = dawn::FilterMode::Linear;
+    desc.lodMinClamp = 0.0f;
+    desc.lodMaxClamp = 1000.0f;
+    desc.compare = dawn::CompareFunction::Never;
+    dawn::Sampler sampler = device().CreateSampler(&desc);
+    fSamplers.insert(std::pair<GrSamplerState, dawn::Sampler>(samplerState, sampler));
+    return sampler;
+}
+
 GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
     return fUniformRingBuffer.allocate(size);
+}
+
+GrDawnStagingBuffer* GrDawnGpu::getStagingBuffer(size_t size) {
+    return fStagingManager.findOrCreateStagingBuffer(size);
 }
 
 void GrDawnGpu::appendCommandBuffer(dawn::CommandBuffer commandBuffer) {
