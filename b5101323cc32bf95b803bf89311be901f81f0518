@@ -142,6 +142,30 @@
       "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e221beed_c709ecbc",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T15:36:02Z",
+      "side": 1,
+      "message": "So the first example I gave you\u0027d have to trigger an inline upload to occur. I\u0027m not sure what tests hit that. At one point the magnify image filter GM would hit it, but I\u0027m not sure if it does any more. Your best bet is to run through all the gms and break on this function call, https://cs.chromium.org/chromium/src/third_party/skia/src/gpu/GrOpsRenderPass.h?dr\u003dCSs\u0026q\u003dgropsrender\u0026g\u003d0\u0026l\u003d67\n\nFor the second example, I think running any of the xfermodes[2,3] gms should cause a dst copy to happen (assuming you don\u0027t have advanced blend extensions or some sort of framebuffer fetch type support).\n\nIn both cases I\u0027m pretty sure we don\u0027t trigger a flush cause we assume the GPU backends will execute the commands in the order they are passed in (or an equivalent ordering).",
+      "parentUuid": "d2db4d0c_e43421b1",
+      "range": {
+        "startLine": 57,
+        "startChar": 5,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "b5101323cc32bf95b803bf89311be901f81f0518",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

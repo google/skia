@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "76d65779_d906c0a5",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-08-28T15:36:02Z",
+      "side": 1,
+      "message": "So in general Skia doesn\u0027t internally ever sync the cpu during a flush (outside of tests and read pixels calls which sync themselves). However, we do allow clients to pass in a flag to our various flush commands that force us to do a cpu sync. So examples of where its been used includes a client wanting to trim their GPU memory and wants to make sure all the GPU memory has been freed before continue on the CPU (which may start allocating more gpu memory). Also our helper function for Android SkImage::MakeFromAHardwareBufferWithData sets the flag as well. I think this is used cause the caller is simply trying to upload a data to an AHB (they dont\u0027 care about he SkImage) but the upload is happening on different threads so they need the sync to make sure things work right.",
+      "parentUuid": "2d63af88_4f6917d8",
+      "range": {
+        "startLine": 401,
+        "startChar": 4,
+        "endLine": 401,
+        "endChar": 12
+      },
+      "revId": "39dd05f48d36fb15be66e2fcc9911043a8a08fb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f435a1c_05dc742c",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 11
