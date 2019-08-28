@@ -98,7 +98,7 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
 
             SkString coords[4];
             for (int i = 0; i < numSamplers; ++i) {
-                coords[i] = fragBuilder->ensureCoords2D(args.fTransformedCoords[i]);
+                coords[i] = fragBuilder->ensureCoords2D(args.fTransformedCoords[i].fVaryingPoint);
             }
 
             for (int i = 0; i < numSamplers; ++i) {
