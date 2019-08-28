@@ -56,15 +56,17 @@ void main() {
 
     {
         SkScalar y = bounds.y() * invH;
+        SkScalar hSign = 1.f;
         if (srcProxy.origin() != kTopLeft_GrSurfaceOrigin) {
-            y = 1.0f - bounds.height() * invH;
+            y = 1.0f - bounds.y() * invH;
+            hSign = -1.f;
         }
 
         pdman.set4f(boundsUniform,
                     bounds.x() * invW,
                     y,
                     SkIntToScalar(src.width()) / bounds.width(),
-                    SkIntToScalar(src.height()) / bounds.height());
+                    hSign * SkIntToScalar(src.height()) / bounds.height());
     }
 }
 
