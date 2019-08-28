@@ -221,10 +221,11 @@ public:
 
     void onAboutToExitScope() override {}
 
-private:
     bool hasPendingGlyphs() const {
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
     }
+
+private:
     void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
 
     void ensureScalerContext();
@@ -436,11 +437,22 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
     }
     fTypefacesToSend.clear();
 
-    serializer.emplace<uint64_t>(SkTo<uint64_t>(fRemoteStrikesToSend.count()));
+    size_t strikesToSend = 0;
+    fRemoteStrikesToSend.foreach(
+        [&strikesToSend](RemoteStrike* strike) {
+            if (strike->hasPendingGlyphs()) {
+                strikesToSend++;
+            }
+        }
+    );
+
+    serializer.emplace<uint64_t>(SkTo<uint64_t>(strikesToSend));
     fRemoteStrikesToSend.foreach(
 #ifdef SK_DEBUG
             [&serializer, this](RemoteStrike* strike) {
-                strike->writePendingGlyphs(&serializer);
+                if (strike->hasPendingGlyphs()) {
+                    strike->writePendingGlyphs(&serializer);
+                }
                 auto it = fDescToRemoteStrike.find(&strike->getDescriptor());
                 SkASSERT(it != fDescToRemoteStrike.end());
                 SkASSERT(it->second.get() == strike);
@@ -448,7 +460,9 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
 
 #else
             [&serializer](RemoteStrike* strike) {
-                strike->writePendingGlyphs(&serializer);
+                if (strike->hasPendingGlyphs()) {
+                    strike->writePendingGlyphs(&serializer);
+                }
             }
 #endif
     );
