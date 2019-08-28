@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b021d334_29da5234",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-28T17:41:24Z",
+      "side": 1,
+      "message": "I actually preferred when this was happening at the beginning so we could avoid making any allocation using |memory| if no strikes had pending glyphs. Any reason you decided to move it here?",
+      "range": {
+        "startLine": 441,
+        "startChar": 0,
+        "endLine": 448,
+        "endChar": 6
+      },
+      "revId": "ef029b12ae025c57495b820821279f152a744d18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e75dc47_6e82453c",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-28T17:41:24Z",
+      "side": 1,
+      "message": "This can be deleted now?",
+      "range": {
+        "startLine": 589,
+        "startChar": 0,
+        "endLine": 594,
+        "endChar": 5
+      },
+      "revId": "ef029b12ae025c57495b820821279f152a744d18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
