@@ -686,7 +686,6 @@ SkStrikeServer::RemoteStrike::prepareForDrawingRemoveEmpty(
 
         // Has this glyph ever been seen before?
         if (glyphPtr == nullptr) {
-
             // Never seen before. Make a new glyph.
             glyphPtr = fAlloc.make<SkGlyph>(packedGlyphIDs[i]);
             fGlyphMap.set(glyphPtr);
@@ -708,16 +707,13 @@ SkStrikeServer::RemoteStrike::prepareForDrawingRemoveEmpty(
                 // This will be handled by the fallback strike.
                 SkASSERT(glyphPtr->maxDimension() > maxDimension && glyphPtr->isColor());
             }
-
             // Make sure to send the glyph to the GPU because we always send the image for a glyph.
             fCachedGlyphImages.add(packedGlyphIDs[i]);
             fPendingGlyphImages.push_back(packedGlyphIDs[i]);
         }
-
-        // Each non-empty glyph needs to be added as per the contract for
-        // prepareForDrawingRemoveEmpty.
-        // TODO(herb): Change the code to only send the glyphs for fallback?
-        if (!glyphPtr->isEmpty()) {
+        if (glyphPtr->isColor() && !glyphPtr->isEmpty()) {
+            // Possible fallback case especially for SDF. This needs to be returned because
+            // prepareForDrawingRemoveEmpty might be called on this glyph again for fallback.
             results[drawableGlyphCount++] = {i, glyphPtr, glyphPos};
         }
     }
