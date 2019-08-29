@@ -33,8 +33,8 @@ struct SkPackedGlyphID {
 
         // Bit positions
         kGlyphID   = 0u,
-        kSubPixelY = kGlyphIDLen,
-        kSubPixelX = kGlyphIDLen + kSubPixelPosLen,
+        kSubPixelX = kGlyphIDLen,
+        kSubPixelY = kGlyphIDLen + kSubPixelPosLen,
         kEndData   = kGlyphIDLen + 2 * kSubPixelPosLen,
 
         // Masks
@@ -57,6 +57,8 @@ struct SkPackedGlyphID {
 
     constexpr SkPackedGlyphID(SkGlyphID code, SkIPoint pt)
         : SkPackedGlyphID(code, pt.fX, pt.fY) { }
+
+    constexpr explicit SkPackedGlyphID(uint32_t v) : fID{v & kMaskAll} { }
 
     constexpr SkPackedGlyphID() : fID{kImpossibleID} {}
 
@@ -90,9 +92,15 @@ struct SkPackedGlyphID {
         return SkChecksum::CheapMix(fID);
     }
 
+    int index() const {return this->glyphID() * (subToInt(kSubPixelX) + 1);}
+
     SkString dump() const {
         SkString str;
-        str.appendf("code: %d, x: %d, y:%d", glyphID(), getSubXFixed(), getSubYFixed());
+        str.appendf("code: %d, x: %d, y: %d, i: %d",
+                this->glyphID(),
+                this->subToInt(kSubPixelX),
+                this->subToInt(kSubPixelY),
+                this->index());
         return str;
     }
 
@@ -110,6 +118,11 @@ private:
     constexpr SkFixed subToFixed(uint32_t subPixelPosBit) const {
         uint32_t subPixelPosition = (fID >> subPixelPosBit) & kSubPixelPosMask;
         return subPixelPosition << kFixedPointSubPixelPosBits;
+    }
+
+    constexpr int subToInt(uint32_t subPixelPosBit) const {
+        uint32_t subPixelPosition = (fID >> subPixelPosBit) & kSubPixelPosMask;
+        return subPixelPosition;
     }
 
     uint32_t fID;

@@ -80,6 +80,10 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
 void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
         const BitmapDevicePainter* bitmapDevice) {
+
+    // TODO: remove when the painter is split into GPU and CPU parts.
+    (void)fStrikeCache;
+
     ScopedBuffers _ = this->ensureBuffers(glyphRunList);
 
     const SkPaint& runPaint = glyphRunList.paint();
