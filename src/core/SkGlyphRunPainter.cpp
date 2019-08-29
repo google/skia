@@ -35,7 +35,7 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTraceEvent.h"
 
-#include <limits.h>
+#include <climits.h>
 
 // -- SkGlyphCacheCommon ---------------------------------------------------------------------------
 SkVector SkStrikeCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {
@@ -136,6 +136,30 @@ SkSpan<const SkPackedGlyphID> SkGlyphRunListPainter::DeviceSpacePackedGlyphIDs(
     return SkSpan<const SkPackedGlyphID>{results, SkTo<size_t>(n)};
 }
 
+SkGlyphinator SkGlyphRunListPainter::DeviceSpacePackedGlyphIDs(
+        SkStrikeInterface* strike,
+        const SkMatrix& viewMatrix,
+        const SkPoint& origin,
+        SkGlyphIDPos glyphPos,
+        SkGlyphinator results) {
+    // Add rounding and origin.
+    SkMatrix matrix = viewMatrix;
+    matrix.preTranslate(origin.x(), origin.y());
+    SkPoint rounding = strike->rounding();
+    matrix.postTranslate(rounding.x(), rounding.y());
+    matrix.mapPoints(results.positions, glyphPos.positions, glyphPos.n);
+
+    SkIPoint mask = strike->subpixelMask();
+
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkFixed subX = SkScalarToFixed(results.positions[i].x()) & mask.x(),
+                subY = SkScalarToFixed(results.positions[i].y()) & mask.y();
+        results.glyphs[i].packedID = SkPackedGlyphID{glyphPos.ids[i], subX, subY};
+    }
+
+    return results;
+}
+
 SkSpan<const SkPackedGlyphID> SkGlyphRunListPainter::SourceSpacePackedGlyphIDs(
         const SkPoint& origin,
         int n,
@@ -153,6 +177,23 @@ SkSpan<const SkPackedGlyphID> SkGlyphRunListPainter::SourceSpacePackedGlyphIDs(
     }
 
     return SkSpan<const SkPackedGlyphID>{results, SkTo<size_t>(n)};
+}
+
+SkGlyphinator SkGlyphRunListPainter::SourceSpacePackedGlyphIDs(
+        const SkPoint& origin,
+        SkGlyphIDPos glyphPos,
+        SkGlyphinator results) {
+
+    SkMatrix::MakeTrans(origin.x(), origin.y())
+         .mapPoints(results.positions, glyphPos.positions, glyphPos.n);
+
+    SkGlyphinator::Lookup* cursor = results.glyphs;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        cursor->packedID = SkPackedGlyphID{glyphPos.ids[i]};
+        cursor++;
+    }
+
+    return results;
 }
 
 void SkGlyphRunListPainter::drawForBitmapDevice(
@@ -341,7 +382,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
         }
 
     } else {
-        // If the matrix is complicated or if scaling is used to fit the glyphs in the cache,
+        // If the matrix is complicated or if scaling is used to fit the glyphs in the atlas,
         // then this case is used.
 
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeSourceFallback(
@@ -382,70 +423,71 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
     const SkPaint& runPaint = glyphRunList.paint();
 
     for (const auto& glyphRun : glyphRunList) {
-        SkScalar maxFallbackDimension{-SK_ScalarInfinity};
+        // Setup for path processing if SDF or Mask don't process.
+        SkGlyphIDPos glyphIDPos =
+                {glyphRun.runSize(), glyphRun.glyphsIDs().data(), glyphRun.positions().data()};
+        SkGlyphinator inator = {glyphRun.runSize(),
+                                (SkGlyphinator::Lookup*)fPackedGlyphIDs.get(),
+                                fPositions};
+
+        bool processFallback = true;
+        int maxDimension = 0;
+        bool colorAllowed = false;
         ScopedBuffers _ = this->ensureBuffers(glyphRun);
-
-        auto addFallback = [this, &maxFallbackDimension]
-                (const SkGlyph& glyph, SkPoint sourcePosition) {
-            maxFallbackDimension = std::max(maxFallbackDimension,
-                                            SkIntToScalar(glyph.maxDimension()));
-            fARGBGlyphsIDs.push_back(glyph.getGlyphID());
-            fARGBPositions.push_back(sourcePosition);
-        };
-
         const SkFont& runFont = glyphRun.font();
-
         bool useSDFT = GrTextContext::CanDrawAsDistanceFields(
                 runPaint, runFont, viewMatrix, props, contextSupportsDistanceFieldText, options);
+
+        bool usePaths = false;
+        if (!useSDFT) {
+            usePaths = SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, viewMatrix);
+        }
+
         if (process) {
             process->startRun(glyphRun, useSDFT);
         }
 
-        if (useSDFT) {
+        SkScopedStrike strike;
+        if (!useSDFT && !usePaths) {
+            // Process masks - this should be the 99.99% case.
+            SkStrikeSpec strikeSpec =
+                    SkStrikeSpec::MakeMask(runFont, runPaint,
+                                           fDeviceProps, fScalerContextFlags, viewMatrix);
+
+            strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+
+            inator = DeviceSpacePackedGlyphIDs(
+                    strike.get(),
+                    viewMatrix,
+                    origin,
+                    glyphIDPos,
+                    inator);
+
+            maxDimension = SkStrikeCommon::kSkSideTooBigForAtlas;
+            colorAllowed = true;
+            std::tie(processFallback, inator) = strike->glyphsBelowSize(
+                    inator, maxDimension, colorAllowed);
+
+            if (process) {
+                // processDeviceMasks must be called even if there are no glyphs to make sure runs
+                // are set correctly.
+                process->processDeviceMasks(inator, strikeSpec);
+            }
+        } else if(useSDFT) {
+            // Process SDFT - This should be the .009% case.
             SkScalar minScale, maxScale;
             SkStrikeSpec strikeSpec;
             std::tie(strikeSpec, minScale, maxScale) =
-                    SkStrikeSpec::MakeSDFT(
-                            runFont, runPaint,fDeviceProps, viewMatrix, options);
+                    SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, viewMatrix, options);
 
-            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+            strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            auto packedGlyphIDs = SourceSpacePackedGlyphIDs(
-                    origin,
-                    glyphRun.runSize(),
-                    glyphRun.glyphsIDs().data(),
-                    glyphRun.positions().data(),
-                    fPositions,
-                    fPackedGlyphIDs);
+            auto packedGlyphIDs = SourceSpacePackedGlyphIDs(origin, glyphIDPos, inator);
 
-            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawingRemoveEmpty(
-                    packedGlyphIDs.data(),
-                    fPositions,
-                    glyphRun.runSize(),
-                    SkStrikeCommon::kSkSideTooBigForAtlas,
-                    fGlyphPos);
-
-            size_t glyphsWithMaskCount = 0;
-            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
-                const SkGlyph& glyph = *glyphPos.glyph;
-                SkPoint position = glyphPos.position;
-
-                // The SDF scaler context system ensures that a glyph is empty, kSDF_Format, or
-                // kARGB32_Format. The following if statements use this assumption.
-                SkASSERT(glyph.maskFormat() == SkMask::kSDF_Format || glyph.isColor());
-
-                if (glyph.maskFormat() == SkMask::kSDF_Format
-                           && glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
-                    // SDF mask will work.
-                    fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (!glyph.isColor() && glyph.path() != nullptr) {
-                    // If not color but too big, use a path.
-                    fPaths.push_back(glyphPos);
-                } else {
-                    // If no path, or it is color, then fallback.
-                    addFallback(glyph, position);
-                }
-            }
+            maxDimension = SkStrikeCommon::kSkSideTooBigForAtlas;
+            colorAllowed = false;
+            std::tie(processFallback, inator) = strike->glyphsBelowSize(
+                    packedGlyphIDs, maxDimension, colorAllowed);
 
             if (process) {
                 bool hasWCoord =
@@ -454,132 +496,44 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // processSourceSDFT must be called even if there are no glyphs to make sure runs
                 // are set correctly.
                 process->processSourceSDFT(
-                        SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithMaskCount},
+                        inator,
                         strikeSpec,
                         runFont,
                         minScale,
                         maxScale,
                         hasWCoord);
+            }
+        }
 
-                if (!fPaths.empty()) {
-                    process->processSourcePaths(
-                            SkMakeSpan(fPaths),
-                            strikeSpec);
-                }
+        if (processFallback) {
+            if (usePaths) {
+                // Process as paths - this should be the .001% case.
+                maxDimension = 0;
+                colorAllowed = false;
             }
 
-            // fGlyphPos will be reused here.
-            if (!fARGBGlyphsIDs.empty()) {
-                this->processARGBFallback(maxFallbackDimension * strikeSpec.strikeToSourceRatio(),
-                                          runPaint, runFont, viewMatrix, process);
-            }
-        } else if (SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
-            SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
-                            runFont, runPaint, fDeviceProps, fScalerContextFlags);
+            SkStrikeSpec pathStrikeSpec = SkStrikeSpec::MakePath(
+                    runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
-            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+            strike = pathStrikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            auto packedGlyphIDs = SourceSpacePackedGlyphIDs(
-                    origin,
-                    glyphRun.runSize(),
-                    glyphRun.glyphsIDs().data(),
-                    glyphRun.positions().data(),
-                    fPositions,
-                    fPackedGlyphIDs);
+            auto packedGlyphIDs = SourceSpacePackedGlyphIDs(origin, glyphIDPos, inator);
 
-            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawingRemoveEmpty(
-                    packedGlyphIDs.data(),
-                    fPositions,
-                    glyphRun.runSize(),
-                    0,
-                    fGlyphPos);
-
-            // As opposed to SDF and mask, path handling puts paths in fGlyphPos instead of fPaths.
-            size_t glyphsWithPathCount = 0;
-            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
-                const SkGlyph& glyph = *glyphPos.glyph;
-                SkPoint position = glyphPos.position;
-                if (!glyph.isColor() && glyph.path() != nullptr) {
-                    // Place paths in fGlyphPos
-                    fGlyphPos[glyphsWithPathCount++] = glyphPos;
-                } else {
-                    addFallback(glyph, position);
-                }
-            }
+            SkScalar maxFallbackDimension = 0;
+            SkGlyphinator paths;
+            std::tie(maxFallbackDimension, paths) = strike->glyphsForFallback(
+                    packedGlyphIDs, maxDimension, colorAllowed, fARGBGlyphsIDs, fARGBPositions);
 
             if (process) {
-                // processSourcePaths must be called even if there are no glyphs to make sure runs
-                // are set correctly.
-                process->processSourcePaths(
-                        SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithPathCount},
-                        strikeSpec);
+                process->processSourcePaths(paths, pathStrikeSpec);
             }
 
-            // fGlyphPos will be reused here.
-            if (!fARGBGlyphsIDs.empty()) {
-                this->processARGBFallback(maxFallbackDimension * strikeSpec.strikeToSourceRatio(),
-                                          runPaint, runFont, viewMatrix, process);
-            }
-        } else {
-            SkStrikeSpec strikeSpec =
-                    SkStrikeSpec::MakeMask(runFont, runPaint,
-                            fDeviceProps, fScalerContextFlags, viewMatrix);
-
-            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
-
-            auto packedGlyphIDs = DeviceSpacePackedGlyphIDs(
-                    strike.get(),
-                    viewMatrix,
-                    origin,
-                    glyphRun.runSize(),
-                    glyphRun.glyphsIDs().data(),
-                    glyphRun.positions().data(),
-                    fPositions,
-                    fPackedGlyphIDs);
-
-            // Lookup all the glyphs from the cache. Strip empty glyphs.
-            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawingRemoveEmpty(
-                    packedGlyphIDs.data(),
-                    fPositions,
-                    glyphRun.runSize(),
-                    SkStrikeCommon::kSkSideTooBigForAtlas,
-                    fGlyphPos);
-
-            // Sort glyphs into the three bins: mask (fGlyphPos), path (fPaths), and fallback.
-            size_t glyphsWithMaskCount = 0;
-            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
-                const SkGlyph& glyph = *glyphPos.glyph;
-                const SkPoint position = glyphPos.position;
-
-                // Does the glyph have work to do or is the code able to position the glyph?
-                if (!SkScalarsAreFinite(position.x(), position.y())) {
-                    // Do nothing;
-                } else if (glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
-                    fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (!glyph.isColor() && glyph.path() != nullptr) {
-                    fPaths.push_back(glyphPos);
-                } else {
-                    addFallback(glyph, origin + glyphRun.positions()[glyphPos.index]);
-                }
-            }
-
-            if (process) {
-                // processDeviceMasks must be called even if there are no glyphs to make sure runs
-                // are set correctly.
-                process->processDeviceMasks(
-                        SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithMaskCount}, strikeSpec);
-                if (!fPaths.empty()) {
-                    process->processDevicePaths(SkMakeSpan(fPaths));
-                }
-            }
-
-            // fGlyphPos will be reused here.
             if (!fARGBGlyphsIDs.empty()) {
                 this->processARGBFallback(maxFallbackDimension / viewMatrix.getMaxScale(),
                                           runPaint, runFont, viewMatrix, process);
             }
-        }  // Mask case
-    }  // For all glyph runs
+        }
+    } // For all glyph runs
 }
 #endif  // SK_SUPPORT_GPU
 
