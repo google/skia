@@ -986,10 +986,12 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         auto* cacheState = server.getOrCreateCache(
                 paint, font, SkSurfacePropsCopyOrDefault(nullptr),
                 SkMatrix::I(), flags, &effects);
-        SkStrikeServer::AddGlyphForTesting(cacheState, lostGlyphID, false);
-
+        SkGlyphinator::Storage inatorStorage;
+        SkGlyphinator inator = inatorStorage.makeForOneGlyph(lostGlyphID, {0, 0});
+        SkStrikeServer::AddGlyphForTesting(cacheState, &inator);
         std::vector<uint8_t> serverStrikeData;
         server.writeStrikeData(&serverStrikeData);
+        REPORTER_ASSERT(reporter, !serverStrikeData.empty());
         REPORTER_ASSERT(reporter,
                         client.readStrikeData(
                                 serverStrikeData.data(),

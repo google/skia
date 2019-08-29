@@ -43,7 +43,9 @@ protected:
     void onOnceBeforeDraw() override {
         SkTextBlobBuilder builder;
 
-        const char* text = "The quick brown fox jumps over the lazy dog.";
+        //const char* text = "The quick brown fox jumps over the lazy dog.";
+        const char* text = "The quick";
+
 
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -68,6 +70,7 @@ protected:
         ToolUtils::add_to_text_blob(&builder, text, font, 0, y);
         y += bounds.fBottom;
 
+#if 0
         // A8
         const char* bigtext1 = "The quick brown fox";
         const char* bigtext2 = "jumps over the lazy dog.";
@@ -93,7 +96,7 @@ protected:
             ToolUtils::add_to_text_blob(&builder, emojiText, font, 0, y);
             y += bounds.fBottom;
         }
-
+#endif
         // build
         fBlob = builder.make();
     }
