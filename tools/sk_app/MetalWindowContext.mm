@@ -32,6 +32,7 @@ void MetalWindowContext::initializeContext() {
     SkASSERT(!fContext);
 
     fDevice = MTLCreateSystemDefaultDevice();
+    NSLog(fDevice.name);
     fQueue = [fDevice newCommandQueue];
 
     if (fDisplayParams.fMSAASampleCount > 1) {
