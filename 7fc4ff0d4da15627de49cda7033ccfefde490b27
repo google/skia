@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4d96a240_e80a5674",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-29T21:44:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ff04c94_a0cc8530",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "77a465aa_142caaa7",
         "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33b7f604_0e92e053",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-29T21:44:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77a465aa_142caaa7",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "beb2bf64_cc26e764",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-29T21:44:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3bc559c_1299599e",
+      "range": {
+        "startLine": 45,
+        "startChar": 21,
+        "endLine": 45,
+        "endChar": 31
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "086dcbd9_24f122b9",
         "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5f59038_2bb65297",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-29T21:44:45Z",
+      "side": 1,
+      "message": "I saw it in some documentation.  Will remove.",
+      "parentUuid": "086dcbd9_24f122b9",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 15
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -138,6 +234,30 @@
       "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9671afdc_493293b8",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-29T21:44:45Z",
+      "side": 1,
+      "message": "The example app does it with a UIViewController.",
+      "parentUuid": "2dd89419_95a9f294",
+      "range": {
+        "startLine": 56,
+        "startChar": 2,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
