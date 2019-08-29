@@ -88,19 +88,6 @@ private:
     // TODO: Remove once I can hoist ensureBuffers above the list for loop in all cases.
     ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRun& glyphRun);
 
-    /**
-     *  @param fARGBPositions in source space
-     *  @param fARGBGlyphsIDs the glyphs to process
-     *  @param fGlyphPos used as scratch space
-     *  @param maxSourceGlyphDimension the longest dimension of any glyph as if all fARGBGlyphsIDs
-     *                                 were drawn in source space (as if viewMatrix were identity)
-     */
-    void processARGBFallback(SkScalar maxSourceGlyphDimension,
-                             const SkPaint& runPaint,
-                             const SkFont& runFont,
-                             const SkMatrix& viewMatrix,
-                             SkGlyphRunPainterInterface* process);
-
     static SkSpan<const SkPackedGlyphID> DeviceSpacePackedGlyphIDs(
             SkStrikeForGPU* strike,
             const SkMatrix& viewMatrix,
@@ -158,26 +145,26 @@ public:
 
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
-    virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceMasks(SkGlyphinator inator,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
-    virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
+    virtual void processSourcePaths(SkGlyphinator inator,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
-    virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceSDFT(SkGlyphinator inator,
                                    const SkStrikeSpec& strikeSpec,
                                    const SkFont& runFont,
                                    SkScalar minScale,
                                    SkScalar maxScale,
                                    bool hasWCoord) = 0;
 
-    virtual void processSourceFallback(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceFallback(SkGlyphinator inator,
                                        const SkStrikeSpec& strikeSpec,
                                        bool hasW) = 0;
 
-    virtual void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceFallback(SkGlyphinator inator,
                                        const SkStrikeSpec& strikeSpec) = 0;
 
 };
