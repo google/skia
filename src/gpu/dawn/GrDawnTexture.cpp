@@ -124,14 +124,13 @@ GrBackendTexture GrDawnTexture::getBackendTexture() const {
     return GrBackendTexture(this->width(), this->height(), fInfo);
 }
 
-void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels,
-                           dawn::CommandEncoder copyEncoder) {
-    this->upload(texels, mipLevels, SkIRect::MakeWH(width(), height()), copyEncoder);
+void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels) {
+    upload(texels, mipLevels, SkIRect::MakeWH(width(), height()));
 }
 
-void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRect& rect,
-                           dawn::CommandEncoder copyEncoder) {
+void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRect& rect) {
     dawn::Device device = this->getDawnGpu()->device();
+    dawn::Queue queue = this->getDawnGpu()->queue();
 
     uint32_t x = rect.x();
     uint32_t y = rect.y();
@@ -201,7 +200,11 @@ void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRe
         dstTexture.origin = {x, y, 0};
 
         dawn::Extent3D copySize = {width, height, 1};
-        copyEncoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
+        dawn::CommandEncoder encoder = device.CreateCommandEncoder();
+        encoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
+        dawn::CommandBuffer copy = encoder.Finish();
+        queue.Submit(1, &copy);
+
         x /= 2;
         y /= 2;
         width /= 2;

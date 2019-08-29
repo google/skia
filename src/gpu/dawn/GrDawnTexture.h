@@ -32,9 +32,8 @@ public:
 
     void textureParamsModified() override {}
 
-    void upload(const GrMipLevel texels[], int mipLevels, dawn::CommandEncoder copyEncoder);
-    void upload(const GrMipLevel texels[], int mipLevels, const SkIRect& dstRect,
-                dawn::CommandEncoder copyEncoder);
+    void upload(const GrMipLevel texels[], int mipLevels);
+    void upload(const GrMipLevel texels[], int mipLevels, const SkIRect& dstRect);
 
     dawn::Texture texture() const { return fInfo.fTexture; }
     dawn::TextureView textureView() const { return fTextureView; }
