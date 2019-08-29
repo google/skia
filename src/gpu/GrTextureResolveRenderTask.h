@@ -15,6 +15,9 @@ public:
     GrTextureResolveRenderTask(sk_sp<GrTextureProxy> textureProxy, GrTextureResolveFlags flags)
             : GrRenderTask(std::move(textureProxy))
             , fResolveFlags(flags) {
+        // Ensure the last render task that operated on the target is closed. That's where msaa and
+        // mipmaps should have been marked dirty.
+        SkASSERT(!fTarget->getLastRenderTask() || fTarget->getLastRenderTask()->isClosed());
         SkASSERT(GrTextureResolveFlags::kNone != fResolveFlags);
     }
 
