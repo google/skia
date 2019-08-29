@@ -20,12 +20,12 @@ public:
 
     void onIdle() override;
 
-    void onBackendCreated() override;
     void onPaint(SkSurface*) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
 
 private:
     void updateTitle();
+    void update();
 
     sk_app::Window* fWindow;
     sk_app::Window::BackendType fBackendType;

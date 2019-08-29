@@ -142,7 +142,6 @@ bool Window_mac::attach(BackendType attachType) {
             fWindowContext = MakeGLForMac(info, fRequestedDisplayParams);
             break;
     }
-    this->onBackendCreated();
 
     return (SkToBool(fWindowContext));
 }

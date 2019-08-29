@@ -59,7 +59,7 @@ bool CommandSet::onChar(SkUnichar c, skui::ModifierKey modifiers) {
     return false;
 }
 
-bool CommandSet::onSoftkey(const SkString& softkey) {
+bool CommandSet::onSoftkey(const char* softkey) {
     for (const Command& cmd : fCommands) {
         if (cmd.getSoftkeyString().equals(softkey)) {
             cmd.fFunction();

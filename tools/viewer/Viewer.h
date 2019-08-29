@@ -34,12 +34,11 @@ public:
 
     void onIdle() override;
 
-    void onBackendCreated() override;
     void onPaint(SkSurface*) override;
     void onResize(int width, int height) override;
     bool onTouch(intptr_t owner, skui::InputState state, float x, float y) override;
     bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) override;
-    void onUIStateChanged(const SkString& stateName, const SkString& stateValue) override;
+    void onUIStateChanged(const char* stateName, const char* stateValue) override;
     bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
 

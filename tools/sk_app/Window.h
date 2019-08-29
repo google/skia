@@ -15,6 +15,7 @@
 #include "tools/skui/InputState.h"
 #include "tools/skui/Key.h"
 #include "tools/skui/ModifierKey.h"
+#include "tools/skui/ViewLayer.h"
 
 class GrContext;
 class SkCanvas;
@@ -70,45 +71,17 @@ public:
     void detach();
 
     // input handling
-
-    class Layer {
-    public:
-        Layer() : fActive(true) {}
-        virtual ~Layer() = default;
-
-        bool getActive() { return fActive; }
-        void setActive(bool active) { fActive = active; }
-
-        // return value of 'true' means 'I have handled this event'
-        virtual void onBackendCreated() {}
-        virtual void onAttach(Window* window) {}
-        virtual bool onChar(SkUnichar c, skui::ModifierKey) { return false; }
-        virtual bool onKey(skui::Key, skui::InputState, skui::ModifierKey) { return false; }
-        virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) { return false; }
-        virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }
-        virtual bool onTouch(intptr_t owner, skui::InputState, float x, float y) { return false; }
-        virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
-        virtual void onPrePaint() {}
-        virtual void onPaint(SkSurface*) {}
-        virtual void onResize(int width, int height) {}
-
-    private:
-        friend class Window;
-        bool fActive;
-    };
-
+    using Layer = skui::ViewLayer;
     void pushLayer(Layer* layer) {
-        layer->onAttach(this);
         fLayers.push_back(layer);
     }
 
-    void onBackendCreated();
     bool onChar(SkUnichar c, skui::ModifierKey modifiers);
     bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers);
     bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers);
     bool onMouseWheel(float delta, skui::ModifierKey modifiers);
     bool onTouch(intptr_t owner, skui::InputState state, float x, float y);  // multi-owner = multi-touch
-    void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
+    void onUIStateChanged(const char* stateName, const char* stateValue);
     void onPaint();
     void onResize(int width, int height);
 
