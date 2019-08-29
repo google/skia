@@ -58,6 +58,8 @@ struct SkPackedGlyphID {
     constexpr SkPackedGlyphID(SkGlyphID code, SkIPoint pt)
         : SkPackedGlyphID(code, pt.fX, pt.fY) { }
 
+    constexpr explicit SkPackedGlyphID(uint32_t v) : fID{v & kMaskAll} { }
+
     constexpr SkPackedGlyphID() : fID{kImpossibleID} {}
 
     bool operator==(const SkPackedGlyphID& that) const {
@@ -70,7 +72,7 @@ struct SkPackedGlyphID {
         return this->fID < that.fID;
     }
 
-    uint32_t code() const {
+    SkGlyphID code() const {
         return fID & kGlyphIDMask;
     }
 
