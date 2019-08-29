@@ -22,7 +22,7 @@ public:
 
     void onBackendCreated() override;
     void onPaint(SkSurface*) override;
-    bool onChar(SkUnichar c, ModifierKey modifiers) override;
+    bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
 
 private:
     void updateTitle();

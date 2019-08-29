@@ -722,7 +722,7 @@ protected:
     };
 
     virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              ModifierKey modi) override {
+                                              skui::ModifierKey modi) override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); ++i) {
             if (hittest(fPts[i], x, y)) {
                 return new MyClick((int)i);
