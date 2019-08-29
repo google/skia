@@ -84,11 +84,11 @@ public:
         this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
     }
 
-    void paintPaths(SkSpan<const SkPathPos> pathsAndPositions,
+    void paintPaths(SkDrawableGlyphBuffer* drawables,
                     SkScalar scale,
                     const SkPaint& paint) const override;
 
-    void paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const override;
+    void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const override;
 
     static bool ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect* clipBounds,
                                   const SkMaskFilter* filter, const SkMatrix* filterMatrix,
