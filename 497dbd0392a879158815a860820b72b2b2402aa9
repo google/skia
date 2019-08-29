@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "452b3641_5e74a8f4",
+        "filename": "src/sksl/SkSLSectionAndParameterHelper.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-08-29T19:05:38Z",
+      "side": 1,
+      "message": "this-\u003ehasCoordOverrides(*sw.fValue, fp)",
+      "range": {
+        "startLine": 227,
+        "startChar": 19,
+        "endLine": 227,
+        "endChar": 24
+      },
+      "revId": "497dbd0392a879158815a860820b72b2b2402aa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
