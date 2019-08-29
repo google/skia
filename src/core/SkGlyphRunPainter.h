@@ -12,6 +12,7 @@
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkStrikeCommon.h"
 #include "src/core/SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
@@ -23,18 +24,9 @@ class GrRenderTargetContext;
 class SkGlyphRunPainterInterface;
 class SkStrikeSpec;
 
-class SkStrikeCommon {
-public:
-    static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);
-
-    // An atlas consists of plots, and plots hold glyphs. The minimum a plot can be is 256x256.
-    // This means that the maximum size a glyph can be is 256x256.
-    static constexpr uint16_t kSkSideTooBigForAtlas = 256;
-};
-
 class SkGlyphRunListPainter {
 public:
-    // Constructor for SkBitmpapDevice.
+    // Constructor for SkBitmapDevice.
     SkGlyphRunListPainter(const SkSurfaceProps& props,
                           SkColorType colorType,
                           SkColorSpace* cs,
@@ -158,26 +150,26 @@ public:
 
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
-    virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceMasks(SkGlyphinator inator,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
-    virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
+    virtual void processSourcePaths(SkGlyphinator inator,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
-    virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceSDFT(SkGlyphinator inator,
                                    const SkStrikeSpec& strikeSpec,
                                    const SkFont& runFont,
                                    SkScalar minScale,
                                    SkScalar maxScale,
                                    bool hasWCoord) = 0;
 
-    virtual void processSourceFallback(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceFallback(SkGlyphinator inator,
                                        const SkStrikeSpec& strikeSpec,
                                        bool hasW) = 0;
 
-    virtual void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceFallback(SkGlyphinator inator,
                                        const SkStrikeSpec& strikeSpec) = 0;
 
 };
