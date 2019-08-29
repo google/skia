@@ -111,6 +111,13 @@ private:
             SkPoint* mappedPositions,
             SkPackedGlyphID* results);
 
+    static SkGlyphinator DeviceSpacePackedGlyphIDs(
+            SkStrikeInterface* strike,
+            const SkMatrix& viewMatrix,
+            const SkPoint& origin,
+            SkGlyphIDPos glyphPos,
+            SkGlyphinator results);
+
     static SkSpan<const SkPackedGlyphID> SourceSpacePackedGlyphIDs(
             const SkPoint& origin,
             int n,
@@ -118,6 +125,11 @@ private:
             const SkPoint* positions,
             SkPoint* mappedPositions,
             SkPackedGlyphID* results);
+
+    static SkGlyphinator SourceSpacePackedGlyphIDs(
+            const SkPoint& origin,
+            SkGlyphIDPos glyphPos,
+            SkGlyphinator results);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
@@ -130,6 +142,7 @@ private:
 
     int fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    SkAutoTMalloc<SkGlyphinator::Lookup> fGlyphPop;
     SkAutoTMalloc<SkPackedGlyphID> fPackedGlyphIDs;
     SkAutoTMalloc<SkGlyphPos> fGlyphPos;
 
