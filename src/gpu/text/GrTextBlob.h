@@ -517,26 +517,26 @@ private:
 
     void startRun(const SkGlyphRun& glyphRun, bool useSDFT) override;
 
-    void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
+    void processDeviceMasks(SkGlyphinator inator,
                             const SkStrikeSpec& strikeSpec) override;
 
-    void processSourcePaths(SkSpan<const SkGlyphPos> paths,
+    void processSourcePaths(SkGlyphinator inator,
                             const SkStrikeSpec& strikeSpec) override;
 
     void processDevicePaths(SkSpan<const SkGlyphPos> paths) override;
 
-    void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
+    void processSourceSDFT(SkGlyphinator inator,
                            const SkStrikeSpec& strikeSpec,
                            const SkFont& runFont,
                            SkScalar minScale,
                            SkScalar maxScale,
                            bool hasWCoord) override;
 
-    void processSourceFallback(SkSpan<const SkGlyphPos> masks,
+    void processSourceFallback(SkGlyphinator inator,
                                const SkStrikeSpec& strikeSpec,
                                bool hasW) override;
 
-    void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
+    void processDeviceFallback(SkGlyphinator inator,
                                const SkStrikeSpec& strikeSpec) override;
 
     struct StrokeInfo {
