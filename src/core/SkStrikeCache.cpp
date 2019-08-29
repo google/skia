@@ -36,17 +36,21 @@ public:
         return fStrike.subpixelMask();
     }
 
-    SkSpan<const SkGlyphPos>
-    prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
-                                 const SkPoint positions[],
-                                 size_t n,
-                                 int maxDimension,
-                                 SkGlyphPos results[]) override {
-        return fStrike.prepareForDrawingRemoveEmpty(packedGlyphIDs,
-                                                    positions,
-                                                    n,
-                                                    maxDimension,
-                                                    results);
+    SkGlyphinator prepareForMaskDrawing(
+            SkGlyphinator glyphPos, std::vector<size_t>& rejectIndices) override {
+        return fStrike.prepareForMaskDrawing(glyphPos, rejectIndices);
+    }
+
+    SkGlyphinator prepareForSDFTDrawing(
+            SkGlyphinator glyphPos, std::vector<size_t>& rejectIndices) override {
+        return fStrike.prepareForSDFTDrawing(glyphPos, rejectIndices);
+    }
+
+    SkGlyphinator prepareForPathDrawing(
+            SkGlyphinator glyphPos,
+            std::vector<size_t>& rejectIndices,
+            int* rejectedMaxDimension) override {
+        return fStrike.prepareForPathDrawing(glyphPos, rejectIndices, rejectedMaxDimension);
     }
 
     const SkDescriptor& getDescriptor() const override {
