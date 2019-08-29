@@ -346,8 +346,9 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
                         continue;
                     }
                     if (!renderTask->isInstantiated()) {
-                        // If the backing surface wasn't allocated, drop the entire renderTask.
-                        fDAG.removeRenderTask(i);
+                        // No need to call the renderTask's handleInternalAllocationFailure
+                        // since we will already skip executing the renderTask since it is not
+                        // instantiated.
                         continue;
                     }
                     renderTask->handleInternalAllocationFailure();
@@ -422,12 +423,11 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     bool anyRenderTasksExecuted = false;
 
     for (int i = startIndex; i < stopIndex; ++i) {
-        if (!fDAG.renderTask(i)) {
+        GrRenderTask* renderTask = fDAG.renderTask(i);
+        if (!renderTask || !renderTask->isInstantiated()) {
              continue;
         }
 
-        GrRenderTask* renderTask = fDAG.renderTask(i);
-        SkASSERT(renderTask->isInstantiated());
         SkASSERT(renderTask->deferredProxiesAreInstantiated());
 
         renderTask->prepare(flushState);
@@ -461,11 +461,12 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
 
     // Execute the normal op lists.
     for (int i = startIndex; i < stopIndex; ++i) {
-        if (!fDAG.renderTask(i)) {
+        GrRenderTask* renderTask = fDAG.renderTask(i);
+        if (!renderTask || !renderTask->isInstantiated()) {
             continue;
         }
 
-        if (fDAG.renderTask(i)->execute(flushState)) {
+        if (renderTask->execute(flushState)) {
             anyRenderTasksExecuted = true;
         }
         (*numRenderTasksExecuted)++;

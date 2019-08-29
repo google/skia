@@ -396,7 +396,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 
     // Loop over the ops that haven't yet been prepared.
     for (const auto& chain : fOpChains) {
-        if (chain.head()) {
+        if (chain.shouldExecute()) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
             TRACE_EVENT0("skia.gpu", chain.head()->name());
 #endif
@@ -472,7 +472,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 
     // Draw all the generated geometry.
     for (const auto& chain : fOpChains) {
-        if (!chain.head()) {
+        if (!chain.shouldExecute()) {
             continue;
         }
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -616,8 +616,7 @@ void GrOpsTask::handleInternalAllocationFailure() {
         hasUninstantiatedProxy = false;
         recordedOp.visitProxies(checkInstantiation);
         if (hasUninstantiatedProxy) {
-            // When instantiation of the proxy fails we drop the Op
-            recordedOp.deleteOps(fOpMemoryPool.get());
+            recordedOp.setSkipExecuteFlag();
         }
     }
 }
