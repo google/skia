@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 
 uint32_t GrRenderTask::CreateUniqueID() {
@@ -55,11 +56,26 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
         if (textureProxy && GrMipMapped::kYes == textureProxy->mipMapped()) {
             textureProxy->markMipMapsDirty();
         }
+        SkDEBUGCODE(fWillDirtyTarget = true;)
     }
 
     this->setFlag(kClosed_Flag);
 }
 
+bool GrRenderTask::execute(GrOpFlushState* flushState) {
+    bool result = this->onExecute(flushState);
+#ifdef SK_DEBUG
+    if (fWillDirtyTarget) {
+        SkASSERT(fTarget);
+        if (GrTexture* tex = fTarget->peekTexture()) {
+            if (GrMipMapped::kYes == tex->texturePriv().mipMapped()) {
+                SkASSERT(tex->texturePriv().mipMapsAreDirty());
+            }
+        }
+    }
+#endif
+    return result;
+}
 
 void GrRenderTask::prepare(GrOpFlushState* flushState) {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {

@@ -30,7 +30,7 @@ public:
 
     // These two methods are only invoked at flush time
     void prepare(GrOpFlushState* flushState);
-    bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
+    bool execute(GrOpFlushState* flushState);
 
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
@@ -179,6 +179,8 @@ private:
     SkSTArray<1, GrRenderTask*, true> fDependencies;
     // 'this' GrRenderTask's output is relied on by the GrRenderTasks in 'fDependents'
     SkSTArray<1, GrRenderTask*, true> fDependents;
+
+    SkDEBUGCODE(bool fWillDirtyTarget = false;)
 };
 
 #endif

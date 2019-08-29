@@ -15,6 +15,8 @@ void GrGLOpsRenderPass::begin() {
     if (GrLoadOp::kClear == fColorLoadAndStoreInfo.fLoadOp) {
         fGpu->clear(GrFixedClip::Disabled(), fColorLoadAndStoreInfo.fClearColor,
                     fRenderTarget, fOrigin);
+    } else if (GrLoadOp::kDiscard == fColorLoadAndStoreInfo.fLoadOp) {
+        fGpu->discard(fRenderTarget);
     }
     if (GrLoadOp::kClear == fStencilLoadAndStoreInfo.fLoadOp) {
         GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
