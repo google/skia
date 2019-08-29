@@ -69,7 +69,9 @@ private:
     float        fStart,
                  fEnd,
                  fOffset,
-                 fAmount = 100;
+                 fAmount = 100,
+                 fEaseLo =   0,
+                 fEaseHi =   0;
 };
 
 } // namespace internal
