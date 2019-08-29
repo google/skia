@@ -239,14 +239,6 @@ struct SK_API SkIRect {
         fRight  = right;
         fBottom = bottom;
     }
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    void set(int32_t left, int32_t top, int32_t right, int32_t bottom) {
-        fLeft   = left;
-        fTop    = top;
-        fRight  = right;
-        fBottom = bottom;
-    }
-#endif
 
     /** Sets SkIRect to: (x, y, x + width, y + height).
         Does not validate input; width or height may be negative.
@@ -447,13 +439,6 @@ struct SK_API SkIRect {
                 fLeft <= r.fLeft && fTop <= r.fTop &&
                 fRight >= r.fRight && fBottom >= r.fBottom;
     }
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const {
-        return  left < right && top < bottom && !this->isEmpty() && // check for empties
-                fLeft <= left && fTop <= top &&
-                fRight >= right && fBottom >= bottom;
-    }
-#endif
 
     /** Returns true if SkIRect contains r.
         Returns false if SkIRect is empty or r is empty.
@@ -478,16 +463,6 @@ struct SK_API SkIRect {
         SkASSERT(r.fLeft < r.fRight && r.fTop < r.fBottom);
         return fLeft <= r.fLeft && fTop <= r.fTop && fRight >= r.fRight && fBottom >= r.fBottom;
     }
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    bool containsNoEmptyCheck(int32_t left, int32_t top,
-                              int32_t right, int32_t bottom) const {
-        SkASSERT(fLeft < fRight && fTop < fBottom);
-        SkASSERT(left < right && top < bottom);
-
-        return fLeft <= left && fTop <= top &&
-        fRight >= right && fBottom >= bottom;
-    }
-#endif
 
     /** Returns true if SkIRect intersects r, and sets SkIRect to intersection.
         Returns false if SkIRect does not intersect r, and leaves SkIRect unchanged.
@@ -500,17 +475,6 @@ struct SK_API SkIRect {
     bool intersect(const SkIRect& r) {
         return this->intersect(*this, r);
     }
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
-        return this->intersect(*this, {left, top, right, bottom});
-    }
-    bool SK_WARN_UNUSED_RESULT intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
-        return this->intersect(a, b);
-    }
-    static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
-        return SkIRect().intersectNoEmptyCheck(a, b);
-    }
-#endif
 
     /** Returns true if a intersects b, and sets SkIRect to intersection.
         Returns false if a does not intersect b, and leaves SkIRect unchanged.
@@ -542,11 +506,6 @@ struct SK_API SkIRect {
      @param r  expansion SkIRect
      */
     void join(const SkIRect& r);
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    void join(int32_t left, int32_t top, int32_t right, int32_t bottom) {
-        this->join({left, top, right, bottom});
-    }
-#endif
 
     /** Swaps fLeft and fRight if fLeft is greater than fRight; and swaps
         fTop and fBottom if fTop is greater than fBottom. Result may be empty,
@@ -870,15 +829,6 @@ struct SK_API SkRect {
         fBottom = SkIntToScalar(src.fBottom);
     }
 
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
-        fLeft   = left;
-        fTop    = top;
-        fRight  = right;
-        fBottom = bottom;
-    }
-#endif
-
     /** Sets SkRect to (left, top, right, bottom).
         left and right are not sorted; left is not necessarily less than right.
         top and bottom are not sorted; top is not necessarily less than bottom.
@@ -895,20 +845,6 @@ struct SK_API SkRect {
         fBottom = bottom;
     }
 
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    void iset(int left, int top, int right, int bottom) {
-        fLeft   = SkIntToScalar(left);
-        fTop    = SkIntToScalar(top);
-        fRight  = SkIntToScalar(right);
-        fBottom = SkIntToScalar(bottom);
-    }
-    void isetWH(int width, int height) {
-        fLeft = fTop = 0;
-        fRight = SkIntToScalar(width);
-        fBottom = SkIntToScalar(height);
-    }
-#endif
-
     /** Sets to bounds of SkPoint array with count entries. If count is zero or smaller,
         or if SkPoint array contains an infinity or NaN, sets to (0, 0, 0, 0).
 
@@ -921,14 +857,6 @@ struct SK_API SkRect {
     void setBounds(const SkPoint pts[], int count) {
         (void)this->setBoundsCheck(pts, count);
     }
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    void set(const SkPoint pts[], int count) {
-        // set() had been checking for non-finite values, so keep that behavior
-        // for now. Now that we have setBoundsCheck(), we may decide to make
-        // set() be simpler/faster, and not check for those.
-        (void)this->setBoundsCheck(pts, count);
-    }
-#endif
 
     /** Sets to bounds of SkPoint array with count entries. Returns false if count is
         zero or smaller, or if SkPoint array contains an infinity or NaN; in these cases
@@ -1122,11 +1050,6 @@ struct SK_API SkRect {
         @return   true if r and SkRect have area in common
     */
     bool intersect(const SkRect& r);
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
-        return this->intersect({left, top, right, bottom});
-    }
-#endif
 
     /** Returns true if a intersects b, and sets SkRect to intersection.
         Returns false if a does not intersect b, and leaves SkRect unchanged.
@@ -1162,12 +1085,6 @@ public:
         return Intersects(fLeft, fTop, fRight, fBottom,
                           r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const {
-        return Intersects(fLeft, fTop, fRight, fBottom, left, top, right, bottom);
-    }
-#endif
-
 
     /** Returns true if a intersects b.
         Returns false if either a or b is empty, or do not intersect.
@@ -1189,11 +1106,6 @@ public:
         @param r  expansion SkRect
     */
     void join(const SkRect& r);
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
-        this->join({left, top, right, bottom});
-    }
-#endif
 
     /** Sets SkRect to the union of itself and r.
 
