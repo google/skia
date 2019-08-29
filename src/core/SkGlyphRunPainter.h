@@ -10,6 +10,7 @@
 
 #include "include/core/SkSurfaceProps.h"
 #include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkTextBlobPriv.h"
@@ -21,7 +22,25 @@ class GrRenderTargetContext;
 #endif
 
 class SkGlyphRunPainterInterface;
+class SkStrikeForGPUCacheInterface;
 class SkStrikeSpec;
+
+// round and axisAlignmentMask are used to calculate the subpixel position of a glyph.
+// The per component (x or y) calculation is:
+//
+//   subpixelOffset = (floor((viewportPosition + rounding) & mask) >> 14) & 3
+//
+// where mask is either 0 or ~0, and rounding is either
+// 1/2 for non-subpixel or 1/8 for subpixel.
+struct SkGlyphPositionRoundingSpec {
+    SkGlyphPositionRoundingSpec(bool isSubpixel, SkAxisAlignment axisAlignment);
+    const SkVector rounding;
+    const SkIPoint axisAlignmentMask;
+
+private:
+    static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);
+    static SkIPoint AxisAlignmentMask(bool isSubpixel, SkAxisAlignment axisAlignment);
+};
 
 class SkStrikeCommon {
 public:
@@ -51,11 +70,10 @@ public:
     public:
         virtual ~BitmapDevicePainter() = default;
 
-        virtual void paintPaths(SkSpan<const SkPathPos> pathsAndPositions,
-                                SkScalar scale,
-                                const SkPaint& paint) const = 0;
+        virtual void paintPaths(
+                SkDrawableGlyphBuffer* drawables, SkScalar scale, const SkPaint& paint) const = 0;
 
-        virtual void paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const = 0;
+        virtual void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const = 0;
     };
 
     void drawForBitmapDevice(
@@ -78,7 +96,7 @@ private:
                           SkScalerContextFlags flags, SkStrikeForGPUCacheInterface* strikeCache);
 
     struct ScopedBuffers {
-        ScopedBuffers(SkGlyphRunListPainter* painter, int size);
+        ScopedBuffers(SkGlyphRunListPainter* painter, size_t size);
         ~ScopedBuffers();
         SkGlyphRunListPainter* fPainter;
     };
@@ -87,37 +105,6 @@ private:
 
     // TODO: Remove once I can hoist ensureBuffers above the list for loop in all cases.
     ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRun& glyphRun);
-
-    /**
-     *  @param fARGBPositions in source space
-     *  @param fARGBGlyphsIDs the glyphs to process
-     *  @param fGlyphPos used as scratch space
-     *  @param maxSourceGlyphDimension the longest dimension of any glyph as if all fARGBGlyphsIDs
-     *                                 were drawn in source space (as if viewMatrix were identity)
-     */
-    void processARGBFallback(SkScalar maxSourceGlyphDimension,
-                             const SkPaint& runPaint,
-                             const SkFont& runFont,
-                             const SkMatrix& viewMatrix,
-                             SkGlyphRunPainterInterface* process);
-
-    static SkSpan<const SkPackedGlyphID> DeviceSpacePackedGlyphIDs(
-            SkStrikeForGPU* strike,
-            const SkMatrix& viewMatrix,
-            const SkPoint& origin,
-            int n,
-            const SkGlyphID* glyphIDs,
-            const SkPoint* positions,
-            SkPoint* mappedPositions,
-            SkPackedGlyphID* results);
-
-    static SkSpan<const SkPackedGlyphID> SourceSpacePackedGlyphIDs(
-            const SkPoint& origin,
-            int n,
-            const SkGlyphID* glyphIDs,
-            const SkPoint* positions,
-            SkPoint* mappedPositions,
-            SkPackedGlyphID* results);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
@@ -128,16 +115,8 @@ private:
 
     SkStrikeForGPUCacheInterface* const fStrikeCache;
 
-    int fMaxRunSize{0};
-    SkAutoTMalloc<SkPoint> fPositions;
-    SkAutoTMalloc<SkPackedGlyphID> fPackedGlyphIDs;
-    SkAutoTMalloc<SkGlyphPos> fGlyphPos;
-
-    std::vector<SkGlyphPos> fPaths;
-
-    // Vectors for tracking ARGB fallback information.
-    std::vector<SkGlyphID> fARGBGlyphsIDs;
-    std::vector<SkPoint>   fARGBPositions;
+    SkDrawableGlyphBuffer fDrawable;
+    SkSourceGlyphBuffer fRejects;
 };
 
 // SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first
@@ -158,26 +137,24 @@ public:
 
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
-    virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceMasks(const SkZip<SkBag, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
-    virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
+    virtual void processSourcePaths(const SkZip<SkBag, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
-    virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
-
-    virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceSDFT(const SkZip<SkBag, SkPoint>& drawables,
                                    const SkStrikeSpec& strikeSpec,
                                    const SkFont& runFont,
                                    SkScalar minScale,
                                    SkScalar maxScale,
                                    bool hasWCoord) = 0;
 
-    virtual void processSourceFallback(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceFallback(const SkZip<SkBag, SkPoint>& drawables,
                                        const SkStrikeSpec& strikeSpec,
                                        bool hasW) = 0;
 
-    virtual void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceFallback(const SkZip<SkBag, SkPoint>& drawables,
                                        const SkStrikeSpec& strikeSpec) = 0;
 
 };
