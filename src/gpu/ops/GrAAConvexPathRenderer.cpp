@@ -219,11 +219,12 @@ static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) 
     }
 }
 
-static inline bool get_direction(const SkPath& path, const SkMatrix& m,
+static inline void get_direction(const SkPath& path, const SkMatrix& m,
                                  SkPathPriv::FirstDirection* dir) {
-    if (!SkPathPriv::CheapComputeFirstDirection(path, dir)) {
-        return false;
-    }
+    // At this point, we've already returned true from canDraw() for the path because it checked
+    // for the direction.
+    SkAssertResult(SkPathPriv::CheapComputeFirstDirection(path, dir));
+
     // check whether m reverses the orientation
     SkASSERT(!m.hasPerspective());
     SkScalar det2x2 = m.get(SkMatrix::kMScaleX) * m.get(SkMatrix::kMScaleY) -
@@ -231,7 +232,6 @@ static inline bool get_direction(const SkPath& path, const SkMatrix& m,
     if (det2x2 < 0) {
         *dir = SkPathPriv::OppositeFirstDirection(*dir);
     }
-    return true;
 }
 
 static inline void add_line_to_segment(const SkPoint& pt,
@@ -282,10 +282,7 @@ static bool get_segments(const SkPath& path,
     // draw nothing.
     DegenerateTestData degenerateData;
     SkPathPriv::FirstDirection dir;
-    // get_direction can fail for some degenerate paths.
-    if (!get_direction(path, m, &dir)) {
-        return false;
-    }
+    get_direction(path, m, &dir);
 
     for (;;) {
         SkPoint pts[4];
@@ -661,9 +658,12 @@ sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
 
 GrPathRenderer::CanDrawPath
 GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // This check requires convexity and known direction, since the direction is used to build
+    // the geometry segments. Degenerate convex paths will fall through to some other path renderer.
     if (args.fCaps->shaderCaps()->shaderDerivativeSupport() &&
         (GrAAType::kCoverage == args.fAAType) && args.fShape->style().isSimpleFill() &&
-        !args.fShape->inverseFilled() && args.fShape->knownToBeConvex()) {
+        !args.fShape->inverseFilled() && args.fShape->knownToBeConvex() &&
+        args.fShape->knownDirection()) {
         return CanDrawPath::kYes;
     }
     return CanDrawPath::kNo;
