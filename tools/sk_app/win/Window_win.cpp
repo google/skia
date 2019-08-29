@@ -14,9 +14,9 @@
 #include <windowsx.h>
 
 #include "src/core/SkUtils.h"
-#include "tools/ModifierKey.h"
 #include "tools/sk_app/WindowContext.h"
 #include "tools/sk_app/win/WindowContextFactory_win.h"
+#include "tools/skui/ModifierKey.h"
 
 #ifdef SK_VULKAN
 #include "tools/sk_app/VulkanWindowContext.h"
@@ -123,71 +123,71 @@ bool Window_win::init(HINSTANCE hInstance) {
     return true;
 }
 
-static Window::Key get_key(WPARAM vk) {
+static skui::Key get_key(WPARAM vk) {
     static const struct {
         WPARAM      fVK;
-        Window::Key fKey;
+        skui::Key fKey;
     } gPair[] = {
-        { VK_BACK, Window::Key::kBack },
-        { VK_CLEAR, Window::Key::kBack },
-        { VK_RETURN, Window::Key::kOK },
-        { VK_UP, Window::Key::kUp },
-        { VK_DOWN, Window::Key::kDown },
-        { VK_LEFT, Window::Key::kLeft },
-        { VK_RIGHT, Window::Key::kRight },
-        { VK_TAB, Window::Key::kTab },
-        { VK_PRIOR, Window::Key::kPageUp },
-        { VK_NEXT, Window::Key::kPageDown },
-        { VK_HOME, Window::Key::kHome },
-        { VK_END, Window::Key::kEnd },
-        { VK_DELETE, Window::Key::kDelete },
-        { VK_ESCAPE, Window::Key::kEscape },
-        { VK_SHIFT, Window::Key::kShift },
-        { VK_CONTROL, Window::Key::kCtrl },
-        { VK_MENU, Window::Key::kOption },
-        { 'A', Window::Key::kA },
-        { 'C', Window::Key::kC },
-        { 'V', Window::Key::kV },
-        { 'X', Window::Key::kX },
-        { 'Y', Window::Key::kY },
-        { 'Z', Window::Key::kZ },
+        { VK_BACK,    skui::Key::kBack     },
+        { VK_CLEAR,   skui::Key::kBack     },
+        { VK_RETURN,  skui::Key::kOK       },
+        { VK_UP,      skui::Key::kUp       },
+        { VK_DOWN,    skui::Key::kDown     },
+        { VK_LEFT,    skui::Key::kLeft     },
+        { VK_RIGHT,   skui::Key::kRight    },
+        { VK_TAB,     skui::Key::kTab      },
+        { VK_PRIOR,   skui::Key::kPageUp   },
+        { VK_NEXT,    skui::Key::kPageDown },
+        { VK_HOME,    skui::Key::kHome     },
+        { VK_END,     skui::Key::kEnd      },
+        { VK_DELETE,  skui::Key::kDelete   },
+        { VK_ESCAPE,  skui::Key::kEscape   },
+        { VK_SHIFT,   skui::Key::kShift    },
+        { VK_CONTROL, skui::Key::kCtrl     },
+        { VK_MENU,    skui::Key::kOption   },
+        { 'A',        skui::Key::kA        },
+        { 'C',        skui::Key::kC        },
+        { 'V',        skui::Key::kV        },
+        { 'X',        skui::Key::kX        },
+        { 'Y',        skui::Key::kY        },
+        { 'Z',        skui::Key::kZ        },
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fVK == vk) {
             return gPair[i].fKey;
         }
     }
-    return Window::Key::kNONE;
+    return skui::Key::kNONE;
 }
 
-static ModifierKey get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
-    ModifierKey modifiers = ModifierKey::kNone;
+static skui::ModifierKey get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
+    skui::ModifierKey modifiers = skui::ModifierKey::kNone;
 
     switch (message) {
         case WM_UNICHAR:
         case WM_CHAR:
             if (0 == (lParam & (1 << 30))) {
-                modifiers |= ModifierKey::kFirstPress;
+                modifiers |= skui::ModifierKey::kFirstPress;
             }
             if (lParam & (1 << 29)) {
-                modifiers |= ModifierKey::kOption;
+                modifiers |= skui::ModifierKey::kOption;
             }
             break;
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
             if (0 == (lParam & (1 << 30))) {
-                modifiers |= ModifierKey::kFirstPress;
+                modifiers |= skui::ModifierKey::kFirstPress;
             }
             if (lParam & (1 << 29)) {
-                modifiers |= ModifierKey::kOption;
+                modifiers |= skui::ModifierKey::kOption;
             }
             break;
 
         case WM_KEYUP:
         case WM_SYSKEYUP:
             if (lParam & (1 << 29)) {
-                modifiers |= ModifierKey::kOption;
+                modifiers |= skui::ModifierKey::kOption;
             }
             break;
 
@@ -196,10 +196,10 @@ static ModifierKey get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
         case WM_MOUSEMOVE:
         case WM_MOUSEWHEEL:
             if (wParam & MK_CONTROL) {
-                modifiers |= ModifierKey::kControl;
+                modifiers |= skui::ModifierKey::kControl;
             }
             if (wParam & MK_SHIFT) {
-                modifiers |= ModifierKey::kShift;
+                modifiers |= skui::ModifierKey::kShift;
             }
             break;
     }
@@ -251,13 +251,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            eventHandled = window->onKey(get_key(wParam), InputState::kDown,
+            eventHandled = window->onKey(get_key(wParam), skui::InputState::kDown,
                                          get_modifiers(message, wParam, lParam));
             break;
 
         case WM_KEYUP:
         case WM_SYSKEYUP:
-            eventHandled = window->onKey(get_key(wParam), InputState::kUp,
+            eventHandled = window->onKey(get_key(wParam), skui::InputState::kUp,
                                          get_modifiers(message, wParam, lParam));
             break;
 
@@ -274,8 +274,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //    yPos -= rc.top;
             //}
 
-            InputState istate = ((wParam & MK_LBUTTON) != 0) ? InputState::kDown
-                                                                     : InputState::kUp;
+            skui::InputState istate = ((wParam & MK_LBUTTON) != 0) ? skui::InputState::kDown
+                                                                     : skui::InputState::kUp;
 
             eventHandled = window->onMouse(xPos, yPos, istate,
                                             get_modifiers(message, wParam, lParam));
@@ -293,7 +293,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //    yPos -= rc.top;
             //}
 
-            eventHandled = window->onMouse(xPos, yPos, InputState::kMove,
+            eventHandled = window->onMouse(xPos, yPos, skui::InputState::kMove,
                                            get_modifiers(message, wParam, lParam));
         } break;
 
@@ -311,13 +311,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 ClientToScreen(hWnd, &topLeft);
                 for (uint16_t i = 0; i < numInputs; ++i) {
                     TOUCHINPUT ti = inputs[i];
-                    InputState state;
+                    skui::InputState state;
                     if (ti.dwFlags & TOUCHEVENTF_DOWN) {
-                        state = InputState::kDown;
+                        state = skui::InputState::kDown;
                     } else if (ti.dwFlags & TOUCHEVENTF_MOVE) {
-                        state = InputState::kMove;
+                        state = skui::InputState::kMove;
                     } else if (ti.dwFlags & TOUCHEVENTF_UP) {
-                        state = InputState::kUp;
+                        state = skui::InputState::kUp;
                     } else {
                         continue;
                     }

@@ -6,9 +6,9 @@
 */
 
 #include "src/core/SkUtils.h"
-#include "tools/ModifierKey.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
 #include "tools/sk_app/mac/Window_mac.h"
+#include "tools/skui/ModifierKey.h"
 
 @interface WindowDelegate : NSObject<NSWindowDelegate>
 
@@ -188,38 +188,38 @@ void Window_mac::PaintWindows() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static Window::Key get_key(unsigned short vk) {
+static skui::Key get_key(unsigned short vk) {
     // This will work with an ANSI QWERTY keyboard.
     // Something more robust would be needed to support alternate keyboards.
     static const struct {
         unsigned short fVK;
-        Window::Key    fKey;
+        skui::Key    fKey;
     } gPair[] = {
-        { 0x33, Window::Key::kBack },
-        { 0x24, Window::Key::kOK },
-        { 0x7E, Window::Key::kUp },
-        { 0x7D, Window::Key::kDown },
-        { 0x7B, Window::Key::kLeft },
-        { 0x7C, Window::Key::kRight },
-        { 0x30, Window::Key::kTab },
-        { 0x74, Window::Key::kPageUp },
-        { 0x79, Window::Key::kPageDown },
-        { 0x73, Window::Key::kHome },
-        { 0x77, Window::Key::kEnd },
-        { 0x75, Window::Key::kDelete },
-        { 0x35, Window::Key::kEscape },
-        { 0x38, Window::Key::kShift },
-        { 0x3C, Window::Key::kShift },
-        { 0x3B, Window::Key::kCtrl },
-        { 0x3E, Window::Key::kCtrl },
-        { 0x3A, Window::Key::kOption },
-        { 0x3D, Window::Key::kOption },
-        { 0x00, Window::Key::kA },
-        { 0x08, Window::Key::kC },
-        { 0x09, Window::Key::kV },
-        { 0x07, Window::Key::kX },
-        { 0x10, Window::Key::kY },
-        { 0x06, Window::Key::kZ },
+        { 0x33, skui::Key::kBack },
+        { 0x24, skui::Key::kOK },
+        { 0x7E, skui::Key::kUp },
+        { 0x7D, skui::Key::kDown },
+        { 0x7B, skui::Key::kLeft },
+        { 0x7C, skui::Key::kRight },
+        { 0x30, skui::Key::kTab },
+        { 0x74, skui::Key::kPageUp },
+        { 0x79, skui::Key::kPageDown },
+        { 0x73, skui::Key::kHome },
+        { 0x77, skui::Key::kEnd },
+        { 0x75, skui::Key::kDelete },
+        { 0x35, skui::Key::kEscape },
+        { 0x38, skui::Key::kShift },
+        { 0x3C, skui::Key::kShift },
+        { 0x3B, skui::Key::kCtrl },
+        { 0x3E, skui::Key::kCtrl },
+        { 0x3A, skui::Key::kOption },
+        { 0x3D, skui::Key::kOption },
+        { 0x00, skui::Key::kA },
+        { 0x08, skui::Key::kC },
+        { 0x09, skui::Key::kV },
+        { 0x07, skui::Key::kX },
+        { 0x10, skui::Key::kY },
+        { 0x06, skui::Key::kZ },
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fVK == vk) {
@@ -227,29 +227,29 @@ static Window::Key get_key(unsigned short vk) {
         }
     }
 
-    return Window::Key::kNONE;
+    return skui::Key::kNONE;
 }
 
-static ModifierKey get_modifiers(const NSEvent* event) {
+static skui::ModifierKey get_modifiers(const NSEvent* event) {
     NSUInteger modifierFlags = [event modifierFlags];
-    ModifierKey modifiers = ModifierKey::kNone;
+    skui::ModifierKey modifiers = skui::ModifierKey::kNone;
 
     if (modifierFlags & NSEventModifierFlagCommand) {
-        modifiers |= ModifierKey::kCommand;
+        modifiers |= skui::ModifierKey::kCommand;
     }
     if (modifierFlags & NSEventModifierFlagShift) {
-        modifiers |= ModifierKey::kShift;
+        modifiers |= skui::ModifierKey::kShift;
     }
     if (modifierFlags & NSEventModifierFlagControl) {
-        modifiers |= ModifierKey::kControl;
+        modifiers |= skui::ModifierKey::kControl;
     }
     if (modifierFlags & NSEventModifierFlagOption) {
-        modifiers |= ModifierKey::kOption;
+        modifiers |= skui::ModifierKey::kOption;
     }
 
     if ((NSKeyDown == [event type] || NSKeyUp == [event type]) &&
         NO == [event isARepeat]) {
-        modifiers |= ModifierKey::kFirstPress;
+        modifiers |= skui::ModifierKey::kFirstPress;
     }
 
     return modifiers;
@@ -313,10 +313,10 @@ static ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 - (void)keyDown:(NSEvent *)event {
-    Window::Key key = get_key([event keyCode]);
-    if (key != Window::Key::kNONE) {
-        if (!fWindow->onKey(key, InputState::kDown, get_modifiers(event))) {
-            if (Window::Key::kEscape == key) {
+    skui::Key key = get_key([event keyCode]);
+    if (key != skui::Key::kNONE) {
+        if (!fWindow->onKey(key, skui::InputState::kDown, get_modifiers(event))) {
+            if (skui::Key::kEscape == key) {
                 [NSApp terminate:fWindow->window()];
             }
         }
@@ -335,23 +335,23 @@ static ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 - (void)keyUp:(NSEvent *)event {
-    Window::Key key = get_key([event keyCode]);
-    if (key != Window::Key::kNONE) {
-        (void) fWindow->onKey(key, InputState::kUp, get_modifiers(event));
+    skui::Key key = get_key([event keyCode]);
+    if (key != skui::Key::kNONE) {
+        (void) fWindow->onKey(key, skui::InputState::kUp, get_modifiers(event));
     }
 }
 
 - (void)mouseDown:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, InputState::kDown,
+    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kDown,
                     get_modifiers(event));
 }
 
 - (void)mouseUp:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, InputState::kUp,
+    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kUp,
                      get_modifiers(event));
 }
 
@@ -362,7 +362,7 @@ static ModifierKey get_modifiers(const NSEvent* event) {
 - (void)mouseMoved:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, InputState::kMove,
+    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kMove,
                      get_modifiers(event));
 }
 

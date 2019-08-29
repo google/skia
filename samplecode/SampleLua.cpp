@@ -109,7 +109,7 @@ protected:
     }
 
     virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              ModifierKey modi) override {
+                                              skui::ModifierKey modi) override {
         lua_State* L = this->ensureLua();
         lua_getglobal(L, gClickName);
         if (lua_isfunction(L, -1)) {
@@ -130,10 +130,10 @@ protected:
     bool onClick(Click* click) override {
         const char* state = nullptr;
         switch (click->fState) {
-            case InputState::kMove:
+            case skui::InputState::kMove:
                 state = "moved";
                 break;
-            case InputState::kUp:
+            case skui::InputState::kUp:
                 state = "up";
                 break;
             default:

@@ -54,18 +54,18 @@ static void config_resource_mgr(JNIEnv* env, jobject assetManager) {
 
 static const int LOOPER_ID_MESSAGEPIPE = 1;
 
-static const std::unordered_map<int, Window::Key> ANDROID_TO_WINDOW_KEYMAP({
-    {AKEYCODE_SOFT_LEFT, Window::Key::kLeft},
-    {AKEYCODE_SOFT_RIGHT, Window::Key::kRight}
+static const std::unordered_map<int, skui::Key> ANDROID_TO_WINDOW_KEYMAP({
+    {AKEYCODE_SOFT_LEFT,  skui::Key::kLeft },
+    {AKEYCODE_SOFT_RIGHT, skui::Key::kRight}
 });
 
-static const std::unordered_map<int, InputState> ANDROID_TO_WINDOW_STATEMAP({
-    {AMOTION_EVENT_ACTION_DOWN, InputState::kDown},
-    {AMOTION_EVENT_ACTION_POINTER_DOWN, InputState::kDown},
-    {AMOTION_EVENT_ACTION_UP, InputState::kUp},
-    {AMOTION_EVENT_ACTION_POINTER_UP, InputState::kUp},
-    {AMOTION_EVENT_ACTION_MOVE, InputState::kMove},
-    {AMOTION_EVENT_ACTION_CANCEL, InputState::kUp},
+static const std::unordered_map<int, skui::InputState> ANDROID_TO_WINDOW_STATEMAP({
+    {AMOTION_EVENT_ACTION_DOWN,         skui::InputState::kDown },
+    {AMOTION_EVENT_ACTION_POINTER_DOWN, skui::InputState::kDown },
+    {AMOTION_EVENT_ACTION_UP,           skui::InputState::kUp   },
+    {AMOTION_EVENT_ACTION_POINTER_UP,   skui::InputState::kUp   },
+    {AMOTION_EVENT_ACTION_MOVE,         skui::InputState::kMove },
+    {AMOTION_EVENT_ACTION_CANCEL,       skui::InputState::kUp   },
 });
 
 SkiaAndroidApp::SkiaAndroidApp(JNIEnv* env, jobject androidApp) {
@@ -166,8 +166,8 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             auto it = ANDROID_TO_WINDOW_KEYMAP.find(message.fKeycode);
             SkASSERT(it != ANDROID_TO_WINDOW_KEYMAP.end());
             // No modifier is supported so far
-            skiaAndroidApp->fWindow->onKey(it->second, InputState::kDown, ModifierKey::kNone);
-            skiaAndroidApp->fWindow->onKey(it->second, InputState::kUp, ModifierKey::kNone);
+            skiaAndroidApp->fWindow->onKey(it->second, skui::InputState::kDown, skui::ModifierKey::kNone);
+            skiaAndroidApp->fWindow->onKey(it->second, skui::InputState::kUp, skui::ModifierKey::kNone);
             break;
         }
         case kTouched: {

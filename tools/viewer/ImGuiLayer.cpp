@@ -28,25 +28,25 @@ ImGuiLayer::ImGuiLayer() {
     ImGuiIO& io = ImGui::GetIO();
 
     // Keymap...
-    io.KeyMap[ImGuiKey_Tab] = (int)Window::Key::kTab;
-    io.KeyMap[ImGuiKey_LeftArrow] = (int)Window::Key::kLeft;
-    io.KeyMap[ImGuiKey_RightArrow] = (int)Window::Key::kRight;
-    io.KeyMap[ImGuiKey_UpArrow] = (int)Window::Key::kUp;
-    io.KeyMap[ImGuiKey_DownArrow] = (int)Window::Key::kDown;
-    io.KeyMap[ImGuiKey_PageUp] = (int)Window::Key::kPageUp;
-    io.KeyMap[ImGuiKey_PageDown] = (int)Window::Key::kPageDown;
-    io.KeyMap[ImGuiKey_Home] = (int)Window::Key::kHome;
-    io.KeyMap[ImGuiKey_End] = (int)Window::Key::kEnd;
-    io.KeyMap[ImGuiKey_Delete] = (int)Window::Key::kDelete;
-    io.KeyMap[ImGuiKey_Backspace] = (int)Window::Key::kBack;
-    io.KeyMap[ImGuiKey_Enter] = (int)Window::Key::kOK;
-    io.KeyMap[ImGuiKey_Escape] = (int)Window::Key::kEscape;
-    io.KeyMap[ImGuiKey_A] = (int)Window::Key::kA;
-    io.KeyMap[ImGuiKey_C] = (int)Window::Key::kC;
-    io.KeyMap[ImGuiKey_V] = (int)Window::Key::kV;
-    io.KeyMap[ImGuiKey_X] = (int)Window::Key::kX;
-    io.KeyMap[ImGuiKey_Y] = (int)Window::Key::kY;
-    io.KeyMap[ImGuiKey_Z] = (int)Window::Key::kZ;
+    io.KeyMap[ImGuiKey_Tab]        = (int)skui::Key::kTab;
+    io.KeyMap[ImGuiKey_LeftArrow]  = (int)skui::Key::kLeft;
+    io.KeyMap[ImGuiKey_RightArrow] = (int)skui::Key::kRight;
+    io.KeyMap[ImGuiKey_UpArrow]    = (int)skui::Key::kUp;
+    io.KeyMap[ImGuiKey_DownArrow]  = (int)skui::Key::kDown;
+    io.KeyMap[ImGuiKey_PageUp]     = (int)skui::Key::kPageUp;
+    io.KeyMap[ImGuiKey_PageDown]   = (int)skui::Key::kPageDown;
+    io.KeyMap[ImGuiKey_Home]       = (int)skui::Key::kHome;
+    io.KeyMap[ImGuiKey_End]        = (int)skui::Key::kEnd;
+    io.KeyMap[ImGuiKey_Delete]     = (int)skui::Key::kDelete;
+    io.KeyMap[ImGuiKey_Backspace]  = (int)skui::Key::kBack;
+    io.KeyMap[ImGuiKey_Enter]      = (int)skui::Key::kOK;
+    io.KeyMap[ImGuiKey_Escape]     = (int)skui::Key::kEscape;
+    io.KeyMap[ImGuiKey_A]          = (int)skui::Key::kA;
+    io.KeyMap[ImGuiKey_C]          = (int)skui::Key::kC;
+    io.KeyMap[ImGuiKey_V]          = (int)skui::Key::kV;
+    io.KeyMap[ImGuiKey_X]          = (int)skui::Key::kX;
+    io.KeyMap[ImGuiKey_Y]          = (int)skui::Key::kY;
+    io.KeyMap[ImGuiKey_Z]          = (int)skui::Key::kZ;
 
     int w, h;
     unsigned char* pixels;
@@ -70,19 +70,19 @@ void ImGuiLayer::onAttach(Window* window) {
     fWindow = window;
 }
 
-bool ImGuiLayer::onMouse(int x, int y, InputState state, ModifierKey modifiers) {
+bool ImGuiLayer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos.x = static_cast<float>(x);
     io.MousePos.y = static_cast<float>(y);
-    if (InputState::kDown == state) {
+    if (skui::InputState::kDown == state) {
         io.MouseDown[0] = true;
-    } else if (InputState::kUp == state) {
+    } else if (skui::InputState::kUp == state) {
         io.MouseDown[0] = false;
     }
     return io.WantCaptureMouse;
 }
 
-bool ImGuiLayer::onMouseWheel(float delta, ModifierKey modifiers) {
+bool ImGuiLayer::onMouseWheel(float delta, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     io.MouseWheel += delta;
     return true;
@@ -106,9 +106,9 @@ void ImGuiLayer::onPrePaint() {
     io.DisplaySize.x = static_cast<float>(fWindow->width());
     io.DisplaySize.y = static_cast<float>(fWindow->height());
 
-    io.KeyAlt = io.KeysDown[static_cast<int>(Window::Key::kOption)];
-    io.KeyCtrl = io.KeysDown[static_cast<int>(Window::Key::kCtrl)];
-    io.KeyShift = io.KeysDown[static_cast<int>(Window::Key::kShift)];
+    io.KeyAlt = io.KeysDown[static_cast<int>(skui::Key::kOption)];
+    io.KeyCtrl = io.KeysDown[static_cast<int>(skui::Key::kCtrl)];
+    io.KeyShift = io.KeysDown[static_cast<int>(skui::Key::kShift)];
 
     ImGui::NewFrame();
 }
@@ -184,13 +184,13 @@ void ImGuiLayer::onPaint(SkSurface* surface) {
     fSkiaWidgetFuncs.reset();
 }
 
-bool ImGuiLayer::onKey(sk_app::Window::Key key, InputState state, ModifierKey modifiers) {
+bool ImGuiLayer::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
-    io.KeysDown[static_cast<int>(key)] = (InputState::kDown == state);
+    io.KeysDown[static_cast<int>(key)] = (skui::InputState::kDown == state);
     return io.WantCaptureKeyboard;
 }
 
-bool ImGuiLayer::onChar(SkUnichar c, ModifierKey modifiers) {
+bool ImGuiLayer::onChar(SkUnichar c, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantTextInput) {
         if (c > 0 && c < 0x10000) {
