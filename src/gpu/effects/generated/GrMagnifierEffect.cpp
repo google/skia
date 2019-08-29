@@ -47,7 +47,8 @@ public:
                 kFragment_GrShaderFlag, kFloat_GrSLType, "yInvInset");
         offsetVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "offset");
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+        SkString sk_TransformedCoords2D_0 =
+                fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
         fragBuilder->codeAppendf(
                 "float2 coord = %s;\nfloat2 zoom_coord = float2(%s) + coord * float2(%s, "
                 "%s);\nfloat2 delta = (coord - %s.xy) * %s.zw;\ndelta = min(delta, "
@@ -56,7 +57,8 @@ public:
                 "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
                 "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
                 "delta;\n    weight = min(min(delta_squared.x, delta_square",
-                sk_TransformedCoords2D_0.c_str(),
+                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
+                                                          : "_coords",
                 args.fUniformHandler->getUniformCStr(offsetVar),
                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
                 args.fUniformHandler->getUniformCStr(yInvZoomVar),
