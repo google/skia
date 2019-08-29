@@ -28,29 +28,27 @@ public:
             , fStrike{desc, std::move(scaler), metrics}
             , fPinner{std::move(pinner)} {}
 
-    SkVector rounding() const override {
-        return fStrike.rounding();
-    }
-
-    SkIPoint subpixelMask() const override {
-        return fStrike.subpixelMask();
-    }
-
-    SkSpan<const SkGlyphPos>
-    prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
-                                 const SkPoint positions[],
-                                 size_t n,
-                                 int maxDimension,
-                                 SkGlyphPos results[]) override {
-        return fStrike.prepareForDrawingRemoveEmpty(packedGlyphIDs,
-                                                    positions,
-                                                    n,
-                                                    maxDimension,
-                                                    results);
+    const SkGlyphPositionRoundingSpec& roundingSpec() const override {
+        return fStrike.roundingSpec();
     }
 
     const SkDescriptor& getDescriptor() const override {
         return fStrike.getDescriptor();
+    }
+
+    void prepareForMaskDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+        fStrike.prepareForMaskDrawing(drawbles, rejects);
+    }
+
+    void prepareForSDFTDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+        fStrike.prepareForSDFTDrawing(drawbles, rejects);
+    }
+
+    void prepareForPathDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+        fStrike.prepareForPathDrawing(drawbles, rejects);
     }
 
     void onAboutToExitScope() override {
