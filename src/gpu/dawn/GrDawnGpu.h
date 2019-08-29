@@ -10,10 +10,12 @@
 
 #include "src/gpu/GrGpu.h"
 #include "dawn/dawncpp.h"
+#include "src/core/SkLRUCache.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 
 class GrDawnOpsRenderPass;
 class GrPipeline;
+struct GrDawnProgram;
 
 namespace SkSL {
     class Compiler;
@@ -81,6 +83,14 @@ public:
     void checkFinishProcs() override;
 
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
+
+    sk_sp<GrDawnProgram> getOrCreateRenderPipeline(GrRenderTarget*,
+                                                   GrSurfaceOrigin origin,
+                                                   const GrPipeline&,
+                                                   const GrPrimitiveProcessor&,
+                                                   const GrTextureProxy* const* primProcProxies,
+                                                   bool hasPoints,
+                                                   GrPrimitiveType primitiveType);
 
     GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
     dawn::CommandEncoder getCopyEncoder();
@@ -153,6 +163,14 @@ private:
     GrDawnRingBuffer                                fUniformRingBuffer;
     dawn::CommandEncoder                            fCopyEncoder;
     std::vector<dawn::CommandBuffer>                fCommandBuffers;
+
+    struct ProgramDescHash {
+        uint32_t operator()(const GrProgramDesc& desc) const {
+            return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+        }
+    };
+
+    SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
 
     typedef GrGpu INHERITED;
 };

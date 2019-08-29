@@ -54,17 +54,12 @@ struct GrDawnProgram : public SkRefCnt {
                   uint32_t fragmentUniformSize)
       : fDataManager(uniforms, geometryUniformSize, fragmentUniformSize) {
     }
-    dawn::ShaderModule fVSModule;
-    dawn::ShaderModule fFSModule;
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
     int fFragmentProcessorCnt;
     dawn::BindGroupLayout fBindGroupLayout;
-    dawn::PipelineLayout fPipelineLayout;
-    dawn::BindGroup fBindGroup;
-    dawn::ColorStateDescriptor fColorState;
-    dawn::DepthStencilStateDescriptor fDepthStencilState;
+    dawn::RenderPipeline fRenderPipeline;
     GrDawnProgramDataManager fDataManager;
     RenderTargetState fRenderTargetState;
     BuiltinUniformHandles fBuiltinUniformHandles;
@@ -83,6 +78,7 @@ public:
                                       const GrPipeline&,
                                       const GrPrimitiveProcessor&,
                                       const GrTextureProxy* const primProcProxies[],
+                                      GrPrimitiveType primitiveType,
                                       dawn::TextureFormat colorFormat,
                                       bool hasDepthStencil,
                                       dawn::TextureFormat depthStencilFormat,
