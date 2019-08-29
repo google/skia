@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7e3ae8b_13bf9f54",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-29T18:57:17Z",
+      "side": 0,
+      "message": "Do we care about migrating this assert to GrNonAtomicRef ?",
+      "range": {
+        "startLine": 37,
+        "startChar": 25,
+        "endLine": 38,
+        "endChar": 30
+      },
+      "revId": "76556a39ea1f614baf098637f3e21b8c157ae357",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
