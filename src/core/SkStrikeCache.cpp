@@ -49,6 +49,21 @@ public:
                                                     results);
     }
 
+    std::tuple<SkGlyphinator, SkSpan<const size_t>>
+    prepareForMaskDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) override {
+        return fStrike.prepareForMaskDrawing(glyphPos, rejects);
+    }
+
+    std::tuple<SkGlyphinator, SkSpan<const size_t>>
+    prepareForSDFTDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) override {
+        return fStrike.prepareForSDFTDrawing(glyphPos, rejects);
+    }
+
+    std::tuple<SkGlyphinator, SkSpan<const size_t>>
+    prepareForPathDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) override {
+        return fStrike.prepareForPathDrawing(glyphPos, rejects);
+    }
+
     const SkDescriptor& getDescriptor() const override {
         return fStrike.getDescriptor();
     }
