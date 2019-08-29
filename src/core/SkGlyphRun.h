@@ -17,6 +17,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkSpan.h"
+#include "src/core/SkZip.h"
 
 class SkBaseDevice;
 class SkGlyph;
@@ -35,18 +36,18 @@ public:
 
     void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
 
-    size_t runSize() const { return fGlyphIDs.size(); }
-    SkSpan<const SkPoint> positions() const { return fPositions; }
-    SkSpan<const SkGlyphID> glyphsIDs() const { return fGlyphIDs; }
+    size_t runSize() const { return fSource.size(); }
+    SkSpan<const SkPoint> positions() const { return fSource.get<1>(); }
+    SkSpan<const SkGlyphID> glyphsIDs() const { return fSource.get<0>(); }
+    const SkZip<const SkGlyphID, const SkPoint>& source() const { return fSource; }
     const SkFont& font() const { return fFont; }
     SkSpan<const uint32_t> clusters() const { return fClusters; }
     SkSpan<const char> text() const { return fText; }
 
 private:
-    // Positions of each glyph.
-    const SkSpan<const SkPoint> fPositions;
-    // This is temporary while converting from the old per glyph code to the bulk code.
-    const SkSpan<const SkGlyphID> fGlyphIDs;
+
+    // GlyphIDs and positions.
+    const SkZip<const SkGlyphID, const SkPoint> fSource;
     // Original text from SkTextBlob if present. Will be empty of not present.
     const SkSpan<const char> fText;
     // Original clusters from SkTextBlob if present. Will be empty if not present.
