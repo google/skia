@@ -119,11 +119,16 @@ public:
     SkSpan<const SkGlyph*> prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs,
                                          const SkGlyph* results[]);
 
-    SkSpan<const SkGlyphPos> prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
-                                                          const SkPoint positions[],
-                                                          size_t n,
-                                                          int maxDimension,
-                                                          SkGlyphPos results[]) override;
+    SkGlyphinator prepareForMaskDrawing(
+            SkGlyphinator glyphPos, std::vector<size_t>&rejectIndices) override;
+
+    SkGlyphinator prepareForSDFTDrawing(
+            SkGlyphinator glyphPos, std::vector<size_t>& rejectIndices) override;
+
+    SkGlyphinator prepareForPathDrawing(
+            SkGlyphinator glyphPos,
+            std::vector<size_t>& rejectIndices,
+            int* rejectedMaxDimension) override;
 
     void onAboutToExitScope() override;
 
