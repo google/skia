@@ -47,16 +47,38 @@ class SkZip {
         size_t fIndex = 0;
     };
 
+    template<typename T>
+    using make_nullptr = std::integral_constant<nullptr_t, nullptr>;
+
 public:
+    constexpr SkZip() : fPointers{make_nullptr<Ts*>::value...}, fSize{0} {}
     SkZip(size_t) = delete;
     constexpr SkZip(size_t size, Ts*... ts)
             : fPointers{ts...}
             , fSize{size} {}
 
-    template<typename... Us>
+    constexpr SkZip(const SkZip& that) = default;
+
+    template<class...> struct conjunction : std::true_type { };
+    template<class B1> struct conjunction<B1> : B1 { };
+    template<class B1, class... Bn>
+    struct conjunction<B1, Bn...>
+            : std::conditional_t<bool(B1::value), conjunction<Bn...>, B1> {};
+
+    // Check to see if U can be used for const T or is the same as T
+    template <typename U, typename T>
+    using can_to_const_t =
+        typename std::conditional<
+            std::is_same<U, T>::value,
+            std::true_type,
+            std::is_same<const U, T>>::type;
+
+    template<typename... Us,
+            typename = std::enable_if<conjunction<can_to_const_t<Us, Ts>...>::value>>
     constexpr SkZip(const SkZip<Us...>& that)
-            : fPointers{that.fPointers}
-            , fSize{that.fSize} {}
+        : fPointers(that.data())
+        , fSize{that.size()} {}
+
 
     constexpr ReturnTuple operator[](size_t i) const {
         return this->index(i);
@@ -71,8 +93,15 @@ public:
     template<size_t I> constexpr auto get() const {
         return SkMakeSpan(std::get<I>(fPointers), fSize);
     }
+    constexpr std::tuple<Ts*...> data() const { return fPointers; }
+    SkZip first(size_t n) {
+        SkASSERT(n <= this->size());
+        return SkZip(n, fPointers);
+    }
 
-private:
+// private:
+    SkZip(size_t n, std::tuple<Ts*...>& pointers) : fPointers{pointers}, fSize{n} {}
+
     constexpr ReturnTuple index(size_t i) const {
         SkASSERT(this->size() > 0);
         SkASSERT(i < this->size());
