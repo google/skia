@@ -13,6 +13,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkEnumerate.h"
 #include "src/core/SkMakeUnique.h"
 #include <cctype>
 
@@ -186,35 +187,76 @@ SkStrike::prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* r
     return {results, glyphIDs.size()};
 }
 
-// N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
-// position or that there are no mask pixels.
-SkSpan<const SkGlyphPos>
-SkStrike::prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
-                                       const SkPoint positions[],
-                                       size_t n,
-                                       int maxDimension,
-                                       SkGlyphPos results[]) {
-    size_t drawableGlyphCount = 0;
-    for (size_t i = 0; i < n; i++) {
-        SkPoint pos = positions[i];
+void SkStrike::prepareImages(SkDrawableGlyphBuffer* drawables) {
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkBag packedID;
+        std::forward_as_tuple(i, std::tie(packedID, std::ignore)) = t;
+        SkGlyph* glyph = this->glyph(packedID);
+        (void)this->prepareImage(glyph);
+        drawables->push_back(glyph, i);
+    }
+}
+
+void SkStrike::prepareForMaskDrawing(
+        SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) {
+    for (auto t : SkMakeEnumerate(drawbles->input())) {
+        size_t i; SkBag packedID; SkPoint pos;
+        std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyph* glyphPtr = this->glyph(packedGlyphIDs[i]);
-            if (!glyphPtr->isEmpty()) {
-                results[drawableGlyphCount++] = {i, glyphPtr, pos};
-                if (glyphPtr->maxDimension() <= maxDimension) {
-                    // The glyph fits. Prepare image later.
-                } else if (!glyphPtr->isColor()) {
-                    // The out of atlas glyph is not color so we can draw it using paths.
-                    this->preparePath(glyphPtr);
+            SkGlyph* glyph = this->glyph(packedID);
+            if (!glyph->isEmpty()) {
+                if (CanDrawAsMask(*glyph)) {
+                    drawbles->push_back(glyph, i);
                 } else {
-                    // This will be handled by the fallback strike.
-                    SkASSERT(glyphPtr->maxDimension() > maxDimension && glyphPtr->isColor());
+                    rejects->reject(i);
                 }
             }
         }
     }
+}
 
-    return SkSpan<const SkGlyphPos>{results, drawableGlyphCount};
+void SkStrike::prepareForSDFTDrawing(
+        SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) {
+    for (auto t : SkMakeEnumerate(drawbles->input())) {
+        size_t i; SkBag packedID; SkPoint pos;
+        std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyph* glyph = this->glyph(packedID);
+            if (!glyph->isEmpty()) {
+                if (CanDrawAsSDFT(*glyph)) {
+                    drawbles->push_back(glyph, i);
+                } else {
+                    rejects->reject(i);
+                }
+            }
+        }
+    }
+}
+
+void SkStrike::prepareForPathDrawing(
+        SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) {
+    for (auto t : SkMakeEnumerate(drawbles->input())) {
+        size_t i; SkBag packedID; SkPoint pos;
+        std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyph* glyph = this->glyph(packedID);
+            if (!glyph->isEmpty()) {
+                if (!glyph->isColor()) {
+                    const SkPath* path = this->preparePath(glyph);
+                    if (path != nullptr) {
+                        // Save off the path to draw later.
+                        drawbles->push_back(path, i);
+                    } else {
+                        // Glyph does not have a path. It is probably bitmap only.
+                        rejects->reject(i, glyph->maxDimension());
+                    }
+                } else {
+                    // Glyph is color.
+                    rejects->reject(i, glyph->maxDimension());
+                }
+            }
+        }
+    }
 }
 
 void SkStrike::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
@@ -261,6 +303,9 @@ void SkStrike::validate() const {
     forceValidate();
 #endif
 }
+
+
+
 #endif  // SK_DEBUG
 
 
