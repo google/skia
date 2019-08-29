@@ -114,6 +114,30 @@
       "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dd89419_95a9f294",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-08-29T21:25:40Z",
+      "side": 1,
+      "message": "I expected clients will do something like this:\nhttps://gist.github.com/HalCanary/8663f983b7fdf5ed0750f9668bc131f0\n(sketched out but not compiled yet).\n\nYour way is better.",
+      "parentUuid": "cd5ed991_c99e5226",
+      "range": {
+        "startLine": 56,
+        "startChar": 2,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
