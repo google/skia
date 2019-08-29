@@ -38,6 +38,10 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
+    void updateUniformVisibility(UniformHandle u, uint32_t visibility) override {
+        fUniforms[u.toIndex()].fVisibility |= visibility;
+    }
+
     SamplerHandle addSampler(const GrTexture*, const GrSamplerState&, const GrSwizzle&,
                              const char* name, const GrShaderCaps*) override;
 

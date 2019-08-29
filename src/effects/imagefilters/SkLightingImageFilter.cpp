@@ -1752,7 +1752,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
         GrShaderVar("scale", kHalf_GrSLType),
     };
     SkString sobelFuncName;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
 
     fragBuilder->emitFunction(kHalf_GrSLType,
                               "sobel",

@@ -42,9 +42,9 @@ public:
                                           : "half4(0)",
                 _outer.literalColor.fR, _outer.literalColor.fG, _outer.literalColor.fB,
                 _outer.literalColor.fA);
-        SkString _input0("constColor");
+        SkString _input1992("constColor");
         SkString _sample1992("_sample1992");
-        this->invokeChild(_outer.fp_index, _input0.c_str(), &_sample1992, args);
+        this->invokeChild(_outer.fp_index, _input1992.c_str(), &_sample1992, args);
         fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample1992.c_str());
     }
 

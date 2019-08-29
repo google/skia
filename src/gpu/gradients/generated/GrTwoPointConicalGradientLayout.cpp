@@ -42,7 +42,8 @@ public:
         (void)focalParams;
         focalParamsVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                           "focalParams");
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+        SkString sk_TransformedCoords2D_0 =
+                fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
         fragBuilder->codeAppendf(
                 "float2 p = %s;\nfloat t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n     "
                 "   {\n            half r0_2 = %s.y;\n            t = float(r0_2) - p.y * p.y;\n   "
@@ -51,8 +52,9 @@ public:
                 "0:\n        {\n            half r0 = %s.x;\n            @if (%s) {\n              "
                 "  t = length(p) - float(r0);\n            } else {\n                t = "
                 "-length(p) - float(r0);\n       ",
-                sk_TransformedCoords2D_0.c_str(), (int)_outer.type,
-                args.fUniformHandler->getUniformCStr(focalParamsVar),
+                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
+                                                          : "_coords",
+                (int)_outer.type, args.fUniformHandler->getUniformCStr(focalParamsVar),
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
                 (_outer.isRadiusIncreasing ? "true" : "false"));
         fragBuilder->codeAppendf(

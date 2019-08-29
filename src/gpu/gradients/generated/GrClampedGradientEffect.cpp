@@ -46,9 +46,9 @@ public:
                 args.fOutputColor, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(leftBorderColorVar), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
-        SkString _input0("t");
+        SkString _input1767("t");
         SkString _sample1767("_sample1767");
-        this->invokeChild(_outer.colorizer_index, _input0.c_str(), &_sample1767, args);
+        this->invokeChild(_outer.colorizer_index, _input1767.c_str(), &_sample1767, args);
         fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
                                  args.fOutputColor, _sample1767.c_str(),
                                  (_outer.makePremul ? "true" : "false"), args.fOutputColor,

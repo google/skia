@@ -69,7 +69,8 @@ const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::textureSampler(i
     return this->onTextureSampler(i);
 }
 
-void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
+void GrFragmentProcessor::addCoordTransform(GrCoordTransform* transform) {
+    transform->setComputeInVertexShader(this->computeLocalCoordsInVertexShader());
     fCoordTransforms.push_back(transform);
     fFlags |= kUsesLocalCoords_Flag;
     SkDEBUGCODE(transform->setInProcessor();)

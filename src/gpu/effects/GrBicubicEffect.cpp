@@ -46,7 +46,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     const char* dims = uniformHandler->getUniformCStr(fDimensions);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
 
     /*
      * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in Computer

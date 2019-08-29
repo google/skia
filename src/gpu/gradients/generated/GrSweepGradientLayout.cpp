@@ -32,15 +32,24 @@ public:
         biasVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "bias");
         scaleVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "scale");
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+        SkString sk_TransformedCoords2D_0 =
+                fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
         fragBuilder->codeAppendf(
                 "half angle;\nif (sk_Caps.atan2ImplementedAsAtanYOverX) {\n    angle = half(2.0 * "
                 "atan(-%s.y, length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, "
                 "-%s.x));\n}\nhalf t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;\n%s = "
                 "half4(t, 1.0, 0.0, 0.0);\n",
-                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
-                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
-                sk_TransformedCoords2D_0.c_str(), args.fUniformHandler->getUniformCStr(biasVar),
+                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
+                                                          : "_coords",
+                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
+                                                          : "_coords",
+                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
+                                                          : "_coords",
+                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
+                                                          : "_coords",
+                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
+                                                          : "_coords",
+                args.fUniformHandler->getUniformCStr(biasVar),
                 args.fUniformHandler->getUniformCStr(scaleVar), args.fOutputColor);
     }
 

@@ -21,7 +21,7 @@ PipelineStageCodeGenerator::PipelineStageCodeGenerator(
 : INHERITED(context, program, errors, out)
 , fName("Temp")
 , fFullName(String::printf("Gr%s", fName.c_str()))
-, fSectionAndParameterHelper(*program, *errors)
+, fSectionAndParameterHelper(program, *errors)
 , fFormatArgs(outFormatArgs) {}
 
 void PipelineStageCodeGenerator::writef(const char* s, va_list va) {

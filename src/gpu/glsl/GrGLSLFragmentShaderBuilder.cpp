@@ -160,15 +160,27 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                                                          GrGLSLFragmentProcessor::EmitArgs& args) {
     this->onBeforeChildProcEmitCode();
     this->nextStage();
+    if (!args.fFp.computeLocalCoordsInVertexShader() && args.fTransformedCoords.count() > 0) {
+        // we currently only support overriding a single coordinate pair
+        SkASSERT(args.fTransformedCoords.count() == 1);
+        const GrGLSLProgramDataManager::UniformHandle& mat =
+                                                          args.fTransformedCoords[0].fUniformMatrix;
+        if (mat.isValid()) {
+            args.fUniformHandler->updateUniformVisibility(mat, kFragment_GrShaderFlag);
+            this->codeAppendf("_coords = (float3(_coords, 1) * %s).xy;\n",
+                              args.fTransformedCoords[0].fMatrixCode.c_str());
+        }
+    }
     this->codeAppendf("half4 %s;\n", args.fOutputColor);
     fp->emitCode(args);
-    this->codeAppendf("return %s;", args.fOutputColor);
-    GrShaderVar inColor(args.fInputColor, kHalf4_GrSLType);
+    this->codeAppendf("return %s;\n", args.fOutputColor);
+    GrShaderVar params[] = { GrShaderVar(args.fInputColor, kHalf4_GrSLType),
+                             GrShaderVar("_coords", kFloat2_GrSLType) };
     SkString result;
     this->emitFunction(kHalf4_GrSLType,
                        "stage",
-                       1,
-                       &inColor,
+                       args.fFp.computeLocalCoordsInVertexShader() ? 1 : 2,
+                       params,
                        this->code().c_str(),
                        &result);
     this->deleteStage();

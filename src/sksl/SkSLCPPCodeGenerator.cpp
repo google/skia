@@ -25,7 +25,7 @@ CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* progra
 : INHERITED(context, program, errors, out)
 , fName(std::move(name))
 , fFullName(String::printf("Gr%s", fName.c_str()))
-, fSectionAndParameterHelper(*program, *errors) {
+, fSectionAndParameterHelper(program, *errors) {
     fLineEnding = "\\n";
     fTextureFunctionOverride = "sample";
 }
@@ -122,11 +122,12 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
             }
             int64_t index = ((IntLiteral&) *i.fIndex).fValue;
             String name = "sk_TransformedCoords2D_" + to_string(index);
-            fFormatArgs.push_back(name + ".c_str()");
+            fFormatArgs.push_back("_outer.computeLocalCoordsInVertexShader() ? " + name +
+                                  ".c_str() : \"_coords\"");
             if (fWrittenTransformedCoords.find(index) == fWrittenTransformedCoords.end()) {
                 addExtraEmitCodeLine("SkString " + name +
                                      " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
-                                     to_string(index) + "]);");
+                                     to_string(index) + "].fVaryingPoint);");
                 fWrittenTransformedCoords.insert(index);
             }
             return;
@@ -408,7 +409,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "sample" &&
         c.fArguments[0]->fType.kind() != Type::Kind::kSampler_Kind) {
         // Sanity checks that are detected by function definition in sksl_fp.inc
-        SkASSERT(c.fArguments.size() == 1 || c.fArguments.size() == 2);
+        SkASSERT(c.fArguments.size() >= 1 && c.fArguments.size() <= 3);
         SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
                  "fragmentProcessor?" == c.fArguments[0]->fType.name());
 
@@ -420,12 +421,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     "sample()'s fragmentProcessor argument must be a variable reference\n");
             return;
         }
-        if (c.fArguments.size() > 1) {
-            // Second argument must also be a half4 expression
-            SkASSERT("half4" == c.fArguments[1]->fType.name());
-        }
         const Variable& child = ((const VariableReference&) *c.fArguments[0]).fVariable;
-        int index = getChildFPIndex(child);
 
         // Start a new extra emit code section so that the emitted child processor can depend on
         // sksl variables defined in earlier sksl code.
@@ -435,25 +431,38 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         // must be properly formatted with a prefixed comma when the parameter should be inserted
         // into the invokeChild() parameter list.
         String inputArg;
-        if (c.fArguments.size() > 1) {
-            SkASSERT(c.fArguments.size() == 2);
+        if (c.fArguments.size() > 1 && c.fArguments[1]->fType.name() == "half4") {
             // Use the invokeChild() variant that accepts an input color, so convert the 2nd
             // argument's expression into C++ code that produces sksl stored in an SkString.
-            String inputName = "_input" + to_string(index);
+            String inputName = "_input" + to_string(c.fOffset);
             addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments[1], inputName));
 
             // invokeChild() needs a char*
             inputArg = ", " + inputName + ".c_str()";
         }
 
+        bool hasCoords = c.fArguments.back()->fType.name() == "float2";
+
         // Write the output handling after the possible input handling
         String childName = "_sample" + to_string(c.fOffset);
         addExtraEmitCodeLine("SkString " + childName + "(\"" + childName + "\");");
+        String coordsName;
+        if (hasCoords) {
+            coordsName = "_coords" + to_string(c.fOffset);
+            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), coordsName));
+        }
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index >= 0) {\n    ");
         }
-        addExtraEmitCodeLine("this->invokeChild(_outer." + String(child.fName) + "_index" +
-                             inputArg + ", &" + childName + ", args);");
+        if (hasCoords) {
+            addExtraEmitCodeLine("this->invokeChild(_outer." + String(child.fName) + "_index" +
+                                 inputArg + ", &" + childName + ", args, " + coordsName +
+                                 ".c_str());");
+        } else {
+            addExtraEmitCodeLine("this->invokeChild(_outer." + String(child.fName) + "_index" +
+                                 inputArg + ", &" + childName + ", args);");
+        }
+
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             // Null FPs are not emitted, but their output can still be referenced in dependent
             // expressions - thus we always declare the variable.

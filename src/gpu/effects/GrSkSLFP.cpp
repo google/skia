@@ -167,7 +167,7 @@ public:
         int substringStartIndex = 0;
         int formatArgIndex = 0;
         SkString coords = args.fTransformedCoords.count()
-            ? fragBuilder->ensureCoords2D(args.fTransformedCoords[0])
+            ? fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint)
             : SkString("sk_FragCoord");
         for (size_t i = 0; i < fGLSL.length(); ++i) {
             char c = fGLSL[i];

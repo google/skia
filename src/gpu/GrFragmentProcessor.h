@@ -8,10 +8,10 @@
 #ifndef GrFragmentProcessor_DEFINED
 #define GrFragmentProcessor_DEFINED
 
+#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/ops/GrOp.h"
 
-class GrCoordTransform;
 class GrGLSLFragmentProcessor;
 class GrPaint;
 class GrPipeline;
@@ -114,7 +114,7 @@ public:
         numTransforms(). */
     const GrCoordTransform& coordTransform(int index) const { return *fCoordTransforms[index]; }
 
-    const SkTArray<const GrCoordTransform*, true>& coordTransforms() const {
+    const SkTArray<GrCoordTransform*, true>& coordTransforms() const {
         return fCoordTransforms;
     }
 
@@ -126,6 +126,24 @@ public:
 
     /** Do any of the coordtransforms for this processor require local coords? */
     bool usesLocalCoords() const { return SkToBool(fFlags & kUsesLocalCoords_Flag); }
+
+    bool computeLocalCoordsInVertexShader() const {
+        return SkToBool(fFlags & kComputeLocalCoordsInVertexShader_Flag);
+    }
+
+    void setComputeLocalCoordsInVertexShader(bool value) const {
+        if (value) {
+            fFlags |= kComputeLocalCoordsInVertexShader_Flag;
+        } else {
+            fFlags &= ~kComputeLocalCoordsInVertexShader_Flag;
+        }
+        for (GrCoordTransform* transform : fCoordTransforms) {
+            transform->setComputeInVertexShader(value);
+        }
+        for (const auto& child : fChildProcessors) {
+            child->setComputeLocalCoordsInVertexShader(value);
+        }
+    }
 
     /**
      * A GrDrawOp may premultiply its antialiasing coverage into its GrGeometryProcessor's color
@@ -284,8 +302,8 @@ protected:
 
     GrFragmentProcessor(ClassID classID, OptimizationFlags optimizationFlags)
             : INHERITED(classID)
-            , fFlags(optimizationFlags) {
-        SkASSERT((fFlags & ~kAll_OptimizationFlags) == 0);
+            , fFlags(optimizationFlags | kComputeLocalCoordsInVertexShader_Flag) {
+        SkASSERT((optimizationFlags & ~kAll_OptimizationFlags) == 0);
     }
 
     OptimizationFlags optimizationFlags() const {
@@ -325,7 +343,7 @@ protected:
      * transforms in a consistent order. The non-virtual implementation of isEqual() automatically
      * compares transforms and will assume they line up across the two processor instances.
      */
-    void addCoordTransform(const GrCoordTransform*);
+    void addCoordTransform(GrCoordTransform*);
 
     /**
      * FragmentProcessor subclasses call this from their constructor to register any child
@@ -382,13 +400,14 @@ private:
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
         kUsesLocalCoords_Flag = kFirstPrivateFlag,
+        kComputeLocalCoordsInVertexShader_Flag = kFirstPrivateFlag << 1,
     };
 
-    mutable uint32_t fFlags = 0;
+    mutable uint32_t fFlags = kComputeLocalCoordsInVertexShader_Flag;
 
     int fTextureSamplerCnt = 0;
 
-    SkSTArray<4, const GrCoordTransform*, true> fCoordTransforms;
+    SkSTArray<4, GrCoordTransform*, true> fCoordTransforms;
 
     SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
 
