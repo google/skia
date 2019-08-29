@@ -56,6 +56,7 @@ private:
 
     GrDawnImageInfo          fInfo;
     dawn::TextureView        fTextureView;
+    dawn::Buffer             fStagingBuffer;
 
     typedef GrTexture INHERITED;
 };
