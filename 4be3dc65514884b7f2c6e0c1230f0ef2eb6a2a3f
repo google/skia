@@ -22,6 +22,30 @@
       "revId": "4be3dc65514884b7f2c6e0c1230f0ef2eb6a2a3f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be83f53b_ba91d330",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-29T19:24:23Z",
+      "side": 1,
+      "message": "It\u0027s a good point. This was an interim CL until the staging manager was implemented, and it\u0027s\npossible there was a bug here before that was written. I\u0027ll try to pull out the staging\nmanager and skip over this CL.",
+      "parentUuid": "726ff607_23e93233",
+      "range": {
+        "startLine": 177,
+        "startChar": 12,
+        "endLine": 177,
+        "endChar": 45
+      },
+      "revId": "4be3dc65514884b7f2c6e0c1230f0ef2eb6a2a3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
