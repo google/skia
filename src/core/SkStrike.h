@@ -115,8 +115,15 @@ public:
     void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables);
 
     void prepareForDrawingPathsCPU(SkDrawableGlyphBuffer* drawables);
-    void  prepareForDrawing(
-            int maxDimension, SkDrawableGlyphBuffer* drawables)override;
+
+    void prepareForMaskDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override;
+
+    void prepareForSDFTDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override;
+
+    void prepareForPathDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override;
 
     void onAboutToExitScope() override;
 
