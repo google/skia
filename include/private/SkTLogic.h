@@ -61,6 +61,19 @@ template<> struct make_index_sequence<1> : skstd::index_sequence<0>{};
 
 struct monostate {};
 
+template<typename...> struct conjunction : std::true_type { };
+template<typename B0> struct conjunction<B0> : B0 { };
+template<typename B0, typename... Bs>
+struct conjunction<B0, Bs...> : std::conditional<bool(B0::value), conjunction<Bs...>, B0>::type { };
+
+// Check to see if U can be used for const T or is the same as T
+template <typename U, typename T>
+using can_to_const_t =
+typename std::conditional<
+        std::is_same<U, T>::value,
+        std::true_type,
+        std::is_same<const U, T>>::type;
+
 }  // namespace skstd
 
 // The sknonstd namespace contains things we would like to be proposed and feel std-ish.
