@@ -49,6 +49,21 @@ public:
                                                     results);
     }
 
+    SkGlyphinator prepareForMaskDrawing(
+            SkGlyphinator glyphPos, std::vector<size_t>& rejectIndices) override {
+        return fStrike.prepareForMaskDrawing(glyphPos, rejectIndices);
+    }
+
+    SkGlyphinator prepareForSDFTDrawing(
+            SkGlyphinator glyphPos, std::vector<size_t>& rejectIndices) override {
+        return fStrike.prepareForSDFTDrawing(glyphPos, rejectIndices);
+    }
+
+    SkGlyphinator prepareForPathDrawing(
+            SkGlyphinator glyphPos, std::vector<size_t>& rejectIndices) override {
+        return fStrike.prepareForPathDrawing(glyphPos, rejectIndices);
+    }
+
     const SkDescriptor& getDescriptor() const override {
         return fStrike.getDescriptor();
     }
