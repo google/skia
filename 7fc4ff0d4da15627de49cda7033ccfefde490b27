@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ff04c94_a0cc8530",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-29T20:47:33Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem to fit our usual naming convention. Maybe SkMTKViewDelegate?",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77a465aa_142caaa7",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-29T20:47:33Z",
+      "side": 1,
+      "message": "Nit: Move { up to previous line.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3bc559c_1299599e",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-29T20:47:33Z",
+      "side": 1,
+      "message": "I\u0027ve been using Skia coding style for member variables, so fGrContext, fDelegate, etc.",
+      "range": {
+        "startLine": 45,
+        "startChar": 21,
+        "endLine": 45,
+        "endChar": 31
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "086dcbd9_24f122b9",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-29T20:47:33Z",
+      "side": 1,
+      "message": "Is this a standard pattern in ObjC? It seems squirrely.",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 15
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd5ed991_c99e5226",
+        "filename": "tools/gpu/mtl/Skia_MTKViewDelegate.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-08-29T20:47:33Z",
+      "side": 1,
+      "message": "Somewhere in here you need to put \u0027view.delegate \u003d self;\u0027 so the MTKView knows to call this delegate.\n\nAnd one thing I\u0027m not clear on is whether you need to hook the MTKView and MTKViewDelegate together in the storyboard, or call this init in the code itself.",
+      "range": {
+        "startLine": 56,
+        "startChar": 2,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "7fc4ff0d4da15627de49cda7033ccfefde490b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
