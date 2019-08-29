@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22b49c84_643e83f3",
+        "filename": "src/gpu/ops/GrAAConvexPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-29T22:03:36Z",
+      "side": 1,
+      "message": "Any reason you switched to an \"out\" parameter instead of just returning a FirstDirection?",
+      "range": {
+        "startLine": 222,
+        "startChar": 14,
+        "endLine": 222,
+        "endChar": 18
+      },
+      "revId": "7ad13684e5f04dfd9cbfbeb9943088077ea8f9a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
