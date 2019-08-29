@@ -43,6 +43,8 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         SkTextBlobBuilder builder;
+        SkScalar yOffset = 0;
+        SkRect bounds;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
         SkFont font(MakeResourceAsTypeface("fonts/HangingS.ttf"), 262);
@@ -50,23 +52,25 @@ protected:
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
         const char* text = "Skia";
+#if 0
 
         ToolUtils::add_to_text_blob(&builder, text, font, 0, 0);
 
         // large
-        SkRect bounds;
         font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
-        SkScalar yOffset = bounds.height();
+        yOffset = bounds.height();
+
         font.setSize(162);
 
         ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
+#endif
 
         // Medium
         font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         yOffset += bounds.height();
         font.setSize(72);
-
         ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
+#if 0
 
         // Small
         font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
@@ -88,6 +92,7 @@ protected:
         font.setSize(0);
 
         ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
+#endif
 
         // build
         fBlob = builder.make();
@@ -193,5 +198,5 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new TextBlobMixedSizes(false); )
-DEF_GM( return new TextBlobMixedSizes(true); )
+//DEF_GM( return new TextBlobMixedSizes(true); )
 }
