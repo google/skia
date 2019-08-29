@@ -52,7 +52,7 @@ protected:
     }
 
     SkString onShortName() override {
-        return SkString("scaledemoji");
+        return SkString("scaledemojibase");
     }
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
@@ -148,6 +148,6 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new ScaledEmojiGM;)
-DEF_GM(return new ScaledEmojiPosGM;)
+//DEF_GM(return new ScaledEmojiPosGM;)
 
 }
