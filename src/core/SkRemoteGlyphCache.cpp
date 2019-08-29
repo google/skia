@@ -16,11 +16,13 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkTypeface_remote.h"
+#include "src/core/SkZip.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrDrawOpAtlas.h"
@@ -219,6 +221,15 @@ public:
             int maxDimension,
             SkGlyphPos results[]) override;
 
+    std::tuple<SkGlyphinator, SkSpan<const size_t>>
+    prepareForMaskDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) override;
+
+    std::tuple<SkGlyphinator, SkSpan<const size_t>>
+    prepareForSDFTDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) override;
+
+    std::tuple<SkGlyphinator, SkSpan<const size_t>>
+    prepareForPathDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) override;
+
     void onAboutToExitScope() override {}
 
     bool hasPendingGlyphs() const {
@@ -272,6 +283,28 @@ private:
     // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
     // we cache them here.
     SkTHashTable<SkGlyph*, SkPackedGlyphID, GlyphMapHashTraits> fGlyphMap;
+
+    enum {
+        kTooBig = 1u << 31u,
+        kHasColor = 1u << 30u,
+        kNeedsMask = 1u << 29u;
+    };
+
+    using SkGlyphSummary = uint32_t;
+
+    struct GlyphSummaryTraits {
+        static SkPackedGlyphID GetKey(SkGlyphSummary summary) {
+            return SkPackedGlyphID{summary};
+        }
+
+        static uint32_t Hash(SkPackedGlyphID glyphId) {
+            return glyphId.hash();
+        }
+    };
+
+    SkTHashTable<SkGlyphSummary, SkPackedGlyphID, GlyphSummaryTraits> fSentGlyphs;
+    std::vector<SkGlyph> fGlyphsToSend;
+    std::vector<SkGlyph> fPathsToSend;
 
     SkArenaAlloc fAlloc{256};
 };
@@ -722,6 +755,196 @@ SkStrikeServer::RemoteStrike::prepareForDrawingRemoveEmpty(
     }
     return SkMakeSpan(results, drawableGlyphCount);
 }
+
+std::tuple<bool, SkGlyphinator>
+SkStrikeServer::RemoteStrike::glyphsBelowSize(SkGlyphinator glyphPos, int maxDimension,
+                                              bool allowSmallColorGlyphs) {
+    SkGlyphSummary totalSummary = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPackedGlyphID packedID = glyphPos.glyphs[i].packedID;
+        SkGlyphSummary* summary = fSentGlyphs.find(packedID);
+        if (summary == nullptr) {
+            fGlyphsToSend.emplace_back(packedID);
+            SkGlyph* glyph = &fGlyphsToSend.back();
+            this->ensureScalerContext();
+            fContext->getMetrics(glyph);
+            SkGlyphSummary newSummary = packedID.value();
+            if (glyph->maxDimension() > maxDimension) {
+                newSummary |= kTooBig;
+            }
+            if (glyph->isColor()) {
+                newSummary |= kHasColor;
+            }
+            summary = fSentGlyphs.set(newSummary);
+        }
+        totalSummary |= *summary;
+    }
+
+    // Fallback if some of the glyphs are color and color is not allowed...
+    bool needsFallback = !allowSmallColorGlyphs && (totalSummary & kHasColor) != 0;
+
+    // ... or if the glyphs is too big to fit in the atlas.
+    needsFallback = needsFallback || (totalSummary & kTooBig) != 0;
+
+    // Don't return any glyphs because this will track all mask type glyphs. The fallback color
+    // is handled in a second pass later.
+    return std::make_tuple(needsFallback, SkGlyphinator{});
+}
+
+std::tuple<SkGlyphinator, SkSpan<const size_t>>
+SkStrikeServer::RemoteStrike::prepareForMaskDrawing(SkGlyphinator glyphPos,
+                                                    SkSpan<size_t> rejects) {
+    size_t rejectCursor = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPackedGlyphID packedID = glyphPos.glyphs[i].packedID;
+        SkGlyphSummary* summary = fSentGlyphs.find(packedID);
+        if (summary == nullptr) {
+            // Put the new SkGlyph in the glyphs to send.
+            fGlyphsToSend.emplace_back(packedID);
+            SkGlyph* glyph = &fGlyphsToSend.back();
+
+            // Build the glyph
+            this->ensureScalerContext();
+            fContext->getMetrics(glyph);
+            SkGlyphSummary newSummary = packedID.value();
+            if (glyph->maxDimension() > SkStrikeCommon::kSkSideTooBigForAtlas) {
+                newSummary |= kTooBig;
+            }
+            if (glyph->isColor()) {
+                newSummary |= kHasColor;
+            }
+
+            summary = fSentGlyphs.set(newSummary);
+        }
+
+        // Reject things that are too big.
+        if ((*summary & kTooBig) != 0) {
+            rejects[rejectCursor++] = i;
+        }
+    }
+
+    // No normal glyphs need to be passed back.
+    return std::make_tuple(SkGlyphinator{0, nullptr, nullptr},
+                           SkMakeSpan(rejects.data(), rejectCursor));
+}
+
+std::tuple<SkGlyphinator, SkSpan<const size_t>>
+SkStrikeServer::RemoteStrike::prepareForSDFTDrawing(SkGlyphinator glyphPos,
+                                                    SkSpan<size_t> rejects) {
+    size_t rejectCursor = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPackedGlyphID packedID = glyphPos.glyphs[i].packedID;
+        SkGlyphSummary* summary = fSentGlyphs.find(packedID);
+        if (summary == nullptr) {
+            // Put the new SkGlyph in the glyphs to send.
+            fGlyphsToSend.emplace_back(packedID);
+            SkGlyph* glyph = &fGlyphsToSend.back();
+
+            // Build the glyph
+            this->ensureScalerContext();
+            fContext->getMetrics(glyph);
+            SkGlyphSummary newSummary = packedID.value();
+            if (glyph->maxDimension() > SkStrikeCommon::kSkSideTooBigForAtlas) {
+                newSummary |= kTooBig;
+            }
+            if (glyph->isColor()) {
+                newSummary |= kHasColor;
+            }
+
+            summary = fSentGlyphs.set(newSummary);
+        }
+
+        // Reject things that are too big.
+        if ((*summary & (kTooBig | kHasColor)) != 0) {
+            rejects[rejectCursor++] = i;
+        }
+    }
+
+    // No normal glyphs need to be passed back.
+    return std::make_tuple(SkGlyphinator{0, nullptr, nullptr},
+                           SkMakeSpan(rejects.data(), rejectCursor));
+}
+
+// TODO: figure out a way to make sure this does not collide with Mask. Add a bit to the rec?
+std::tuple<SkGlyphinator, SkSpan<const size_t>>
+SkStrikeServer::RemoteStrike::prepareForPathDrawing(SkGlyphinator glyphPos,
+                                                    SkSpan<size_t> rejects) {
+    size_t rejectCursor = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPackedGlyphID packedID = glyphPos.glyphs[i].packedID;
+        SkGlyphSummary* summary = fSentGlyphs.find(packedID);
+        if (summary == nullptr) {
+            // Put the new SkGlyph in the glyphs to send.
+            fPathsToSend.emplace_back(packedID);
+            SkGlyph* glyph = &fPathsToSend.back();
+
+            // Build the glyph
+            this->ensureScalerContext();
+            fContext->getMetrics(glyph);
+            SkGlyphSummary newSummary = packedID.value();
+            if (glyph->maxDimension() > SkStrikeCommon::kSkSideTooBigForAtlas) {
+                newSummary |= kTooBig;
+            }
+            if (glyph->isColor()) {
+                newSummary |= kHasColor;
+            }
+
+            summary = fSentGlyphs.set(newSummary);
+        }
+
+        // Reject things that are too big.
+        if ((*summary & kHasColor) != 0) {
+            rejects[rejectCursor++] = i;
+        }
+    }
+
+    // No normal glyphs need to be passed back.
+    return std::make_tuple(SkGlyphinator{0, nullptr, nullptr},
+                           SkMakeSpan(rejects.data(), rejectCursor));
+}
+
+
+
+std::tuple<SkScalar, SkGlyphinator>
+SkStrikeServer::RemoteStrike::glyphsForFallback(SkGlyphinator glyphPos, int maxDimension,
+                                                bool allowSmallColorGlyphs,
+                                                std::vector<SkGlyphID>& fallbackGlyphIDs,
+                                                std::vector<SkPoint>& fallbackPos) {
+    SkScalar maxFallbackDimension{-SK_ScalarInfinity};
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPackedGlyphID packedID = glyphPos.glyphs[i].packedID;
+        SkGlyphSummary* summary = fSentGlyphs.find(packedID);
+        if (summary == nullptr) {
+            fGlyphsToSend.emplace_back(packedID);
+            SkGlyph* glyph = &fGlyphsToSend.back();
+            this->ensureScalerContext();
+            fContext->getMetrics(glyph);
+            SkGlyphSummary newSummary = packedID.value();
+            if (glyph->maxDimension() > maxDimension) {
+                newSummary |= kTooBig;
+            }
+            if (glyph->isColor()) {
+                newSummary |= kHasColor;
+            }
+            SkPath path;
+            bool hasPath = fContext->getPath(packedID, &path);
+            if (!hasPath) {
+                newSummary |= kNeedsMask;
+            }
+            summary = fSentGlyphs.set(newSummary);
+        }
+
+        if (*summary & kHasColor || *summary & kNeedsMask) {
+            fallbackGlyphIDs.push_back(packedID.code());
+            fallbackPos.push_back(glyphPos.positions[i]);
+        }
+
+        if (*summary )
+        totalSummary |= *summary;
+    }
+
+    return std::tuple<SkScalar, SkGlyphinator>();
+ }
 
 // SkStrikeClient ----------------------------------------------------------------------------------
 class SkStrikeClient::DiscardableStrikePinner : public SkStrikePinner {
