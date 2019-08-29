@@ -13,6 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkSpan.h"
+#include "src/core/SkZip.h"
 
 #include <memory>
 
@@ -46,6 +47,31 @@ struct SkPathPos {
     SkPoint position;
 };
 
+struct SkGlyphIDPos {
+    size_t n;
+    const SkGlyphID* ids;
+    const SkPoint* positions;
+};
+
+struct SkGlyphinator {
+    size_t n = 0;
+    union Lookup {
+        SkGlyphID glyphID;
+        SkPackedGlyphID packedID;
+        const SkGlyph* glyph;
+        const SkPath* path;
+    }* glyphs = nullptr;
+    SkPoint* positions = nullptr;
+
+    SkZip<Lookup, SkPoint> zip() const {
+        return SkZip<Lookup, SkPoint>{n, glyphs, positions};
+    }
+    bool empty() const { return n == 0; }
+    SkGlyphinator first(size_t firstN) {
+        return SkGlyphinator{firstN, glyphs, positions};
+    }
+};
+
 class SkStrikeInterface {
 public:
     virtual ~SkStrikeInterface() = default;
@@ -63,6 +89,16 @@ public:
                                  size_t n,
                                  int maxDimension,
                                  SkGlyphPos results[]) = 0;
+
+
+    virtual std::tuple<SkGlyphinator, SkSpan<const size_t>>
+    prepareForMaskDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) = 0;
+
+    virtual std::tuple<SkGlyphinator, SkSpan<const size_t>>
+    prepareForSDFTDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) = 0;
+
+    virtual std::tuple<SkGlyphinator, SkSpan<const size_t>>
+    prepareForPathDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) = 0;
 
     // rounding() and subpixelMask are used to calculate the subpixel position of a glyph.
     // The per component (x or y) calculation is:
