@@ -186,24 +186,38 @@ private:
 
 */
 
+struct ShapeInfo {
+   SkVector ctrl0,
+            ctrl1;
+   float    e0, e1, crs;
+};
+
+SkVector EaseVec(float ease) {
+    return (ease < 0) ? SkVector{0, -ease} : SkVector{ease, 0};
+}
+
 struct ShapeGenerator {
-    SkCubicMap mapper;
+    SkCubicMap shape_mapper,
+                ease_mapper;
     float      e0, e1, crs;
+
+    ShapeGenerator(const ShapeInfo& sinfo, float ease_lo, float ease_hi)
+        : shape_mapper(sinfo.ctrl0, sinfo.ctrl1)
+        , ease_mapper(EaseVec(ease_lo), SkVector{1,1} - EaseVec(ease_hi))
+        , e0(sinfo.e0)
+        , e1(sinfo.e1)
+        , crs(sinfo.crs) {}
 
     float operator()(float t) const {
         // SkCubicMap clamps its input, so we can let it all hang out.
         t = std::min(t - e0, e1 - t);
         t = sk_ieee_float_divide(t, crs);
 
-        return mapper.computeYFromX(t);
+        return ease_mapper.computeYFromX(shape_mapper.computeYFromX(t));
     }
 };
 
-static constexpr struct {
-    SkPoint ctrl0,
-            ctrl1;
-    float   e0, e1, crs;
-} gShapeInfo[] = {
+static constexpr ShapeInfo gShapeInfo[] = {
     { {0  ,0  }, {1  ,1}, 0                       , 1               , 0.0f }, // Shape::kSquare
     { {0  ,0  }, {1  ,1}, 0                       , SK_FloatInfinity, 1.0f }, // Shape::kRampUp
     { {0  ,0  }, {1  ,1}, SK_FloatNegativeInfinity, 1               , 1.0f }, // Shape::kRampDown
@@ -283,6 +297,14 @@ sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
         [selector](const ScalarValue& a) {
             selector->fAmount = a;
         });
+    abuilder->bindProperty<ScalarValue>((*jrange)["ne"],
+        [selector](const ScalarValue& ne) {
+            selector->fEaseLo = ne;
+        });
+    abuilder->bindProperty<ScalarValue>((*jrange)["xe"],
+        [selector](const ScalarValue& xe) {
+            selector->fEaseHi = xe;
+        });
 
     return selector;
 }
@@ -341,8 +363,10 @@ void RangeSelector::modulateCoverage(const TextAnimator::DomainMaps& maps,
         return;
     }
 
-    // Amount is percentage based [-100% .. 100%].
-    const auto amount = SkTPin<float>(fAmount / 100, -1, 1);
+    // Amount, ease-low and ease-high are percentage-based [-100% .. 100%].
+    const auto amount = SkTPin<float>(fAmount / 100, -1, 1),
+              ease_lo = SkTPin<float>(fEaseLo / 100, -1, 1),
+              ease_hi = SkTPin<float>(fEaseHi / 100, -1, 1);
 
     // Resolve to a float range in the given domain.
     const auto range = this->resolve(coverage_proc.size());
@@ -350,9 +374,7 @@ void RangeSelector::modulateCoverage(const TextAnimator::DomainMaps& maps,
                  len = std::max(std::get<1>(range) - r0, std::numeric_limits<float>::epsilon());
 
     SkASSERT(static_cast<size_t>(fShape) < SK_ARRAY_COUNT(gShapeInfo));
-    const auto& info = gShapeInfo[static_cast<size_t>(fShape)];
-
-    ShapeGenerator gen{SkCubicMap(info.ctrl0, info.ctrl1), info.e0, info.e1, info.crs};
+    ShapeGenerator gen(gShapeInfo[static_cast<size_t>(fShape)], ease_lo, ease_hi);
 
     if (fShape == Shape::kSquare) {
         // Canonical square generators have collapsed ramps, but AE square selectors have
