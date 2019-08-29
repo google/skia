@@ -186,35 +186,80 @@ SkStrike::prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* r
     return {results, glyphIDs.size()};
 }
 
-// N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
-// position or that there are no mask pixels.
-SkSpan<const SkGlyphPos>
-SkStrike::prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
-                                       const SkPoint positions[],
-                                       size_t n,
-                                       int maxDimension,
-                                       SkGlyphPos results[]) {
-    size_t drawableGlyphCount = 0;
-    for (size_t i = 0; i < n; i++) {
-        SkPoint pos = positions[i];
+SkGlyphinator SkStrike::prepareForMaskDrawing(
+        SkGlyphinator glyphPos, std::vector<size_t>&rejectIndices) {
+    size_t drawableGlyphs = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPoint pos = glyphPos.positions[i];
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyph* glyphPtr = this->glyph(packedGlyphIDs[i]);
-            if (!glyphPtr->isEmpty()) {
-                results[drawableGlyphCount++] = {i, glyphPtr, pos};
-                if (glyphPtr->maxDimension() <= maxDimension) {
-                    // The glyph fits. Prepare image later.
-                } else if (!glyphPtr->isColor()) {
-                    // The out of atlas glyph is not color so we can draw it using paths.
-                    this->preparePath(glyphPtr);
+            SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
+            if (!glyph->isEmpty()) {
+                if (CanDrawAsMask(*glyph)) {
+                    glyphPos.glyphs[drawableGlyphs].glyph = glyph;
+                    glyphPos.positions[drawableGlyphs] = pos;
+                    drawableGlyphs++;
                 } else {
-                    // This will be handled by the fallback strike.
-                    SkASSERT(glyphPtr->maxDimension() > maxDimension && glyphPtr->isColor());
+                    rejectIndices.push_back(i);
                 }
             }
         }
     }
 
-    return SkSpan<const SkGlyphPos>{results, drawableGlyphCount};
+    return glyphPos.first(drawableGlyphs);
+}
+
+SkGlyphinator SkStrike::prepareForSDFTDrawing(
+        SkGlyphinator glyphPos, std::vector<size_t>& rejectIndices) {
+    size_t drawableGlyphs = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPoint pos = glyphPos.positions[i];
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
+            if (!glyph->isEmpty()) {
+                if (CanDrawAsSDFT(*glyph)) {
+                    glyphPos.glyphs[drawableGlyphs].glyph = glyph;
+                    glyphPos.positions[drawableGlyphs] = pos;
+                    drawableGlyphs++;
+                } else {
+                    rejectIndices.push_back(i);
+                }
+            }
+        }
+    }
+
+    return glyphPos.first(drawableGlyphs);
+}
+
+SkGlyphinator SkStrike::prepareForPathDrawing(
+        SkGlyphinator glyphPos,
+        std::vector<size_t>& rejectIndices,
+        int* rejectedMaxDimension) {
+    size_t drawableGlyphs = 0;
+    *rejectedMaxDimension = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPoint pos = glyphPos.positions[i];
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
+            if (!glyph->isEmpty()) {
+                if (!glyph->isColor()) {
+                    const SkPath* path = this->preparePath(glyph);
+                    if (path != nullptr) {
+                        glyphPos.glyphs[drawableGlyphs].path = path;
+                        glyphPos.positions[drawableGlyphs] = pos;
+                        drawableGlyphs++;
+                    } else {
+                        *rejectedMaxDimension =
+                                SkTMax(*rejectedMaxDimension, glyph->maxDimension());
+                        rejectIndices.push_back(i);
+                    }
+                } else {
+                    *rejectedMaxDimension = SkTMax(*rejectedMaxDimension, glyph->maxDimension());
+                    rejectIndices.push_back(i);
+                }
+            }
+        }
+    }
+    return glyphPos.first(drawableGlyphs);
 }
 
 void SkStrike::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
