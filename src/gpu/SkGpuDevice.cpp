@@ -1570,6 +1570,7 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     }
 
     fRenderTargetContext->drawGlyphRunList(this->clip(), ctm, glyphRunList);
+    fContext->flush();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -48,13 +48,13 @@ class SkZip {
     };
 
 public:
+    SkZip() = default;
     SkZip(size_t) = delete;
     constexpr SkZip(size_t size, Ts*... ts)
             : fPointers{ts...}
             , fSize{size} {}
 
-    template<typename... Us>
-    constexpr SkZip(const SkZip<Us...>& that)
+    constexpr SkZip(const SkZip& that)
             : fPointers{that.fPointers}
             , fSize{that.fSize} {}
 
@@ -71,8 +71,14 @@ public:
     template<size_t I> constexpr auto get() const {
         return SkMakeSpan(std::get<I>(fPointers), fSize);
     }
+    constexpr std::tuple<Ts*...> const data() { return fPointers; }
+    SkZip first(size_t n) {
+        SkASSERT(n <= this->size());
+        return SkZip(n, fPointers);
+    }
 
 private:
+    SkZip(size_t n, std::tuple<Ts*...>& pointers) : fSize{n}, fPointers{pointers} {}
     constexpr ReturnTuple index(size_t i) const {
         SkASSERT(this->size() > 0);
         SkASSERT(i < this->size());
