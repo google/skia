@@ -25,7 +25,7 @@ HCodeGenerator::HCodeGenerator(const Context* context, const Program* program,
 , fContext(*context)
 , fName(std::move(name))
 , fFullName(String::printf("Gr%s", fName.c_str()))
-, fSectionAndParameterHelper(*program, *errors) {}
+, fSectionAndParameterHelper(program, *errors) {}
 
 String HCodeGenerator::ParameterType(const Context& context, const Type& type,
                                      const Layout& layout) {
@@ -281,6 +281,10 @@ void HCodeGenerator::writeConstructor() {
             }
             this->writef("            %s_index = this->numChildProcessors();",
                          FieldName(String(param->fName).c_str()).c_str());
+            if (fSectionAndParameterHelper.hasCoordOverrides(*param)) {
+                this->writef("            %s->setComputeLocalCoordsInVertexShader(false);",
+                             String(param->fName).c_str());
+            }
             this->writef("            this->registerChildProcessor(std::move(%s));",
                          String(param->fName).c_str());
             if (param->fType.kind() == Type::kNullable_Kind) {
