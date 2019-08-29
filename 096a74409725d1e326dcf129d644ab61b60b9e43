@@ -1,0 +1,120 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e73f6f88_1c9eb147",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-29T18:22:14Z",
+      "side": 1,
+      "message": "Maybe just remove (since \u0027current\u0027 appears later)",
+      "parentUuid": "a5918b10_743dd152",
+      "range": {
+        "startLine": 405,
+        "startChar": 37,
+        "endLine": 405,
+        "endChar": 46
+      },
+      "revId": "096a74409725d1e326dcf129d644ab61b60b9e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0ccc9d3_81dbaae1",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-29T18:22:14Z",
+      "side": 1,
+      "message": "Maybe the bug link here ?",
+      "range": {
+        "startLine": 408,
+        "startChar": 36,
+        "endLine": 408,
+        "endChar": 39
+      },
+      "revId": "096a74409725d1e326dcf129d644ab61b60b9e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43828575_45735227",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-29T18:22:14Z",
+      "side": 1,
+      "message": "force the resource allocator ?",
+      "range": {
+        "startLine": 477,
+        "startChar": 18,
+        "endLine": 477,
+        "endChar": 44
+      },
+      "revId": "096a74409725d1e326dcf129d644ab61b60b9e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fe73e19_1b27c65a",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-29T18:22:14Z",
+      "side": 1,
+      "message": "if the resource allocator is at the end of its list it will skip ... ?",
+      "range": {
+        "startLine": 478,
+        "startChar": 7,
+        "endLine": 478,
+        "endChar": 20
+      },
+      "revId": "096a74409725d1e326dcf129d644ab61b60b9e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0adfb209_04035693",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-08-29T18:22:14Z",
+      "side": 1,
+      "message": "the first ?",
+      "range": {
+        "startLine": 492,
+        "startChar": 85,
+        "endLine": 492,
+        "endChar": 90
+      },
+      "revId": "096a74409725d1e326dcf129d644ab61b60b9e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
