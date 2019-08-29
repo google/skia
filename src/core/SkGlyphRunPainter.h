@@ -34,7 +34,7 @@ public:
 
 class SkGlyphRunListPainter {
 public:
-    // Constructor for SkBitmpapDevice.
+    // Constructor for SkBitmapDevice.
     SkGlyphRunListPainter(const SkSurfaceProps& props,
                           SkColorType colorType,
                           SkColorSpace* cs,
@@ -111,6 +111,13 @@ private:
             SkPoint* mappedPositions,
             SkPackedGlyphID* results);
 
+    static SkGlyphinator DeviceSpacePackedGlyphIDs(
+            SkStrikeInterface* strike,
+            const SkMatrix& viewMatrix,
+            const SkPoint& origin,
+            SkGlyphIDPos glyphPos,
+            SkGlyphinator results);
+
     static SkSpan<const SkPackedGlyphID> SourceSpacePackedGlyphIDs(
             const SkPoint& origin,
             int n,
@@ -118,6 +125,11 @@ private:
             const SkPoint* positions,
             SkPoint* mappedPositions,
             SkPackedGlyphID* results);
+
+    static SkGlyphinator SourceSpacePackedGlyphIDs(
+            const SkPoint& origin,
+            SkGlyphIDPos glyphPos,
+            SkGlyphinator results);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
@@ -130,6 +142,7 @@ private:
 
     int fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    SkAutoTMalloc<SkGlyphinator::Lookup> fGlyphPop;
     SkAutoTMalloc<SkPackedGlyphID> fPackedGlyphIDs;
     SkAutoTMalloc<SkGlyphPos> fGlyphPos;
 
@@ -158,7 +171,7 @@ public:
 
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
-    virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceMasks(SkGlyphinator inator,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
@@ -166,7 +179,7 @@ public:
 
     virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
-    virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceSDFT(SkGlyphinator inator,
                                    const SkStrikeSpec& strikeSpec,
                                    const SkFont& runFont,
                                    SkScalar minScale,
