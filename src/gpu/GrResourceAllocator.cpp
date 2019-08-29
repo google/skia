@@ -418,7 +418,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     this->dumpIntervals();
 #endif
     while (Interval* cur = fIntvlList.popHead()) {
-        if (fEndOfOpsTaskOpIndices[fCurOpsTaskIndex] <= cur->start()) {
+        while (fEndOfOpsTaskOpIndices[fCurOpsTaskIndex] <= cur->start()) {
             fCurOpsTaskIndex++;
             SkASSERT(fCurOpsTaskIndex < fNumOpsTasks);
         }
