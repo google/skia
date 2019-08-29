@@ -34,7 +34,7 @@ public:
 
 class SkGlyphRunListPainter {
 public:
-    // Constructor for SkBitmpapDevice.
+    // Constructor for SkBitmapDevice.
     SkGlyphRunListPainter(const SkSurfaceProps& props,
                           SkColorType colorType,
                           SkColorSpace* cs,
@@ -158,15 +158,15 @@ public:
 
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
-    virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceMasks(SkGlyphinator inator,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
-    virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
+    virtual void processSourcePaths(SkGlyphinator inator,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
-    virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceSDFT(SkGlyphinator inator,
                                    const SkStrikeSpec& strikeSpec,
                                    const SkFont& runFont,
                                    SkScalar minScale,
