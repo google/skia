@@ -186,6 +186,76 @@ SkStrike::prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* r
     return {results, glyphIDs.size()};
 }
 
+std::tuple<SkGlyphinator, SkSpan<const size_t>>
+SkStrike::prepareForMaskDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) {
+    size_t rejectGlyphs = 0;
+    size_t drawableGlyphs = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPoint pos = glyphPos.positions[i];
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
+            if (!glyph->isEmpty()
+                && glyph->maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas)
+            {
+                glyphPos.glyphs[drawableGlyphs].glyph = glyph;
+                glyphPos.positions[drawableGlyphs] = pos;
+                drawableGlyphs++;
+            } else {
+                rejects[rejectGlyphs++] = i;
+            }
+        }
+    }
+
+    return {glyphPos.first(drawableGlyphs), rejects.first(rejectGlyphs)};
+}
+
+std::tuple<SkGlyphinator, SkSpan<const size_t>>
+SkStrike::prepareForSDFTDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) {
+    size_t rejectGlyphs = 0;
+    size_t drawableGlyphs = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPoint pos = glyphPos.positions[i];
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
+            if (!glyph->isEmpty()
+                && !glyph->isColor()
+                && glyph->maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas)
+            {
+                glyphPos.glyphs[drawableGlyphs].glyph = glyph;
+                glyphPos.positions[drawableGlyphs] = pos;
+                drawableGlyphs++;
+            } else {
+                rejects[rejectGlyphs++] = i;
+            }
+        }
+    }
+
+    return {glyphPos.first(drawableGlyphs), rejects.first(rejectGlyphs)};
+}
+
+std::tuple<SkGlyphinator, SkSpan<const size_t>>
+SkStrike::prepareForPathDrawing(SkGlyphinator glyphPos, SkSpan<size_t> rejects) {
+    size_t rejectGlyphs = 0;
+    size_t drawableGlyphs = 0;
+    for (size_t i = 0; i < glyphPos.n; i++) {
+        SkPoint pos = glyphPos.positions[i];
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
+            if (!glyph->isEmpty()
+                && !glyph->isColor())
+            {
+                glyphPos.glyphs[drawableGlyphs].path = this->preparePath(glyph);
+                glyphPos.positions[drawableGlyphs] = pos;
+                drawableGlyphs++;
+            } else {
+                rejects[rejectGlyphs++] = i;
+            }
+        }
+    }
+
+    return {glyphPos.first(drawableGlyphs), rejects.first(rejectGlyphs)};
+}
+
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
 // position or that there are no mask pixels.
 SkSpan<const SkGlyphPos>
