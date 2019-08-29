@@ -270,7 +270,6 @@ bool Window_ios::attach(BackendType attachType) {
             fWindowContext = MakeGLForIOS(info, fRequestedDisplayParams);
             break;
     }
-    this->onBackendCreated();
 
     return (SkToBool(fWindowContext));
 }

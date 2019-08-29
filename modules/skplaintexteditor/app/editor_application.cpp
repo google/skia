@@ -155,8 +155,6 @@ struct EditorLayer : public sk_app::Window::Layer {
         }
     }
 
-    void onAttach(sk_app::Window* w) override { fParent = w; }
-
     bool scroll(int delta) {
         int maxPos = std::max(0, fEditor.getHeight() + 2 * fMargin - fHeight / 2);
         int newpos = std::max(0, std::min(fPos + delta, maxPos));
@@ -382,6 +380,8 @@ struct EditorApplication : public sk_app::Application {
         fLayer.setFont();
 
         fWindow->pushLayer(&fLayer);
+        fLayer.fParent = fWindow.get();
+
         fWindow->setTitle(SkStringPrintf("Editor: \"%s\"", fLayer.fPath.c_str()).c_str());
         fLayer.onResize(fWindow->width(), fWindow->height());
         fLayer.fEditor.paint(nullptr, Editor::PaintOpts());

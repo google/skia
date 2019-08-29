@@ -43,6 +43,9 @@ private:
     double fCumulativeMeasurementTime;
     int fCumulativeMeasurementCount;
     float fDisplayScale;
+
+public:
+    bool fLayerIsActive = true;
 };
 
 #endif

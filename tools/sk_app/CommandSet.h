@@ -43,7 +43,7 @@ public:
     void attach(Window* window);
     bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers);
     bool onChar(SkUnichar, skui::ModifierKey modifiers);
-    bool onSoftkey(const SkString& softkey);
+    bool onSoftkey(const char* softkey);
 
     void addCommand(SkUnichar c, const char* group, const char* description,
                     std::function<void(void)> function);

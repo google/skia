@@ -119,8 +119,8 @@ public:
 
     typedef std::function<void(SkCanvas*)> SkiaWidgetFunc;
     void skiaWidget(const ImVec2& size, SkiaWidgetFunc func);
+    void setWindow(sk_app::Window* window) { fWindow = window; }
 
-    void onAttach(sk_app::Window* window) override;
     void onPrePaint() override;
     void onPaint(SkSurface*) override;
     bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) override;
@@ -129,7 +129,7 @@ public:
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
 
 private:
-    sk_app::Window* fWindow;
+    sk_app::Window* fWindow = nullptr;
     SkPaint fFontPaint;
     SkTArray<SkiaWidgetFunc> fSkiaWidgetFuncs;
 };

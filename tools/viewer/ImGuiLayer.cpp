@@ -66,10 +66,6 @@ ImGuiLayer::~ImGuiLayer() {
     ImGui::DestroyContext();
 }
 
-void ImGuiLayer::onAttach(Window* window) {
-    fWindow = window;
-}
-
 bool ImGuiLayer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos.x = static_cast<float>(x);

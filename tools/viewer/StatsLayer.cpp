@@ -56,6 +56,9 @@ void StatsLayer::endTiming(Timer timer) {
 }
 
 void StatsLayer::onPrePaint() {
+    if (!fLayerIsActive) {
+        return;
+    }
     if (fCurrentMeasurement >= 0) {
         fTotalTimes[fCurrentMeasurement] = SkTime::GetMSecs() - fLastTotalBegin;
         fCumulativeMeasurementTime += fTotalTimes[fCurrentMeasurement];
@@ -67,6 +70,9 @@ void StatsLayer::onPrePaint() {
 }
 
 void StatsLayer::onPaint(SkSurface* surface) {
+    if (!fLayerIsActive) {
+        return;
+    }
     int nextMeasurement = (fCurrentMeasurement + 1) & (kMeasurementCount - 1);
     for (int i = 0; i < fTimers.count(); ++i) {
         fTimers[i].fTimes[nextMeasurement] = 0;
