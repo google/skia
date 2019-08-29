@@ -52,6 +52,9 @@ public:
         // Called when our corresponding path is modified or deleted. Not threadsafe.
         void onChange() override;
 
+        // TODO(b/30449950): use sized delete once P0722R3 is available
+        static void operator delete(void* p);
+
     private:
         Key(uint32_t pathCacheUniqueID, int dataCountU32)
                 : fPathCacheUniqueID(pathCacheUniqueID)

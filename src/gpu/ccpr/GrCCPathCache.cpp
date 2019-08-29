@@ -75,6 +75,8 @@ sk_sp<GrCCPathCache::Key> GrCCPathCache::Key::Make(uint32_t pathCacheUniqueID,
     return key;
 }
 
+void GrCCPathCache::Key::operator delete(void* p) { ::operator delete(p); }
+
 const uint32_t* GrCCPathCache::Key::data() const {
     // The shape key is a variable-length footer to the entry allocation.
     return reinterpret_cast<const uint32_t*>(reinterpret_cast<const char*>(this) + sizeof(Key));
