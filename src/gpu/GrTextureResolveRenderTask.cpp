@@ -45,8 +45,8 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
     GrTexture* texture = fTarget->peekTexture();
     SkASSERT(texture);
 
-    if (GrTextureResolveFlags::kMipMaps & fResolveFlags) {
-        SkASSERT(texture->texturePriv().mipMapsAreDirty());
+    if ((GrTextureResolveFlags::kMipMaps & fResolveFlags) &&
+        texture->texturePriv().mipMapsAreDirty()) {
         flushState->gpu()->regenerateMipMapLevels(texture);
     }
 
