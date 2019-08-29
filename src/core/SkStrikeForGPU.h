@@ -12,14 +12,18 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkGlyph.h"
+#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkSpan.h"
+#include "src/core/SkZip.h"
 
 #include <memory>
+#include <vector>
 
 class SkDescriptor;
 class SkGlyph;
 class SkMaskFilter;
 class SkPathEffect;
+class SkStrikeForGPU;
 class SkTypeface;
 struct SkScalerContextEffects;
 
@@ -34,23 +38,25 @@ struct SkPathPos {
     SkPoint position;
 };
 
+struct SkGlyphIDPos {
+    size_t n;
+    const SkGlyphID* ids;
+    const SkPoint* positions;
+};
+
 class SkStrikeForGPU {
 public:
     virtual ~SkStrikeForGPU() = default;
     virtual const SkDescriptor& getDescriptor() const = 0;
 
-    // prepareForDrawingRemoveEmpty takes glyphIDs, and position, and returns a list of SkGlyphs
-    // and positions where all the data to draw the glyph has been created. The maxDimension
-    // parameter determines if the mask/SDF version will be created, or an alternate drawing
-    // format should be used. For path-only drawing set maxDimension to 0, and for bitmap-device
-    // drawing (where there is no upper limit to the glyph in the cache) use INT_MAX.
-    // prepareForDrawingRemoveEmpty should remove all empty glyphs from the returned span.
-    virtual SkSpan<const SkGlyphPos>
-    prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
-                                 const SkPoint positions[],
-                                 size_t n,
-                                 int maxDimension,
-                                 SkGlyphPos results[]) = 0;
+    virtual void prepareForMaskDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) = 0;
+
+    virtual void prepareForSDFTDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) = 0;
+
+    virtual void prepareForPathDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) = 0;
 
     // rounding() and subpixelMask are used to calculate the subpixel position of a glyph.
     // The per component (x or y) calculation is:
@@ -69,6 +75,7 @@ public:
     static bool CanDrawAsMask(const SkGlyph& glyph);
     static bool CanDrawAsSDFT(const SkGlyph& glyph);
     static bool CanDrawAsPath(const SkGlyph& glyph);
+    static bool FitsInAtlas(const SkGlyph& glyph);
 
 
     struct Deleter {
