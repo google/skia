@@ -14,14 +14,17 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkSpan.h"
+#include "src/core/SkZip.h"
 
 #include <memory>
+#include <vector>
 
 class SkDescriptor;
 class SkDrawableGlyphBuffer;
 class SkGlyph;
 class SkMaskFilter;
 class SkPathEffect;
+class SkStrikeForGPU;
 class SkTypeface;
 struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
