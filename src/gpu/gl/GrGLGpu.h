@@ -121,6 +121,12 @@ public:
     // stencil buffer as not dirty?
     void clearStencil(GrRenderTarget*, int clearValue);
 
+    void discard(GrRenderTarget* renderTarget) {
+        // TODO: Implement with glInvalidateFramebuffer.
+        // Mark the renderTarget dirty when discarded (see http://skbug.com/9373).
+        this->didWriteToSurface(renderTarget, kTopLeft_GrSurfaceOrigin, nullptr);
+    }
+
     GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,

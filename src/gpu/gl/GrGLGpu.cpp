@@ -2402,6 +2402,13 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
     }
     if (!this->flushGLState(renderTarget, origin, primProc, pipeline, fixedDynamicState,
                             dynamicStateArrays, meshCount, hasPoints)) {
+        // TEMPORARY: We will soon remove mipmap status from GrTexture, but as we transition, we are
+        // asserting that the proxies agree with our own dirty states. The proxies could not have
+        // known flushGLStates would fail, and will expect the target to be dirty. Mark it dirty
+        // before aborting the draw just to keep the asserts happy.
+        if (GrTexture* tex = renderTarget->asTexture()) {
+            tex->texturePriv().markMipMapsDirty();
+        }
         return;
     }
 
