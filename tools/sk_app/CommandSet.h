@@ -41,13 +41,13 @@ public:
     CommandSet();
 
     void attach(Window* window);
-    bool onKey(sk_app::Window::Key key, InputState state, ModifierKey modifiers);
-    bool onChar(SkUnichar, ModifierKey modifiers);
+    bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers);
+    bool onChar(SkUnichar, skui::ModifierKey modifiers);
     bool onSoftkey(const SkString& softkey);
 
     void addCommand(SkUnichar c, const char* group, const char* description,
                     std::function<void(void)> function);
-    void addCommand(Window::Key k, const char* keyName, const char* group, const char* description,
+    void addCommand(skui::Key k, const char* keyName, const char* group, const char* description,
                     std::function<void(void)> function);
 
     void drawHelp(SkCanvas* canvas);
@@ -70,7 +70,7 @@ private:
             , fDescription(description)
             , fFunction(function) {}
 
-        Command(Window::Key k, const char* keyName, const char* group, const char* description,
+        Command(skui::Key k, const char* keyName, const char* group, const char* description,
                 std::function<void(void)> function)
             : fType(kKey_CommandType)
             , fKey(k)
@@ -85,7 +85,7 @@ private:
         SkUnichar fChar;
 
         // For kKey_CommandType
-        Window::Key fKey;
+        skui::Key fKey;
 
         // Common to all command types
         SkString fKeyName;

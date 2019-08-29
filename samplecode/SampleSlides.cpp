@@ -443,7 +443,7 @@ protected:
         gProc[fIndex](canvas);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         this->init();
         fIndex = (fIndex + 1) % SK_ARRAY_COUNT(gProc);
         return nullptr;

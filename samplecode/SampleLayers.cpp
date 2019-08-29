@@ -217,7 +217,7 @@ protected:
         return true;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         return new Click();
     }
 

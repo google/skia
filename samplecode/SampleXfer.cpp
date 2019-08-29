@@ -160,7 +160,7 @@ protected:
         canvas->restore();
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         // Check mode buttons first
         for (int i = 0; i < N_Modes; ++i) {
             if (fModeButtons[i].hitTest(x, y)) {
@@ -182,7 +182,7 @@ protected:
     bool onClick(Click* click) override {
         int32_t mode;
         if (click->fMeta.findS32("mode", &mode)) {
-            if (fSelected && InputState::kUp == click->fState) {
+            if (fSelected && skui::InputState::kUp == click->fState) {
                 fSelected->fMode = gModes[mode];
             }
         } else {

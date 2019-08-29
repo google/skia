@@ -30,7 +30,7 @@ public:
     bool animate(double) override;
 
     bool onChar(SkUnichar) override;
-    bool onMouse(SkScalar x, SkScalar y, InputState, ModifierKey modifiers) override;
+    bool onMouse(SkScalar x, SkScalar y, skui::InputState, skui::ModifierKey modifiers) override;
 
 private:
     SkString                           fPath;

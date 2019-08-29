@@ -181,9 +181,9 @@ bool SkottieSlide::onChar(SkUnichar c) {
     return INHERITED::onChar(c);
 }
 
-bool SkottieSlide::onMouse(SkScalar x, SkScalar y, InputState state, ModifierKey) {
+bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey) {
     switch (state) {
-    case InputState::kUp:
+    case skui::InputState::kUp:
         fShowAnimationInval = !fShowAnimationInval;
         fShowAnimationStats = !fShowAnimationStats;
         break;

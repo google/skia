@@ -13,10 +13,10 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/private/SkMacros.h"
-#include "tools/InputState.h"
-#include "tools/ModifierKey.h"
 #include "tools/Registry.h"
 #include "tools/SkMetaData.h"
+#include "tools/skui/InputState.h"
+#include "tools/skui/ModifierKey.h"
 
 class SkCanvas;
 class Sample;
@@ -59,11 +59,11 @@ public:
         SkPoint     fOrig = {0, 0};
         SkPoint     fPrev = {0, 0};
         SkPoint     fCurr = {0, 0};
-        InputState  fState = InputState::kDown;
-        ModifierKey fModifierKeys = ModifierKey::kNone;
+        skui::InputState  fState = skui::InputState::kDown;
+        skui::ModifierKey fModifierKeys = skui::ModifierKey::kNone;
         SkMetaData  fMeta;
     };
-    bool mouse(SkPoint point, InputState clickState, ModifierKey modifierKeys);
+    bool mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey modifierKeys);
 
     void setBGColor(SkColor color) { fBGColor = color; }
     bool animate(double nanos) { return this->onAnimate(nanos); }
@@ -75,7 +75,7 @@ protected:
     virtual void onSizeChange();
 
     /** Override this if you might handle the click */
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi);
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi);
 
     /** Override to track clicks. Return true as long as you want to track the pen/mouse. */
     virtual bool onClick(Click*);

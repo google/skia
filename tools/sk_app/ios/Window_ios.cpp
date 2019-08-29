@@ -6,9 +6,9 @@
 */
 
 #include "src/core/SkUtils.h"
-#include "tools/ModifierKey.h"
 #include "tools/sk_app/ios/WindowContextFactory_ios.h"
 #include "tools/sk_app/ios/Window_ios.h"
+#include "tools/skui/ModifierKey.h"
 #include "tools/timer/Timer.h"
 
 namespace sk_app {
@@ -96,57 +96,57 @@ void Window_ios::closeWindow() {
     }
 }
 
-static Window::Key get_key(const SDL_Keysym& keysym) {
+static skui::Key get_key(const SDL_Keysym& keysym) {
     static const struct {
         SDL_Keycode fSDLK;
-        Window::Key fKey;
+        skui::Key fKey;
     } gPair[] = {
-        { SDLK_BACKSPACE, Window::Key::kBack },
-        { SDLK_CLEAR, Window::Key::kBack },
-        { SDLK_RETURN, Window::Key::kOK },
-        { SDLK_UP, Window::Key::kUp },
-        { SDLK_DOWN, Window::Key::kDown },
-        { SDLK_LEFT, Window::Key::kLeft },
-        { SDLK_RIGHT, Window::Key::kRight },
-        { SDLK_TAB, Window::Key::kTab },
-        { SDLK_PAGEUP, Window::Key::kPageUp },
-        { SDLK_PAGEDOWN, Window::Key::kPageDown },
-        { SDLK_HOME, Window::Key::kHome },
-        { SDLK_END, Window::Key::kEnd },
-        { SDLK_DELETE, Window::Key::kDelete },
-        { SDLK_ESCAPE, Window::Key::kEscape },
-        { SDLK_LSHIFT, Window::Key::kShift },
-        { SDLK_RSHIFT, Window::Key::kShift },
-        { SDLK_LCTRL, Window::Key::kCtrl },
-        { SDLK_RCTRL, Window::Key::kCtrl },
-        { SDLK_LALT, Window::Key::kOption },
-        { SDLK_LALT, Window::Key::kOption },
-        { 'A', Window::Key::kA },
-        { 'C', Window::Key::kC },
-        { 'V', Window::Key::kV },
-        { 'X', Window::Key::kX },
-        { 'Y', Window::Key::kY },
-        { 'Z', Window::Key::kZ },
+        { SDLK_BACKSPACE, skui::Key::kBack     },
+        { SDLK_CLEAR,     skui::Key::kBack     },
+        { SDLK_RETURN,    skui::Key::kOK       },
+        { SDLK_UP,        skui::Key::kUp       },
+        { SDLK_DOWN,      skui::Key::kDown     },
+        { SDLK_LEFT,      skui::Key::kLeft     },
+        { SDLK_RIGHT,     skui::Key::kRight    },
+        { SDLK_TAB,       skui::Key::kTab      },
+        { SDLK_PAGEUP,    skui::Key::kPageUp   },
+        { SDLK_PAGEDOWN,  skui::Key::kPageDown },
+        { SDLK_HOME,      skui::Key::kHome     },
+        { SDLK_END,       skui::Key::kEnd      },
+        { SDLK_DELETE,    skui::Key::kDelete   },
+        { SDLK_ESCAPE,    skui::Key::kEscape   },
+        { SDLK_LSHIFT,    skui::Key::kShift    },
+        { SDLK_RSHIFT,    skui::Key::kShift    },
+        { SDLK_LCTRL,     skui::Key::kCtrl     },
+        { SDLK_RCTRL,     skui::Key::kCtrl     },
+        { SDLK_LALT,      skui::Key::kOption   },
+        { SDLK_LALT,      skui::Key::kOption   },
+        { 'A',            skui::Key::kA        },
+        { 'C',            skui::Key::kC        },
+        { 'V',            skui::Key::kV        },
+        { 'X',            skui::Key::kX        },
+        { 'Y',            skui::Key::kY        },
+        { 'Z',            skui::Key::kZ        },
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fSDLK == keysym.sym) {
             return gPair[i].fKey;
         }
     }
-    return Window::Key::kNONE;
+    return skui::Key::kNONE;
 }
 
-static ModifierKey get_modifiers(const SDL_Event& event) {
+static skui::ModifierKey get_modifiers(const SDL_Event& event) {
     static const struct {
         unsigned    fSDLMask;
-        ModifierKey fSkMask;
+        skui::ModifierKey fSkMask;
     } gModifiers[] = {
-        { KMOD_SHIFT, ModifierKey::kShift },
-        { KMOD_CTRL,  ModifierKey::kControl },
-        { KMOD_ALT,   ModifierKey::kOption },
+        { KMOD_SHIFT, skui::ModifierKey::kShift },
+        { KMOD_CTRL,  skui::ModifierKey::kControl },
+        { KMOD_ALT,   skui::ModifierKey::kOption },
     };
 
-    ModifierKey modifiers = ModifierKey::kNone;
+    skui::ModifierKey modifiers = skui::ModifierKey::kNone;
 
     switch (event.type) {
         case SDL_KEYDOWN:
@@ -158,7 +158,7 @@ static ModifierKey get_modifiers(const SDL_Event& event) {
                 }
             }
             if (0 == event.key.repeat) {
-                modifiers |= ModifierKey::kFirstPress;
+                modifiers |= skui::ModifierKey::kFirstPress;
             }
             break;
         }
@@ -196,27 +196,27 @@ bool Window_ios::handleEvent(const SDL_Event& event) {
             break;
 
         case SDL_FINGERDOWN:
-            this->onTouch(event.tfinger.fingerId, InputState::kDown,
+            this->onTouch(event.tfinger.fingerId, skui::InputState::kDown,
                           (int)(this->width()*event.tfinger.x),
                           (int)(this->height()*event.tfinger.y));
             break;
 
         case SDL_FINGERUP:
-            this->onTouch(event.tfinger.fingerId, InputState::kUp,
+            this->onTouch(event.tfinger.fingerId, skui::InputState::kUp,
                           (int)(this->width()*event.tfinger.x),
                           (int)(this->height()*event.tfinger.y));
             break;
 
         case SDL_FINGERMOTION:
-            this->onTouch(event.tfinger.fingerId, InputState::kMove,
+            this->onTouch(event.tfinger.fingerId, skui::InputState::kMove,
                           (int)(this->width()*event.tfinger.x),
                           (int)(this->height()*event.tfinger.y));
             break;
 
         case SDL_KEYDOWN: {
-            Window::Key key = get_key(event.key.keysym);
-            if (key != Window::Key::kNONE) {
-                if (!this->onKey(key, InputState::kDown, get_modifiers(event))) {
+            skui::Key key = get_key(event.key.keysym);
+            if (key != skui::Key::kNONE) {
+                if (!this->onKey(key, skui::InputState::kDown, get_modifiers(event))) {
                     if (event.key.keysym.sym == SDLK_ESCAPE) {
                         return true;
                     }
@@ -225,9 +225,9 @@ bool Window_ios::handleEvent(const SDL_Event& event) {
         } break;
 
         case SDL_KEYUP: {
-            Window::Key key = get_key(event.key.keysym);
-            if (key != Window::Key::kNONE) {
-                (void) this->onKey(key, InputState::kUp,
+            skui::Key key = get_key(event.key.keysym);
+            if (key != skui::Key::kNONE) {
+                (void) this->onKey(key, skui::InputState::kUp,
                                    get_modifiers(event));
             }
         } break;

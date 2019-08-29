@@ -468,7 +468,7 @@ protected:
         }
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, ModifierKey modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         SkPoint pt = { x, y };
         int index = -1;
         int count = fFB.getTriangle() ? 3 : 2;

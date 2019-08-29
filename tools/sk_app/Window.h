@@ -11,9 +11,10 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
-#include "tools/InputState.h"
-#include "tools/ModifierKey.h"
 #include "tools/sk_app/DisplayParams.h"
+#include "tools/skui/InputState.h"
+#include "tools/skui/Key.h"
+#include "tools/skui/ModifierKey.h"
 
 class GrContext;
 class SkCanvas;
@@ -69,61 +70,6 @@ public:
     void detach();
 
     // input handling
-    enum class Key {
-        kNONE,    //corresponds to android's UNKNOWN
-
-        kLeftSoftKey,
-        kRightSoftKey,
-
-        kHome,    //!< the home key - added to match android
-        kBack,    //!< (CLR)
-        kSend,    //!< the green (talk) key
-        kEnd,     //!< the red key
-
-        k0,
-        k1,
-        k2,
-        k3,
-        k4,
-        k5,
-        k6,
-        k7,
-        k8,
-        k9,
-        kStar,    //!< the * key
-        kHash,    //!< the # key
-
-        kUp,
-        kDown,
-        kLeft,
-        kRight,
-
-        // Keys needed by ImGui
-        kTab,
-        kPageUp,
-        kPageDown,
-        kDelete,
-        kEscape,
-        kShift,
-        kCtrl,
-        kOption, // AKA Alt
-        kA,
-        kC,
-        kV,
-        kX,
-        kY,
-        kZ,
-
-        kOK,      //!< the center key
-
-        kVolUp,   //!< volume up    - match android
-        kVolDown, //!< volume down  - same
-        kPower,   //!< power button - same
-        kCamera,  //!< camera       - same
-
-        kLast = kCamera
-    };
-    static const int kKeyCount = static_cast<int>(Key::kLast) + 1;
 
     class Layer {
     public:
@@ -136,11 +82,11 @@ public:
         // return value of 'true' means 'I have handled this event'
         virtual void onBackendCreated() {}
         virtual void onAttach(Window* window) {}
-        virtual bool onChar(SkUnichar c, ModifierKey modifiers) { return false; }
-        virtual bool onKey(Key key, InputState state, ModifierKey modifiers) { return false; }
-        virtual bool onMouse(int x, int y, InputState state, ModifierKey modifiers) { return false; }
-        virtual bool onMouseWheel(float delta, ModifierKey modifiers) { return false; }
-        virtual bool onTouch(intptr_t owner, InputState state, float x, float y) { return false; }
+        virtual bool onChar(SkUnichar c, skui::ModifierKey) { return false; }
+        virtual bool onKey(skui::Key, skui::InputState, skui::ModifierKey) { return false; }
+        virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) { return false; }
+        virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }
+        virtual bool onTouch(intptr_t owner, skui::InputState, float x, float y) { return false; }
         virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
         virtual void onPrePaint() {}
         virtual void onPaint(SkSurface*) {}
@@ -157,11 +103,11 @@ public:
     }
 
     void onBackendCreated();
-    bool onChar(SkUnichar c, ModifierKey modifiers);
-    bool onKey(Key key, InputState state, ModifierKey modifiers);
-    bool onMouse(int x, int y, InputState state, ModifierKey modifiers);
-    bool onMouseWheel(float delta, ModifierKey modifiers);
-    bool onTouch(intptr_t owner, InputState state, float x, float y);  // multi-owner = multi-touch
+    bool onChar(SkUnichar c, skui::ModifierKey modifiers);
+    bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers);
+    bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers);
+    bool onMouseWheel(float delta, skui::ModifierKey modifiers);
+    bool onTouch(intptr_t owner, skui::InputState state, float x, float y);  // multi-owner = multi-touch
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     void onPaint();
     void onResize(int width, int height);

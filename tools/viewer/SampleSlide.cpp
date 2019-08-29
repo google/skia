@@ -44,6 +44,6 @@ bool SampleSlide::onChar(SkUnichar c) {
     return fSample && fSample->onChar(c);
 }
 
-bool SampleSlide::onMouse(SkScalar x, SkScalar y, InputState state, ModifierKey modifierKeys) {
+bool SampleSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey modifierKeys) {
     return fSample && fSample->mouse({x, y}, state, modifierKeys);
 }

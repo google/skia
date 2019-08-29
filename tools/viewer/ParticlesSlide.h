@@ -28,8 +28,8 @@ public:
     void draw(SkCanvas* canvas) override;
     bool animate(double) override;
 
-    bool onMouse(SkScalar x, SkScalar y, InputState state,
-                 ModifierKey modifiers) override;
+    bool onMouse(SkScalar x, SkScalar y, skui::InputState state,
+                 skui::ModifierKey modifiers) override;
 
 private:
     void loadEffects(const char* dirname);
