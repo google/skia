@@ -308,8 +308,8 @@ private:
     typedef SkParticleExternalValue INHERITED;
 };
 
-static const char* kDefaultCode =
-R"(// float rand; Every read returns a random float [0 .. 1)
+static const char* kCodeHeader =
+R"(
 layout(ctype=float) in uniform float dt;
 layout(ctype=float) in uniform float effectAge;
 
@@ -324,6 +324,10 @@ struct Particle {
   float4 color;
   float  frame;
 };
+)";
+
+static const char* kDefaultCode =
+R"(// float rand; Every read returns a random float [0 .. 1)
 
 void spawn(inout Particle p) {
 }
@@ -378,8 +382,10 @@ void SkParticleEffectParams::rebuild() {
         }
     }
 
-    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                            SkSL::String(fCode.c_str()), settings);
+    SkSL::String code(kCodeHeader);
+    code.append(fCode.c_str());
+
+    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, code, settings);
     if (!program) {
         SkDebugf("%s\n", compiler.errorText().c_str());
         return;
