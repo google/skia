@@ -12,15 +12,19 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkGlyph.h"
+#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkSpan.h"
+#include "src/core/SkZip.h"
 
 #include <memory>
+#include <vector>
 
 class SkDescriptor;
 class SkDrawableGlyphBuffer;
 class SkGlyph;
 class SkMaskFilter;
 class SkPathEffect;
+class SkStrikeForGPU;
 class SkTypeface;
 struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
@@ -30,14 +34,14 @@ public:
     virtual ~SkStrikeForGPU() = default;
     virtual const SkDescriptor& getDescriptor() const = 0;
 
-    // prepareForDrawing takes glyphIDs, and position in the form of
-    // SkDrawableGlyphBuffer, and returns a list of SkGlyphs and positions where all the data to
-    // draw the glyph has been created by adjusting the SkDrawableGlyphBuffer. The maxDimension
-    // parameter determines if the mask/SDF version will be created, or an alternate drawing
-    // format should be used. For path-only drawing set maxDimension to 0, and for bitmap-device
-    // drawing (where there is no upper limit to the glyph in the cache) use INT_MAX.
-    virtual void
-    prepareForDrawing(int maxGlyphDimension, SkDrawableGlyphBuffer* drawables) = 0;
+    virtual void prepareForMaskDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) = 0;
+
+    virtual void prepareForSDFTDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) = 0;
+
+    virtual void prepareForPathDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) = 0;
 
     virtual const SkGlyphPositionRoundingSpec& roundingSpec() const = 0;
 
@@ -48,6 +52,7 @@ public:
     static bool CanDrawAsMask(const SkGlyph& glyph);
     static bool CanDrawAsSDFT(const SkGlyph& glyph);
     static bool CanDrawAsPath(const SkGlyph& glyph);
+    static bool FitsInAtlas(const SkGlyph& glyph);
 
 
     struct Deleter {
