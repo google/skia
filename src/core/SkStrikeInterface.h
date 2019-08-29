@@ -46,6 +46,23 @@ struct SkPathPos {
     SkPoint position;
 };
 
+struct SkGlyphIDPos {
+    size_t n;
+    const SkGlyphID* ids;
+    const SkPoint* positions;
+};
+
+struct SkGlyphinator {
+    size_t n;
+    union Lookup {
+        SkGlyphID glyphID;
+        SkPackedGlyphID packedID;
+        SkGlyph* glyph;
+        SkPath* path;
+    }* glyphs;
+    SkPoint* positions;
+};
+
 class SkStrikeInterface {
 public:
     virtual ~SkStrikeInterface() = default;
@@ -63,6 +80,19 @@ public:
                                  size_t n,
                                  int maxDimension,
                                  SkGlyphPos results[]) = 0;
+
+    virtual std::tuple<bool, SkGlyphinator>
+    glyphsBelowSize(SkGlyphinator glyphPos,
+                    int maxDimension,
+                    bool allowSmallColorGlyphs) = 0;
+
+    virtual std::tuple<SkScalar, SkGlyphinator>
+    glyphsForFallback(SkGlyphinator glyphPos,
+                      int minDimension,
+                      bool allowSmallColorGlyphs,
+                      std::vector<SkGlyphID>& fallbackGlyphIDs,
+                      std::vector<SkPoint>& fallbackPos) = 0;
+
 
     // rounding() and subpixelMask are used to calculate the subpixel position of a glyph.
     // The per component (x or y) calculation is:

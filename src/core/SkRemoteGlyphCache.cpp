@@ -219,6 +219,14 @@ public:
             int maxDimension,
             SkGlyphPos results[]) override;
 
+    std::tuple<bool, SkGlyphinator>
+    glyphsBelowSize(SkGlyphinator glyphPos, int maxDimension, bool allowSmallColorGlyphs) override;
+
+    std::tuple<SkScalar, SkGlyphinator>
+    glyphsForFallback(SkGlyphinator glyphPos, int minDimension, bool allowSmallColorGlyphs,
+                      std::vector<SkGlyphID>& fallbackGlyphIDs,
+                      std::vector<SkPoint>& fallbackPos) override;
+
     void onAboutToExitScope() override {}
 
     bool hasPendingGlyphs() const {
@@ -272,6 +280,20 @@ private:
     // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
     // we cache them here.
     SkTHashTable<SkGlyph*, SkPackedGlyphID, GlyphMapHashTraits> fGlyphMap;
+
+    using SkGlyphSummary = uint32_t;
+
+    struct GlyphSummaryTraits {
+        static SkPackedGlyphID GetKey(SkGlyphSummary summary) {
+            return SkPackedGlyphID{summary};
+        }
+
+        static uint32_t Hash(SkPackedGlyphID glyphId) {
+            return glyphId.hash();
+        }
+    };
+
+    SkTHashTable<SkGlyphSummary, SkPackedGlyphID, GlyphSummaryTraits> fSentGlyphs;
 
     SkArenaAlloc fAlloc{256};
 };
@@ -721,6 +743,20 @@ SkStrikeServer::RemoteStrike::prepareForDrawingRemoveEmpty(
         }
     }
     return SkMakeSpan(results, drawableGlyphCount);
+}
+
+std::tuple<bool, SkGlyphinator>
+SkStrikeServer::RemoteStrike::glyphsBelowSize(SkGlyphinator glyphPos, int maxDimension,
+                                              bool allowSmallColorGlyphs) {
+    return std::tuple<bool, SkGlyphinator>();
+}
+
+std::tuple<SkScalar, SkGlyphinator>
+SkStrikeServer::RemoteStrike::glyphsForFallback(SkGlyphinator glyphPos, int minDimension,
+                                                bool allowSmallColorGlyphs,
+                                                std::vector<SkGlyphID>& fallbackGlyphIDs,
+                                                std::vector<SkPoint>& fallbackPos) {
+    return std::tuple<SkScalar, SkGlyphinator>();
 }
 
 // SkStrikeClient ----------------------------------------------------------------------------------

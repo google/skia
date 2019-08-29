@@ -28,12 +28,13 @@ struct SkPackedGlyphID {
     static constexpr uint32_t kImpossibleID = ~0u;
     enum {
         kSubBits = 2u,
-        kSubMask = ((1u << kSubBits) - 1),
-        kSubShift = 24u, // must be large enough for glyphs and unichars
-        kCodeMask = ((1u << kSubShift) - 1),
+        kSubMask = (1u << kSubBits) - 1,
+        kSubShift = 16u,
+        kCodeMask = (1u << kSubShift) - 1,
         // relative offsets for X and Y subpixel bits
         kSubShiftX = kSubBits,
-        kSubShiftY = 0
+        kSubShiftY = 0,
+        kMaskAll = (1u << (kSubShift + 2*kSubBits)) - 1
     };
 
     constexpr explicit SkPackedGlyphID(SkGlyphID glyphID)
@@ -46,6 +47,8 @@ struct SkPackedGlyphID {
 
     constexpr SkPackedGlyphID(SkGlyphID code, SkIPoint pt)
         : SkPackedGlyphID(code, pt.fX, pt.fY) { }
+
+    constexpr explicit SkPackedGlyphID(uint32_t v) : fID{v & kMaskAll} { }
 
     constexpr SkPackedGlyphID() : fID{kImpossibleID} {}
 
