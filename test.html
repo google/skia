@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="myCanvas" width="1920" height="574" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script>
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+
+// Red fill dissappears with GPU canvas, but present on software
+ctx.beginPath();
+ctx.scale(203.20, 203.20);
+ctx.translate(-14.55, -711.51);
+ctx.fillStyle = "red";
+ctx.strokeStyle = "blue";
+// ctx.lineWidth = 1/203.20;
+ctx.arc(19.221, 720-6.76,0.0295275590551181,0,2*Math.PI);
+ctx.stroke();
+ctx.fill();
+ctx.closePath();
+
+// Debug rect that covers supposed red circle
+ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+var r = 0.0295275590551181;
+ctx.fillRect(19.221 - r, 720-6.76 - r, 2 * r, 2 * r);
+
+
+ctx.resetTransform();
+ctx.translate(-500, 0);
+
+ctx.beginPath();
+// ctx.scale(203.20, 203.20);
+// ctx.translate(-14.55, -711.51);
+ctx.fillStyle = "red";
+ctx.strokeStyle = "blue";
+//ctx.lineWidth = 1/203.20;
+ctx.arc(949.1472, 351.356,6,0,2*Math.PI);
+ctx.stroke();
+ctx.fill();
+ctx.closePath();
+
+// Debug rect that covers supposed red circle
+ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+var r = 6;
+ctx.fillRect(949.1472 - r, 351.356 - r, 2 * r, 2 * r);
+
+ctx.resetTransform();
+ctx.fillRect(100, 100, 100, 100);
+</script>
+</body>
+</html>
