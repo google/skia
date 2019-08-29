@@ -13,6 +13,7 @@
 #include "include/private/SkChecksum.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkMask.h"
 
 class SkArenaAlloc;
@@ -57,6 +58,8 @@ struct SkPackedGlyphID {
 
     constexpr SkPackedGlyphID(SkGlyphID code, SkIPoint pt)
         : SkPackedGlyphID(code, pt.fX, pt.fY) { }
+
+    constexpr explicit SkPackedGlyphID(uint32_t v) : fID{v & kMaskAll} { }
 
     constexpr SkPackedGlyphID() : fID{kImpossibleID} {}
 
@@ -198,6 +201,9 @@ public:
 
     // Bounds
     int maxDimension() const { return std::max(fWidth, fHeight); }
+    bool fitsInAtlas() const {
+        return this->maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas;
+    }
     SkIRect iRect() const { return SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight); }
     SkRect rect()   const { return SkRect::MakeXYWH(fLeft, fTop, fWidth, fHeight);  }
     int left()   const { return fLeft;   }
