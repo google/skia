@@ -346,9 +346,9 @@ bool ParticlesSlide::animate(double nanos) {
     return true;
 }
 
-bool ParticlesSlide::onMouse(SkScalar x, SkScalar y, InputState state, ModifierKey modifiers) {
+bool ParticlesSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey modifiers) {
     if (gDragIndex == -1) {
-        if (state == InputState::kDown) {
+        if (state == skui::InputState::kDown) {
             float bestDistance = kDragSize;
             SkPoint mousePt = { x, y };
             for (int i = 0; i < gDragPoints.count(); ++i) {
@@ -364,7 +364,7 @@ bool ParticlesSlide::onMouse(SkScalar x, SkScalar y, InputState state, ModifierK
         // Currently dragging
         SkASSERT(gDragIndex < gDragPoints.count());
         gDragPoints[gDragIndex]->set(x, y);
-        if (state == InputState::kUp) {
+        if (state == skui::InputState::kUp) {
             gDragIndex = -1;
         }
         return true;

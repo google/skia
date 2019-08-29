@@ -29,8 +29,8 @@ public:
     virtual void unload() {}
 
     virtual bool onChar(SkUnichar c) { return false; }
-    virtual bool onMouse(SkScalar x, SkScalar y, InputState state,
-                         ModifierKey modifiers) { return false; }
+    virtual bool onMouse(SkScalar x, SkScalar y, skui::InputState state,
+                         skui::ModifierKey modifiers) { return false; }
 
     virtual bool onGetControls(SkMetaData*) { return false; }
     virtual void onSetControls(const SkMetaData&) {}
