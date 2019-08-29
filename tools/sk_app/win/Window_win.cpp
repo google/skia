@@ -376,7 +376,6 @@ bool Window_win::attach(BackendType attachType) {
             break;
 #endif
     }
-    this->onBackendCreated();
 
     return (SkToBool(fWindowContext));
 }

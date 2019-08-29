@@ -31,6 +31,7 @@ HelloWorld::HelloWorld(int argc, char** argv, void* platformData)
     fWindow->pushLayer(this);
 
     fWindow->attach(fBackendType);
+    this->update();
 }
 
 HelloWorld::~HelloWorld() {
@@ -48,7 +49,7 @@ void HelloWorld::updateTitle() {
     fWindow->setTitle(title.c_str());
 }
 
-void HelloWorld::onBackendCreated() {
+void HelloWorld::update() {
     this->updateTitle();
     fWindow->show();
     fWindow->inval();
@@ -115,6 +116,7 @@ bool HelloWorld::onChar(SkUnichar c, skui::ModifierKey modifiers) {
                                                                    : Window::kRaster_BackendType;
         fWindow->detach();
         fWindow->attach(fBackendType);
+        this->update();
     }
     return true;
 }

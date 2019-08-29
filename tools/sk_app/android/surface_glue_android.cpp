@@ -181,7 +181,8 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             break;
         }
         case kUIStateChanged: {
-            skiaAndroidApp->fWindow->onUIStateChanged(*message.stateName, *message.stateValue);
+            skiaAndroidApp->fWindow->onUIStateChanged(message.stateName->c_str(),
+                                                      message.stateValue->c_str());
             delete message.stateName;
             delete message.stateValue;
             break;

@@ -232,19 +232,17 @@ class NullSlide : public Slide {
     }
 };
 
-const char* kName = "name";
-const char* kValue = "value";
-const char* kOptions = "options";
-const char* kSlideStateName = "Slide";
-const char* kBackendStateName = "Backend";
-const char* kMSAAStateName = "MSAA";
-const char* kPathRendererStateName = "Path renderer";
-const char* kSoftkeyStateName = "Softkey";
-const char* kSoftkeyHint = "Please select a softkey";
-const char* kFpsStateName = "FPS";
-const char* kON = "ON";
-const char* kOFF = "OFF";
-const char* kRefreshStateName = "Refresh";
+const char kName[] = "name";
+const char kValue[] = "value";
+const char kOptions[] = "options";
+const char kSlideStateName[] = "Slide";
+const char kBackendStateName[] = "Backend";
+const char kMSAAStateName[] = "MSAA";
+const char kPathRendererStateName[] = "Path renderer";
+const char kSoftkeyStateName[] = "Softkey";
+const char kSoftkeyHint[] = "Please select a softkey";
+const char kON[] = "ON";
+const char kRefreshStateName[] = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentSlide(-1)
@@ -312,7 +310,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
-    fStatsLayer.setActive(false);
+    fStatsLayer.fLayerIsActive = false;
     fAnimateTimer = fStatsLayer.addTimer("Animate", SK_ColorMAGENTA, 0xffff66ff);
     fPaintTimer = fStatsLayer.addTimer("Paint", SK_ColorGREEN);
     fFlushTimer = fStatsLayer.addTimer("Flush", SK_ColorRED, 0xffff6666);
@@ -322,6 +320,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fWindow->pushLayer(this);
     fWindow->pushLayer(&fStatsLayer);
     fWindow->pushLayer(&fImGuiLayer);
+    fImGuiLayer.setWindow(fWindow);
 
     // add key-bindings
     fCommands.addCommand(' ', "GUI", "Toggle Debug GUI", [this]() {
@@ -364,7 +363,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
-        fStatsLayer.setActive(!fStatsLayer.getActive());
+        fStatsLayer.fLayerIsActive = !fStatsLayer.fLayerIsActive;
         fWindow->inval();
     });
     fCommands.addCommand('0', "Overlays", "Reset stats", [this]() {
@@ -608,6 +607,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     fWindow->attach(backend_type_for_window(fBackendType));
     this->setCurrentSlide(this->startupSlide());
+    this->setupCurrentSlide();
+    fWindow->show();
 }
 
 void Viewer::initSlides() {
@@ -1088,6 +1089,7 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
     fWindow->pushLayer(this);
     fWindow->pushLayer(&fStatsLayer);
     fWindow->pushLayer(&fImGuiLayer);
+    fImgGuiLayer.setWindow(fWindow);
 
     // Don't allow the window to re-attach. If we're in MSAA mode, the params we grabbed above
     // will still include our correct sample count. But the re-created fWindow will lose that
@@ -1099,6 +1101,8 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
 #endif
 
     fWindow->attach(backend_type_for_window(fBackendType));
+    this->setupCurrentSlide();
+    fWindow->show();
 }
 
 void Viewer::setColorMode(ColorMode colorMode) {
@@ -1366,11 +1370,6 @@ void Viewer::drawSlide(SkSurface* surface) {
         paint.setColor(0x40FFFF00);
         surface->getCanvas()->drawRect(r, paint);
     }
-}
-
-void Viewer::onBackendCreated() {
-    this->setupCurrentSlide();
-    fWindow->show();
 }
 
 void Viewer::onPaint(SkSurface* surface) {
@@ -2203,7 +2202,7 @@ void Viewer::onIdle() {
     // not be visible, though. So we need to redraw if there is at least one visible window, or
     // more than one active window. Newly created windows are active but not visible for one frame
     // while they determine their layout and sizing.
-    if (animateWantsInval || fStatsLayer.getActive() || fRefresh ||
+    if (animateWantsInval || fStatsLayer.fLayerIsActive || fRefresh ||
         io.MetricsActiveWindows > 1 || io.MetricsRenderWindows > 0) {
         fWindow->inval();
     }
@@ -2319,12 +2318,12 @@ void Viewer::updateUIState() {
     fWindow->setUIState(cstring.c_str());
 }
 
-void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateValue) {
+void Viewer::onUIStateChanged(const char* stateName, const char* stateValue) {
     // For those who will add more features to handle the state change in this function:
     // After the change, please call updateUIState no notify the frontend (e.g., Android app).
     // For example, after slide change, updateUIState is called inside setupCurrentSlide;
     // after backend change, updateUIState is called in this function.
-    if (stateName.equals(kSlideStateName)) {
+    if (0 == strncmp(stateName, kSlideStateName, strlen(kSlideStateName))) {
         for (int i = 0; i < fSlides.count(); ++i) {
             if (fSlides[i]->getName().equals(stateValue)) {
                 this->setCurrentSlide(i);
@@ -2332,21 +2331,23 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
             }
         }
 
-        SkDebugf("Slide not found: %s", stateValue.c_str());
-    } else if (stateName.equals(kBackendStateName)) {
+        SkDebugf("Slide not found: %s", stateValue);
+    } else if (0 == strncmp(stateName, kBackendStateName, strlen(kBackendStateName))) {
         for (int i = 0; i < sk_app::Window::kBackendTypeCount; i++) {
-            if (stateValue.equals(kBackendTypeStrings[i])) {
+            if (0 == strcmp(stateValue, kBackendTypeStrings[i])) {
                 if (fBackendType != i) {
                     fBackendType = (sk_app::Window::BackendType)i;
                     fWindow->detach();
                     fWindow->attach(backend_type_for_window(fBackendType));
+                    this->setupCurrentSlide();
+                    fWindow->show();
                 }
                 break;
             }
         }
-    } else if (stateName.equals(kMSAAStateName)) {
+    } else if (0 == strncmp(stateName, kMSAAStateName, strlen(kMSAAStateName))) {
         DisplayParams params = fWindow->getRequestedDisplayParams();
-        int sampleCount = atoi(stateValue.c_str());
+        int sampleCount = atoi(stateValue);
         if (sampleCount != params.fMSAASampleCount) {
             params.fMSAASampleCount = sampleCount;
             fWindow->setRequestedDisplayParams(params);
@@ -2354,10 +2355,10 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
             this->updateTitle();
             this->updateUIState();
         }
-    } else if (stateName.equals(kPathRendererStateName)) {
+    } else if (0 == strncmp(stateName, kPathRendererStateName, strlen(kPathRendererStateName))) {
         DisplayParams params = fWindow->getRequestedDisplayParams();
         for (const auto& pair : gPathRendererNames) {
-            if (pair.second == stateValue.c_str()) {
+            if (pair.second == stateValue) {
                 if (params.fGrContextOptions.fGpuPathRenderers != pair.first) {
                     params.fGrContextOptions.fGpuPathRenderers = pair.first;
                     fWindow->setRequestedDisplayParams(params);
@@ -2368,17 +2369,17 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                 break;
             }
         }
-    } else if (stateName.equals(kSoftkeyStateName)) {
-        if (!stateValue.equals(kSoftkeyHint)) {
+    } else if (0 == strncmp(stateName, kSoftkeyStateName, strlen(kSoftkeyStateName))) {
+        if (0 != strncmp(stateValue, kSoftkeyHint, strlen(kSoftkeyHint))) {
             fCommands.onSoftkey(stateValue);
             this->updateUIState(); // This is still needed to reset the value to kSoftkeyHint
         }
-    } else if (stateName.equals(kRefreshStateName)) {
+    } else if (0 == strncmp(stateName, kRefreshStateName, strlen(kRefreshStateName))) {
         // This state is actually NOT in the UI state.
         // We use this to allow Android to quickly set bool fRefresh.
-        fRefresh = stateValue.equals(kON);
+        fRefresh = (0 == strncmp(stateValue, kON, strlen(kON)));
     } else {
-        SkDebugf("Unknown stateName: %s", stateName.c_str());
+        SkDebugf("Unknown stateName: %s", stateName);
     }
 }
 

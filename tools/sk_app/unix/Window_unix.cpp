@@ -379,7 +379,6 @@ bool Window_unix::attach(BackendType attachType) {
                     window_context_factory::MakeRasterForXlib(winInfo, fRequestedDisplayParams);
             break;
     }
-    this->onBackendCreated();
 
     return (SkToBool(fWindowContext));
 }

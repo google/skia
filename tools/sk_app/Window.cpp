@@ -21,23 +21,17 @@ void Window::detach() { fWindowContext = nullptr; }
 
 void Window::visitLayers(std::function<void(Layer*)> visitor) {
     for (int i = 0; i < fLayers.count(); ++i) {
-        if (fLayers[i]->fActive) {
-            visitor(fLayers[i]);
-        }
+        visitor(fLayers[i]);
     }
 }
 
 bool Window::signalLayers(std::function<bool(Layer*)> visitor) {
     for (int i = fLayers.count() - 1; i >= 0; --i) {
-        if (fLayers[i]->fActive && visitor(fLayers[i])) {
+        if (visitor(fLayers[i])) {
             return true;
         }
     }
     return false;
-}
-
-void Window::onBackendCreated() {
-    this->visitLayers([](Layer* layer) { layer->onBackendCreated(); });
 }
 
 bool Window::onChar(SkUnichar c, skui::ModifierKey modifiers) {
@@ -60,7 +54,7 @@ bool Window::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
     return this->signalLayers([=](Layer* layer) { return layer->onTouch(owner, state, x, y); });
 }
 
-void Window::onUIStateChanged(const SkString& stateName, const SkString& stateValue) {
+void Window::onUIStateChanged(const char* stateName, const char* stateValue) {
     this->visitLayers([=](Layer* layer) { layer->onUIStateChanged(stateName, stateValue); });
 }
 
