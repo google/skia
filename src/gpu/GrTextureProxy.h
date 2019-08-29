@@ -173,10 +173,6 @@ private:
 
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)
 
-    // For wrapped proxies the GrTexture pointer is stored in GrIORefProxy.
-    // For deferred proxies that pointer will be filled in when we need to instantiate
-    // the deferred resource
-
     typedef GrSurfaceProxy INHERITED;
 };
 

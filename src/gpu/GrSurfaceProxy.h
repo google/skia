@@ -14,6 +14,7 @@
 #include "include/gpu/GrSurface.h"
 #include "include/gpu/GrTexture.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrSwizzle.h"
 
 class GrCaps;
@@ -27,40 +28,10 @@ class GrSurfaceContext;
 class GrSurfaceProxyPriv;
 class GrTextureProxy;
 
-// This is basically SkRefCntBase except Ganesh uses internalGetProxyRefCnt for more than asserts.
-class GrIORefProxy : public SkNoncopyable {
+class GrSurfaceProxy : public GrNonAtomicRef<GrSurfaceProxy> {
 public:
-    GrIORefProxy() : fRefCnt(1) {}
+    virtual ~GrSurfaceProxy();
 
-    virtual ~GrIORefProxy() {}
-
-    bool unique() const {
-        SkASSERT(fRefCnt > 0);
-        return 1 == fRefCnt;
-    }
-
-    void ref() const {
-        SkASSERT(fRefCnt > 0);
-        ++fRefCnt;
-    }
-
-    void unref() const {
-        SkASSERT(fRefCnt > 0);
-        --fRefCnt;
-        if (0 == fRefCnt) {
-            delete this;
-        }
-    }
-
-protected:
-    int32_t internalGetProxyRefCnt() const { return fRefCnt; }
-
-private:
-    mutable int32_t fRefCnt;
-};
-
-class GrSurfaceProxy : public GrIORefProxy {
-public:
     /**
      * Some lazy proxy callbacks want to set their own (or no key) on the GrSurfaces they return.
      * Others want the GrSurface's key to be kept in sync with the proxy's key. This enum controls
@@ -352,15 +323,11 @@ protected:
     GrSurfaceProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
                    SkBackingFit);
 
-    ~GrSurfaceProxy() override;
-
     friend class GrSurfaceProxyPriv;
 
     // Methods made available via GrSurfaceProxyPriv
     bool ignoredByResourceAllocator() const { return fIgnoredByResourceAllocator; }
     void setIgnoredByResourceAllocator() { fIgnoredByResourceAllocator = true; }
-
-    int32_t getProxyRefCnt() const { return this->internalGetProxyRefCnt(); }
 
     void computeScratchKey(GrScratchKey*) const;
 
@@ -447,8 +414,6 @@ private:
     // and the GrRenderTask of a destination surface to which this one is being drawn or copied.
     // This pointer is unreffed. GrRenderTasks own a ref on their surface proxies.
     GrRenderTask*          fLastRenderTask;
-
-    typedef GrIORefProxy INHERITED;
 };
 
 #endif

@@ -392,7 +392,6 @@ private:
 
     friend class GrGpuResource;
     friend class GrSurfaceProxy;
-    friend class GrIORefProxy;
 };
 
 inline GrGpuResource::ProxyAccess GrGpuResource::proxyAccess() { return ProxyAccess(this); }

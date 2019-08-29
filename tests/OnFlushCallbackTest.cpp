@@ -355,7 +355,7 @@ public:
         // At this point 'fAtlasProxy' should be instantiated and have:
         //    1 ref from the 'fAtlasProxy' sk_sp
         //    9 refs from the 9 AtlasedRectOps
-        SkASSERT(10 == fAtlasProxy->priv().getProxyRefCnt());
+        SkASSERT(10 == fAtlasProxy->refCnt());
         // The backing GrSurface should have only 1 though bc there is only one proxy
         SkASSERT(1 == fAtlasProxy->testingOnly_getBackingRefCnt());
         auto rtc = resourceProvider->makeRenderTargetContext(fAtlasProxy, GrColorType::kRGBA_8888,

@@ -147,7 +147,7 @@ static void check_refs(skiatest::Reporter* reporter,
                        GrTextureProxy* proxy,
                        int32_t expectedProxyRefs,
                        int32_t expectedBackingRefs) {
-    int32_t actualProxyRefs = proxy->priv().getProxyRefCnt();
+    int32_t actualProxyRefs = proxy->refCnt();
     int32_t actualBackingRefs = proxy->testingOnly_getBackingRefCnt();
 
     SkASSERT(actualProxyRefs == expectedProxyRefs);

@@ -44,10 +44,10 @@ void GrResourceAllocator::determineRecyclability() {
             continue;
         }
 
-        if (cur->uses() >= cur->proxy()->priv().getProxyRefCnt()) {
+        if (cur->uses() >= cur->proxy()->refCnt()) {
             // All the refs on the proxy are known to the resource allocator thus no one
             // should be holding onto it outside of Ganesh.
-            SkASSERT(cur->uses() == cur->proxy()->priv().getProxyRefCnt());
+            SkASSERT(cur->uses() == cur->proxy()->refCnt());
             cur->markAsRecyclable();
         }
     }
