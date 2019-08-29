@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddad383c_4f3bf1fa",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-08-29T18:25:59Z",
+      "side": 1,
+      "message": "Is the only case we need to return glyphs here are the ones that need to go through the ARGBFallback? Why do we need to return the glyphs for the common case where we can just use a mask?\n\nAlso, not sure if this is possible, but the code at the callsite would handle a case where we call setPath but that fails : https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkGlyph.cpp?gsn\u003dprepareForDrawingRemoveEmpty\u0026g\u003d0\u0026l\u003d169, by using the ARGB fallback : https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkGlyphRunPainter.cpp?type\u003dcs\u0026g\u003d0\u0026l\u003d562. Which we\u0027d miss here since we only check the glyphPtr-\u003eisColor condition.",
+      "range": {
+        "startLine": 715,
+        "startChar": 12,
+        "endLine": 716,
+        "endChar": 93
+      },
+      "revId": "e3392a78e8cbd9461fa66bb446543de014dc6ba2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
