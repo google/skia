@@ -19,10 +19,6 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         shared_page_state_class=shared_page_state.SharedDesktopPageState)
     self.archive_data_file = 'data/skia_googlespreadsheet_desktop.json'
 
-  def RunNavigateSteps(self, action_runner):
-    action_runner.Navigate(self.url)
-    action_runner.Wait(15)
-
 
 class SkiaGooglespreadsheetDesktopPageSet(story.StorySet):
 
