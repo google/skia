@@ -25,7 +25,7 @@ const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::textureSampler
 }
 
 uint32_t
-GrPrimitiveProcessor::getTransformKey(const SkTArray<const GrCoordTransform*, true>& coords,
+GrPrimitiveProcessor::getTransformKey(const SkTArray<GrCoordTransform*, true>& coords,
                                       int numCoords) const {
     uint32_t totalKey = 0;
     for (int t = 0; t < numCoords; ++t) {
