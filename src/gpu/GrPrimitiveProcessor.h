@@ -174,7 +174,7 @@ public:
      *
      * TODO: A better name for this function  would be "compute" instead of "get".
      */
-    uint32_t getTransformKey(const SkTArray<const GrCoordTransform*, true>& coords,
+    uint32_t getTransformKey(const SkTArray<GrCoordTransform*, true>& coords,
                              int numCoords) const;
 
     /**
