@@ -177,11 +177,6 @@ public:
         @return      true if rect is not empty
     */
     bool setRect(const SkIRect& rect);
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
-        return this->setRect({ left, top, right, bottom });
-    }
-#endif
 
     /** Constructs SkRegion as the union of SkIRect in rects array. If count is
         zero, constructs empty SkRegion. Returns false if constructed SkRegion is empty.
@@ -276,17 +271,6 @@ public:
                 fBounds.fLeft <= r.fLeft   && fBounds.fTop <= r.fTop &&
                 fBounds.fRight >= r.fRight && fBounds.fBottom >= r.fBottom;
     }
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    bool quickContains(int32_t left, int32_t top, int32_t right, int32_t bottom) const {
-        SkASSERT(this->isEmpty() == fBounds.isEmpty()); // valid region
-
-        return left < right && top < bottom &&
-               fRunHead == kRectRunHeadPtr &&  // this->isRect()
-               /* fBounds.contains(left, top, right, bottom); */
-               fBounds.fLeft <= left && fBounds.fTop <= top &&
-               fBounds.fRight >= right && fBounds.fBottom >= bottom;
-    }
-#endif
 
     /** Returns true if SkRegion does not intersect rect.
         Returns true if rect is empty or SkRegion is empty.
@@ -362,12 +346,6 @@ public:
         }
         return this->op(*this, rect, op);
     }
-
-#ifdef SK_SUPPORT_LEGACY_RECT_PARAMS
-    bool op(int left, int top, int right, int bottom, Op op) {
-        return this->op(*this, {left, top, right, bottom}, op);
-    }
-#endif
 
     /** Replaces SkRegion with the result of SkRegion op rgn.
         Returns true if replaced SkRegion is not empty.
