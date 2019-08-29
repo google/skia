@@ -16,6 +16,7 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTypeface_remote.h"
+#include "src/core/SkZip.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -935,7 +936,9 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
     SkPaint paint;
     paint.setColor(SK_ColorRED);
 
-    auto lostGlyphID = SkPackedGlyphID(1, SK_FixedHalf, SK_FixedHalf);
+    SkPoint glyphPos = {0.5f, 0.5f};
+    SkIPoint glyphIPos = {SkScalarToFixed(glyphPos.x()), SkScalarToFixed(glyphPos.y())};
+    auto lostGlyphID = SkPackedGlyphID(1, glyphIPos.x(), glyphIPos.y());
     const uint8_t glyphImage[] = {0xFF, 0xFF};
     SkMask::Format realMask;
     SkMask::Format fakeMask;
@@ -986,10 +989,16 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         auto* cacheState = server.getOrCreateCache(
                 paint, font, SkSurfacePropsCopyOrDefault(nullptr),
                 SkMatrix::I(), flags, &effects);
-        SkStrikeServer::AddGlyphForTesting(cacheState, lostGlyphID, false);
-
+        SkGlyphID glyphID = lostGlyphID.code();
+        SkZip<const SkGlyphID, const SkPoint> source{1, &glyphID, &glyphPos};
+        SkSourceGlyphBuffer rejects;
+        SkDrawableGlyphBuffer drawables;
+        rejects.reset(source);
+        drawables.startSource(rejects.source(), {0, 0});
+        SkStrikeServer::AddGlyphForTesting(cacheState, &drawables, &rejects);
         std::vector<uint8_t> serverStrikeData;
         server.writeStrikeData(&serverStrikeData);
+        REPORTER_ASSERT(reporter, !serverStrikeData.empty());
         REPORTER_ASSERT(reporter,
                         client.readStrikeData(
                                 serverStrikeData.data(),
