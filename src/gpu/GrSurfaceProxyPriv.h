@@ -17,8 +17,6 @@
     data members or virtual methods. */
 class GrSurfaceProxyPriv {
 public:
-    int32_t getProxyRefCnt() const { return fProxy->getProxyRefCnt(); }
-
     void computeScratchKey(GrScratchKey* key) const { return fProxy->computeScratchKey(key); }
 
     // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)

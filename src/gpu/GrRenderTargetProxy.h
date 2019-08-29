@@ -135,10 +135,6 @@ private:
     // about what we're doing).
     char               fDummyPadding[10];
 
-    // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
-    // For deferred proxies that pointer is filled in when we need to instantiate the
-    // deferred resource.
-
     typedef GrSurfaceProxy INHERITED;
 };
 
