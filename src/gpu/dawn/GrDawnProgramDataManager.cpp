@@ -18,6 +18,8 @@ GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& unifo
     , fFragmentUniformsDirty(false) {
     fGeometryUniformData.reset(geometryUniformSize);
     fFragmentUniformData.reset(fragmentUniformSize);
+    memset(fGeometryUniformData.get(), 0, fGeometryUniformSize);
+    memset(fFragmentUniformData.get(), 0, fFragmentUniformSize);
     int count = uniforms.count();
     fUniforms.push_back_n(count);
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
