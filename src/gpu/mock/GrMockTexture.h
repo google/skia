@@ -171,7 +171,7 @@ public:
 
 protected:
     // This avoids an inherits via dominance warning on MSVC.
-    void willRemoveLastRefOrPendingIO() override { GrTexture::willRemoveLastRefOrPendingIO(); }
+    void willRemoveLastRef() override { GrTexture::willRemoveLastRef(); }
 
 private:
     void onAbandon() override {

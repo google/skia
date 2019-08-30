@@ -54,7 +54,7 @@ protected:
         return false;
     }
 
-    void willRemoveLastRefOrPendingIO() override;
+    void willRemoveLastRef() override;
 
 private:
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&, const GrVkImageInfo&,

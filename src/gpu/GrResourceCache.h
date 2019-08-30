@@ -253,7 +253,7 @@ private:
     ////
     void insertResource(GrGpuResource*);
     void removeResource(GrGpuResource*);
-    void notifyCntReachedZero(GrGpuResource*, uint32_t flags);
+    void notifyRefCntReachedZero(GrGpuResource*);
     void changeUniqueKey(GrGpuResource*, const GrUniqueKey&);
     void removeUniqueKey(GrGpuResource*);
     void willRemoveScratchKey(const GrGpuResource*);
@@ -412,15 +412,10 @@ private:
         kRefCntReachedZero_RefNotificationFlag  = 0x2,
     };
     /**
-     * Called by GrGpuResources when they detect that their ref/io cnts have reached zero. When the
-     * normal ref cnt reaches zero the flags that are set should be:
-     *     a) kRefCntReachedZero if a pending IO cnt is still non-zero.
-     *     b) (kRefCntReachedZero | kAllCntsReachedZero) when all pending IO cnts are also zero.
-     * kAllCntsReachedZero is set by itself if a pending IO cnt is decremented to zero and all the
-     * the other cnts are already zero.
+     * Called by GrGpuResources when they detect that their ref cnt has reached zero.
      */
-    void notifyCntReachedZero(GrGpuResource* resource, uint32_t flags) {
-        fCache->notifyCntReachedZero(resource, flags);
+    void notifyRefCntReachedZero(GrGpuResource* resource) {
+        fCache->notifyRefCntReachedZero(resource);
     }
 
     /**

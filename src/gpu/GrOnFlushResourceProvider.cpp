@@ -122,11 +122,7 @@ sk_sp<const GrGpuBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
 
     auto resourceProvider = direct->priv().resourceProvider();
 
-    sk_sp<const GrGpuBuffer> buffer =
-            resourceProvider->findOrMakeStaticBuffer(intendedType, size, data, key);
-    // Static buffers should never have pending IO.
-    SkASSERT(!buffer || !buffer->resourcePriv().hasPendingIO_debugOnly());
-    return buffer;
+    return resourceProvider->findOrMakeStaticBuffer(intendedType, size, data, key);
 }
 
 uint32_t GrOnFlushResourceProvider::contextID() const {

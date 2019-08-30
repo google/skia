@@ -37,7 +37,7 @@ private:
      */
     void release() {
         fResource->release();
-        if (!fResource->hasRefOrPendingIO()) {
+        if (!fResource->hasRef()) {
             delete fResource;
         }
     }
@@ -47,7 +47,7 @@ private:
      */
     void abandon() {
         fResource->abandon();
-        if (!fResource->hasRefOrPendingIO()) {
+        if (!fResource->hasRef()) {
             delete fResource;
         }
     }
