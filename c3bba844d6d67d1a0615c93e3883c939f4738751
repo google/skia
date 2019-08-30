@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "609ea18b_400c16ea",
+        "filename": "tools/sk_app/Window.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-08-30T17:50:12Z",
+      "side": 1,
+      "message": "Can these just be #if SK_METAL now? (here and in Viewer.cpp)?",
+      "revId": "c3bba844d6d67d1a0615c93e3883c939f4738751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
