@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "31692e46_a67b8d47",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 1471,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-30T16:32:22Z",
+      "side": 1,
+      "message": "sounds reasonable to me to put it on GrSurface or Proxy",
+      "parentUuid": "6eb56396_49061744",
+      "range": {
+        "startLine": 1471,
+        "startChar": 11,
+        "endLine": 1471,
+        "endChar": 32
+      },
+      "revId": "6e692128f9ea9fbe2ca9d1121aeb9bfe32d7a0d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cbbdaa0c_2f8ac58d",
         "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
         "patchSetId": 14
@@ -78,6 +102,24 @@
       "side": 1,
       "message": "One example would be if somebody made an opList full of ops that don\u0027t actually issue any draws.\n\nThe proxy will think the target is dirty, but since the ops didn\u0027t actually do anything the gpu won\u0027t mark the target dirty.\n\nAnother example would be an unexpected error or driver bug causing flushGLState to fail, which makes the gpu abort instead of drawing and marking the target dirty.\n\nSee https://skia-review.googlesource.com/c/skia/+/238166\n\nSoon enough this state won\u0027t be on the target at all anymore.",
       "parentUuid": "cbbdaa0c_2f8ac58d",
+      "revId": "6e692128f9ea9fbe2ca9d1121aeb9bfe32d7a0d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50523169_ab0a9b60",
+        "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-30T16:32:22Z",
+      "side": 1,
+      "message": "Got it",
+      "parentUuid": "ec46c97a_a904ba41",
       "revId": "6e692128f9ea9fbe2ca9d1121aeb9bfe32d7a0d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
