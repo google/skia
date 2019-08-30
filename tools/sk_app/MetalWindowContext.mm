@@ -42,10 +42,6 @@ void MetalWindowContext::initializeContext() {
     fSampleCount = fDisplayParams.fMSAASampleCount;
     fStencilBits = 8;
 
-    fMetalLayer = [CAMetalLayer layer];
-    fMetalLayer.device = fDevice;
-    fMetalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-
     fValid = this->onInitializeContext();
 
     fContext = GrContext::MakeMetal((__bridge void*)fDevice, (__bridge void*)fQueue,

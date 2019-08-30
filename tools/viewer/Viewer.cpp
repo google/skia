@@ -163,10 +163,10 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
         return sk_app::Window::kANGLE_BackendType;
     } else
 #endif
-#if defined(SK_METAL) && defined(SK_BUILD_FOR_MAC)
-        if (0 == strcmp(str, "mtl")) {
-            return sk_app::Window::kMetal_BackendType;
-        } else
+#if defined(SK_METAL) && (defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS))
+    if (0 == strcmp(str, "mtl")) {
+        return sk_app::Window::kMetal_BackendType;
+    } else
 #endif
     if (0 == strcmp(str, "gl")) {
         return sk_app::Window::kNativeGL_BackendType;
