@@ -105,9 +105,17 @@ protected:
     friend class GrSurfaceProxyPriv;  // ability to change key sync state after lazy instantiation.
 
     // Deferred version - no data.
-    GrTextureProxy(const GrBackendFormat&, const GrSurfaceDesc& srcDesc, GrSurfaceOrigin,
-                   GrMipMapped, GrMipMapsStatus, const GrSwizzle& textureSwizzle, SkBackingFit,
-                   SkBudgeted, GrProtected, GrInternalSurfaceFlags);
+    GrTextureProxy(const GrBackendFormat&,
+                   const GrSurfaceDesc&,
+                   GrSurfaceOrigin,
+                   GrMipMapped,
+                   GrMipMapsStatus,
+                   const GrSwizzle& textureSwizzle,
+                   SkBackingFit,
+                   SkBudgeted,
+                   GrProtected,
+                   GrInternalSurfaceFlags,
+                   UseAllocator);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -119,12 +127,21 @@ protected:
     //
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
-    GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrBackendFormat&,
-                   const GrSurfaceDesc& desc, GrSurfaceOrigin, GrMipMapped, GrMipMapsStatus,
-                   const GrSwizzle&, SkBackingFit, SkBudgeted, GrProtected, GrInternalSurfaceFlags);
+    GrTextureProxy(LazyInstantiateCallback&&,
+                   const GrBackendFormat&,
+                   const GrSurfaceDesc& desc,
+                   GrSurfaceOrigin,
+                   GrMipMapped,
+                   GrMipMapsStatus,
+                   const GrSwizzle& textureSwizzle,
+                   SkBackingFit,
+                   SkBudgeted,
+                   GrProtected,
+                   GrInternalSurfaceFlags,
+                   UseAllocator);
 
     // Wrapped version
-    GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle&);
+    GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle&, UseAllocator);
 
     ~GrTextureProxy() override;
 

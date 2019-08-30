@@ -149,7 +149,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
               name);
 
     return proxyProvider->createProxy(format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
-                                      fit, SkBudgeted::kYes, GrProtected::kNo);
+                                      GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,

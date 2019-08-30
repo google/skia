@@ -14,7 +14,6 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
-#include "src/gpu/GrDeinstantiateProxyTracker.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 
@@ -80,9 +79,9 @@ public:
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawOp::Target. */
-    void recordDraw(
-            sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
-            const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*) final;
+    void recordDraw(sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
+                    const GrPipeline::FixedDynamicState*,
+                    const GrPipeline::DynamicStateArrays*) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) final;
     uint16_t* makeIndexSpace(int indexCount, sk_sp<const GrBuffer>*, int* startIndex) final;
@@ -108,12 +107,10 @@ public:
     // permissible).
     GrAtlasManager* atlasManager() const final;
 
-    GrDeinstantiateProxyTracker* deinstantiateProxyTracker() { return &fDeinstantiateProxyTracker; }
-
     /** GrMeshDrawOp::Target override. */
     SkArenaAlloc* allocator() override { return &fArena; }
-private:
 
+private:
     struct InlineUpload {
         InlineUpload(GrDeferredTextureUploadFn&& upload, GrDeferredUploadToken token)
                 : fUpload(std::move(upload)), fUploadBeforeToken(token) {}
@@ -163,9 +160,6 @@ private:
     // Variables that are used to track where we are in lists as ops are executed
     SkArenaAllocList<Draw>::Iter fCurrDraw;
     SkArenaAllocList<InlineUpload>::Iter fCurrUpload;
-
-    // Used to track the proxies that need to be deinstantiated after we finish a flush
-    GrDeinstantiateProxyTracker fDeinstantiateProxyTracker;
 };
 
 #endif

@@ -185,8 +185,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createWrapped(tex, srcColorType, kTopLeft_GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createWrapped(
+            tex, srcColorType, kTopLeft_GrSurfaceOrigin, GrSurfaceProxy::UseAllocator::kYes);
     if (!proxy) {
         return nullptr;
     }

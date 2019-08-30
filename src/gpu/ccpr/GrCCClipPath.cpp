@@ -45,7 +45,7 @@ void GrCCClipPath::init(
 
                 return texture;
             },
-            atlasCoverageType, caps);
+            atlasCoverageType, caps, GrSurfaceProxy::UseAllocator::kYes);
 
     fDeviceSpacePath = deviceSpacePath;
     fDeviceSpacePath.getBounds().roundOut(&fPathDevIBounds);

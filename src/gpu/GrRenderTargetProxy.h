@@ -88,10 +88,18 @@ protected:
     friend class GrRenderTargetProxyPriv;
 
     // Deferred version
-    GrRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&,
-                        int sampleCount, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
-                        const GrSwizzle& outputSwizzle, SkBackingFit, SkBudgeted, GrProtected,
-                        GrInternalSurfaceFlags);
+    GrRenderTargetProxy(const GrCaps&,
+                        const GrBackendFormat&,
+                        const GrSurfaceDesc&,
+                        int sampleCount,
+                        GrSurfaceOrigin,
+                        const GrSwizzle& textureSwizzle,
+                        const GrSwizzle& outputSwizzle,
+                        SkBackingFit,
+                        SkBudgeted,
+                        GrProtected,
+                        GrInternalSurfaceFlags,
+                        UseAllocator);
 
     enum class WrapsVkSecondaryCB : bool { kNo = false, kYes = true };
 
@@ -105,16 +113,27 @@ protected:
     //
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
-    GrRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType lazyType,
-                        const GrBackendFormat&, const GrSurfaceDesc&, int sampleCount,
-                        GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
-                        const GrSwizzle& outputSwizzle, SkBackingFit, SkBudgeted, GrProtected,
-                        GrInternalSurfaceFlags, WrapsVkSecondaryCB wrapsVkSecondaryCB);
+    GrRenderTargetProxy(LazyInstantiateCallback&&,
+                        const GrBackendFormat&,
+                        const GrSurfaceDesc&,
+                        int sampleCount,
+                        GrSurfaceOrigin,
+                        const GrSwizzle& textureSwizzle,
+                        const GrSwizzle& outputSwizzle,
+                        SkBackingFit,
+                        SkBudgeted,
+                        GrProtected,
+                        GrInternalSurfaceFlags,
+                        UseAllocator,
+                        WrapsVkSecondaryCB);
 
     // Wrapped version
-    GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
+    GrRenderTargetProxy(sk_sp<GrSurface>,
+                        GrSurfaceOrigin,
+                        const GrSwizzle& textureSwizzle,
                         const GrSwizzle& outputSwizzle,
-                        WrapsVkSecondaryCB wrapsVkSecondaryCB = WrapsVkSecondaryCB::kNo);
+                        UseAllocator,
+                        WrapsVkSecondaryCB = WrapsVkSecondaryCB::kNo);
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 

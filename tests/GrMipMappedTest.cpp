@@ -154,7 +154,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 return;
             }
 
-            if (GrSurfaceProxy::LazyState::kNot != genProxy->lazyInstantiationState()) {
+            if (genProxy->isLazy()) {
                 genProxy->priv().doLazyInstantiation(context->priv().resourceProvider());
             } else if (!genProxy->isInstantiated()) {
                 genProxy->instantiate(context->priv().resourceProvider());
@@ -347,7 +347,7 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
     desc.fConfig = mipmapProxy->config();
     sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(
             mipmapProxy->backendFormat(), desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
-            SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+            GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
     auto rtc = drawingManager->makeRenderTargetContext(
             std::move(renderTarget), colorType, nullptr, nullptr, true);
     rtc->drawTexture(GrNoClip(), mipmapProxy, filter, SkBlendMode::kSrcOver, {1,1,1,1},
@@ -389,9 +389,9 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         desc.fWidth = 4;
         desc.fHeight = 4;
         desc.fConfig = config;
-        sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createMipMapProxy(
-                format, desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
-                GrProtected::kNo);
+        sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createProxy(
+                format, desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kYes,
+                SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 
         // Mark the mipmaps clean to ensure things still work properly when they won't be marked
         // dirty again until GrRenderTask::makeClosed().

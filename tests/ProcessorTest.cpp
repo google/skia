@@ -177,7 +177,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             {
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                         format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
-                        SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
+                        GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 
                 {
                     SkTArray<sk_sp<GrTextureProxy>> proxies;
