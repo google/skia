@@ -685,3 +685,22 @@ DEF_TEST(SkSLFPBadIn, r) {
          "error: 1: 'in' variable must be either 'uniform' or 'layout(key)', or there must be a "
          "custom @setData function\n1 error\n");
 }
+
+DEF_TEST(SkSLFPFunction, r) {
+    test(r,
+         "in fragmentProcessor? child;"
+         "half4 flip(half4 c) { return c.abgr; }"
+         "void main() {"
+         "    sk_OutColor = flip(sk_InColor);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {},
+         {
+            "SkString flip_name;",
+            "const GrShaderVar flip_args[] = { GrShaderVar(\"c\", kHalf4_GrSLType)};",
+            "fragBuilder->emitFunction(kHalf4_GrSLType, \"flip\", 1, flip_args, "
+                                      "\"return c.wzyx;\\n\", &flip_name);",
+            "fragBuilder->codeAppendf(\"%s = %s(%s);\\n\", args.fOutputColor, flip_name.c_str(), "
+                                      "args.fInputColor);"
+         });
+}
