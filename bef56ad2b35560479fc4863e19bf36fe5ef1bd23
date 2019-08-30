@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7413c87_d20e9cff",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2019-08-30T16:52:44Z",
+      "side": 1,
+      "message": "chromium:996185",
+      "revId": "bef56ad2b35560479fc4863e19bf36fe5ef1bd23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
