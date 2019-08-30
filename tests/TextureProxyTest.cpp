@@ -44,9 +44,9 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter, GrContex
     const GrSurfaceDesc desc = make_desc();
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kNo);
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(format, desc, GrRenderable::kNo, 1,
-                                                             kBottomLeft_GrSurfaceOrigin, fit,
-                                                             SkBudgeted::kYes, GrProtected::kNo);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
+            format, desc, GrRenderable::kNo, 1, kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit,
+            SkBudgeted::kYes, GrProtected::kNo);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -60,9 +60,9 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter, GrCont
 
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(format, desc, GrRenderable::kYes, 1,
-                                                             kBottomLeft_GrSurfaceOrigin, fit,
-                                                             SkBudgeted::kYes, GrProtected::kNo);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
+            format, desc, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit,
+            SkBudgeted::kYes, GrProtected::kNo);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;

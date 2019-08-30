@@ -398,16 +398,21 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             }
         }
 
-        GrSurfaceProxy::LazyInstantiationResult operator()(GrResourceProvider* resourceProvider) {
+        GrSurfaceProxy::LazyCallbackResult operator()(GrResourceProvider* resourceProvider) {
             // We use the unique key in a way that is unrelated to the SkImage-based key that the
             // proxy may receive, hence kUnsynced.
             static constexpr auto kKeySyncMode =
                     GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced;
 
+            // In order to make the SkImage "thread safe" we rely on holding an extra ref to the
+            // texture in the callback and signalling the unref via a message to the resource cache.
+            // We need to extend the callback's lifetime to that of the proxy.
+            static constexpr auto kReleaseCallbackOnInstantiation = false;
+
             // Our proxy is getting instantiated for the second+ time. We are only allowed to call
             // Fulfill once. So return our cached result.
             if (fTexture) {
-                return {sk_ref_sp(fTexture), kKeySyncMode};
+                return {sk_ref_sp(fTexture), kReleaseCallbackOnInstantiation, kKeySyncMode};
             } else if (fColorType == GrColorType::kUnknown) {
                 // We've already called fulfill and it failed. Our contract says that we should only
                 // call each callback once.
@@ -466,7 +471,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             GrContext* context = fTexture->getContext();
             context->priv().getResourceCache()->insertDelayedResourceUnref(fTexture);
             fTextureContextID = context->priv().contextID();
-            return {std::move(tex), kKeySyncMode};
+            return {std::move(tex), kReleaseCallbackOnInstantiation, kKeySyncMode};
         }
 
     private:
@@ -500,5 +505,5 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
     return proxyProvider->createLazyProxy(
             std::move(callback), backendFormat, desc, GrRenderable::kNo, 1, origin, mipMapped,
             mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
-            GrProtected::kNo, GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
+            GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 }

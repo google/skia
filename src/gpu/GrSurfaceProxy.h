@@ -62,59 +62,61 @@ public:
         kSynced
     };
 
-    struct LazyInstantiationResult {
-        LazyInstantiationResult() = default;
-        LazyInstantiationResult(const LazyInstantiationResult&) = default;
-        LazyInstantiationResult(LazyInstantiationResult&& that) = default;
-        LazyInstantiationResult(sk_sp<GrSurface> surf,
-                                LazyInstantiationKeyMode mode = LazyInstantiationKeyMode::kSynced)
-                : fSurface(std::move(surf)), fKeyMode(mode) {}
-        LazyInstantiationResult(sk_sp<GrTexture> tex)
-                : LazyInstantiationResult(sk_sp<GrSurface>(std::move(tex))) {}
+    struct LazyCallbackResult {
+        LazyCallbackResult() = default;
+        LazyCallbackResult(const LazyCallbackResult&) = default;
+        LazyCallbackResult(LazyCallbackResult&& that) = default;
+        LazyCallbackResult(sk_sp<GrSurface> surf,
+                           bool releaseCallback = true,
+                           LazyInstantiationKeyMode mode = LazyInstantiationKeyMode::kSynced)
+                : fSurface(std::move(surf)), fKeyMode(mode), fReleaseCallback(releaseCallback) {}
+        LazyCallbackResult(sk_sp<GrTexture> tex)
+                : LazyCallbackResult(sk_sp<GrSurface>(std::move(tex))) {}
 
-        LazyInstantiationResult& operator=(const LazyInstantiationResult&) = default;
-        LazyInstantiationResult& operator=(LazyInstantiationResult&&) = default;
+        LazyCallbackResult& operator=(const LazyCallbackResult&) = default;
+        LazyCallbackResult& operator=(LazyCallbackResult&&) = default;
 
         sk_sp<GrSurface> fSurface;
         LazyInstantiationKeyMode fKeyMode = LazyInstantiationKeyMode::kSynced;
+        /**
+         * Should the callback be disposed of after it has returned or preserved until the proxy
+         * is freed. Only honored if fSurface is not-null. If it is null the callback is preserved.
+         */
+        bool fReleaseCallback = true;
     };
 
-    using LazyInstantiateCallback = std::function<LazyInstantiationResult(GrResourceProvider*)>;
+    using LazyInstantiateCallback = std::function<LazyCallbackResult(GrResourceProvider*)>;
 
-    enum class LazyInstantiationType {
-        kSingleUse,      // Instantiation callback is allowed to be called only once.
-        kMultipleUse,    // Instantiation callback can be called multiple times.
-        kDeinstantiate,  // Instantiation callback can be called multiple times,
-                         // but we will deinstantiate the proxy after every flush.
+    enum class UseAllocator {
+        /**
+         * This proxy will be instantiated outside the allocator (e.g. for proxies that are
+         * instantiated in on-flush callbacks).
+         */
+        kNo = false,
+        /**
+         * GrResourceAllocator should instantiate this proxy.
+         */
+        kYes = true,
     };
 
-    enum class LazyState {
-        kNot,       // The proxy is instantiated or does not have a lazy callback
-        kPartially, // The proxy has a lazy callback but knows basic information about itself.
-        kFully,     // The proxy has a lazy callback and also doesn't know its width, height, etc.
-    };
+    bool isLazy() const { return !this->isInstantiated() && SkToBool(fLazyInstantiateCallback); }
 
-    LazyState lazyInstantiationState() const {
-        if (this->isInstantiated() || !SkToBool(fLazyInstantiateCallback)) {
-            return LazyState::kNot;
-        } else {
-            if (fWidth <= 0) {
-                SkASSERT(fHeight <= 0);
-                return LazyState::kFully;
-            } else {
-                SkASSERT(fHeight > 0);
-                return LazyState::kPartially;
-            }
-        }
+    bool isFullyLazy() const {
+        bool result = fHeight <= 0;
+        SkASSERT(result == fWidth <= 0);
+        SkASSERT(!result || this->isLazy());
+        return result;
     }
 
     GrPixelConfig config() const { return fConfig; }
+
     int width() const {
-        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
+        SkASSERT(!this->isFullyLazy());
         return fWidth;
     }
+
     int height() const {
-        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
+        SkASSERT(!this->isFullyLazy());
         return fHeight;
     }
 
@@ -126,14 +128,14 @@ public:
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
     SkRect getBoundsRect() const {
-        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
+        SkASSERT(!this->isFullyLazy());
         return SkRect::MakeIWH(this->width(), this->height());
     }
     /**
      * Helper that gets the worst case width and height of the surface as a bounding rectangle.
      */
     SkRect getWorstCaseBoundsRect() const {
-        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
+        SkASSERT(!this->isFullyLazy());
         return SkRect::MakeIWH(this->worstCaseWidth(), this->worstCaseHeight());
     }
 
@@ -272,7 +274,7 @@ public:
      * @return the amount of GPU memory used in bytes
      */
     size_t gpuMemorySize() const {
-        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
+        SkASSERT(!this->isFullyLazy());
         if (fTarget) {
             return fTarget->gpuMemorySize();
         }
@@ -313,25 +315,39 @@ public:
     bool isProtected() const { return fIsProtected == GrProtected::kYes; }
 
 protected:
-    // Deferred version
-    GrSurfaceProxy(const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                   GrRenderable renderable, GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle,
-                   SkBackingFit fit, SkBudgeted budgeted, GrProtected isProtected,
-                   GrInternalSurfaceFlags surfaceFlags)
-            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, format, desc, renderable,
-                             origin, textureSwizzle, fit, budgeted, isProtected, surfaceFlags) {
-        // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
-    }
+    // Deferred version - takes a new UniqueID from the shared resource/proxy pool.
+    GrSurfaceProxy(const GrBackendFormat&,
+                   const GrSurfaceDesc&,
+                   GrRenderable,
+                   GrSurfaceOrigin,
+                   const GrSwizzle& textureSwizzle,
+                   SkBackingFit,
+                   SkBudgeted,
+                   GrProtected,
+                   GrInternalSurfaceFlags,
+                   UseAllocator);
+    // Lazy-callback version - takes a new UniqueID from the shared resource/proxy pool.
+    GrSurfaceProxy(LazyInstantiateCallback&&,
+                   const GrBackendFormat&,
+                   const GrSurfaceDesc&,
+                   GrRenderable,
+                   GrSurfaceOrigin,
+                   const GrSwizzle& textureSwizzle,
+                   SkBackingFit,
+                   SkBudgeted,
+                   GrProtected,
+                   GrInternalSurfaceFlags,
+                   UseAllocator);
 
-    // Lazy-callback version
-    GrSurfaceProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrBackendFormat& format,
-                   const GrSurfaceDesc&, GrRenderable, GrSurfaceOrigin,
-                   const GrSwizzle& textureSwizzle, SkBackingFit, SkBudgeted, GrProtected,
-                   GrInternalSurfaceFlags);
-
-    // Wrapped version.
-    GrSurfaceProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
-                   SkBackingFit);
+    // Wrapped version - shares the UniqueID of the passed surface.
+    // Takes UseAllocator because even though this is already instantiated it still can participate
+    // in allocation by having its backing resource recycled to other uninstantiated proxies or
+    // not depending on UseAllocator.
+    GrSurfaceProxy(sk_sp<GrSurface>,
+                   GrSurfaceOrigin,
+                   const GrSwizzle& textureSwizzle,
+                   SkBackingFit,
+                   UseAllocator);
 
     friend class GrSurfaceProxyPriv;
 
@@ -352,7 +368,7 @@ protected:
     // the GPU surface that backs it. e.g., SkBackingFit::kApprox.) Otherwise, the proxy's size will
     // be set to match the underlying GPU surface upon instantiation.
     void setLazySize(int width, int height) {
-        SkASSERT(GrSurfaceProxy::LazyState::kFully == this->lazyInstantiationState());
+        SkASSERT(this->isFullyLazy());
         SkASSERT(width > 0 && height > 0);
         fWidth = width;
         fHeight = height;
@@ -388,16 +404,12 @@ private:
     mutable SkBudgeted     fBudgeted; // always kYes for lazy-callback resources
                                       // set from the backing resource for wrapped resources
                                       // mutable bc of SkSurface/SkImage wishy-washiness
+                                      // Only meaningful if fLazyInstantiateCallback is non-null.
+    UseAllocator           fUseAllocator;
 
     const UniqueID         fUniqueID; // set from the backing resource for wrapped resources
 
     LazyInstantiateCallback fLazyInstantiateCallback;
-    // If this is set to kSingleuse, then after one call to fLazyInstantiateCallback we will cleanup
-    // the lazy callback and then delete it. This will allow for any refs and resources being held
-    // by the standard function to be released. This is specifically useful in non-dll cases where
-    // we make lazy proxies and instantiate them immediately.
-    // Note: This is ignored if fLazyInstantiateCallback is null.
-    LazyInstantiationType  fLazyInstantiationType;
 
     SkDEBUGCODE(void validateSurface(const GrSurface*);)
     SkDEBUGCODE(virtual void onValidateSurface(const GrSurface*) = 0;)
@@ -423,7 +435,7 @@ private:
     // the GrRenderTask used to create the current contents of this surface
     // and the GrRenderTask of a destination surface to which this one is being drawn or copied.
     // This pointer is unreffed. GrRenderTasks own a ref on their surface proxies.
-    GrRenderTask*          fLastRenderTask;
+    GrRenderTask*          fLastRenderTask = nullptr;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrSurfaceProxy::ResolveFlags)
