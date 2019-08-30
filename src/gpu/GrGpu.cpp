@@ -546,10 +546,11 @@ void GrGpu::resetTextureBindings() {
     this->onResetTextureBindings();
 }
 
-void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
+void GrGpu::resolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) {
     SkASSERT(target);
+    SkASSERT(target->getResolveRect().contains(resolveRect));  // blah
     this->handleDirtyContext();
-    this->onResolveRenderTarget(target);
+    this->onResolveRenderTarget(target, resolveRect);
 }
 
 void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
