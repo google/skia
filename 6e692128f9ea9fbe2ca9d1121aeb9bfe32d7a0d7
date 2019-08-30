@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6eb56396_49061744",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 1471,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-30T14:44:15Z",
+      "side": 1,
+      "message": "I had it that way originally but it turned out to be cyclical header dependency mess.\n\nWe pass GrTextureResolveManager by value so need to include the header in GrDrawingManager, but GrDrawingManager needs the enum and would then require GrTextureResolveManager.h.\n\nAlso I\u0027ve been wondering if we can just slap these flags on GrSurface to track the target\u0027s dirty state for assertion purposes.",
+      "parentUuid": "78e44176_07923aa9",
+      "range": {
+        "startLine": 1471,
+        "startChar": 11,
+        "endLine": 1471,
+        "endChar": 32
+      },
+      "revId": "6e692128f9ea9fbe2ca9d1121aeb9bfe32d7a0d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cbbdaa0c_2f8ac58d",
         "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
         "patchSetId": 14
@@ -36,6 +60,24 @@
       "writtenOn": "2019-08-30T14:08:49Z",
       "side": 1,
       "message": "I\u0027m curious how we get here with kMSAA or kMipMaps flag set but without needing resolving or mip map gen\u0027ing.",
+      "revId": "6e692128f9ea9fbe2ca9d1121aeb9bfe32d7a0d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec46c97a_a904ba41",
+        "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-30T14:44:15Z",
+      "side": 1,
+      "message": "One example would be if somebody made an opList full of ops that don\u0027t actually issue any draws.\n\nThe proxy will think the target is dirty, but since the ops didn\u0027t actually do anything the gpu won\u0027t mark the target dirty.\n\nAnother example would be an unexpected error or driver bug causing flushGLState to fail, which makes the gpu abort instead of drawing and marking the target dirty.\n\nSee https://skia-review.googlesource.com/c/skia/+/238166\n\nSoon enough this state won\u0027t be on the target at all anymore.",
+      "parentUuid": "cbbdaa0c_2f8ac58d",
       "revId": "6e692128f9ea9fbe2ca9d1121aeb9bfe32d7a0d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
