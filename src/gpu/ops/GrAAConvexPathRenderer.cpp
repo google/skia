@@ -219,19 +219,21 @@ static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) 
     }
 }
 
-static inline bool get_direction(const SkPath& path, const SkMatrix& m,
-                                 SkPathPriv::FirstDirection* dir) {
-    if (!SkPathPriv::CheapComputeFirstDirection(path, dir)) {
-        return false;
-    }
+static inline SkPathPriv::FirstDirection get_direction(const SkPath& path, const SkMatrix& m) {
+    // At this point, we've already returned true from canDraw(), which checked that the path's
+    // direction could be determined, so this should just be fetching the cached direction.
+    SkPathPriv::FirstDirection dir;
+    SkAssertResult(SkPathPriv::CheapComputeFirstDirection(path, &dir));
+
     // check whether m reverses the orientation
     SkASSERT(!m.hasPerspective());
     SkScalar det2x2 = m.get(SkMatrix::kMScaleX) * m.get(SkMatrix::kMScaleY) -
                       m.get(SkMatrix::kMSkewX)  * m.get(SkMatrix::kMSkewY);
     if (det2x2 < 0) {
-        *dir = SkPathPriv::OppositeFirstDirection(*dir);
+        dir = SkPathPriv::OppositeFirstDirection(dir);
     }
-    return true;
+
+    return dir;
 }
 
 static inline void add_line_to_segment(const SkPoint& pt,
@@ -281,11 +283,7 @@ static bool get_segments(const SkPath& path,
     // line paths. We detect paths that are very close to a line (zero area) and
     // draw nothing.
     DegenerateTestData degenerateData;
-    SkPathPriv::FirstDirection dir;
-    // get_direction can fail for some degenerate paths.
-    if (!get_direction(path, m, &dir)) {
-        return false;
-    }
+    SkPathPriv::FirstDirection dir = get_direction(path, m);
 
     for (;;) {
         SkPoint pts[4];
@@ -661,9 +659,12 @@ sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
 
 GrPathRenderer::CanDrawPath
 GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // This check requires convexity and known direction, since the direction is used to build
+    // the geometry segments. Degenerate convex paths will fall through to some other path renderer.
     if (args.fCaps->shaderCaps()->shaderDerivativeSupport() &&
         (GrAAType::kCoverage == args.fAAType) && args.fShape->style().isSimpleFill() &&
-        !args.fShape->inverseFilled() && args.fShape->knownToBeConvex()) {
+        !args.fShape->inverseFilled() && args.fShape->knownToBeConvex() &&
+        args.fShape->knownDirection()) {
         return CanDrawPath::kYes;
     }
     return CanDrawPath::kNo;
