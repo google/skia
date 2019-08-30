@@ -478,7 +478,20 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         fFormatArgs.push_back(childName + ".c_str()");
         return;
     }
-    INHERITED::writeFunctionCall(c);
+    if (c.fFunction.fBuiltin) {
+        INHERITED::writeFunctionCall(c);
+    } else {
+        this->write("%s");
+        fFormatArgs.push_back((String(c.fFunction.fName) + "_name.c_str()").c_str());
+        this->write("(");
+        const char* separator = "";
+        for (const auto& arg : c.fArguments) {
+            this->write(separator);
+            separator = ", ";
+            this->writeExpression(*arg, kSequence_Precedence);
+        }
+        this->write(")");
+    }
     if (c.fFunction.fBuiltin && c.fFunction.fName == "sample") {
         this->write(".%s");
         SkASSERT(c.fArguments.size() >= 1);
@@ -489,12 +502,37 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
 }
 
+static const char* glsltype_string(const Context& context, const Type& type) {
+    if (type == *context.fFloat_Type) {
+        return "kFloat_GrSLType";
+    } else if (type == *context.fHalf_Type) {
+        return "kHalf_GrSLType";
+    } else if (type == *context.fFloat2_Type) {
+        return "kFloat2_GrSLType";
+    } else if (type == *context.fHalf2_Type) {
+        return "kHalf2_GrSLType";
+    } else if (type == *context.fFloat4_Type) {
+        return "kFloat4_GrSLType";
+    } else if (type == *context.fHalf4_Type) {
+        return "kHalf4_GrSLType";
+    } else if (type == *context.fFloat4x4_Type) {
+        return "kFloat4x4_GrSLType";
+    } else if (type == *context.fHalf4x4_Type) {
+        return "kHalf4x4_GrSLType";
+    } else if (type == *context.fVoid_Type) {
+        return "kVoid_GrSLType";
+    }
+    SkASSERT(false);
+    return nullptr;
+}
+
 void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
-    if (f.fDeclaration.fName == "main") {
-        fFunctionHeader = "";
-        OutputStream* oldOut = fOut;
-        StringStream buffer;
-        fOut = &buffer;
+    const FunctionDeclaration& decl = f.fDeclaration;
+    fFunctionHeader = "";
+    OutputStream* oldOut = fOut;
+    StringStream buffer;
+    fOut = &buffer;
+    if (decl.fName == "main") {
         fInMain = true;
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
@@ -506,7 +544,30 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->write(fFunctionHeader);
         this->write(buffer.str());
     } else {
-        INHERITED::writeFunction(f);
+        this->addExtraEmitCodeLine("SkString " + decl.fName + "_name;");
+        String args = "const GrShaderVar " + decl.fName + "_args[] = { ";
+        const char* separator = "";
+        for (const auto& param : decl.fParameters) {
+            args += String(separator) + "GrShaderVar(\"" + param->fName + "\", " +
+                    glsltype_string(fContext, param->fType) + ")";
+            separator = ", ";
+        }
+        args += "};";
+        this->addExtraEmitCodeLine(args.c_str());
+        for (const auto& s : ((Block&) *f.fBody).fStatements) {
+            this->writeStatement(*s);
+            this->writeLine();
+        }
+
+        fOut = oldOut;
+        String emit = "fragBuilder->emitFunction(";
+        emit += glsltype_string(fContext, decl.fReturnType);
+        emit += ", \"" + decl.fName + "\"";
+        emit += ", " + to_string((int64_t) decl.fParameters.size());
+        emit += ", " + decl.fName + "_args";
+        emit += ", \"" + buffer.str() + "\"";
+        emit += ", &" + decl.fName + "_name);";
+        this->addExtraEmitCodeLine(emit.c_str());
     }
 }
 
@@ -551,30 +612,10 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     if (!needs_uniform_var(var)) {
         return;
     }
-    const char* type;
-    if (var.fType == *fContext.fFloat_Type) {
-        type = "kFloat_GrSLType";
-    } else if (var.fType == *fContext.fHalf_Type) {
-        type = "kHalf_GrSLType";
-    } else if (var.fType == *fContext.fFloat2_Type) {
-        type = "kFloat2_GrSLType";
-    } else if (var.fType == *fContext.fHalf2_Type) {
-        type = "kHalf2_GrSLType";
-    } else if (var.fType == *fContext.fFloat4_Type) {
-        type = "kFloat4_GrSLType";
-    } else if (var.fType == *fContext.fHalf4_Type) {
-        type = "kHalf4_GrSLType";
-    } else if (var.fType == *fContext.fFloat4x4_Type) {
-        type = "kFloat4x4_GrSLType";
-    } else if (var.fType == *fContext.fHalf4x4_Type) {
-        type = "kHalf4x4_GrSLType";
-    } else {
-        ABORT("unsupported uniform type: %s %s;\n", String(var.fType.fName).c_str(),
-              String(var.fName).c_str());
-    }
     if (var.fModifiers.fLayout.fWhen.fLength) {
         this->writef("        if (%s) {\n    ", String(var.fModifiers.fLayout.fWhen).c_str());
     }
+    const char* type = glsltype_string(fContext, var.fType);
     String name(var.fName);
     this->writef("        %sVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, %s, "
                  "\"%s\");\n", HCodeGenerator::FieldName(name.c_str()).c_str(), type,
