@@ -20,18 +20,24 @@ class SkFontMgr;
 namespace skottie {
 namespace internal {
 
-class TextAdapter final : public SkNVRefCnt<TextAdapter> {
+class TextAdapter final : public DiscardableAdaptorBase {
 public:
-    TextAdapter(sk_sp<sksg::Group> root, sk_sp<SkFontMgr>, sk_sp<Logger>, bool hasAnimators);
-    ~TextAdapter();
+    static sk_sp<TextAdapter> Make(const skjson::ObjectValue&, const AnimationBuilder*,
+                                   sk_sp<SkFontMgr>, sk_sp<Logger>);
 
-    ADAPTER_PROPERTY(Text, TextValue, TextValue())
+    ~TextAdapter() override;
 
-    const sk_sp<sksg::Group>& root() const { return fRoot; }
+    const sk_sp<sksg::Group>& renderNode() const { return fRoot; }
 
-    void applyAnimators(const std::vector<sk_sp<TextAnimator>>&);
+    const TextValue& getText() const { return fText; }
+    void setText(const TextValue& t) { fText = t; }
+
+protected:
+    void onSync() override;
 
 private:
+    TextAdapter(sk_sp<SkFontMgr>, sk_sp<Logger>, std::vector<sk_sp<TextAnimator>>&&);
+
     struct FragmentRec {
         SkPoint                       fOrigin; // fragment position
 
@@ -43,21 +49,21 @@ private:
     void addFragment(const Shaper::Fragment&);
     void buildDomainMaps(const Shaper::Result&);
 
-    void apply();
-
     void pushPropsToFragment(const TextAnimator::AnimatedProps&, const FragmentRec&) const;
 
     void adjustLineTracking(const TextAnimator::ModulatorBuffer&,
                             const TextAnimator::DomainSpan&,
                             float line_tracking) const;
 
-    const sk_sp<sksg::Group> fRoot;
-    const sk_sp<SkFontMgr>   fFontMgr;
-    sk_sp<Logger>            fLogger;
-    const bool               fHasAnimators;
+    const sk_sp<sksg::Group>               fRoot;
+    const sk_sp<SkFontMgr>                 fFontMgr;
+    const std::vector<sk_sp<TextAnimator>> fAnimators;
+    sk_sp<Logger>                          fLogger;
 
     std::vector<FragmentRec> fFragments;
     TextAnimator::DomainMaps fMaps;
+
+    TextValue                fText;
 };
 
 } // namespace internal

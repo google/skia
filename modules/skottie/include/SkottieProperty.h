@@ -43,8 +43,8 @@ struct TextPropertyValue {
     SkRect             fBox         = SkRect::MakeEmpty();
     SkColor            fFillColor   = SK_ColorTRANSPARENT,
                        fStrokeColor = SK_ColorTRANSPARENT;
-    bool               fHasFill   : 1,
-                       fHasStroke : 1;
+    bool               fHasFill     = false,
+                       fHasStroke   = false;
 
     bool operator==(const TextPropertyValue& other) const;
     bool operator!=(const TextPropertyValue& other) const;
