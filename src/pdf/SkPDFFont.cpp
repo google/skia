@@ -231,7 +231,11 @@ SkPDFFont::SkPDFFont(sk_sp<SkTypeface> typeface,
     : fTypeface(std::move(typeface))
     , fGlyphUsage(firstGlyphID, lastGlyphID)
     , fIndirectReference(indirectReference)
-    , fFontType(fontType) {}
+    , fFontType(fontType)
+{
+    // Always include glyph 0
+    this->noteGlyphUsage(0);
+}
 
 void SkPDFFont::PopulateCommonFontDescriptor(SkPDFDict* descriptor,
                                              const SkAdvancedTypefaceMetrics& metrics,
@@ -290,7 +294,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
 
     auto descriptor = SkPDFMakeDict("FontDescriptor");
     uint16_t emSize = SkToU16(font.typeface()->getUnitsPerEm());
-    SkPDFFont::PopulateCommonFontDescriptor(descriptor.get(), metrics, emSize , 0);
+    SkPDFFont::PopulateCommonFontDescriptor(descriptor.get(), metrics, emSize, 0);
 
     int ttcIndex;
     std::unique_ptr<SkStreamAsset> fontAsset = face->openStream(&ttcIndex);
@@ -369,7 +373,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     SkScalar defaultWidth = 0;
     {
         std::unique_ptr<SkPDFArray> widths = SkPDFMakeCIDGlyphWidthsArray(
-                *face, &font.glyphUsage(), &defaultWidth);
+                *face, font.glyphUsage(), &defaultWidth);
         if (widths && widths->size() > 0) {
             newCIDFont->insertObject("W", std::move(widths));
         }
