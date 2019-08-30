@@ -573,7 +573,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsSDFTWithAllARGBF
         SkFont font;
         font.setSubpixel(true);
         font.setSize(96);
-        font.setHinting(SkFontHinting::kNormal);
+        font.setHinting(SkFontHinting::kYes);
         font.setTypeface(typeface);
 
         REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(font, SkPaint(), SkMatrix::I()));

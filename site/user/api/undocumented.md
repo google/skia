@@ -279,7 +279,7 @@ void <a href='#SkDrawable_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>S
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkFontHinting::kNormal'><code>SkFontHinting::kNormal</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkFontHinting::kYes'><code>SkFontHinting::kYes</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 </td>

@@ -64,7 +64,7 @@ a specific pair of characters is adjusted using <a href='undocumented#Data'>data
 <a name='Linear'></a>
 
 <a href='#Font_Linear'>Font_Linear</a> selects whether <a href='undocumented#Text'>text</a> is rendered as a <a href='undocumented#Glyph'>Glyph</a> or as a <a href='SkPath_Reference#Path'>Path</a>.
-If <a href='#Font_Linear'>Font_Linear</a> is set, it has the same effect as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>.
+If <a href='#Font_Linear'>Font_Linear</a> is set, it has the same effect as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a>.
 If <a href='#Font_Linear'>Font_Linear</a> is clear, it is the same as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>.
 
 <a name='Subpixel'></a>
@@ -87,7 +87,7 @@ positions, requiring more memory.
 
 <a name='Force_Hinting'></a>
 
-If Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Font_Force_Hinting'>Force_Hinting</a>
+If Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Font_Force_Hinting'>Force_Hinting</a>
 instructs the <a href='#Font_Manager'>Font_Manager</a> to always hint <a href='undocumented#Glyph'>Glyphs</a>.
 <a href='#Font_Force_Hinting'>Force_Hinting</a> has no effect if Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>.
@@ -647,7 +647,7 @@ Does not check for valid values of <a href='#SkFont_setHinting_hintingLevel'>hin
   </tr>
 </table>
 
-<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
+<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
 
 ### Example
 
@@ -669,7 +669,7 @@ Returns level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
 
 ### Return Value
 
-one of: <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>,
+one of: <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a>,
 
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
 

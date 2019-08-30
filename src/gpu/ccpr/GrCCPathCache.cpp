@@ -232,7 +232,6 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
                 auto ct = GrCCAtlas::CoverageTypeToColorType(entry->fCachedAtlas->coverageType());
                 if (sk_sp<GrTextureProxy> onFlushProxy = onFlushRP->findOrCreateProxyByUniqueKey(
                             entry->fCachedAtlas->textureKey(), ct, GrCCAtlas::kTextureOrigin)) {
-                    onFlushProxy->priv().setIgnoredByResourceAllocator();
                     entry->fCachedAtlas->setOnFlushProxy(std::move(onFlushProxy));
                 }
             }

@@ -205,7 +205,7 @@ Constructs <a href='SkPaint_Reference#Paint'>Paint</a> with default values.
 | <a href='#Font_Force_Hinting'>Font_Force_Hinting</a> | false |
 | <a href='#Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> | false |
 | <a href='#Font_Embolden'>Font_Embolden</a> | false |
-| <a href='#Font_Hinting'>Font_Hinting</a> | <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> |
+| <a href='#Font_Hinting'>Font_Hinting</a> | <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a> |
 | <a href='#Font_Hinting_Spacing'>Font_Hinting_Spacing</a> | false |
 | <a href='#Font_Anti_Alias'>Font_Anti_Alias</a> | false |
 | <a href='#Font_Linear'>Font_Linear</a> | false |
@@ -569,7 +569,7 @@ Does not check for valid values of <a href='#SkPaint_setHinting_hintingLevel'>hi
   </tr>
 </table>
 
-<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
+<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
 
 ### Example
 
@@ -595,7 +595,7 @@ Returns level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
 
 ### Return Value
 
-one of: <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>,
+one of: <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a>,
 
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
 
@@ -606,7 +606,7 @@ one of: <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFont
 #### Example Output
 
 ~~~~
-SkFontHinting::kNormal == paint.getHinting()
+SkFontHinting::kYes == paint.getHinting()
 ~~~~
 
 </fiddle-embed></div>
@@ -961,7 +961,7 @@ When <a href='#Font_Subpixel'>Font_Subpixel</a> is enabled, the comma <a href='u
 <a name='Linear_Text'></a>
 
 <a href='#Font_Linear'>Font_Linear</a> selects whether <a href='undocumented#Text'>text</a> is rendered as a <a href='undocumented#Glyph'>Glyph</a> or as a <a href='SkPath_Reference#Path'>Path</a>.
-If <a href='#Font_Linear'>Font_Linear</a> is set, it has the same effect as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>.
+If <a href='#Font_Linear'>Font_Linear</a> is set, it has the same effect as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a>.
 If <a href='#Font_Linear'>Font_Linear</a> is clear, it is the same as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>.
 
 <a name='SkPaint_isLinearText'></a>
@@ -1259,7 +1259,7 @@ paint1 == paint2
 
 <a name='Automatic_Hinting'></a>
 
-If Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Font_Force_Hinting'>Font_Force_Hinting</a>
+If Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Font_Force_Hinting'>Font_Force_Hinting</a>
 instructs the <a href='#Font_Manager'>Font_Manager</a> to always hint <a href='undocumented#Glyph'>Glyphs</a>.
 <a href='#Font_Force_Hinting'>Font_Force_Hinting</a> has no effect if Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>.
@@ -1274,7 +1274,7 @@ instructs the <a href='#Font_Manager'>Font_Manager</a> to always hint <a href='u
 bool <a href='#SkPaint_isAutohinted'>isAutohinted</a>()const
 </pre>
 
-Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or
+Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a> or
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, and if platform uses FreeType as the <a href='SkFont_Reference#Font'>font</a> manager.
 If true, instructs the <a href='SkFont_Reference#Font'>font</a> manager to always hint <a href='undocumented#Glyph'>glyphs</a>.
 
@@ -1310,7 +1310,7 @@ void <a href='#SkPaint_setAutohinted'>setAutohinted</a>(bool useAutohinter)
 </pre>
 
 Sets whether to always hint <a href='undocumented#Glyph'>glyphs</a>.
-If <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
+If <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kYes</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
 and <a href='#SkPaint_setAutohinted_useAutohinter'>useAutohinter</a> is set, instructs the  <a href='undocumented#Font_Manager'>font manager</a> to always hint <a href='undocumented#Glyph'>glyphs</a>.
 <a href='#SkPaint_setAutohinted_useAutohinter'>useAutohinter</a> has no effect if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>.
