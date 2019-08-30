@@ -22,6 +22,30 @@
       "revId": "7ad13684e5f04dfd9cbfbeb9943088077ea8f9a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e353a6f6_4e3735bb",
+        "filename": "src/gpu/ops/GrAAConvexPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-30T14:07:47Z",
+      "side": 1,
+      "message": "Good point, if it doesn\u0027t need to return the bool anymore, it should just return the FirstDirection.",
+      "parentUuid": "22b49c84_643e83f3",
+      "range": {
+        "startLine": 222,
+        "startChar": 14,
+        "endLine": 222,
+        "endChar": 18
+      },
+      "revId": "7ad13684e5f04dfd9cbfbeb9943088077ea8f9a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

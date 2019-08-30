@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b67cdd1a_d693f0b4",
+        "filename": "src/gpu/ccpr/GrOctoBounds.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-08-30T14:07:47Z",
+      "side": 1,
+      "message": "While the new GM was intended to show the dropped draw from the aa convex path renderer, debug builds that used CCPR instead would assert here on the bounds calculated from the funky geometry in the new GM. The differences seemed pretty minor and the best I could figure was due to FMA floating point differences, so I just tweaked the epsilon here (5e-3f wasn\u0027t quite big enough to avoid a crash when moving in viewer, but 3e-3f would let \u0027dm\u0027 draw without crashing). \n\n@Chris can you think of any unintended consequences, or is this still an acceptable epsilon for CCPRs purposes?",
+      "range": {
+        "startLine": 130,
+        "startChar": 37,
+        "endLine": 130,
+        "endChar": 42
+      },
+      "revId": "336d92a6cc6fd520888fdda92c04760f53ecadb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
