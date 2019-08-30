@@ -526,14 +526,13 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     int numPlotsY = fTextureHeight/fPlotHeight;
 
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        fProxies[i] = proxyProvider->createProxy(fFormat, desc, GrRenderable::kNo, 1,
-                                                 kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
-                                                 SkBudgeted::kYes, GrProtected::kNo);
+        fProxies[i] = proxyProvider->createProxy(
+                fFormat, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo,
+                GrInternalSurfaceFlags::kNone, GrSurfaceProxy::UseAllocator::kNo);
         if (!fProxies[i]) {
             return false;
         }
-
-        fProxies[i]->priv().setIgnoredByResourceAllocator();
 
         // set up allocated plots
         fPages[i].fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);

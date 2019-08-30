@@ -61,6 +61,8 @@ public:
  */
 class GrOnFlushResourceProvider {
 public:
+    using UseAllocator = GrSurfaceProxy::UseAllocator;
+
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
 
     std::unique_ptr<GrRenderTargetContext> makeRenderTargetContext(
@@ -73,8 +75,10 @@ public:
     void removeUniqueKeyFromProxy(GrTextureProxy*);
     void processInvalidUniqueKey(const GrUniqueKey&);
     // GrColorType is necessary to set the proxy's texture swizzle.
-    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrColorType,
-                                                       GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&,
+                                                       GrColorType,
+                                                       GrSurfaceOrigin,
+                                                       UseAllocator);
 
     bool instatiateProxy(GrSurfaceProxy*);
 

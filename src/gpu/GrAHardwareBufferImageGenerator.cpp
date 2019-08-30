@@ -150,9 +150,9 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
     };
 
     sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
-            [direct, buffer = AutoAHBRelease(hardwareBuffer), width, height,
-             isProtectedContent, backendFormat, grColorType](GrResourceProvider* resourceProvider)
-                    -> GrSurfaceProxy::LazyInstantiationResult {
+            [direct, buffer = AutoAHBRelease(hardwareBuffer), width, height, isProtectedContent,
+             backendFormat, grColorType](
+                    GrResourceProvider* resourceProvider) -> GrSurfaceProxy::LazyCallbackResult {
                 GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
                 GrAHardwareBufferUtils::UpdateImageProc updateImageProc = nullptr;
                 GrAHardwareBufferUtils::TexImageCtx texImageCtx = nullptr;
