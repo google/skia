@@ -46,6 +46,8 @@ struct TextPropertyValue {
     bool               fHasFill   : 1,
                        fHasStroke : 1;
 
+    TextPropertyValue() : fHasFill(false), fHasStroke(false) {}
+
     bool operator==(const TextPropertyValue& other) const;
     bool operator!=(const TextPropertyValue& other) const;
 };

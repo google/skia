@@ -160,6 +160,11 @@ public:
         const char*             fPrevContext;
     };
 
+    bool dispatchColorProperty(const sk_sp<sksg::Color>&) const;
+    bool dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&) const;
+    bool dispatchTextProperty(const sk_sp<TextAdapter>&) const;
+    bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;
+
 private:
     struct AttachLayerContext;
     struct AttachShapeContext;
@@ -193,11 +198,6 @@ private:
     sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, LayerInfo*) const;
-
-    bool dispatchColorProperty(const sk_sp<sksg::Color>&) const;
-    bool dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&) const;
-    bool dispatchTextProperty(const sk_sp<TextAdapter>&) const;
-    bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;
 
     // Delay resolving the fontmgr until it is actually needed.
     struct LazyResolveFontMgr {
