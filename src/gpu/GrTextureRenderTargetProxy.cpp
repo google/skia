@@ -32,21 +32,21 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        GrProtected isProtected,
-                                                       GrInternalSurfaceFlags surfaceFlags)
+                                                       GrInternalSurfaceFlags surfaceFlags,
+                                                       UseAllocator useAllocator)
         : GrSurfaceProxy(format, desc, GrRenderable::kYes, origin, texSwizzle, fit, budgeted,
-                         isProtected, surfaceFlags)
+                         isProtected, surfaceFlags, useAllocator)
         // for now textures w/ data are always wrapped
         , GrRenderTargetProxy(caps, format, desc, sampleCnt, origin, texSwizzle, outSwizzle, fit,
-                              budgeted, isProtected, surfaceFlags)
+                              budgeted, isProtected, surfaceFlags, useAllocator)
         , GrTextureProxy(format, desc, origin, mipMapped, mipMapsStatus, texSwizzle, fit, budgeted,
-                         isProtected, surfaceFlags) {
+                         isProtected, surfaceFlags, useAllocator) {
     this->initSurfaceFlags(caps);
 }
 
 // Lazy-callback version
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        LazyInstantiateCallback&& callback,
-                                                       LazyInstantiationType lazyType,
                                                        const GrBackendFormat& format,
                                                        const GrSurfaceDesc& desc,
                                                        int sampleCnt,
@@ -58,16 +58,17 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        GrProtected isProtected,
-                                                       GrInternalSurfaceFlags surfaceFlags)
-        : GrSurfaceProxy(std::move(callback), lazyType, format, desc, GrRenderable::kYes, origin,
-                         texSwizzle, fit, budgeted, isProtected, surfaceFlags)
+                                                       GrInternalSurfaceFlags surfaceFlags,
+                                                       UseAllocator useAllocator)
+        : GrSurfaceProxy(std::move(callback), format, desc, GrRenderable::kYes, origin,
+                         texSwizzle, fit, budgeted, isProtected, surfaceFlags, useAllocator)
         // Since we have virtual inheritance, we initialize GrSurfaceProxy directly. Send null
         // callbacks to the texture and RT proxies simply to route to the appropriate constructors.
-        , GrRenderTargetProxy(LazyInstantiateCallback(), lazyType, format, desc, sampleCnt, origin,
+        , GrRenderTargetProxy(LazyInstantiateCallback(), format, desc, sampleCnt, origin,
                               texSwizzle, outSwizzle, fit, budgeted, isProtected, surfaceFlags,
-                              WrapsVkSecondaryCB::kNo)
-        , GrTextureProxy(LazyInstantiateCallback(), lazyType, format, desc, origin, mipMapped,
-                         mipMapsStatus, texSwizzle, fit, budgeted, isProtected, surfaceFlags) {
+                              WrapsVkSecondaryCB::kNo, useAllocator)
+        , GrTextureProxy(LazyInstantiateCallback(), format, desc, origin, mipMapped,
+                         mipMapsStatus, texSwizzle, fit, budgeted, isProtected, surfaceFlags, useAllocator) {
     this->initSurfaceFlags(caps);
 }
 
@@ -118,7 +119,7 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 }
 
 bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
-    if (LazyState::kNot != this->lazyInstantiationState()) {
+    if (this->isLazy()) {
         return false;
     }
 
