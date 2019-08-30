@@ -55,7 +55,6 @@ private:
     String fName;
     String fFullName;
     SectionAndParameterHelper fSectionAndParameterHelper;
-    String fExtraEmitCodeCode;
     std::set<int> fWrittenTransformedCoords;
     std::vector<Compiler::FormatArg>* fFormatArgs;
     const FunctionDeclaration* fCurrentFunction;
