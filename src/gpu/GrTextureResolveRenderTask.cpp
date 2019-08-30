@@ -10,10 +10,25 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrTexturePriv.h"
 
 void GrTextureResolveRenderTask::init(const GrCaps& caps) {
+    if (GrSurfaceProxy::ResolveFlags::kMSAA & fResolveFlags) {
+        GrRenderTargetProxy* renderTargetProxy = fTarget->asRenderTargetProxy();
+        SkASSERT(renderTargetProxy);
+        SkASSERT(renderTargetProxy->isMSAADirty());
+        renderTargetProxy->markMSAAResolved();
+    }
+
+    if (GrSurfaceProxy::ResolveFlags::kMipMaps & fResolveFlags) {
+        GrTextureProxy* textureProxy = fTarget->asTextureProxy();
+        SkASSERT(GrMipMapped::kYes == textureProxy->mipMapped());
+        SkASSERT(textureProxy->mipMapsAreDirty());
+        textureProxy->markMipMapsClean();
+    }
+
     // Add the target as a dependency: We will read the existing contents of this texture while
     // generating mipmap levels and/or resolving MSAA.
     //
@@ -23,13 +38,6 @@ void GrTextureResolveRenderTask::init(const GrCaps& caps) {
 
     // We only resolve the texture; nobody should try to do anything else with this opsTask.
     this->makeClosed(caps);
-
-    if (GrTextureResolveFlags::kMipMaps & fResolveFlags) {
-        GrTextureProxy* textureProxy = fTarget->asTextureProxy();
-        SkASSERT(GrMipMapped::kYes == textureProxy->mipMapped());
-        SkASSERT(textureProxy->mipMapsAreDirty());
-        textureProxy->markMipMapsClean();
-    }
 }
 
 void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
@@ -42,12 +50,21 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
 }
 
 bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
-    GrTexture* texture = fTarget->peekTexture();
-    SkASSERT(texture);
+    // Resolve msaa before regenerating mipmaps.
+    if (GrSurfaceProxy::ResolveFlags::kMSAA & fResolveFlags) {
+        GrRenderTarget* renderTarget = fTarget->peekRenderTarget();
+        SkASSERT(renderTarget);
+        if (renderTarget->needsResolve()) {
+            flushState->gpu()->resolveRenderTarget(renderTarget);
+        }
+    }
 
-    if ((GrTextureResolveFlags::kMipMaps & fResolveFlags) &&
-        texture->texturePriv().mipMapsAreDirty()) {
-        flushState->gpu()->regenerateMipMapLevels(texture);
+    if (GrSurfaceProxy::ResolveFlags::kMipMaps & fResolveFlags) {
+        GrTexture* texture = fTarget->peekTexture();
+        SkASSERT(texture);
+        if (texture->texturePriv().mipMapsAreDirty()) {
+            flushState->gpu()->regenerateMipMapLevels(texture);
+        }
     }
 
     return true;

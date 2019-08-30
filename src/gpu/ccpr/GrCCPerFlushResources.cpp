@@ -588,6 +588,10 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
                         atlas->getStrokeBatchID(), atlas->drawBounds());
             }
             rtc->addDrawOp(GrNoClip(), std::move(op));
+            if (rtc->proxy()->requiresManualMSAAResolve()) {
+                onFlushRP->addTextureResolveTask(sk_ref_sp(rtc->proxy()->asTextureProxy()),
+                                                 GrSurfaceProxy::ResolveFlags::kMSAA);
+            }
         }
 
         SkASSERT(atlas->getEndStencilResolveInstance() >= baseStencilResolveInstance);
